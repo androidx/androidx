@@ -194,6 +194,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.Text.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
     method public androidx.wear.protolayout.material.Text.Builder setMultilineAlignment(int);
     method public androidx.wear.protolayout.material.Text.Builder setOverflow(int);
+    method public androidx.wear.protolayout.material.Text.Builder setScalable(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setTypography(int);
     method public androidx.wear.protolayout.material.Text.Builder setUnderline(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setWeight(int);

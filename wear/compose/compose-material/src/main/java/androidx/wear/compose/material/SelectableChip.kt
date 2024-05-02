@@ -67,6 +67,10 @@ import androidx.compose.ui.unit.dp
  * Example of a [SelectableChip] with an icon, label and secondary label (defaults to radio button):
  * @sample androidx.wear.compose.material.samples.SelectableChipWithRadioButton
  *
+ * For more information, see the
+ * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
+ * guide.
+ *
  * @param selected Boolean flag indicating whether this button is currently selected.
  * @param onClick Callback to be invoked when this button is selected.
  * @param label A slot for providing the chip's main label. The contents are expected to be text
@@ -169,8 +173,8 @@ public fun SelectableChip(
  * end.
  *
  * A [SplitSelectableChip] has two tappable areas, one tap area for the labels and another for the
- * selection control. The [onBodyClick] listener will be associated with the main body of the
- * [SplitSelectableChip] with the [onClick] listener associated with the
+ * selection control. The [onContainerClick] callback will be associated with the main body of the
+ * [SplitSelectableChip] with the [onSelectionClick] callback associated with the
  * selection control area only.
  *
  * For a [SplitSelectableChip] the background of the tappable background area behind the
@@ -190,12 +194,16 @@ public fun SelectableChip(
  * Example of a [SplitSelectableChip] with a label and the radio button selection control:
  * @sample androidx.wear.compose.material.samples.SplitSelectableChipWithRadioButton
  *
+ * For more information, see the
+ * [Toggle Chips](https://developer.android.com/training/wearables/components/toggle-chips)
+ * guide.
+ *
  * @param selected Boolean flag indicating whether this button is currently selected.
- * @param onClick Callback to be invoked when this button is selected.
+ * @param onSelectionClick Callback to be invoked when this button is selected.
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
- * @param onBodyClick Click listener called when the user clicks the main body of the chip, the area
- * behind the labels.
+ * @param onContainerClick Callback to be invoked when the user clicks the main body of the chip,
+ * the area containing the labels.
  * @param modifier Modifier to be applied to the chip
  * @param secondaryLabel A slot for providing the chip's secondary label. The contents are expected
  * to be "start" or "center" aligned. label and secondaryLabel contents should be consistently
@@ -209,8 +217,8 @@ public fun SelectableChip(
  * emitting [Interaction]s for this chip's "selectable" tap area. You can use this to change the
  * chip's appearance or preview the chip in different states. Note that if `null` is provided,
  * interactions will still happen internally.
- * @param clickInteractionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip's "clickable" tap area. You can use this to change the
+ * @param containerInteractionSource an optional hoisted [MutableInteractionSource] for observing
+ * and emitting [Interaction]s for this chip's "clickable" tap area. You can use this to change the
  * chip's appearance or preview the chip in different states. Note that if `null` is provided,
  * interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
@@ -224,15 +232,15 @@ public fun SelectableChip(
 @Composable
 public fun SplitSelectableChip(
     selected: Boolean,
-    onClick: (Boolean) -> Unit,
+    onSelectionClick: (Boolean) -> Unit,
     label: @Composable RowScope.() -> Unit,
-    onBodyClick: () -> Unit,
+    onContainerClick: () -> Unit,
     modifier: Modifier = Modifier,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     colors: SplitSelectableChipColors = SelectableChipDefaults.splitSelectableChipColors(),
     enabled: Boolean = true,
     selectionInteractionSource: MutableInteractionSource? = null,
-    clickInteractionSource: MutableInteractionSource? = null,
+    containerInteractionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = SelectableChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
     selectionControl: @Composable BoxScope.() -> Unit = {
@@ -240,13 +248,13 @@ public fun SplitSelectableChip(
     },
 ) = androidx.wear.compose.materialcore.SplitToggleButton(
     checked = selected,
-    onCheckedChange = onClick,
+    onCheckedChange = onSelectionClick,
     label = provideScopeContent(
         contentColor = colors.contentColor(enabled = enabled),
         textStyle = MaterialTheme.typography.button,
         content = label
     ),
-    onClick = onBodyClick,
+    onClick = onContainerClick,
     toggleControl = null,
     selectionControl = provideScopeContent(
         contentColor = colors.selectionControlColor(enabled = enabled, selected = selected),
@@ -269,7 +277,7 @@ public fun SplitSelectableChip(
     },
     enabled = enabled,
     checkedInteractionSource = selectionInteractionSource,
-    clickInteractionSource = clickInteractionSource,
+    clickInteractionSource = containerInteractionSource,
     contentPadding = contentPadding,
     shape = shape,
     labelSpacerSize = 0.dp,

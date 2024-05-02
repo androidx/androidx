@@ -38,6 +38,12 @@ message Clickable {
   // clickable height is not guaranteed unless there is enough space around the
   // element within its parent bounds.
   DpProp minimum_clickable_height = 4;
+
+  oneof optional_visual_feedback_enabled {
+    // Whether the click visual feedback (such as a ripple) should be enabled.
+    // Defaults to true.
+    bool visual_feedback_enabled = 5;
+  }
 }
 
 // The type of user interface element. Accessibility services might use this to
@@ -46,7 +52,7 @@ enum SemanticsRole {
   // Role is undefined. It may be automatically populated.
   SEMANTICS_ROLE_NONE = 0;
 
-  // The element is an Image.
+  // The element is an image.
   SEMANTICS_ROLE_IMAGE = 1;
 
   // The element is a Button control.
@@ -89,6 +95,8 @@ message Semantics {
   // The localized state description of the semantics node.
   // For example: "on" or "off". This will be dictated when the element is
   // focused by the screen reader.
+  //
+  // This field is bindable and will use the dynamic value (if set).
   StringProp state_description = 3;
 }
 
@@ -159,29 +167,39 @@ message ElementMetadata {
   bytes tag_data = 1;
 }
 
-// A modifier to apply transformations to the element. All of these transformations can be animated
-// by setting dynamic values. This modifier is not layout affecting.
+// A modifier to apply transformations to the element. All of these
+// transformations can be animated by setting dynamic values.
+// This modifier is not layout affecting.
 message Transformation {
-  // The horizontal offset of this element relative to the location where the element's layout
-  // placed it. If not set, defaults to zero.
+  // The horizontal offset of this element relative to the location where the
+  // element's layout placed it.
   DpProp translation_x = 1;
-  // The vertical offset of this element in addition to the location where the element's layout
-  // placed it. If not set, defaults to zero.
+
+  // The vertical offset of this element in addition to the location where the
+  // element's layout placed it.
   DpProp translation_y = 2;
-  // The scale of this element in the x direction around the pivot point, as a proportion of the
-  // element's unscaled width. If not set, defaults to one.
+
+  // The scale of this element in the x direction around the pivot point, as a
+  // proportion of the element's unscaled width .
   FloatProp scale_x = 3;
-  // The scale of this element in the y direction around the pivot point, as a proportion of the
-  // element's unscaled height. If not set, defaults to one.
+
+  // The scale of this element in the y direction around the pivot point, as a
+  // proportion of the element's unscaled height.
   FloatProp scale_y = 4;
-  // The clockwise Degrees that the element is rotated around the pivot point. If not set, defaults
-  // to zero.
+
+  // The clockwise degrees that the element is rotated around the pivot point.
   DegreesProp rotation = 5;
-  // The x offset of the point around which the element is rotated
-  // and scaled. Dynamic value is supported. If not set, defaults to the element center.
+
+  // The horizontal location of the point around which the element is rotated
+  // and scaled. With type DpProp, it is the offset from the element center;
+  // otherwise with type BoundingBoxRatio, it is the location proportional to
+  // the bounding box width.
   PivotDimension pivot_x = 6;
-  // The y offset of the point around which the element is rotated
-  // and scaled. Dynamic value is supported. If not set, defaults to the element center.
+
+  // The vertical location of the point around which the element is rotated and
+  // scaled. With type DpProp, it is the offset from the element center;
+  // otherwise with type BoundingBoxRatio, it is the location proportional to
+  // the bounding box height.
   PivotDimension pivot_y = 7;
 }
 
@@ -216,7 +234,14 @@ message Modifiers {
   // underneath it.
   AnimatedVisibility content_update_animation = 7;
 
-
+  // Whether the attached element is hidden, or visible. If the element is
+  // hidden, then it will still consume space in the layout, but will not render
+  // any contents, nor will any children render any contents.
+  //
+  // Note that a hidden element also cannot be clickable (i.e. a Clickable
+  // modifier would be ignored).
+  //
+  // Defaults to false (i.e. not hidden).
   // This field is deprecated and is only kept for backward compatibility.
   BoolProp hidden = 8;
 
@@ -225,7 +250,8 @@ message Modifiers {
 
   // Whether the attached element is visible, or hidden. If the element is
   // hidden, then it will still consume space in the layout, but will not render
-  // any contents, nor will any children render any contents. Defaults to visible.
+  // any contents, nor will any children render any contents. Defaults to
+  // visible.
   //
   // Note that a hidden element also cannot be clickable (i.e. a Clickable
   // modifier would be ignored).
@@ -236,7 +262,7 @@ message Modifiers {
 
   // The opacity of the element with a value from 0 to 1, where 0 means
   // the element is completely transparent and 1 means the element is
-  // completely opaque. Dynamic value is supported.
+  // completely opaque. Defaults to 1.
   FloatProp opacity = 12;
 }
 
@@ -401,7 +427,9 @@ message ArcModifiers {
   // descriptions.
   Semantics semantics = 2;
 
-  // The opacity of the element
+  // The opacity of the element with a value from 0 to 1, where 0 means
+  // the element is completely transparent and 1 means the element is
+  // completely opaque. Defaults to 1.
   FloatProp opacity = 4;
 
   reserved 3;
@@ -419,8 +447,7 @@ message SpanModifiers {
 // element.
 message Shadow {
   // The blur radius of the shadow. It controls the size of the blur that is
-  // drawn.
-  // When set to zero, the shadow is not drawn. Defaults to zero.
+  // drawn. When set to zero, the shadow is not drawn. Defaults to zero.
   DpProp blur_radius = 1;
 
   // The color used in the shadow. Defaults to Black.

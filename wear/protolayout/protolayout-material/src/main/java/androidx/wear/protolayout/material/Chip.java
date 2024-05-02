@@ -368,7 +368,7 @@ public class Chip implements LayoutElement {
             }
         }
 
-        @SuppressWarnings("deprecation") // ELLIPSIZE_END as existing API
+        @SuppressWarnings("deprecation") // TEXT_OVERFLOW_ELLIPSIZE_END as existing API
         private void setCorrectContent() {
             if (mImageResourceId != null) {
                 Image icon =
@@ -395,7 +395,7 @@ public class Chip implements LayoutElement {
                             .setMaxLines(getCorrectMaxLines())
                             .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                             .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
-                            .setIsScalable(mIsScalable)
+                            .setScalable(mIsScalable)
                             .build();
 
             mCoreBuilder.setPrimaryLabelContent(mainTextElement);

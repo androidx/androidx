@@ -23,13 +23,12 @@ import androidx.navigation.NavType
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
-
-private interface InternalCommonType
+import kotlinx.serialization.serializer
 
 /**
- * Marker for Native Kotlin Primitives and Collections
+ * Marker for Native Kotlin types with either full or partial built-in NavType support
  */
-private enum class Native : InternalCommonType {
+private enum class InternalType {
     INT,
     BOOL,
     FLOAT,
@@ -40,162 +39,83 @@ private enum class Native : InternalCommonType {
     FLOAT_ARRAY,
     LONG_ARRAY,
     ARRAY,
-    ARRAY_LIST,
-    SET,
-    HASHSET,
-    MAP,
-    HASH_MAP,
+    LIST,
     UNKNOWN
 }
 
 /**
- * Marker for custom classes, objects, enums, and other Native Kotlin types that are not
- * included in [Native]
- */
-private data class Custom(val className: String) : InternalCommonType
-
-/**
- * Converts an argument type to a native NavType.
+ * Converts an argument type to a built-in NavType.
  *
- * Native NavTypes includes NavType objects declared within [NavType.Companion], or types that are
- * either java Serializable, Parcelable, or Enum.
+ * Built-in NavTypes include NavType objects declared within [NavType.Companion], such as
+ * [NavType.IntType], [NavType.BoolArrayType] etc.
  *
- * Returns [UNKNOWN] type if the argument does not belong to any of the above.
+ * Returns [UNKNOWN] type if the argument does not have built-in NavType support.
  */
-@Suppress("UNCHECKED_CAST")
-internal fun SerialDescriptor.getNavType(): NavType<Any?> {
+internal fun SerialDescriptor.getNavType(): NavType<*> {
     val type = when (this.toInternalType()) {
-        Native.INT -> NavType.IntType
-        Native.BOOL -> NavType.BoolType
-        Native.FLOAT -> NavType.FloatType
-        Native.LONG -> NavType.LongType
-        Native.STRING -> NavType.StringType
-        Native.INT_ARRAY -> NavType.IntArrayType
-        Native.BOOL_ARRAY -> NavType.BoolArrayType
-        Native.FLOAT_ARRAY -> NavType.FloatArrayType
-        Native.LONG_ARRAY -> NavType.LongArrayType
-        Native.ARRAY -> {
+        InternalType.INT -> NavType.IntType
+        InternalType.BOOL -> NavType.BoolType
+        InternalType.FLOAT -> NavType.FloatType
+        InternalType.LONG -> NavType.LongType
+        InternalType.STRING -> NavType.StringType
+        InternalType.INT_ARRAY -> NavType.IntArrayType
+        InternalType.BOOL_ARRAY -> NavType.BoolArrayType
+        InternalType.FLOAT_ARRAY -> NavType.FloatArrayType
+        InternalType.LONG_ARRAY -> NavType.LongArrayType
+        InternalType.ARRAY -> {
             val typeParameter = getElementDescriptor(0).toInternalType()
-            if (typeParameter == Native.STRING) NavType.StringArrayType else UNKNOWN
+            if (typeParameter == InternalType.STRING) NavType.StringArrayType else UNKNOWN
+        }
+        InternalType.LIST -> {
+            val typeParameter = getElementDescriptor(0).toInternalType()
+            when (typeParameter) {
+                InternalType.INT -> NavType.IntListType
+                InternalType.BOOL -> NavType.BoolListType
+                InternalType.FLOAT -> NavType.FloatListType
+                InternalType.LONG -> NavType.LongListType
+                InternalType.STRING -> NavType.StringListType
+                else -> UNKNOWN
+            }
         }
         else -> UNKNOWN
     }
-    return type as NavType<Any?>
-}
-
-/**
- * Convert KType to an [InternalCommonType].
- *
- * Conversion is based on KType name. The KType could be any of the native Kotlin types that
- * are supported in [Native], or it could be a custom KType (custom class, object or enum).
- */
-private fun KType.toInternalType(): InternalCommonType {
-    // first we need to parse KType name to the right format
-    // extract base class without type parameters
-    val typeParamRegex = Regex(pattern = "^[^<]*", options = setOf(RegexOption.IGNORE_CASE))
-    val trimmedTypeParam = typeParamRegex.find(this.toString())
-    // remove the warning that was appended to KType name due to missing kotlin reflect library
-    val trimEndingRegex = Regex("(\\S+)")
-    val trimmedEnding = trimEndingRegex.find(trimmedTypeParam!!.value)
-    val finalName = trimmedEnding?.value
-        // we assert the nullability directly with isNullable properties so its more reliable
-        ?.replace("?", "")
-        // we also replace the delimiter `$` with `.` for child classes to match the format of
-        // serial names
-        ?.replace("$", ".")
-
-    return when (finalName) {
-        null -> Native.UNKNOWN
-        "int" -> Native.INT
-        "java.lang.Integer" -> Native.INT
-        "boolean" -> Native.BOOL
-        "java.lang.Boolean" -> Native.BOOL
-        "float" -> Native.FLOAT
-        "java.lang.Float" -> Native.FLOAT
-        "long" -> Native.LONG
-        "java.lang.Long" -> Native.LONG
-        "java.lang.String" -> Native.STRING
-        "kotlin.IntArray" -> Native.INT_ARRAY
-        "kotlin.BooleanArray" -> Native.BOOL_ARRAY
-        "kotlin.FloatArray" -> Native.FLOAT_ARRAY
-        "kotlin.LongArray" -> Native.LONG_ARRAY
-        "kotlin.Array" -> Native.ARRAY
-        "java.util.ArrayList" -> Native.ARRAY_LIST
-        // KType List mapped to ArrayList because serialized name does not differentiate them
-        "java.util.List" -> Native.ARRAY_LIST
-        "java.util.Set" -> Native.SET
-        "java.util.HashSet" -> Native.HASHSET
-        "java.util.Map" -> Native.MAP
-        "java.util.HashMap" -> Native.HASH_MAP
-        else -> Custom(finalName)
-    }
+    return type
 }
 
 /**
  * Convert SerialDescriptor to an InternalCommonType.
  *
- * The descriptor's associated argument could be any of the native Kotlin types that
- * are supported in [Native], or it could be a custom type (custom class, object or enum).
+ * The descriptor's associated argument could be any of the native Kotlin types supported
+ * in [InternalType], or it could be an unsupported type (custom class, object or enum).
  */
-private fun SerialDescriptor.toInternalType(): InternalCommonType {
+private fun SerialDescriptor.toInternalType(): InternalType {
     val serialName = serialName.replace("?", "")
     return when {
-        serialName == "kotlin.Int" -> Native.INT
-        serialName == "kotlin.Boolean" -> Native.BOOL
-        serialName == "kotlin.Float" -> Native.FLOAT
-        serialName == "kotlin.Long" -> Native.LONG
-        serialName == "kotlin.String" -> Native.STRING
-        serialName == "kotlin.IntArray" -> Native.INT_ARRAY
-        serialName == "kotlin.BooleanArray" -> Native.BOOL_ARRAY
-        serialName == "kotlin.FloatArray" -> Native.FLOAT_ARRAY
-        serialName == "kotlin.LongArray" -> Native.LONG_ARRAY
-        serialName == "kotlin.Array" -> Native.ARRAY
+        serialName == "kotlin.Int" -> InternalType.INT
+        serialName == "kotlin.Boolean" -> InternalType.BOOL
+        serialName == "kotlin.Float" -> InternalType.FLOAT
+        serialName == "kotlin.Long" -> InternalType.LONG
+        serialName == "kotlin.String" -> InternalType.STRING
+        serialName == "kotlin.IntArray" -> InternalType.INT_ARRAY
+        serialName == "kotlin.BooleanArray" -> InternalType.BOOL_ARRAY
+        serialName == "kotlin.FloatArray" -> InternalType.FLOAT_ARRAY
+        serialName == "kotlin.LongArray" -> InternalType.LONG_ARRAY
+        serialName == "kotlin.Array" -> InternalType.ARRAY
         // serial name for both List and ArrayList
-        serialName.startsWith("kotlin.collections.ArrayList") -> Native.ARRAY_LIST
-        serialName.startsWith("kotlin.collections.LinkedHashSet") -> Native.SET
-        serialName.startsWith("kotlin.collections.HashSet") -> Native.HASHSET
-        serialName.startsWith("kotlin.collections.LinkedHashMap") -> Native.MAP
-        serialName.startsWith("kotlin.collections.HashMap") -> Native.HASH_MAP
-        else -> Custom(serialName)
+        serialName.startsWith("kotlin.collections.ArrayList") -> InternalType.LIST
+        // custom classes or other types without built-in NavTypes
+        else -> InternalType.UNKNOWN
     }
 }
 
 /**
- * Returns true if a serialized argument type matches the given KType.
+ * Match the [SerialDescriptor] of a type to a KType
  *
- * Matching starts by matching the base class of the type and then matching type parameters
- * in their declared order. Nested TypeParameters are matched recursively in the same manner.
- *
- * Limitation: For custom Types, TypeParameters are erased in serialization by default.
- * The type is preserved only if there is a class field of type T, and even then we cannot know
- * that this type is in fact the TypeParameter. Therefore, matching custom types with
- * type parameters only works under two conditions:
- *
- * 1. A class field of that type must be declared for each generic type
- * 2. These class fields must be declared in primary constructor in same order
- *
- * For example, this declaration will work:
- * `class TestClass<T: Any, K: Any>(val arg: T, val arg2: K)`
- * and these variations will not work:
- * `class TestClass<T: Any, K: Any>(val arg: K, val arg2: T)`
- * `class TestClass<T: Any, K: Any>(val other: Int, val arg: K, val arg2: T)`
- *
- * If TypeParameters of custom classes cannot be matched, the custom class will be matched to
- * a KType purely based on the class's fully qualified name and will not be able to differentiate
- * between different TypeParameters. This can lead to indeterminate matching behavior.
+ * Returns true match, false otherwise.
  */
 internal fun SerialDescriptor.matchKType(kType: KType): Boolean {
     if (this.isNullable != kType.isMarkedNullable) return false
-    if (this.toInternalType() != kType.toInternalType()) return false
-    var index = 0
-    // recursive match nested TypeParameters
-    while (index < elementsCount && index < kType.arguments.size) {
-        val descriptor = getElementDescriptor(index)
-        val childKType = kType.arguments.getOrNull(index)?.type ?: return false
-        val result = descriptor.matchKType(childKType)
-        if (!result) return false
-        index++
-    }
+    if (this.hashCode() != serializer(kType).descriptor.hashCode()) return false
     return true
 }
 

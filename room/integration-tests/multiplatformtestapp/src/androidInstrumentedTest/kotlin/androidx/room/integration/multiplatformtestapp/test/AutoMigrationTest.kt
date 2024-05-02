@@ -17,18 +17,14 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
-import androidx.kruth.assertThrows
 import androidx.room.Room
-import androidx.room.migration.Migration
+import androidx.room.RoomDatabase
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 
 class AutoMigrationTest : BaseAutoMigrationTest() {
@@ -41,35 +37,17 @@ class AutoMigrationTest : BaseAutoMigrationTest() {
         instrumentation = instrumentation,
         driver = driver,
         databaseClass = AutoMigrationDatabase::class,
-        fileName = file.path
+        file = file,
+        autoMigrationSpecs = listOf(ProvidedSpecFrom2To3())
     )
 
     override fun getTestHelper() = migrationTestHelper
 
-    override fun getRoomDatabase(): AutoMigrationDatabase {
+    override fun getDatabaseBuilder(): RoomDatabase.Builder<AutoMigrationDatabase> {
         return Room.databaseBuilder<AutoMigrationDatabase>(
             context = instrumentation.targetContext,
             name = file.path
-        ).setDriver(driver).build()
-    }
-
-    @Test
-    fun migrationWithWrongOverride() = runTest {
-        // Create database in V1
-        val connection = migrationTestHelper.createDatabase(1)
-        connection.close()
-
-        // Auto migrate to V2
-        val v2Db = Room.databaseBuilder<AutoMigrationDatabase>(
-            context = instrumentation.targetContext,
-            name = file.path
-        ).setDriver(driver).addMigrations(object : Migration(1, 2) {
-            override fun migrate(db: SupportSQLiteDatabase) {} }
-        ).build()
-        assertThrows<NotImplementedError> {
-            v2Db.dao().insert(AutoMigrationEntity(1, 1))
-        }
-        v2Db.close()
+        ).setDriver(driver)
     }
 
     @BeforeTest

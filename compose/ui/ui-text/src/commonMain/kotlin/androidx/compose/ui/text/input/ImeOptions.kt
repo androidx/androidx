@@ -43,7 +43,7 @@ import androidx.compose.ui.text.intl.LocaleList
  * @param hintLocales List of the languages that the user is supposed to switch to no matter what
  * input method subtype is currently used. This special "hint" can be used mainly for, but not
  * limited to, multilingual users who want IMEs to switch language based on editor's context.
- * Pass null to express the intention that a specific hint should not be set.
+ * Pass [LocaleList.Empty] to express the intention that a specific hint should not be set.
  */
 @Immutable
 class ImeOptions(

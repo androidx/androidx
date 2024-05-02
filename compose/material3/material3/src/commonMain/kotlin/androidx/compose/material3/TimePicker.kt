@@ -51,8 +51,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.format
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.internal.toLocalString
-import androidx.compose.material3.internal.touchExplorationState
+import androidx.compose.material3.internal.rememberAccessibilityServiceState
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.material3.tokens.TimeInputTokens
 import androidx.compose.material3.tokens.TimeInputTokens.PeriodSelectorContainerHeight
@@ -213,21 +212,23 @@ fun TimePicker(
     colors: TimePickerColors = TimePickerDefaults.colors(),
     layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),
 ) {
-    val touchExplorationServicesEnabled by touchExplorationState()
+    val a11yServicesEnabled by rememberAccessibilityServiceState(
+        listenToSwitchAccessState = false,
+    )
 
     if (layoutType == TimePickerLayoutType.Vertical) {
         VerticalTimePicker(
             state = state,
             modifier = modifier,
             colors = colors,
-            autoSwitchToMinute = !touchExplorationServicesEnabled
+            autoSwitchToMinute = !a11yServicesEnabled
         )
     } else {
         HorizontalTimePicker(
             state = state,
             modifier = modifier,
             colors = colors,
-            autoSwitchToMinute = !touchExplorationServicesEnabled
+            autoSwitchToMinute = !a11yServicesEnabled
         )
     }
 }

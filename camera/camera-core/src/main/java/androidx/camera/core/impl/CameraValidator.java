@@ -22,8 +22,10 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalLensFacing;
 import androidx.camera.core.Logger;
 
 /**
@@ -31,11 +33,15 @@ import androidx.camera.core.Logger;
  * b/167201193.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@OptIn(markerClass = ExperimentalLensFacing.class)
 public final class CameraValidator {
     private CameraValidator() {
     }
 
     private static final String TAG = "CameraValidator";
+    private static final CameraSelector EXTERNAL_LENS_FACING =
+            new CameraSelector.Builder().requireLensFacing(
+                    CameraSelector.LENS_FACING_EXTERNAL).build();
 
     /**
      * Verifies the initialized camera instance in the CameraRepository
@@ -103,6 +109,13 @@ public final class CameraValidator {
         } catch (IllegalArgumentException e) {
             Logger.w(TAG, "Camera LENS_FACING_FRONT verification failed", e);
             exception = e;
+        }
+        try {
+            // Verifies the EXTERNAL camera.
+            EXTERNAL_LENS_FACING.select(cameraRepository.getCameras());
+            Logger.d(TAG, "Found a LENS_FACING_EXTERNAL camera");
+            availableCameraCount++;
+        } catch (IllegalArgumentException e) {
         }
 
         if (exception != null) {

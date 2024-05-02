@@ -429,7 +429,7 @@ private class ConsumedInsetsModifier(
             return false
         }
 
-        return other.block == block
+        return other.block === block
     }
 
     override fun hashCode(): Int = block.hashCode()

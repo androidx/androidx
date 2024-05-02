@@ -4167,7 +4167,7 @@ private class MockOwner(
     }
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ): OwnedLayer {
@@ -4188,7 +4188,7 @@ private class MockOwner(
             }
 
             override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
-                drawBlock(canvas)
+                drawBlock(canvas, parentLayer)
             }
 
             override fun updateDisplayList() {
@@ -4204,7 +4204,7 @@ private class MockOwner(
             }
 
             override fun reuseLayer(
-                drawBlock: (Canvas) -> Unit,
+                drawBlock: (Canvas, GraphicsLayer?) -> Unit,
                 invalidateParentLayer: () -> Unit
             ) {
             }

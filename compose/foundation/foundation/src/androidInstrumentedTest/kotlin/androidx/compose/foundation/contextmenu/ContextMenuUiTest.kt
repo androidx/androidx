@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -720,24 +719,23 @@ class ContextMenuUiTest {
     fun whenContextMenuPopup_enabledDisabled_colorsAreAsExpected() {
         var enabled by mutableStateOf(true)
         rule.setContent {
-            CompositionLocalProvider(LocalContextMenuColors provides TestColors) {
-                ContextMenuPopup(
-                    modifier = Modifier.testTag(tag),
-                    popupPositionProvider = centeringPopupPositionProvider,
-                    onDismiss = {},
-                ) {
-                    testItem(
-                        label = "M".repeat(10),
-                        enabled = enabled,
-                        leadingIcon = { iconColor ->
-                            Box(
-                                Modifier
-                                    .background(iconColor)
-                                    .fillMaxSize()
-                            )
-                        },
-                    )
-                }
+            ContextMenuPopup(
+                modifier = Modifier.testTag(tag),
+                popupPositionProvider = centeringPopupPositionProvider,
+                colors = TestColors,
+                onDismiss = {},
+            ) {
+                testItem(
+                    label = "M".repeat(10),
+                    enabled = enabled,
+                    leadingIcon = { iconColor ->
+                        Box(
+                            Modifier
+                                .background(iconColor)
+                                .fillMaxSize()
+                        )
+                    },
+                )
             }
         }
 
@@ -760,4 +758,46 @@ class ContextMenuUiTest {
         }
     }
     // endregion ContextMenuPopup Tests
+
+    // region computeContextMenuColors Tests
+    private val testStyleId = androidx.compose.foundation.test.R.style.TestContextMenuStyle
+    private val emptyStyleId = androidx.compose.foundation.test.R.style.TestContextMenuEmptyStyle
+
+    @Test
+    fun computeContextMenuColors_resolvesStylesAsExpected() {
+        lateinit var actualColors: ContextMenuColors
+        rule.setContent {
+            actualColors = computeContextMenuColors(
+                backgroundStyleId = testStyleId,
+                foregroundStyleId = testStyleId,
+            )
+        }
+
+        assertThatColor(actualColors.backgroundColor).isFuzzyEqualTo(Color.Red)
+        assertThatColor(actualColors.textColor).isFuzzyEqualTo(Color.Blue)
+        assertThatColor(actualColors.iconColor).isFuzzyEqualTo(Color.Blue)
+        assertThatColor(actualColors.disabledTextColor).isFuzzyEqualTo(Color.Green)
+        assertThatColor(actualColors.disabledIconColor).isFuzzyEqualTo(Color.Green)
+    }
+
+    @Test
+    fun computeContextMenuColors_defaultsAsExpected() {
+        lateinit var actualColors: ContextMenuColors
+        rule.setContent {
+            actualColors = computeContextMenuColors(
+                backgroundStyleId = emptyStyleId,
+                foregroundStyleId = emptyStyleId,
+            )
+        }
+
+        assertThatColor(actualColors.backgroundColor)
+            .isFuzzyEqualTo(DefaultContextMenuColors.backgroundColor)
+        assertThatColor(actualColors.textColor).isFuzzyEqualTo(DefaultContextMenuColors.textColor)
+        assertThatColor(actualColors.iconColor).isFuzzyEqualTo(DefaultContextMenuColors.textColor)
+        assertThatColor(actualColors.disabledTextColor)
+            .isFuzzyEqualTo(DefaultContextMenuColors.disabledTextColor)
+        assertThatColor(actualColors.disabledIconColor)
+            .isFuzzyEqualTo(DefaultContextMenuColors.disabledTextColor)
+    }
+    // endregion computeContextMenuColors Tests
 }

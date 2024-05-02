@@ -924,18 +924,14 @@ actual abstract class RoomDatabase {
         private var queryCallback: QueryCallback? = null
         private var queryCallbackExecutor: Executor? = null
         private val typeConverters: MutableList<Any> = mutableListOf()
-        private var autoMigrationSpecs: MutableList<AutoMigrationSpec> = mutableListOf()
-
         private var queryExecutor: Executor? = null
-
         private var transactionExecutor: Executor? = null
+
         private var supportOpenHelperFactory: SupportSQLiteOpenHelper.Factory? = null
         private var allowMainThreadQueries = false
         private var journalMode: JournalMode = JournalMode.AUTOMATIC
         private var multiInstanceInvalidationIntent: Intent? = null
-        private var requireMigration: Boolean = true
-        private var allowDestructiveMigrationOnDowngrade = false
-        private var allowDestructiveMigrationForAllTables = false
+
         private var autoCloseTimeout = -1L
         private var autoCloseTimeUnit: TimeUnit? = null
 
@@ -943,6 +939,11 @@ actual abstract class RoomDatabase {
          * Migrations, mapped by from-to pairs.
          */
         private val migrationContainer: MigrationContainer = MigrationContainer()
+
+        /**
+         * Versions that don't require migrations, configured via
+         * [fallbackToDestructiveMigrationFrom].
+         */
         private var migrationsNotRequiredFrom: MutableSet<Int> = mutableSetOf()
 
         /**
@@ -950,7 +951,14 @@ actual abstract class RoomDatabase {
          * [addMigrations] for later validation that makes those versions don't
          * match any versions passed to [fallbackToDestructiveMigrationFrom].
          */
-        private var migrationStartAndEndVersions: MutableSet<Int>? = null
+        private val migrationStartAndEndVersions = mutableSetOf<Int>()
+
+        private val autoMigrationSpecs: MutableList<AutoMigrationSpec> = mutableListOf()
+
+        private var requireMigration: Boolean = true
+        private var allowDestructiveMigrationOnDowngrade = false
+        private var allowDestructiveMigrationForAllTables = false
+
         private var copyFromAssetPath: String? = null
         private var copyFromFile: File? = null
         private var copyFromInputStream: Callable<InputStream>? = null
@@ -1149,42 +1157,35 @@ actual abstract class RoomDatabase {
         /**
          * Adds a migration to the builder.
          *
-         * Each Migration has a start and end versions and Room runs these migrations to bring the
+         * Each [Migration] has a start and end versions and Room runs these migrations to bring the
          * database to the latest version.
          *
-         * If a migration item is missing between current version and the latest version, Room
-         * will clear the database and recreate so even if you have no changes between 2 versions,
-         * you should still provide a Migration object to the builder.
-         *
          * A migration can handle more than 1 version (e.g. if you have a faster path to choose when
-         * going version 3 to 5 without going to version 4). If Room opens a database at version
-         * 3 and latest version is &gt;= 5, Room will use the migration object that can migrate from
-         * 3 to 5 instead of 3 to 4 and 4 to 5.
+         * going from version 3 to 5 without going to version 4). If Room opens a database at
+         * version 3 and latest version is >= 5, Room will use the migration object that can migrate
+         * from 3 to 5 instead of 3 to 4 and 4 to 5.
          *
-         * @param migrations The migration object that can modify the database and to the necessary
-         * changes.
+         * @param migrations The migration objects that modify the database schema with the
+         * necessary changes for a version change.
          * @return This builder instance.
          */
-        open fun addMigrations(vararg migrations: Migration) = apply {
-            if (migrationStartAndEndVersions == null) {
-                migrationStartAndEndVersions = HashSet()
-            }
+        actual open fun addMigrations(vararg migrations: Migration) = apply {
             for (migration in migrations) {
-                migrationStartAndEndVersions!!.add(migration.startVersion)
-                migrationStartAndEndVersions!!.add(migration.endVersion)
+                migrationStartAndEndVersions.add(migration.startVersion)
+                migrationStartAndEndVersions.add(migration.endVersion)
             }
             migrationContainer.addMigrations(*migrations)
         }
 
         /**
-         * Adds an auto migration spec to the builder.
+         * Adds an auto migration spec instance to the builder.
          *
          * @param autoMigrationSpec The auto migration object that is annotated with
-         * [AutoMigrationSpec] and is declared in an [AutoMigration] annotation.
+         * [ProvidedAutoMigrationSpec] and is declared in an [AutoMigration] annotation.
          * @return This builder instance.
          */
         @Suppress("MissingGetterMatchingBuilder")
-        open fun addAutoMigrationSpec(autoMigrationSpec: AutoMigrationSpec) = apply {
+        actual open fun addAutoMigrationSpec(autoMigrationSpec: AutoMigrationSpec) = apply {
             this.autoMigrationSpecs.add(autoMigrationSpec)
         }
 
@@ -1207,18 +1208,16 @@ actual abstract class RoomDatabase {
         /**
          * Sets the journal mode for this database.
          *
-         * This value is ignored if the builder is initialized with
-         * [Room.inMemoryDatabaseBuilder].
-         *
-         * The journal mode should be consistent across multiple instances of
-         * [RoomDatabase] for a single SQLite database file.
+         * The value is ignored if the builder is for an 'in-memory database'. The journal mode
+         * should be consistent across multiple instances of [RoomDatabase] for a single SQLite
+         * database file.
          *
          * The default value is [JournalMode.AUTOMATIC].
          *
          * @param journalMode The journal mode.
          * @return This builder instance.
          */
-        open fun setJournalMode(journalMode: JournalMode) = apply {
+        actual open fun setJournalMode(journalMode: JournalMode) = apply {
             this.journalMode = journalMode
         }
 
@@ -1357,7 +1356,7 @@ actual abstract class RoomDatabase {
          * @return This builder instance.
          */
         @Deprecated(
-            message = "Replace by overloaded version with parameter to indicate if all tables" +
+            message = "Replace by overloaded version with parameter to indicate if all tables " +
                 "should be dropped or not.",
             replaceWith = ReplaceWith("fallbackToDestructiveMigration(false)")
         )
@@ -1372,13 +1371,10 @@ actual abstract class RoomDatabase {
          * migrate old database schemas to the latest schema version are not found.
          *
          * When the database version on the device does not match the latest schema version, Room
-         * runs necessary [Migration]s on the database.
-         *
-         * If it cannot find the set of [Migration]s that will bring the database to the
-         * current version, it will throw an [IllegalStateException].
-         *
-         * You can call this method to change this behavior to re-create the database tables instead
-         * of crashing.
+         * runs necessary [Migration]s on the database. If it cannot find the set of [Migration]s
+         * that will bring the database to the current version, it will throw an
+         * [IllegalStateException]. You can call this method to change this behavior to re-create
+         * the database tables instead of crashing.
          *
          * If the database was create from an asset or a file then Room will try to use the same
          * file to re-create the database, otherwise this will delete all of the data in the
@@ -1388,11 +1384,12 @@ actual abstract class RoomDatabase {
          * [fallbackToDestructiveMigrationOnDowngrade].
          *
          * @param dropAllTables Set to `true` if all tables should be dropped during destructive
-         * migration including those not managed by Room.
+         * migration including those not managed by Room. Recommended value is `true` as otherwise
+         * Room could leave obsolete data when table names or existence changes between versions.
          * @return This builder instance.
          */
         @Suppress("BuilderSetStyle") // Overload of existing API
-        fun fallbackToDestructiveMigration(dropAllTables: Boolean) = apply {
+        actual fun fallbackToDestructiveMigration(dropAllTables: Boolean) = apply {
             this.requireMigration = false
             this.allowDestructiveMigrationOnDowngrade = true
             this.allowDestructiveMigrationForAllTables = dropAllTables
@@ -1407,7 +1404,7 @@ actual abstract class RoomDatabase {
          * @return This builder instance.
          */
         @Deprecated(
-            message = "Replace by overloaded version with parameter to indicate if all tables" +
+            message = "Replace by overloaded version with parameter to indicate if all tables " +
                 "should be dropped or not.",
             replaceWith = ReplaceWith("fallbackToDestructiveMigrationOnDowngrade(false)")
         )
@@ -1428,7 +1425,7 @@ actual abstract class RoomDatabase {
          * @return This builder instance.
          */
         @Suppress("BuilderSetStyle") // Overload of existing API
-        fun fallbackToDestructiveMigrationOnDowngrade(dropAllTables: Boolean) = apply {
+        actual fun fallbackToDestructiveMigrationOnDowngrade(dropAllTables: Boolean) = apply {
             this.requireMigration = true
             this.allowDestructiveMigrationOnDowngrade = true
             this.allowDestructiveMigrationForAllTables = dropAllTables
@@ -1456,7 +1453,7 @@ actual abstract class RoomDatabase {
          * @return This builder instance.
          */
         @Deprecated(
-            message = "Replace by overloaded version with parameter to indicate if all tables" +
+            message = "Replace by overloaded version with parameter to indicate if all tables " +
                 "should be dropped or not.",
             replaceWith = ReplaceWith("fallbackToDestructiveMigrationFrom(false, startVersions)")
         )
@@ -1470,16 +1467,16 @@ actual abstract class RoomDatabase {
          * Informs Room that it is allowed to destructively recreate database tables from specific
          * starting schema versions.
          *
-         * This functionality is the same as that provided by
-         * [fallbackToDestructiveMigration], except that this method allows the
-         * specification of a set of schema versions for which destructive recreation is allowed.
+         * This functionality is the same [fallbackToDestructiveMigration], except that this method
+         * allows the specification of a set of schema versions for which destructive recreation is
+         * allowed.
          *
          * Using this method is preferable to [fallbackToDestructiveMigration] if you want
          * to allow destructive migrations from some schema versions while still taking advantage
          * of exceptions being thrown due to unintentionally missing migrations.
          *
          * Note: No versions passed to this method may also exist as either starting or ending
-         * versions in the [Migration]s provided to [addMigrations]. If a
+         * versions in the [Migration]s provided via [addMigrations]. If a
          * version passed to this method is found as a starting or ending version in a Migration, an
          * exception will be thrown.
          *
@@ -1489,8 +1486,12 @@ actual abstract class RoomDatabase {
          * migration.
          * @return This builder instance.
          */
-        @Suppress("BuilderSetStyle") // Overload of existing API
-        open fun fallbackToDestructiveMigrationFrom(
+        @Suppress(
+            "BuilderSetStyle", // Overload of existing API
+            "MissingJvmstatic", // No need for @JvmOverloads due to an overload already existing
+        )
+        actual open fun fallbackToDestructiveMigrationFrom(
+            @Suppress("KotlinDefaultParameterOrder") // There is a vararg that must be last
             dropAllTables: Boolean,
             vararg startVersions: Int
         ) = apply {
@@ -1533,13 +1534,13 @@ actual abstract class RoomDatabase {
         }
 
         /**
-         * Adds a type converter instance to this database.
+         * Adds a type converter instance to the builder.
          *
-         * @param typeConverter The converter. It must be an instance of a class annotated with
-         * [ProvidedTypeConverter] otherwise Room will throw an exception.
+         * @param typeConverter The converter instance that is annotated with
+         * [ProvidedTypeConverter].
          * @return This builder instance.
          */
-        open fun addTypeConverter(typeConverter: Any) = apply {
+        actual open fun addTypeConverter(typeConverter: Any) = apply {
             this.typeConverters.add(typeConverter)
         }
 
@@ -1647,17 +1648,8 @@ actual abstract class RoomDatabase {
             } else if (queryExecutor == null) {
                 queryExecutor = transactionExecutor
             }
-            if (migrationStartAndEndVersions != null) {
-                for (version in migrationStartAndEndVersions!!) {
-                    require(!migrationsNotRequiredFrom.contains(version)) {
-                        "Inconsistency detected. A Migration was supplied to " +
-                            "addMigration(Migration... migrations) that has a start " +
-                            "or end version equal to a start version supplied to " +
-                            "fallbackToDestructiveMigrationFrom(int... " +
-                            "startVersions). Start version: $version"
-                    }
-                }
-            }
+
+            validateMigrationsNotRequired(migrationStartAndEndVersions, migrationsNotRequiredFrom)
 
             val initialFactory: SupportSQLiteOpenHelper.Factory? =
                 if (driver == null && supportOpenHelperFactory == null) {
@@ -1733,28 +1725,28 @@ actual abstract class RoomDatabase {
                 }
             }
             val configuration = DatabaseConfiguration(
-                context,
-                name,
-                supportOpenHelperFactory,
-                migrationContainer,
-                callbacks,
-                allowMainThreadQueries,
-                journalMode.resolve(context),
-                requireNotNull(queryExecutor),
-                requireNotNull(transactionExecutor),
-                multiInstanceInvalidationIntent,
-                requireMigration,
-                allowDestructiveMigrationOnDowngrade,
-                migrationsNotRequiredFrom,
-                copyFromAssetPath,
-                copyFromFile,
-                copyFromInputStream,
-                prepackagedDatabaseCallback,
-                typeConverters,
-                autoMigrationSpecs,
-                allowDestructiveMigrationForAllTables,
-                driver,
-                queryCoroutineContext,
+                context = context,
+                name = name,
+                sqliteOpenHelperFactory = supportOpenHelperFactory,
+                migrationContainer = migrationContainer,
+                callbacks = callbacks,
+                allowMainThreadQueries = allowMainThreadQueries,
+                journalMode = journalMode.resolve(context),
+                queryExecutor = requireNotNull(queryExecutor),
+                transactionExecutor = requireNotNull(transactionExecutor),
+                multiInstanceInvalidationServiceIntent = multiInstanceInvalidationIntent,
+                requireMigration = requireMigration,
+                allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
+                migrationNotRequiredFrom = migrationsNotRequiredFrom,
+                copyFromAssetPath = copyFromAssetPath,
+                copyFromFile = copyFromFile,
+                copyFromInputStream = copyFromInputStream,
+                prepackagedDatabaseCallback = prepackagedDatabaseCallback,
+                typeConverters = typeConverters,
+                autoMigrationSpecs = autoMigrationSpecs,
+                allowDestructiveMigrationForAllTables = allowDestructiveMigrationForAllTables,
+                sqliteDriver = driver,
+                queryCoroutineContext = queryCoroutineContext,
             )
             val db = factory?.invoke() ?: findAndInstantiateDatabaseImpl(klass.java)
             db.init(configuration)
@@ -1977,7 +1969,7 @@ actual abstract class RoomDatabase {
  * The internal dispatcher used to execute the given [block] will block an utilize a thread from
  * Room's transaction executor until the [block] is complete.
  */
-public suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R =
+suspend fun <R> RoomDatabase.withTransaction(block: suspend () -> R): R =
     withTransactionContext {
         @Suppress("DEPRECATION")
         beginTransaction()
@@ -2082,9 +2074,7 @@ private fun RoomDatabase.createTransactionContext(
 
 /**
  * A [CoroutineContext.Element] that indicates there is an on-going database transaction.
- *
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal class TransactionElement(
     internal val transactionDispatcher: ContinuationInterceptor
 ) : CoroutineContext.Element {
@@ -2137,7 +2127,7 @@ internal class TransactionElement(
  * @param emitInitialState Set to `false` if no initial emission is desired. Default value is
  *                         `true`.
  */
-public fun RoomDatabase.invalidationTrackerFlow(
+fun RoomDatabase.invalidationTrackerFlow(
     vararg tables: String,
     emitInitialState: Boolean = true
 ): Flow<Set<String>> = callbackFlow {

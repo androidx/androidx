@@ -372,6 +372,56 @@ class ScrollCaptureTest {
     }
 
     @Test
+    fun callbackOnImageCapture_scrollsBackwardsThenForwards_reverseScrolling() =
+        captureTester.runTest {
+            expectingScrolls(rule) {
+                val size = 10
+                val captureHeight = size / 2
+                captureTester.setContent {
+                    TestVerticalScrollable(
+                        reverseScrolling = true,
+                        size = size,
+                        // Can't be a reference, see https://youtrack.jetbrains.com/issue/KT-49665
+                        onScrollByOffset = { respondToScrollExpectation(it) }
+                    )
+                }
+
+                val target = captureTester.findCaptureTargets().single()
+                captureTester.capture(target, captureHeight) {
+                    // First request is at origin, no scrolling required.
+                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 0, 10, 5))
+                    assertNoPendingScrollRequests()
+
+                    // Back one half-page, but only respond to part of it.
+                    expectScrollRequest(Offset(0f, 5f), consume = Offset(0f, 4f))
+                    shiftWindowBy(-5)
+                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, -4, 10, 0))
+
+                    // Forward one half-page – already in viewport, no scrolling required.
+                    shiftWindowBy(5)
+                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 0, 10, 5))
+                    assertNoPendingScrollRequests()
+
+                    // Forward another half-page. This time we need to scroll.
+                    expectScrollRequest(Offset(0f, -4f))
+                    shiftWindowBy(5)
+                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 5, 10, 10))
+
+                    // Forward another half-page, scroll again so now we're past the original
+                    // viewport.
+                    expectScrollRequest(Offset(0f, -5f))
+                    shiftWindowBy(5)
+                    assertThat(performCaptureDiscardingBitmap()).isEqualTo(Rect(0, 10, 10, 15))
+
+                    // When capture ends expect one last scroll request to reset to original offset.
+                    // Note that this request will be made _after_ this capture{} lambda returns.
+                    expectScrollRequest(Offset(0f, 5f))
+                }
+                assertNoPendingScrollRequests()
+            }
+        }
+
+    @Test
     fun captureSession_setsScrollCaptureInProgress_inSameComposition() = captureTester.runTest {
         var isScrollCaptureInProgressValue = false
         captureTester.setContent {
@@ -429,6 +479,7 @@ class ScrollCaptureTest {
         size: Int = 10,
         maxValue: Float = 1f,
         onScrollByOffset: suspend (Offset) -> Offset = { Offset.Zero },
+        reverseScrolling: Boolean = false,
         content: (@Composable () -> Unit)? = null
     ) {
         with(LocalDensity.current) {
@@ -437,6 +488,7 @@ class ScrollCaptureTest {
                 ScrollAxisRange(
                     value = { 0f },
                     maxValue = { updatedMaxValue },
+                    reverseScrolling = reverseScrolling,
                 )
             }
             Box(

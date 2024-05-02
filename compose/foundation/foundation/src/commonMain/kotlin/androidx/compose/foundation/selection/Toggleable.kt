@@ -210,7 +210,7 @@ private class ToggleableElement(
         if (indicationNodeFactory != other.indicationNodeFactory) return false
         if (enabled != other.enabled) return false
         if (role != other.role) return false
-        if (onValueChange != other.onValueChange) return false
+        if (onValueChange !== other.onValueChange) return false
 
         return true
     }
@@ -453,7 +453,7 @@ private class TriStateToggleableElement(
         if (indicationNodeFactory != other.indicationNodeFactory) return false
         if (enabled != other.enabled) return false
         if (role != other.role) return false
-        if (onClick != other.onClick) return false
+        if (onClick !== other.onClick) return false
 
         return true
     }

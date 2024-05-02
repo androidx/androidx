@@ -101,4 +101,5 @@ androidx {
     // Suppressing deprecation warnings, since there is a need to maintain compatibility with old
     // Sidecar interface.
     failOnDeprecationWarnings = false
+    samples(project(":window:window-samples"))
 }

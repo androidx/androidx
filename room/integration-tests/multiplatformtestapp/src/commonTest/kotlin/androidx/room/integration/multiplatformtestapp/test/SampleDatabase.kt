@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Insert
 import androidx.room.MapColumn
 import androidx.room.PrimaryKey
@@ -48,7 +49,13 @@ data class SampleEntity2(
     val data2: Long
 )
 
-@Entity
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = SampleEntity2::class,
+        parentColumns = ["pk2"],
+        childColumns = ["pk3"]
+    )]
+)
 data class SampleEntity3(
     @PrimaryKey
     val pk3: Long,
@@ -80,12 +87,21 @@ interface SampleDao {
     suspend fun getItemList(): List<SampleEntity>
 
     @Query("SELECT * FROM SampleEntity")
+    suspend fun getItemArray(): Array<SampleEntity>
+
+    @Query("SELECT * FROM SampleEntity")
     fun getItemListFlow(): Flow<List<SampleEntity>>
 
     @Transaction
     suspend fun deleteList(pks: List<Long>, withError: Boolean = false) {
         require(!withError)
         pks.forEach { deleteItem(it) }
+    }
+
+    @Transaction
+    suspend fun deleteArray(entities: Array<SampleEntity>, withError: Boolean = false) {
+        require(!withError)
+        entities.forEach { delete(it) }
     }
 
     @Query("SELECT * FROM SampleEntity")
@@ -123,6 +139,9 @@ interface SampleDao {
     suspend fun insert(entity: SampleEntity)
 
     @Insert
+    suspend fun insertArray(entities: Array<SampleEntity>)
+
+    @Insert
     suspend fun insert(entity: SampleEntity2)
 
     @Insert
@@ -139,6 +158,15 @@ interface SampleDao {
 
     @Update
     suspend fun update(entity: SampleEntity)
+
+    @Query("SELECT * FROM SampleEntity")
+    suspend fun queryOfArray(): Array<SampleEntity>
+
+    @Query("SELECT pk FROM SampleEntity")
+    suspend fun queryOfArrayWithLong(): Array<Long>
+
+    @Query("SELECT pk FROM SampleEntity")
+    suspend fun queryOfLongArray(): LongArray
 }
 
 @Database(

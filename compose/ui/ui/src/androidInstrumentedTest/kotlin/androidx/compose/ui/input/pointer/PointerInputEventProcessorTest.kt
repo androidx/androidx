@@ -3421,7 +3421,7 @@ private class TestOwner : Owner {
     }
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ): OwnedLayer {

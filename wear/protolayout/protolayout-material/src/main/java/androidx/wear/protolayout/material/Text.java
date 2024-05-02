@@ -151,7 +151,9 @@ public class Text implements LayoutElement {
         // Text size is always set in SP, however, by setting this field, we do calculation to
         // interpret it like DP. When getting the text font's size in getters, there is no way to
         // know whether that size was scaled or not.
-        Builder setIsScalable(boolean isScalable) {
+        @NonNull
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public Builder setScalable(boolean isScalable) {
             this.mIsScalable = isScalable;
             return this;
         }

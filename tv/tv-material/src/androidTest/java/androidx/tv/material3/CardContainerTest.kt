@@ -66,7 +66,7 @@ class CardContainerTest {
                     .semantics(mergeDescendants = true) {}
                     .testTag(StandardCardContainerTag),
                 imageCard = { interactionSource ->
-                    CardContainerDefaults.ImageCard(
+                    Card(
                         onClick = { count.value += 1 },
                         interactionSource = interactionSource
                     ) { SampleImage() }
@@ -97,7 +97,7 @@ class CardContainerTest {
                     .semantics(mergeDescendants = true) {}
                     .testTag(StandardCardContainerTag),
                 imageCard = { interactionSource ->
-                    CardContainerDefaults.ImageCard(
+                    Card(
                         onClick = { count.value += 1 },
                         interactionSource = interactionSource
                     ) { SampleImage() }
@@ -129,7 +129,7 @@ class CardContainerTest {
                     .semantics(mergeDescendants = true) {}
                     .testTag(WideCardContainerTag),
                 imageCard = { interactionSource ->
-                    CardContainerDefaults.ImageCard(
+                    Card(
                         onClick = { count.value += 1 },
                         interactionSource = interactionSource
                     ) { SampleImage() }
@@ -160,7 +160,7 @@ class CardContainerTest {
                     .semantics(mergeDescendants = true) {}
                     .testTag(WideCardContainerTag),
                 imageCard = { interactionSource ->
-                    CardContainerDefaults.ImageCard(
+                    Card(
                         onClick = { count.value += 1 },
                         interactionSource = interactionSource
                     ) { SampleImage() }

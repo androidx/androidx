@@ -170,10 +170,9 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
             project = project,
             extensionBuildTypes = extension.buildTypes,
             newBuildTypePrefix = BUILD_TYPE_BASELINE_PROFILE_PREFIX,
-            debugSigningConfig = null,
             extendedBuildTypeToOriginalBuildTypeMapping = baselineProfileExtendedToOriginalTypeMap,
-            newConfigureBlock = configureBlock,
-            overrideConfigureBlock = {
+            newConfigureBlock = { _, ext -> configureBlock(ext) },
+            overrideConfigureBlock = { _, _ ->
                 // Properties are not overridden if the build type already exists.
             },
             filterBlock = {
@@ -197,10 +196,9 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
                 project = project,
                 extensionBuildTypes = extension.buildTypes,
                 newBuildTypePrefix = BUILD_TYPE_BENCHMARK_PREFIX,
-                debugSigningConfig = null,
                 extendedBuildTypeToOriginalBuildTypeMapping = benchmarkExtendedToOriginalTypeMap,
-                newConfigureBlock = configureBlock,
-                overrideConfigureBlock = {
+                newConfigureBlock = { _, ext -> configureBlock(ext) },
+                overrideConfigureBlock = { _, _ ->
                     // Properties are not overridden if the build type already exists.
                 },
                 filterBlock = {

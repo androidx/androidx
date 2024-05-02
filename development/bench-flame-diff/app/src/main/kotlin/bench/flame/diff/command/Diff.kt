@@ -43,11 +43,13 @@ class Diff : CliktCommand(help = "Compare two saved trace files.") {
 
         val before: File = when {
             before == null -> promptProvideFile("Provide the 'before' path",
+                excludePattern = ".*\\.json$",
                 defaultSrcDir = Paths.savedTracesDir.toFile())
             else -> checkNotNull(before)
         }
         val after: File = when {
             after == null -> promptProvideFile("Provide the 'after' path",
+                excludePattern = ".*\\.json$",
                 defaultSrcDir = Paths.savedTracesDir.toFile())
             else -> checkNotNull(after)
         }
@@ -73,6 +75,18 @@ class Diff : CliktCommand(help = "Compare two saved trace files.") {
         log("Opened '${indexHtml.canonicalPath}' in the browser.", isStdErr = true)
     }
 
+    private fun fetchBenchmarkResultForTrace(traceFile: File): String {
+        val file = traceFile.parentFile.resolve(traceFile.nameWithoutExtension + ".json")
+        if (!file.exists()) {
+            log(
+                "Could not locate benchmark result file for trace: ${traceFile.name} ",
+                isStdErr = true
+            )
+            return ""
+        }
+        return file.readText()
+    }
+
     private fun createDiffHtmlPage(beforeRaw: File, afterRaw: File, diffDir: File): File {
         val beforeRawFolded = diffDir.resolve("before-raw.folded")
         val afterRawFolded = diffDir.resolve("after-raw.folded")
@@ -96,8 +110,20 @@ class Diff : CliktCommand(help = "Compare two saved trace files.") {
         createFlameGraph(afterDiffFolded, afterDiffSvg)
         createFlameGraph(beforeDiffFolded, beforeDiffSvg, negate = true)
 
+        // fetch benchmark result data
+        val benchmarkResultBefore = fetchBenchmarkResultForTrace(beforeRaw)
+        val benchmarkResultAfter = fetchBenchmarkResultForTrace(afterRaw)
         createIndexHtml(
-            TraceDiffResult(beforeRawSvg, beforeDiffSvg, afterRawSvg, afterDiffSvg), indexHtml
+            TraceDiffResult(
+                beforeRawSvg,
+                beforeDiffSvg,
+                afterRawSvg,
+                afterDiffSvg,
+                benchmarkResultBefore,
+                benchmarkResultAfter,
+                beforeRaw.name,
+                afterRaw.name
+            ), indexHtml
         )
 
         for (tmpFile in listOf(beforeRawFolded, afterRawFolded, beforeDiffFolded, afterDiffFolded))
@@ -109,7 +135,11 @@ class Diff : CliktCommand(help = "Compare two saved trace files.") {
         val beforeRawGraph: File,
         val beforeDiffGraph: File,
         val afterRawGraph: File,
-        val afterDiffGraph: File
+        val afterDiffGraph: File,
+        val beforeBenchmarkResult: String,
+        val afterBenchmarkResult: String,
+        val beforeTraceFileName: String,
+        val afterTraceFileName: String
     )
 
     private fun fileOption(role: String): MutuallyExclusiveOptions<File, File?> {
@@ -191,6 +221,10 @@ class Diff : CliktCommand(help = "Compare two saved trace files.") {
             .replace("%before_diff_name%", "diff base vs curr")
             .replace("%after_raw_name%", "show curr")
             .replace("%after_diff_name%", "diff curr vs base")
-        dstFile.bufferedWriter().use { writer -> writer.write(content) }
+            .replace("%benchmark_result_before_raw%", src.beforeBenchmarkResult)
+            .replace("%benchmark_result_after_raw%", src.afterBenchmarkResult)
+            .replace("%before_trace_file_name%", src.beforeTraceFileName)
+            .replace("%after_trace_file_name%", src.afterTraceFileName)
+        dstFile.writeText(content)
     }
 }

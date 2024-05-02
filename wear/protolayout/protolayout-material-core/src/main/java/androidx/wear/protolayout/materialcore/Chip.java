@@ -307,7 +307,11 @@ public class Chip implements LayoutElement {
                                                     new Corner.Builder()
                                                             .setRadius(radiusOf(mHeight))
                                                             .build())
-                                            .build());
+                                            .build())
+                            .setSemantics(
+                                    new Semantics.Builder()
+                                        .setContentDescription(getCorrectContentDescription())
+                                        .build());
 
             Box.Builder visible =
                     new Box.Builder()
@@ -327,14 +331,9 @@ public class Chip implements LayoutElement {
                             .setWidth(resolveMinTappableWidth())
                             .setHeight(dp(resolveMinTappableHeight()))
                             .setModifiers(
-                                    new Modifiers.Builder()
-                                            .setMetadata(getCorrectMetadataTag())
-                                            .setSemantics(
-                                                    new Semantics.Builder()
-                                                            .setContentDescription(
-                                                                    getCorrectContentDescription())
-                                                            .build())
-                                            .build())
+                                new Modifiers.Builder()
+                                    .setMetadata(getCorrectMetadataTag())
+                                    .build())
                             .addContent(visible.build())
                             .build();
 
@@ -463,7 +462,8 @@ public class Chip implements LayoutElement {
     /** Returns content description of this Chip. */
     @Nullable
     public StringProp getContentDescription() {
-        Semantics semantics = checkNotNull(mImpl.getModifiers()).getSemantics();
+        // Semantics are applied to the visible view.
+        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
         if (semantics == null) {
             return null;
         }

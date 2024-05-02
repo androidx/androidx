@@ -24,7 +24,6 @@ import androidx.core.graphics.red
 import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
@@ -207,58 +206,42 @@ class ColorTest {
 
     @Test
     fun srgbOutOfBounds_highRed() {
-        assertFailsWith<IllegalArgumentException> {
-            Color(2f, 0f, 0f)
-        }
+        assertEquals(1.0f, Color(2f, 0f, 0f).red)
     }
 
     @Test
     fun srgbOutOfBounds_lowRed() {
-        assertFailsWith<IllegalArgumentException> {
-            Color(-1f, 0f, 0f)
-        }
+        assertEquals(0.0f, Color(-1f, 0f, 0f).red)
     }
 
     @Test
     fun srgbOutOfBounds_highGreen() {
-        assertFailsWith<IllegalArgumentException> {
-            Color(0f, 2f, 0f)
-        }
+        assertEquals(1.0f, Color(0f, 2f, 0f).green)
     }
 
     @Test
     fun srgbOutOfBounds_lowGreen() {
-        assertFailsWith<IllegalArgumentException> {
-            Color(0f, -1f, 0f)
-        }
+        assertEquals(0.0f, Color(0f, -1f, 0f).green)
     }
 
     @Test
     fun srgbOutOfBounds_highBlue() {
-        assertFailsWith<IllegalArgumentException> {
-            Color(0f, 0f, 2f)
-        }
+        assertEquals(1.0f, Color(0f, 0f, 2f).blue)
     }
 
     @Test
     fun srgbOutOfBounds_lowBlue() {
-        assertFailsWith<IllegalArgumentException> {
-            Color(0f, 0f, -1f)
-        }
+        assertEquals(0.0f, Color(0f, 0f, -1f).blue)
     }
 
     @Test
     fun srgbOutOfBounds_highAlpha() {
-        assertFailsWith<IllegalArgumentException> {
-            Color(0f, 0f, 0f, 2f)
-        }
+        assertEquals(1.0f, Color(0f, 0f, 0f, 2f).alpha)
     }
 
     @Test
     fun srgbOutOfBounds_lowAlpha() {
-        assertFailsWith<IllegalArgumentException> {
-            Color(0f, 0f, 0f, -1f)
-        }
+        assertEquals(0.0f, Color(0f, 0f, 0f, -1f).alpha)
     }
 
     @Test

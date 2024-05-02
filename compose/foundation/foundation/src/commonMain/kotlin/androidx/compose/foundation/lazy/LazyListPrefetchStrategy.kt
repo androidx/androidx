@@ -19,7 +19,7 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.NestedPrefetchScope
-import androidx.compose.foundation.lazy.layout.PrefetchExecutor
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.runtime.Stable
 
 /**
@@ -35,10 +35,11 @@ import androidx.compose.runtime.Stable
 interface LazyListPrefetchStrategy {
 
     /**
-     * A PrefetchExecutor implementation which will be used to execute prefetch requests for this
-     * strategy implementation. If null, the default PrefetchExecutor for the platform will be used.
+     * A [PrefetchScheduler] implementation which will be used to execute prefetch requests for this
+     * strategy implementation. If null, the default [PrefetchScheduler] for the platform will be
+     * used.
      */
-    val prefetchExecutor: PrefetchExecutor?
+    val prefetchScheduler: PrefetchScheduler?
         get() = null
 
     /**
@@ -92,7 +93,7 @@ interface LazyListPrefetchScope {
      * scroll direction), the request should be canceled via
      * [LazyLayoutPrefetchState.PrefetchHandle.cancel].
      *
-     * See [PrefetchExecutor].
+     * See [PrefetchScheduler].
      *
      * @param index the index of the child to prefetch
      */

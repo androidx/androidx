@@ -81,6 +81,7 @@ import androidx.compose.ui.zIndex
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
+import kotlin.test.assertNotSame
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -695,6 +696,40 @@ class LayoutNodeTest {
         assertEquals(0, node.children.size)
     }
 
+    // Modifiers set before the layout node is attached should not be applied until after attach
+    @Test
+    fun modifierSetBeforeLayoutNodeAttached() {
+        val layoutNode = LayoutNode()
+        val layoutModifier = Modifier.graphicsLayer { }
+
+        layoutNode.modifier = layoutModifier
+        // Changes should not be applied yet
+        assertNotSame(layoutNode.modifier, layoutModifier)
+        assertFalse(layoutNode.outerCoordinator.isAttached)
+        assertFalse(layoutNode.nodes.has(Nodes.Any))
+
+        layoutNode.attach(MockOwner())
+        // Changes should now be applied
+        assertSame(layoutNode.modifier, layoutModifier)
+        assertTrue(layoutNode.outerCoordinator.isAttached)
+        assertTrue(layoutNode.nodes.has(Nodes.Any))
+    }
+
+    // Modifiers set after the layout node is attached should be applied immediately
+    @Test
+    fun modifierSetAfterLayoutNodeAttached() {
+        val layoutNode = LayoutNode()
+        val layoutModifier = Modifier.graphicsLayer { }
+        layoutNode.attach(MockOwner())
+
+        layoutNode.modifier = layoutModifier
+
+        // Changes should be applied
+        assertSame(layoutNode.modifier, layoutModifier)
+        assertTrue(layoutNode.outerCoordinator.isAttached)
+        assertTrue(layoutNode.nodes.has(Nodes.Any))
+    }
+
     // The layout coordinates of a LayoutNode should be attached when
     // the layout node is attached.
     @Test
@@ -716,13 +751,11 @@ class LayoutNodeTest {
     @Test
     fun nodeCoordinatorSameWithReplacementModifier() {
         val layoutNode = LayoutNode()
+        layoutNode.attach(MockOwner())
         val layoutModifier = Modifier.graphicsLayer { }
 
         layoutNode.modifier = layoutModifier
         val oldNodeCoordinator = layoutNode.outerCoordinator
-        assertFalse(oldNodeCoordinator.isAttached)
-
-        layoutNode.attach(MockOwner())
         assertTrue(oldNodeCoordinator.isAttached)
 
         layoutNode.modifier = Modifier.graphicsLayer { }
@@ -767,14 +800,17 @@ class LayoutNodeTest {
             .graphicsLayer { }
 
         layoutNode.modifier = layoutModifier
-        val oldNodeCoordinator = layoutNode.outerCoordinator
-        val oldInnerNodeCoordinator = oldNodeCoordinator.wrapped
+        var oldNodeCoordinator = layoutNode.outerCoordinator
+        var oldInnerNodeCoordinator = oldNodeCoordinator.wrapped
         assertFalse(oldNodeCoordinator.isAttached)
-        assertNotNull(oldInnerNodeCoordinator)
-        assertFalse(oldInnerNodeCoordinator!!.isAttached)
+        assertNull(oldInnerNodeCoordinator)
 
         layoutNode.attach(MockOwner())
+        oldNodeCoordinator = layoutNode.outerCoordinator
+        oldInnerNodeCoordinator = oldNodeCoordinator.wrapped
         assertTrue(oldNodeCoordinator.isAttached)
+        assertNotNull(oldInnerNodeCoordinator)
+        assertTrue(oldInnerNodeCoordinator!!.isAttached)
 
         // only 1 modifier now, so one should be detached and the other can be reused
         layoutNode.modifier = Modifier.graphicsLayer()
@@ -2349,6 +2385,7 @@ class LayoutNodeTest {
         val modifier2 = Modifier.layout(measureLambda2)
 
         val root = LayoutNode()
+        root.attach(MockOwner())
         root.modifier = modifier1.then(modifier2)
 
         assertEquals(
@@ -2644,7 +2681,7 @@ internal class MockOwner(
     val invalidatedLayers = mutableListOf<OwnedLayer>()
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ): OwnedLayer {
@@ -2673,7 +2710,7 @@ internal class MockOwner(
             }
 
             override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
-                drawBlock(canvas)
+                drawBlock(canvas, null)
             }
 
             override fun updateDisplayList() {
@@ -2690,7 +2727,7 @@ internal class MockOwner(
             }
 
             override fun reuseLayer(
-                drawBlock: (Canvas) -> Unit,
+                drawBlock: (Canvas, GraphicsLayer?) -> Unit,
                 invalidateParentLayer: () -> Unit
             ) {
             }

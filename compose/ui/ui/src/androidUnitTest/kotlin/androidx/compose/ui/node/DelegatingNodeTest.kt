@@ -792,22 +792,17 @@ internal fun layout(
 ): NodeChain {
     val owner = MockOwner()
     val root = LayoutNode()
-    val ln = unattachedLayout(*modifiers)
-    LayoutScopeImpl(ln).block()
+    val ln = LayoutNode()
     root.insertAt(0, ln)
     root.attach(owner)
-    root.innerCoordinator.updateLayerBlock({})
-    return ln.nodes
-}
-
-private fun unattachedLayout(vararg modifiers: Modifier.Node): LayoutNode {
-    val ln = LayoutNode()
     var m: Modifier = Modifier
     for (node in modifiers) {
         m = m.then(NodeElement(node))
     }
     ln.nodes.updateFrom(m)
-    return ln
+    LayoutScopeImpl(ln).block()
+    root.innerCoordinator.updateLayerBlock({})
+    return ln.nodes
 }
 
 internal data class NodeElement(val node: Modifier.Node) : ModifierNodeElement<Modifier.Node>() {
@@ -823,9 +818,14 @@ class Recorder : (Any) -> Unit {
 }
 internal class LayoutScopeImpl(val layout: LayoutNode) : LayoutScope {
     override fun layout(vararg modifiers: Modifier.Node, block: LayoutScope.() -> Unit) {
-        val ln = unattachedLayout(*modifiers)
-        LayoutScopeImpl(ln).block()
+        val ln = LayoutNode()
         layout.insertAt(layout.children.size, ln)
+        var m: Modifier = Modifier
+        for (node in modifiers) {
+            m = m.then(NodeElement(node))
+        }
+        ln.nodes.updateFrom(m)
+        LayoutScopeImpl(ln).block()
     }
 }
 interface LayoutScope {

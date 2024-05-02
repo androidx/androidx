@@ -46,21 +46,41 @@ class Save : CliktCommand(help = "Save a trace file for future comparison.") {
         .default(Paths.traceFileNamePattern)
 
     override fun run() {
+        // determine the source trace file location
         val src = src // allows for smart casts
-        val srcFile: File = when {
+        val srcTraceFile: File = when {
             src != null && src.isFile -> src
-            else -> promptProvideFile("Provide trace source", pattern, src, Paths.outDir.toFile())
+            else -> promptProvideFile(
+                "Provide trace source", pattern,
+                excludePattern = null, src, Paths.outDir.toFile()
+            )
         }
-        check(srcFile.exists() && srcFile.isFile)
+        check(srcTraceFile.exists() && srcTraceFile.isFile)
 
-        val dstFile: File =
-            Paths.savedTracesDir.resolve(dst ?: promptDestinationName(srcFile.name)).toFile()
-        if (dstFile.exists()) promptOverwriteFile(dstFile).let { overwrite ->
+        // copy the source trace file to the destination
+        val dstTraceFile: File =
+            Paths.savedTracesDir.resolve(dst ?: promptDestinationName(srcTraceFile.name)).toFile()
+        if (dstTraceFile.exists()) promptOverwriteFile(dstTraceFile).let { overwrite ->
             if (!overwrite) return
         }
+        dstTraceFile.parentFile.mkdirs() // ensure destination dir is present
+        srcTraceFile.copyTo(dstTraceFile, overwrite = true)
 
-        dstFile.parentFile.mkdirs() // ensure destination dir is present
-        srcFile.copyTo(dstFile, overwrite = true)
+        // Determine the test result file corresponding to the trace (if present). JSON file will
+        // have the trace name in profileResults section. Trace files are guaranteed unique.
+        val srcTestResultFile = srcTraceFile.parentFile.walkTopDown().filter {
+            it.name.lowercase().endsWith("json") && it.readText().contains(srcTraceFile.name)
+        }.singleOrNull()
+
+        // copy the test result file to the destination
+        srcTestResultFile?.let {
+            // adding the extension (.json) helps us avoid a conflict with the trace file name
+            val dstTestResultFileName = dstTraceFile.nameWithoutExtension + ".json"
+            val dstTestResultFile = dstTraceFile.parentFile.resolve(dstTestResultFileName)
+            // If we are changing the name of the trace file, we also need to reflect that in JSON.
+            val updatedJsonFile = it.readText().replace(srcTraceFile.name, dstTraceFile.name)
+            dstTestResultFile.writeText(updatedJsonFile)
+        }
     }
 
     private fun promptDestinationName(default: String? = null): String =

@@ -114,7 +114,16 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
      * other composition locals by calling [CompositionLocalAccessorScope.currentValue], which is an
      * extension function provided by the context for a [CompositionLocal] key.
      *
+     * The lambda passed to [providesComputed] will be invoked every time the
+     * [CompositionLocal.current] is evaluated for the composition local and computes its value
+     * based on the current value of the locals referenced in the lambda at the time
+     * [CompositionLocal.current] is evaluated. This allows providing values that can be derived
+     * from other locals. For example, if accent colors can be calculated from a single base color,
+     * the accent colors can be provided as computed composition locals. Providing a new base color
+     * would automatically update all the accent colors.
+     *
      * @sample androidx.compose.runtime.samples.compositionLocalProvidedComputed
+     * @sample androidx.compose.runtime.samples.compositionLocalComputedAfterProvidingLocal
      *
      * @see CompositionLocal
      * @see CompositionLocalContext
@@ -146,7 +155,7 @@ abstract class ProvidableCompositionLocal<T> internal constructor(defaultFactory
                     previous
                 else null
             is ComputedValueHolder ->
-                if (value.compute == previous.compute)
+                if (value.compute === previous.compute)
                     previous
                 else null
             else -> null
@@ -281,7 +290,16 @@ fun <T> staticCompositionLocalOf(defaultFactory: () -> T): ProvidableComposition
  * when the value is not provided. For a [compositionLocalOf] the default value is returned. If no
  * default value has be computed for [CompositionLocal] the default computation is called.
  *
+ * The lambda passed to [compositionLocalWithComputedDefaultOf] will be invoked every time the
+ * [CompositionLocal.current] is evaluated for the composition local and computes its value based
+ * on the current value of the locals referenced in the lambda at the time
+ * [CompositionLocal.current] is evaluated. This allows providing values that can be derived from
+ * other locals. For example, if accent colors can be calculated from a single base color, the
+ * accent colors can be provided as computed composition locals. Providing a new base color would
+ * automatically update all the accent colors.
+ *
  * @sample androidx.compose.runtime.samples.compositionLocalComputedByDefault
+ * @sample androidx.compose.runtime.samples.compositionLocalComputedAfterProvidingLocal
  *
  * @param defaultComputation the default computation to use when this [CompositionLocal] is not
  * provided.

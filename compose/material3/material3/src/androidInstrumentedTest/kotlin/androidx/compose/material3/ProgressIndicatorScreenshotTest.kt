@@ -80,7 +80,7 @@ class ProgressIndicatorScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) {
                 LinearProgressIndicator(
                     progress = { 0.5f },
-                    drawStopIndicator = null
+                    drawStopIndicator = {}
                 )
             }
         }

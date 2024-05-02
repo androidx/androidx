@@ -21,7 +21,6 @@ package androidx.navigation.fragment
 import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
-import androidx.navigation.ExperimentalSafeArgsApi
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
@@ -99,7 +98,6 @@ public inline fun <reified F : Fragment> NavGraphBuilder.fragment(
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
  * [NavType]. Required only when destination contains custom NavTypes.
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
 ): Unit = fragment<F, T>(typeMap) {}
@@ -112,7 +110,6 @@ public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragme
  * [NavType]. Required only when destination contains custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified F : Fragment, reified T : Any> NavGraphBuilder.fragment(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: FragmentNavigatorDestinationBuilder.() -> Unit
@@ -183,7 +180,6 @@ public class FragmentNavigatorDestinationBuilder :
      * @param fragmentClass The class name of the Fragment to show when you navigate to this
      * destination
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         navigator: FragmentNavigator,
         route: KClass<out Any>,

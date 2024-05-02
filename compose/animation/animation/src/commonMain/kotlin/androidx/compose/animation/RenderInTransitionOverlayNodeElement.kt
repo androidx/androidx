@@ -66,9 +66,9 @@ internal data class RenderInTransitionOverlayNodeElement(
     override fun equals(other: Any?): Boolean {
         if (other is RenderInTransitionOverlayNodeElement) {
             return sharedTransitionScope == other.sharedTransitionScope &&
-                renderInOverlay == other.renderInOverlay &&
+                renderInOverlay === other.renderInOverlay &&
                 zIndexInOverlay == other.zIndexInOverlay &&
-                clipInOverlay == other.clipInOverlay
+                clipInOverlay === other.clipInOverlay
         }
         return false
     }

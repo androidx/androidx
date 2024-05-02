@@ -54,9 +54,11 @@ interface RootForTest {
 
     /**
      * Force accessibility to be enabled for testing.
+     *
+     * @param enable force enable accessibility if true.
      */
     @ExperimentalComposeUiApi
-    fun forceAccessibilityForTesting()
+    fun forceAccessibilityForTesting(enable: Boolean)
 
     /**
      * Set the time interval between sending accessibility events in milliseconds.

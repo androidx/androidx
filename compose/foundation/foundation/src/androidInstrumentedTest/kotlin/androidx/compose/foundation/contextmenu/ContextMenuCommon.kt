@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import com.google.common.truth.Correspondence
+import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.IterableSubject
 import com.google.common.truth.Subject
@@ -90,4 +91,33 @@ internal fun colorCorrespondence(tolerance: Double = 0.02): Correspondence<Color
         },
         /* description = */ "equals",
     )
+}
+
+internal fun assertThatColor(actual: Color): ColorSubject =
+    assertAbout(ColorSubject.INSTANCE).that(actual)
+
+internal class ColorSubject(
+    failureMetadata: FailureMetadata?,
+    private val subject: Color,
+) : Subject(failureMetadata, subject) {
+    companion object {
+        val INSTANCE = Factory<ColorSubject, Color> { failureMetadata, subject ->
+            ColorSubject(failureMetadata, subject)
+        }
+    }
+
+    fun isFuzzyEqualTo(expected: Color, tolerance: Float = 0.001f) {
+        try {
+            assertThat(subject.red).isWithin(tolerance).of(expected.red)
+            assertThat(subject.green).isWithin(tolerance).of(expected.green)
+            assertThat(subject.blue).isWithin(tolerance).of(expected.blue)
+            assertThat(subject.alpha).isWithin(tolerance).of(expected.alpha)
+        } catch (e: AssertionError) {
+            failWithActual(
+                Fact.simpleFact("Colors are not equal."),
+                Fact.fact("expected", expected.toString()),
+                Fact.fact("with tolerance", tolerance),
+            )
+        }
+    }
 }

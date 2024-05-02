@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -87,9 +86,11 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.lerp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -240,8 +241,8 @@ class DrawerState(
     internal var density: Density? by mutableStateOf(null)
 
     private fun requireDensity() = requireNotNull(density) {
-        "The density on BottomDrawerState ($this) was not set. Did you use BottomDrawer" +
-            " with the BottomDrawer composable?"
+        "The density on DrawerState ($this) was not set. Did you use DrawerState" +
+            " with the ModalNavigationDrawer or DismissibleNavigationDrawer composables?"
     }
 
     internal fun requireOffset(): Float = anchoredDraggableState.requireOffset()
@@ -326,17 +327,12 @@ fun ModalNavigationDrawer(
     val scope = rememberCoroutineScope()
     val navigationMenu = getString(Strings.NavigationMenu)
     val density = LocalDensity.current
-    val minValue = -with(density) { NavigationDrawerTokens.ContainerWidth.toPx() }
+    var anchorsInitialized by remember { mutableStateOf(false) }
+    var minValue by remember(density) { mutableFloatStateOf(0f) }
     val maxValue = 0f
 
     SideEffect {
         drawerState.density = density
-        drawerState.anchoredDraggableState.updateAnchors(
-            DraggableAnchors {
-                DrawerValue.Closed at minValue
-                DrawerValue.Open at maxValue
-            }
-        )
     }
 
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -368,15 +364,9 @@ fun ModalNavigationDrawer(
             },
             color = scrimColor
         )
-        Box(
-            Modifier
-                .offset {
-                    IntOffset(
-                        drawerState
-                            .requireOffset()
-                            .roundToInt(), 0
-                    )
-                }
+        Layout(
+            content = drawerContent,
+            modifier = Modifier
                 .semantics {
                     paneTitle = navigationMenu
                     if (drawerState.isOpen) {
@@ -390,8 +380,33 @@ fun ModalNavigationDrawer(
                         }
                     }
                 },
-        ) {
-            drawerContent()
+        ) { measurables, constraints ->
+            val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+            val placeables = measurables.fastMap { it.measure(looseConstraints) }
+            val width = placeables.fastMaxOfOrNull { it.width } ?: 0
+            val height = placeables.fastMaxOfOrNull { it.height } ?: 0
+
+            layout(width, height) {
+                val currentClosedAnchor =
+                    drawerState.anchoredDraggableState.anchors.positionOf(DrawerValue.Closed)
+                val calculatedClosedAnchor = -width.toFloat()
+
+                if (!anchorsInitialized || currentClosedAnchor != calculatedClosedAnchor) {
+                    if (!anchorsInitialized) {
+                        anchorsInitialized = true
+                    }
+                    minValue = calculatedClosedAnchor
+                    drawerState.anchoredDraggableState.updateAnchors(
+                        DraggableAnchors {
+                            DrawerValue.Closed at minValue
+                            DrawerValue.Open at maxValue
+                        }
+                    )
+                }
+                placeables.fastForEach {
+                    it.placeRelative(drawerState.requireOffset().roundToInt(), 0)
+                }
+            }
         }
     }
 }
@@ -424,20 +439,10 @@ fun DismissibleNavigationDrawer(
     gesturesEnabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    var anchorsInitialized by remember { mutableStateOf(false) }
     val density = LocalDensity.current
-    val drawerWidth = NavigationDrawerTokens.ContainerWidth
-    val drawerWidthPx = with(density) { drawerWidth.toPx() }
-    val minValue = -drawerWidthPx
-    val maxValue = 0f
-
     SideEffect {
         drawerState.density = density
-        drawerState.anchoredDraggableState.updateAnchors(
-            DraggableAnchors {
-                DrawerValue.Closed at minValue
-                DrawerValue.Open at maxValue
-            }
-        )
     }
 
     val scope = rememberCoroutineScope()
@@ -454,19 +459,22 @@ fun DismissibleNavigationDrawer(
             )
     ) {
         Layout(content = {
-            Box(Modifier.semantics {
-                paneTitle = navigationMenu
-                if (drawerState.isOpen) {
-                    dismiss {
-                        if (drawerState.anchoredDraggableState.confirmValueChange(
-                                DrawerValue.Closed
-                            )
-                        ) {
-                            scope.launch { drawerState.close() }
-                        }; true
+            Box(
+                Modifier
+                    .semantics {
+                        paneTitle = navigationMenu
+                        if (drawerState.isOpen) {
+                            dismiss {
+                                if (drawerState.anchoredDraggableState.confirmValueChange(
+                                        DrawerValue.Closed
+                                    )
+                                ) {
+                                    scope.launch { drawerState.close() }
+                                }; true
+                            }
+                        }
                     }
-                }
-            }) {
+            ) {
                 drawerContent()
             }
             Box {
@@ -476,6 +484,22 @@ fun DismissibleNavigationDrawer(
             val sheetPlaceable = measurables[0].measure(constraints)
             val contentPlaceable = measurables[1].measure(constraints)
             layout(contentPlaceable.width, contentPlaceable.height) {
+                val currentClosedAnchor =
+                    drawerState.anchoredDraggableState.anchors.positionOf(DrawerValue.Closed)
+                val calculatedClosedAnchor = -sheetPlaceable.width.toFloat()
+
+                if (!anchorsInitialized || currentClosedAnchor != calculatedClosedAnchor) {
+                    if (!anchorsInitialized) {
+                        anchorsInitialized = true
+                    }
+                    drawerState.anchoredDraggableState.updateAnchors(
+                        DraggableAnchors {
+                            DrawerValue.Closed at calculatedClosedAnchor
+                            DrawerValue.Open at 0f
+                        }
+                    )
+                }
+
                 contentPlaceable.placeRelative(
                     sheetPlaceable.width + drawerState.requireOffset().roundToInt(),
                     0
@@ -1162,7 +1186,6 @@ private fun Scrim(
 private val DrawerPositionalThreshold = 0.5f
 private val DrawerVelocityThreshold = 400.dp
 private val MinimumDrawerWidth = 240.dp
-
 // TODO: b/177571613 this should be a proper decay settling
 // this is taken from the DrawerLayout's DragViewHelper as a min duration.
 private val AnimationSpec = TweenSpec<Float>(durationMillis = 256)

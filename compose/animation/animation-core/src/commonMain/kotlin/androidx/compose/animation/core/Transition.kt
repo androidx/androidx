@@ -29,7 +29,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -310,7 +309,7 @@ class SeekableTransitionState<S>(
     private val animateOneFrameLambda: (Long) -> Unit = { frameTimeNanos ->
         val delta = frameTimeNanos - lastFrameTimeNanos
         lastFrameTimeNanos = frameTimeNanos
-        val deltaPlayTimeNanos = (delta / durationScale).roundToLong()
+        val deltaPlayTimeNanos = (delta / durationScale.toDouble()).roundToLong()
         if (initialValueAnimations.isNotEmpty()) {
             initialValueAnimations.forEach { animation ->
                 // updateInitialValues will set to false if the animation isn't
@@ -586,7 +585,7 @@ class SeekableTransitionState<S>(
                 it.value = fraction
                 val totalDurationNanos = totalDurationNanos
                 it.durationNanos = totalDurationNanos
-                it.animationSpecDuration = (totalDurationNanos * (1f - fraction)).roundToLong()
+                it.animationSpecDuration = (totalDurationNanos * (1.0 - fraction)).roundToLong()
                 it.start[0] = fraction
             }
         }
@@ -681,7 +680,7 @@ class SeekableTransitionState<S>(
                                 initialValue = newAnimation.start,
                                 targetValue = Target1,
                                 initialVelocity = oldVelocity
-                            ) ?: (totalDurationNanos * (1f - fraction)).roundToLong()
+                            ) ?: (totalDurationNanos * (1.0 - fraction)).roundToLong()
                             currentAnimation = newAnimation
                         }
                     }
@@ -729,7 +728,7 @@ class SeekableTransitionState<S>(
                 animation.durationNanos = totalDurationNanos
                 if (animation.animationSpec == null) {
                     animation.animationSpecDuration =
-                        ((1f - animation.start[0]) * totalDurationNanos).roundToLong()
+                        ((1.0 - animation.start[0]) * totalDurationNanos).roundToLong()
                 }
             } else {
                 // seekTo() called with a fraction. If an animation is running, we can just wait
@@ -742,7 +741,7 @@ class SeekableTransitionState<S>(
 
     private fun seekToFraction() {
         val transition = transition ?: return
-        val playTimeNanos = (fraction * transition.totalDurationNanos).roundToLong()
+        val playTimeNanos = (fraction.toDouble() * transition.totalDurationNanos).roundToLong()
         transition.seekAnimations(playTimeNanos)
     }
 
@@ -779,6 +778,13 @@ class SeekableTransitionState<S>(
         // The total duration of the animationSpec. This is kept cached because Spring
         // animations can take time to calculate their durations
         var animationSpecDuration: Long = 0L
+
+        override fun toString(): String {
+            return "progress nanos: $progressNanos, animationSpec: $animationSpec," +
+                " isComplete: $isComplete, value: $value, start: $start," +
+                " initialVelocity: $initialVelocity, durationNanos: $durationNanos," +
+                " animationSpecDuration: $animationSpecDuration"
+        }
     }
 
     private companion object {
@@ -1012,9 +1018,8 @@ class Transition<S> internal constructor(
      * to [Transition]. It's strongly recommended to query this *after* all the animations in the
      * [Transition] are set up.
      */
-    val totalDurationNanos: Long by derivedStateOf {
-        calculateTotalDurationNanos()
-    }
+    val totalDurationNanos: Long
+        get() = calculateTotalDurationNanos()
 
     private fun calculateTotalDurationNanos(): Long {
         var maxDurationNanos = 0L
@@ -1040,7 +1045,7 @@ class Transition<S> internal constructor(
         val scaledPlayTimeNanos = if (durationScale == 0f) {
             deltaT
         } else {
-            (deltaT / durationScale).roundToLong()
+            (deltaT / durationScale.toDouble()).roundToLong()
         }
         playTimeNanos = scaledPlayTimeNanos
         onFrame(scaledPlayTimeNanos, durationScale == 0f)
@@ -1383,8 +1388,14 @@ class Transition<S> internal constructor(
         override var value by mutableStateOf(initialValue)
             internal set
         private var velocityVector: V = initialVelocityVector
-        internal val durationNanos
-            get() = animation.durationNanos
+        internal val durationNanos: Long
+            get() {
+                // Ensure any change to the duration is observable, since we have an observer
+                // on the Transition for the overall duration change.
+                _durationNanos = animation.durationNanos
+                return _durationNanos
+            }
+        private var _durationNanos by mutableLongStateOf(animation.durationNanos)
         private var isSeeking = false
 
         internal fun onPlayTimeChanged(playTimeNanos: Long, scaleToEnd: Boolean) {
@@ -1424,7 +1435,12 @@ class Transition<S> internal constructor(
             val animState = initialValueState ?: return
             val animation = initialValueAnimation ?: return
 
-            val initialPlayTimeNanos = (animState.durationNanos * animState.value).roundToLong()
+            val initialPlayTimeNanos = (
+                // Single-precision floating point is not sufficient here as it only has about 7
+                // decimal digits of precision. We are dealing with nanos which has at least 9
+                // decimal digits in most cases.
+                animState.durationNanos * animState.value.toDouble()
+                ).roundToLong()
             val initialValue = animation.getValueFromNanos(initialPlayTimeNanos)
             if (useOnlyInitialValue) {
                 this.animation.mutableTargetValue = initialValue

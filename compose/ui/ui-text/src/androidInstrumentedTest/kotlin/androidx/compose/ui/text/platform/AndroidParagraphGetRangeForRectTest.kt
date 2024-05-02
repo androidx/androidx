@@ -245,7 +245,7 @@ class AndroidParagraphGetRangeForRectTest {
             TextInclusionStrategy.ContainsCenter
         )
 
-        assertThat(range).isNull()
+        assertThat(range).isEqualTo(TextRange.Zero)
     }
 
     @Test
@@ -349,7 +349,7 @@ class AndroidParagraphGetRangeForRectTest {
             TextInclusionStrategy.ContainsCenter
         )
 
-        assertThat(range).isNull()
+        assertThat(range).isEqualTo(TextRange.Zero)
     }
 
     @Test

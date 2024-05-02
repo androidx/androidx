@@ -84,7 +84,7 @@ private class DropTargetElement(
         if (other !is DropTargetElement) return false
         if (target != other.target) return false
 
-        return shouldStartDragAndDrop == other.shouldStartDragAndDrop
+        return shouldStartDragAndDrop === other.shouldStartDragAndDrop
     }
 
     override fun hashCode(): Int {

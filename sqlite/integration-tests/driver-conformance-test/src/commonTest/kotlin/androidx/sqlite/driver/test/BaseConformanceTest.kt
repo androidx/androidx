@@ -288,10 +288,10 @@ abstract class BaseConformanceTest {
     }
 
     @Test
-    fun clearBindings() = testWithConnection {
-        it.execSQL("CREATE TABLE Foo (id)")
-        it.execSQL("INSERT INTO Foo (id) VALUES (1)")
-        it.prepare("SELECT * FROM Foo WHERE id = ?").use {
+    fun clearBindings() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Foo (id)")
+        connection.execSQL("INSERT INTO Foo (id) VALUES (1)")
+        connection.prepare("SELECT * FROM Foo WHERE id = ?").use {
             it.bindLong(1, 1)
             assertThat(it.step()).isTrue()
             it.reset()
@@ -332,6 +332,23 @@ abstract class BaseConformanceTest {
             it.getLong(0)
         }
         assertThat(changes).isEqualTo(3)
+    }
+
+    @Test
+    fun withClause() = testWithConnection { connection ->
+        var seriesSum = 0
+        connection.prepare(
+            """
+                WITH RECURSIVE
+                  cnt(x) AS (VALUES(1) UNION ALL SELECT x + 1 FROM cnt WHERE x < 10)
+                SELECT x FROM cnt;
+            """.trimIndent()
+        ).use {
+           while (it.step()) {
+               seriesSum += it.getInt(0)
+           }
+        }
+        assertThat(seriesSum).isEqualTo(55)
     }
 
     private inline fun testWithConnection(block: (SQLiteConnection) -> Unit) {

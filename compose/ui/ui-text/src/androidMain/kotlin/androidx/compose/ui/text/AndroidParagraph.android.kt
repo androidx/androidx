@@ -319,14 +319,14 @@ internal class AndroidParagraph(
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy
-    ): TextRange? {
+    ): TextRange {
         val range = layout.getRangeForRect(
             rect = rect.toAndroidRectF(),
             granularity = granularity.toLayoutTextGranularity(),
             inclusionStrategy = { segmentBounds: RectF, area: RectF ->
-                inclusionStrategy.isInside(segmentBounds.toComposeRect(), area.toComposeRect())
+                inclusionStrategy.isIncluded(segmentBounds.toComposeRect(), area.toComposeRect())
             }
-        ) ?: return null
+        ) ?: return TextRange.Zero
         return TextRange(range[0], range[1])
     }
 

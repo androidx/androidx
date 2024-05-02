@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomConfigSample
+import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldCustomNavigationRail
 import androidx.compose.material3.adaptive.navigationsuite.samples.NavigationSuiteScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
 import androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
@@ -118,6 +119,7 @@ import androidx.compose.material3.samples.PrimaryTextTabs
 import androidx.compose.material3.samples.PullToRefreshSample
 import androidx.compose.material3.samples.PullToRefreshSampleCustomState
 import androidx.compose.material3.samples.PullToRefreshScalingSample
+import androidx.compose.material3.samples.PullToRefreshViewModelSample
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -808,6 +810,11 @@ val NavigationSuiteScaffoldExamples =
             description = NavigationSuiteScaffoldExampleDescription,
             sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
         ) { NavigationSuiteScaffoldCustomConfigSample() },
+        Example(
+            name = ::NavigationSuiteScaffoldCustomNavigationRail.name,
+            description = NavigationSuiteScaffoldExampleDescription,
+            sourceUrl = NavigationSuiteScaffoldExampleSourceUrl,
+        ) { NavigationSuiteScaffoldCustomNavigationRail() },
     )
 
 private const val ProgressIndicatorsExampleDescription = "Progress indicators examples"
@@ -867,7 +874,14 @@ val PullToRefreshExamples = listOf(
         sourceUrl = PullToRefreshExampleSourceUrl
     ) {
         PullToRefreshSampleCustomState()
-    }
+    },
+    Example(
+        name = ::PullToRefreshViewModelSample.name,
+        description = PullToRefreshExampleDescription,
+        sourceUrl = PullToRefreshExampleSourceUrl
+    ) {
+        PullToRefreshViewModelSample()
+    },
 )
 
 private const val RadioButtonsExampleDescription = "Radio buttons examples"

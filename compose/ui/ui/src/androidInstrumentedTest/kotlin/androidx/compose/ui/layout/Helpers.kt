@@ -211,7 +211,7 @@ private class FakeOwner(
         get() = TODO("Not yet implemented")
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ) = createLayer()
@@ -601,7 +601,7 @@ internal open class MockLayer() : OwnedLayer {
     }
 
     override fun reuseLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit
     ) {
     }

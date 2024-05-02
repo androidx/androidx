@@ -40,9 +40,12 @@ import kotlinx.serialization.serializer
  *
  * @param [typeMap] A mapping of KType to the custom NavType<*>. For example given
  * an argument of "val userId: UserId", the map should contain [typeOf<UserId>() to MyNavType].
+ * @param [path] The base path to append arguments to. If null, base path defaults to
+ * [KSerializer.descriptor].serialName.
  */
 internal fun <T> KSerializer<T>.generateRoutePattern(
-    typeMap: Map<KType, NavType<*>> = emptyMap()
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
+    path: String? = null,
 ): String {
     assertNotAbstractClass {
         throw IllegalArgumentException(
@@ -55,10 +58,14 @@ internal fun <T> KSerializer<T>.generateRoutePattern(
     val map = mutableMapOf<String, NavType<Any?>>()
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
-        val type = descriptor.getElementDescriptor(i).computeNavType(typeMap)
+        val type = descriptor.getElementDescriptor(i).computeNavType(argName, typeMap)
         map[argName] = type
     }
-    val builder = RouteBuilder.Pattern(this, map)
+    val builder = if (path != null) {
+        RouteBuilder.Pattern(path, this, map)
+    } else {
+        RouteBuilder.Pattern(this, map)
+    }
     for (elementIndex in 0 until descriptor.elementsCount) {
         builder.addArg(elementIndex)
     }
@@ -103,13 +110,7 @@ internal fun <T> KSerializer<T>.generateNavArguments(
         navArgument(name) {
             val element = descriptor.getElementDescriptor(index)
             val isNullable = element.isNullable
-            type = element.computeNavType(typeMap)
-            if (type == UNKNOWN) {
-                throw IllegalArgumentException(
-                    "Cannot cast $name of type ${element.serialName} to a NavType. Make sure " +
-                        "to provide custom NavType for this argument."
-                )
-            }
+            type = element.computeNavType(name, typeMap)
             nullable = isNullable
             if (descriptor.isElementOptional(index)) {
                 // Navigation mostly just cares about defaultValuePresent state for
@@ -146,12 +147,27 @@ private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
     }
 }
 
+/**
+ * Computes and return the [NavType] based on the SerialDescriptor of a class type.
+ *
+ * Match priority:
+ * 1. Match with custom NavType provided in [typeMap]
+ * 2. Match to a built-in NavType such as [NavType.IntType], [NavType.BoolArrayType] etc.
+ */
 @Suppress("UNCHECKED_CAST")
 private fun SerialDescriptor.computeNavType(
+    name: String,
     typeMap: Map<KType, NavType<*>>
 ): NavType<Any?> {
     val customType = typeMap.keys
         .find { kType -> matchKType(kType) }
         ?.let { typeMap[it] } as? NavType<Any?>
-    return customType ?: getNavType()
+    val result = customType ?: getNavType()
+    if (result == UNKNOWN) {
+        throw IllegalArgumentException(
+            "Cannot cast $name of type $serialName to a NavType. Make sure " +
+                "to provide custom NavType for this argument."
+        )
+    }
+    return result as NavType<Any?>
 }

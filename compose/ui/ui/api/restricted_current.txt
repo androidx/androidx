@@ -2755,7 +2755,7 @@ package androidx.compose.ui.node {
   }
 
   public interface RootForTest {
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void forceAccessibilityForTesting();
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void forceAccessibilityForTesting(boolean enable);
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner();
     method @Deprecated public androidx.compose.ui.text.input.TextInputService getTextInputService();
@@ -3605,7 +3605,7 @@ package androidx.compose.ui.semantics {
     method public static String getPaneTitle(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static androidx.compose.ui.semantics.ProgressBarRangeInfo getProgressBarRangeInfo(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static int getRole(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
-    method public static void getScrollViewportLength(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function1<? super java.util.List<java.lang.Float>,java.lang.Boolean> action);
+    method public static void getScrollViewportLength(androidx.compose.ui.semantics.SemanticsPropertyReceiver, optional String? label, kotlin.jvm.functions.Function0<java.lang.Float?> action);
     method public static boolean getSelected(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getStateDescription(androidx.compose.ui.semantics.SemanticsPropertyReceiver);
     method public static String getTestTag(androidx.compose.ui.semantics.SemanticsPropertyReceiver);

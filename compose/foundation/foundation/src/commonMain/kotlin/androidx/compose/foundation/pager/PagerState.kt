@@ -62,6 +62,7 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToLong
 import kotlin.math.sign
+import kotlin.ranges.IntRange
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -218,6 +219,9 @@ abstract class PagerState(
         val decimalAccumulation = (delta + accumulator)
         val decimalAccumulationInt = decimalAccumulation.roundToLong()
         accumulator = decimalAccumulation - decimalAccumulationInt
+
+        // nothing to scroll
+        if (delta.absoluteValue < 1e-4f) return delta
 
         /**
          * The updated scroll position is the current position with the integer part of the delta

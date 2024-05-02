@@ -35,6 +35,8 @@ import androidx.hardware.SyncFenceImpl
 import androidx.hardware.SyncFenceV19
 import java.util.concurrent.Executor
 
+private typealias ReleaseCallback = (SyncFenceCompat) -> Unit
+
 /**
  * Implementation of [SurfaceControlImpl] that wraps the [SurfaceControlWrapper] API.
  */
@@ -42,6 +44,26 @@ import java.util.concurrent.Executor
 internal class SurfaceControlV29 internal constructor(
     internal val surfaceControl: SurfaceControlWrapper
 ) : SurfaceControlImpl {
+
+    /**
+     * Helper method to synchronously update the release callback for the buffer specified on this
+     * SurfaceControl and return the previous callback
+     */
+    fun updateReleaseCallback(callback: ReleaseCallback?): ReleaseCallback? {
+        synchronized(this) {
+            val previous = releaseCallback
+            releaseCallback = callback
+            return previous
+        }
+    }
+
+    private var releaseCallback: ReleaseCallback? = null
+
+    fun getPreviousReleaseFd(transactionStats: Long) =
+        JniBindings.nGetPreviousReleaseFenceFd(
+            surfaceControl.mNativeSurfaceControl,
+            transactionStats
+        )
 
     /**
      * See [SurfaceControlWrapper.isValid]
@@ -106,7 +128,7 @@ internal class SurfaceControlV29 internal constructor(
         private class BufferData(
             val width: Int,
             val height: Int,
-            val releaseCallback: ((SyncFenceCompat) -> Unit)?
+            val releaseCallback: ReleaseCallback?
         )
 
         /**
@@ -124,7 +146,7 @@ internal class SurfaceControlV29 internal constructor(
             // store prev committed callbacks so we only need 1 onComplete callback
             data class CallbackEntry(
                 val surfaceControl: SurfaceControlV29,
-                val callback: (SyncFenceCompat) -> Unit
+                val callback: ReleaseCallback?
             )
             val callbackInvokeList = mutableListOf<CallbackEntry>()
 
@@ -132,7 +154,7 @@ internal class SurfaceControlV29 internal constructor(
                 (surfaceControl as? SurfaceControlV29)?.apply {
                     // add active buffers callback to list if we have a new buffer about to overwrite
                     val entry = uncommittedBufferCallbackMap[surfaceControl]
-                    if (entry?.releaseCallback != null) {
+                    if (entry != null) {
                         callbackInvokeList.add(CallbackEntry(this, entry.releaseCallback))
                     }
                 }
@@ -142,12 +164,12 @@ internal class SurfaceControlV29 internal constructor(
                 val callbackListener = object : SurfaceControlCompat.TransactionCompletedListener {
                     override fun onTransactionCompleted(transactionStats: Long) {
                         callbackInvokeList.forEach {
-                            val surfaceControl = it.surfaceControl.asWrapperSurfaceControl()
-                            val fileDescriptor = JniBindings.nGetPreviousReleaseFenceFd(
-                                surfaceControl.mNativeSurfaceControl,
-                                transactionStats
-                            )
-                            it.callback.invoke(SyncFenceCompat(SyncFenceV19(fileDescriptor)))
+                            val sc = it.surfaceControl
+                            val currentCallback = it.callback
+                            sc.updateReleaseCallback(currentCallback)?.let { prevCallback ->
+                                val fileDescriptor = sc.getPreviousReleaseFd(transactionStats)
+                                prevCallback.invoke(SyncFenceCompat(SyncFenceV19(fileDescriptor)))
+                            }
                         }
                         callbackInvokeList.clear()
                     }
@@ -221,7 +243,7 @@ internal class SurfaceControlV29 internal constructor(
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer?,
             fence: SyncFenceImpl?,
-            releaseCallback: ((SyncFenceCompat) -> Unit)?
+            releaseCallback: ReleaseCallback?
         ): SurfaceControlImpl.Transaction {
             val previousEntry: BufferData? = if (buffer != null) {
                 uncommittedBufferCallbackMap.put(

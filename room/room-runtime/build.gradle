@@ -187,6 +187,7 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(project(":sqlite:sqlite-bundled"))
+                implementation(libs.okio)
             }
         }
         targets.all { target ->
@@ -217,10 +218,6 @@ dependencies {
     lintChecks(project(":room:room-runtime-lint"))
     sqliteSharedArchive(project(":sqlite:sqlite-bundled"))
     add("kspAndroidAndroidTest", project(":room:room-compiler"))
-}
-
-ksp {
-    arg("room.generateKotlin", "true")
 }
 
 androidx {

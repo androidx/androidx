@@ -388,7 +388,7 @@ class ModifierLocalConsumerEntityTest {
             get() = TODO("Not yet implemented")
 
         override fun createLayer(
-            drawBlock: (Canvas) -> Unit,
+            drawBlock: (Canvas, GraphicsLayer?) -> Unit,
             invalidateParentLayer: () -> Unit,
             explicitLayer: GraphicsLayer?
         ) = TODO("Not yet implemented")

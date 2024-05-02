@@ -83,28 +83,31 @@ message SpanVerticalAlignmentProp {
 
 // The styling of a font (e.g. font size, and metrics).
 message FontStyle {
-  // The available sizes of the font, in scaled pixels (sp). If not specified, defaults to the size
-  // of the system's "body" font.
+  // The available sizes of the font, in scaled pixels (sp). If not specified,
+  // defaults to the size of the system's "body" font.
   //
-  // If more than one size is specified and this FontStyle is applied to a Text element with static
-  // text, the text size will be automatically picked from the provided sizes to try to perfectly
-  // fit within its parent bounds. In other words, the largest size from the specified preset sizes
-  // that can fit the most text within the parent bounds will be used.
+  // If more than one size is specified and this FontStyle is applied to a Text
+  // element with static text, the text size will be automatically picked from
+  // the provided sizes to try to perfectly fit within its parent bounds. In
+  // other words, the largest size from the specified preset sizes that can fit
+  // the most text within the parent bounds will be used.
   //
-  // The specified sizes don't have to be sorted. The maximum number of sizes used is limited to 10.
+  // The specified sizes don't have to be sorted. The maximum number of sizes
+  // used is limited to 10.
   //
-  // Note that, if multiple sizes are set, the parent of the Text element this corresponds to
-  // shouldn't have its width and height set to wrapped, as it can lead to unexpected results.
+  // Note that, if multiple sizes are set, the parent of the Text element this
+  // corresponds to shouldn't have its width and height set to wrapped, as it
+  // can lead to unexpected results.
   //
-  // If this FontStyle is set to any other element besides Text, or that Text element has dynamic
-  // field, only the last added size will be use.
+  // If this FontStyle is set to any other element besides Text, or that Text
+  // element has dynamic field, only the last added size will be use.
   //
   // Any previously added values with this method or #setSize will be cleared.
   //
-  // While this field is accessible from 1.0 as singular, it only accepts multiple values since
-  // version 1.3 and renderers supporting version 1.3 will use the multiple values to automatically
-  // scale text. Renderers who don't support this version will use the first size among multiple
-  // values.
+  // While this field is accessible from 1.0 as singular, it only accepts
+  // multiple values since version 1.3 and renderers supporting version 1.3 will
+  // use the multiple values to automatically scale text. Renderers who don't
+  // support this version will use the first size among multiple values.
   repeated SpProp size = 1;
 
   // Whether the text should be rendered in a italic typeface. If not specified,
@@ -136,6 +139,32 @@ message FontStyle {
   // body text, which can be selected using this field. If not specified,
   // defaults to "body".
   FontVariantProp variant = 7;
+
+  // The collection of font variation settings to be applied.
+  //
+  // Supported settings depend on the font used and renderer version. Renderers supporting 1.4 will
+  // have custom weight always available. If this is used with the variable fonts on those
+  // renderers, width setting will be always available too.
+  FontVariation variation_settings = 8;
+}
+
+// The collection of font variation settings.
+//
+// Supported settings depend on the font used and renderer version. Renderers supporting 1.4 will
+// have custom weight always available. If this is used with the variable fonts on those renderers,
+// width setting will be always available too.
+message FontVariation {
+  // A single point of customization in a variation, with axis name and a value for it.
+  repeated Setting settings = 1;
+}
+
+// A single point of customization in a variation, with axis name and a value for it.
+message Setting {
+  // The axis name for this setting. This represents a 4 ASCII characters tag.
+  fixed32 axis_name = 1;
+
+  // The value for this setting.
+  float variation_value = 2;
 }
 
 // How text that will not fit inside the bounds of a Text element will be
@@ -144,15 +173,15 @@ enum TextOverflow {
   // Overflow behavior is undefined.
   TEXT_OVERFLOW_UNDEFINED = 0;
 
-  // Truncate the text at the last line defined by {@code setMaxLines} in Text to fit in the Text
-  // element's bounds, but add an ellipsis (i.e. ...) to the end of the text if it has been
-  // truncated.
+  // Truncate the text to fit inside of the Text element's bounds. If text is
+  // truncated, it will be truncated on a word boundary.
   TEXT_OVERFLOW_TRUNCATE = 1;
 
-  // Truncate the text to fit in the Text element's bounds, but add an ellipsis
-  // (i.e. ...) to the end of the text if it has been truncated. Note that this will not add an
-  // ellipsis if the number of lines that fits into the available space is less than the
-  // {@code setMaxLines} in Text.
+  // Truncate the text at the last line defined by {@code setMaxLines} in Text
+  // to fit in the Text element's bounds, but add an ellipsis (i.e. ...) to the
+  // end of the text if it has been truncated. Note that this will not add an
+  // ellipsis if the number of lines that fits into the available space is less
+  // than the {@code setMaxLines} in Text.
   //
   // DEPRECATED: Use {@link #TEXT_OVERFLOW_ELLIPSIZE} instead.
   TEXT_OVERFLOW_ELLIPSIZE_END = 2;
@@ -167,8 +196,9 @@ enum TextOverflow {
   // Truncate the text to fit in the Text element's parent bounds, but add an
   // ellipsis (i.e. ...) to the end of the text if it has been truncated.
   //
-  // <p>Note that, when this is used, the parent of the Text element this corresponds to shouldn't
-  // have its width and height set to wrapped, as it can lead to unexpected results.
+  // <p>Note that, when this is used, the parent of the Text element this
+  // corresponds to shouldn't have its width and height set to wrapped, as it
+  // can lead to unexpected results.
   TEXT_OVERFLOW_ELLIPSIZE = 4;
 }
 
@@ -189,9 +219,11 @@ message MarqueeParameters {
 
 // An Android platform specific text style configuration options for styling and
 // compatibility.
+// Note that from 1.3 version this field is ignored and defaults to excluded
+// font padding.
 message AndroidTextStyle {
-  // Whether the Text excludes padding specified by the font, i.e. extra top and bottom padding
-  // above the normal ascent and descent. The default is false.
+  // Whether the Text excludes padding specified by the font, i.e. extra top and
+  // bottom padding above the normal ascent and descent. The default is false.
   bool exclude_font_padding = 1;
 }
 
@@ -546,6 +578,10 @@ message Row {
 // inside its parent container, and all of its children will be placed on that
 // circle. The fields anchor_angle and anchor_type can be used to specify where
 // to draw children within this circle.
+//
+// <p> Note that when setting padding for the arc, if padding values (top,
+// button, left, and right) are not equal, the largest between them will be used
+// to apply padding uniformly to all sides.
 message Arc {
   // Contents of this container.
   repeated ArcLayoutElement contents = 1;
@@ -588,7 +624,8 @@ message Arc {
   // this value.
   DegreesProp max_angle = 6;
 
-  // The direction in which child elements are laid out.
+  // The direction in which child elements are laid out.<setter> If not set,
+  // defaults to ARC_DIRECTION_NORMAL.</setter>
   ArcDirectionProp arc_direction = 7;
 }
 
@@ -604,7 +641,8 @@ message ArcText {
   // Modifiers for this element.
   ArcModifiers modifiers = 3;
 
-  // The direction in which this text is drawn.
+  // The direction in which this text is drawn.<setter> If not set, defaults to
+  // ARC_DIRECTION_CLOCKWISE.</setter>
   ArcDirectionProp arc_direction = 4;
 }
 
@@ -647,7 +685,8 @@ message ArcLine {
   // The line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
   StrokeCapProp stroke_cap = 6;
 
-  // The direction in which this line is drawn.
+  // The direction in which this line is drawn.<setter> If not set, defaults to
+  // ARC_DIRECTION_CLOCKWISE.</setter>
   ArcDirectionProp arc_direction = 8;
 }
 
@@ -726,9 +765,10 @@ enum ArcDirection {
   ARC_DIRECTION_COUNTER_CLOCKWISE = 2;
 }
 
-// An extensible StrokeCap property.
+// An extensible ArcDirection property that can be set to any curved element to
+// control the drawing direction.
 message ArcDirectionProp {
-  // The value.
+  // The arc direction value.
   ArcDirection value = 1;
 }
 
@@ -742,8 +782,7 @@ message ArcDirectionProp {
 // payload cannot be parsed by the renderer extension, then still nothing should
 // be rendered, although this behaviour is defined by the renderer extension.
 message ExtensionLayoutElement {
-
-    // The content of the renderer extension element. This can be any data; it is
+  // The content of the renderer extension element. This can be any data; it is
   // expected that the renderer extension knows how to parse this field.
   bytes payload = 1;
 

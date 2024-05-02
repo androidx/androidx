@@ -88,7 +88,7 @@ class KeyboardOptions(
     }
 
     @Deprecated(
-        "Please use the new constructor that takes optional autoCorrect parameter.",
+        "Please use the new constructor that takes optional autoCorrectEnabled parameter.",
         level = DeprecationLevel.WARNING,
         replaceWith = ReplaceWith(
             "KeyboardOptions(" +
@@ -175,7 +175,7 @@ class KeyboardOptions(
     )
 
     @Deprecated(
-        "Please use the autoCorrectMode property.",
+        "Please use the autoCorrectEnabled property.",
         level = DeprecationLevel.WARNING
     )
     val autoCorrect: Boolean get() = autoCorrectOrDefault
@@ -253,7 +253,7 @@ class KeyboardOptions(
     }
 
     @Deprecated(
-        "Please use the copy function that takes an autoCorrectMode parameter.",
+        "Please use the copy function that takes an autoCorrectEnabled parameter.",
         level = DeprecationLevel.HIDDEN,
         replaceWith = ReplaceWith(
             "copy(" +

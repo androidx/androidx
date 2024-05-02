@@ -62,9 +62,9 @@ import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
-import androidx.wear.compose.foundation.rotary.RotaryBehavior
-import androidx.wear.compose.foundation.rotary.RotaryDefaults
-import androidx.wear.compose.foundation.rotary.rotary
+import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.rotary.rotaryScrollable
 
 /**
  * Receiver scope which is used by [ScalingLazyColumn].
@@ -369,7 +369,7 @@ public fun ScalingLazyColumn(
         scalingParams = scalingParams,
         anchorType = anchorType,
         autoCentering = autoCentering,
-        rotaryBehavior = RotaryDefaults.scrollBehavior(scrollableState = state),
+        rotaryScrollableBehavior = RotaryScrollableDefaults.behavior(state),
         content = content
     )
 }
@@ -387,10 +387,11 @@ public fun ScalingLazyColumn(
  *
  * This overload supports rotary input. Rotary input allows users to scroll the content
  * of the [ScalingLazyColumn] - by using a crown or a rotating bezel on their Wear OS device.
- * It can be modified with [rotaryBehavior] param. If scroll with fling is required
- * use [RotaryDefaults.scrollBehavior]. If snapping is required use [RotaryDefaults.snapBehavior].
- * Note that rotary scroll and touch scroll should be aligned. If [rotaryBehavior] is set for snap
- * (using [RotaryDefaults.snapBehavior]), [flingBehavior] should be set for snap as well
+ * It can be modified with [rotaryScrollableBehavior] param. If scroll with fling is required
+ * use [RotaryScrollableDefaults.behavior]. If snapping is required use
+ * [RotaryScrollableDefaults.snapBehavior]. Note that rotary scroll and touch scroll should be
+ * aligned. If [rotaryScrollableBehavior] is set for snap (using
+ * [RotaryScrollableDefaults.snapBehavior]), [flingBehavior] should be set for snap as well
  * (using [ScalingLazyColumnDefaults.snapFlingBehavior]).
  * This composable uses [rememberActiveFocusRequester] as FocusRequester for rotary support.
  * It requires that this [ScalingLazyColumn] should be wrapped by [HierarchicalFocusCoordinator].
@@ -432,10 +433,11 @@ public fun ScalingLazyColumn(
  * @param horizontalAlignment the horizontal alignment applied to the items
  * @param flingBehavior Logic describing fling behavior for touch scroll. If snapping is required
  * use [ScalingLazyColumnDefaults.snapFlingBehavior]. Note that when configuring fling or snap
- * behavior, this flingBehavior parameter and the [rotaryBehavior] parameter that controls
- * rotary scroll are expected to produce similar list scrolling. For example, if [rotaryBehavior]
- * is set for snap (using [RotaryDefaults.snapBehavior]), [flingBehavior] should be set for snap
- * as well (using [ScalingLazyColumnDefaults.snapFlingBehavior])
+ * behavior, this flingBehavior parameter and the [rotaryScrollableBehavior] parameter that controls
+ * rotary scroll are expected to produce similar list scrolling. For example,
+ * if [rotaryScrollableBehavior] is set for snap (using [RotaryScrollableDefaults.snapBehavior]),
+ * [flingBehavior] should be set for snap as well (using
+ * [ScalingLazyColumnDefaults.snapFlingBehavior])
  * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
  * is allowed. You can still scroll programmatically using the state even when it is disabled.
  * @param scalingParams The parameters to configure the scaling and transparency effects for the
@@ -449,13 +451,14 @@ public fun ScalingLazyColumn(
  * will be added at the end of the list to ensure that items can be scrolled up to the center. If
  * null no automatic space will be added and instead the developer can use [contentPadding] to
  * manually arrange the items.
- * @param rotaryBehavior Parameter for changing rotary behavior.
- * Supports scroll [RotaryDefaults.scrollBehavior] and snap [RotaryDefaults.snapBehavior].
- * Note that when configuring fling or snap behavior, this rotaryBehavior parameter and
- * the [flingBehavior] parameter that controls touch scroll are expected to produce similar list
- * scrolling. For example, if [rotaryBehavior] is set for snap (using
- * [RotaryDefaults.snapBehavior]), [flingBehavior] should be set for snap as well (using
- * [ScalingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary support is not required.
+ * @param rotaryScrollableBehavior Parameter for changing rotary scrollable behavior.
+ * Supports scroll [RotaryScrollableDefaults.behavior] and
+ * snap [RotaryScrollableDefaults.snapBehavior]. Note that when configuring fling or snap behavior,
+ * this rotaryBehavior parameter and the [flingBehavior] parameter that controls touch scroll are
+ * expected to produce similar list scrolling. For example, if [rotaryScrollableBehavior] is set
+ * for snap (using [RotaryScrollableDefaults.snapBehavior]), [flingBehavior] should be set for
+ * snap as well (using [ScalingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary
+ * support is not required.
  * @param content The content of the [ScalingLazyColumn]
  */
 @OptIn(ExperimentalWearFoundationApi::class)
@@ -476,16 +479,18 @@ fun ScalingLazyColumn(
     scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
     anchorType: ScalingLazyListAnchorType = ScalingLazyListAnchorType.ItemCenter,
     autoCentering: AutoCenteringParams? = AutoCenteringParams(),
-    rotaryBehavior: RotaryBehavior? = RotaryDefaults.scrollBehavior(scrollableState = state),
+    rotaryScrollableBehavior: RotaryScrollableBehavior? =
+        RotaryScrollableDefaults.behavior(state),
     content: ScalingLazyListScope.() -> Unit
 ) {
     var initialized by remember { mutableStateOf(false) }
     BoxWithConstraints(
-        modifier = if (rotaryBehavior != null) modifier
-            .rotary(
-                rotaryBehavior = rotaryBehavior,
+        modifier = if (rotaryScrollableBehavior != null) modifier
+            .rotaryScrollable(
+                behavior = rotaryScrollableBehavior,
                 focusRequester = rememberActiveFocusRequester(),
-                reverseDirection = reverseLayout)
+                reverseDirection = reverseLayout
+            )
         else modifier,
         propagateMinConstraints = true
     ) {

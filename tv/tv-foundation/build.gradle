@@ -68,6 +68,7 @@ android {
 androidx {
     name = "TV Foundation"
     type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    mavenVersion = LibraryVersions.TV
     inceptionYear = "2022"
     description = "This library makes it easier for developers" +
             "to write Jetpack Compose applications for TV devices by providing " +

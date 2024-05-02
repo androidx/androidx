@@ -203,7 +203,7 @@ private class SelectableElement(
         if (indicationNodeFactory != other.indicationNodeFactory) return false
         if (enabled != other.enabled) return false
         if (role != other.role) return false
-        if (onClick != other.onClick) return false
+        if (onClick !== other.onClick) return false
 
         return true
     }

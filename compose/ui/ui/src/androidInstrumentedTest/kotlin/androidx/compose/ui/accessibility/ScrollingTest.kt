@@ -100,10 +100,12 @@ class ScrollingTest {
                     }
             ) {
                 Text("foo", Modifier.size(10.toDp()))
-                Text("bar",
+                Text(
+                    "bar",
                     Modifier
                         .size(10.toDp())
-                        .testTag(tag))
+                        .testTag(tag)
+                )
             }
         }
         rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
@@ -522,10 +524,7 @@ class ScrollingTest {
                             false
                         }
 
-                        getScrollViewportLength {
-                            it.add((viewPortSize - contentPadding))
-                            true
-                        }
+                        getScrollViewportLength { viewPortSize - contentPadding }
                     }
             )
         }

@@ -44,7 +44,7 @@ public interface Serializer<T> {
      *  Marshal object to a stream. Closing the provided OutputStream is a no-op.
      *
      *  @param t the data to write to output
-     *  @output the OutputStream to serialize data to
+     *  @param output the OutputStream to serialize data to
      */
     public suspend fun writeTo(t: T, output: OutputStream)
 }

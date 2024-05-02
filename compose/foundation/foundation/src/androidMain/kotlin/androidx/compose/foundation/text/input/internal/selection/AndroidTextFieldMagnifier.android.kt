@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -108,12 +109,18 @@ internal class TextFieldMagnifierNodeImpl28(
     private fun restartAnimationJob() {
         animationJob?.cancel()
         animationJob = null
-        // never start an expensive animation job if magnifier is not explicitly set to be visible
-        // or magnifier is not supported.
-        if (!visible || !isPlatformMagnifierSupported()) return
+        // never start an expensive animation job if magnifier is not supported.
+        if (!isPlatformMagnifierSupported()) return
         animationJob = coroutineScope.launch {
             val animationScope = this
             snapshotFlow {
+                // Although `visible` is not backed by snapshot state, TextFieldMagnifierNode is
+                // responsible for calling `restartAnimationJob` everytime the value of `visible`
+                // changes. So we don't have to worry about whether snapshotFlow invalidates for
+                // `visible`.
+                if (!visible && !textFieldSelectionState.isBeingLongPressed) {
+                    return@snapshotFlow Offset.Unspecified
+                }
                 calculateSelectionMagnifierCenterAndroid(
                     textFieldState,
                     textFieldSelectionState,

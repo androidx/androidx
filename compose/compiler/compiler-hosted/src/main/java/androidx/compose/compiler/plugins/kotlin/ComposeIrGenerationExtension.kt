@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.ir.backend.js.lower.serialization.ir.JsManglerIr
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 import org.jetbrains.kotlin.platform.isJs
+import org.jetbrains.kotlin.platform.isWasm
 import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.platform.konan.isNative
 
@@ -255,12 +256,12 @@ class ComposeIrGenerationExtension(
             ).lower(moduleFragment)
         }
 
-        if (pluginContext.platform.isJs()) {
+        if (pluginContext.platform.isJs() || pluginContext.platform.isWasm()) {
             WrapJsComposableLambdaLowering(
                 pluginContext,
                 symbolRemapper,
                 metrics,
-                idSignatureBuilder!!,
+                idSignatureBuilder,
                 stabilityInferencer,
                 decoysEnabled
             ).lower(moduleFragment)

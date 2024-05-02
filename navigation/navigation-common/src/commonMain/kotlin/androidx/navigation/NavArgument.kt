@@ -52,6 +52,12 @@ public class NavArgument internal constructor(
     public val isDefaultValuePresent: Boolean
 
     /**
+     * Indicates whether the default value (if present) is unknown (i.e. safe args where
+     * default value is declared in KClass but not stored in [defaultValue]).
+     */
+    internal val isDefaultValueUnknown: Boolean
+
+    /**
      * The default value of this argument or `null` if it doesn't have a default value.
      * Use [isDefaultValuePresent] to distinguish between `null` and absence of a value.
      * @return The default value assigned to this argument.
@@ -205,6 +211,7 @@ public class NavArgument internal constructor(
         this.isNullable = isNullable
         this.defaultValue = defaultValue
         isDefaultValuePresent = defaultValuePresent || unknownDefaultValuePresent
+        isDefaultValueUnknown = unknownDefaultValuePresent
     }
 }
 
@@ -219,9 +226,8 @@ internal fun Map<String, NavArgument?>.missingRequiredArguments(
     isArgumentMissing: (key: String) -> Boolean
 ): List<String> {
     val requiredArgumentKeys = filterValues {
-        if (it != null) {
-            !it.isNullable && !it.isDefaultValuePresent
-        } else false
+        !it?.isNullable!! && !it.isDefaultValuePresent
     }.keys
+
     return requiredArgumentKeys.filter { key -> isArgumentMissing(key) }
 }

@@ -31,10 +31,9 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
     extensionBuildTypes: NamedDomainObjectContainer<out T>,
     newBuildTypePrefix: String,
     crossinline filterBlock: (T) -> (Boolean),
-    crossinline newConfigureBlock: T.() -> (Unit),
-    crossinline overrideConfigureBlock: T.() -> (Unit),
-    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf(),
-    debugSigningConfig: ApkSigningConfig?
+    crossinline newConfigureBlock: (base: T, ext: T) -> (Unit),
+    crossinline overrideConfigureBlock: (base: T, ext: T) -> (Unit),
+    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf()
 ) {
     extensionBuildTypes.filter { buildType ->
         if (buildType !is T) {
@@ -48,7 +47,7 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
         val newBuildTypeName = camelCase(newBuildTypePrefix, buildType.name)
 
         // Check in case the build type was created manually (to allow full customization)
-        var newBuildType = extensionBuildTypes.findByName(newBuildTypeName)
+        val newBuildType = extensionBuildTypes.findByName(newBuildTypeName)
         if (newBuildType != null) {
             project.logger.info(
                 "Build type $newBuildTypeName won't be created because already exists."
@@ -56,29 +55,35 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
             // If the build type exists, we apply the `overrideConfigurationBlock`
             newBuildType.apply {
                 matchingFallbacks += listOf(buildType.name)
-                overrideConfigureBlock(this)
+                overrideConfigureBlock(buildType, this)
             }
         } else {
             // If the new build type doesn't exist, create it and apply the `newConfigurationBlock`
-            newBuildType = extensionBuildTypes.create(newBuildTypeName).apply {
+            extensionBuildTypes.create(newBuildTypeName).apply {
                 initWith(buildType)
                 matchingFallbacks += listOf(buildType.name)
-                newConfigureBlock(this)
+                newConfigureBlock(buildType, this)
             }
-        }
-
-        // If the build type is for applications, the signing config has not been defined yet,
-        // we copy the signing config of the original build type, or the debug one if the original
-        // doesn't have one.
-        if (buildType is ApplicationBuildType &&
-            newBuildType is ApplicationBuildType &&
-            newBuildType.signingConfig == null
-        ) {
-            newBuildType.signingConfig = buildType.signingConfig ?: debugSigningConfig
         }
 
         // Mapping the build type to the newly created
         extendedBuildTypeToOriginalBuildTypeMapping[newBuildTypeName] = buildType.name
+    }
+}
+
+internal inline fun <reified T : BuildType> copySigningConfigIfNotSpecified(
+    baseBuildType: T,
+    extBuildType: T,
+    debugSigningConfig: ApkSigningConfig?
+) {
+    // If the build type is for applications, the signing config has not been defined yet,
+    // we copy the signing config of the original build type, or the debug one if the original
+    // doesn't have one.
+    if (baseBuildType is ApplicationBuildType &&
+        extBuildType is ApplicationBuildType &&
+        extBuildType.signingConfig == null
+    ) {
+        extBuildType.signingConfig = baseBuildType.signingConfig ?: debugSigningConfig
     }
 }
 

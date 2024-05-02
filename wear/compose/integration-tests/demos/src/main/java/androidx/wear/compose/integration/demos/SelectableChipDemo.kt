@@ -138,9 +138,9 @@ fun SelectableChips(
                 // Call the selectionControl variation, with default selectionControl = RadioButton
                 SplitSelectableChip(
                     selected = splitWithRadioIconSelected,
-                    onClick = { splitWithRadioIconSelected = it },
+                    onSelectionClick = { splitWithRadioIconSelected = it },
                     label = { Text("Split with Radio") },
-                    onBodyClick = {
+                    onContainerClick = {
                         Toast.makeText(
                             applicationContext, "Body was clicked",
                             Toast.LENGTH_SHORT

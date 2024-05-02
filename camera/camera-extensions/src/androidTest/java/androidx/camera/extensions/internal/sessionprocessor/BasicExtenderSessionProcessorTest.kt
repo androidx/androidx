@@ -101,7 +101,6 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -206,7 +205,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canOutputCorrectly(): Unit = runBlocking {
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -228,7 +226,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canSetSessionTypeFromOem() {
         assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
             ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -249,7 +246,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun setDifferentSessionTypes_throwException() {
         assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
             ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -269,7 +265,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun defaultSessionType() {
         assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
             ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -289,7 +284,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun imageCaptureError(): Unit = runBlocking {
         assumeTrue(hasCaptureProcessor)
         fakeCaptureExtenderImpl = FakeImageCaptureExtenderImpl(
@@ -309,7 +303,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canOutputCorrectly_withoutAnalysis(): Unit = runBlocking {
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -329,7 +322,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canOutputCorrectly_setTargetRotation(): Unit = runBlocking {
         assumeTrue(hasCaptureProcessor)
         val preview = Preview.Builder().build()
@@ -346,7 +338,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canOutputCorrectlyAfterStopStart(): Unit = runBlocking {
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -378,7 +369,6 @@ class BasicExtenderSessionProcessorTest(
         verifyStillCapture(imageCapture)
     }
 
-    @Ignore("b/331617278")
     @Test
     fun canInvokeEventsInOrder(): Unit = runBlocking {
         val preview = Preview.Builder().build()
@@ -431,7 +421,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun getRealtimeCaptureLatencyEstimate_invokesCaptureExtenderImpl(): Unit = runBlocking {
         assumeTrue(hasCaptureProcessor)
         assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -473,7 +462,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun repeatingRequest_containsPreviewCaptureStagesParameters(): Unit = runBlocking {
         val previewBuilder = Preview.Builder()
         val resultMonitor = ResultMonitor()
@@ -516,7 +504,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun processorRequestUpdateOnly_canUpdateRepeating(): Unit = runBlocking {
         assumeTrue(previewProcessorType == PROCESSOR_TYPE_REQUEST_UPDATE_ONLY)
         val previewBuilder = Preview.Builder()
@@ -562,7 +549,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun imageCapture_captureRequestParametersAreCorrect(): Unit = runBlocking {
         initBasicExtenderSessionProcessor().use {
             fakeCaptureExtenderImpl.captureStages = listOf(
@@ -616,7 +602,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun onEnableDisableRequestsAreSent(): Unit = runBlocking {
         initBasicExtenderSessionProcessor().use {
             // Verify onEnableSession
@@ -672,7 +657,6 @@ class BasicExtenderSessionProcessorTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun getSupportedPostviewSizeIsCorrect() {
         assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
             ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))

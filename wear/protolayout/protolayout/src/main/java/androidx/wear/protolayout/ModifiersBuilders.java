@@ -365,6 +365,18 @@ public final class ModifiersBuilders {
             }
         }
 
+        /**
+         * Gets whether the click visual feedback (such as a ripple) should be enabled. Defaults to
+         * true.
+         */
+        public boolean isVisualFeedbackEnabled() {
+            if (mImpl.hasVisualFeedbackEnabled()) {
+                return mImpl.getVisualFeedbackEnabled();
+            } else {
+                return true;
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -395,7 +407,18 @@ public final class ModifiersBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "Clickable{" + "id=" + getId() + ", onClick=" + getOnClick() + "}";
+            return "Clickable{"
+                    + "id="
+                    + getId()
+                    + ", onClick="
+                    + getOnClick()
+                    + ", minimumClickableWidth="
+                    + getMinimumClickableWidth()
+                    + ", minimumClickableHeight="
+                    + getMinimumClickableHeight()
+                    + ", disableVisualFeedback="
+                    + isVisualFeedbackEnabled()
+                    + "}";
         }
 
         /** Builder for {@link Clickable} */
@@ -476,6 +499,18 @@ public final class ModifiersBuilders {
                         4,
                         checkNotNull(minimumClickableHeight.getFingerprint())
                                 .aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets whether the click visual feedback (such as a ripple) should be enabled. Defaults
+             * to true.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 400)
+            @NonNull
+            public Builder setVisualFeedbackEnabled(boolean visualFeedbackEnabled) {
+                mImpl.setVisualFeedbackEnabled(visualFeedbackEnabled);
+                mFingerprint.recordPropertyUpdate(5, Boolean.hashCode(visualFeedbackEnabled));
                 return this;
             }
 
@@ -1359,7 +1394,6 @@ public final class ModifiersBuilders {
             }
         }
 
-
         /**
          * Gets the scale of this element in the x direction around the pivot point, as a proportion
          * of the element's unscaled width.
@@ -1386,9 +1420,7 @@ public final class ModifiersBuilders {
             }
         }
 
-        /**
-         * Gets the clockwise Degrees that the element is rotated around the pivot point.
-         */
+        /** Gets the clockwise Degrees that the element is rotated around the pivot point. */
         @NonNull
         public DegreesProp getRotation() {
             if (mImpl.hasRotation()) {
@@ -1399,28 +1431,30 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Sets the x offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported.
+         * Gets the horizontal location of the point around which the element is rotated and scaled.
+         * With type {@link DpProp}, it is the offset from the element center; otherwise with type
+         * {@link BoundingBoxRatio}, it is the location proportional to the bounding box width.
          */
-        @Nullable
+        @NonNull
         public PivotDimension getPivotX() {
             if (mImpl.hasPivotX()) {
                 return DimensionBuilders.pivotDimensionFromProto(mImpl.getPivotX());
             } else {
-                return null;
+                return new DpProp.Builder(0f).build();
             }
         }
 
         /**
-         * Gets the y offset of the point around which the element is rotated and scaled.
-         * Dynamic value is supported.
+         * Gets the vertical location of the point around which the element is rotated and scaled.
+         * With type {@link DpProp}, it is the offset from the element center; otherwise with type
+         * {@link BoundingBoxRatio}, it is the location proportional to the bounding box height.
          */
-        @Nullable
+        @NonNull
         public PivotDimension getPivotY() {
             if (mImpl.hasPivotY()) {
                 return DimensionBuilders.pivotDimensionFromProto(mImpl.getPivotY());
             } else {
-                return null;
+                return new DpProp.Builder(0f).build();
             }
         }
 
@@ -1494,7 +1528,6 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-
             /**
              * Sets the vertical offset of this element in addition to the location where the
              * element's layout placed it. If not set, defaults to zero.
@@ -1535,8 +1568,8 @@ public final class ModifiersBuilders {
             }
 
             /**
-             * Sets the clockwise degrees that the element is rotated around the pivot point.
-             * If not set, defaults to zero.
+             * Sets the clockwise degrees that the element is rotated around the pivot point. If not
+             * set, defaults to zero.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1548,8 +1581,10 @@ public final class ModifiersBuilders {
             }
 
             /**
-             * Sets the x offset of the point around which the element is rotated and scaled.
-             * Dynamic value is supported. If not set, defaults to the element center.
+             * Sets the horizontal location of the point around which the element is rotated and
+             * scaled. With type {@link DpProp}, it is the offset from the element center; otherwise
+             * with type {@link BoundingBoxRatio}, it is the location proportional to the bounding
+             * box width. Dynamic value is supported. If not set, defaults to the element center.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1561,8 +1596,10 @@ public final class ModifiersBuilders {
             }
 
             /**
-             * Sets the y offset of the point around which the element is rotated and scaled.
-             * Dynamic value is supported. If not set, defaults to the element center.
+             * Sets the vertical location of the point around which the element is rotated and
+             * scaled. With type {@link DpProp}, it is the offset from the element center; otherwise
+             * with type {@link BoundingBoxRatio}, it is the location proportional to the bounding
+             * box height. Dynamic value is supported. If not set, defaults to the element center.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
@@ -1916,7 +1953,6 @@ public final class ModifiersBuilders {
                         12, checkNotNull(opacity.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
-
 
             /** Builds an instance from accumulated values. */
             @NonNull
@@ -2963,9 +2999,9 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Gets the opacity of the element with a value from 0 to 1, where 0 means the element
-         * is completely transparent and 1 means the element is completely opaque. Dynamic value
-         * is supported.
+         * Gets the opacity of the element with a value from 0 to 1, where 0 means the element is
+         * completely transparent and 1 means the element is completely opaque. Dynamic value is
+         * supported.
          */
         @Nullable
         public FloatProp getOpacity() {

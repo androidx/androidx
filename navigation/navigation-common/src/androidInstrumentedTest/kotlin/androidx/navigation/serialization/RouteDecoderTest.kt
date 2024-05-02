@@ -235,6 +235,83 @@ class RouteDecoderTest {
     }
 
     @Test
+    fun decodeDefaultValue() {
+        @Serializable
+        data class TestClass(val arg: String = "defaultValue")
+
+        val bundle = bundleOf()
+        val result = decode<TestClass>(
+            bundle,
+            listOf(stringArgument("arg", true))
+        )
+        assertThat(result.arg).isEqualTo("defaultValue")
+    }
+
+    @Test
+    fun decodeMultipleDefaultValue() {
+        @Serializable
+        data class TestClass(val arg: String = "defaultValue", val arg2: Int = 0)
+
+        val bundle = bundleOf()
+        val result = decode<TestClass>(
+            bundle,
+            listOf(
+                stringArgument("arg", true),
+                intArgument("arg2", true)
+            )
+        )
+        assertThat(result.arg).isEqualTo("defaultValue")
+        assertThat(result.arg2).isEqualTo(0)
+    }
+
+    @Test
+    fun decodeDefaultValueOverridden() {
+        @Serializable
+        data class TestClass(val arg: String = "defaultValue")
+
+        val bundle = bundleOf("arg" to "newValue")
+        val result = decode<TestClass>(
+            bundle,
+            listOf(stringArgument("arg", true))
+        )
+        assertThat(result.arg).isEqualTo("newValue")
+    }
+
+    @Test
+    fun decodeMultipleDefaultValueOverridden() {
+        @Serializable
+        data class TestClass(val arg: String = "defaultValue", val arg2: Int = 0)
+
+        val bundle = bundleOf("arg" to "newValue", "arg2" to 1)
+        val result = decode<TestClass>(
+            bundle,
+            listOf(
+                stringArgument("arg", true),
+                intArgument("arg2", hasDefaultValue = true)
+            )
+        )
+        assertThat(result.arg).isEqualTo("newValue")
+        assertThat(result.arg2).isEqualTo(1)
+    }
+
+    @Test
+    fun decodePartialDefaultValue() {
+        @Serializable
+        data class TestClass(val arg: String = "defaultValue", val arg2: Int)
+
+        val bundle = bundleOf("arg2" to 1)
+        val result = decode<TestClass>(
+            bundle,
+            listOf(
+                stringArgument("arg", true),
+                intArgument("arg2", false)
+            )
+        )
+        assertThat(result.arg).isEqualTo("defaultValue")
+        assertThat(result.arg2).isEqualTo(1)
+    }
+
+    @Test
     fun decodeNullPrimitive() {
         @Serializable
         data class TestClass(val arg: String?)
@@ -300,6 +377,17 @@ class RouteDecoderTest {
             listOf(customArg)
         )
         assertThat(result.custom.arg).isNull()
+    }
+
+    @Test
+    fun decodeCollectionNavType() {
+        val arg = listOf(CustomType(1), CustomType(3), CustomType(5))
+        val bundle = bundleOf("list" to arg)
+        val result = decode<TestClassCollectionArg>(
+            bundle,
+            listOf(navArgument("list") { type = collectionNavType })
+        )
+        assertThat(result.list).containsExactlyElementsIn(arg).inOrder()
     }
 
     private inline fun <reified T : Any> decode(

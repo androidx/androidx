@@ -31,21 +31,12 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-BundleInsideHelper.forInsideAar(
-        project,
-        /* from = */ "com.google.protobuf",
-        /* to =   */ "androidx.health.platform.client.proto",
-        // proto-lite dependency includes .proto files, which are not used and would clash if
-        // users also use proto library directly
-        /* dropResourcesWithSuffix = */ ".proto"
-)
-
 dependencies {
     api(libs.kotlinStdlib)
     // Add dependencies here
     api("androidx.activity:activity:1.2.0")
     api("androidx.annotation:annotation:1.2.0")
-    bundleInside(project(":health:connect:connect-client-proto"))
+    implementation(project(":health:connect:connect-client-proto"))
     implementation(libs.guavaListenableFuture)
     implementation(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesAndroid)
@@ -86,7 +77,8 @@ android {
     }
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.health.connect.client"
-    compileSdkVersion = "android-34-ext10"
+    compileSdk = 34
+    compileSdkExtension = 10
 }
 
 androidx {

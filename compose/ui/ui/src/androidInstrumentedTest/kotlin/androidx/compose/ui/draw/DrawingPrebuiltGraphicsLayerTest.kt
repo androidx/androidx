@@ -48,7 +48,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -259,7 +258,9 @@ class DrawingPrebuiltGraphicsLayerTest {
             .assertPixels(expectedSize) { Color.Red }
     }
 
-    @Ignore("remove annotation when Modifier.graphicsLayer() will use the same layer mechanism")
+    // TODO remove sdk suppress when we start using new layers as Modifier.graphicsLayer() on
+    //  older versions.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun keepDrawingNestedLayers_graphicsLayerModifier() {
         rule.setContent {

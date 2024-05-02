@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.awaitHorizontalPointerSlopOrCancellation
@@ -81,6 +82,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
@@ -697,7 +699,12 @@ private fun SliderImpl(
 
     Layout(
         {
-            Box(modifier = Modifier.layoutId(SliderComponents.THUMB)) {
+            Box(modifier = Modifier
+                .layoutId(SliderComponents.THUMB)
+                .wrapContentWidth()
+                .onSizeChanged {
+                    state.thumbWidth = it.width.toFloat()
+                }) {
                 thumb(state)
             }
             Box(modifier = Modifier.layoutId(SliderComponents.TRACK)) {
@@ -736,7 +743,6 @@ private fun SliderImpl(
 
         state.updateDimensions(
             trackPlaceable.height.toFloat(),
-            thumbPlaceable.width.toFloat(),
             sliderWidth
         )
 
@@ -789,6 +795,10 @@ private fun RangeSliderImpl(
         {
             Box(modifier = Modifier
                 .layoutId(RangeSliderComponents.STARTTHUMB)
+                .wrapContentWidth()
+                .onSizeChanged {
+                    state.startThumbWidth = it.width.toFloat()
+                }
                 .semantics(mergeDescendants = true) {
                     contentDescription = startContentDescription
                 }
@@ -797,6 +807,10 @@ private fun RangeSliderImpl(
             ) { startThumb(state) }
             Box(modifier = Modifier
                 .layoutId(RangeSliderComponents.ENDTHUMB)
+                .wrapContentWidth()
+                .onSizeChanged {
+                    state.endThumbWidth = it.width.toFloat()
+                }
                 .semantics(mergeDescendants = true) {
                     contentDescription = endContentDescription
                 }
@@ -844,8 +858,6 @@ private fun RangeSliderImpl(
         )
 
         state.trackHeight = trackPlaceable.height.toFloat()
-        state.startThumbWidth = startThumbPlaceable.width.toFloat()
-        state.endThumbWidth = endThumbPlaceable.width.toFloat()
         state.totalWidth = sliderWidth
 
         state.updateMinMaxPx()
@@ -1165,13 +1177,15 @@ object SliderDefaults {
         colors: SliderColors = colors(),
         drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {
             drawStopIndicator(
+                drawScope = this,
                 offset = it,
-                color = colors.activeTrackColor,
+                color = colors.trackColor(enabled, active = true),
                 size = TrackStopIndicatorSize
             )
         },
-        drawTick: (DrawScope.(Offset, Color) -> Unit)? = { offset, color ->
+        drawTick: DrawScope.(Offset, Color) -> Unit = { offset, color ->
             drawStopIndicator(
+                drawScope = this,
                 offset = offset,
                 color = color,
                 size = TickSize
@@ -1199,6 +1213,7 @@ object SliderDefaults {
                 inactiveTickColor,
                 activeTickColor,
                 sliderState.trackHeight.toDp(),
+                0.toDp(),
                 sliderState.thumbWidth.toDp(),
                 thumbTrackGapSize,
                 trackInsideCornerSize,
@@ -1273,13 +1288,15 @@ object SliderDefaults {
         colors: SliderColors = colors(),
         drawStopIndicator: (DrawScope.(Offset) -> Unit)? = {
             drawStopIndicator(
+                drawScope = this,
                 offset = it,
-                color = colors.activeTrackColor,
+                color = colors.trackColor(enabled, active = true),
                 size = TrackStopIndicatorSize
             )
         },
-        drawTick: (DrawScope.(Offset, Color) -> Unit)? = { offset, color ->
+        drawTick: DrawScope.(Offset, Color) -> Unit = { offset, color ->
             drawStopIndicator(
+                drawScope = this,
                 offset = offset,
                 color = color,
                 size = TickSize
@@ -1308,6 +1325,7 @@ object SliderDefaults {
                 activeTickColor,
                 rangeSliderState.trackHeight.toDp(),
                 rangeSliderState.startThumbWidth.toDp(),
+                rangeSliderState.endThumbWidth.toDp(),
                 thumbTrackGapSize,
                 trackInsideCornerSize,
                 drawStopIndicator,
@@ -1326,11 +1344,12 @@ object SliderDefaults {
         inactiveTickColor: Color,
         activeTickColor: Color,
         height: Dp,
-        thumbWidth: Dp,
+        startThumbWidth: Dp,
+        endThumbWidth: Dp,
         thumbTrackGapSize: Dp,
         trackInsideCornerSize: Dp,
         drawStopIndicator: (DrawScope.(Offset) -> Unit)?,
-        drawTick: (DrawScope.(Offset, Color) -> Unit)?,
+        drawTick: DrawScope.(Offset, Color) -> Unit,
         isRangeSlider: Boolean
     ) {
         val sliderStart = Offset(0f, center.y)
@@ -1351,13 +1370,17 @@ object SliderDefaults {
 
         val cornerSize = trackStrokeWidth / 2
         val insideCornerSize = trackInsideCornerSize.toPx()
-        val gap =
-            if (thumbTrackGapSize > 0.dp) thumbWidth.toPx() / 2 + thumbTrackGapSize.toPx() else 0f
+        var startGap = 0f
+        var endGap = 0f
+        if (thumbTrackGapSize > 0.dp) {
+            startGap = startThumbWidth.toPx() / 2 + thumbTrackGapSize.toPx()
+            endGap = endThumbWidth.toPx() / 2 + thumbTrackGapSize.toPx()
+        }
 
         // inactive track (range slider)
-        if (isRangeSlider && sliderValueStart.x > sliderStart.x + gap + cornerSize) {
+        if (isRangeSlider && sliderValueStart.x > sliderStart.x + startGap + cornerSize) {
             val start = sliderStart.x
-            val end = sliderValueStart.x - gap
+            val end = sliderValueStart.x - startGap
             drawTrackPath(
                 Offset.Zero,
                 Size(end - start, trackStrokeWidth),
@@ -1368,8 +1391,8 @@ object SliderDefaults {
             drawStopIndicator?.invoke(this, Offset(start + cornerSize, center.y))
         }
         // inactive track
-        if (sliderValueEnd.x < sliderEnd.x - gap - cornerSize) {
-            val start = sliderValueEnd.x + gap
+        if (sliderValueEnd.x < sliderEnd.x - endGap - cornerSize) {
+            val start = sliderValueEnd.x + endGap
             val end = sliderEnd.x
             drawTrackPath(
                 Offset(start, 0f),
@@ -1382,8 +1405,8 @@ object SliderDefaults {
         }
         // active track
         val activeTrackStart =
-            if (isRangeSlider) sliderValueStart.x + gap else 0f
-        val activeTrackEnd = sliderValueEnd.x - gap
+            if (isRangeSlider) sliderValueStart.x + startGap else 0f
+        val activeTrackEnd = sliderValueEnd.x - endGap
         val startCornerRadius = if (isRangeSlider) insideCornerSize else cornerSize
         if (activeTrackEnd - activeTrackStart > startCornerRadius) {
             drawTrackPath(
@@ -1397,8 +1420,8 @@ object SliderDefaults {
 
         val start = Offset(sliderStart.x + cornerSize, sliderStart.y)
         val end = Offset(sliderEnd.x - cornerSize, sliderEnd.y)
-        val startGap = sliderValueStart.x - gap..sliderValueStart.x + gap
-        val endGap = sliderValueEnd.x - gap..sliderValueEnd.x + gap
+        val tickStartGap = sliderValueStart.x - startGap..sliderValueStart.x + startGap
+        val tickEndGap = sliderValueEnd.x - endGap..sliderValueEnd.x + endGap
         tickFractions.forEachIndexed { index, tick ->
             // skip ticks that fall on the stop indicator
             if (drawStopIndicator != null) {
@@ -1410,10 +1433,10 @@ object SliderDefaults {
             val outsideFraction = tick > activeRangeEnd || tick < activeRangeStart
             val center = Offset(lerp(start, end, tick).x, center.y)
             // skip ticks that fall on a gap
-            if ((isRangeSlider && center.x in startGap) || center.x in endGap) {
+            if ((isRangeSlider && center.x in tickStartGap) || center.x in tickEndGap) {
                 return@forEachIndexed
             }
-            drawTick?.invoke(
+            drawTick(
                 this,
                 center, // offset
                 if (outsideFraction) inactiveTickColor else activeTickColor // color
@@ -1428,63 +1451,37 @@ object SliderDefaults {
         startCornerRadius: Float,
         endCornerRadius: Float
     ) {
-        trackPath.rewind()
-
+        val startCorner = CornerRadius(startCornerRadius, startCornerRadius)
+        val endCorner = CornerRadius(endCornerRadius, endCornerRadius)
         val track =
-            Rect(
-                Offset(offset.x + startCornerRadius, 0f),
-                size = Size(size.width - startCornerRadius - endCornerRadius, size.height)
+            RoundRect(
+                rect = Rect(
+                    Offset(offset.x, 0f),
+                    size = Size(size.width, size.height)
+                ),
+                topLeft = startCorner,
+                topRight = endCorner,
+                bottomRight = endCorner,
+                bottomLeft = startCorner
             )
-        trackPath.addRect(track)
-
-        buildCorner(offset, size, startCornerRadius, isStart = true) // start
-        buildCorner(Offset(track.right - endCornerRadius, 0f), size, endCornerRadius) // end
-
+        trackPath.addRoundRect(track)
         drawPath(trackPath, color)
-
         trackPath.rewind()
     }
 
-    private fun buildCorner(
-        offset: Offset,
-        size: Size,
-        cornerRadius: Float,
-        isStart: Boolean = false
-    ) {
-        cornerPath.rewind()
-        halfRectPath.rewind()
-
-        val corner = RoundRect(
-            rect = Rect(
-                offset,
-                size = Size(cornerRadius * 2, size.height)
-            ), cornerRadius = CornerRadius(cornerRadius)
-        )
-        cornerPath.addRoundRect(corner)
-
-        // delete the unnecessary half of the RoundRect
-        halfRectPath.addRect(
-            Rect(
-                Offset(corner.left + if (isStart) cornerRadius else 0f, 0f),
-                size = Size(cornerRadius, size.height)
-            )
-        )
-        trackPath.addPath(cornerPath - halfRectPath)
-
-        cornerPath.rewind()
-        halfRectPath.rewind()
-    }
-
-    private fun DrawScope.drawStopIndicator(
+    private fun drawStopIndicator(
+        drawScope: DrawScope,
         offset: Offset,
         size: Dp,
         color: Color
     ) {
-        drawCircle(
-            color = color,
-            center = offset,
-            radius = size.toPx() / 2f
-        )
+        with(drawScope) {
+            drawCircle(
+                color = color,
+                center = offset,
+                radius = size.toPx() / 2f
+            )
+        }
     }
 
     /**
@@ -1498,8 +1495,6 @@ object SliderDefaults {
     val TickSize: Dp = SliderTokens.StopIndicatorSize
 
     private val trackPath = Path()
-    private val cornerPath = Path()
-    private val halfRectPath = Path()
 }
 
 private fun snapValueToTick(
@@ -2122,11 +2117,9 @@ class SliderState(
 
     internal fun updateDimensions(
         newTrackHeight: Float,
-        newThumbWidth: Float,
         newTotalWidth: Int
     ) {
         trackHeight = newTrackHeight
-        thumbWidth = newThumbWidth
         totalWidth = newTotalWidth
     }
 

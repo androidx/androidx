@@ -175,6 +175,7 @@ import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
 import androidx.compose.ui.platform.coreshims.ViewCompatShims
 import androidx.compose.ui.scrollcapture.ScrollCapture
 import androidx.compose.ui.semantics.EmptySemanticsElement
+import androidx.compose.ui.semantics.EmptySemanticsModifier
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.text.font.Font
@@ -248,7 +249,8 @@ internal class AndroidComposeView(
     override var density by mutableStateOf(Density(context), referentialEqualityPolicy())
         private set
 
-    private val semanticsModifier = EmptySemanticsElement
+    private val rootSemanticsNode = EmptySemanticsModifier()
+    private val semanticsModifier = EmptySemanticsElement(rootSemanticsNode)
 
     override val focusOwner: FocusOwner = FocusOwnerImpl(
         onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
@@ -408,7 +410,7 @@ internal class AndroidComposeView(
 
     override val rootForTest: RootForTest = this
 
-    override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
+    override val semanticsOwner: SemanticsOwner = SemanticsOwner(root, rootSemanticsNode)
     private val composeAccessibilityDelegate =
         AndroidComposeViewAccessibilityDelegateCompat(this)
     internal var contentCaptureManager = AndroidContentCaptureManager(
@@ -950,8 +952,8 @@ internal class AndroidComposeView(
     /**
      * This function is used by the delegate file to enable accessibility frameworks for testing.
      */
-    override fun forceAccessibilityForTesting() {
-        composeAccessibilityDelegate.accessibilityForceEnabledForTesting = true
+    override fun forceAccessibilityForTesting(enable: Boolean) {
+        composeAccessibilityDelegate.accessibilityForceEnabledForTesting = enable
     }
 
     /**
@@ -1404,12 +1406,18 @@ internal class AndroidComposeView(
     }
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ): OwnedLayer {
         if (explicitLayer != null) {
-            return GraphicsLayerOwnerLayer(explicitLayer, this, drawBlock, invalidateParentLayer)
+            return GraphicsLayerOwnerLayer(
+                graphicsLayer = explicitLayer,
+                context = null,
+                ownerView = this,
+                drawBlock = drawBlock,
+                invalidateParentLayer = invalidateParentLayer
+            )
         }
         // First try the layer cache
         val layer = layerCache.pop()
@@ -1423,6 +1431,15 @@ internal class AndroidComposeView(
         // the ViewLayer implementation. We'll try even on on P devices, but it will fail
         // until ART allows things on the unsupported list on P.
         if (isHardwareAccelerated && SDK_INT >= M && isRenderNodeCompatible) {
+            if (SDK_INT >= Q) {
+                return GraphicsLayerOwnerLayer(
+                    graphicsLayer = graphicsContext.createGraphicsLayer(),
+                    context = graphicsContext,
+                    ownerView = this,
+                    drawBlock = drawBlock,
+                    invalidateParentLayer = invalidateParentLayer
+                )
+            }
             try {
                 return RenderNodeLayer(
                     this,

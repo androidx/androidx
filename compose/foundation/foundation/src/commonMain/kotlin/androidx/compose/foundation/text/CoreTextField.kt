@@ -364,7 +364,7 @@ internal fun CoreTextField(
     }
 
     // Hide the keyboard if made disabled or read-only while focused (b/237308379).
-    val writeable by rememberUpdatedState(enabled && !readOnly)
+    val writeable by rememberUpdatedState(enabled && !readOnly && windowInfo.isWindowFocused)
     LaunchedEffect(Unit) {
         try {
             snapshotFlow { writeable }.collect { writeable ->

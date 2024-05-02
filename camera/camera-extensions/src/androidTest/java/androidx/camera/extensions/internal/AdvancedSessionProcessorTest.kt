@@ -90,7 +90,6 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -171,7 +170,6 @@ class AdvancedSessionProcessorTest {
     }
 
     @Test
-    @Ignore("b/331617278")
     fun useCasesCanWork_directlyUseOutputSurface() = runBlocking {
         val fakeSessionProcessImpl = FakeSessionProcessImpl(
             // Directly use output surface
@@ -201,7 +199,6 @@ class AdvancedSessionProcessorTest {
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canInvokeStartTrigger() = runBlocking {
         assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3))
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
@@ -227,7 +224,6 @@ class AdvancedSessionProcessorTest {
     }
 
     @Test
-    @Ignore("b/331617278")
     fun getRealtimeLatencyEstimate_advancedSessionProcessorInvokesSessionProcessorImpl() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -248,7 +244,6 @@ class AdvancedSessionProcessorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
-    @Ignore("b/331617278")
     fun isCurrentExtensionTypeAvailableReturnsCorrectFalseValue() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -266,7 +261,6 @@ class AdvancedSessionProcessorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Suppress("UNCHECKED_CAST")
     @Test
-    @Ignore("b/331617278")
     fun isCurrentExtensionTypeAvailableReturnsCorrectTrueValue() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -289,7 +283,6 @@ class AdvancedSessionProcessorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
-    @Ignore("b/331617278")
     fun isExtensionStrengthAvailableReturnsCorrectFalseValue() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -307,7 +300,6 @@ class AdvancedSessionProcessorTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Suppress("UNCHECKED_CAST")
     @Test
-    @Ignore("b/331617278")
     fun isExtensionStrengthAvailableReturnsCorrectTrueValue() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -372,7 +364,6 @@ class AdvancedSessionProcessorTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Ignore("b/331617278")
     fun getCurrentExtensionType_advancedSessionProcessorMonitorSessionProcessorImplResults(): Unit =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -429,7 +420,6 @@ class AdvancedSessionProcessorTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Ignore("b/331617278")
     fun setExtensionStrength_advancedSessionProcessorInvokesSessionProcessorImpl() =
         runBlocking {
             assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -511,7 +501,6 @@ class AdvancedSessionProcessorTest {
     // Surface sharing of YUV format is supported after API 28.
     @SdkSuppress(minSdkVersion = 28)
     @Test
-    @Ignore("b/331617278")
     fun useCasesCanWork_hasSharedSurfaceOutput() = runBlocking {
         assumeAllowsSharedSurface()
         var sharedConfigId = -1
@@ -568,7 +557,6 @@ class AdvancedSessionProcessorTest {
     // Test if physicalCameraId is set and returned in the image received in the image processor.
     @SdkSuppress(minSdkVersion = 28) // physical camera id is supported in API28+
     @Test
-    @Ignore("b/331617278")
     fun useCasesCanWork_setPhysicalCameraId() = runBlocking {
         assumeAllowsSharedSurface()
         val physicalCameraIdList = getPhysicalCameraId(cameraSelector)
@@ -643,7 +631,6 @@ class AdvancedSessionProcessorTest {
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canSetSessionTypeFromOemImpl() {
         assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
             ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
@@ -668,7 +655,6 @@ class AdvancedSessionProcessorTest {
     }
 
     @Test
-    @Ignore("b/331617278")
     fun defaultSessionType() {
         // 1. Arrange.
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
@@ -690,7 +676,6 @@ class AdvancedSessionProcessorTest {
     }
 
     @Test
-    @Ignore("b/331617278")
     fun getSupportedPostviewSizeIsCorrect() {
         // 1. Arrange
         val postviewSizes = mutableMapOf(

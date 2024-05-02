@@ -185,7 +185,7 @@ public class Typography {
 
     @NonNull
     @SuppressLint("ResourceType")
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // scaledDensity, b/335215227
     // This is a helper function to make the font not scalable. It should interpret in value as DP
     // and convert it to SP which is needed to be passed in as a font size. However, we will pass an
     // SP object to it, because the default style is defined in it, but for the case when the font

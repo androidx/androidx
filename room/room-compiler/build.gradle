@@ -21,6 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.BuildOnServerKt
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
@@ -28,8 +29,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
 
 plugins {
     id("AndroidXPlugin")
@@ -96,7 +95,11 @@ dependencies {
 }
 
 def generateAntlrTask = tasks.register("generateAntlrGrammar", GenerateAntlrGrammar) { task ->
-    task.getSqliteFile().set(layout.projectDirectory.file("SQLite.g4"))
+    def sourceFiles = [
+            "SQLiteLexer.g4",
+            "SQLiteParser.g4"
+    ]
+    task.getSourceFiles().set(sourceFiles.collect { layout.projectDirectory.file(it) })
     task.getAntlrClasspath().from(configurations.compileClasspath)
     task.getOutputDirectory().set(layout.buildDirectory.dir("generated/antlr/grammar-gen/"))
 }
@@ -108,8 +111,8 @@ sourceSets {
 @CacheableTask
 abstract class GenerateAntlrGrammar extends DefaultTask {
     @PathSensitive(PathSensitivity.NONE)
-    @InputFile
-    abstract RegularFileProperty getSqliteFile()
+    @InputFiles
+    abstract ListProperty<RegularFile> getSourceFiles()
 
     @Classpath
     abstract ConfigurableFileCollection getAntlrClasspath()
@@ -122,19 +125,23 @@ abstract class GenerateAntlrGrammar extends DefaultTask {
 
     @Inject
     public GenerateAntlrGrammar() {
-        description("Generates Antlr Grammar used by room")
+        description("Generates ANTLR Grammar used by Room")
         group("build")
     }
 
     @TaskAction
     void generateAntlrGrammar() {
+        File outputDirectoryFile = getOutputDirectory().asFile.get()
+        outputDirectoryFile.deleteDir()
         execOperations.javaexec {
             mainClass.set("org.antlr.v4.Tool")
             classpath = getAntlrClasspath()
-            args getSqliteFile().asFile.get().absolutePath,
+            args(
+                 *getSourceFiles().get().collect { it.getAsFile().absolutePath },
                  "-visitor",
-                 "-o", new File(getOutputDirectory().asFile.get(), "androidx/room/parser").path,
+                 "-o", new File(outputDirectoryFile, "androidx/room/parser").path,
                  "-package", "androidx.room.parser"
+            )
         }
     }
 }

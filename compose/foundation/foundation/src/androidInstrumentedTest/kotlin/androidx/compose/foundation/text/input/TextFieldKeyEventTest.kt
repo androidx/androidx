@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.text.BasicSecureTextField
@@ -58,10 +57,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalTestApi::class
-)
+@OptIn(ExperimentalTestApi::class)
 class TextFieldKeyEventTest {
     @get:Rule
     val rule = createComposeRule()
@@ -73,6 +69,15 @@ class TextFieldKeyEventTest {
     @Test
     fun textField_typedEvents() {
         keysSequenceTest {
+            pressKey(Key.H)
+            press(Key.ShiftLeft + Key.I)
+            expectedText("hI")
+        }
+    }
+
+    @Test
+    fun textField_typedEvents_no_text_layout() {
+        keysSequenceTest(noTextLayout = true) {
             pressKey(Key.H)
             press(Key.ShiftLeft + Key.I)
             expectedText("hI")
@@ -188,8 +193,26 @@ class TextFieldKeyEventTest {
     }
 
     @Test
+    fun textField_backspace_no_text_layout() {
+        keysSequenceTest("hello", noTextLayout = true) {
+            pressKey(Key.DirectionRight)
+            pressKey(Key.DirectionRight)
+            pressKey(Key.Backspace)
+            expectedText("hllo")
+        }
+    }
+
+    @Test
     fun textField_delete() {
         keysSequenceTest("hello") {
+            pressKey(Key.Delete)
+            expectedText("ello")
+        }
+    }
+
+    @Test
+    fun textField_delete_no_text_layout() {
+        keysSequenceTest("hello", noTextLayout = true) {
             pressKey(Key.Delete)
             expectedText("ello")
         }
@@ -700,12 +723,18 @@ class TextFieldKeyEventTest {
         }
     }
 
+    /**
+     * @param noTextLayout Whether the BasicTextField under test should calculate its text layout.
+     * A text layout calculation can be prevented by specifying a decorator but not calling the
+     * inner text field.
+     */
     private fun keysSequenceTest(
         initText: String = "",
         initSelection: TextRange = TextRange.Zero,
         modifier: Modifier = Modifier.fillMaxSize(),
         singleLine: Boolean = false,
         secure: Boolean = false,
+        noTextLayout: Boolean = false,
         sequence: SequenceScope.() -> Unit,
     ) {
         val state = TextFieldState(initText, initSelection)
@@ -727,6 +756,9 @@ class TextFieldKeyEventTest {
                             .focusRequester(focusRequester)
                             .testTag(tag),
                         lineLimits = if (singleLine) SingleLine else MultiLine(),
+                        decorator = {
+                            if (!noTextLayout) { it() }
+                        }
                     )
                 } else {
                     BasicSecureTextField(
@@ -737,7 +769,10 @@ class TextFieldKeyEventTest {
                         ),
                         modifier = modifier
                             .focusRequester(focusRequester)
-                            .testTag(tag)
+                            .testTag(tag),
+                        decorator = {
+                            if (!noTextLayout) { it() }
+                        }
                     )
                 }
             }

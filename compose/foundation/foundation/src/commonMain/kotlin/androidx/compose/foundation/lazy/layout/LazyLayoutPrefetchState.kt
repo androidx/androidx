@@ -36,8 +36,8 @@ import kotlin.time.measureTime
  * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
  * change.
  *
- * @param prefetchExecutor the PrefetchExecutor implementation to use to execute prefetch requests.
- * If null is provided, the default PrefetchExecutor for the platform will be used.
+ * @param prefetchScheduler the [PrefetchScheduler] implementation to use to execute prefetch
+ * requests. If null is provided, the default [PrefetchScheduler] for the platform will be used.
  * @param onNestedPrefetch a callback which will be invoked when this LazyLayout is prefetched in
  * context of a parent LazyLayout, giving a chance to recursively prefetch its own children. See
  * [NestedPrefetchScope].
@@ -45,7 +45,7 @@ import kotlin.time.measureTime
 @ExperimentalFoundationApi
 @Stable
 class LazyLayoutPrefetchState(
-    internal val prefetchExecutor: PrefetchExecutor? = null,
+    internal val prefetchScheduler: PrefetchScheduler? = null,
     private val onNestedPrefetch: (NestedPrefetchScope.() -> Unit)? = null
 ) {
 
@@ -175,13 +175,13 @@ private object DummyHandle : PrefetchHandle {
  * PrefetchHandleProvider is used to connect the [LazyLayoutPrefetchState], which provides the API
  * to schedule prefetches, to a [LazyLayoutItemContentFactory] which resolves key and content from
  * an index, [SubcomposeLayoutState] which knows how to precompose/premeasure,
- * and a specific [PrefetchExecutor] used to execute a request.
+ * and a specific [PrefetchScheduler] used to execute a request.
  */
 @ExperimentalFoundationApi
 internal class PrefetchHandleProvider(
     private val itemContentFactory: LazyLayoutItemContentFactory,
     private val subcomposeLayoutState: SubcomposeLayoutState,
-    private val executor: PrefetchExecutor
+    private val executor: PrefetchScheduler
 ) {
     fun schedulePrefetch(
         index: Int,
@@ -189,7 +189,7 @@ internal class PrefetchHandleProvider(
         prefetchMetrics: PrefetchMetrics
     ): PrefetchHandle =
         HandleAndRequestImpl(index, constraints, prefetchMetrics).also {
-            executor.requestPrefetch(it)
+            executor.schedulePrefetch(it)
         }
 
     fun createNestedPrefetchRequest(

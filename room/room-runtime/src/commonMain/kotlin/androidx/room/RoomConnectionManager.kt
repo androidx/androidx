@@ -19,6 +19,7 @@ package androidx.room
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase.JournalMode.TRUNCATE
 import androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING
+import androidx.room.concurrent.ExclusiveLock
 import androidx.room.util.findMigrationPath
 import androidx.room.util.isMigrationRequired
 import androidx.sqlite.SQLiteConnection
@@ -42,6 +43,12 @@ abstract class BaseRoomConnectionManager {
     protected abstract val openDelegate: RoomOpenDelegate
     protected abstract val callbacks: List<RoomDatabase.Callback>
 
+    // Flag indicating that the database was configured, i.e. at least one connection has been
+    // opened, configured and schema validated.
+    private var isConfigured = false
+    // Flag set during initialization to prevent recursive initialization.
+    private var isInitializing = false
+
     abstract suspend fun <R> useConnection(
         isReadOnly: Boolean,
         block: suspend (Transactor) -> R
@@ -51,18 +58,38 @@ abstract class BaseRoomConnectionManager {
     protected inner class DriverWrapper(
         private val actual: SQLiteDriver
     ) : SQLiteDriver {
-        override fun open(fileName: String): SQLiteConnection {
-            return configureConnection(actual.open(fileName))
-        }
+        override fun open(fileName: String): SQLiteConnection =
+            ExclusiveLock(
+                filename = fileName,
+                useFileLock = !isConfigured && !isInitializing && fileName != ":memory:"
+            ).withLock {
+                check(!isInitializing) {
+                    "Recursive database initialization detected. Did you try to use the database " +
+                        "instance during initialization? Maybe in one of the callbacks?"
+                }
+                val connection = actual.open(fileName)
+                if (!isConfigured) {
+                    // Perform initial connection configuration
+                    try {
+                        isInitializing = true
+                        configureDatabase(connection)
+                    } finally {
+                        isInitializing = false
+                    }
+                } else {
+                    // Perform other non-initial connection configuration
+                    configurationConnection(connection)
+                }
+                return@withLock connection
+            }
     }
 
     /**
-     * Common database connection configuration and opening procedure, performs migrations if
-     * necessary, validates schema and invokes configured callbacks if any.
+     * Performs initial database connection configuration and opening procedure, such as
+     * running migrations if necessary, validating schema and invoking configured callbacks if any.
      */
-    // TODO(b/316945717): Thread safe and process safe opening and migration
     // TODO(b/316944352): Retry mechanism
-    private fun configureConnection(connection: SQLiteConnection): SQLiteConnection {
+    private fun configureDatabase(connection: SQLiteConnection) {
         configureJournalMode(connection)
         val version = connection.prepare("PRAGMA user_version").use { statement ->
             statement.step()
@@ -85,7 +112,14 @@ abstract class BaseRoomConnectionManager {
             }
         }
         onOpen(connection)
-        return connection
+    }
+
+    /**
+     * Performs non-initial database connection configuration, specifically executing any
+     * per-connection PRAGMA.
+     */
+    private fun configurationConnection(connection: SQLiteConnection) {
+        openDelegate.onOpen(connection)
     }
 
     private fun configureJournalMode(connection: SQLiteConnection) {
@@ -161,21 +195,27 @@ abstract class BaseRoomConnectionManager {
         }
     }
 
-    protected open fun dropAllTables(connection: SQLiteConnection) {
-        connection.prepare(
-            "SELECT name FROM sqlite_master WHERE type = 'table'"
-        ).use { statement ->
-            buildList {
-                while (statement.step()) {
-                    val name = statement.getText(0)
-                    if (name.startsWith("sqlite_") || name == "android_metadata") {
-                        continue
+    private fun dropAllTables(connection: SQLiteConnection) {
+        if (configuration.allowDestructiveMigrationForAllTables) {
+            // Drops all tables (excluding special ones)
+            connection.prepare(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).use { statement ->
+                buildList {
+                    while (statement.step()) {
+                        val name = statement.getText(0)
+                        if (name.startsWith("sqlite_") || name == "android_metadata") {
+                            continue
+                        }
+                        add(name)
                     }
-                    add(name)
                 }
+            }.forEach { table ->
+                connection.execSQL("DROP TABLE IF EXISTS $table")
             }
-        }.forEach { table ->
-            connection.execSQL("DROP TABLE IF EXISTS $table")
+        } else {
+            // Drops known tables (Room entity tables)
+            openDelegate.dropAllTables(connection)
         }
     }
 
@@ -183,6 +223,7 @@ abstract class BaseRoomConnectionManager {
         checkIdentity(connection)
         openDelegate.onOpen(connection)
         invokeOpenCallback(connection)
+        isConfigured = true
     }
 
     private fun checkIdentity(connection: SQLiteConnection) {

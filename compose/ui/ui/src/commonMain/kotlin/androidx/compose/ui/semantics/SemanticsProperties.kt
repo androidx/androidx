@@ -18,6 +18,8 @@ package androidx.compose.ui.semantics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.autofill.ContentDataType
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.AnnotatedString
@@ -99,7 +101,8 @@ object SemanticsProperties {
     /**
      * @see SemanticsPropertyReceiver.isContainer
      */
-    @Deprecated("Use `isTraversalGroup` instead.",
+    @Deprecated(
+        "Use `isTraversalGroup` instead.",
         replaceWith = ReplaceWith("IsTraversalGroup"),
     )
     val IsContainer: SemanticsPropertyKey<Boolean>
@@ -117,6 +120,30 @@ object SemanticsProperties {
     val InvisibleToUser = SemanticsPropertyKey<Unit>(
         name = "InvisibleToUser",
         mergePolicy = { parentValue, _ ->
+            parentValue
+        }
+    )
+
+    /**
+     * @see SemanticsPropertyReceiver.contentType
+     */
+    // TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+    internal val ContentType = SemanticsPropertyKey<ContentType>(
+        name = "ContentType",
+        mergePolicy = { parentValue, _ ->
+            // Never merge autofill types
+            parentValue
+        }
+    )
+
+    /**
+     * @see SemanticsPropertyReceiver.contentDataType
+     */
+    // TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+    internal val ContentDataType = SemanticsPropertyKey<ContentDataType>(
+        name = "ContentDataType",
+        mergePolicy = { parentValue, _ ->
+            // Never merge autofill data types
             parentValue
         }
     )
@@ -303,6 +330,13 @@ object SemanticsActions {
      * @see SemanticsPropertyReceiver.scrollToIndex
      */
     val ScrollToIndex = ActionPropertyKey<(Int) -> Boolean>("ScrollToIndex")
+
+    /**
+     * @see SemanticsPropertyReceiver.onAutofillText
+     */
+    // TODO(b/333102566): make this action public when Autofill is ready to go live
+    internal val OnAutofillText =
+        ActionPropertyKey<(AnnotatedString) -> Boolean>("OnAutofillText")
 
     /**
      * @see SemanticsPropertyReceiver.setProgress
@@ -561,7 +595,7 @@ class CustomAccessibilityAction(val label: String, val action: () -> Boolean) {
         if (other !is CustomAccessibilityAction) return false
 
         if (label != other.label) return false
-        if (action != other.action) return false
+        if (action !== other.action) return false
 
         return true
     }
@@ -880,7 +914,8 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
  *
  * @see SemanticsProperties.IsContainer
  */
-@Deprecated("Use `isTraversalGroup` instead.",
+@Deprecated(
+    "Use `isTraversalGroup` instead.",
     replaceWith = ReplaceWith("isTraversalGroup"),
 )
 var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
@@ -909,6 +944,28 @@ var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversa
 fun SemanticsPropertyReceiver.invisibleToUser() {
     this[SemanticsProperties.InvisibleToUser] = Unit
 }
+
+/**
+ * Content field type information.
+ *
+ * This API can be used to indicate to Autofill services what _kind of field_ is associated with
+ * this node. Not to be confused with the _data type_ to be entered into the field.
+ *
+ *  @see SemanticsProperties.ContentType
+ */
+// TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+internal var SemanticsPropertyReceiver.contentType by SemanticsProperties.ContentType
+
+/**
+ * Content data type information.
+ *
+ * This API can be used to indicate to Autofill services what _kind of data_ is meant to be
+ * suggested for this field. Not to be confused with the _type_ of the field.
+ *
+ *  @see SemanticsProperties.ContentType
+ */
+// TODO(b/333102566): make these semantics properties public when Autofill is ready to go live
+internal var SemanticsPropertyReceiver.contentDataType by SemanticsProperties.ContentDataType
 
 /**
  * A value to manually control screenreader traversal order.
@@ -1190,6 +1247,22 @@ fun SemanticsPropertyReceiver.scrollToIndex(
     action: (Int) -> Boolean
 ) {
     this[SemanticsActions.ScrollToIndex] = AccessibilityAction(label, action)
+}
+
+/**
+ * Action to autofill a TextField.
+ *
+ * Expected to be used in conjunction with contentType and contentDataType properties.
+ *
+ * @param label Optional label for this action.
+ * @param action Action to be performed when the [SemanticsActions.OnAutofillText] is called.
+ */
+// TODO(b/333102566): make this action public when Autofill is ready to go live
+internal fun SemanticsPropertyReceiver.onAutofillText(
+    label: String? = null,
+    action: ((AnnotatedString) -> Boolean)?
+) {
+    this[SemanticsActions.OnAutofillText] = AccessibilityAction(label, action)
 }
 
 /**
@@ -1490,8 +1563,7 @@ fun SemanticsPropertyReceiver.pageRight(
 }
 
 /**
- * Action to get a scrollable's active view port amount for scrolling actions. The result is the
- * first element of the array in the argument of the AccessibilityAction.
+ * Action to get a scrollable's active view port amount for scrolling actions.
  *
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.GetScrollViewportLength] is
@@ -1499,7 +1571,15 @@ fun SemanticsPropertyReceiver.pageRight(
  */
 fun SemanticsPropertyReceiver.getScrollViewportLength(
     label: String? = null,
-    action: ((MutableList<Float>) -> Boolean)
+    action: (() -> Float?)
 ) {
-    this[SemanticsActions.GetScrollViewportLength] = AccessibilityAction(label, action)
+    this[SemanticsActions.GetScrollViewportLength] = AccessibilityAction(label) {
+        val viewport = action.invoke()
+        if (viewport == null) {
+            false
+        } else {
+            it.add(viewport)
+            true
+        }
+    }
 }

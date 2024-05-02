@@ -19,9 +19,19 @@ package androidx.room.integration.multiplatformtestapp.test
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.room.RoomDatabase
+import androidx.room.useReaderConnection
+import androidx.room.useWriterConnection
 import androidx.sqlite.SQLiteConnection
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 
 abstract class BaseBuilderTest {
@@ -70,10 +80,113 @@ abstract class BaseBuilderTest {
     }
 
     @Test
+    fun onOpenExactlyOnce() = runTest {
+        var onOpenInvoked = 0
+
+        val onOpenBlocker = CompletableDeferred<Unit>()
+        val database = getRoomDatabaseBuilder()
+            .addCallback(
+                object : RoomDatabase.Callback() {
+                    // This onOpen callback will block database initialization until the
+                    // onOpenLatch is released.
+                    override fun onOpen(connection: SQLiteConnection) {
+                        onOpenInvoked++
+                        runBlocking { onOpenBlocker.await() }
+                    }
+                }
+            )
+            .build()
+
+        // Start 4 concurrent coroutines that try to open the database and use its connections,
+        // initialization should be done exactly once
+        val launchBlockers = List(4) { CompletableDeferred<Unit>() }
+        val jobs = List(4) { index ->
+            launch(Dispatchers.IO) {
+                launchBlockers[index].complete(Unit)
+                database.useReaderConnection { }
+            }
+        }
+
+        // Wait all launch coroutines to start then release the latch
+        launchBlockers.awaitAll()
+        delay(100) // A bit more waiting so useReaderConnection reaches the exclusive lock
+        onOpenBlocker.complete(Unit)
+
+        jobs.joinAll()
+        database.close()
+
+        // Initialization should be done exactly once
+        assertThat(onOpenInvoked).isEqualTo(1)
+    }
+
+    @Test
+    fun onOpenRecursive() = runTest {
+        var database: SampleDatabase? = null
+        database = getRoomDatabaseBuilder()
+            .setQueryCoroutineContext(Dispatchers.Unconfined)
+            .addCallback(
+                object : RoomDatabase.Callback() {
+                    // Use a bad open callback that will recursively try to open the database
+                    // again, this is a user error.
+                    override fun onOpen(connection: SQLiteConnection) {
+                        runBlocking {
+                            checkNotNull(database).dao().getItemList()
+                        }
+                    }
+                }
+            ).build()
+        assertThrows<IllegalStateException> {
+            database.dao().getItemList()
+        }.hasMessageThat().contains("Recursive database initialization detected.")
+        database.close()
+    }
+
+    @Test
+    fun onConfigureConnections() = runTest {
+        val database = getRoomDatabaseBuilder().build()
+        // Validate that all connections are configured to be use by Room, in this case that they
+        // all have foreign keys enables as that is a per-connection PRAGMA.
+        val jobs = List(4) {
+            launch(Dispatchers.IO) {
+                database.useReaderConnection { connection ->
+                    connection.usePrepared("PRAGMA foreign_keys") {
+                        assertThat(it.step()).isTrue() // SQLITE_ROW
+                        assertThat(it.getBoolean(0)).isTrue()
+                    }
+                }
+            }
+        } + launch(Dispatchers.IO) {
+            database.useWriterConnection { connection ->
+                connection.usePrepared("PRAGMA foreign_keys") {
+                    assertThat(it.step()).isTrue() // SQLITE_ROW
+                    assertThat(it.getBoolean(0)).isTrue()
+                }
+            }
+        }
+        jobs.joinAll()
+        database.close()
+    }
+
+    @Test
     fun setCoroutineContextWithoutDispatcher() {
         assertThrows<IllegalArgumentException> {
             getRoomDatabaseBuilder().setQueryCoroutineContext(EmptyCoroutineContext)
         }.hasMessageThat()
             .contains("It is required that the coroutine context contain a dispatcher.")
+    }
+
+    @Test
+    fun setJournalMode() = runTest {
+        val database = getRoomDatabaseBuilder()
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+        val journalMode = database.useReaderConnection { connection ->
+            connection.usePrepared("PRAGMA journal_mode") {
+                it.step()
+                it.getText(0)
+            }
+        }
+        assertThat(journalMode).isEqualTo("truncate")
+        database.close()
     }
 }

@@ -362,29 +362,6 @@ package androidx.compose.foundation.content {
 
 }
 
-package androidx.compose.foundation.contextmenu {
-
-  @androidx.compose.runtime.Stable public final class ContextMenuColors {
-    ctor public ContextMenuColors(long backgroundColor, long textColor, long iconColor, long disabledTextColor, long disabledIconColor);
-    method public long getBackgroundColor();
-    method public long getDisabledIconColor();
-    method public long getDisabledTextColor();
-    method public long getIconColor();
-    method public long getTextColor();
-    property public final long backgroundColor;
-    property public final long disabledIconColor;
-    property public final long disabledTextColor;
-    property public final long iconColor;
-    property public final long textColor;
-  }
-
-  public final class ContextMenuUiKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.contextmenu.ContextMenuColors?> getLocalContextMenuColors();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.contextmenu.ContextMenuColors?> LocalContextMenuColors;
-  }
-
-}
-
 package androidx.compose.foundation.draganddrop {
 
   public final class AndroidDragAndDropSource_androidKt {
@@ -870,11 +847,11 @@ package androidx.compose.foundation.lazy {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface LazyListPrefetchStrategy {
-    method public default androidx.compose.foundation.lazy.layout.PrefetchExecutor? getPrefetchExecutor();
+    method public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? getPrefetchScheduler();
     method public void onNestedPrefetch(androidx.compose.foundation.lazy.layout.NestedPrefetchScope, int firstVisibleItemIndex);
     method public void onScroll(androidx.compose.foundation.lazy.LazyListPrefetchScope, float delta, androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo);
     method public void onVisibleItemsUpdated(androidx.compose.foundation.lazy.LazyListPrefetchScope, androidx.compose.foundation.lazy.LazyListLayoutInfo layoutInfo);
-    property public default androidx.compose.foundation.lazy.layout.PrefetchExecutor? prefetchExecutor;
+    property public default androidx.compose.foundation.lazy.layout.PrefetchScheduler? prefetchScheduler;
   }
 
   public final class LazyListPrefetchStrategyKt {
@@ -1149,7 +1126,7 @@ package androidx.compose.foundation.lazy.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class LazyLayoutPrefetchState {
-    ctor public LazyLayoutPrefetchState(optional androidx.compose.foundation.lazy.layout.PrefetchExecutor? prefetchExecutor, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.layout.NestedPrefetchScope,kotlin.Unit>? onNestedPrefetch);
+    ctor public LazyLayoutPrefetchState(optional androidx.compose.foundation.lazy.layout.PrefetchScheduler? prefetchScheduler, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.layout.NestedPrefetchScope,kotlin.Unit>? onNestedPrefetch);
     method public androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle schedulePrefetch(int index, optional androidx.compose.ui.unit.Constraints? constraints);
   }
 
@@ -1174,10 +1151,6 @@ package androidx.compose.foundation.lazy.layout {
     method public void schedulePrefetch(int index, optional androidx.compose.ui.unit.Constraints? constraints);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchExecutor {
-    method public void requestPrefetch(androidx.compose.foundation.lazy.layout.PrefetchRequest prefetchRequest);
-  }
-
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public sealed interface PrefetchRequest {
     method public boolean execute(androidx.compose.foundation.lazy.layout.PrefetchRequestScope);
   }
@@ -1185,6 +1158,10 @@ package androidx.compose.foundation.lazy.layout {
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchRequestScope {
     method public long getAvailableTimeNanos();
     property public abstract long availableTimeNanos;
+  }
+
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public interface PrefetchScheduler {
+    method public void schedulePrefetch(androidx.compose.foundation.lazy.layout.PrefetchRequest prefetchRequest);
   }
 
 }
@@ -1685,12 +1662,12 @@ package androidx.compose.foundation.text {
 
 package androidx.compose.foundation.text.handwriting {
 
-  public final class HandwritingDelegate_androidKt {
-    method public static androidx.compose.ui.Modifier handwritingDelegate(androidx.compose.ui.Modifier);
+  public final class HandwritingDetector_androidKt {
+    method public static androidx.compose.ui.Modifier handwritingDetector(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> callback);
   }
 
-  public final class HandwritingDelegator_androidKt {
-    method public static androidx.compose.ui.Modifier handwritingDelegator(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> callback);
+  public final class HandwritingHandler_androidKt {
+    method public static androidx.compose.ui.Modifier handwritingHandler(androidx.compose.ui.Modifier);
   }
 
 }

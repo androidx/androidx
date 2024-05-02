@@ -42,6 +42,7 @@ import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.ExifUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.SurfaceTextureProvider.SurfaceTextureCallback
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -59,7 +60,6 @@ import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -89,6 +89,9 @@ class ImageCaptureTest(
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(cameraXConfig)
     )
+
+    @get:Rule
+    var wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     @get:Rule
     val temporaryFolder = TemporaryFolder(context.cacheDir)
@@ -158,7 +161,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePicture(): Unit = runBlocking {
         val mockOnImageCapturedCallback = Mockito.mock(
             ImageCapture.OnImageCapturedCallback::class.java
@@ -302,7 +304,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePicture_diskIo(): Unit = runBlocking {
         val mockOnImageSavedCallback = Mockito.mock(
             ImageCapture.OnImageSavedCallback::class.java
@@ -488,7 +489,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePictureWithCaptureProcessProgress(): Unit = runBlocking {
         assumeTrue(isCaptureProcessProgressSupported())
 
@@ -525,7 +525,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePictureWithCaptureProcessProgress_diskIo(): Unit = runBlocking {
         assumeTrue(isCaptureProcessProgressSupported())
 
@@ -564,7 +563,6 @@ class ImageCaptureTest(
         ExifRotationAvailability().isRotationOptionSupported
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePictureWithPostview(): Unit = runBlocking {
         assumeTrue(isPostviewSupported())
 
@@ -618,7 +616,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndTakePictureWithPostview_diskIo(): Unit = runBlocking {
         assumeTrue(isPostviewSupported())
 
@@ -665,7 +662,6 @@ class ImageCaptureTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun highResolutionDisabled_whenExtensionsEnabled(): Unit = runBlocking {
         val imageCapture = ImageCapture.Builder().build()
 

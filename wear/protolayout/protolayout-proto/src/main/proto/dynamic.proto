@@ -4,8 +4,8 @@ syntax = "proto3";
 package androidx.wear.protolayout.expression.proto;
 
 import "animation_parameters.proto";
-import "fixed.proto";
 import "fingerprint.proto";
+import "fixed.proto";
 
 option java_package = "androidx.wear.protolayout.expression.proto";
 option java_outer_classname = "DynamicProto";
@@ -109,7 +109,9 @@ message ConditionalFloatOp {
   DynamicFloat value_if_false = 3;
 }
 
-// Rounding mode to use when converting a float to an int32.
+// Rounding mode to use when converting a float to an int32. If the value is
+// larger than {@link Integer#MAX_VALUE} or smaller than {@link
+// Integer#MIN_VALUE}, the result of this operation will be invalid.
 enum FloatToInt32RoundMode {
   // An undefined rounding mode.
   ROUND_MODE_UNDEFINED = 0;
@@ -133,7 +135,7 @@ message FloatToInt32Op {
   FloatToInt32RoundMode round_mode = 2;
 }
 
-// A static interpolation node, between two fixed int32 values.
+// A static interpolation, between two fixed int32 values.
 message AnimatableFixedInt32 {
   // The value to start animating from.
   int32 from_value = 1;
@@ -205,15 +207,17 @@ message Int32FormatOp {
   // The source of Int32 data to convert to a string.
   DynamicInt32 input = 1;
 
-  // Minimum integer digits. Sign and grouping characters are not considered
-  // when applying minIntegerDigits constraint. If not defined, defaults to one.
-  // For example,in the English locale, applying minIntegerDigit=4 to 12 would
-  // yield "0012".
-  optional int32 min_integer_digits = 4;
+  oneof optional_min_integer_digits {
+    // Minimum integer digits. Sign and grouping characters are not considered
+    // when applying minIntegerDigits constraint. If not defined, defaults to
+    // one. For example,in the for locale en_US, applying minIntegerDigit=4 to
+    // 12 would yield "0012".
+    int32 min_integer_digits = 4;
+  }
 
   // Digit grouping used. Grouping size and grouping character depend on the
   // current locale. If not defined, defaults to false.
-  // For example, in the English locale, using grouping with 1234 would yield
+  // For example, in the for locale en_US, using grouping with 1234 would yield
   // "1,234".
   bool grouping_used = 5;
 }
@@ -255,11 +259,14 @@ message FloatFormatOp {
   // The source of Float data to convert to a string.
   DynamicFloat input = 1;
 
-  // Maximum fraction digits. Rounding will be applied if maxFractionDigits is
-  // smaller than number of fraction digits. If not defined, defaults to three.
-  // minimumFractionDigits must be <= maximumFractionDigits. If the condition is
-  // not satisfied, then minimumFractionDigits will be used for both fields.
-  optional int32 max_fraction_digits = 2;
+  oneof optional_max_fraction_digits {
+    // Maximum fraction digits. Rounding will be applied if maxFractionDigits is
+    // smaller than number of fraction digits. If not defined, defaults to
+    // three. minimumFractionDigits must be <= maximumFractionDigits. If the
+    // condition is not satisfied, then minimumFractionDigits will be used for
+    // both fields.
+    int32 max_fraction_digits = 2;
+  }
 
   // Minimum fraction digits. Zeros will be appended to the end to satisfy this
   // constraint. If not defined, defaults to zero. minimumFractionDigits must be
@@ -267,20 +274,25 @@ message FloatFormatOp {
   // minimumFractionDigits will be used for both fields.
   int32 min_fraction_digits = 3;
 
-  // Minimum integer digits. Sign and grouping characters are not considered
-  // when applying minIntegerDigits constraint. If not defined, defaults to one.
-  // For example, in the English locale, applying minIntegerDigit=4 to 12.34
-  // would yield "0012.34".
-  optional int32 min_integer_digits = 4;
+  oneof optional_min_integer_digits {
+    // Minimum integer digits. Sign and grouping characters are not considered
+    // when applying minIntegerDigits constraint. If not defined, defaults to
+    // one. For example, in the for locale en_US, applying minIntegerDigit=4
+    // to 12.34 would yield "0012.34".
+    int32 min_integer_digits = 4;
+  }
 
   // Digit grouping used. Grouping size and grouping character depend on the
   // current locale. If not defined, defaults to false.
-  // For example, in the English locale, using grouping with 1234.56 would yield
-  // "1,234.56".
+  // For example, in the for locale en_US, using grouping with 1234.56 would
+  // yield "1,234.56".
   bool grouping_used = 5;
 }
 
 // A dynamic string type.
+//
+// DynamicString string value is subject to being truncated if it's too
+// long.
 message DynamicString {
   oneof inner {
     FixedString fixed = 1;
@@ -325,7 +337,7 @@ message Int32ToFloatOp {
   DynamicInt32 input = 1;
 }
 
-// A static interpolation node, between two fixed floating point values.
+// A static interpolation, between two fixed floating point values.
 message AnimatableFixedFloat {
   // The number to start animating from.
   float from_value = 1;
@@ -501,8 +513,8 @@ message DynamicBool {
     ComparisonFloatOp float_comparison = 6;
   }
 
-   // The fingerprint for the dynamic node
-   androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 7;
+  // The fingerprint for the dynamic node
+  androidx.wear.protolayout.proto.NodeFingerprint fingerprint = 7;
 }
 
 // A dynamic Color which sources its data from the tile's state.
@@ -514,7 +526,7 @@ message StateColorSource {
   string source_namespace = 2;
 }
 
-// A static interpolation node, between two fixed color values.
+// A static interpolation, between two fixed color values.
 message AnimatableFixedColor {
   // The color value (in ARGB format) to start animating from.
   uint32 from_argb = 1;
@@ -546,7 +558,7 @@ message AnimatableDynamicColor {
 // operand. This implements:
 // ```color result = condition ? value_if_true : value_if_false```
 message ConditionalColorOp {
-    // The condition to use.
+  // The condition to use.
   DynamicBool condition = 1;
 
   // The color to yield if condition is true.
@@ -588,6 +600,9 @@ message ConditionalInstantOp {
 }
 
 // A dynamic time instant type.
+//
+// DynamicInstant precision is seconds. Thus, any time or duration
+// operation will operate on that precision level.
 message DynamicInstant {
   oneof inner {
     FixedInstant fixed = 1;
@@ -601,7 +616,8 @@ message DynamicInstant {
 }
 
 // A dynamic zoned date-time type.
-// <p> DynamicZonedDateTime precision is seconds. Thus, any related time
+//
+// DynamicZonedDateTime precision is seconds. Thus, any related time
 // operation will operate on that precision level.
 message DynamicZonedDateTime {
   oneof inner {
@@ -613,11 +629,12 @@ message DynamicZonedDateTime {
 message InstantToZonedDateTimeOp {
   // The instant to convert.
   DynamicInstant instant = 1;
+
   // The ZoneId following the time-zone ID format used by java {@link ZoneId}.
   string zone_id = 2;
 }
 
-// The date-time part to retrieve using ZonedDateTimePartOp.
+// The datetime part to retrieve using ZonedDateTimePartOp.
 enum ZonedDateTimePartType {
   // Undefined date-time part type.
   ZONED_DATE_TIME_PART_UNDEFINED = 0;
@@ -637,12 +654,12 @@ enum ZonedDateTimePartType {
   ZONED_DATE_TIME_PART_YEAR = 7;
 }
 
-// Retrieve the specified date-time part of a DynamicZonedDateTime instance as a
+// Retrieve the specified datetime part of a DynamicZonedDateTime instance as a
 // DynamicInt32.
 message GetZonedDateTimePartOp {
-  // The zoned date-time input.
+  // The zoned datetime input.
   DynamicZonedDateTime input = 1;
-  // The date-time part to retrieve.
+  // The datetime part to retrieve.
   ZonedDateTimePartType part_type = 2;
 }
 

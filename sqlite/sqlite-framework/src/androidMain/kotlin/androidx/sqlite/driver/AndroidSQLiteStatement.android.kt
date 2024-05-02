@@ -17,7 +17,6 @@
 package androidx.sqlite.driver
 
 import android.database.Cursor
-import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteCursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteProgram
@@ -43,14 +42,23 @@ internal sealed class AndroidSQLiteStatement(
 
     companion object {
         fun create(db: SQLiteDatabase, sql: String): AndroidSQLiteStatement {
-            return when (DatabaseUtils.getSqlStatementType(sql)) {
-                DatabaseUtils.STATEMENT_SELECT,
-                DatabaseUtils.STATEMENT_PRAGMA ->
-                    // Statements that return rows (SQLITE_ROW)
-                    SelectAndroidSQLiteStatement(db, sql)
-                else ->
-                    // Statements that don't return row (SQLITE_DONE)
-                    OtherAndroidSQLiteStatement(db, sql)
+            return if (isRowStatement(sql)) {
+                // Statements that return rows (SQLITE_ROW)
+                SelectAndroidSQLiteStatement(db, sql)
+            } else {
+                // Statements that don't return row (SQLITE_DONE)
+                OtherAndroidSQLiteStatement(db, sql)
+            }
+        }
+
+        private fun isRowStatement(sql: String): Boolean {
+            val prefix = sql.trim()
+            if (prefix.length < 3) {
+                return false
+            }
+            return when (prefix.substring(0, 3).uppercase()) {
+                "SEL", "PRA", "WIT" -> true
+                else -> false
             }
         }
     }

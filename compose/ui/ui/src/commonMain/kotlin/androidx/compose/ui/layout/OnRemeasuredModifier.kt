@@ -59,7 +59,7 @@ private class OnSizeChangedModifier(
         if (this === other) return true
         if (other !is OnSizeChangedModifier) return false
 
-        return onSizeChanged == other.onSizeChanged
+        return onSizeChanged === other.onSizeChanged
     }
 
     override fun hashCode(): Int {

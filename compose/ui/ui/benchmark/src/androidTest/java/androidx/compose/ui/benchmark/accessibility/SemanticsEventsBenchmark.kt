@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.benchmark.accessibility
 
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
@@ -27,7 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
-import androidx.compose.testutils.benchmark.toggleStateBenchmarkMeasure
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.RootForTest
@@ -50,8 +52,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SemanticsEventsBenchmark {
 
+    @OptIn(ExperimentalBenchmarkConfigApi::class)
     @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    val benchmarkRule = ComposeBenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
 
     private val semanticsFactory = { SemanticsTestCase() }
 
@@ -60,7 +63,7 @@ class SemanticsEventsBenchmark {
       */
     @Test
     fun sendSemanticsEvents() {
-        benchmarkRule.toggleStateBenchmarkMeasure(
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
             caseFactory = semanticsFactory
         )
     }
@@ -95,7 +98,7 @@ class SemanticsEventsBenchmark {
                 // Make sure the delay between batches of a11y events is set to zero.
                 (composeView as RootForTest).setAccessibilityEventBatchIntervalMillis(0L)
                 // Ensure that accessibility is enabled for testing.
-                (composeView as RootForTest).forceAccessibilityForTesting()
+                (composeView as RootForTest).forceAccessibilityForTesting(true)
             }
         }
 

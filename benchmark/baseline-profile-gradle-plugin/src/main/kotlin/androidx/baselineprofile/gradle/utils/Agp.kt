@@ -86,8 +86,11 @@ internal object InstrumentationTestRunnerArgumentsAgp82 {
 @Suppress("UnstableApiUsage")
 internal object TestedApksAgp83 {
     fun getTargetAppApplicationId(variant: TestVariant): Provider<String> {
+        // Note that retrieving the BuildArtifactsLoader from within the lambda causes an issue
+        // with serialization (see b/325886853#comment13).
+        val buildArtifactLoader = variant.artifacts.getBuiltArtifactsLoader()
         return variant.testedApks.map {
-            variant.artifacts.getBuiltArtifactsLoader().load(it)?.applicationId ?: ""
+            buildArtifactLoader.load(it)?.applicationId ?: ""
         }
     }
 }

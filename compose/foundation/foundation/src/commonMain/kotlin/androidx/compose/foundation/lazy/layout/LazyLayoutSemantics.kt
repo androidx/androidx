@@ -89,7 +89,7 @@ private class LazyLayoutSemanticsModifier(
         if (this === other) return true
         if (other !is LazyLayoutSemanticsModifier) return false
 
-        if (itemProviderLambda != other.itemProviderLambda) return false
+        if (itemProviderLambda !== other.itemProviderLambda) return false
         if (state != other.state) return false
         if (orientation != other.orientation) return false
         if (userScrollEnabled != other.userScrollEnabled) return false
@@ -195,10 +195,7 @@ private class LazyLayoutSemanticsModifierNode(
             scrollByOffset(action = it)
         }
 
-        getScrollViewportLength {
-            it.add((state.viewport - state.contentPadding).toFloat())
-            true
-        }
+        getScrollViewportLength { (state.viewport - state.contentPadding).toFloat() }
 
         collectionInfo = this@LazyLayoutSemanticsModifierNode.collectionInfo
     }

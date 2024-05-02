@@ -70,6 +70,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.TextToolbarStatus
@@ -123,22 +124,20 @@ internal class TextFieldSelectionState(
     var receiveContentConfiguration: (() -> ReceiveContentConfiguration?)? = null
 
     /**
-     * The offset of visible bounds when dragging is started by a cursor or a selection handle.
+     * The position of text layout when dragging is started by a cursor or a selection handle.
      * Total drag value needs to account for any auto scrolling that happens during dragging of a
      * handle.
-     * This value is an anchor to calculate how much the visible bounds have shifted as the
+     * This value is an anchor to calculate how much the text layout has moved in the window as
      * dragging continues. If a cursor or a selection handle is not dragging, this value needs to be
      * [Offset.Unspecified]. This includes long press and drag gesture defined on TextField.
      */
-    private var startContentVisibleOffset by mutableStateOf(Offset.Unspecified)
+    private var startTextLayoutPositionInWindow by mutableStateOf(Offset.Unspecified)
 
     /**
      * Calculates the offset of currently visible bounds.
      */
-    private val currentContentVisibleOffset: Offset
-        get() = textLayoutCoordinates
-            ?.visibleBounds()
-            ?.topLeft ?: Offset.Unspecified
+    private val currentTextLayoutPositionInWindow: Offset
+        get() = textLayoutCoordinates?.positionInWindow() ?: Offset.Unspecified
 
     /**
      * Current drag position of a handle for magnifier to read. Only one handle can be dragged
@@ -171,13 +170,14 @@ internal class TextFieldSelectionState(
             }
             // no real handle is being dragged, we need to offset the drag position by current
             // inner-decorator relative positioning.
-            startContentVisibleOffset.isUnspecified -> {
+            startTextLayoutPositionInWindow.isUnspecified -> {
                 textLayoutState.fromDecorationToTextLayout(rawHandleDragPosition)
             }
             // a cursor or a selection handle is being dragged, offset by comparing the current
-            // and starting visible offsets.
+            // and starting text layout positions.
             else -> {
-                rawHandleDragPosition + currentContentVisibleOffset - startContentVisibleOffset
+                rawHandleDragPosition +
+                    (startTextLayoutPositionInWindow - currentTextLayoutPositionInWindow)
             }
         }
 
@@ -185,6 +185,13 @@ internal class TextFieldSelectionState(
      * Which selection handle is currently being dragged.
      */
     var draggingHandle by mutableStateOf<Handle?>(null)
+
+    /**
+     * Whether a long press and drag gesture is currently ongoing. This is used to show the
+     * magnifier during a long press even though the element is not focused until long press
+     * is finished.
+     */
+    var isBeingLongPressed by mutableStateOf(false)
 
     /**
      * Whether to show the cursor handle below cursor indicator when the TextField is focused.
@@ -642,6 +649,9 @@ internal class TextFieldSelectionState(
                 dragBeginPosition = Offset.Unspecified
                 dragTotalDistance = Offset.Zero
                 previousRawDragOffset = -1
+
+                isBeingLongPressed = false
+                requestFocus()
             }
         }
 
@@ -649,14 +659,14 @@ internal class TextFieldSelectionState(
         detectDragGesturesAfterLongPress(
             onDragStart = onDragStart@{ dragStartOffset ->
                 logDebug { "onDragStart after longPress $dragStartOffset" }
-                requestFocus()
-
                 // this gesture detector is applied on the decoration box. We do not need to
                 // convert the gesture offset, that's going to be calculated by [handleDragPosition]
                 updateHandleDragging(
                     handle = actingHandle,
                     position = dragStartOffset
                 )
+
+                isBeingLongPressed = true
 
                 dragBeginPosition = dragStartOffset
                 dragTotalDistance = Offset.Zero
@@ -1095,14 +1105,12 @@ internal class TextFieldSelectionState(
     }
 
     /**
-     * When a Selection or Cursor Handle is started to being dragged, this function should be called
+     * When a Selection or Cursor Handle starts being dragged, this function should be called
      * to mark the current visible offset, so that if content gets scrolled during the drag, we
      * can correctly offset the actual position where drag corresponds to.
      */
     private fun markStartContentVisibleOffset() {
-        startContentVisibleOffset = textLayoutCoordinates
-            ?.visibleBounds()
-            ?.topLeft ?: Offset.Unspecified
+        startTextLayoutPositionInWindow = currentTextLayoutPositionInWindow
     }
 
     /**
@@ -1111,7 +1119,7 @@ internal class TextFieldSelectionState(
     fun clearHandleDragging() {
         draggingHandle = null
         rawHandleDragPosition = Offset.Unspecified
-        startContentVisibleOffset = Offset.Unspecified
+        startTextLayoutPositionInWindow = Offset.Unspecified
     }
 
     /**

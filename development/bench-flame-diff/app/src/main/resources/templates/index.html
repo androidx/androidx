@@ -1,66 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Diff</title>
-
-    <link
-      href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-    <style>
-      .spacer {
-        margin: 10px;
-        display: inline;
-      }
-      .top-nav-title {
-        font-family: 'Courier New', monospace;
-        font-size: small;
-        margin-left: 2px;
-      }
-      .svg {
-        margin-top: 7px
-      }
-    </style>
-  </head>
-  <body>
+<head>
+  <title>bench-flame-diff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:300,300italic,700,700italic&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-NhSC1YmyruXifcj/KFRWoC561YpHpc5Jtzgvbuzx5VozKpWvQ+4nXhPdFgmx8xqexRcpAglTj9sIBWINXa8x5w==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.min.css" integrity="sha512-xiunq9hpKsIcz42zt0o2vCo34xV0j6Ny8hgEylN3XBglZDtTZ2nwnqF/Z/TTCc18sGdvCjbFInNd++6q3J0N6g==" crossorigin="anonymous" referrerpolicy="no-referrer"/>
+  <style>
+    #row--title-and-help {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #row--before-after {
+      display: flex;
+    }
+    #row--before-after > div, #row--before-after > div > div {
+      display: flex;
+      flex-direction: column;
+    }
+    #row--before-after > div {
+      align-items: flex-start;
+      flex-basis: 50%;
+      padding: 5px;
+    }
+    #row--before-after > :first-child {
+      align-items: flex-end;
+    }
+    #row--before-after, #row--graphs {
+      max-width: 1800px;
+    }
+  </style>
+</head>
+<body>
+<!--title and the help button-->
+<header>
+  <div id="row--title-and-help">
+    <h2>bench-flame-diff</h2>
+    <button onclick="window.open('http://go/bench-flame-diff-readme')">help</button>
+  </div>
+</header>
+<main>
+  <!--two column view-->
+  <div id="row--before-after">
+    <!--column-left-->
     <div>
+      <h3>Before</h3>
       <div>
-        <span class="top-nav-title">bench-flame-diff</span>
-        <div class="spacer"></div>
-        <button class="button" onclick="openTab('%before_raw_name%')">%before_raw_name%</button>
-        <button class="button" onclick="openTab('%before_diff_name%')">%before_diff_name%</button>
-        <div class="spacer">|</div>
-        <button class="button" onclick="openTab('%after_raw_name%')">%after_raw_name%</button>
-        <button class="button" onclick="openTab('%after_diff_name%')">%after_diff_name%</button>
-        <div class="spacer">|</div>
-        <button class="button" onclick="window.open('http://go/bench-flame-diff-readme')">help</button>
+        <button onclick="openTab('%before_raw_name%')">%before_raw_name%</button>
+        <button onclick="openTab('%before_diff_name%')">%before_diff_name%</button>
       </div>
-      <div id="%before_raw_name%" class="svg">
-        <object type="image/svg+xml" data="%before_raw_file%">Failed to display the file: %before_raw_file%</object>
-      </div>
-      <div id="%before_diff_name%" class="svg">
-        <object type="image/svg+xml" data="%before_diff_file%">Failed to display the file: %before_diff_file%</object>
-      </div>
-      <div id="%after_raw_name%" class="svg">
-        <object type="image/svg+xml" data="%after_raw_file%">Failed to display the file: %after_raw_file%</object>
-      </div>
-      <div id="%after_diff_name%" class="svg">
-        <object type="image/svg+xml" data="%after_diff_file%">Failed to display the file: %after_diff_file%</object>
-      </div>
+      <div id="results-before"></div>
     </div>
+    <!--column-right-->
+    <div>
+      <h3>After</h3>
+      <div>
+        <button onclick="openTab('%after_raw_name%')">%after_raw_name%</button>
+        <button onclick="openTab('%after_diff_name%')">%after_diff_name%</button>
+      </div>
+      <div id="results-after"></div>
+    </div>
+  </div>
 
-    <script>
-      mdc.ripple.MDCRipple.attachTo(document.querySelector(".button"));
+  <!--graphs-->
+  <div id="row--graphs">
+    <div id="%before_raw_name%" class="svg">
+      <object type="image/svg+xml" data="%before_raw_file%">Failed to display the file: %before_raw_file%</object>
+    </div>
+    <div id="%before_diff_name%" class="svg">
+      <object type="image/svg+xml" data="%before_diff_file%">Failed to display the file: %before_diff_file%</object>
+    </div>
+    <div id="%after_raw_name%" class="svg">
+      <object type="image/svg+xml" data="%after_raw_file%">Failed to display the file: %after_raw_file%</object>
+    </div>
+    <div id="%after_diff_name%" class="svg">
+      <object type="image/svg+xml" data="%after_diff_file%">Failed to display the file: %after_diff_file%</object>
+    </div>
+  </div>
+</main>
 
-      function openTab(tabName) {
-        let tab = document.getElementsByClassName("svg");
-        for (let i = 0; i < tab.length; i++) tab[i].style.display = "none";
-        document.getElementById(tabName).style.display = "block";
-      }
+<!-- Note: 'application/json' ensures the content is treated as data (i.e. not executed) -->
+<script type="application/json" id="result-before-raw">
+  %benchmark_result_before_raw%
+</script>
 
-      openTab("%after_diff_name%");
-    </script>
-  </body>
+<script type="application/json" id="result-after-raw">
+  %benchmark_result_after_raw%
+</script>
+
+<script>
+  function openTab(tabName) {
+    let tab = document.getElementsByClassName("svg");
+    for (let i = 0; i < tab.length; i++) tab[i].style.display = "none";
+    document.getElementById(tabName).style.display = "block";
+  }
+
+  function formatNumber(numberRaw) {
+    const intAbs = Math.abs(Math.round(numberRaw))
+    let maxFrac = 2;
+    if (intAbs >= 10) maxFrac = 1;
+    if (intAbs >= 100) maxFrac = 0;
+    const formatter = new Intl.NumberFormat('en-US', {
+      maximumFractionDigits: maxFrac,
+      minimumFractionDigits: 0,
+      useGrouping: true,
+    });
+    return formatter.format(numberRaw);
+  }
+
+  function populateBenchmarkResult(label, dataSourceId, traceFileName) {
+    const dataString = document.getElementById(dataSourceId).textContent.trim()
+    if (!dataString) return // no benchmark result data
+
+    const benchmark = JSON.parse(dataString).benchmarks.find(b =>
+      b.profilerOutputs &&
+      b.profilerOutputs.some(po => po.filename === traceFileName)
+    ) || undefined;
+    if (!benchmark || !benchmark.metrics) return // no benchmark matching the trace file name
+    const metrics = benchmark.metrics;
+    if (Object.keys(metrics).length === 0) return
+
+    let rowData = "";
+    Object.entries(metrics).forEach(([metricName, metricResult],) => {
+      const {minimum, median, maximum} = metricResult;
+      rowData += "<tr>" +
+        `<td>${metricName}</td>` +
+        `<td>${formatNumber(minimum)}</td>` +
+        `<td>${formatNumber(median)}</td>` +
+        `<td>${formatNumber(maximum)}</td>` +
+        "</tr>"
+    })
+    document.querySelector(`#results-${label}`).innerHTML += "<table>" +
+      "<thead>" +
+      "<th>metric</th>" +
+      "<th>min</th>" +
+      "<th>median</th>" +
+      "<th>max</th>" +
+      "</thead>" +
+      "<tbody>" +
+      rowData +
+      "</tbody>" +
+      "</table>"
+  }
+
+  populateBenchmarkResult("before", "result-before-raw", "%before_trace_file_name%")
+  populateBenchmarkResult("after", "result-after-raw", "%after_trace_file_name%")
+  openTab("%after_diff_name%");
+</script>
+</body>
 </html>

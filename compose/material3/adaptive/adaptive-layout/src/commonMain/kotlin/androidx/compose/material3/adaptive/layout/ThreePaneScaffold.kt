@@ -27,7 +27,6 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -143,11 +142,6 @@ internal fun ThreePaneScaffold(
     }
 
     val currentTransition = rememberTransition(scaffoldState)
-    val currentFraction = if (scaffoldState.currentState == scaffoldState.targetState) {
-        1f
-    } else {
-        scaffoldState.fraction
-    }
 
     LookaheadScope {
         // Create PaneWrappers for each of the panes and map the transitions according to each pane
@@ -158,10 +152,10 @@ internal fun ThreePaneScaffold(
                     ThreePaneScaffoldScopeImpl(
                         ThreePaneScaffoldRole.Primary,
                         currentTransition,
+                        scaffoldState,
                         this@LookaheadScope
                     )
                 }.apply {
-                    scaffoldStateTransitionFraction = currentFraction
                     positionAnimationSpec = paneMotion.positionAnimationSpec
                     sizeAnimationSpec = paneMotion.sizeAnimationSpec
                     enterTransition = paneMotion.enterTransition(
@@ -179,10 +173,10 @@ internal fun ThreePaneScaffold(
                     ThreePaneScaffoldScopeImpl(
                         ThreePaneScaffoldRole.Secondary,
                         currentTransition,
+                        scaffoldState,
                         this@LookaheadScope
                     )
                 }.apply {
-                    scaffoldStateTransitionFraction = currentFraction
                     positionAnimationSpec = paneMotion.positionAnimationSpec
                     sizeAnimationSpec = paneMotion.sizeAnimationSpec
                     enterTransition = paneMotion.enterTransition(
@@ -201,10 +195,10 @@ internal fun ThreePaneScaffold(
                         ThreePaneScaffoldScopeImpl(
                             ThreePaneScaffoldRole.Tertiary,
                             currentTransition,
+                            scaffoldState,
                             this@LookaheadScope
                         )
                     }.apply {
-                        scaffoldStateTransitionFraction = currentFraction
                         positionAnimationSpec = paneMotion.positionAnimationSpec
                         sizeAnimationSpec = paneMotion.sizeAnimationSpec
                         enterTransition = paneMotion.enterTransition(
@@ -751,7 +745,6 @@ sealed interface ThreePaneScaffoldScope : PaneScaffoldScope, LookaheadScope {
     /**
      * The current fraction of the scaffold state transition.
      */
-    // TODO(b/333403487): change this to lambda to defer value reading
     val scaffoldStateTransitionFraction: Float
 
     /**
@@ -783,9 +776,15 @@ sealed interface ThreePaneScaffoldScope : PaneScaffoldScope, LookaheadScope {
 private class ThreePaneScaffoldScopeImpl(
     override val role: ThreePaneScaffoldRole,
     override val scaffoldStateTransition: Transition<ThreePaneScaffoldValue>,
+    private val transitionState: SeekableTransitionState<ThreePaneScaffoldValue>,
     lookaheadScope: LookaheadScope
 ) : ThreePaneScaffoldScope, LookaheadScope by lookaheadScope, PaneScaffoldScopeImpl() {
-    override var scaffoldStateTransitionFraction by mutableFloatStateOf(0f)
+    override val scaffoldStateTransitionFraction: Float
+        get() = if (transitionState.currentState == transitionState.targetState) {
+            1f
+        } else {
+            transitionState.fraction
+        }
     override var positionAnimationSpec: FiniteAnimationSpec<IntOffset> by mutableStateOf(snap())
     override var sizeAnimationSpec: FiniteAnimationSpec<IntSize> by mutableStateOf(snap())
     override var enterTransition by mutableStateOf(EnterTransition.None)

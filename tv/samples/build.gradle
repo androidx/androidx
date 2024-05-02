@@ -33,7 +33,6 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
     implementation("androidx.compose.material3:material3:1.1.2")
     compileOnly(project(":annotation:annotation-sampled"))
@@ -42,6 +41,7 @@ dependencies {
 androidx {
     name = "Samples library for TV packages"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.TV_MATERIAL
     inceptionYear = "2022"
     description = "Contains the sample code for the APIs in the androidx.tv libraries"
 }

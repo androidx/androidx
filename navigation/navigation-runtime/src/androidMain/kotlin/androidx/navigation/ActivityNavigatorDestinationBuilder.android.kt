@@ -68,7 +68,6 @@ public inline fun NavGraphBuilder.activity(
  * [NavType]. Required only when destination contains custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
-@ExperimentalSafeArgsApi
 public inline fun <reified T : Any> NavGraphBuilder.activity(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: ActivityNavigatorDestinationBuilder.() -> Unit
@@ -109,7 +108,6 @@ public class ActivityNavigatorDestinationBuilder :
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
      * [NavType]. Required only when destination contains custom NavTypes.
      */
-    @ExperimentalSafeArgsApi
     public constructor(
         navigator: ActivityNavigator,
         route: KClass<out Any>,

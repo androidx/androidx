@@ -47,7 +47,7 @@ public final class Alert {
      * By setting the alert duration to this value, the progress bar (timer) on the
      * alert will not be shown.
      */
-    public static final int SHOW_ALERT_INDEFINITELY_DURATION = Integer.MAX_VALUE;
+    public static final int DURATION_SHOW_INDEFINITELY = Integer.MAX_VALUE;
 
     private final int mId;
     @Nullable

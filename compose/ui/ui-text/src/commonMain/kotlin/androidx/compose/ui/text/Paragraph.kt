@@ -246,12 +246,14 @@ expect sealed interface Paragraph {
      * @param granularity the granularity of the text, it controls how text is segmented.
      * @param inclusionStrategy the strategy that determines whether a range of text's bounds is
      * inside the given [rect] or not.
+     * @return the [TextRange] that is inside the given [rect], or [TextRange.Zero] if no text is
+     * found.
      */
     fun getRangeForRect(
         rect: Rect,
         granularity: TextGranularity,
         inclusionStrategy: TextInclusionStrategy
-    ): TextRange?
+    ): TextRange
 
     /**
      * Returns the bounding box as Rect of the character for given character offset. Rect

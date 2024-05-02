@@ -23,7 +23,7 @@ internal object MainDispatcherChecker {
     @Volatile
     private var mainDispatcherThread: Thread? = null
 
-    private fun storeMainDispatcherThread() {
+    private fun updateMainDispatcherThread() {
         try {
             runBlocking(Dispatchers.Main.immediate) {
                 mainDispatcherThread = Thread.currentThread()
@@ -36,21 +36,25 @@ internal object MainDispatcherChecker {
 
     fun isMainDispatcherThread(): Boolean {
         if (!isMainDispatcherAvailable) {
+            // If we know there's no main dispatcher, assume we're on it.
             return true
         }
+
         val currentThread = Thread.currentThread()
-        // if the thread has already been retrieved,
+        // If the thread has already been retrieved,
         // we can just check whether we are currently running on the same thread
         if (currentThread === mainDispatcherThread) {
             return true
         }
-        // if threads do not match, it is either:
-        // * field is not initialized yet
-        // * Swing's EDT may have changed
-        // * it is not the main thread indeed
-        // let's recheck to make sure the field has an actual value
-        // it is potentially a long operation, but it happens only not on the happy path
-        storeMainDispatcherThread()
+
+        // If the current thread doesn't match the stored main dispatcher thread, is is either:
+        // * The field may not have been initialized yet.
+        // * The Swing Event Dispatch Thread (EDT) may have changed (if applicable).
+        // * We're genuinely not executing on the main thread.
+        // Let's recheck to obtain the most up-to-date dispatcher reference. The recheck can
+        // be time-consuming, but should only occur in less common scenarios.
+        updateMainDispatcherThread()
+
         return !isMainDispatcherAvailable || currentThread === mainDispatcherThread
     }
 }

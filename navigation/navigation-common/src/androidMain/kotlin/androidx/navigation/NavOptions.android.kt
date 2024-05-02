@@ -448,7 +448,6 @@ public class NavOptions internal constructor(
          */
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
-        @ExperimentalSafeArgsApi
         public inline fun <reified T : Any> setPopUpTo(
             inclusive: Boolean,
             saveState: Boolean = false
@@ -491,7 +490,6 @@ public class NavOptions internal constructor(
          */
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder")
-        @ExperimentalSafeArgsApi
         @OptIn(InternalSerializationApi::class)
         public fun <T : Any> setPopUpTo(
             route: T,

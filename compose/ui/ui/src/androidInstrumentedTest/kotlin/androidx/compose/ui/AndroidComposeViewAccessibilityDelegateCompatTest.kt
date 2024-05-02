@@ -29,8 +29,7 @@ import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFIN
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
-import android.view.accessibility.AccessibilityNodeInfo
-import android.view.accessibility.AccessibilityNodeInfo.RangeInfo.RANGE_TYPE_FLOAT
+import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
@@ -99,6 +98,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_DISMI
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_EXPAND
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_PASTE
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat.RANGE_TYPE_FLOAT
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -807,7 +807,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                     .containsExactly(
                         "androidx.compose.ui.semantics.id",
                         "androidx.compose.ui.semantics.testTag",
-                        AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+                        EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
                     )
             }
         }

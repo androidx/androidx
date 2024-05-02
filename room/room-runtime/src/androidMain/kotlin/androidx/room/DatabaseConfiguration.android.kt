@@ -37,54 +37,39 @@ actual open class DatabaseConfiguration
 @SuppressLint("LambdaLast")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 constructor(
-    /**
-     * The context to use while connecting to the database.
-     */
+    /* The context to use while connecting to the database. */
     @JvmField
     val context: Context,
 
-    /**
-     * The name of the database file or null if it is an in-memory database.
-     */
+    /* The name of the database file or null if it is an in-memory database. */
     @JvmField
     actual val name: String?,
 
-    /**
-     * The factory to use to access the database.
-     */
+    /* The factory to use to access the database. */
     @JvmField
     val sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory?,
 
-    /**
-     * Collection of available migrations.
-     */
+    /* Collection of available migrations. */
     @JvmField
     actual val migrationContainer: RoomDatabase.MigrationContainer,
 
+    /* Database callbacks. */
     @JvmField
     actual val callbacks: List<RoomDatabase.Callback>?,
 
-    /**
-     * Whether Room should throw an exception for queries run on the main thread.
-     */
+    /* Whether Room should throw an exception for queries run on the main thread. */
     @JvmField
     val allowMainThreadQueries: Boolean,
 
-    /**
-     * The journal mode for this database.
-     */
+    /* The journal mode for this database. */
     @JvmField
     actual val journalMode: RoomDatabase.JournalMode,
 
-    /**
-     * The Executor used to execute asynchronous queries.
-     */
+    /* The Executor used to execute asynchronous queries. */
     @JvmField
     val queryExecutor: Executor,
 
-    /**
-     * The Executor used to execute asynchronous transactions.
-     */
+    /* The Executor used to execute asynchronous transactions. */
     @JvmField
     val transactionExecutor: Executor,
 
@@ -97,38 +82,49 @@ constructor(
     @JvmField
     val multiInstanceInvalidationServiceIntent: Intent?,
 
+    /* Whether Room should throw an exception for missing migrations. */
     @JvmField
     actual val requireMigration: Boolean,
 
+    /* Whether Room will fallback to destructive migrations on downgrades only .*/
     @JvmField
     actual val allowDestructiveMigrationOnDowngrade: Boolean,
 
     internal actual val migrationNotRequiredFrom: Set<Int>?,
 
+    /* Asset path of pre-package database or null if not used. */
     @JvmField
     val copyFromAssetPath: String?,
 
+    /* File of pre-package database or null if not used. */
     @JvmField
     val copyFromFile: File?,
 
+    /* Input stream of pre-package database or null if not used. */
     @JvmField
     val copyFromInputStream: Callable<InputStream>?,
 
+    /* Callback when Room uses a pre-packaged database. */
     @JvmField
     val prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
 
+    /* List of provided type converters. */
     @JvmField
     actual val typeConverters: List<Any>,
 
+    /* List of provided auto migration specs. */
     @JvmField
     actual val autoMigrationSpecs: List<AutoMigrationSpec>,
 
+    /* Whether Room will delete all tables or only known tables during destructive migrations. */
     @JvmField
-    val allowDestructiveMigrationForAllTables: Boolean,
+    actual val allowDestructiveMigrationForAllTables: Boolean,
 
+    /* The SQLite Driver for the database. */
     @JvmField
     actual val sqliteDriver: SQLiteDriver?,
 
+    /* The Coroutine context for the database. */
     @JvmField
     actual val queryCoroutineContext: CoroutineContext?,
 ) {

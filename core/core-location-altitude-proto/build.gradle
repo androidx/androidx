@@ -21,17 +21,30 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
     id("java-library")
+    id("AndroidXRepackagePlugin")
     id("com.google.protobuf")
 }
 
-dependencies {
-    implementation(libs.protobufLite)
+repackage {
+    // Must match what is in core/core-location-altitiude-external-protobuf/build.gradle
+    addRelocation {
+        sourcePackage = "com.google.protobuf"
+        targetPackage =  "androidx.core.location.altitude.impl.proto"
+    }
 }
+
+dependencies {
+    // Must be compileOnly to not bring in protobufLite in runtime
+    // Repackaged protobufLite brought in by
+    // project(":core:core-location-altitude-external-protobuf") and used at runtime
+    compileOnly(libs.protobufLite)
+    api(project(":core:core-location-altitude-external-protobuf"))}
 
 protobuf {
     protoc {
@@ -58,8 +71,11 @@ afterEvaluate {
 }
 
 androidx {
-    name = "Location Altitude Compatibility Library Protos"
-    publish = Publish.NONE
+    name = "Location Altitude Protos"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
     inceptionYear = "2022"
     description = "Implementation protos for core-location-altitude artifact."
+    runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +
+            "(b/180579063)")
 }

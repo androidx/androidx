@@ -18,6 +18,8 @@ package androidx.compose.ui.benchmark.accessibility
 
 import android.view.View
 import android.view.accessibility.AccessibilityNodeProvider
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.foundation.layout.Column
@@ -53,8 +55,9 @@ class AccessibilityBenchmark {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    @OptIn(ExperimentalBenchmarkConfigApi::class)
     @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
 
     private lateinit var composeView: View
     private lateinit var provider: AccessibilityNodeProvider
@@ -143,7 +146,7 @@ class AccessibilityBenchmark {
             // this is just a temporary workaround for now.
             LaunchedEffect(Unit) {
                 // Ensure that accessibility is enabled for testing.
-                (composeView as RootForTest).forceAccessibilityForTesting()
+                (composeView as RootForTest).forceAccessibilityForTesting(true)
             }
         }
     }

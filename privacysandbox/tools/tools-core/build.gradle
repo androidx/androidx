@@ -53,7 +53,7 @@ dependencies {
 
 // Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
 def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/$buildToolsVersion/aidl"
-def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/$compileSdk/framework.aidl"
+def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/android-$compileSdk/framework.aidl"
 tasks.withType(Test).configureEach { test ->
     test.inputs.files(aidlCompilerPath)
             .withPropertyName("aidl_compiler_path")

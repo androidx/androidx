@@ -80,7 +80,7 @@ fun LegacyLinearProgressIndicatorSample() {
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
             strokeCap = StrokeCap.Butt,
             gapSize = 0.dp,
-            drawStopIndicator = null
+            drawStopIndicator = {}
         )
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set progress:")

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSafeArgsApi::class)
-
 package androidx.navigation
 
 import androidx.annotation.AnimRes
@@ -60,8 +58,8 @@ public actual class NavOptionsBuilder {
         }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
      */
     @Deprecated("Use the popUpToId property.")
     public var popUpTo: Int
@@ -72,8 +70,8 @@ public actual class NavOptionsBuilder {
         }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
      */
     public actual var popUpToRoute: String? = null
         private set(value) {
@@ -87,15 +85,10 @@ public actual class NavOptionsBuilder {
     private var saveState = false
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
      */
-    // both ExperimentalSafeArgsApi annotations required for annotation to appear on API declaration
-    @property:ExperimentalSafeArgsApi
-    @get:ExperimentalSafeArgsApi
     @get:Suppress("GetterOnBuilder")
-    // required due to getter with ExperimentalSafeArgsApi annotation
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     public var popUpToRouteClass: KClass<*>? = null
         private set(value) {
             if (value != null) {
@@ -105,15 +98,10 @@ public actual class NavOptionsBuilder {
         }
 
     /**
-     * Pop up to a given destination before navigating. This pops all non-matching destinations
-     * from the back stack until this destination is found.
+     * The destination to pop up to before navigating. All non-matching destinations
+     * from the back stack up until this destination will also be popped.
      */
-    // both ExperimentalSafeArgsApi annotations required for annotation to appear on API declaration
-    @property:ExperimentalSafeArgsApi
-    @get:ExperimentalSafeArgsApi
     @get:Suppress("GetterOnBuilder")
-    // required due to getter with ExperimentalSafeArgsApi annotation
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     public var popUpToRouteObject: Any? = null
         private set(value) {
             if (value != null) {
@@ -156,7 +144,6 @@ public actual class NavOptionsBuilder {
      * @param T route from a [KClass] for the destination
      * @param popUpToBuilder builder used to construct a popUpTo operation
      */
-    @ExperimentalSafeArgsApi
     // align with other popUpTo overloads where this is suppressed in baseline lint ignore
     @Suppress("BuilderSetStyle")
     public inline fun <reified T : Any> popUpTo(
@@ -187,7 +174,6 @@ public actual class NavOptionsBuilder {
      * @param route route from a Object for the destination
      * @param popUpToBuilder builder used to construct a popUpTo operation
      */
-    @ExperimentalSafeArgsApi
     // align with other popUpTo overloads where this is suppressed in baseline lint ignore
     @Suppress("BuilderSetStyle", "MissingJvmstatic")
     public fun <T : Any> popUpTo(route: T, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {

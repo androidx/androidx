@@ -92,7 +92,7 @@ class AutofillNode(
 
         if (autofillTypes != other.autofillTypes) return false
         if (boundingBox != other.boundingBox) return false
-        if (onFill != other.onFill) return false
+        if (onFill !== other.onFill) return false
 
         return true
     }

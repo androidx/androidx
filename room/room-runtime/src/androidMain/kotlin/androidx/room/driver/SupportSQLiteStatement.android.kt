@@ -17,7 +17,6 @@
 package androidx.room.driver
 
 import android.database.Cursor
-import android.database.DatabaseUtils
 import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -43,14 +42,23 @@ sealed class SupportSQLiteStatement(
 
     companion object {
         fun create(db: SupportSQLiteDatabase, sql: String): SupportSQLiteStatement {
-            return when (DatabaseUtils.getSqlStatementType(sql)) {
-                DatabaseUtils.STATEMENT_SELECT,
-                DatabaseUtils.STATEMENT_PRAGMA ->
-                    // Statements that return rows (SQLITE_ROW)
-                    SupportAndroidSQLiteStatement(db, sql)
-                else ->
-                    // Statements that don't return row (SQLITE_DONE)
-                    SupportOtherAndroidSQLiteStatement(db, sql)
+            return if (isRowStatement(sql)) {
+                // Statements that return rows (SQLITE_ROW)
+                SupportAndroidSQLiteStatement(db, sql)
+            } else {
+                // Statements that don't return row (SQLITE_DONE)
+                SupportOtherAndroidSQLiteStatement(db, sql)
+            }
+        }
+
+        private fun isRowStatement(sql: String): Boolean {
+            val prefix = sql.trim()
+            if (prefix.length < 3) {
+                return false
+            }
+            return when (prefix.substring(0, 3).uppercase()) {
+                "SEL", "PRA", "WIT" -> true
+                else -> false
             }
         }
     }

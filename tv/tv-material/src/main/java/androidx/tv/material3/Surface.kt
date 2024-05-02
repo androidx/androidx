@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
  * in a darker color in light theme and lighter color in dark theme.
  * @param shape Defines the surface's shape.
  * @param colors Defines the background & content color to be used in this Surface.
- * See [NonInteractiveSurfaceDefaults.colors].
+ * See [SurfaceDefaults.colors].
  * @param border Defines a border around the Surface.
  * @param glow Diffused shadow to be shown behind the Surface. Note that glow is disabled for API
  * levels below 28 as it is not supported by the underlying OS
@@ -77,10 +77,10 @@ import kotlinx.coroutines.launch
 fun Surface(
     modifier: Modifier = Modifier,
     tonalElevation: Dp = 0.dp,
-    shape: Shape = NonInteractiveSurfaceDefaults.shape,
-    colors: NonInteractiveSurfaceColors = NonInteractiveSurfaceDefaults.colors(),
-    border: Border = NonInteractiveSurfaceDefaults.border,
-    glow: Glow = NonInteractiveSurfaceDefaults.glow,
+    shape: Shape = SurfaceDefaults.shape,
+    colors: SurfaceColors = SurfaceDefaults.colors(),
+    border: Border = SurfaceDefaults.border,
+    glow: Glow = SurfaceDefaults.glow,
     content: @Composable (BoxScope.() -> Unit)
 ) {
     SurfaceImpl(
@@ -210,7 +210,7 @@ fun Surface(
  *
  * To manually retrieve the content color inside a surface, use [LocalContentColor].
  *
- * @param selected whether or not this Surface is toggled on or off
+ * @param selected whether or not this Surface is selected
  * @param onClick callback to be invoked when the selectable Surface is clicked.
  * @param modifier [Modifier] to be applied to the layout corresponding to the surface
  * @param onLongClick callback to be called when the selectable surface is long clicked

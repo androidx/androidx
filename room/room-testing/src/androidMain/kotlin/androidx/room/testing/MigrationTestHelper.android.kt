@@ -34,6 +34,7 @@ import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.ref.WeakReference
@@ -179,7 +180,7 @@ actual open class MigrationTestHelper : TestWatcher {
      * be used.
      *
      * @param instrumentation The instrumentation instance.
-     * @param fileName Name of the database.
+     * @param file The database file.
      * @param driver A driver that opens connection to a file database. A driver that opens connections
      * to an in-memory database would be meaningless.
      * @param databaseClass The [androidx.room.Database] annotated class.
@@ -189,9 +190,10 @@ actual open class MigrationTestHelper : TestWatcher {
      * @param autoMigrationSpecs The list of [androidx.room.ProvidedAutoMigrationSpec] instances
      * for [androidx.room.AutoMigration]s that require them.
      */
+    @Suppress("StreamFiles")
     constructor(
         instrumentation: Instrumentation,
-        fileName: String,
+        file: File,
         driver: SQLiteDriver,
         databaseClass: KClass<out RoomDatabase>,
         databaseFactory: () -> RoomDatabase = {
@@ -209,7 +211,7 @@ actual open class MigrationTestHelper : TestWatcher {
         this.delegate = SQLiteDriverMigrationTestHelper(
             instrumentation = instrumentation,
             assetsFolder = assetsFolder,
-            fileName = fileName,
+            file = file,
             driver = driver,
             databaseClass = databaseClass,
             databaseFactory = databaseFactory,
@@ -541,7 +543,15 @@ private class SupportSQLiteMigrationTestHelper(
             this.driverWrapper = DriverWrapper(supportDriver)
         }
 
-        override fun openConnection() = driverWrapper.open(configuration.name ?: ":memory:")
+        override fun openConnection(): SQLiteConnection {
+            val name = configuration.name
+            val filename = if (configuration.name != null) {
+                configuration.context.getDatabasePath(name).absolutePath
+            } else {
+                ":memory:"
+            }
+            return driverWrapper.open(filename)
+        }
 
         inner class SupportOpenHelperCallback(
             version: Int
@@ -578,7 +588,7 @@ private class SQLiteDriverMigrationTestHelper(
     private val driver: SQLiteDriver,
     databaseClass: KClass<out RoomDatabase>,
     databaseFactory: () -> RoomDatabase,
-    private val fileName: String,
+    private val file: File,
     private val autoMigrationSpecs: List<AutoMigrationSpec>
 ) : AndroidMigrationTestHelper(instrumentation, assetsFolder) {
 
@@ -612,5 +622,5 @@ private class SQLiteDriverMigrationTestHelper(
     }
 
     private fun createConfiguration(container: RoomDatabase.MigrationContainer) =
-        createDatabaseConfiguration(container, null, driver, fileName)
+        createDatabaseConfiguration(container, null, driver, file.path)
 }

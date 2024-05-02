@@ -35,6 +35,7 @@ import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.json.BenchmarkData
+import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
@@ -190,6 +191,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
  *
  * This function is a building block for public testing APIs
  */
+@ExperimentalPerfettoCaptureApi
 private fun macrobenchmark(
     uniqueName: String,
     className: String,
@@ -200,10 +202,11 @@ private fun macrobenchmark(
     iterations: Int,
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
+    perfettoConfig: PerfettoConfig?,
     perfettoSdkConfig: PerfettoSdkConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
-) {
+): BenchmarkData.TestResult {
     require(iterations > 0) {
         "Require iterations > 0 (iterations = $iterations)"
     }
@@ -276,7 +279,7 @@ private fun macrobenchmark(
                 val fileLabel = "${uniqueName}_iter$iterString"
                 val tracePath = perfettoCollector.record(
                     fileLabel = fileLabel,
-                    config = PerfettoConfig.Benchmark(
+                    config = perfettoConfig ?: PerfettoConfig.Benchmark(
                         /**
                          * Prior to API 24, every package name was joined into a single setprop
                          * which can overflow, and disable *ALL* app level tracing.
@@ -405,18 +408,18 @@ private fun macrobenchmark(
         } + methodTracingResultFiles).map {
             BenchmarkData.TestResult.ProfilerOutput(it)
         }
-        ResultWriter.appendTestResult(
-            BenchmarkData.TestResult(
-                className = className,
-                name = testName,
-                totalRunTimeNs = System.nanoTime() - startTime,
-                metrics = measurements.singleMetrics + measurements.sampledMetrics,
-                repeatIterations = iterations,
-                thermalThrottleSleepSeconds = 0,
-                warmupIterations = warmupIterations,
-                profilerOutputs = mergedProfilerOutputs
-            )
+        val testResult = BenchmarkData.TestResult(
+            className = className,
+            name = testName,
+            totalRunTimeNs = System.nanoTime() - startTime,
+            metrics = measurements.singleMetrics + measurements.sampledMetrics,
+            repeatIterations = iterations,
+            thermalThrottleSleepSeconds = 0,
+            warmupIterations = warmupIterations,
+            profilerOutputs = mergedProfilerOutputs
         )
+        ResultWriter.appendTestResult(testResult)
+        return testResult
     } finally {
         scope.killProcess()
     }
@@ -426,6 +429,7 @@ private fun macrobenchmark(
  * Run a macrobenchmark with the specified StartupMode
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@ExperimentalPerfettoCaptureApi
 fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
@@ -434,10 +438,11 @@ fun macrobenchmarkWithStartupMode(
     metrics: List<Metric>,
     compilationMode: CompilationMode,
     iterations: Int,
+    perfettoConfig: PerfettoConfig?,
     startupMode: StartupMode?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
-) {
+): BenchmarkData.TestResult {
     val perfettoSdkConfig =
         if (Arguments.perfettoSdkTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             PerfettoSdkConfig(
@@ -449,7 +454,7 @@ fun macrobenchmarkWithStartupMode(
                 }
             )
         } else null
-    macrobenchmark(
+    return macrobenchmark(
         uniqueName = uniqueName,
         className = className,
         testName = testName,
@@ -458,6 +463,7 @@ fun macrobenchmarkWithStartupMode(
         compilationMode = compilationMode,
         iterations = iterations,
         startupModeMetricHint = startupMode,
+        perfettoConfig = perfettoConfig,
         perfettoSdkConfig = perfettoSdkConfig,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {

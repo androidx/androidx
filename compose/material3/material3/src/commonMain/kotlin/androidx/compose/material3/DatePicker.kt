@@ -65,7 +65,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.OutlinedTextFieldDefaults.defaultOutlinedTextFieldColors
-import androidx.compose.material3.internal.CalendarLocale
 import androidx.compose.material3.internal.CalendarModel
 import androidx.compose.material3.internal.CalendarMonth
 import androidx.compose.material3.internal.DaysInWeek
@@ -73,11 +72,9 @@ import androidx.compose.material3.internal.MillisecondsIn24Hours
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.createCalendarModel
-import androidx.compose.material3.internal.defaultLocale
 import androidx.compose.material3.internal.format
 import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.internal.toLocalString
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.DividerTokens
 import androidx.compose.material3.tokens.ElevationTokens

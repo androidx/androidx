@@ -234,7 +234,7 @@ fun DrawScope.GraphicsLayerOutlineSample(layer: GraphicsLayer) {
         }
         // Apply a shadow that is clipped to the specified round rect
         shadowElevation = 20f
-        setRoundRectOutline(IntOffset.Zero, IntSize(300, 180), 30f)
+        setRoundRectOutline(Offset.Zero, Size(300f, 180f), 30f)
     }
 
     drawLayer(layer)
@@ -268,7 +268,7 @@ fun DrawScope.GraphicsLayerRectOutline(layer: GraphicsLayer) {
         // Apply a shadow and have the contents of the layer be clipped
         // to the size of the layer with a 20 pixel corner radius
         shadowElevation = 20f
-        setRectOutline(size = IntSize(this.size.width / 2, this.size.height))
+        setRectOutline(size = Size(this.size.width / 2f, this.size.height.toFloat()))
     }
 
     drawLayer(layer)

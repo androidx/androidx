@@ -111,6 +111,7 @@ open class PlaygroundExtension @Inject constructor(
         val propertiesFile = File(supportRoot, "playground-common/playground.properties")
         playgroundProperties.load(propertiesFile.inputStream())
         settings.gradle.beforeProject { project ->
+            project.extensions.extraProperties["supportRootFolder"] = supportRoot
             // load playground properties. These are not kept in the playground projects to prevent
             // AndroidX build from reading them.
             playgroundProperties.forEach {
@@ -142,9 +143,9 @@ open class PlaygroundExtension @Inject constructor(
         }
         val supportSettingsFile = File(supportRootDir, "settings.gradle")
         val playgroundProjectDependencyGraph =
-            ProjectDependencyGraph(settings, true /*isPlayground*/)
+            ProjectDependencyGraph(settings, true /*isPlayground*/, false /*constraintsEnabled*/)
         // also get full graph that treats projectOrArtifact equal to project
-        val aospProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/)
+        val aospProjectDependencyGraph = ProjectDependencyGraph(settings, false /*isPlayground*/, false /*constraintsEnabled*/)
 
         SettingsParser.findProjects(supportSettingsFile).forEach {
             playgroundProjectDependencyGraph.addToAllProjects(

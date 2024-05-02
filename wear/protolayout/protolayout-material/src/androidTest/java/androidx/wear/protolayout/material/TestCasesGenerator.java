@@ -22,6 +22,9 @@ import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_C
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_END;
 import static androidx.wear.protolayout.LayoutElementBuilders.HORIZONTAL_ALIGN_START;
 
+import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.GAP_END_ANGLE;
+import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.GAP_START_ANGLE;
+
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import android.content.Context;
@@ -75,6 +78,7 @@ public class TestCasesGenerator {
         String labelText = "Secondary label";
         String largeChipText = "Action";
         HashMap<String, LayoutElement> testCases = new HashMap<>();
+
         testCases.put(
                 "default_icon_button_golden" + NORMAL_SCALE_SUFFIX,
                 new Button.Builder(context, clickable).setIconContent(ICON_ID).build());
@@ -110,6 +114,7 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_image_button_golden" + NORMAL_SCALE_SUFFIX,
                 new Button.Builder(context, clickable).setImageContent(AVATAR).build());
+
         testCases.put(
                 "default_chip_maintext_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
@@ -300,8 +305,8 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_gap_circularprogressindicator",
                 new CircularProgressIndicator.Builder()
-                        .setStartAngle(ProgressIndicatorDefaults.GAP_START_ANGLE)
-                        .setEndAngle(ProgressIndicatorDefaults.GAP_END_ANGLE)
+                        .setStartAngle(GAP_START_ANGLE)
+                        .setEndAngle(GAP_END_ANGLE)
                         .build());
         testCases.put(
                 "default_full_90_circularprogressindicator",
@@ -310,8 +315,8 @@ public class TestCasesGenerator {
                 "default_gap_90_circularprogressindicator",
                 new CircularProgressIndicator.Builder()
                         .setProgress(0.25f)
-                        .setStartAngle(ProgressIndicatorDefaults.GAP_START_ANGLE)
-                        .setEndAngle(ProgressIndicatorDefaults.GAP_END_ANGLE)
+                        .setStartAngle(GAP_START_ANGLE)
+                        .setEndAngle(GAP_END_ANGLE)
                         .build());
         testCases.put(
                 "custom_gap_45_circularprogressindicator",
@@ -347,18 +352,18 @@ public class TestCasesGenerator {
                 "default_text_golden" + goldenSuffix, new Text.Builder(context, "Testing").build());
         testCases.put(
                 "not_scaled_text_golden" + NORMAL_SCALE_SUFFIX,
-                new Text.Builder(context, "Testing").setIsScalable(false).build());
+                new Text.Builder(context, "Testing").setScalable(false).build());
         testCases.put(
                 "scaled_with_not_scaled_text_golden" + goldenSuffix,
                 new Row.Builder()
                         .addContent(
                                 new Text.Builder(context, "Scaled")
-                                        .setIsScalable(true)
+                                        .setScalable(true)
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .build())
                         .addContent(
                                 new Text.Builder(context, " NotScaled")
-                                        .setIsScalable(false)
+                                        .setScalable(false)
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
                                         .build())
                         .build());
@@ -410,7 +415,7 @@ public class TestCasesGenerator {
      * as it should point on the same size independent image.
      */
     @NonNull
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")    // TEXT_OVERFLOW_ELLIPSIZE_END
     private static ImmutableMap<String, Layout> generateTextTestCasesForLanguage(
             @NonNull Context context,
             @NonNull DeviceParameters deviceParameters,
@@ -418,12 +423,15 @@ public class TestCasesGenerator {
             @NonNull String primaryLabel,
             @NonNull String shortText,
             @NonNull String longText) {
+
         HashMap<String, LayoutElement> testCases = new HashMap<>();
+
         Clickable clickable =
                 new Clickable.Builder()
                         .setOnClick(new LaunchAction.Builder().build())
                         .setId("action_id")
                         .build();
+
         testCases.put(
                 "custom_text_golden" + goldenSuffix,
                 new Text.Builder(context, shortText)
@@ -482,6 +490,7 @@ public class TestCasesGenerator {
                         .setChipColors(
                                 new ChipColors(Color.YELLOW, Color.GREEN, Color.BLACK, Color.GRAY))
                         .build());
+
         return collectTestCases(testCases);
     }
 

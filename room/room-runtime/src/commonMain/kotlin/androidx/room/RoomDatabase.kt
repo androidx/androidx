@@ -226,6 +226,117 @@ expect abstract class RoomDatabase() {
         fun setDriver(driver: SQLiteDriver): Builder<T>
 
         /**
+         * Adds a migration to the builder.
+         *
+         * Each [Migration] has a start and end versions and Room runs these migrations to bring the
+         * database to the latest version.
+         *
+         * A migration can handle more than 1 version (e.g. if you have a faster path to choose when
+         * going from version 3 to 5 without going to version 4). If Room opens a database at
+         * version 3 and latest version is >= 5, Room will use the migration object that can migrate
+         * from 3 to 5 instead of 3 to 4 and 4 to 5.
+         *
+         * @param migrations The migration objects that modify the database schema with the
+         * necessary changes for a version change.
+         * @return This builder instance.
+         */
+        fun addMigrations(vararg migrations: Migration): Builder<T>
+
+        /**
+         * Adds an auto migration spec instance to the builder.
+         *
+         * @param autoMigrationSpec The auto migration object that is annotated with
+         * [ProvidedAutoMigrationSpec] and is declared in an [AutoMigration] annotation.
+         * @return This builder instance.
+         */
+        fun addAutoMigrationSpec(autoMigrationSpec: AutoMigrationSpec): Builder<T>
+
+        /**
+         * Allows Room to destructively recreate database tables if [Migration]s that would
+         * migrate old database schemas to the latest schema version are not found.
+         *
+         * When the database version on the device does not match the latest schema version, Room
+         * runs necessary [Migration]s on the database. If it cannot find the set of [Migration]s
+         * that will bring the database to the current version, it will throw an
+         * [IllegalStateException]. You can call this method to change this behavior to re-create
+         * the database tables instead of crashing.
+         *
+         * To let Room fallback to destructive migration only during a schema downgrade then use
+         * [fallbackToDestructiveMigrationOnDowngrade].
+         *
+         * @param dropAllTables Set to `true` if all tables should be dropped during destructive
+         * migration including those not managed by Room. Recommended value is `true` as otherwise
+         * Room could leave obsolete data when table names or existence changes between versions.
+         * @return This builder instance.
+         */
+        fun fallbackToDestructiveMigration(dropAllTables: Boolean): Builder<T>
+
+        /**
+         * Allows Room to destructively recreate database tables if [Migration]s are not
+         * available when downgrading to old schema versions.
+         *
+         * For details, see [Builder.fallbackToDestructiveMigration].
+         *
+         * @param dropAllTables Set to `true` if all tables should be dropped during destructive
+         * migration including those not managed by Room. Recommended value is `true` as otherwise
+         * Room could leave obsolete data when table names or existence changes between versions.
+         * @return This builder instance.
+         */
+        fun fallbackToDestructiveMigrationOnDowngrade(dropAllTables: Boolean): Builder<T>
+
+        /**
+         * Informs Room that it is allowed to destructively recreate database tables from specific
+         * starting schema versions.
+         *
+         * This functionality is the same [fallbackToDestructiveMigration], except that this method
+         * allows the specification of a set of schema versions for which destructive recreation is
+         * allowed.
+         *
+         * Using this method is preferable to [fallbackToDestructiveMigration] if you want
+         * to allow destructive migrations from some schema versions while still taking advantage
+         * of exceptions being thrown due to unintentionally missing migrations.
+         *
+         * Note: No versions passed to this method may also exist as either starting or ending
+         * versions in the [Migration]s provided via [addMigrations]. If a
+         * version passed to this method is found as a starting or ending version in a Migration, an
+         * exception will be thrown.
+         *
+         * @param dropAllTables Set to `true` if all tables should be dropped during destructive
+         * migration including those not managed by Room. Recommended value is `true` as otherwise
+         * Room could leave obsolete data when table names or existence changes between versions.
+         * @param startVersions The set of schema versions from which Room should use a destructive
+         * migration.
+         * @return This builder instance.
+         */
+        fun fallbackToDestructiveMigrationFrom(
+            dropAllTables: Boolean,
+            vararg startVersions: Int
+        ): Builder<T>
+
+        /**
+         * Adds a type converter instance to the builder.
+         *
+         * @param typeConverter The converter instance that is annotated with
+         * [ProvidedTypeConverter].
+         * @return This builder instance.
+         */
+        fun addTypeConverter(typeConverter: Any): Builder<T>
+
+        /**
+         * Sets the journal mode for this database.
+         *
+         * The value is ignored if the builder is for an 'in-memory database'. The journal mode
+         * should be consistent across multiple instances of [RoomDatabase] for a single SQLite
+         * database file.
+         *
+         * The default value is [JournalMode.WRITE_AHEAD_LOGGING].
+         *
+         * @param journalMode The journal mode.
+         * @return This builder instance.
+         */
+        fun setJournalMode(journalMode: JournalMode): Builder<T>
+
+        /**
          * Sets the [CoroutineContext] that will be used to execute all asynchronous queries and
          * tasks, such as `Flow` emissions and [InvalidationTracker] notifications.
          *
@@ -404,6 +515,25 @@ suspend fun <R> RoomDatabase.useWriterConnection(
     useConnection(isReadOnly = false, block)
 }
 
+/**
+ * Validates that no added migration start or end are also marked as fallback to destructive
+ * migration from.
+ */
+internal fun validateMigrationsNotRequired(
+    migrationStartAndEndVersions: Set<Int>,
+    migrationsNotRequiredFrom: Set<Int>
+) {
+    if (migrationStartAndEndVersions.isNotEmpty()) {
+        for (version in migrationStartAndEndVersions) {
+            require(!migrationsNotRequiredFrom.contains(version)) {
+                "Inconsistency detected. A Migration was supplied to addMigration() that has a " +
+                    "start or end version equal to a start version supplied to " +
+                    "fallbackToDestructiveMigrationFrom(). Start version is: $version"
+            }
+        }
+    }
+}
+
 internal fun RoomDatabase.validateAutoMigrations(configuration: DatabaseConfiguration) {
     val autoMigrationSpecs = mutableMapOf<KClass<out AutoMigrationSpec>, AutoMigrationSpec>()
     val requiredAutoMigrationSpecs = getRequiredAutoMigrationSpecClasses()
@@ -426,7 +556,7 @@ internal fun RoomDatabase.validateAutoMigrations(configuration: DatabaseConfigur
         autoMigrationSpecs[spec] = configuration.autoMigrationSpecs[foundIndex]
     }
     for (providedIndex in configuration.autoMigrationSpecs.indices.reversed()) {
-        require(usedSpecs[providedIndex]) {
+        require(providedIndex < usedSpecs.size && usedSpecs[providedIndex]) {
             "Unexpected auto migration specs found. " +
                 "Annotate AutoMigrationSpec implementation with " +
                 "@ProvidedAutoMigrationSpec annotation or remove this spec from the " +
@@ -464,7 +594,7 @@ internal fun RoomDatabase.validateTypeConverters(configuration: DatabaseConfigur
                 }
             }
             require(foundIndex >= 0) {
-                "A required type converter ($converter) for" +
+                "A required type converter (${converter.qualifiedName}) for" +
                     " ${daoName.qualifiedName} is missing in the database configuration."
             }
             addTypeConverter(converter, configuration.typeConverters[foundIndex])
