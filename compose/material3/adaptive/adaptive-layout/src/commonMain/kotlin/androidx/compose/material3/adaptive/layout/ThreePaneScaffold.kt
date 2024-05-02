@@ -308,7 +308,7 @@ private class ThreePaneContentMeasurePolicy(
                 constraints.maxHeight
             )
             if (!isLookingAhead) {
-                paneExpansionState.maxExpansionWidth = outerBounds.width
+                paneExpansionState.onMeasured(outerBounds.width, this@measure)
             }
 
             if (!paneExpansionState.isUnspecified() && visiblePanes.size == 2) {
@@ -318,7 +318,7 @@ private class ThreePaneContentMeasurePolicy(
                     // Respect the user dragging result if there's any
                     val halfSpacerSize = verticalSpacerSize / 2
                     if (paneExpansionState.currentDraggingOffset <= halfSpacerSize) {
-                        val bounds = if (paneExpansionState.isDragging) {
+                        val bounds = if (paneExpansionState.isDraggingOrSettling) {
                             outerBounds.copy(
                                 left = paneExpansionState.currentDraggingOffset * 2 +
                                     outerBounds.left
@@ -333,7 +333,7 @@ private class ThreePaneContentMeasurePolicy(
                         )
                     } else if (paneExpansionState.currentDraggingOffset >=
                         outerBounds.width - halfSpacerSize) {
-                        val bounds = if (paneExpansionState.isDragging) {
+                        val bounds = if (paneExpansionState.isDraggingOrSettling) {
                             outerBounds.copy(
                                 right = paneExpansionState.currentDraggingOffset * 2 -
                                     outerBounds.right
@@ -497,7 +497,7 @@ private class ThreePaneContentMeasurePolicy(
 
             if (visiblePanes.size == 2 && dragHandleMeasurables.isNotEmpty()) {
                 val handleOffsetX =
-                    if (!paneExpansionState.isDragging ||
+                    if (!paneExpansionState.isDraggingOrSettling ||
                         paneExpansionState.currentDraggingOffset ==
                         PaneExpansionState.UnspecifiedWidth) {
                         val spacerMiddleOffset = getSpacerMiddleOffsetX(
@@ -505,7 +505,7 @@ private class ThreePaneContentMeasurePolicy(
                             visiblePanes[1]
                         )
                         if (!isLookingAhead) {
-                            paneExpansionState.currentMeasuredDraggingOffset = spacerMiddleOffset
+                            paneExpansionState.onExpansionOffsetMeasured(spacerMiddleOffset)
                         }
                         spacerMiddleOffset
                     } else {
@@ -519,8 +519,7 @@ private class ThreePaneContentMeasurePolicy(
                     handleOffsetX
                 )
             } else if (!isLookingAhead) {
-                paneExpansionState.currentMeasuredDraggingOffset =
-                    PaneExpansionState.UnspecifiedWidth
+                paneExpansionState.onExpansionOffsetMeasured(PaneExpansionState.UnspecifiedWidth)
             }
 
             // Place the hidden panes to ensure a proper motion at the AnimatedVisibility,
