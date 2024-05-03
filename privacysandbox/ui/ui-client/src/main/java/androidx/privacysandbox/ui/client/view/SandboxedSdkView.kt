@@ -316,6 +316,9 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         requestedWidth = -1
         requestedHeight = -1
         setMeasuredDimension(newWidth, newHeight)
+        if (childCount > 0) {
+            measureChild(getChildAt(0), widthMeasureSpec, heightMeasureSpec)
+        }
     }
 
     override fun isTransitionGroup(): Boolean = !isTransitionGroupSet || super.isTransitionGroup()
