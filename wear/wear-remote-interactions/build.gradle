@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -72,7 +72,7 @@ android {
 
 androidx {
     name = "Android Wear Remote Interactions"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.WEAR_REMOTE_INTERACTIONS
     inceptionYear = "2020"
     description = "Android Wear Remote Interactions"

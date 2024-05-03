@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -43,7 +43,7 @@ dependencies {
 
 androidx {
     name = "Content"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Library providing support for paging across content exposed via a ContentProvider. Use of this library allows a client to avoid expensive interprocess \"cursor window swaps\" on the UI thread."
     failOnDeprecationWarnings = false

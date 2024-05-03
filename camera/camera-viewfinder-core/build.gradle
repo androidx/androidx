@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -53,7 +52,6 @@ android {
 androidx {
     name = "Camera ViewFinder Core"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
     description = "Core dependencies for ViewFinder"
     metalavaK2UastEnabled = true

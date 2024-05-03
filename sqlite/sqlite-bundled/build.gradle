@@ -24,7 +24,7 @@
 import androidx.build.AndroidXConfig
 import androidx.build.PlatformIdentifier
 import androidx.build.ProjectLayoutType
-import androidx.build.Publish
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -237,7 +237,7 @@ android {
 
 androidx {
     name = "SQLite Bundled Integration"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "The implementation of SQLite library using the bundled SQLite."
     metalavaK2UastEnabled = false

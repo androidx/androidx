@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+import androidx.build.LibraryType
 import androidx.build.RunApiTasks
 
 plugins {
@@ -71,7 +71,7 @@ afterEvaluate {
 }
 androidx {
     name = "Wear Tiles Proto"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Jarjar the generated proto and proto-lite dependency for use by " +
             "wear-tiles."
