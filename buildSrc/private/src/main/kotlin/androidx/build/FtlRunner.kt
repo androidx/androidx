@@ -196,7 +196,7 @@ private val devicesToRunOn =
         "ftlpixel2api30" to listOf("Pixel2.arm,version=30"),
         "ftlpixel2api28" to listOf("Pixel2.arm,version=28"),
         "ftlpixel2api26" to listOf("Pixel2.arm,version=26"),
-        "ftlnexus4api21" to listOf("Nexus4,version=21"),
+        "ftlnexus4api21" to listOf("Nexus4.gce_x86,version=21"),
         "ftlCoreTelecomDeviceSet" to listOf(NEXUS_6P, A10, PETTYL, HWCOR, Q2Q),
     )
 
