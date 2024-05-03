@@ -250,7 +250,6 @@ internal fun BasicTextField(
 
     val transformedState = remember(
         state,
-        inputTransformation,
         codepointTransformation,
         outputTransformation
     ) {
@@ -288,6 +287,8 @@ internal fun BasicTextField(
     SideEffect {
         // These properties are not backed by snapshot state, so they can't be updated directly in
         // composition.
+        transformedState.update(inputTransformation)
+
         textFieldSelectionState.update(
             hapticFeedBack = currentHapticFeedback,
             clipboardManager = currentClipboardManager,
