@@ -209,6 +209,7 @@ internal class GraphicsLayerOwnerLayer(
 
     override fun move(position: IntOffset) {
         graphicsLayer.topLeft = position
+        triggerRepaint()
     }
 
     override fun resize(size: IntSize) {
