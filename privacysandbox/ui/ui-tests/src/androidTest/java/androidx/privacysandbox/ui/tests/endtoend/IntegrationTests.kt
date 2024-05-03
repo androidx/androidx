@@ -27,6 +27,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
@@ -378,6 +379,22 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
         adapter.ensureAllChildrenBecomeIdleFromActive()
     }
 
+    /**
+     * Verifies that when the [View] returned as part of a [SandboxedUiAdapter.Session] is a
+     * [ViewGroup], that the child view is measured and laid out by its parent.
+     */
+    @Test
+    fun testViewGroup_ChildViewIsLaidOut() {
+        val adapter = createAdapterAndWaitToBeActive(placeViewInsideFrameLayout = true)
+        val session = adapter.session as TestSandboxedUiAdapter.TestSession
+
+        // Force a layout pass by changing the size of the view
+         activityScenarioRule.withActivity {
+            session.sessionClient.onResizeRequested(INITIAL_WIDTH - 10, INITIAL_HEIGHT - 10)
+         }
+        session.assertViewWasLaidOut()
+    }
+
     fun createRecyclerViewTestAdapterAndWaitForChildrenToBeActive(isNestedView: Boolean):
         RecyclerViewTestAdapter {
         val adapter = RecyclerViewTestAdapter(context, isNestedView)
@@ -499,11 +516,12 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
      */
     private fun createAdapterAndEstablishSession(
         hasFailingTestSession: Boolean = false,
+        placeViewInsideFrameLayout: Boolean = false,
         viewForSession: SandboxedSdkView? = view,
         testSessionClient: TestSessionClient = TestSessionClient()
     ): TestSandboxedUiAdapter {
 
-        val adapter = TestSandboxedUiAdapter(hasFailingTestSession)
+        val adapter = TestSandboxedUiAdapter(hasFailingTestSession, placeViewInsideFrameLayout)
         val adapterFromCoreLibInfo = SandboxedUiAdapterFactory.createFromCoreLibInfo(
             getCoreLibInfoFromAdapter(adapter)
         )
@@ -532,12 +550,16 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
     private fun createAdapterAndWaitToBeActive(
         initialZOrder: Boolean = true,
-        viewForSession: SandboxedSdkView = view
+        viewForSession: SandboxedSdkView = view,
+        placeViewInsideFrameLayout: Boolean = false
     ):
         TestSandboxedUiAdapter {
         viewForSession.orderProviderUiAboveClientUi(initialZOrder)
 
-        val adapter = createAdapterAndEstablishSession(false, viewForSession)
+        val adapter = createAdapterAndEstablishSession(
+            placeViewInsideFrameLayout = placeViewInsideFrameLayout,
+            viewForSession = viewForSession
+        )
 
         val activeLatch = CountDownLatch(1)
         viewForSession.addStateChangedListener { state ->
@@ -584,7 +606,8 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
      *  If [hasFailingTestSession] is true, the fake server side logic returns error.
      */
     class TestSandboxedUiAdapter(
-        private val hasFailingTestSession: Boolean = false
+        private val hasFailingTestSession: Boolean = false,
+        private val placeViewInsideFrameLayout: Boolean = false
     ) : SandboxedUiAdapter {
 
         private val openSessionLatch: CountDownLatch = CountDownLatch(1)
@@ -614,7 +637,7 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
             session = if (hasFailingTestSession) {
                 FailingTestSession(context, client)
             } else {
-                TestSession(context, client)
+                TestSession(context, client, placeViewInsideFrameLayout)
             }
             client.onSessionOpened(session)
             openSessionLatch.countDown()
@@ -648,13 +671,15 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
         inner class TestSession(
             private val context: Context,
-            val sessionClient: SandboxedUiAdapter.SessionClient
+            val sessionClient: SandboxedUiAdapter.SessionClient,
+            private val placeViewInsideFrameLayout: Boolean = false
         ) : SandboxedUiAdapter.Session {
 
             private val configLatch = CountDownLatch(1)
             private val resizeLatch = CountDownLatch(1)
             private val zOrderLatch = CountDownLatch(1)
             private val sizeChangedLatch = CountDownLatch(1)
+            private val layoutLatch = CountDownLatch(1)
             private var width = -1
             private var height = -1
 
@@ -682,22 +707,31 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
                     return field
                 }
 
+            private val testView: View = View(context).also {
+                it.setOnTouchListener { _, _ ->
+                    touchedLatch.countDown()
+                    true
+                }
+                it.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
+                    width = right - left
+                    height = bottom - top
+                    // Don't count down for the initial layout. We want to capture the
+                    // layout change for a size change.
+                    if (width != initialWidth || height != initialHeight) {
+                        sizeChangedLatch.countDown()
+                    }
+                    layoutLatch.countDown()
+                }
+            }
+
             override val view: View
                 get() {
-                    return View(context).also {
-                        it.setOnTouchListener { _, _ ->
-                            touchedLatch.countDown()
-                            true
+                    return if (placeViewInsideFrameLayout) {
+                        FrameLayout(context).also {
+                            it.addView(testView)
                         }
-                        it.addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
-                            width = right - left
-                            height = bottom - top
-                            // Don't count down for the initial layout. We want to capture the
-                            // layout change for a size change.
-                            if (width != initialWidth || height != initialHeight) {
-                                sizeChangedLatch.countDown()
-                            }
-                        }
+                    } else {
+                        testView
                     }
                 }
 
@@ -728,6 +762,10 @@ class IntegrationTests(private val invokeBackwardsCompatFlow: Boolean) {
 
             internal fun assertResizeDidNotOccur() {
                 assertThat(sizeChangedLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
+            }
+
+            internal fun assertViewWasLaidOut() {
+                assertThat(layoutLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
             }
         }
     }
