@@ -18,7 +18,6 @@
 
 package androidx.compose.animation
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -93,7 +92,6 @@ internal class SharedBoundsNode(
             }
         }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun requireLookaheadLayoutCoordinates(): LayoutCoordinates =
         with(state.sharedElement.scope) {
             requireLayoutCoordinates().toLookaheadCoordinates()
@@ -213,7 +211,6 @@ internal class SharedBoundsNode(
         return sharedElement.foundMatch && state.sharedElement.scope.isTransitionActive
     }
 
-    @ExperimentalComposeUiApi
     override fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
         constraints: Constraints
