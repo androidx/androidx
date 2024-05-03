@@ -31,7 +31,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.computeSizeForDefaultText
@@ -104,8 +103,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.drop
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -413,13 +410,10 @@ internal class BasicTextFieldTest {
     }
 
     @Test
-    fun hideKeyboardWhenDisposed() {
-        val keyboardHelper = KeyboardHelper(rule)
+    fun disposeSession_whenTextFieldIsRemoved() {
         val state = TextFieldState("initial text")
         var toggle by mutableStateOf(true)
-        rule.setContent {
-            keyboardHelper.initialize()
-
+        inputMethodInterceptor.setContent {
             if (toggle) {
                 BasicTextField(
                     state = state,
@@ -429,14 +423,11 @@ internal class BasicTextFieldTest {
         }
 
         rule.onNodeWithTag("TextField").requestFocus()
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertTrue(keyboardHelper.isSoftwareKeyboardShown())
+        inputMethodInterceptor.assertSessionActive()
 
         toggle = false
-        rule.waitForIdle()
 
-        keyboardHelper.waitForKeyboardVisibility(false)
-        assertFalse(keyboardHelper.isSoftwareKeyboardShown())
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
