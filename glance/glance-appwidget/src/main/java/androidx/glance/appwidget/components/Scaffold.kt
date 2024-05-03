@@ -39,7 +39,7 @@ import androidx.glance.unit.ColorProvider
  * @param modifier a modifier
  * @param titleBar A composable that creates the [TitleBar]. Optional parameter.
  * @param backgroundColor the background color for the layout.
- * @param horizontalPadding Scaffold provides a default padding of 16dp which should work for most
+ * @param horizontalPadding Scaffold provides a default padding which should work for most
  *  use cases. However, it can be overridden.
  * @param content The main content of the widget.
  */
