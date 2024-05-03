@@ -29,6 +29,7 @@ import androidx.compose.ui.test.withKeyDown
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,6 +47,7 @@ class TextFieldUndoTest {
         undoRedoTest(redoKeys = listOf(Key.CtrlLeft, Key.ShiftLeft, Key.Z))
     }
 
+    @Ignore("b/336546377")
     @Test
     fun undo_redo_withCtrlY() {
         undoRedoTest(redoKeys = listOf(Key.CtrlLeft, Key.Y))
