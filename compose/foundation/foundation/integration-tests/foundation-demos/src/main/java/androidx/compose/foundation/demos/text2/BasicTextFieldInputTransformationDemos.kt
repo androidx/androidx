@@ -37,6 +37,7 @@ import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.allCaps
+import androidx.compose.foundation.text.input.forEachChange
 import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Switch
@@ -52,7 +53,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.core.text.isDigitsOnly
 
 @Composable
-fun BasicTextFieldFilterDemos() {
+fun BasicTextFieldInputTransformationDemos() {
     Column(
         Modifier
             .imePadding()
@@ -66,6 +67,9 @@ fun BasicTextFieldFilterDemos() {
 
         TagLine(tag = "Digits Only BasicTextField")
         DigitsOnlyDemo()
+
+        TagLine(tag = "Additive InputTransformation")
+        AdditiveInputTransformationDemo()
 
         TagLine(tag = "Change filter")
         ChangeFilterDemo()
@@ -97,7 +101,6 @@ fun BasicTextFieldFilterDemos() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DigitsOnlyDemo() {
     FilterDemo(filter = object : InputTransformation {
@@ -108,6 +111,18 @@ private fun DigitsOnlyDemo() {
         override fun TextFieldBuffer.transformInput() {
             if (!asCharSequence().isDigitsOnly()) {
                 revertAllChanges()
+            }
+        }
+    })
+}
+
+@Composable
+private fun AdditiveInputTransformationDemo() {
+    FilterDemo(filter = {
+        changes.forEachChange { range, originalRange ->
+            // only extend the insertions
+            if (!range.collapsed && originalRange.collapsed) {
+                replace(range.end, range.end, "a")
             }
         }
     })

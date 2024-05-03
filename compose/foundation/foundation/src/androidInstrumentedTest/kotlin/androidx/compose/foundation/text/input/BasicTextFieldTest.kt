@@ -551,6 +551,25 @@ internal class BasicTextFieldTest {
     }
 
     @Test
+    fun textField_appliesFilter_toInputConnection_changingComposition() {
+        val state = TextFieldState()
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                inputTransformation = RejectAllTextFilter,
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+        requestFocus(Tag)
+
+        inputMethodInterceptor.withInputConnection {
+            setComposingText("hello", 1)
+        }
+        rule.onNodeWithTag(Tag).assertTextEquals("")
+        assertThat(state.composition).isNull()
+    }
+
+    @Test
     fun textField_appliesFilter_toSetTextSemanticsAction() {
         val state = TextFieldState()
         inputMethodInterceptor.setTextFieldTestContent {
