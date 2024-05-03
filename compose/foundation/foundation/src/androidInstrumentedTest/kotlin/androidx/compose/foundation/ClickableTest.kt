@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -1070,6 +1071,138 @@ class ClickableTest {
         // Dispose clickable
         rule.runOnIdle {
             emitClickableText = false
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
+            assertThat((interactions[1] as PressInteraction.Cancel).press)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @Test
+    fun interactionSource_resetWhenReused() {
+        val interactionSource = MutableInteractionSource()
+        var key by mutableStateOf(true)
+
+        lateinit var scope: CoroutineScope
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box {
+                ReusableContent(key) {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("myClickable")
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {}
+                    )
+                }
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeBy(TapIndicationDelay)
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        // Change the key to trigger reuse
+        rule.runOnIdle {
+            key = false
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
+            assertThat((interactions[1] as PressInteraction.Cancel).press)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @Test
+    fun interactionSource_resetWhenMoved() {
+        val interactionSource = MutableInteractionSource()
+        var moveContent by mutableStateOf(false)
+
+        lateinit var scope: CoroutineScope
+
+        rule.mainClock.autoAdvance = false
+
+        val content = movableContentOf {
+            BasicText(
+                "ClickableText",
+                modifier = Modifier
+                    .testTag("myClickable")
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {}
+            )
+        }
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            if (moveContent) {
+                Box {
+                    content()
+                }
+            } else {
+                Box {
+                    content()
+                }
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeBy(TapIndicationDelay)
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        // Move the content
+        rule.runOnIdle {
+            moveContent = true
         }
 
         rule.mainClock.advanceTimeByFrame()
@@ -5191,6 +5324,392 @@ class ClickableTest {
         rule.runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @Test
+    fun indicationNodeFactory_nullInteractionSource_resetWhenReused_pressed() {
+        var attachedCount = 0
+        var detachedCount = 0
+        val interactionSources = mutableListOf<InteractionSource>()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detachedCount++ }
+        ) { interactionSource, coroutineScope ->
+            attachedCount++
+            interactionSources += interactionSource
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var key by mutableStateOf(true)
+
+        rule.setContent {
+            Box {
+                ReusableContent(key) {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("clickable")
+                            .clickable(
+                                interactionSource = null,
+                                indication = indication
+                            ) {}
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(0)
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        // Change the key to trigger reuse
+        rule.runOnIdle {
+            interactions.clear()
+            key = false
+        }
+
+        rule.runOnIdle {
+            // The indication instance should be disposed
+            assertThat(detachedCount).isEqualTo(1)
+            // Because we collect the interactionSource using the node scope, this will be cancelled
+            // before the new interaction is emitted, so the node won't see the Cancel interaction.
+            // Since the node has been removed though, this doesn't really matter.
+            // No new node should be created, since we have reset, and are lazily creating the node
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+        }
+
+        // The touch event should cause a new indication node and interaction source to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput {
+                // Need to reset the previous down
+                up()
+                down(center)
+            }
+
+        rule.runOnIdle {
+            // The new node should be created now
+            assertThat(attachedCount).isEqualTo(2)
+            assertThat(interactionSources.size).isEqualTo(2)
+            // It should be using a different interaction source
+            assertThat(interactionSources[0]).isNotEqualTo(interactionSources[1])
+            assertThat(detachedCount).isEqualTo(1)
+            // There should be a new press
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun indicationNodeFactory_nullInteractionSource_resetWhenReused_focused() {
+        var attachedCount = 0
+        var detachedCount = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        val interactionSources = mutableListOf<InteractionSource>()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detachedCount++ }
+        ) { interactionSource, coroutineScope ->
+            attachedCount++
+            interactionSources += interactionSource
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var key by mutableStateOf(true)
+
+        // setFocusableContent so when we are reused, the focus system won't automatically try and
+        // set focus on us again
+        rule.setFocusableContent {
+            inputModeManager = LocalInputModeManager.current
+            Box {
+                ReusableContent(key) {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("clickable")
+                            .focusRequester(focusRequester)
+                            .clickable(
+                                interactionSource = null,
+                                indication = indication
+                            ) {}
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(0)
+        }
+
+        rule.runOnIdle {
+            // Clickable is only focusable in non-touch mode
+            inputModeManager.requestInputMode(Keyboard)
+            // The focus event should cause the indication node to be created
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+
+        // Change the key to trigger reuse
+        rule.runOnIdle {
+            interactions.clear()
+            key = false
+        }
+
+        rule.runOnIdle {
+            // The indication instance should be disposed
+            assertThat(detachedCount).isEqualTo(1)
+            // Because we collect the interactionSource using the node scope, this will be cancelled
+            // before the new interaction is emitted, so the node won't see the Unfocus interaction.
+            // Since the node has been removed though, this doesn't really matter.
+            // No new node should be created, since we have reset, and are lazily creating the node
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+        }
+
+        rule.runOnIdle {
+            // Request focus again
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            // The new node should be created now
+            assertThat(attachedCount).isEqualTo(2)
+            assertThat(interactionSources.size).isEqualTo(2)
+            // It should be using a different interaction source
+            assertThat(interactionSources[0]).isNotEqualTo(interactionSources[1])
+            assertThat(detachedCount).isEqualTo(1)
+            // There should be a new focus interaction
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+    }
+
+    @Test
+    fun indicationNodeFactory_nullInteractionSource_resetWhenMoved_pressed() {
+        var attachedCount = 0
+        var detachedCount = 0
+        val interactionSources = mutableListOf<InteractionSource>()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detachedCount++ }
+        ) { interactionSource, coroutineScope ->
+            attachedCount++
+            interactionSources += interactionSource
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var moveContent by mutableStateOf(false)
+
+        val content = movableContentOf {
+            BasicText(
+                "ClickableText",
+                modifier = Modifier
+                    .testTag("clickable")
+                    .clickable(
+                        interactionSource = null,
+                        indication = indication
+                    ) {}
+            )
+        }
+
+        rule.setContent {
+            if (moveContent) {
+                Box {
+                    content()
+                }
+            } else {
+                Box {
+                    content()
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(0)
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        // Move the content
+        rule.runOnIdle {
+            interactions.clear()
+            moveContent = true
+        }
+
+        rule.runOnIdle {
+            // The indication instance should be disposed
+            assertThat(detachedCount).isEqualTo(1)
+            // Because we collect the interactionSource using the node scope, this will be cancelled
+            // before the new interaction is emitted, so the node won't see the Unfocus interaction.
+            // Since the node has been removed though, this doesn't really matter.
+            // No new node should be created, since we have reset, and are lazily creating the node
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+        }
+
+        // The touch event should cause a new indication node and interaction source to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput {
+                // Need to reset the previous down
+                up()
+                down(center)
+            }
+
+        rule.runOnIdle {
+            // The new node should be created now
+            assertThat(attachedCount).isEqualTo(2)
+            assertThat(interactionSources.size).isEqualTo(2)
+            // It should be using a different interaction source
+            assertThat(interactionSources[0]).isNotEqualTo(interactionSources[1])
+            assertThat(detachedCount).isEqualTo(1)
+            // There should be a new press
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun indicationNodeFactory_nullInteractionSource_resetWhenMoved_focused() {
+        var attachedCount = 0
+        var detachedCount = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        val interactionSources = mutableListOf<InteractionSource>()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detachedCount++ }
+        ) { interactionSource, coroutineScope ->
+            attachedCount++
+            interactionSources += interactionSource
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var moveContent by mutableStateOf(false)
+
+        val content = movableContentOf {
+            BasicText(
+                "ClickableText",
+                modifier = Modifier
+                    .testTag("clickable")
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        interactionSource = null,
+                        indication = indication
+                    ) {}
+            )
+        }
+
+        // setFocusableContent so when we are reused, the focus system won't automatically try and
+        // set focus on us again
+        rule.setFocusableContent {
+            inputModeManager = LocalInputModeManager.current
+            if (moveContent) {
+                Box {
+                    content()
+                }
+            } else {
+                Box {
+                    content()
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(0)
+        }
+
+        rule.runOnIdle {
+            // Clickable is only focusable in non-touch mode
+            inputModeManager.requestInputMode(Keyboard)
+            // The focus event should cause the indication node to be created
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+
+        // Move the content
+        rule.runOnIdle {
+            interactions.clear()
+            moveContent = true
+        }
+
+        rule.runOnIdle {
+            // The indication instance should be disposed
+            assertThat(detachedCount).isEqualTo(1)
+            // Because we collect the interactionSource using the node scope, this will be cancelled
+            // before the new interaction is emitted, so the node won't see the Unfocus interaction.
+            // Since the node has been removed though, this doesn't really matter.
+            // No new node should be created, since we have reset, and are lazily creating the node
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+        }
+
+        rule.runOnIdle {
+            // Request focus again
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            // The new node should be created now
+            assertThat(attachedCount).isEqualTo(2)
+            assertThat(interactionSources.size).isEqualTo(2)
+            // It should be using a different interaction source
+            assertThat(interactionSources[0]).isNotEqualTo(interactionSources[1])
+            assertThat(detachedCount).isEqualTo(1)
+            // There should be a new focus interaction
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
         }
     }
 
