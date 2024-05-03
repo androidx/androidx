@@ -39,7 +39,7 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 
-internal class SharedElement(val key: Any, val scope: SharedTransitionScope) {
+internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl) {
     fun isAnimating(): Boolean = states.fastAny { it.boundsAnimation.isRunning } && foundMatch
 
     private var _targetBounds: Rect? by mutableStateOf(null)

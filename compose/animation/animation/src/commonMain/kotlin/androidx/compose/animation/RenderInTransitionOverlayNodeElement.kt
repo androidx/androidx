@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
 internal data class RenderInTransitionOverlayNodeElement(
-    var sharedTransitionScope: SharedTransitionScope,
+    var sharedTransitionScope: SharedTransitionScopeImpl,
     var renderInOverlay: () -> Boolean,
     val zIndexInOverlay: Float,
     val clipInOverlay: (LayoutDirection, Density) -> Path?
@@ -83,7 +83,7 @@ internal data class RenderInTransitionOverlayNodeElement(
 }
 
 internal class RenderInTransitionOverlayNode(
-    var sharedScope: SharedTransitionScope,
+    var sharedScope: SharedTransitionScopeImpl,
     var renderInOverlay: () -> Boolean,
     zIndexInOverlay: Float,
     var clipInOverlay: (LayoutDirection, Density) -> Path?,
