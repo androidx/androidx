@@ -61,13 +61,18 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.scrollBy
+import androidx.compose.ui.semantics.scrollByOffset
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -275,7 +280,7 @@ private class ScrollableNode(
     interactionSource = interactionSource,
     orientationLock = orientation
 ), ObserverModifierNode, CompositionLocalConsumerModifierNode,
-    FocusPropertiesModifierNode, KeyInputModifierNode {
+    FocusPropertiesModifierNode, KeyInputModifierNode, SemanticsModifierNode {
 
     override val shouldAutoInvalidate: Boolean = false
 
@@ -312,6 +317,8 @@ private class ScrollableNode(
     // Need to wait until onAttach to read the scroll config. Currently this is static, so we
     // don't need to worry about observation / updating this over time.
     private var scrollConfig: ScrollConfig? = null
+    private var scrollByAction: ((x: Float, y: Float) -> Boolean)? = null
+    private var scrollByOffsetAction: (suspend (Offset) -> Offset)? = null
 
     init {
         /**
@@ -355,10 +362,11 @@ private class ScrollableNode(
         interactionSource: MutableInteractionSource?,
         bringIntoViewSpec: BringIntoViewSpec?
     ) {
-
+        var shouldInvalidateSemantics = false
         if (this.enabled != enabled) { // enabled changed
             nestedScrollConnection.enabled = enabled
             scrollableContainerNode.update(enabled)
+            shouldInvalidateSemantics = true
         }
         // a new fling behavior was set, change the resolved one.
         val resolvedFlingBehavior = flingBehavior ?: defaultFlingBehavior
@@ -390,6 +398,11 @@ private class ScrollableNode(
             orientationLock = if (scrollingLogic.isVertical()) Vertical else Horizontal,
             shouldResetPointerInputHandling = resetPointerInputHandling
         )
+
+        if (shouldInvalidateSemantics) {
+            clearScrollSemanticsActions()
+            invalidateSemantics()
+        }
     }
 
     override fun onAttach() {
@@ -470,6 +483,36 @@ private class ScrollableNode(
         if (pass == PointerEventPass.Main && pointerEvent.type == PointerEventType.Scroll) {
             processMouseWheelEvent(pointerEvent, bounds)
         }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        if (enabled && (scrollByAction == null || scrollByOffsetAction == null)) {
+            setScrollSemanticsActions()
+        }
+
+        scrollByAction?.let {
+            scrollBy(action = it)
+        }
+
+        scrollByOffsetAction?.let {
+            scrollByOffset(action = it)
+        }
+    }
+
+    private fun setScrollSemanticsActions() {
+        scrollByAction = { x, y ->
+            coroutineScope.launch {
+                scrollingLogic.animateScrollBy(Offset(x, y))
+            }
+            true
+        }
+
+        scrollByOffsetAction = { offset -> scrollingLogic.animateScrollBy(offset) }
+    }
+
+    private fun clearScrollSemanticsActions() {
+        scrollByAction = null
+        scrollByOffsetAction = null
     }
 
     /**
@@ -748,6 +791,13 @@ private class ScrollingLogic(
                 )
             }
         }
+    }
+
+    /**
+     * This is a single orientation animation since toFloat will clamp the cross axis offset.
+     */
+    suspend fun animateScrollBy(scrollAmount: Offset): Offset {
+        return scrollableState.animateScrollBy(scrollAmount.toFloat()).toOffset()
     }
 
     /**
