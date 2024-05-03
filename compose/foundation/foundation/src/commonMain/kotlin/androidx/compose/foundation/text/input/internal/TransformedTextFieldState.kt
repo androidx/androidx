@@ -107,7 +107,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @Stable
 internal class TransformedTextFieldState(
     private val textFieldState: TextFieldState,
-    private val inputTransformation: InputTransformation? = null,
+    private var inputTransformation: InputTransformation? = null,
     private val codepointTransformation: CodepointTransformation? = null,
     private val outputTransformation: OutputTransformation? = null,
 ) {
@@ -172,6 +172,18 @@ internal class TransformedTextFieldState(
      * the wedge even though both those indices map to the same index in the untransformed text.
      */
     var selectionWedgeAffinity by mutableStateOf(SelectionWedgeAffinity(WedgeAffinity.Start))
+
+    /**
+     * [TransformedTextFieldState] is not recreated when only [InputTransformation] changes. This
+     * method simply updates the internal [InputTransformation] to be used by input methods like
+     * the IME, hardware keyboard, or gestures.
+     *
+     * [InputTransformation] property is not backed by snapshot state, so it can't be updated
+     * directly in composition. Make sure to call this method from outside the composition.
+     */
+    fun update(inputTransformation: InputTransformation?) {
+        this.inputTransformation = inputTransformation
+    }
 
     fun placeCursorBeforeCharAt(transformedOffset: Int) {
         selectCharsIn(TextRange(transformedOffset))

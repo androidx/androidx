@@ -416,7 +416,6 @@ internal class TextFieldDecoratorModifierNode(
         val previousTextFieldState = this.textFieldState
         val previousKeyboardOptions = this.keyboardOptions
         val previousTextFieldSelectionState = this.textFieldSelectionState
-        val previousFilter = this.filter
         val previousInteractionSource = this.interactionSource
 
         // Apply the diff.
@@ -435,8 +434,8 @@ internal class TextFieldDecoratorModifierNode(
         // Something about the session changed, restart the session.
         if (writeable != previousWriteable ||
             textFieldState != previousTextFieldState ||
-            keyboardOptions != previousKeyboardOptions ||
-            filter != previousFilter
+            // compare with the new keyboardOptions that's merged
+            this.keyboardOptions != previousKeyboardOptions
         ) {
             if (writeable && isFocused) {
                 // The old session will be implicitly disposed.
