@@ -20,7 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : LifecycleOwner {
+public class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : LifecycleOwner {
     private val registry: LifecycleRegistry = LifecycleRegistry.createUnsafe(this)
 
     init {
@@ -32,35 +32,35 @@ class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : LifecycleOwner
     override val lifecycle: Lifecycle
         get() = registry
 
-    fun setState(state: Lifecycle.State) {
+    public fun setState(state: Lifecycle.State) {
         registry.currentState = state
     }
 
-    fun pause() {
+    public fun pause() {
         runBlocking(Dispatchers.Main) {
             setState(Lifecycle.State.STARTED)
         }
     }
 
-    fun destroy() {
+    public fun destroy() {
         runBlocking(Dispatchers.Main) {
             setState(Lifecycle.State.DESTROYED)
         }
     }
 
-    fun create() {
+    public fun create() {
         runBlocking(Dispatchers.Main) {
             setState(Lifecycle.State.CREATED)
         }
     }
 
-    fun start() {
+    public fun start() {
         runBlocking(Dispatchers.Main) {
             setState(Lifecycle.State.STARTED)
         }
     }
 
-    fun resume() {
+    public fun resume() {
         runBlocking(Dispatchers.Main) {
             setState(Lifecycle.State.RESUMED)
         }
