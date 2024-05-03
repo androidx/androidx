@@ -18,6 +18,7 @@ package androidx.build
 
 import androidx.build.dackka.DokkaAnalysisPlatform
 import androidx.build.dackka.docsPlatform
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.google.gson.GsonBuilder
@@ -39,7 +40,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
@@ -87,23 +87,27 @@ fun Project.configureSourceJarForAndroid(
 
 fun Project.configureMultiplatformSourcesForAndroid(
     variantName: String,
+    target: KotlinMultiplatformAndroidTarget,
     samplesProjects: MutableCollection<Project>
 ) {
-    val mpExtension = multiplatformExtension
-    if (mpExtension != null && extra.has("publish")) {
-        val sourceJar =
-            project.tasks.named(
-                "sourceJar${variantName.capitalize()}",
-                Jar::class.java
-            )
-        // multiplatform projects use different source sets, so we need to modify the task
-        sourceJar.configure { sourceJarTask ->
-            // use an inclusion list of source sets, because that is the preferred policy
-            sourceJarTask.from(mpExtension.sourceSets.getByName("commonMain").kotlin.srcDirs)
-            sourceJarTask.from(mpExtension.sourceSets.getByName("androidMain").kotlin.srcDirs)
+    val sourceJar =
+        tasks.register(
+            "sourceJar${variantName.capitalize()}",
+            Jar::class.java
+        ) { task ->
+            task.archiveClassifier.set("sources")
+            target
+                .mainCompilation()
+                .allKotlinSourceSets
+                .forEach { sourceSet ->
+                    task.from(sourceSet.kotlin.srcDirs) { copySpec ->
+                        copySpec.into(sourceSet.name)
+                    }
+                }
+            task.duplicatesStrategy = DuplicatesStrategy.FAIL
         }
-        registerSamplesLibraries(samplesProjects)
-    }
+    registerSourcesVariant(sourceJar)
+    registerSamplesLibraries(samplesProjects)
 }
 
 /** Sets up a source jar task for a Java library project. */
