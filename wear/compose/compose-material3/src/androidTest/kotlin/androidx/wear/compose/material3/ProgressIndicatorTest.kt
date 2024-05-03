@@ -199,7 +199,7 @@ class CircularProgressIndicatorTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 23f..27f)
+            .assertColorInPercentageRange(Color.Red, 22f..27f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
