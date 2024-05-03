@@ -16,8 +16,8 @@
 
 package androidx.compose.integration.hero.benchmark.jetsnack
 
-import androidx.compose.integration.hero.implementation.jetsnack.Feed
-import androidx.compose.integration.hero.implementation.jetsnack.theme.JetsnackTheme
+import androidx.compose.integration.hero.implementation.jetsnack.compose.Feed
+import androidx.compose.integration.hero.implementation.jetsnack.compose.theme.JetsnackTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 

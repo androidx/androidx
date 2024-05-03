@@ -1,11 +1,11 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.compose.integration.hero.implementation.jetsnack
+package androidx.compose.integration.hero.implementation.jetsnack.compose
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.integration.hero.implementation.R
-import androidx.compose.integration.hero.implementation.jetsnack.theme.AlphaNearOpaque
-import androidx.compose.integration.hero.implementation.jetsnack.theme.JetsnackTheme
+import androidx.compose.integration.hero.implementation.jetsnack.compose.theme.AlphaNearOpaque
+import androidx.compose.integration.hero.implementation.jetsnack.compose.theme.JetsnackTheme
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
