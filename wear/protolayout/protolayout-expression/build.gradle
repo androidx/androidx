@@ -26,12 +26,14 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.8.1")
 
+    implementation(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.collection:collection:1.2.0")
     implementation(project(":wear:protolayout:protolayout-proto"))
@@ -43,6 +45,8 @@ dependencies {
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
     testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinTest)
+    testImplementation(project(":wear:protolayout:protolayout-expression-pipeline"))
 }
 
 android {

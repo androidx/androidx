@@ -282,6 +282,7 @@ package androidx.wear.protolayout.expression {
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static interface DynamicBuilders.DynamicString extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicString concat(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString constant(String);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(String, java.lang.Object!...);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString from(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString!>);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicString fromByteArray(byte[], int, int);
@@ -401,6 +402,15 @@ package androidx.wear.protolayout.expression {
     method public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo.Builder setMajor(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.expression.VersionBuilders.VersionInfo.Builder setMinor(int);
+  }
+
+}
+
+package androidx.wear.protolayout.expression.util {
+
+  public final class DynamicFormatter {
+    ctor public DynamicFormatter();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(String format, java.lang.Object?... args);
   }
 
 }
