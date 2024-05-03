@@ -17,6 +17,7 @@
 package androidx.compose.animation
 
 import androidx.collection.MutableScatterMap
+import androidx.compose.animation.SharedTransitionScope.OverlayClip
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.animatedSize
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.contentSize
@@ -122,7 +123,7 @@ fun SharedTransitionScope(
 ) {
     LookaheadScope {
         val coroutineScope = rememberCoroutineScope()
-        val sharedScope = remember { SharedTransitionScope(this, coroutineScope) }
+        val sharedScope = remember { SharedTransitionScopeImpl(this, coroutineScope) }
         sharedScope.content(
             Modifier
                 .layout { measurable, constraints ->
@@ -184,12 +185,9 @@ fun interface BoundsTransform {
  * in the overlay until all other animations in the [SharedTransitionScope] are finished (i.e.
  * when [isTransitionActive] == false).
  */
-@ExperimentalSharedTransitionApi
 @Stable
-class SharedTransitionScope internal constructor(
-    lookaheadScope: LookaheadScope,
-    val coroutineScope: CoroutineScope
-) : LookaheadScope by lookaheadScope {
+@ExperimentalSharedTransitionApi
+interface SharedTransitionScope : LookaheadScope {
 
     /**
      * PlaceHolderSize defines the size of the space that was or will be occupied by the exiting
@@ -239,8 +237,7 @@ class SharedTransitionScope internal constructor(
      * Indicates whether there is any ongoing transition between matched [sharedElement] or
      * [sharedBounds].
      */
-    var isTransitionActive: Boolean by mutableStateOf(false)
-        private set
+    val isTransitionActive: Boolean
 
     /**
      * [scaleInSharedContentToBounds] creates a [EnterTransition] that scales the child content
@@ -264,8 +261,7 @@ class SharedTransitionScope internal constructor(
     fun scaleInSharedContentToBounds(
         contentScale: ContentScale = ContentScale.Fit,
         alignment: Alignment = Alignment.Center
-    ): EnterTransition =
-        EnterTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
+    ): EnterTransition
 
     /**
      * [scaleOutSharedContentToBounds] creates an [ExitTransition] that scales the child content
@@ -289,8 +285,7 @@ class SharedTransitionScope internal constructor(
     fun scaleOutSharedContentToBounds(
         contentScale: ContentScale = ContentScale.Fit,
         alignment: Alignment = Alignment.Center
-    ): ExitTransition =
-        ExitTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
+    ): ExitTransition
 
     /**
      * [skipToLookaheadSize] enables a layout to measure its child with the lookahead constraints,
@@ -302,7 +297,7 @@ class SharedTransitionScope internal constructor(
      * difference:
      * @sample androidx.compose.animation.samples.NestedSharedBoundsSample
      */
-    fun Modifier.skipToLookaheadSize(): Modifier = this.then(SkipToLookaheadElement())
+    fun Modifier.skipToLookaheadSize(): Modifier
 
     /**
      * Renders the content in the [SharedTransitionScope]'s overlay, where shared content (i.e.
@@ -328,19 +323,11 @@ class SharedTransitionScope internal constructor(
      * @sample androidx.compose.animation.samples.SharedElementWithFABInOverlaySample
      */
     fun Modifier.renderInSharedTransitionScopeOverlay(
-        renderInOverlay: () -> Boolean = defaultRenderInOverlay,
+        renderInOverlay: () -> Boolean = { isTransitionActive },
         zIndexInOverlay: Float = 0f,
         clipInOverlayDuringTransition: (LayoutDirection, Density) -> Path? =
             DefaultClipInOverlayDuringTransition
-    ): Modifier =
-        this.then(
-            RenderInTransitionOverlayNodeElement(
-                this@SharedTransitionScope,
-                renderInOverlay,
-                zIndexInOverlay,
-                clipInOverlayDuringTransition
-            )
-        )
+    ): Modifier
 
     /**
      * [OverlayClip] defines a specific clipping that should be applied to a [sharedBounds]
@@ -436,17 +423,7 @@ class SharedTransitionScope internal constructor(
         renderInOverlayDuringTransition: Boolean = true,
         zIndexInOverlay: Float = 0f,
         clipInOverlayDuringTransition: OverlayClip = ParentClip
-    ) = this.sharedBoundsImpl(
-        state,
-        parentTransition = animatedVisibilityScope.transition,
-        visible = { it == EnterExitState.Visible },
-        boundsTransform = boundsTransform,
-        placeHolderSize = placeHolderSize,
-        renderOnlyWhenVisible = true,
-        renderInOverlayDuringTransition = renderInOverlayDuringTransition,
-        zIndexInOverlay = zIndexInOverlay,
-        clipInOverlayDuringTransition = clipInOverlayDuringTransition
-    )
+    ): Modifier
 
     /**
      * [sharedBounds] is a modifier that tags a layout with a [SharedContentState.key], such that
@@ -530,54 +507,7 @@ class SharedTransitionScope internal constructor(
         renderInOverlayDuringTransition: Boolean = true,
         zIndexInOverlay: Float = 0f,
         clipInOverlayDuringTransition: OverlayClip = ParentClip
-    ) =
-        this
-            .sharedBoundsImpl(
-                sharedContentState,
-                animatedVisibilityScope.transition,
-                visible = { it == EnterExitState.Visible },
-                boundsTransform,
-                placeHolderSize = placeHolderSize,
-                renderInOverlayDuringTransition = renderInOverlayDuringTransition,
-                zIndexInOverlay = zIndexInOverlay,
-                clipInOverlayDuringTransition = clipInOverlayDuringTransition,
-                renderOnlyWhenVisible = false
-            )
-            .composed {
-                // Track the active content scale. Only reset it when the animation is finished
-                // to avoid sudden change of content scale.
-                val activeContentScaleEffect: ContentScaleTransitionEffect? =
-                    animatedVisibilityScope.transition.trackActiveContentScaleEffect(
-                        enter = enter,
-                        exit = exit
-                    )
-                animatedVisibilityScope.transition
-                    .createModifier(
-                        enter = enter,
-                        exit = exit,
-                        // Since we don't know if a match is found when this is composed,
-                        // we have to defer the decision to enable or disable content
-                        // scaling until later in the frame. This later time could be
-                        // later in the composition, or during measurement/placement from
-                        // subcomposition.
-                        isEnabled = { sharedContentState.isMatchFound },
-                        label = "enter/exit for ${sharedContentState.key}"
-                    )
-                    .then(
-                        if (activeContentScaleEffect != null) {
-                            Modifier.createContentScaleModifier(activeContentScaleEffect) {
-                                // Since we don't know if a match is found when this is composed,
-                                // we have to defer the decision to enable or disable content
-                                // scaling until later in the frame. This later time could be
-                                // later in the composition, or during measurement/placement from
-                                // subcomposition.
-                                sharedContentState.isMatchFound
-                            }
-                        } else {
-                            Modifier
-                        }
-                    )
-            }
+    ): Modifier
 
     /**
      * [sharedElementWithCallerManagedVisibility] is a modifier that tags a layout with a
@@ -658,6 +588,188 @@ class SharedTransitionScope internal constructor(
         renderInOverlayDuringTransition: Boolean = true,
         zIndexInOverlay: Float = 0f,
         clipInOverlayDuringTransition: OverlayClip = ParentClip
+    ): Modifier
+
+    /**
+     * Creates an [OverlayClip] based on a specific [clipShape].
+     */
+    fun OverlayClip(clipShape: Shape): OverlayClip
+
+    /**
+     * Creates and remembers a [SharedContentState] with a given [key].
+     */
+    @Composable
+    fun rememberSharedContentState(key: Any): SharedContentState
+
+    /**
+     * [SharedContentState] is designed to allow access of the properties of
+     * [sharedBounds]/[sharedElement], such as whether a match of the same [key] has been found in
+     * the [SharedTransitionScope], its [clipPathInOverlay] and [parentSharedContentState] if there
+     * is a parent [sharedBounds] in the layout tree.
+     */
+    class SharedContentState internal constructor(val key: Any) {
+        /**
+         * Indicates whether a match of the same [key] has been found. [sharedElement]
+         * or [sharedBounds] will not have any animation unless a match has been found.
+         *
+         * _Caveat_: [isMatchFound] is only set to true _after_ a new [sharedElement]/[sharedBounds]
+         * of the same [key] has been composed. If the new [sharedBounds]/[sharedElement] is
+         * declared in subcomposition (e.g. a LazyList) where the composition happens as a part of
+         * the measure/layout pass, that's when [isMatchFound] will become true.
+         */
+        val isMatchFound: Boolean
+            get() = internalState?.sharedElement?.foundMatch ?: false
+
+        /**
+         * The resolved clip path in overlay based on the [OverlayClip] defined for the shared
+         * content. [clipPathInOverlay] is set during Draw phase, before children are drawn. This
+         * means it is safe to query [parentSharedContentState]'s [clipPathInOverlay] when
+         * the shared content is drawn.
+         */
+        val clipPathInOverlay: Path?
+            get() = nonNullInternalState.clipPathInOverlay
+
+        /**
+         * Returns the [SharedContentState] of a parent [sharedBounds], if any.
+         */
+        val parentSharedContentState: SharedContentState?
+            get() = nonNullInternalState.parentState?.userState
+        internal var internalState: SharedElementInternalState? by mutableStateOf(null)
+        private val nonNullInternalState: SharedElementInternalState
+            get() = requireNotNull(internalState) {
+                "Error: SharedContentState has not been added to a sharedElement/sharedBounds" +
+                    "modifier yet. Therefore the internal state has not bee initialized."
+            }
+    }
+}
+
+@ExperimentalSharedTransitionApi
+@Stable
+internal class SharedTransitionScopeImpl internal constructor(
+    lookaheadScope: LookaheadScope,
+    val coroutineScope: CoroutineScope
+) : SharedTransitionScope, LookaheadScope by lookaheadScope {
+
+    override var isTransitionActive: Boolean by mutableStateOf(false)
+        private set
+
+    override fun scaleInSharedContentToBounds(
+        contentScale: ContentScale,
+        alignment: Alignment
+    ): EnterTransition =
+        EnterTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
+
+    override fun scaleOutSharedContentToBounds(
+        contentScale: ContentScale,
+        alignment: Alignment
+    ): ExitTransition =
+        ExitTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
+
+    override fun Modifier.skipToLookaheadSize(): Modifier = this.then(SkipToLookaheadElement())
+
+    override fun Modifier.renderInSharedTransitionScopeOverlay(
+        renderInOverlay: () -> Boolean,
+        zIndexInOverlay: Float,
+        clipInOverlayDuringTransition: (LayoutDirection, Density) -> Path?
+    ): Modifier =
+        this.then(
+            RenderInTransitionOverlayNodeElement(
+                this@SharedTransitionScopeImpl,
+                renderInOverlay,
+                zIndexInOverlay,
+                clipInOverlayDuringTransition
+            )
+        )
+
+    @OptIn(ExperimentalAnimationApi::class)
+    override fun Modifier.sharedElement(
+        state: SharedContentState,
+        animatedVisibilityScope: AnimatedVisibilityScope,
+        boundsTransform: BoundsTransform,
+        placeHolderSize: PlaceHolderSize,
+        renderInOverlayDuringTransition: Boolean,
+        zIndexInOverlay: Float,
+        clipInOverlayDuringTransition: OverlayClip
+    ) = this.sharedBoundsImpl(
+        state,
+        parentTransition = animatedVisibilityScope.transition,
+        visible = { it == EnterExitState.Visible },
+        boundsTransform = boundsTransform,
+        placeHolderSize = placeHolderSize,
+        renderOnlyWhenVisible = true,
+        renderInOverlayDuringTransition = renderInOverlayDuringTransition,
+        zIndexInOverlay = zIndexInOverlay,
+        clipInOverlayDuringTransition = clipInOverlayDuringTransition
+    )
+
+    @OptIn(ExperimentalAnimationApi::class)
+    override fun Modifier.sharedBounds(
+        sharedContentState: SharedContentState,
+        animatedVisibilityScope: AnimatedVisibilityScope,
+        enter: EnterTransition,
+        exit: ExitTransition,
+        boundsTransform: BoundsTransform,
+        placeHolderSize: PlaceHolderSize,
+        renderInOverlayDuringTransition: Boolean,
+        zIndexInOverlay: Float,
+        clipInOverlayDuringTransition: OverlayClip
+    ) =
+        this
+            .sharedBoundsImpl(
+                sharedContentState,
+                animatedVisibilityScope.transition,
+                visible = { it == EnterExitState.Visible },
+                boundsTransform,
+                placeHolderSize = placeHolderSize,
+                renderInOverlayDuringTransition = renderInOverlayDuringTransition,
+                zIndexInOverlay = zIndexInOverlay,
+                clipInOverlayDuringTransition = clipInOverlayDuringTransition,
+                renderOnlyWhenVisible = false
+            )
+            .composed {
+                // Track the active content scale. Only reset it when the animation is finished
+                // to avoid sudden change of content scale.
+                val activeContentScaleEffect: ContentScaleTransitionEffect? =
+                    animatedVisibilityScope.transition.trackActiveContentScaleEffect(
+                        enter = enter,
+                        exit = exit
+                    )
+                animatedVisibilityScope.transition
+                    .createModifier(
+                        enter = enter,
+                        exit = exit,
+                        // Since we don't know if a match is found when this is composed,
+                        // we have to defer the decision to enable or disable content
+                        // scaling until later in the frame. This later time could be
+                        // later in the composition, or during measurement/placement from
+                        // subcomposition.
+                        isEnabled = { sharedContentState.isMatchFound },
+                        label = "enter/exit for ${sharedContentState.key}"
+                    )
+                    .then(
+                        if (activeContentScaleEffect != null) {
+                            Modifier.createContentScaleModifier(activeContentScaleEffect) {
+                                // Since we don't know if a match is found when this is composed,
+                                // we have to defer the decision to enable or disable content
+                                // scaling until later in the frame. This later time could be
+                                // later in the composition, or during measurement/placement from
+                                // subcomposition.
+                                sharedContentState.isMatchFound
+                            }
+                        } else {
+                            Modifier
+                        }
+                    )
+            }
+
+    override fun Modifier.sharedElementWithCallerManagedVisibility(
+        sharedContentState: SharedContentState,
+        visible: Boolean,
+        boundsTransform: BoundsTransform,
+        placeHolderSize: PlaceHolderSize,
+        renderInOverlayDuringTransition: Boolean,
+        zIndexInOverlay: Float,
+        clipInOverlayDuringTransition: OverlayClip
     ) = this.sharedBoundsImpl<Unit>(
         sharedContentState,
         null,
@@ -761,58 +873,11 @@ class SharedTransitionScope internal constructor(
         clipInOverlayDuringTransition = clipInOverlayDuringTransition
     )
 
-    /**
-     * Creates an [OverlayClip] based on a specific [clipShape].
-     */
-    fun OverlayClip(clipShape: Shape): OverlayClip = ShapeBasedClip(clipShape)
+    override fun OverlayClip(clipShape: Shape): OverlayClip = ShapeBasedClip(clipShape)
 
-    /**
-     * Creates and remembers a [SharedContentState] with a given [key].
-     */
     @Composable
-    fun rememberSharedContentState(key: Any): SharedContentState = remember(key) {
+    override fun rememberSharedContentState(key: Any): SharedContentState = remember(key) {
         SharedContentState(key)
-    }
-
-    /**
-     * [SharedContentState] is designed to allow access of the properties of
-     * [sharedBounds]/[sharedElement], such as whether a match of the same [key] has been found in
-     * the [SharedTransitionScope], its [clipPathInOverlay] and [parentSharedContentState] if there
-     * is a parent [sharedBounds] in the layout tree.
-     */
-    class SharedContentState internal constructor(val key: Any) {
-        /**
-         * Indicates whether a match of the same [key] has been found. [sharedElement]
-         * or [sharedBounds] will not have any animation unless a match has been found.
-         *
-         * _Caveat_: [isMatchFound] is only set to true _after_ a new [sharedElement]/[sharedBounds]
-         * of the same [key] has been composed. If the new [sharedBounds]/[sharedElement] is
-         * declared in subcomposition (e.g. a LazyList) where the composition happens as a part of
-         * the measure/layout pass, that's when [isMatchFound] will become true.
-         */
-        val isMatchFound: Boolean
-            get() = internalState?.sharedElement?.foundMatch ?: false
-
-        /**
-         * The resolved clip path in overlay based on the [OverlayClip] defined for the shared
-         * content. [clipPathInOverlay] is set during Draw phase, before children are drawn. This
-         * means it is safe to query [parentSharedContentState]'s [clipPathInOverlay] when
-         * the shared content is drawn.
-         */
-        val clipPathInOverlay: Path?
-            get() = nonNullInternalState.clipPathInOverlay
-
-        /**
-         * Returns the [SharedContentState] of a parent [sharedBounds], if any.
-         */
-        val parentSharedContentState: SharedContentState?
-            get() = nonNullInternalState.parentState?.userState
-        internal var internalState: SharedElementInternalState? by mutableStateOf(null)
-        private val nonNullInternalState: SharedElementInternalState
-            get() = requireNotNull(internalState) {
-                "Error: SharedContentState has not been added to a sharedElement/sharedBounds" +
-                    "modifier yet. Therefore the internal state has not bee initialized."
-            }
     }
 
     /**********  Impl details below *****************/
@@ -842,7 +907,7 @@ class SharedTransitionScope internal constructor(
             element.updateMatch()
         }
         SharedTransitionObserver.observeReads(
-            this@SharedTransitionScope,
+            this@SharedTransitionScopeImpl,
             updateTransitionActiveness,
             observeAnimatingBlock
         )
@@ -898,7 +963,10 @@ class SharedTransitionScope internal constructor(
                 }
                 remember(boundsTransition) {
                     BoundsAnimation(
-                        this@SharedTransitionScope, boundsTransition, animation, boundsTransform
+                        this@SharedTransitionScopeImpl,
+                        boundsTransition,
+                        animation,
+                        boundsTransform
                     )
                 }.also { it.updateAnimation(animation, boundsTransform) }
             }
@@ -959,7 +1027,6 @@ class SharedTransitionScope internal constructor(
     private val renderers = mutableListOf<LayerRenderer>()
 
     private val sharedElements = MutableScatterMap<Any, SharedElement>()
-    private val defaultRenderInOverlay: () -> Boolean = { isTransitionActive }
 
     private fun sharedElementsFor(key: Any): SharedElement {
         return sharedElements[key] ?: SharedElement(key, this).also {
@@ -982,7 +1049,7 @@ class SharedTransitionScope internal constructor(
     internal fun onStateRemoved(sharedElementState: SharedElementInternalState) {
         with(sharedElementState.sharedElement) {
             removeState(sharedElementState)
-            updateTransitionActiveness.invoke(this@SharedTransitionScope)
+            updateTransitionActiveness.invoke(this@SharedTransitionScopeImpl)
             SharedTransitionObserver.observeReads(
                 scope,
                 updateTransitionActiveness,
@@ -1002,7 +1069,7 @@ class SharedTransitionScope internal constructor(
     internal fun onStateAdded(sharedElementState: SharedElementInternalState) {
         with(sharedElementState.sharedElement) {
             addState(sharedElementState)
-            updateTransitionActiveness.invoke(this@SharedTransitionScope)
+            updateTransitionActiveness.invoke(this@SharedTransitionScopeImpl)
             SharedTransitionObserver.observeReads(
                 scope,
                 updateTransitionActiveness,
@@ -1155,10 +1222,10 @@ private val DefaultSpring = spring(
 )
 
 @ExperimentalSharedTransitionApi
-private val ParentClip: SharedTransitionScope.OverlayClip =
-    object : SharedTransitionScope.OverlayClip {
+private val ParentClip: OverlayClip =
+    object : OverlayClip {
         override fun getClipPath(
-            state: SharedTransitionScope.SharedContentState,
+            state: SharedContentState,
             bounds: Rect,
             layoutDirection: LayoutDirection,
             density: Density
