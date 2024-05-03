@@ -436,11 +436,13 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
         const val DEFAULT_UNSPECIFIED_VERSION = "unspecified"
     }
 
+    internal var samplesProjects: MutableCollection<Project> = mutableSetOf()
+
     /**
      * Used to register a project that will be providing documentation samples for this project.
      * Can only be called once so only one samples library can exist per library b/318840087.
      */
-    fun samples(samplesProject: Project) = registerSamplesLibrary(samplesProject)
+    fun samples(samplesProject: Project) { samplesProjects.add(samplesProject) }
 }
 
 class License {
