@@ -20,6 +20,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.InputMethodInterceptor
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
@@ -38,8 +39,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import kotlin.test.assertTrue
-import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,15 +49,13 @@ class CoreTextFieldFocusTest {
     @get:Rule
     val rule = createComposeRule()
 
-    private val keyboardHelper = KeyboardHelper(rule)
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     @Test
-    fun hideKeyboardWhenDisposed() {
+    fun disposeSession_whenTextFieldIsRemoved() {
         val value = TextFieldValue("initial text")
         var toggle by mutableStateOf(true)
-        rule.setContent {
-            keyboardHelper.initialize()
-
+        inputMethodInterceptor.setContent {
             if (toggle) {
                 CoreTextField(
                     value = value,
@@ -69,22 +66,18 @@ class CoreTextFieldFocusTest {
         }
 
         rule.onNodeWithTag("TextField").requestFocus()
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertTrue(keyboardHelper.isSoftwareKeyboardShown())
+        inputMethodInterceptor.assertSessionActive()
 
         toggle = false
-        rule.waitForIdle()
 
-        keyboardHelper.waitForKeyboardVisibility(false)
-        Assert.assertFalse(keyboardHelper.isSoftwareKeyboardShown())
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
-    fun hideKeyboardWhenFocusCleared() {
+    fun disposeSession_whenFocusCleared() {
         val value = TextFieldValue("initial text")
         lateinit var focusManager: FocusManager
-        rule.setContent {
-            keyboardHelper.initialize()
+        inputMethodInterceptor.setContent {
             focusManager = LocalFocusManager.current
             Row {
                 // Extra focusable that takes initial focus when focus is cleared.
@@ -98,15 +91,13 @@ class CoreTextFieldFocusTest {
         }
 
         rule.onNodeWithTag("TextField").requestFocus()
-        keyboardHelper.waitForKeyboardVisibility(true)
-        assertTrue(keyboardHelper.isSoftwareKeyboardShown())
+        inputMethodInterceptor.assertSessionActive()
 
         rule.runOnIdle {
             focusManager.clearFocus()
         }
 
-        keyboardHelper.waitForKeyboardVisibility(false)
-        Assert.assertFalse(keyboardHelper.isSoftwareKeyboardShown())
+        inputMethodInterceptor.assertNoSessionActive()
     }
 
     @Test
