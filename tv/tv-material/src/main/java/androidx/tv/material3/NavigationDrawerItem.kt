@@ -34,9 +34,9 @@ import androidx.compose.ui.unit.Dp
  * A [NavigationDrawerItem] represents a destination within drawers, either [NavigationDrawer] or
  * [ModalNavigationDrawer]
  *
- * @sample androidx.tv.samples.SampleNavigationDrawer
- * @sample androidx.tv.samples.SampleModalNavigationDrawerWithSolidScrim
- * @sample androidx.tv.samples.SampleModalNavigationDrawerWithGradientScrim
+ * @sample androidx.tv.material3.samples.SampleNavigationDrawer
+ * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithSolidScrim
+ * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithGradientScrim
  *
  * @param selected defines whether this composable is selected or not
  * @param onClick called when this composable is clicked

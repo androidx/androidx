@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalTvMaterial3Api::class)
-
-package androidx.tv.samples
+package androidx.tv.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.runtime.Composable
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.RadioButton
+import androidx.tv.material3.Switch
 
 @Sampled
 @Composable
-fun RadioButtonSample() {
-    RadioButton(selected = true, onClick = {})
+fun SwitchSample() {
+    Switch(checked = true, onCheckedChange = { })
 }

@@ -102,14 +102,11 @@ fun Sidebar(
             }
         }
 
-    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
-
     Column(
         modifier = Modifier
             .width(60.dp)
             .fillMaxHeight()
             .background(pageColor)
-            .then(focusRestorerModifiers.parentModifier)
             .focusGroup(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -118,7 +115,7 @@ fun Sidebar(
             drawIcon(
                 Icons.Outlined.Home,
                 0,
-                focusRestorerModifiers.childModifier,
+                Modifier,
             )
         }
         key(1) {

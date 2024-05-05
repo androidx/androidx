@@ -33,24 +33,24 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
+    implementation("androidx.compose.material3:material3:1.2.1")
     implementation(project(":tv:tv-material"))
-    implementation("androidx.compose.material3:material3:1.1.2")
     compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {
-    name = "Samples library for TV packages"
+    name = "Samples library for androidx.tv.material3 package"
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.TV_MATERIAL
     inceptionYear = "2022"
-    description = "Contains the sample code for the APIs in the androidx.tv libraries"
+    description = "Contains the sample code for the APIs in the androidx.tv.material3 library"
 }
 
 android {
     defaultConfig {
         minSdkVersion 28
     }
-    namespace "androidx.tv.samples"
+    namespace "androidx.tv.material3.samples"
 }
 
 // Workaround for https://github.com/gradle/gradle/issues/19882

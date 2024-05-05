@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.samples
+package androidx.tv.material3.samples
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -37,10 +37,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Surface
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun SampleImmersiveList() {
     val items = remember { listOf(Color.Red, Color.Green, Color.Yellow) }
