@@ -160,7 +160,7 @@ internal sealed class KspAnnotated(
             )
             val NO_USE_SITE_OR_SET_PARAM: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.SETPARAM,
-                acceptedTargets = setOf(AnnotationTarget.PROPERTY_SETTER)
+                acceptedTargets = setOf(AnnotationTarget.VALUE_PARAMETER)
             )
             val NO_USE_SITE_OR_RECEIVER: UseSiteFilter = Impl(
                 acceptedSiteTarget = AnnotationUseSiteTarget.RECEIVER,
