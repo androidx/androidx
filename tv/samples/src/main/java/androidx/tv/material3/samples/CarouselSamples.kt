@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.samples
+package androidx.tv.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.ExperimentalAnimationApi

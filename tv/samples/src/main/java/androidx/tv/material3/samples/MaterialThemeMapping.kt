@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.tv.samples
+package androidx.tv.material3.samples
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.tv.material3.ColorScheme as TvColorScheme
-import androidx.tv.material3.ExperimentalTvMaterial3Api
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun mapColorScheme(tvColorScheme: TvColorScheme): ColorScheme {
     @Suppress("Deprecation")

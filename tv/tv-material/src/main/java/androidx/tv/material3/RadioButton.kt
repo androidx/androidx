@@ -48,7 +48,7 @@ import androidx.tv.material3.tokens.RadioButtonTokens
  *
  * ![Radio button image](https://developer.android.com/images/reference/androidx/compose/material3/radio-button.png)
  *
- * @sample androidx.tv.samples.RadioButtonSample
+ * @sample androidx.tv.material3.samples.RadioButtonSample
  *
  * @param selected whether this radio button is selected or not
  * @param onClick called when this radio button is clicked. If `null`, then this radio button will

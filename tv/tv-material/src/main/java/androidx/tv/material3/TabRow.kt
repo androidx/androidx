@@ -70,10 +70,10 @@ import androidx.compose.ui.zIndex
  * are placed off screen.
  *
  * Examples:
- * @sample androidx.tv.samples.PillIndicatorTabRow
- * @sample androidx.tv.samples.UnderlinedIndicatorTabRow
- * @sample androidx.tv.samples.TabRowWithDebounce
- * @sample androidx.tv.samples.OnClickNavigation
+ * @sample androidx.tv.material3.samples.PillIndicatorTabRow
+ * @sample androidx.tv.material3.samples.UnderlinedIndicatorTabRow
+ * @sample androidx.tv.material3.samples.TabRowWithDebounce
+ * @sample androidx.tv.material3.samples.OnClickNavigation
  *
  * @param selectedTabIndex the index of the currently selected tab
  * @param modifier the [Modifier] to be applied to this tab row
