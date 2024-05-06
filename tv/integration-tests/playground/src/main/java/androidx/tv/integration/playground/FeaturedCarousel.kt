@@ -191,6 +191,7 @@ internal fun FeaturedCarousel(modifier: Modifier = Modifier) {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Suppress("ComposableModifierFactory")
 @Composable
 internal fun Modifier.carouselItemSemantics(

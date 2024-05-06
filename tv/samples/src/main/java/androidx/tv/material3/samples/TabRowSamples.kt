@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.tv.samples
+package androidx.tv.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
@@ -46,7 +46,7 @@ import kotlinx.coroutines.delay
 /**
  * Tab row with a Pill indicator
  */
-@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun PillIndicatorTabRow() {

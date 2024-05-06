@@ -48,8 +48,8 @@ import androidx.tv.material3.tokens.Elevation
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
  * Samples:
- * @sample androidx.tv.samples.ButtonSample
- * @sample androidx.tv.samples.LikeButtonSample
+ * @sample androidx.tv.material3.samples.ButtonSample
+ * @sample androidx.tv.material3.samples.LikeButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
@@ -122,7 +122,7 @@ fun Button(
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
  * Samples:
- * @sample androidx.tv.samples.OutlinedButtonSample
+ * @sample androidx.tv.material3.samples.OutlinedButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button

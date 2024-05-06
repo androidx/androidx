@@ -88,16 +88,13 @@ fun ShowsGrid(modifier: Modifier = Modifier) {
             }
         }
 
-        val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
-
         TvLazyHorizontalGrid(
             rows = TvGridCells.Fixed(3),
             contentPadding = PaddingValues(horizontal = 58.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
                 .fillMaxSize()
-                .bringIntoViewIfChildrenAreFocused()
-                .then(focusRestorerModifiers.parentModifier),
+                .bringIntoViewIfChildrenAreFocused(),
         ) {
             items(movies.size) {
                 val movie = movies[it]
@@ -106,8 +103,7 @@ fun ShowsGrid(modifier: Modifier = Modifier) {
                     ImageCard(
                         movie,
                         customCardWidth = 150.dp,
-                        modifier = Modifier
-                            .ifElse(it == 0, focusRestorerModifiers.childModifier),
+                        modifier = Modifier,
                     )
                 }
             }
