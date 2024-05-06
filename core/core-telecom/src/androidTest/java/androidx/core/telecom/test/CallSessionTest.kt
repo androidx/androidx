@@ -20,7 +20,6 @@ import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallEndpoint
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.test.utils.BaseTelecomTest
@@ -110,7 +109,7 @@ class CallSessionTest : BaseTelecomTest() {
             TestUtils.mOnSetActiveLambda,
             TestUtils.mOnSetInActiveLambda,
             callChannels,
-            VoipExtensionManager(mContext, coroutineContext, callChannels, mutableListOf()),
+            { _, _ -> },
             CompletableDeferred(Unit)
         )
     }

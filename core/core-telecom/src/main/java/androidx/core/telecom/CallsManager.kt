@@ -26,6 +26,7 @@ import android.telecom.CallControl
 import android.telecom.CallControlCallback
 import android.telecom.CallEventCallback
 import android.telecom.CallException
+import android.telecom.DisconnectCause
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
@@ -36,7 +37,6 @@ import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
-import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.AddCallResult
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
@@ -44,7 +44,6 @@ import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
-import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
@@ -78,10 +77,6 @@ class CallsManager constructor(context: Context) {
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.
     private val mDirectExecutor = Executor { it.run() }
-    @ExperimentalAppActions
-    // Capabilities to be set by the VOIP app which will be used in addCall.
-    private var mCapabilities: MutableList<androidx.core.telecom.extensions.Capability> =
-        mutableListOf()
 
     companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -122,6 +117,9 @@ class CallsManager constructor(context: Context) {
         internal const val KICK_PARTICIPANT_ACTION = 2
         // Todo: Support additional actions
 
+        // Represents a null Participant over Binder
+        internal const val NULL_PARTICIPANT_ID = -1
+
         /** Set on Connections that are using ConnectionService+AUTO specific extension layer. */
         internal const val EXTRA_VOIP_API_VERSION = "android.telecom.extra.VOIP_API_VERSION"
 
@@ -138,15 +136,6 @@ class CallsManager constructor(context: Context) {
          */
         internal const val EVENT_JETPACK_CAPABILITY_EXCHANGE =
             "android.telecom.event.CAPABILITY_EXCHANGE"
-
-        /** VERSION used for handling future compatibility in capability exchange. */
-        internal const val EXTRA_CAPABILITY_EXCHANGE_VERSION = "CAPABILITY_EXCHANGE_VERSION"
-
-        /**
-         * BINDER used for handling capability exchange between the ICS and VOIP app sides, sent as
-         * part of sendCallEvent in the included extras.
-         */
-        internal const val EXTRA_CAPABILITY_EXCHANGE_BINDER = "CAPABILITY_EXCHANGE_BINDER"
 
         /**
          * The connection is using transactional call APIs.
@@ -290,25 +279,54 @@ class CallsManager constructor(context: Context) {
      * @throws CancellationException if the call failed to be added within 5000 milliseconds
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalAppActions::class)
-    @Suppress("ClassVerificationFailure")
     suspend fun addCall(
         callAttributes: CallAttributesCompat,
         onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
-        onDisconnect: suspend (disconnectCause: android.telecom.DisconnectCause) -> Unit,
+        onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
+        block: CallControlScope.() -> Unit
+    ) {
+        // Provide a default empty handler for onEvent
+        addCall(
+            callAttributes,
+            onAnswer,
+            onDisconnect,
+            onSetActive,
+            onSetInactive,
+            onEvent = { _, _ -> },
+            block
+        )
+    }
+
+    /** Represents an event sent from an InCallService to this Call. */
+    @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
+    data class CallEvent(val event: String, val extras: Bundle)
+
+    /**
+     * Internal version of addCall, which also allows components in the library to consume generic
+     * events generated from the remote InCallServices. This facilitates the creation of Jetpack
+     * defined extensions.
+     *
+     * @param onEvent Incoming {@link CallEvents} from an InCallService implementation
+     * @see addCall For more documentation on the operations/parameters of this class
+     */
+    @Suppress("ClassVerificationFailure")
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
+    suspend fun addCall(
+        callAttributes: CallAttributesCompat,
+        onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
+        onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
+        onSetActive: suspend () -> Unit,
+        onSetInactive: suspend () -> Unit,
+        onEvent: suspend (event: String, extras: Bundle) -> Unit,
         block: CallControlScope.() -> Unit
     ) {
         // This API is not supported for device running anything below Android O (26)
         Utils.verifyBuildVersion()
         // Setup channels for the CallEventCallbacks that only provide info updates
         val callChannels = CallChannels()
-        // Setup passed in capabilities in CapabilityManager. This will also be leveraged in the
-        // call session to sync the capabilities with the client during capability exchange
-        // negotiation.
-        var voipExtensionManager =
-            VoipExtensionManager(mContext, coroutineContext, callChannels, mCapabilities)
         callAttributes.mHandle = getPhoneAccountHandleForPackage()
         // This variable controls the addCall execution in the calling activity. AddCall will block
         // for the duration of the session.  When the session is terminated via a disconnect or
@@ -332,7 +350,7 @@ class CallsManager constructor(context: Context) {
                     onSetActive,
                     onSetInactive,
                     callChannels,
-                    voipExtensionManager,
+                    onEvent,
                     blockingSessionExecution
                 )
 
@@ -376,10 +394,6 @@ class CallsManager constructor(context: Context) {
                     coroutineContext
                 )
 
-            // Set up extension manager to register the VOIP supported extensions.
-            voipExtensionManager.initializeSession(scope)
-            voipExtensionManager.initializeExtensions()
-
             // Run the clients code with the session active and exposed via the CallControlScope
             // interface implementation declared above.
             scope.block()
@@ -399,8 +413,8 @@ class CallsManager constructor(context: Context) {
                     onDisconnect,
                     onSetActive,
                     onSetInactive,
-                    blockingSessionExecution,
-                    voipExtensionManager
+                    onEvent,
+                    blockingSessionExecution
                 )
 
             mConnectionService.createConnectionRequest(mTelecomManager, request)
@@ -416,21 +430,14 @@ class CallsManager constructor(context: Context) {
                     coroutineContext
                 )
 
-            // Set up extension manager to register the VOIP supported extensions.
-            voipExtensionManager.initializeSession(scope)
-            voipExtensionManager.initializeExtensions()
-
             // Run the clients code with the session active and exposed via the
             // CallControlScope interface implementation declared above.
             scope.block()
         }
         blockingSessionExecution.await()
-        voipExtensionManager.tearDownExtensions()
-        mCapabilities.clear()
     }
 
-    @ExperimentalAppActions
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @ExperimentalCoroutinesApi
     @VisibleForTesting
     internal suspend fun pauseExecutionUntilCallIsReadyOrTimeout(
         openResult: CompletableDeferred<AddCallResult>,
@@ -492,12 +499,5 @@ class CallsManager constructor(context: Context) {
 
     internal fun getBuiltPhoneAccount(): PhoneAccount? {
         return mPhoneAccount
-    }
-
-    @ExperimentalAppActions
-    internal fun setVoipCapabilities(
-        capabilities: List<androidx.core.telecom.extensions.Capability>
-    ) {
-        mCapabilities = capabilities.toMutableList()
     }
 }
