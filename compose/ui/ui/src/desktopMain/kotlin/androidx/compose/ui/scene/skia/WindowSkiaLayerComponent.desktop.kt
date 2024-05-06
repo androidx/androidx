@@ -58,7 +58,7 @@ internal class WindowSkiaLayerComponent(
 
         override fun doLayout() {
             super.doLayout()
-            mediator.onChangeComponentSize()
+            mediator.onComponentSizeChanged()
         }
 
         override fun getPreferredSize(): Dimension = if (isPreferredSizeSet) {

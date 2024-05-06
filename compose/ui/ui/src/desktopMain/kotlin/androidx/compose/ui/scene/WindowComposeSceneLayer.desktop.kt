@@ -85,7 +85,7 @@ internal class WindowComposeSceneLayer(
 
     private val windowPositionListener = object : ComponentAdapter() {
         override fun componentMoved(e: ComponentEvent?) {
-            onChangeWindowPosition()
+            onWindowContainerPositionChanged()
         }
     }
 
@@ -114,7 +114,7 @@ internal class WindowComposeSceneLayer(
             skiaLayerComponentFactory = ::createSkiaLayerComponent,
             composeSceneFactory = ::createComposeScene,
         ).also {
-            it.onChangeWindowTransparency(true)
+            it.onWindowTransparencyChanged(true)
             it.sceneBoundsInPx = boundsInPx
             it.contentComponent.size = windowContainer.size
         }
@@ -140,12 +140,12 @@ internal class WindowComposeSceneLayer(
         dialog.dispose()
     }
 
-    override fun onChangeWindowPosition() {
+    override fun onWindowContainerPositionChanged() {
         val scaledRectangle = drawBounds.toAwtRectangle(density)
         setDialogLocation(scaledRectangle.x, scaledRectangle.y)
     }
 
-    override fun onChangeWindowSize() {
+    override fun onWindowContainerSizeChanged() {
         windowContext.setContainerSize(windowContainer.sizeInPx)
 
         // Update compose constrains based on main window size

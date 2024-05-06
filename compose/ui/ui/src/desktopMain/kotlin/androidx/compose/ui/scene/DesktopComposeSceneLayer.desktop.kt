@@ -89,7 +89,7 @@ internal abstract class DesktopComposeSceneLayer(
     final override var layoutDirection: LayoutDirection = layoutDirection
         set(value) {
             field = value
-            mediator?.onChangeLayoutDirection(value)
+            mediator?.onLayoutDirectionChanged(value)
         }
 
     // It shouldn't be used for setting canvas size - it will crop drawings outside
@@ -148,19 +148,19 @@ internal abstract class DesktopComposeSceneLayer(
     /**
      * Called when the focus of the window containing main Compose view has changed.
      */
-    open fun onChangeWindowFocus() {
+    open fun onWindowFocusChanged() {
     }
 
     /**
-     * Called when position of the window containing main Compose view has changed.
+     * Called when position of the window container, containing the main Compose view, has changed.
      */
-    open fun onChangeWindowPosition() {
+    open fun onWindowContainerPositionChanged() {
     }
 
     /**
-     * Called when size of the window containing main Compose view has changed.
+     * Called when size of the window container, containing the main Compose view, has changed.
      */
-    open fun onChangeWindowSize() {
+    open fun onWindowContainerSizeChanged() {
     }
 
     /**

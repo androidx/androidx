@@ -500,13 +500,13 @@ internal class ComposeSceneMediator(
         }
     }
 
-    fun onChangeComponentPosition() = catchExceptions {
+    fun onComponentPositionChanged() = catchExceptions {
         if (!container.isDisplayable) return
 
         offsetInWindow = windowContext.offsetInWindow(container)
     }
 
-    fun onChangeComponentSize() = catchExceptions {
+    fun onComponentSizeChanged() = catchExceptions {
         if (!container.isDisplayable) return
 
         val size = sceneBoundsInPx?.size ?: container.sizeInPx
@@ -520,15 +520,15 @@ internal class ComposeSceneMediator(
     fun onChangeDensity(density: Density = container.density) = catchExceptions {
         if (scene.density != density) {
             scene.density = density
-            onChangeComponentSize()
+            onComponentSizeChanged()
         }
     }
 
-    fun onChangeWindowTransparency(value: Boolean) {
+    fun onWindowTransparencyChanged(value: Boolean) {
         skiaLayerComponent.transparency = value || useInteropBlending
     }
 
-    fun onChangeLayoutDirection(layoutDirection: LayoutDirection) {
+    fun onLayoutDirectionChanged(layoutDirection: LayoutDirection) {
         scene.layoutDirection = layoutDirection
     }
 

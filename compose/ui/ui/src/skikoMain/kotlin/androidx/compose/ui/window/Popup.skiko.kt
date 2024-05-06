@@ -516,7 +516,10 @@ private fun rememberPopupMeasurePolicy(
                 -platformInsets.top.roundToPx()
             )
             val positionInWindow = popupPositionProvider.calculatePosition(
-                boundsWithoutInsets, sizeWithoutInsets, layoutDirection, contentSize
+                anchorBounds = boundsWithoutInsets,
+                windowSize = sizeWithoutInsets,
+                layoutDirection = layoutDirection,
+                popupContentSize = contentSize
             )
             if (properties.clippingEnabled) {
                 clipPosition(positionInWindow, contentSize, sizeWithoutInsets)

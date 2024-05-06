@@ -57,7 +57,7 @@ internal class SwingSkiaLayerComponent(
 
             override fun doLayout() {
                 super.doLayout()
-                mediator.onChangeComponentSize()
+                mediator.onComponentSizeChanged()
             }
 
             override fun getPreferredSize(): Dimension = if (isPreferredSizeSet) {

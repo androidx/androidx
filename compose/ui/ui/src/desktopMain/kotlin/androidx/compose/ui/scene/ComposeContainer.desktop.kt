@@ -53,7 +53,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import java.awt.Component
 import java.awt.Window
 import java.awt.event.ComponentEvent
-import java.awt.event.ComponentListener
+import java.awt.event.ComponentAdapter
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
 import java.awt.event.WindowListener
@@ -88,7 +88,7 @@ internal class ComposeContainer(
 
     private val useSwingGraphics: Boolean = ComposeFeatureFlags.useSwingGraphics,
     private val layerType: LayerType = ComposeFeatureFlags.layerType,
-) : ComponentListener, WindowFocusListener, WindowListener, LifecycleOwner, ViewModelStoreOwner {
+) : WindowFocusListener, WindowListener, LifecycleOwner, ViewModelStoreOwner {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
         private set
@@ -111,14 +111,14 @@ internal class ComposeContainer(
                 error("Customizing windowContainer cannot be used with LayerType.OnSameCanvas")
             }
 
-            _windowContainer?.removeComponentListener(this)
-            value.addComponentListener(this)
+            _windowContainer?.removeComponentListener(windowContainerComponentListener)
+            value.addComponentListener(windowContainerComponentListener)
 
             _windowContainer = value
 
             windowContext.setWindowContainer(value)
-            onChangeWindowSize()
-            onChangeWindowPosition()
+            onWindowContainerSizeChanged()
+            onWindowContainerPositionChanged()
         }
 
     private val coroutineExceptionHandler = DesktopCoroutineExceptionHandler()
@@ -138,6 +138,24 @@ internal class ComposeContainer(
         skiaLayerComponentFactory = ::createSkiaLayerComponent,
         composeSceneFactory = ::createComposeScene,
     )
+
+    /**
+     * The listener to [windowContainer] size and position changes.
+     */
+    private val windowContainerComponentListener = object : ComponentAdapter() {
+        override fun componentResized(e: ComponentEvent?) = onWindowContainerSizeChanged()
+        override fun componentMoved(e: ComponentEvent?) = onWindowContainerPositionChanged()
+    }
+
+    /**
+     * The listener to [window] size changes.
+     */
+    private val windowSizeListener = object : ComponentAdapter() {
+        // When the window is moved to a display with a different density, componentResized is
+        // called on the window, but not on `windowContainer`, so we need to update the size
+        // here too.
+        override fun componentResized(e: ComponentEvent?) = onWindowContainerSizeChanged()
+    }
 
     val contentComponent by mediator::contentComponent
     val focusManager by mediator::focusManager
@@ -174,25 +192,13 @@ internal class ComposeContainer(
         updateLifecycleState()
         viewModelStore.clear()
 
-        _windowContainer?.removeComponentListener(this)
+        _windowContainer?.removeComponentListener(windowContainerComponentListener)
         mediator.dispose()
         layers.fastForEach(DesktopComposeSceneLayer::close)
     }
 
-    override fun componentResized(e: ComponentEvent?)  {
-        onChangeWindowSize()
-
-        // Sometimes Swing displays interop views in incorrect order after resizing,
-        // so we need to force re-validate it.
-        container.validate()
-        container.repaint()
-    }
-    override fun componentMoved(e: ComponentEvent?) = onChangeWindowPosition()
-    override fun componentShown(e: ComponentEvent?) = Unit
-    override fun componentHidden(e: ComponentEvent?) = Unit
-
-    override fun windowGainedFocus(event: WindowEvent) = onChangeWindowFocus()
-    override fun windowLostFocus(event: WindowEvent) = onChangeWindowFocus()
+    override fun windowGainedFocus(event: WindowEvent) = onWindowFocusChanged()
+    override fun windowLostFocus(event: WindowEvent) = onWindowFocusChanged()
 
     override fun windowOpened(e: WindowEvent) = Unit
     override fun windowClosing(e: WindowEvent) = Unit
@@ -208,27 +214,32 @@ internal class ComposeContainer(
     override fun windowActivated(e: WindowEvent) = Unit
     override fun windowDeactivated(e: WindowEvent) = Unit
 
-    private fun onChangeWindowFocus() {
+    private fun onWindowFocusChanged() {
         isFocused = window?.isFocused ?: false
         windowContext.setWindowFocused(isFocused)
         mediator.onChangeWindowFocus()
-        layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowFocus)
+        layers.fastForEach(DesktopComposeSceneLayer::onWindowFocusChanged)
         updateLifecycleState()
     }
 
-    private fun onChangeWindowPosition() {
+    private fun onWindowContainerPositionChanged() {
         if (!container.isDisplayable) return
 
-        mediator.onChangeComponentPosition()
-        layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowPosition)
+        mediator.onComponentPositionChanged()
+        layers.fastForEach(DesktopComposeSceneLayer::onWindowContainerPositionChanged)
     }
 
-    private fun onChangeWindowSize() {
+    private fun onWindowContainerSizeChanged() {
         if (!container.isDisplayable) return
 
         windowContext.setContainerSize(windowContainer.sizeInPx)
-        mediator.onChangeComponentSize()
-        layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowSize)
+        mediator.onComponentSizeChanged()
+        layers.fastForEach(DesktopComposeSceneLayer::onWindowContainerSizeChanged)
+
+        // Sometimes Swing displays interop views in incorrect order after resizing,
+        // so we need to force re-validate it.
+        container.validate()
+        container.repaint()
     }
 
     /**
@@ -240,15 +251,15 @@ internal class ComposeContainer(
         }
     }
 
-    fun onChangeWindowTransparency(value: Boolean) {
+    fun onWindowTransparencyChanged(value: Boolean) {
         windowContext.isWindowTransparent = value
-        mediator.onChangeWindowTransparency(value)
+        mediator.onWindowTransparencyChanged(value)
     }
 
-    fun onChangeLayoutDirection(component: Component) {
+    fun onLayoutDirectionChanged(component: Component) {
         // ComposeWindow and ComposeDialog relies on self orientation, not on container's one
         layoutDirection = layoutDirectionFor(component)
-        mediator.onChangeLayoutDirection(layoutDirection)
+        mediator.onLayoutDirectionChanged(layoutDirection)
     }
 
     fun onRenderApiChanged(action: () -> Unit) {
@@ -260,8 +271,8 @@ internal class ComposeContainer(
         setWindow(SwingUtilities.getWindowAncestor(container))
 
         // Re-checking the actual size if it wasn't available during init.
-        onChangeWindowSize()
-        onChangeWindowPosition()
+        onWindowContainerSizeChanged()
+        onWindowContainerPositionChanged()
 
         isDetached = false
         updateLifecycleState()
@@ -279,8 +290,8 @@ internal class ComposeContainer(
 
         // In case of preferred size there is no separate event for changing window size,
         // so re-checking the actual size on container resize too.
-        onChangeWindowSize()
-        onChangeWindowPosition()
+        onWindowContainerSizeChanged()
+        onWindowContainerPositionChanged()
     }
 
     private fun setWindow(window: Window?) {
@@ -288,13 +299,19 @@ internal class ComposeContainer(
             return
         }
 
-        this.window?.removeWindowFocusListener(this)
-        this.window?.removeWindowListener(this)
-        window?.addWindowFocusListener(this)
-        window?.addWindowListener(this)
+        this.window?.let {
+            it.removeWindowFocusListener(this)
+            it.removeWindowListener(this)
+            it.removeComponentListener(windowSizeListener)
+        }
+        window?.let {
+            it.addWindowFocusListener(this)
+            it.addWindowListener(this)
+            it.addComponentListener(windowSizeListener)
+        }
         this.window = window
 
-        onChangeWindowFocus()
+        onWindowFocusChanged()
     }
 
     fun setKeyEventListeners(
