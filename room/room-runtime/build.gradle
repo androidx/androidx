@@ -108,7 +108,7 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(project(":room:room-common"))
                 api(project(":sqlite:sqlite"))
-                api(projectOrArtifact(":annotation:annotation"))
+                api("androidx.annotation:annotation:1.8.0")
                 api(libs.kotlinCoroutinesCore)
                 implementation(libs.atomicFu)
             }
