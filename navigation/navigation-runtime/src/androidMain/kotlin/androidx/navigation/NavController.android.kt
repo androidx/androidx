@@ -333,6 +333,7 @@ public actual open class NavController(
         override fun pop(popUpTo: NavBackStackEntry, saveState: Boolean) {
             val destinationNavigator: Navigator<out NavDestination> =
                 _navigatorProvider[popUpTo.destination.navigatorName]
+            entrySavedState[popUpTo] = saveState
             if (destinationNavigator == navigator) {
                 val handler = popFromBackStackHandler
                 if (handler != null) {
@@ -350,7 +351,6 @@ public actual open class NavController(
 
         override fun popWithTransition(popUpTo: NavBackStackEntry, saveState: Boolean) {
             super.popWithTransition(popUpTo, saveState)
-            entrySavedState[popUpTo] = saveState
         }
 
         override fun markTransitionComplete(entry: NavBackStackEntry) {
@@ -1728,6 +1728,9 @@ public actual open class NavController(
      * Navigate to a destination from the current navigation graph. This supports both navigating
      * via an [action][NavDestination.getAction] and directly navigating to a destination.
      *
+     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here will be
+     * overridden by the restored args.
+     *
      * @param resId an [action][NavDestination.getAction] id or a destination id to
      * navigate to
      * @param args arguments to pass to the destination
@@ -1745,6 +1748,9 @@ public actual open class NavController(
     /**
      * Navigate to a destination from the current navigation graph. This supports both navigating
      * via an [action][NavDestination.getAction] and directly navigating to a destination.
+     *
+     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here will be
+     * overridden by the restored args.
      *
      * @param resId an [action][NavDestination.getAction] id or a destination id to
      * navigate to
@@ -2348,6 +2354,9 @@ public actual open class NavController(
      * Navigate to a route in the current NavGraph. If an invalid route is given, an
      * [IllegalArgumentException] will be thrown.
      *
+     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
+     * of the route will be overridden by the restored args.
+     *
      * @param route route for the destination
      * @param builder DSL for constructing a new [NavOptions]
      *
@@ -2361,6 +2370,9 @@ public actual open class NavController(
     /**
      * Navigate to a route in the current NavGraph. If an invalid route is given, an
      * [IllegalArgumentException] will be thrown.
+     *
+     * If given [NavOptions] pass in [NavOptions.restoreState] `true`, any args passed here as part
+     * of the route will be overridden by the restored args.
      *
      * @param route route for the destination
      * @param navOptions special options for this navigation operation
@@ -2765,15 +2777,15 @@ public actual open class NavController(
             "android-support-nav:controller:backStackStates"
         private const val KEY_BACK_STACK_STATES_PREFIX =
             "android-support-nav:controller:backStackStates:"
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_IDS: String = "android-support-nav:controller:deepLinkIds"
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_ARGS: String = "android-support-nav:controller:deepLinkArgs"
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Suppress("IntentName")
         public const val KEY_DEEP_LINK_EXTRAS: String =
             "android-support-nav:controller:deepLinkExtras"
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public const val KEY_DEEP_LINK_HANDLED: String =
             "android-support-nav:controller:deepLinkHandled"
 

@@ -16,6 +16,7 @@
 
 package androidx.navigation
 
+import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
@@ -128,6 +129,7 @@ public actual class NavBackStackEntry private constructor(
     /**
      * The [SavedStateHandle] for this entry.
      */
+    @get:MainThread
     public actual val savedStateHandle: SavedStateHandle by lazy {
         check(savedStateRegistryAttached) {
             "You cannot access the NavBackStackEntry's SavedStateHandle until it is added to " +

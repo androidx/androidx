@@ -62,8 +62,9 @@ public actual open class NavDestination actual constructor(
                 val type = destination._arguments[key]?.type
                 val matchingArgValue = type?.get(matchingArgs, key!!)
                 val entryArgValue = type?.get(arguments, key!!)
-                // fine if both argValues are null, i.e. arguments/params with nullable values
-                if (matchingArgValue != entryArgValue) return false
+                if (type?.valueEquals(matchingArgValue, entryArgValue) == false) {
+                    return false
+                }
             }
             return true
         }

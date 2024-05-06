@@ -57,6 +57,8 @@ public actual abstract class NavType<T> actual constructor(
 
     public actual open val name: String = "nav_type"
 
+    public actual open fun valueEquals(value: T, other: T): Boolean = value == other
+
     override fun toString(): String {
         return name
     }
@@ -188,6 +190,12 @@ public actual abstract class NavType<T> actual constructor(
             override fun parseValue(value: String, previousValue: IntArray?): IntArray {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: IntArray?, other: IntArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
         }
 
         @JvmField
@@ -241,6 +249,12 @@ public actual abstract class NavType<T> actual constructor(
             override fun parseValue(value: String, previousValue: LongArray?): LongArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: LongArray?, other: LongArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
         }
 
         @JvmField
@@ -282,6 +296,12 @@ public actual abstract class NavType<T> actual constructor(
 
             override fun parseValue(value: String, previousValue: FloatArray?): FloatArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: FloatArray?, other: FloatArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
             }
         }
 
@@ -333,6 +353,12 @@ public actual abstract class NavType<T> actual constructor(
             override fun parseValue(value: String, previousValue: BooleanArray?): BooleanArray? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: BooleanArray?, other: BooleanArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
         }
 
         @JvmField
@@ -381,6 +407,9 @@ public actual abstract class NavType<T> actual constructor(
             override fun parseValue(value: String, previousValue: Array<String>?): Array<String>? {
                 return previousValue?.plus(parseValue(value)) ?: parseValue(value)
             }
+
+            override fun valueEquals(value: Array<String>?, other: Array<String>?) =
+                value.contentDeepEquals(other)
         }
     }
 }

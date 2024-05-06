@@ -19,6 +19,7 @@ package androidx.navigation.compose
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SizeTransform
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphNavigator
@@ -47,5 +48,8 @@ internal expect class ComposeNavGraphNavigator(
 
         internal var popExitTransition: (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?
+
+        internal var sizeTransform: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)?
     }
 }
