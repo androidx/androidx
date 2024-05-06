@@ -19,8 +19,11 @@
 package androidx.compose.animation.demos.sharedelement
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.ScaleToBounds
 import androidx.compose.animation.samples.R
 import androidx.compose.animation.samples.SharedElementInAnimatedContentSample
 import androidx.compose.animation.samples.SharedElementWithFABInOverlaySample
@@ -139,8 +142,9 @@ fun ScaleContentTransition() {
                         .sharedBounds(
                             rememberSharedContentState(key = rememberSharedKey),
                             this,
-                            scaleInSharedContentToBounds(contentScale = ContentScale.Crop),
-                            scaleOutSharedContentToBounds(contentScale = ContentScale.Crop)
+                            EnterTransition.None,
+                            ExitTransition.None,
+                            resizeMode = ScaleToBounds(contentScale = ContentScale.Crop),
                         )
                 )
             } else {
@@ -152,8 +156,9 @@ fun ScaleContentTransition() {
                         .sharedBounds(
                             rememberSharedContentState(key = rememberSharedKey),
                             this,
-                            scaleInSharedContentToBounds(contentScale = ContentScale.Crop),
-                            scaleOutSharedContentToBounds(contentScale = ContentScale.Crop)
+                            EnterTransition.None,
+                            ExitTransition.None,
+                            resizeMode = ScaleToBounds(contentScale = ContentScale.Crop),
                         )
                         .requiredSize(200.dp)
                         .clip(shape = RoundedCornerShape(10))
