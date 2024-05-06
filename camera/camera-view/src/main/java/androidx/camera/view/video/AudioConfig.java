@@ -19,13 +19,11 @@ package androidx.camera.view.video;
 import android.Manifest;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 
 /**
  * A class providing configuration for audio settings in the video recording.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AudioConfig {
 
     /**

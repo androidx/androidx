@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.view {
 
-  @RequiresApi(21) public abstract class CameraController {
+  public abstract class CameraController {
     method @MainThread public void clearEffects();
     method @MainThread public void clearImageAnalysisAnalyzer();
     method @MainThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enableTorch(boolean);
@@ -77,7 +77,7 @@ package androidx.camera.view {
     field public static final int VIDEO_CAPTURE = 4; // 0x4
   }
 
-  @Deprecated @RequiresApi(21) public static final class CameraController.OutputSize {
+  @Deprecated public static final class CameraController.OutputSize {
     ctor @Deprecated public CameraController.OutputSize(android.util.Size);
     ctor @Deprecated public CameraController.OutputSize(int);
     method @Deprecated public int getAspectRatio();
@@ -85,13 +85,13 @@ package androidx.camera.view {
     field @Deprecated public static final int UNASSIGNED_ASPECT_RATIO = -1; // 0xffffffff
   }
 
-  @RequiresApi(21) public final class LifecycleCameraController extends androidx.camera.view.CameraController {
+  public final class LifecycleCameraController extends androidx.camera.view.CameraController {
     ctor public LifecycleCameraController(android.content.Context);
     method @MainThread public void bindToLifecycle(androidx.lifecycle.LifecycleOwner);
     method @MainThread public void unbind();
   }
 
-  @RequiresApi(21) public final class PreviewView extends android.widget.FrameLayout {
+  public final class PreviewView extends android.widget.FrameLayout {
     ctor @UiThread public PreviewView(android.content.Context);
     ctor @UiThread public PreviewView(android.content.Context, android.util.AttributeSet?);
     ctor @UiThread public PreviewView(android.content.Context, android.util.AttributeSet?, int);
@@ -113,12 +113,12 @@ package androidx.camera.view {
     method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
 
-  @RequiresApi(21) public enum PreviewView.ImplementationMode {
+  public enum PreviewView.ImplementationMode {
     enum_constant public static final androidx.camera.view.PreviewView.ImplementationMode COMPATIBLE;
     enum_constant public static final androidx.camera.view.PreviewView.ImplementationMode PERFORMANCE;
   }
 
-  @RequiresApi(21) public enum PreviewView.ScaleType {
+  public enum PreviewView.ScaleType {
     enum_constant public static final androidx.camera.view.PreviewView.ScaleType FILL_CENTER;
     enum_constant public static final androidx.camera.view.PreviewView.ScaleType FILL_END;
     enum_constant public static final androidx.camera.view.PreviewView.ScaleType FILL_START;
@@ -132,7 +132,7 @@ package androidx.camera.view {
     enum_constant public static final androidx.camera.view.PreviewView.StreamState STREAMING;
   }
 
-  @RequiresApi(21) public final class RotationProvider {
+  public final class RotationProvider {
     ctor public RotationProvider(android.content.Context);
     method @CheckResult public boolean addListener(java.util.concurrent.Executor, androidx.camera.view.RotationProvider.Listener);
     method public void removeListener(androidx.camera.view.RotationProvider.Listener);
@@ -142,7 +142,7 @@ package androidx.camera.view {
     method public void onRotationChanged(int);
   }
 
-  @RequiresApi(21) public final class ScreenFlashView extends android.view.View {
+  public final class ScreenFlashView extends android.view.View {
     ctor @UiThread public ScreenFlashView(android.content.Context);
     ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?);
     ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int);
@@ -156,7 +156,7 @@ package androidx.camera.view {
 
 package androidx.camera.view.transform {
 
-  @SuppressCompatibility @RequiresApi(21) public final class CoordinateTransform {
+  @SuppressCompatibility public final class CoordinateTransform {
     ctor public CoordinateTransform(androidx.camera.view.transform.OutputTransform, androidx.camera.view.transform.OutputTransform);
     method public void mapPoint(android.graphics.PointF);
     method public void mapPoints(float[]);
@@ -164,7 +164,7 @@ package androidx.camera.view.transform {
     method public void transform(android.graphics.Matrix);
   }
 
-  @SuppressCompatibility @RequiresApi(21) public final class FileTransformFactory {
+  @SuppressCompatibility public final class FileTransformFactory {
     ctor public FileTransformFactory();
     method public androidx.camera.view.transform.OutputTransform getOutputTransform(android.content.ContentResolver, android.net.Uri) throws java.io.IOException;
     method public androidx.camera.view.transform.OutputTransform getOutputTransform(java.io.File) throws java.io.IOException;
@@ -173,7 +173,7 @@ package androidx.camera.view.transform {
     method public void setUsingExifOrientation(boolean);
   }
 
-  @SuppressCompatibility @RequiresApi(21) public final class ImageProxyTransformFactory {
+  @SuppressCompatibility public final class ImageProxyTransformFactory {
     ctor public ImageProxyTransformFactory();
     method public androidx.camera.view.transform.OutputTransform getOutputTransform(androidx.camera.core.ImageProxy);
     method public boolean isUsingCropRect();
@@ -182,14 +182,14 @@ package androidx.camera.view.transform {
     method public void setUsingRotationDegrees(boolean);
   }
 
-  @SuppressCompatibility @RequiresApi(21) public final class OutputTransform {
+  @SuppressCompatibility public final class OutputTransform {
   }
 
 }
 
 package androidx.camera.view.video {
 
-  @RequiresApi(21) public class AudioConfig {
+  public class AudioConfig {
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public static androidx.camera.view.video.AudioConfig create(boolean);
     method public boolean getAudioEnabled();
     field public static final androidx.camera.view.video.AudioConfig AUDIO_DISABLED;

@@ -18,7 +18,6 @@ package androidx.camera.view.transform;
 
 import android.graphics.Rect;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.impl.fakes.FakeImageInfo;
 import androidx.camera.testing.impl.fakes.FakeImageProxy;
@@ -27,7 +26,6 @@ import androidx.camera.testing.impl.fakes.FakeImageProxy;
 /**
  * Shared code for transform tests.
  */
-@RequiresApi(21)
 class TransformTestUtils {
 
     static ImageProxy createFakeImageProxy(int width, int height,

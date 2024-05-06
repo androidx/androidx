@@ -23,7 +23,6 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.SurfaceRequest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -35,7 +34,6 @@ import java.util.concurrent.Executor;
  * done using either a {@link android.view.TextureView} (see {@link TextureViewImplementation})
  * or a {@link android.view.SurfaceView} (see {@link SurfaceViewImplementation}).
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class PreviewViewImplementation {
 
     @Nullable

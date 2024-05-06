@@ -16,10 +16,7 @@
 
 package androidx.camera.view;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -35,7 +32,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  * Implementation of {@link ProcessCameraProviderWrapper} that wraps a round a real
  * {@link ProcessCameraProvider} object.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class ProcessCameraProviderWrapperImpl implements ProcessCameraProviderWrapper {
 
     private final ProcessCameraProvider mProcessCameraProvider;

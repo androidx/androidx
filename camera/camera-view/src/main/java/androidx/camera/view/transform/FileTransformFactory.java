@@ -29,7 +29,6 @@ import android.media.ExifInterface;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.Exif;
@@ -51,7 +50,6 @@ import java.io.InputStream;
  * @see OutputTransform
  * @see CoordinateTransform
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @TransformExperimental
 public final class FileTransformFactory {
 

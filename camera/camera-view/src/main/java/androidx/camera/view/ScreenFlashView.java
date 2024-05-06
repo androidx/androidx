@@ -29,7 +29,6 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
@@ -62,7 +61,6 @@ import androidx.fragment.app.Fragment;
  * @see ImageCapture#FLASH_MODE_SCREEN
  * @see PreviewView#getScreenFlash
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ScreenFlashView extends View {
     private static final String TAG = "ScreenFlashView";
     private CameraController mCameraController;

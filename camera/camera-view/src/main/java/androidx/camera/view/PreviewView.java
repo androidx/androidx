@@ -55,7 +55,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
@@ -122,7 +121,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @see <a href="https://developer.android.com/training/transitions#Limitations">Limitations</a>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class PreviewView extends FrameLayout {
 
     private static final String TAG = "PreviewView";
@@ -783,7 +781,6 @@ public final class PreviewView extends FrameLayout {
      * {@link PreviewView} to decide what is the best internal implementation given the device
      * capabilities and user configurations.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ImplementationMode {
 
         /**
@@ -839,7 +836,6 @@ public final class PreviewView extends FrameLayout {
     }
 
     /** Options for scaling the preview vis-à-vis its container {@link PreviewView}. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ScaleType {
         /**
          * Scale the preview, maintaining the source aspect ratio, so it fills the entire

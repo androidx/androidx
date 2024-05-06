@@ -46,7 +46,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
@@ -91,7 +90,6 @@ import androidx.core.util.Preconditions;
  * <p> The transformed Surface is how the PreviewView's inner view should behave, to make the
  * crop rect matches the PreviewView.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class PreviewTransformation {
 
     private static final String TAG = "PreviewTransform";

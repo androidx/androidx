@@ -27,7 +27,6 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.MainThread
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
@@ -698,7 +697,6 @@ class VideoCaptureDeviceTest(
     }
 }
 
-@RequiresApi(21)
 fun assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk() {
     // Skip for b/293978082. For tests that will unbind the VideoCapture before stop the recording,
     // they should be skipped since media server will crash if the codec surface has been removed
