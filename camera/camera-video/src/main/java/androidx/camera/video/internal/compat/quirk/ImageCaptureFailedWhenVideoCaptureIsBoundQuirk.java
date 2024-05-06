@@ -23,19 +23,21 @@ import androidx.camera.core.impl.Quirk;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: b/239369953, b/331754902
+ *     Bug Id: b/239369953, b/331754902, b/338869048
  *     Description: When taking image with VideoCapture is bound, the capture result is returned
  *                  but the resulting image can not be obtained. On Pixel 4XL API29, taking image
  *                  with VideoCapture UHD is bound, camera HAL returns error. Pixel 4XL starts
  *                  from API29 and API30+ work fine.
- *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29
+ *                  On Moto E13, taking picture will time out after recording is started, even if
+ *                  the recording is stopped.
+ *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29, Moto E13
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     static boolean load() {
         return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
-                || isPixel4XLApi29();
+                || isPixel4XLApi29() || isMotoE13();
     }
 
     public static boolean isBluStudioX10() {
@@ -57,5 +59,10 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     private static boolean isPixel4XLApi29() {
         return "pixel 4 xl".equalsIgnoreCase(Build.MODEL) && Build.VERSION.SDK_INT == 29;
+    }
+
+    public static boolean isMotoE13() {
+        return "motorola".equalsIgnoreCase(Build.BRAND) && "moto e13".equalsIgnoreCase(
+                Build.MODEL);
     }
 }
