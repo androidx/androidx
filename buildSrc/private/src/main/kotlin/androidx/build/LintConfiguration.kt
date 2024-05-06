@@ -131,10 +131,6 @@ fun Project.configureLintForAidl() {
             it.variantInputs.addSourceSets()
         }
 
-        project.tasks.withType<AndroidLintTask>().configureEach {
-            it.variantInputs.addSourceSets()
-        }
-
         // Also configure the model writing task, so that we don't run into mismatches between
         // analyzed sources in one module and a downstream module
         project.tasks.withType<LintModelWriterTask>().configureEach {
