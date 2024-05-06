@@ -76,11 +76,11 @@ class RearDisplayPresentationActivity : AppCompatActivity(),
                 // Safely collect from windowInfoRepo when the lifecycle is STARTED
                 // and stops collection when the lifecycle is STOPPED
                 windowAreaController.windowAreaInfos.collect { windowAreaInfos ->
-                    infoLogAdapter.append(
+                    infoLogAdapter.appendAndNotify(
                         getCurrentTimeString(), "number of areas: " + windowAreaInfos.size
                     )
                     windowAreaInfos.forEach { windowAreaInfo ->
-                        if (windowAreaInfo.type == WindowAreaInfo.Type.TYPE_REAR_FACING) {
+                        if (windowAreaInfo.type == TYPE_REAR_FACING) {
                             currentWindowAreaInfo = windowAreaInfo
                             val presentCapability = windowAreaInfo.getCapability(
                                 OPERATION_PRESENT_ON_AREA
@@ -90,10 +90,10 @@ class RearDisplayPresentationActivity : AppCompatActivity(),
                                 presentCapability.status.toString() + " : " +
                                     windowAreaInfo.metrics.toString()
                             )
-                            infoLogAdapter.notifyDataSetChanged()
                             updateRearDisplayPresentationButton()
                         }
                     }
+                    infoLogAdapter.notifyDataSetChanged()
                 }
             }
         }
@@ -115,8 +115,8 @@ class RearDisplayPresentationActivity : AppCompatActivity(),
     }
 
     override fun onSessionStarted(session: WindowAreaSessionPresenter) {
-        infoLogAdapter.append(getCurrentTimeString(), "Presentation session has been started")
-        infoLogAdapter.notifyDataSetChanged()
+        infoLogAdapter.appendAndNotify(getCurrentTimeString(),
+            "Presentation session has been started")
 
         activePresentation = session
         val concurrentContext: Context = session.context
@@ -128,14 +128,14 @@ class RearDisplayPresentationActivity : AppCompatActivity(),
     }
 
     override fun onContainerVisibilityChanged(isVisible: Boolean) {
-        infoLogAdapter.append(getCurrentTimeString(), "Presentation content is visible: $isVisible")
-        infoLogAdapter.notifyDataSetChanged()
+        infoLogAdapter.appendAndNotify(getCurrentTimeString(),
+            "Presentation content is visible: $isVisible")
     }
 
     override fun onSessionEnded(t: Throwable?) {
-        infoLogAdapter.append(getCurrentTimeString(), "Presentation session has been ended")
+        infoLogAdapter.appendAndNotify(getCurrentTimeString(),
+            "Presentation session has been ended")
         activePresentation = null
-        infoLogAdapter.notifyDataSetChanged()
     }
 
     private fun updateRearDisplayPresentationButton() {

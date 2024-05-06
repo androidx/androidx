@@ -22,7 +22,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.window.area.WindowAreaCapability
 import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_ACTIVITY_TO_AREA
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
@@ -76,7 +75,7 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
                 // Safely collect from windowInfoRepo when the lifecycle is STARTED
                 // and stops collection when the lifecycle is STOPPED
                 windowAreaController.windowAreaInfos.collect { windowAreaInfos ->
-                    infoLogAdapter.append(
+                    infoLogAdapter.appendAndNotify(
                         getCurrentTimeString(),
                         "number of areas: " + windowAreaInfos.size
                     )
@@ -84,17 +83,17 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
                         if (windowAreaInfo.type == WindowAreaInfo.Type.TYPE_REAR_FACING) {
                             currentWindowAreaInfo = windowAreaInfo
                             val transferCapability = windowAreaInfo.getCapability(
-                                WindowAreaCapability.Operation.OPERATION_TRANSFER_ACTIVITY_TO_AREA
+                                OPERATION_TRANSFER_ACTIVITY_TO_AREA
                             )
                             infoLogAdapter.append(
                                 getCurrentTimeString(),
                                 transferCapability.status.toString() + " : " +
                                     windowAreaInfo.metrics.toString()
                             )
-                            infoLogAdapter.notifyDataSetChanged()
                             updateRearDisplayButton()
                         }
                     }
+                    infoLogAdapter.notifyDataSetChanged()
                 }
             }
         }
@@ -103,35 +102,41 @@ class RearDisplayActivityConfigChanges : AppCompatActivity(), WindowAreaSessionC
             if (rearDisplaySession != null) {
                 rearDisplaySession?.close()
             } else {
-                windowAreaController.transferActivityToWindowArea(
-                    currentWindowAreaInfo!!.token,
-                    this,
-                    executor,
-                    this
-                )
+                currentWindowAreaInfo?.let {
+                    windowAreaController.transferActivityToWindowArea(
+                        it.token,
+                        this,
+                        executor,
+                        this
+                    )
+                }
             }
         }
 
         binding.rearDisplaySessionButton.setOnClickListener {
             if (rearDisplaySession == null) {
-                rearDisplaySession = currentWindowAreaInfo?.getActiveSession(
-                    OPERATION_TRANSFER_ACTIVITY_TO_AREA)
-                updateRearDisplayButton()
+                try {
+                    rearDisplaySession = currentWindowAreaInfo?.getActiveSession(
+                        OPERATION_TRANSFER_ACTIVITY_TO_AREA
+                    )
+                    updateRearDisplayButton()
+                } catch (e: IllegalStateException) {
+                    infoLogAdapter.appendAndNotify(getCurrentTimeString(), e.toString())
+                }
             }
         }
     }
 
     override fun onSessionStarted(session: WindowAreaSession) {
         rearDisplaySession = session
-        infoLogAdapter.append(getCurrentTimeString(), "RearDisplay Session has been started")
-        infoLogAdapter.notifyDataSetChanged()
+        infoLogAdapter.appendAndNotify(getCurrentTimeString(),
+            "RearDisplay Session has been started")
         updateRearDisplayButton()
     }
 
     override fun onSessionEnded(t: Throwable?) {
         rearDisplaySession = null
-        infoLogAdapter.append(getCurrentTimeString(), "RearDisplay Session has ended")
-        infoLogAdapter.notifyDataSetChanged()
+        infoLogAdapter.appendAndNotify(getCurrentTimeString(), "RearDisplay Session has ended")
         updateRearDisplayButton()
     }
 
