@@ -54,6 +54,7 @@ androidx {
     name = "androidx.camera:camera-viewfinder-compose"
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
+    mavenVersion = LibraryVersions.CAMERA_VIEWFINDER_COMPOSE
     description = "Composable ViewFinder implementation for CameraX"
     metalavaK2UastEnabled = true
 }
