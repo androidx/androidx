@@ -58,6 +58,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoAndroid5)
 
     // Includes the wear-sdk jar
     compileOnly files("../../wear_sdk/wear-sdk.jar")
