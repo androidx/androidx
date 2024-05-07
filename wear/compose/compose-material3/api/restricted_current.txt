@@ -131,7 +131,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class CheckboxDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CheckboxColors colors(optional long checkedBoxColor, optional long checkedCheckmarkColor, optional long uncheckedBoxColor, optional long uncheckedCheckmarkColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CheckboxColors colors(optional long checkedBoxColor, optional long checkedCheckmarkColor, optional long uncheckedBoxColor, optional long uncheckedCheckmarkColor, optional long disabledCheckedBoxColor, optional long disabledCheckedCheckmarkColor, optional long disabledUncheckedBoxColor, optional long disabledUncheckedCheckmarkColor);
     field public static final androidx.wear.compose.material3.CheckboxDefaults INSTANCE;
   }
 
@@ -440,7 +440,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class RadioDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioColors colors(optional long selectedColor, optional long unselectedColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioColors colors(optional long selectedColor, optional long unselectedColor, optional long disabledSelectedColor, optional long disabledUnselectedColor);
     field public static final androidx.wear.compose.material3.RadioDefaults INSTANCE;
   }
 

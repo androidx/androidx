@@ -156,6 +156,8 @@ public fun SelectableChip(
     toggleControlHeight = SELECTABLE_CONTROL_HEIGHT,
     toggleControlWidth = SELECTABLE_CONTROL_WIDTH,
     labelSpacerSize = 0.dp,
+    toggleControlSpacing = TOGGLE_CONTROL_SPACING,
+    iconSpacing = ICON_SPACING,
     ripple = rippleOrFallbackImplementation()
 )
 
@@ -831,3 +833,5 @@ private class DefaultSplitSelectableChipColors(
 
 private val SELECTABLE_CONTROL_HEIGHT = 24.dp
 private val SELECTABLE_CONTROL_WIDTH = 24.dp
+private val TOGGLE_CONTROL_SPACING = 4.dp
+private val ICON_SPACING = 6.dp
