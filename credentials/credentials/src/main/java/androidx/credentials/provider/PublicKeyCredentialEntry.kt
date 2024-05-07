@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("deprecation") // For usage of Slice
 
 package androidx.credentials.provider
 
@@ -73,6 +74,7 @@ import java.util.Collections
  *
  * @see CredentialEntry
  */
+@Suppress("DEPRECATION") // For usage of slice
 @RequiresApi(26)
 class PublicKeyCredentialEntry internal constructor(
     val username: CharSequence,

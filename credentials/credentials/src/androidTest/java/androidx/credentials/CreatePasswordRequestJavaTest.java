@@ -139,7 +139,7 @@ public class CreatePasswordRequestJavaTest {
         assertThat(request.getPassword()).isEqualTo(passwordExpected);
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @SuppressWarnings("deprecation") // bundle.get(key)
     @Test
     public void getter_frameworkProperties() {
@@ -191,7 +191,7 @@ public class CreatePasswordRequestJavaTest {
         ).isEqualTo(R.drawable.ic_password);
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @Test
     public void frameworkConversion_success() {
         String idExpected = "id";

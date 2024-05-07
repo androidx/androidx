@@ -25,7 +25,6 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -95,6 +94,7 @@ public class PasswordCredentialEntryJavaTest {
 
     @SdkSuppress(minSdkVersion = 28)
     @Test
+    @SuppressWarnings("deprecation")
     public void isDefaultIcon_customIconSetFromSlice_returnsFalse() {
         PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
                 mContext,
@@ -103,7 +103,7 @@ public class PasswordCredentialEntryJavaTest {
                 mBeginGetPasswordOption
         ).setIcon(ICON).build();
 
-        Slice slice = PasswordCredentialEntry.toSlice(entry);
+        android.app.slice.Slice slice = PasswordCredentialEntry.toSlice(entry);
 
         assertNotNull(slice);
 
@@ -117,6 +117,7 @@ public class PasswordCredentialEntryJavaTest {
 
     @SdkSuppress(minSdkVersion = 28)
     @Test
+    @SuppressWarnings("deprecation")
     public void isDefaultIcon_noIconSetFromSlice_returnsTrue() {
         PasswordCredentialEntry entry = new PasswordCredentialEntry.Builder(
                 mContext,
@@ -125,7 +126,7 @@ public class PasswordCredentialEntryJavaTest {
                 mBeginGetPasswordOption
         ).build();
 
-        Slice slice = PasswordCredentialEntry.toSlice(entry);
+        android.app.slice.Slice slice = PasswordCredentialEntry.toSlice(entry);
         assertNotNull(slice);
         PasswordCredentialEntry entryFromSlice = PasswordCredentialEntry
                 .fromSlice(slice);

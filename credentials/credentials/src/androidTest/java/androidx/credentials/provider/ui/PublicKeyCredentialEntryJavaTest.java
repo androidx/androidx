@@ -25,7 +25,6 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -64,7 +63,8 @@ public class PublicKeyCredentialEntryJavaTest {
                     "{\"key1\":{\"key2\":{\"key3\":\"value3\"}}}");
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Intent mIntent = new Intent();
-    private final PendingIntent mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
+    private final PendingIntent mPendingIntent = PendingIntent.getActivity(mContext, 0,
+            mIntent,
             PendingIntent.FLAG_IMMUTABLE);
     @Test
     public void build_requiredParamsOnly_success() {
@@ -139,9 +139,10 @@ public class PublicKeyCredentialEntryJavaTest {
     }
     @Test
     @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("deprecation")
     public void fromCredentialEntry_success() {
         PublicKeyCredentialEntry originalEntry = constructWithAllParams();
-        Slice slice = PublicKeyCredentialEntry.toSlice(originalEntry);
+        android.app.slice.Slice slice = PublicKeyCredentialEntry.toSlice(originalEntry);
         assertNotNull(slice);
         PublicKeyCredentialEntry entry = PublicKeyCredentialEntry.fromCredentialEntry(
                 new android.service.credentials.CredentialEntry("id", slice));
@@ -160,10 +161,11 @@ public class PublicKeyCredentialEntryJavaTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void isDefaultIcon_noIconSetFromSlice_returnsTrue() {
         PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
                 .Builder(mContext, USERNAME, mPendingIntent, mBeginOption).build();
-        Slice slice = PublicKeyCredentialEntry.toSlice(entry);
+        android.app.slice.Slice slice = PublicKeyCredentialEntry.toSlice(entry);
 
         assertNotNull(slice);
 
@@ -175,11 +177,12 @@ public class PublicKeyCredentialEntryJavaTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void isDefaultIcon_customIconAfterSlice_returnsFalse() {
         PublicKeyCredentialEntry entry = new PublicKeyCredentialEntry
                 .Builder(mContext, USERNAME, mPendingIntent, mBeginOption)
                 .setIcon(ICON).build();
-        Slice slice = PublicKeyCredentialEntry.toSlice(entry);
+        android.app.slice.Slice slice = PublicKeyCredentialEntry.toSlice(entry);
 
         assertNotNull(slice);
 

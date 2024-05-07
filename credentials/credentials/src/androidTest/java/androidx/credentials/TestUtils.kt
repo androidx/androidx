@@ -24,7 +24,6 @@ import androidx.annotation.RequiresApi
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.ProviderCreateCredentialRequest
 import androidx.credentials.provider.ProviderGetCredentialRequest
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 
@@ -96,7 +95,7 @@ fun equals(
     createCredentialRequest: android.service.credentials.CreateCredentialRequest,
     request: ProviderCreateCredentialRequest
 ) {
-    Truth.assertThat(createCredentialRequest.type).isEqualTo(
+    assertThat(createCredentialRequest.type).isEqualTo(
         request.callingRequest.type
     )
     equals(
@@ -130,13 +129,34 @@ fun equals(
 }
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-fun equals(
+private fun equals(
     credentialOptions: List<android.credentials.CredentialOption>,
     credentialOptions1: List<CredentialOption>
 ) {
-    assertThat(credentialOptions.size).isEqualTo(credentialOptions1.size);
+    assertThat(credentialOptions.size).isEqualTo(credentialOptions1.size)
     for (i in credentialOptions.indices) {
         equals(credentialOptions[i], credentialOptions1[i])
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+fun equals(
+    frameworkRequest1: android.credentials.GetCredentialRequest,
+    frameworkRequest2: android.credentials.GetCredentialRequest
+) {
+    equals(frameworkRequest1.data, frameworkRequest2.data)
+    credentialOptionsEqual(frameworkRequest1.credentialOptions,
+        frameworkRequest2.credentialOptions)
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private fun credentialOptionsEqual(
+    credentialOptions1: List<android.credentials.CredentialOption>,
+    credentialOptions2: List<android.credentials.CredentialOption>
+) {
+    assertThat(credentialOptions1.size).isEqualTo(credentialOptions2.size)
+    for (i in credentialOptions1.indices) {
+        equals(credentialOptions1[i], credentialOptions2[i])
     }
 }
 
@@ -147,7 +167,8 @@ fun equals(
 ) {
     assertThat(credentialOption.type).isEqualTo(credentialOption1.type)
     assertThat(credentialOption.isSystemProviderRequired).isEqualTo(
-        credentialOption1.isSystemProviderRequired)
+        credentialOption1.isSystemProviderRequired
+    )
     equals(credentialOption.credentialRetrievalData, credentialOption1.requestData)
     equals(credentialOption.candidateQueryData, credentialOption1.candidateQueryData)
     assertThat(credentialOption.allowedProviders).isEqualTo(credentialOption1.allowedProviders)
@@ -165,4 +186,30 @@ fun setUpCreatePasswordRequest(): android.service.credentials.CreateCredentialRe
             passwordReq.credentialData
         )
     return request
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+fun equals(
+    credentialOption1: android.credentials.CredentialOption,
+    credentialOption2: android.credentials.CredentialOption
+) {
+    equals(credentialOption1.candidateQueryData, credentialOption2.candidateQueryData)
+    equals(credentialOption1.credentialRetrievalData, credentialOption2.credentialRetrievalData)
+    assertThat(credentialOption1.type).isEqualTo(credentialOption2.type)
+    assertThat(credentialOption1.allowedProviders).isEqualTo(credentialOption2.allowedProviders)
+    assertThat(credentialOption1.isSystemProviderRequired).isEqualTo(
+        credentialOption2.isSystemProviderRequired
+    )
+}
+
+fun equals(
+    getCredentialResponse1: GetCredentialResponse,
+    getCredentialResponse2: GetCredentialResponse
+) {
+    equals(getCredentialResponse1.credential, getCredentialResponse2.credential)
+}
+
+fun equals(credential1: Credential, credential2: Credential) {
+    assertThat(credential1.type).isEqualTo(credential2.type)
+    equals(credential1.data, credential2.data)
 }

@@ -25,7 +25,6 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -180,9 +179,11 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void fromSlice_requiredParams_success() {
         CustomCredentialEntry originalEntry = constructEntryWithRequiredParams();
-        Slice slice = CustomCredentialEntry.toSlice(originalEntry);
+        android.app.slice.Slice slice = CustomCredentialEntry
+                .toSlice(originalEntry);
         CustomCredentialEntry entry = CustomCredentialEntry.fromSlice(
                 slice);
         assertNotNull(entry);
@@ -190,18 +191,21 @@ public class CustomCredentialEntryJavaTest {
     }
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void fromSlice_allParams_success() {
         CustomCredentialEntry originalEntry = constructEntryWithAllParams();
-        Slice slice = CustomCredentialEntry.toSlice(originalEntry);
+        android.app.slice.Slice slice = CustomCredentialEntry
+                .toSlice(originalEntry);
         CustomCredentialEntry entry = CustomCredentialEntry.fromSlice(slice);
         assertNotNull(entry);
         assertEntryWithAllParamsFromSlice(entry);
     }
     @Test
     @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("deprecation")
     public void fromCredentialEntry_allParams_success() {
         CustomCredentialEntry originalEntry = constructEntryWithAllParams();
-        Slice slice = CustomCredentialEntry.toSlice(originalEntry);
+        android.app.slice.Slice slice = CustomCredentialEntry.toSlice(originalEntry);
         assertNotNull(slice);
         CustomCredentialEntry entry = CustomCredentialEntry.fromCredentialEntry(
                 new CredentialEntry("id", slice));
@@ -220,11 +224,12 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void isDefaultIcon_noIconSetFromSlice_returnsTrue() {
         CustomCredentialEntry entry = new CustomCredentialEntry
                 .Builder(mContext, TYPE, TITLE, mPendingIntent, mBeginCredentialOption).build();
 
-        Slice slice = CustomCredentialEntry.toSlice(entry);
+        android.app.slice.Slice slice = CustomCredentialEntry.toSlice(entry);
 
         assertNotNull(slice);
 
@@ -237,12 +242,13 @@ public class CustomCredentialEntryJavaTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void isDefaultIcon_customIconSetFromSlice_returnsTrue() {
         CustomCredentialEntry entry = new CustomCredentialEntry
                 .Builder(mContext, TYPE, TITLE, mPendingIntent, mBeginCredentialOption)
                 .setIcon(ICON).build();
 
-        Slice slice = CustomCredentialEntry.toSlice(entry);
+        android.app.slice.Slice slice = CustomCredentialEntry.toSlice(entry);
 
         assertNotNull(slice);
 
