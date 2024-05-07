@@ -62,7 +62,6 @@ import org.junit.After
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -455,7 +454,6 @@ class CaptureOptionSubmissionTest(
     }
 
     @Test
-    @Ignore("b/337195304 - Enable when the bug of Camera2Interop not being respected is resolved")
     fun canOverwriteStabilizationWithCamera2Interop_whenEnabledAtVideoCapture() = runBlocking {
         val targetStabilizationMode = CONTROL_VIDEO_STABILIZATION_MODE_OFF
 
