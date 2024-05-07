@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.compat.ObjectUnavailableException
+import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import kotlinx.atomicfu.atomic
 
@@ -125,14 +126,16 @@ private constructor(
 
         // This can fail for various reasons and may throw exceptions.
         val captureSequence =
-            captureSequenceProcessor.build(
-                isRepeating,
-                requests,
-                defaultParameters,
-                requiredParameters,
-                listeners,
-                activeBurstListener
-            )
+            Debug.trace("CXCP#buildCaptureSequence") {
+                captureSequenceProcessor.build(
+                    isRepeating,
+                    requests,
+                    defaultParameters,
+                    requiredParameters,
+                    listeners,
+                    activeBurstListener
+                )
+            }
 
         // Reject incoming requests if this instance has been stopped or closed.
         if (captureSequence == null) {
@@ -172,9 +175,12 @@ private constructor(
                         Log.warn { "Did not submit $captureSequence, $this was closed!" }
                         return false
                     }
-                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence) ?: -1
-                    captureSequence.sequenceNumber = sequenceNumber
-                    sequenceNumber
+
+                    Debug.trace("CXCP#submitCaptureSequence") {
+                        val sequenceNumber = captureSequenceProcessor.submit(captureSequence) ?: -1
+                        captureSequence.sequenceNumber = sequenceNumber
+                        sequenceNumber
+                    }
                 }
 
             if (result != -1) {
