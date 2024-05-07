@@ -89,7 +89,7 @@ class AndroidImageWriter private constructor(
             surface: Surface,
             inputStreamId: InputStreamId,
             maxImages: Int,
-            format: Int?,
+            format: StreamFormat?,
             handler: Handler
         ): ImageWriterWrapper {
             require(maxImages > 0) { "Max images ($maxImages) must be > 0" }
@@ -101,7 +101,7 @@ class AndroidImageWriter private constructor(
             // Create and configure a new ImageWriter
             val imageWriter =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && format != null) {
-                    Api29Compat.imageWriterNewInstance(surface, maxImages, format)
+                    Api29Compat.imageWriterNewInstance(surface, maxImages, format.value)
                 } else {
                     if (format != null) {
                         Log.warn {

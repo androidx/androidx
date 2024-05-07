@@ -746,8 +746,8 @@ class UseCaseManager @Inject constructor(
                         inputStreams.add(
                             InputStream.Config(
                                 stream = it,
-                                format = it.outputs.single().format.value,
-                                1,
+                                maxImages = 1,
+                                streamFormat = it.outputs.single().format,
                             )
                         )
                     }
