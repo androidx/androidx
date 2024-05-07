@@ -62,13 +62,3 @@ androidx {
 android {
     namespace "androidx.compose.material3.samples"
 }
-
-// Workaround for https://github.com/gradle/gradle/issues/19882
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("androidx.lifecycle:lifecycle-common-java8:")).
-                using project(":lifecycle:lifecycle-common-java8")
-        substitute(module("androidx.lifecycle:lifecycle-common:")).
-                using project(":lifecycle:lifecycle-common")
-    }
-}
