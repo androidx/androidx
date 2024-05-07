@@ -27,7 +27,7 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
-import androidx.core.telecom.test.utils.MockInCallService
+import androidx.core.telecom.test.utils.MockInCallServiceDelegate
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.test.utils.TestUtils.waitOnInCallServiceToReachXCallCompats
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -99,7 +99,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeIncoming_V2() {
-        setUpV2Test()
+        setUpV2TestWithExtensions()
         addAndVerifyCallExtensionTypeE2E(TestUtils.INCOMING_CALL_ATTRIBUTES)
     }
 
@@ -112,7 +112,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeOutgoing_V2() {
-        setUpV2Test()
+        setUpV2TestWithExtensions()
         addAndVerifyCallExtensionTypeE2E(TestUtils.OUTGOING_CALL_ATTRIBUTES)
     }
 
@@ -204,7 +204,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
                     waitOnInCallServiceToReachXCallCompats(1)
                 }
                  assertEquals(InCallServiceCompat.CAPABILITY_EXCHANGE,
-                     MockInCallService.getService()?.mExtensionLevelSupport)
+                     MockInCallServiceDelegate.getServiceWithExtensions()?.mExtensionLevelSupport)
             }
         } else {
             val containsBackwardsCompatKey = callDetails.extras != null && callDetails.extras
