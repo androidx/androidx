@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -34,7 +33,6 @@ import androidx.camera.core.impl.Quirk
  * - Device(s):   All devices.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CloseCaptureSessionOnVideoQuirk : Quirk {
     companion object {
         fun isEnabled(): Boolean = true

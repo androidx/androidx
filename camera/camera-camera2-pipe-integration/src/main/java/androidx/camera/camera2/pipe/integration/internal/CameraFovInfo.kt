@@ -21,7 +21,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.util.Size
 import android.util.SizeF
 import androidx.annotation.IntRange
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -31,7 +30,6 @@ import androidx.core.util.Preconditions
 import javax.inject.Inject
 import kotlin.math.atan
 
-@RequiresApi(21)
 @CameraScope
 class CameraFovInfo @Inject constructor(
     private val cameraDevices: CameraDevices,

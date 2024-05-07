@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CaptureFailure
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
@@ -30,7 +26,6 @@ import kotlin.reflect.KClass
  * This class implements the [RequestFailure] interface by extracting the fields of
  * the package-private [CaptureFailure] object.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal data class ExtensionRequestFailure(
     override val requestMetadata: RequestMetadata,
     override val wasImageCaptured: Boolean,

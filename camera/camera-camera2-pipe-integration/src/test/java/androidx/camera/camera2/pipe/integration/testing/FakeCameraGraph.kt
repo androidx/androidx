@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.testing
 
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AudioRestrictionMode
 import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRICTION_NONE
 import androidx.camera.camera2.pipe.CameraGraph
@@ -31,7 +30,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 
-@RequiresApi(21)
 class FakeCameraGraph(
     val fakeCameraGraphSession: FakeCameraGraphSession = FakeCameraGraphSession()
 ) : CameraGraph {

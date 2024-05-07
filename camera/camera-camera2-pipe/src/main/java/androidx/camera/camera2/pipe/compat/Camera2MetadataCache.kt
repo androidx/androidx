@@ -49,7 +49,6 @@ import kotlinx.coroutines.withContext
  * This class is thread safe and provides suspending functions for querying and accessing
  * [CameraMetadata] and [CameraExtensionMetadata].
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class Camera2MetadataCache
 @Inject

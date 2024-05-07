@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.graph
 
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.AudioRestrictionMode
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
@@ -49,7 +48,6 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 
-@RequiresApi(21)
 @CameraGraphScope
 internal class CameraGraphImpl
 @Inject

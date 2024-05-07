@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF
@@ -593,7 +591,8 @@ internal class Controller3A(
                 } else {
                     unlock3APostCaptureLockAeParams
                 }
-        )) {
+            )
+        ) {
             debug { "unlock3AForCapture - request to cancel af and lock ae as failed." }
             return deferredResult3ASubmitFailed
         }
@@ -799,8 +798,10 @@ internal class Controller3A(
             true
         }
 
-        debug { "lock3AForCapture result: meetsAeCondition = $meetsAeCondition" +
-            ", meetsAfCondition = $meetsAfCondition, meetsAwbCondition = $meetsAwbCondition" }
+        debug {
+            "lock3AForCapture result: meetsAeCondition = $meetsAeCondition" +
+                ", meetsAfCondition = $meetsAfCondition, meetsAwbCondition = $meetsAwbCondition"
+        }
 
         meetsAeCondition && meetsAfCondition && meetsAwbCondition
     }

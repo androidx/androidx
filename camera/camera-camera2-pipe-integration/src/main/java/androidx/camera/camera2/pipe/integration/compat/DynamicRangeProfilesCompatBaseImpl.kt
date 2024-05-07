@@ -17,11 +17,9 @@
 package androidx.camera.camera2.pipe.integration.compat
 
 import android.hardware.camera2.params.DynamicRangeProfiles
-import androidx.annotation.RequiresApi
 import androidx.camera.core.DynamicRange
 import androidx.core.util.Preconditions
 
-@RequiresApi(21)
 internal class DynamicRangeProfilesCompatBaseImpl :
     DynamicRangeProfilesCompat.DynamicRangeProfilesCompatImpl {
     override val supportedDynamicRanges: Set<DynamicRange>

@@ -15,7 +15,6 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.camera2.pipe.core
 
@@ -28,12 +27,10 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
 import android.os.Trace
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 
 /** Internal debug utilities, constants, and checks. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 object Debug {
     const val ENABLE_LOGGING: Boolean = true
     const val ENABLE_TRACING: Boolean = true

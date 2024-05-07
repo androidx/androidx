@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
 import androidx.camera.camera2.pipe.media.OutputImage
@@ -69,7 +67,6 @@ import androidx.camera.camera2.pipe.media.OutputImage
  * }
  * ```
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface Frame : FrameReference, AutoCloseable {
     /**
@@ -247,7 +244,6 @@ value class OutputStatus internal constructor(val value: Int) {
  * }
  * ```
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface FrameCapture : AutoCloseable {
     /**

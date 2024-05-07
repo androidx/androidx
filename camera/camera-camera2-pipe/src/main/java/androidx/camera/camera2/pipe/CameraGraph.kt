@@ -24,7 +24,6 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
@@ -42,7 +41,6 @@ import kotlinx.coroutines.flow.StateFlow
 
 /** A [CameraGraph] represents the combined configuration and state of a camera. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface CameraGraph : AutoCloseable {
     val streams: StreamGraph
 
@@ -358,7 +356,6 @@ interface CameraGraph : AutoCloseable {
         }
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     object Constants3A {
         // Constants related to controlling the time or frame budget a 3A operation should get.
         const val DEFAULT_FRAME_LIMIT: Int = 60

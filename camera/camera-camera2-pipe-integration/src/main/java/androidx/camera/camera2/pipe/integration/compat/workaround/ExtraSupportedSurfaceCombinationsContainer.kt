@@ -16,12 +16,10 @@
 
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraSupportedSurfaceCombinationsQuirk
 import androidx.camera.core.impl.SurfaceCombination
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ExtraSupportedSurfaceCombinationsContainer {
     private val quirk: ExtraSupportedSurfaceCombinationsQuirk? =
         DeviceQuirks[ExtraSupportedSurfaceCombinationsQuirk::class.java]

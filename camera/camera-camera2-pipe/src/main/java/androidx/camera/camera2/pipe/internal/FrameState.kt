@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameId
@@ -46,7 +44,6 @@ import kotlinx.coroutines.Deferred
  * This class represents a successfully started frame from the camera, and placeholders for the
  * images and metadata ([FrameInfo]) that we expect the camera to produce.
  */
-@RequiresApi(21)
 internal class FrameState(
     val requestMetadata: RequestMetadata,
     val frameNumber: FrameNumber,
@@ -203,7 +200,6 @@ internal class FrameState(
         protected abstract fun release()
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     inner class FrameInfoOutput : FrameOutput<FrameInfo>(),
         OutputDistributor.OutputListener<FrameInfo> {
 
@@ -226,7 +222,6 @@ internal class FrameState(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     inner class ImageOutput(val streamId: StreamId) :
         FrameOutput<SharedOutputImage>(),
         OutputDistributor.OutputListener<OutputImage> {

@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
@@ -41,7 +39,6 @@ import androidx.camera.core.impl.SessionProcessorSurface
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class RequestProcessorAdapter(
     private val useCaseGraphConfig: UseCaseGraphConfig,
     private val processorSurfaces: List<SessionProcessorSurface>,

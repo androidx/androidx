@@ -19,9 +19,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
-import android.os.Build
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
@@ -49,7 +47,6 @@ import androidx.camera.core.impl.Quirk
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class CamcorderProfileResolutionQuirk(
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat
 ) : Quirk {

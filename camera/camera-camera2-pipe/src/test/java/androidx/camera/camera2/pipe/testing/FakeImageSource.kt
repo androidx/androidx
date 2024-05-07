@@ -16,10 +16,8 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import android.os.Build
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
@@ -27,7 +25,6 @@ import androidx.camera.camera2.pipe.media.ImageSource
 import androidx.camera.camera2.pipe.media.ImageSourceListener
 import kotlin.reflect.KClass
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class FakeImageSource(
     private val streamId: StreamId,
     private val streamFormat: StreamFormat,

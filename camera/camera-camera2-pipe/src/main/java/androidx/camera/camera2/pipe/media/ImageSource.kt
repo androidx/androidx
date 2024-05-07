@@ -21,7 +21,6 @@ import android.media.ImageReader
 import android.os.Build
 import android.os.Handler
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
@@ -59,7 +58,6 @@ import kotlinx.atomicfu.atomic
  *  Implementations are expected to be thread safe, and to associate each image with the [OutputId]
  *  it is associated with.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 interface ImageSource : UnsafeWrapper, AutoCloseable {
     /** The graphics surface that the Camera produces images into. */
     val surface: Surface
@@ -174,7 +172,6 @@ fun interface ImageSourceListener {
 /**
  * An ImageReaderImageSource implements an [ImageSource] using an [ImageReader]
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class ImageSourceImpl(
     private val imageReader: ImageReaderWrapper,
     private val maxImages: Int,

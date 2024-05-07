@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk
 
 /**
@@ -30,7 +29,6 @@ import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk
  * - Device(s): Motorola MotoG3, Samsung SM-G532F/SM-J700F/SM-J415F/SM-920F, Xiaomi Mi A1
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class YuvImageOnePixelShiftQuirk : OnePixelShiftQuirk {
     companion object {
         fun isEnabled() = isMotorolaMotoG3() || isSamsungSMG532F() || isSamsungSMJ700F() ||

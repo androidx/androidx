@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirk
@@ -40,7 +39,6 @@ import androidx.camera.core.impl.Quirk
  * Device(s): OnePlus 6, OnePlus 6T, Huawei P20, Samsung J7 Prime (SM-G610M) API 27, Samsung
  * J7 (SM-J710MN) API 27, Redmi Note 9 Pro
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ExcludedSupportedSizesQuirk : Quirk {
     /**
      * Retrieves problematic supported surface sizes that have to be excluded on the current

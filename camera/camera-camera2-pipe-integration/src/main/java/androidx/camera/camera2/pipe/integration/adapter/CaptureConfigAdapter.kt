@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.OptIn
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.InputRequest
 import androidx.camera.camera2.pipe.Request
@@ -44,7 +43,6 @@ import javax.inject.Inject
  * Maps a [CaptureConfig] issued by CameraX (e.g. by the image capture use case) to a [Request]
  * that CameraPipe can submit to the camera.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @UseCaseCameraScope
 class CaptureConfigAdapter @Inject constructor(
     cameraProperties: CameraProperties,
