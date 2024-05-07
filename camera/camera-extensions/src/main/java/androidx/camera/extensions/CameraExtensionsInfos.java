@@ -17,7 +17,6 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.impl.SessionProcessor;
@@ -26,7 +25,6 @@ import androidx.core.util.Preconditions;
 /**
  * Utility methods for operating on {@link CameraExtensionsInfo} instances.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraExtensionsInfos {
     private static final CameraExtensionsInfo NORMAL_MODE_CAMERA_EXTENSIONS_INFO =
             new CameraExtensionsInfo() {

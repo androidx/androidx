@@ -21,7 +21,6 @@ import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureMetaData;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -37,7 +36,6 @@ import java.nio.BufferUnderflowException;
  * generate the {@link CameraCaptureResult} from a
  * {@link android.hardware.camera2.CaptureResult} instance.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2CameraCaptureResult implements CameraCaptureResult {
     private static final String TAG = "C2CameraCaptureResult";
 

@@ -26,7 +26,6 @@ import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
@@ -48,7 +47,6 @@ import java.util.List;
  *
  * <p>Please note that output preview surface must be closed AFTER this processor is closed.
  */
-@RequiresApi(21)
 class PreviewProcessor {
     private static final String TAG = "PreviewProcessor";
     @NonNull

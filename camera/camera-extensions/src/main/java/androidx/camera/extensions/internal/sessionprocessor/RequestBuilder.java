@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.extensions.internal.RequestOptionConfig;
@@ -33,7 +32,6 @@ import java.util.Map;
 /**
  * A builder for building {@link androidx.camera.core.impl.RequestProcessor.Request}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class RequestBuilder {
     private List<Integer> mTargetOutputConfigIds = new ArrayList<>();
     private Map<CaptureRequest.Key<?>, Object> mParameters = new HashMap<>();

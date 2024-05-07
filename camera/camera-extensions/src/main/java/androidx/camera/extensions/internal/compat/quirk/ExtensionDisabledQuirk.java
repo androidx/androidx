@@ -18,7 +18,6 @@ package androidx.camera.extensions.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
@@ -38,7 +37,6 @@ import androidx.camera.extensions.internal.Version;
  *
  * @see androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionDisabledQuirk implements Quirk {
 
     static boolean load() {

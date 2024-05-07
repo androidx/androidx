@@ -20,7 +20,6 @@ import android.util.Pair;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.PreviewConfig;
@@ -30,7 +29,6 @@ import java.util.List;
 /**
  * For providing extensions config for preview.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private static final String TAG = "PreviewConfigProvider";
     private final VendorExtender mVendorExtender;

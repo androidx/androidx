@@ -18,7 +18,6 @@ package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.impl.RestrictedCameraControl;
 import androidx.camera.core.impl.SessionProcessor;
@@ -27,7 +26,6 @@ import androidx.core.util.Preconditions;
 /**
  * Utility methods for operating on {@link CameraExtensionsControl} instances.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraExtensionsControls {
 
     /**

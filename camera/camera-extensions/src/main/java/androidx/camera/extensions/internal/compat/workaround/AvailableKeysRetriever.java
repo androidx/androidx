@@ -21,7 +21,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.extensions.internal.compat.quirk.GetAvailableKeysNeedsOnInit;
@@ -31,7 +30,6 @@ import java.util.List;
 /**
  * A workaround for getting the available CaptureRequest keys safely.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AvailableKeysRetriever {
     boolean mShouldInvokeOnInit;
 

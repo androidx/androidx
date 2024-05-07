@@ -12,7 +12,7 @@ package androidx.camera.extensions {
     method public default boolean isExtensionStrengthAvailable();
   }
 
-  @RequiresApi(21) public final class ExtensionMode {
+  public final class ExtensionMode {
     field public static final int AUTO = 5; // 0x5
     field public static final int BOKEH = 1; // 0x1
     field public static final int FACE_RETOUCH = 4; // 0x4
@@ -21,7 +21,7 @@ package androidx.camera.extensions {
     field public static final int NONE = 0; // 0x0
   }
 
-  @RequiresApi(21) public final class ExtensionsManager {
+  public final class ExtensionsManager {
     method public androidx.camera.extensions.CameraExtensionsControl? getCameraExtensionsControl(androidx.camera.core.CameraControl);
     method public androidx.camera.extensions.CameraExtensionsInfo getCameraExtensionsInfo(androidx.camera.core.CameraInfo);
     method public android.util.Range<java.lang.Long!>? getEstimatedCaptureLatencyRange(androidx.camera.core.CameraSelector, int);

@@ -24,7 +24,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageAnalysisConfig;
@@ -38,7 +37,6 @@ import java.util.List;
  * Implementation of UseCaseConfigFactory to provide the default extensions configurations for use
  * cases.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactory {
     private final ImageCaptureConfigProvider mImageCaptureConfigProvider;
     private final PreviewConfigProvider mPreviewConfigProvider;

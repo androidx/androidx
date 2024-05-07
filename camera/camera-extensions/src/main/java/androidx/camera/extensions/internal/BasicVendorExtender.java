@@ -29,7 +29,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
@@ -64,7 +63,6 @@ import java.util.Map;
 /**
  * Basic vendor interface implementation
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BasicVendorExtender implements VendorExtender {
     private static final String TAG = "BasicVendorExtender";
     private final ExtensionDisabledValidator mExtensionDisabledValidator =

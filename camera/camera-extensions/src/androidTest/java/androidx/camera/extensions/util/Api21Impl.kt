@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.extensions.util
 
 import android.hardware.camera2.CameraDevice
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 
 /**
  * Helper class to prevent class verification failures at API level 21.

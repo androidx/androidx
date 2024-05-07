@@ -33,7 +33,6 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -66,7 +65,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A {@link SessionProcessor} based on OEMs' basic extender implementation.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     private static final String TAG = "BasicSessionProcessor";
 
