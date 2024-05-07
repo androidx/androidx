@@ -34,7 +34,6 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(projectOrArtifact(":compose:runtime:runtime"))
-                implementation(projectOrArtifact(":compose:ui:ui-util"))
                 implementation kotlin("test-junit")
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
