@@ -27,11 +27,13 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
     api(project(":navigation:navigation-runtime"))
     api("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    implementation(libs.kotlinSerializationCore)
 
     androidTestImplementation(project(":internal-testutils-navigation"), {
         exclude group: "androidx.navigation", module: "navigation-common"
@@ -42,6 +44,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.kotlinTestJunit)
 }
 
 androidx {
