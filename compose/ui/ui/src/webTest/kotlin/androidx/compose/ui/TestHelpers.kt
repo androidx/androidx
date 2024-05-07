@@ -19,6 +19,7 @@ package androidx.compose.ui
 import kotlin.math.abs
 import kotlinx.browser.document
 import org.w3c.dom.HTMLCanvasElement
+import org.w3c.dom.asList
 
 /**
  * An interface with helper functions to initialise the tests
@@ -39,6 +40,10 @@ internal interface OnCanvasTests {
 
     fun commonAfterTest() {
         document.getElementById(canvasId)?.remove()
+        val childNodes = document.body!!.childNodes.asList()
+        childNodes.forEach {
+            document.body!!.removeChild(it)
+        }
     }
 
     fun assertApproximatelyEqual(expected: Float, actual: Float, tolerance: Float = 1f) {
