@@ -45,6 +45,7 @@ import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.dsl.PrivacySandboxSdkExtension
 import com.android.build.api.dsl.TestExtension
 import com.android.build.api.variant.AndroidComponentsExtension
@@ -55,10 +56,8 @@ import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtensi
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.TestPlugin
-import com.android.build.gradle.TestedExtension
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import com.android.build.gradle.api.PrivacySandboxSdkPlugin
 import com.android.build.gradle.tasks.factory.AndroidUnitTest
@@ -807,7 +806,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     }
 
     private fun configureWithLibraryPlugin(project: Project, androidXExtension: AndroidXExtension) {
-        project.extensions.getByType<com.android.build.api.dsl.LibraryExtension>().apply {
+        project.extensions.getByType<LibraryExtension>().apply {
             publishing { singleVariant(DEFAULT_PUBLISH_CONFIG) }
 
             configureAndroidBaseOptions(project, androidXExtension)
@@ -1216,7 +1215,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
     }
 
-    private fun TestedExtension.configureAndroidLibraryWithMultiplatformPluginOptions() {
+    private fun LibraryExtension.configureAndroidLibraryWithMultiplatformPluginOptions() {
         sourceSets.findByName("main")!!.manifest.srcFile("src/androidMain/AndroidManifest.xml")
         sourceSets
             .findByName("androidTest")!!
