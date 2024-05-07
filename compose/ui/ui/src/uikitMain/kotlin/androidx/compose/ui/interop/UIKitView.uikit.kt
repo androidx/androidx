@@ -73,16 +73,23 @@ internal class InteropWrappingView: CMPInteropWrappingView(frame = CGRectZero.re
     }
 }
 
-internal val NativeViewSemanticsKey = AccessibilityKey<InteropWrappingView>(
+internal val InteropViewSemanticsKey = AccessibilityKey<InteropWrappingView>(
     name = "InteropView",
-    mergePolicy = { _, _ ->
-        throw IllegalStateException(
-            "Can't merge NativeView semantics property."
-        )
+    mergePolicy = { parentValue, childValue ->
+        if (parentValue == null) {
+            childValue
+        } else {
+            println("Warning: Merging accessibility for multiple interop views is not supported. " +
+                "Multiple [UIKitView] are grouped under one node that should be represented as a single accessibility element." +
+                "It isn't recommended because the accessibility system can only recognize the first one. " +
+                "If you need multiple native views for accessibility, make sure to place them inside a single [UIKitView].")
+
+            parentValue
+        }
     }
 )
 
-private var SemanticsPropertyReceiver.nativeView by NativeViewSemanticsKey
+private var SemanticsPropertyReceiver.interopView by InteropViewSemanticsKey
 
 /**
  * @param factory The block creating the [UIView] to be composed.
@@ -151,7 +158,7 @@ fun <T : UIView> UIKitView(
                 it
             }
         }.semantics {
-            nativeView = embeddedInteropComponent.wrappingView
+            interopView = embeddedInteropComponent.wrappingView
         }
     )
 
@@ -253,7 +260,7 @@ fun <T : UIViewController> UIKitViewController(
                 it
             }
         }.semantics {
-            nativeView = embeddedInteropComponent.wrappingView
+            interopView = embeddedInteropComponent.wrappingView
         }
     )
 

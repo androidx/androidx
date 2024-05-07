@@ -20,7 +20,7 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.interop.InteropWrappingView
-import androidx.compose.ui.interop.NativeViewSemanticsKey
+import androidx.compose.ui.interop.InteropViewSemanticsKey
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
@@ -117,7 +117,7 @@ private object CachedAccessibilityPropertyKeys {
     val accessibilityTraits = CachedAccessibilityPropertyKey<UIAccessibilityTraits>()
     val accessibilityValue = CachedAccessibilityPropertyKey<String?>()
     val accessibilityFrame = CachedAccessibilityPropertyKey<CValue<CGRect>>()
-    val nativeView = CachedAccessibilityPropertyKey<InteropWrappingView?>()
+    val interopWrappingView = CachedAccessibilityPropertyKey<InteropWrappingView?>()
 }
 
 /**
@@ -188,9 +188,13 @@ private class AccessibilityElement(
 
     private var children = mutableListOf<AccessibilityElement>()
 
-    private val nativeView: InteropWrappingView?
-        get() = getOrElse(CachedAccessibilityPropertyKeys.nativeView) {
-            cachedConfig.getOrNull(NativeViewSemanticsKey)?.also {
+    /**
+     * Cached InteropWrappingView for the element if it's present. AX services will be redirected
+     * to this view if it's not null, semantics data for this element will be ignored.
+     */
+    private val interopView: InteropWrappingView?
+        get() = getOrElse(CachedAccessibilityPropertyKeys.interopWrappingView) {
+            cachedConfig.getOrNull(InteropViewSemanticsKey)?.also {
                 it.actualAccessibilityContainer = parent?.accessibilityContainer
             }
         }
@@ -211,7 +215,7 @@ private class AccessibilityElement(
     /**
      * Returns accessibility element communicated to iOS Accessibility services for the given [index].
      * Takes a child at [index].
-     * If the child is constructed from a [SemanticsNode] with [NativeViewSemanticsKey],
+     * If the child is constructed from a [SemanticsNode] with [InteropViewSemanticsKey],
      * then the element at the given index is a native view.
      * If the child has its own children, then the element at the given index is the synthesized container
      * for the child. Otherwise, the element at the given index is the child itself.
@@ -222,7 +226,7 @@ private class AccessibilityElement(
         return if (i in children.indices) {
             val child = children[i]
 
-            val nativeView = child.nativeView
+            val nativeView = child.interopView
 
             if (nativeView != null) {
                 return nativeView
@@ -246,7 +250,7 @@ private class AccessibilityElement(
         for (index in 0 until children.size) {
             val child = children[index]
 
-            if (element == child.nativeView) {
+            if (element == child.interopView) {
                 return index.toLong()
             } else if (child.hasChildren && element == child.accessibilityContainer) {
                 return index.toLong()
