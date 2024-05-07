@@ -117,7 +117,7 @@ package androidx.leanback.widget {
   }
 
   public interface FacetProvider {
-    method public Object? getFacet(Class<?>);
+    method public Object? getFacet(Class<? extends java.lang.Object!>);
   }
 
   public interface FacetProviderAdapter {

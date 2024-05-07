@@ -2,14 +2,14 @@
 package androidx.datastore.preferences.core {
 
   public final class MutablePreferences extends androidx.datastore.preferences.core.Preferences {
-    method public java.util.Map<androidx.datastore.preferences.core.Preferences.Key<?>,java.lang.Object> asMap();
+    method public java.util.Map<androidx.datastore.preferences.core.Preferences.Key<? extends java.lang.Object!>,java.lang.Object> asMap();
     method public void clear();
     method public operator <T> boolean contains(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public operator <T> T? get(androidx.datastore.preferences.core.Preferences.Key<T> key);
-    method public operator void minusAssign(androidx.datastore.preferences.core.Preferences.Key<?> key);
+    method public operator void minusAssign(androidx.datastore.preferences.core.Preferences.Key<? extends java.lang.Object!> key);
     method public operator void plusAssign(androidx.datastore.preferences.core.Preferences prefs);
-    method public operator void plusAssign(androidx.datastore.preferences.core.Preferences.Pair<?> pair);
-    method public void putAll(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
+    method public operator void plusAssign(androidx.datastore.preferences.core.Preferences.Pair<? extends java.lang.Object!> pair);
+    method public void putAll(androidx.datastore.preferences.core.Preferences.Pair<? extends java.lang.Object!>... pairs);
     method public <T> T remove(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public operator <T> void set(androidx.datastore.preferences.core.Preferences.Key<T> key, T value);
   }
@@ -25,7 +25,7 @@ package androidx.datastore.preferences.core {
   }
 
   public abstract class Preferences {
-    method public abstract java.util.Map<androidx.datastore.preferences.core.Preferences.Key<?>,java.lang.Object> asMap();
+    method public abstract java.util.Map<androidx.datastore.preferences.core.Preferences.Key<? extends java.lang.Object!>,java.lang.Object> asMap();
     method public abstract operator <T> boolean contains(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public abstract operator <T> T? get(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public final androidx.datastore.preferences.core.MutablePreferences toMutablePreferences();
@@ -42,9 +42,9 @@ package androidx.datastore.preferences.core {
   }
 
   public final class PreferencesFactory {
-    method public static androidx.datastore.preferences.core.Preferences create(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
+    method public static androidx.datastore.preferences.core.Preferences create(androidx.datastore.preferences.core.Preferences.Pair<? extends java.lang.Object!>... pairs);
     method public static androidx.datastore.preferences.core.Preferences createEmpty();
-    method public static androidx.datastore.preferences.core.MutablePreferences createMutable(androidx.datastore.preferences.core.Preferences.Pair<?>... pairs);
+    method public static androidx.datastore.preferences.core.MutablePreferences createMutable(androidx.datastore.preferences.core.Preferences.Pair<? extends java.lang.Object!>... pairs);
   }
 
   public final class PreferencesKeys {
@@ -59,7 +59,7 @@ package androidx.datastore.preferences.core {
   }
 
   public final class PreferencesKt {
-    method public static suspend Object? edit(androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.core.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> transform, kotlin.coroutines.Continuation<? super androidx.datastore.preferences.core.Preferences>);
+    method public static suspend Object? edit(androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.core.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> transform, kotlin.coroutines.Continuation<? super androidx.datastore.preferences.core.Preferences>);
   }
 
   public final class PreferencesSerializer implements androidx.datastore.core.okio.OkioSerializer<androidx.datastore.preferences.core.Preferences> {

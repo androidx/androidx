@@ -1276,7 +1276,7 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class StateBuilders.State {
-    method public java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!> getKeyToValueMapping();
+    method public java.util.Map<androidx.wear.protolayout.expression.AppDataKey<? extends java.lang.Object!>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends java.lang.Object!>!> getKeyToValueMapping();
     method public String getLastClickableId();
     method public static int getMaxStateEntryCount();
   }

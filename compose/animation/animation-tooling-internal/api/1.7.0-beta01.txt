@@ -38,7 +38,7 @@ package androidx.compose.animation.tooling {
   }
 
   public final class TransitionInfo {
-    ctor public TransitionInfo(String label, String specType, long startTimeMillis, long endTimeMillis, java.util.Map<java.lang.Long,?> values);
+    ctor public TransitionInfo(String label, String specType, long startTimeMillis, long endTimeMillis, java.util.Map<java.lang.Long,? extends java.lang.Object?> values);
     method public long getEndTimeMillis();
     method public String getLabel();
     method public String getSpecType();

@@ -2,7 +2,7 @@
 package androidx.compose.ui.tooling.data {
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public final class CallGroup extends androidx.compose.ui.tooling.data.Group {
-    ctor public CallGroup(Object? key, String? name, androidx.compose.ui.unit.IntRect box, androidx.compose.ui.tooling.data.SourceLocation? location, Object? identity, java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> parameters, java.util.Collection<?> data, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children, boolean isInline);
+    ctor public CallGroup(Object? key, String? name, androidx.compose.ui.unit.IntRect box, androidx.compose.ui.tooling.data.SourceLocation? location, Object? identity, java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> parameters, java.util.Collection<? extends java.lang.Object?> data, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children, boolean isInline);
     property public java.util.List<androidx.compose.ui.tooling.data.ParameterInformation> parameters;
   }
 
@@ -46,7 +46,7 @@ package androidx.compose.ui.tooling.data {
   }
 
   @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public final class NodeGroup extends androidx.compose.ui.tooling.data.Group {
-    ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntRect box, java.util.Collection<?> data, java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children);
+    ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntRect box, java.util.Collection<? extends java.lang.Object?> data, java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.compose.ui.tooling.data.Group> children);
     method public Object getNode();
     property public java.util.List<androidx.compose.ui.layout.ModifierInfo> modifierInfo;
     property public final Object node;
