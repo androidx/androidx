@@ -29,7 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
@@ -101,11 +100,7 @@ class Camera2CaptureRequestBuilder {
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private static void applyAeFpsRange(@NonNull CaptureConfig captureConfig,
             @NonNull CaptureRequest.Builder builder) {
-        boolean containsTargetFpsRange = CaptureRequestOptions.Builder.from(
-                captureConfig.getImplementationOptions()).build().containsOption(
-                Camera2ImplConfig.createCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE));
-        if (!containsTargetFpsRange && !captureConfig.getExpectedFrameRateRange().equals(
+        if (!captureConfig.getExpectedFrameRateRange().equals(
                 StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)) {
             builder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                     captureConfig.getExpectedFrameRateRange());
@@ -176,9 +171,6 @@ class Camera2CaptureRequestBuilder {
             }
         }
 
-        applyImplementationOptionToCaptureBuilder(builder,
-                captureConfig.getImplementationOptions());
-
         applyAeFpsRange(captureConfig, builder);
 
         applyVideoStabilization(captureConfig, builder);
@@ -196,6 +188,12 @@ class Camera2CaptureRequestBuilder {
                     captureConfig.getImplementationOptions().retrieveOption(
                             CaptureConfig.OPTION_JPEG_QUALITY).byteValue());
         }
+
+        // This should be the last to be applied due to Camera2Interop values with higher priority
+        // TODO: Properly use option priorities and tokens to ensure priorities are respected, but
+        //  doesn't seem to have any issue due to this right now (still a bit error-prone).
+        applyImplementationOptionToCaptureBuilder(builder,
+                captureConfig.getImplementationOptions());
 
         for (Surface surface : surfaceList) {
             builder.addTarget(surface);
