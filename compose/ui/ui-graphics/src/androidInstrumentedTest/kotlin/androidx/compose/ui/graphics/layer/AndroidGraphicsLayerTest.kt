@@ -429,6 +429,26 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
+    fun testRecordOverwritesPreviousRecord() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer = graphicsContext.createGraphicsLayer().apply {
+                    record {
+                        drawRect(Color.Red)
+                    }
+                }
+                layer.record {
+                    drawRect(Color.Blue)
+                }
+                drawLayer(layer)
+            },
+            verify = {
+                it.verifyQuadrants(Color.Blue, Color.Blue, Color.Blue, Color.Blue)
+            }
+        )
+    }
+
+    @Test
     fun testTranslationY() {
         var layer: GraphicsLayer? = null
         val topLeft = IntOffset.Zero
