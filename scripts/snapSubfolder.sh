@@ -18,6 +18,11 @@ fi
 COMMIT=$1
 FOLDER=$2
 
-git checkout --no-overlay $COMMIT --theirs -- $FOLDER
-NEW_COMMIT=$(git commit-tree -p HEAD -p $COMMIT -m"Snap $COMMIT, subfolder $FOLDER" $(git write-tree))
-git reset --hard $NEW_COMMIT
+ROOT_DIR="$(dirname "$0")/.."
+
+(
+    cd $ROOT_DIR;
+    git checkout --no-overlay $COMMIT -- $FOLDER;
+    NEW_COMMIT=$(git commit-tree -p HEAD -p $COMMIT -m"Snap $COMMIT, subfolder $FOLDER" $(git write-tree));
+    git reset --hard $NEW_COMMIT;
+)
