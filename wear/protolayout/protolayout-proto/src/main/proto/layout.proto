@@ -146,6 +146,12 @@ message FontStyle {
   // If this is used with the variable fonts on renderers supporting 1.4, weight and width setting
   // will be always available.
   repeated FontSetting settings = 8;
+
+  // The prioritized collection of font family names describing which font should be used for this
+  // FontStyle and its fallback values if not available. For example, preferring default system
+  // variable font with default non variable system font as a fallback. If not set, defaults to
+  // system font.
+  repeated string preferred_font_families = 9;
 }
 
 // A single point of customization in a font.
