@@ -142,8 +142,8 @@ package androidx.slice.widget {
     method @Deprecated protected androidx.slice.SliceItem? getPrimaryActionItem();
     method @Deprecated protected String? getPrimaryActionKey();
     method @Deprecated public void onClick(android.view.View);
-    method @Deprecated public void onItemSelected(android.widget.AdapterView<?>, android.view.View, int, long);
-    method @Deprecated public void onNothingSelected(android.widget.AdapterView<?>);
+    method @Deprecated public void onItemSelected(android.widget.AdapterView<? extends java.lang.Object!>, android.view.View, int, long);
+    method @Deprecated public void onNothingSelected(android.widget.AdapterView<? extends java.lang.Object!>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public void resetView();
   }
 

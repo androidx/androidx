@@ -79,7 +79,7 @@ package androidx.compose.material {
   }
 
   public static final class BackdropScaffoldState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BackdropScaffoldState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmStateChange, androidx.compose.material.SnackbarHostState snackbarHostState, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BackdropScaffoldState,? extends java.lang.Object!> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean> confirmStateChange, androidx.compose.material.SnackbarHostState snackbarHostState, androidx.compose.ui.unit.Density density);
   }
 
   public enum BackdropValue {
@@ -183,7 +183,7 @@ package androidx.compose.material {
   }
 
   public static final class BottomSheetState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.BottomSheetState,? extends java.lang.Object!> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomSheetValue,java.lang.Boolean> confirmStateChange, androidx.compose.ui.unit.Density density);
   }
 
   public enum BottomSheetValue {
@@ -571,7 +571,7 @@ package androidx.compose.material {
   }
 
   public static final class ModalBottomSheetState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,?> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded, androidx.compose.ui.unit.Density density);
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.material.ModalBottomSheetState,? extends java.lang.Object!> Saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super androidx.compose.material.ModalBottomSheetValue,java.lang.Boolean> confirmValueChange, boolean skipHalfExpanded, androidx.compose.ui.unit.Density density);
   }
 
   public enum ModalBottomSheetValue {
@@ -1025,7 +1025,7 @@ package androidx.compose.material.pullrefresh {
 
   public final class PullRefreshKt {
     method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.ui.Modifier pullRefresh(androidx.compose.ui.Modifier, androidx.compose.material.pullrefresh.PullRefreshState state, optional boolean enabled);
-    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.ui.Modifier pullRefresh(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onPull, kotlin.jvm.functions.Function2<? super java.lang.Float,? super kotlin.coroutines.Continuation<? super java.lang.Float>,?> onRelease, optional boolean enabled);
+    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.ui.Modifier pullRefresh(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> onPull, kotlin.jvm.functions.Function2<? super java.lang.Float,? super kotlin.coroutines.Continuation<? super java.lang.Float>,? extends java.lang.Object?> onRelease, optional boolean enabled);
   }
 
   @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public final class PullRefreshState {

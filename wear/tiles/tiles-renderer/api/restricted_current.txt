@@ -48,17 +48,17 @@ package androidx.wear.tiles.renderer {
     ctor public TileRenderer(android.content.Context, java.util.concurrent.Executor, java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!>);
     method public java.util.concurrent.Executor getLoadActionExecutor();
     method public java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!> getLoadActionListener();
-    method public java.util.Map<androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!,java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>!> getPlatformDataProviders();
+    method public java.util.Map<androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!,java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<? extends java.lang.Object!>!>!> getPlatformDataProviders();
     method public int getTilesTheme();
     method public android.content.Context getUiContext();
     method @Deprecated public android.view.View? inflate(android.view.ViewGroup);
     method public com.google.common.util.concurrent.ListenableFuture<android.view.View!> inflateAsync(androidx.wear.protolayout.LayoutElementBuilders.Layout, androidx.wear.protolayout.ResourceBuilders.Resources, android.view.ViewGroup);
-    method public void setState(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!>);
+    method public void setState(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<? extends java.lang.Object!>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends java.lang.Object!>!>);
   }
 
   public static final class TileRenderer.Builder {
     ctor public TileRenderer.Builder(android.content.Context, java.util.concurrent.Executor, java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!>);
-    method public androidx.wear.tiles.renderer.TileRenderer.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, androidx.wear.protolayout.expression.PlatformDataKey<?>!...);
+    method public androidx.wear.tiles.renderer.TileRenderer.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, androidx.wear.protolayout.expression.PlatformDataKey<? extends java.lang.Object!>!...);
     method public androidx.wear.tiles.renderer.TileRenderer build();
     method public androidx.wear.tiles.renderer.TileRenderer.Builder setTilesTheme(@StyleRes int);
   }

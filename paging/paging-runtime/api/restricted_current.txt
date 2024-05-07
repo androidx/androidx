@@ -3,7 +3,7 @@ package androidx.paging {
 
   @Deprecated public class AsyncPagedListDiffer<T> {
     ctor @Deprecated public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback listUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T> config);
-    ctor @Deprecated public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
+    ctor @Deprecated public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<? extends java.lang.Object!> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     method @Deprecated public void addLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method @Deprecated public void addPagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
     method @Deprecated public final void addPagedListListener(kotlin.jvm.functions.Function2<? super androidx.paging.PagedList<T>?,? super androidx.paging.PagedList<T>?,kotlin.Unit> callback);
@@ -94,9 +94,9 @@ package androidx.paging {
     method @Deprecated public void removeLoadStateListener(kotlin.jvm.functions.Function2<? super androidx.paging.LoadType,? super androidx.paging.LoadState,kotlin.Unit> listener);
     method @Deprecated public void submitList(androidx.paging.PagedList<T>? pagedList);
     method @Deprecated public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
-    method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateFooter(androidx.paging.LoadStateAdapter<?> footer);
-    method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeader(androidx.paging.LoadStateAdapter<?> header);
-    method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeaderAndFooter(androidx.paging.LoadStateAdapter<?> header, androidx.paging.LoadStateAdapter<?> footer);
+    method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateFooter(androidx.paging.LoadStateAdapter<? extends java.lang.Object!> footer);
+    method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeader(androidx.paging.LoadStateAdapter<? extends java.lang.Object!> header);
+    method @Deprecated public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeaderAndFooter(androidx.paging.LoadStateAdapter<? extends java.lang.Object!> header, androidx.paging.LoadStateAdapter<? extends java.lang.Object!> footer);
     property @Deprecated public androidx.paging.PagedList<T>? currentList;
   }
 
@@ -122,9 +122,9 @@ package androidx.paging {
     method public final androidx.paging.ItemSnapshotList<T> snapshot();
     method public final void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
     method public final suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateFooter(androidx.paging.LoadStateAdapter<?> footer);
-    method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeader(androidx.paging.LoadStateAdapter<?> header);
-    method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeaderAndFooter(androidx.paging.LoadStateAdapter<?> header, androidx.paging.LoadStateAdapter<?> footer);
+    method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateFooter(androidx.paging.LoadStateAdapter<? extends java.lang.Object!> footer);
+    method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeader(androidx.paging.LoadStateAdapter<? extends java.lang.Object!> header);
+    method public final androidx.recyclerview.widget.ConcatAdapter withLoadStateHeaderAndFooter(androidx.paging.LoadStateAdapter<? extends java.lang.Object!> header, androidx.paging.LoadStateAdapter<? extends java.lang.Object!> footer);
     property public final kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> loadStateFlow;
     property public final kotlinx.coroutines.flow.Flow<kotlin.Unit> onPagesUpdatedFlow;
   }

@@ -98,9 +98,9 @@ package androidx.compose.ui.tooling.preview {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface PreviewParameter {
     method public abstract int limit() default kotlin.jvm.internal.IntCompanionObject.MAX_VALUE;
-    method public abstract kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<?>> provider();
+    method public abstract kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<? extends java.lang.Object!>> provider();
     property public abstract int limit;
-    property public abstract kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<?>> provider;
+    property public abstract kotlin.reflect.KClass<? extends androidx.compose.ui.tooling.preview.PreviewParameterProvider<? extends java.lang.Object!>> provider;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PreviewParameterProvider<T> {

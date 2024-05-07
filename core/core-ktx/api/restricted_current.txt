@@ -17,7 +17,7 @@ package androidx.core.animation {
 package androidx.core.content {
 
   public final class ContentValuesKt {
-    method public static android.content.ContentValues contentValuesOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method public static android.content.ContentValues contentValuesOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
   }
 
   public final class ContextKt {
@@ -314,7 +314,7 @@ package androidx.core.os {
 
   public final class BundleKt {
     method public static android.os.Bundle bundleOf();
-    method public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method public static android.os.Bundle bundleOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
   }
 
   public final class HandlerKt {
@@ -328,8 +328,8 @@ package androidx.core.os {
 
   public final class PersistableBundleKt {
     method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf();
-    method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,?>... pairs);
-    method @RequiresApi(21) public static android.os.PersistableBundle toPersistableBundle(java.util.Map<java.lang.String,?>);
+    method @RequiresApi(21) public static android.os.PersistableBundle persistableBundleOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
+    method @RequiresApi(21) public static android.os.PersistableBundle toPersistableBundle(java.util.Map<java.lang.String,? extends java.lang.Object?>);
   }
 
   public final class TraceKt {
