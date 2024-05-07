@@ -45,7 +45,6 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -93,7 +92,6 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun positionOnScreen_withNoComposableOffset() {
         rule.runOnIdle {
@@ -105,11 +103,10 @@ class AndroidComposeViewScreenCoordinatesTest {
 
         rule.waitUntil {
             val coordinates = assertNotNull(view.coordinates)
-            coordinates.positionOnScreen() == Offset(10f, 20f)
+            coordinates.positionOnScreen() == view.locationOnScreen
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun positionOnScreen_withComposableOffset() {
         rule.runOnIdle {
@@ -122,11 +119,10 @@ class AndroidComposeViewScreenCoordinatesTest {
 
         rule.waitUntil {
             val coordinates = assertNotNull(view.coordinates)
-            coordinates.positionOnScreen() == Offset(40f, 60f)
+            coordinates.positionOnScreen() == view.locationOnScreen
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun positionOnScreen_changesAfterUpdate() {
         rule.runOnIdle {
@@ -138,7 +134,7 @@ class AndroidComposeViewScreenCoordinatesTest {
 
         rule.waitUntil {
             val coordinates = assertNotNull(view.coordinates)
-            coordinates.positionOnScreen() == Offset(10f, 20f)
+            coordinates.positionOnScreen() == view.locationOnScreen
         }
 
         rule.runOnIdle {
@@ -150,11 +146,10 @@ class AndroidComposeViewScreenCoordinatesTest {
 
         rule.waitUntil {
             val coordinates = assertNotNull(view.coordinates)
-            coordinates.positionOnScreen() == Offset(30f, 40f)
+            coordinates.positionOnScreen() == view.locationOnScreen
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun screenToLocal_withNoComposableOffset() {
         rule.runOnIdle {
@@ -166,11 +161,10 @@ class AndroidComposeViewScreenCoordinatesTest {
 
         rule.runOnIdle {
             val coordinates = assertNotNull(view.coordinates)
-            assertThat(coordinates.screenToLocal(Offset.Zero)).isEqualTo(Offset(-10f, -20f))
+            assertThat(coordinates.screenToLocal(view.locationOnScreen)).isEqualTo(Offset.Zero)
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun screenToLocal_withComposableOffset() {
         rule.runOnIdle {
@@ -183,11 +177,18 @@ class AndroidComposeViewScreenCoordinatesTest {
 
         rule.runOnIdle {
             val coordinates = assertNotNull(view.coordinates)
-            assertThat(coordinates.screenToLocal(Offset.Zero)).isEqualTo(Offset(-40f, -60f))
+            assertThat(coordinates.screenToLocal(view.locationOnScreen))
+                .isEqualTo(Offset(-30f, -40f))
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
+    private val View.locationOnScreen: Offset
+        get() {
+            val array = IntArray(2)
+            getLocationOnScreen(array)
+            return Offset(array[0].toFloat(), array[1].toFloat())
+        }
+
     @Test
     fun transformToScreen_fromIdentity_withNoComposableOffset() {
         val matrix = Matrix()
@@ -201,11 +202,10 @@ class AndroidComposeViewScreenCoordinatesTest {
         rule.runOnIdle {
             val coordinates = assertNotNull(view.coordinates)
             coordinates.transformToScreen(matrix)
-            assertThat(matrix.map(Offset.Zero)).isEqualTo(Offset(10f, 20f))
+            assertThat(matrix.map(Offset.Zero)).isEqualTo(view.locationOnScreen + Offset.Zero)
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun transformToScreen_fromIdentity_withComposableOffset() {
         val matrix = Matrix()
@@ -220,11 +220,10 @@ class AndroidComposeViewScreenCoordinatesTest {
         rule.runOnIdle {
             val coordinates = assertNotNull(view.coordinates)
             coordinates.transformToScreen(matrix)
-            assertThat(matrix.map(Offset.Zero)).isEqualTo(Offset(40f, 60f))
+            assertThat(matrix.map(Offset.Zero)).isEqualTo(view.locationOnScreen + Offset(30f, 40f))
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun transformToScreen_changesAfterUpdate() {
         val matrix = Matrix()
@@ -238,7 +237,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         rule.runOnIdle {
             val coordinates = assertNotNull(view.coordinates)
             coordinates.transformToScreen(matrix)
-            assertThat(matrix.map(Offset.Zero)).isEqualTo(Offset(10f, 20f))
+            assertThat(matrix.map(Offset.Zero)).isEqualTo(view.locationOnScreen + Offset.Zero)
 
             updateLayoutParams {
                 it.x = 30
@@ -250,11 +249,10 @@ class AndroidComposeViewScreenCoordinatesTest {
             val coordinates = assertNotNull(view.coordinates)
             matrix.reset()
             coordinates.transformToScreen(matrix)
-            assertThat(matrix.map(Offset.Zero)).isEqualTo(Offset(30f, 40f))
+            assertThat(matrix.map(Offset.Zero)).isEqualTo(view.locationOnScreen + Offset.Zero)
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321823937
     @Test
     fun transformToScreen_fromTransformedMatrix_includesExistingTransformation() {
         val matrix = Matrix()
@@ -269,7 +267,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         rule.runOnIdle {
             val coordinates = assertNotNull(view.coordinates)
             coordinates.transformToScreen(matrix)
-            assertThat(matrix.map(Offset.Zero)).isEqualTo(Offset(40f, 60f))
+            assertThat(matrix.map(Offset.Zero)).isEqualTo(view.locationOnScreen + Offset(30f, 40f))
         }
     }
 
