@@ -27,7 +27,6 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuite
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
@@ -43,10 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.window.core.layout.WindowWidthSizeClass
 
-@OptIn(
-    ExperimentalMaterial3AdaptiveApi::class,
-    ExperimentalMaterial3AdaptiveNavigationSuiteApi::class
-)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -76,10 +72,7 @@ fun NavigationSuiteScaffoldSample() {
     }
 }
 
-@OptIn(
-    ExperimentalMaterial3AdaptiveApi::class,
-    ExperimentalMaterial3AdaptiveNavigationSuiteApi::class
-)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -117,10 +110,7 @@ fun NavigationSuiteScaffoldCustomConfigSample() {
     }
 }
 
-@OptIn(
-    ExperimentalMaterial3AdaptiveApi::class,
-    ExperimentalMaterial3AdaptiveNavigationSuiteApi::class
-)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Preview
 @Sampled
 @Composable

@@ -147,21 +147,38 @@ private class DefaultLazyListPrefetchStrategy(private val nestedPrefetchItemCoun
             } else {
                 layoutInfo.visibleItemsInfo.first().index - 1
             }
-            if (indexToPrefetch != this@DefaultLazyListPrefetchStrategy.indexToPrefetch &&
-                indexToPrefetch in 0 until layoutInfo.totalItemsCount
-            ) {
-                if (wasScrollingForward != scrollingForward) {
-                    // the scrolling direction has been changed which means the last prefetched
-                    // is not going to be reached anytime soon so it is safer to dispose it.
-                    // if this item is already visible it is safe to call the method anyway
-                    // as it will be no-op
-                    currentPrefetchHandle?.cancel()
+            if (indexToPrefetch in 0 until layoutInfo.totalItemsCount) {
+                if (indexToPrefetch != this@DefaultLazyListPrefetchStrategy.indexToPrefetch) {
+                    if (wasScrollingForward != scrollingForward) {
+                        // the scrolling direction has been changed which means the last prefetched
+                        // is not going to be reached anytime soon so it is safer to dispose it.
+                        // if this item is already visible it is safe to call the method anyway
+                        // as it will be no-op
+                        currentPrefetchHandle?.cancel()
+                    }
+                    this@DefaultLazyListPrefetchStrategy.wasScrollingForward = scrollingForward
+                    this@DefaultLazyListPrefetchStrategy.indexToPrefetch = indexToPrefetch
+                    currentPrefetchHandle = schedulePrefetch(
+                        indexToPrefetch
+                    )
                 }
-                this@DefaultLazyListPrefetchStrategy.wasScrollingForward = scrollingForward
-                this@DefaultLazyListPrefetchStrategy.indexToPrefetch = indexToPrefetch
-                currentPrefetchHandle = schedulePrefetch(
-                    indexToPrefetch
-                )
+                if (scrollingForward) {
+                    val lastItem = layoutInfo.visibleItemsInfo.last()
+                    val spacing = layoutInfo.mainAxisItemSpacing
+                    val distanceToPrefetchItem =
+                        lastItem.offset + lastItem.size + spacing - layoutInfo.viewportEndOffset
+                    // if in the next frame we will get the same delta will we reach the item?
+                    if (distanceToPrefetchItem < -delta) {
+                        currentPrefetchHandle?.markAsUrgent()
+                    }
+                } else {
+                    val firstItem = layoutInfo.visibleItemsInfo.first()
+                    val distanceToPrefetchItem = layoutInfo.viewportStartOffset - firstItem.offset
+                    // if in the next frame we will get the same delta will we reach the item?
+                    if (distanceToPrefetchItem < delta) {
+                        currentPrefetchHandle?.markAsUrgent()
+                    }
+                }
             }
         }
     }

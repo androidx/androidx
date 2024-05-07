@@ -111,9 +111,11 @@ class AutoMigrationWriterTest(
                 isSpecProvided = false
             )
             AutoMigrationWriter(
-                invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
-                autoMigrationResultWithNewAddedColumn,
-                codeLanguage
+                autoMigration = autoMigrationResultWithNewAddedColumn,
+                dbElement =
+                    invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
+                codeLanguage = codeLanguage,
+                javaLambdaSyntaxAvailable = false
             ).write(invocation.processingEnv)
 
             val expectedFile = when (codeLanguage) {
@@ -185,9 +187,11 @@ class AutoMigrationWriterTest(
                 isSpecProvided = false
             )
             AutoMigrationWriter(
-                invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
-                autoMigrationResultWithNewAddedColumn,
-                codeLanguage
+                autoMigration = autoMigrationResultWithNewAddedColumn,
+                dbElement =
+                    invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
+                codeLanguage = codeLanguage,
+                javaLambdaSyntaxAvailable = false
             ).write(invocation.processingEnv)
 
             val expectedFile = when (codeLanguage) {
@@ -267,9 +271,11 @@ class AutoMigrationWriterTest(
                 isSpecProvided = true
             )
             AutoMigrationWriter(
-                invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
-                autoMigrationResultWithNewAddedColumn,
-                codeLanguage
+                autoMigration = autoMigrationResultWithNewAddedColumn,
+                dbElement =
+                    invocation.processingEnv.requireTypeElement("foo.bar.MyDatabase"),
+                codeLanguage = codeLanguage,
+                javaLambdaSyntaxAvailable = false
             ).write(invocation.processingEnv)
 
             val expectedFile = when (codeLanguage) {

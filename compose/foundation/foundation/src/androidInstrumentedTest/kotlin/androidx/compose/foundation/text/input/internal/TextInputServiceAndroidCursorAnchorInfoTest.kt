@@ -22,7 +22,6 @@ import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputConnection
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.ComposeInputMethodManagerTestRule
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshots.ObserverHandle
@@ -43,6 +42,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -56,7 +56,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 internal class TextInputServiceAndroidCursorAnchorInfoTest {
@@ -109,11 +108,25 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         }
     }
 
-    private val windowOffset = Offset(12f, 34f)
+    private val layoutOffset = Offset(98f, 47f)
+    private val coreNodeOffset = Offset(73f, 50f)
+    private val coreNodeSize = IntSize(25, 51)
+    private val decoratorNodeOffset = Offset(84f, 59f)
+    private val decoratorNodeSize = IntSize(19, 66)
     private val layoutState = TextLayoutState().apply {
-        coreNodeCoordinates = TestLayoutCoordinates(windowOffset = windowOffset, isAttached = true)
+        textLayoutNodeCoordinates =
+            TestLayoutCoordinates(windowOffset = layoutOffset, isAttached = true)
+        coreNodeCoordinates = TestLayoutCoordinates(
+            windowOffset = coreNodeOffset,
+            size = coreNodeSize,
+            isAttached = true
+        )
         decoratorNodeCoordinates =
-            TestLayoutCoordinates(windowOffset = windowOffset, isAttached = true)
+            TestLayoutCoordinates(
+                windowOffset = decoratorNodeOffset,
+                size = decoratorNodeSize,
+                isAttached = true
+            )
     }
 
     @Test
@@ -130,9 +143,12 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             selection = textFieldState.selection,
             composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(windowOffset),
-            innerTextFieldBounds = Rect.Zero,
-            decorationBoxBounds = Rect.Zero,
+            matrix = getAndroidMatrix(layoutOffset),
+            innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
+            decorationBoxBounds = Rect(
+                decoratorNodeOffset - layoutOffset,
+                decoratorNodeSize.toSize()
+            ),
         )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo)
         reportedCursorAnchorInfos.clear()
@@ -182,8 +198,9 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         Truth.assertThat(reportedCursorAnchorInfos).isEmpty()
 
         // Trigger new layout.
-        layoutState.coreNodeCoordinates =
-            TestLayoutCoordinates(windowOffset = Offset(67f, 89f), isAttached = true)
+        val newLayoutOffset = Offset(67f, 89f)
+        layoutState.textLayoutNodeCoordinates =
+            TestLayoutCoordinates(windowOffset = newLayoutOffset, isAttached = true)
 
         // Monitoring update.
         val expectedInfo = builder.build(
@@ -191,9 +208,12 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             selection = textFieldState.selection,
             composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(Offset(67f, 89f)),
-            innerTextFieldBounds = Rect.Zero,
-            decorationBoxBounds = Rect.Zero,
+            matrix = getAndroidMatrix(newLayoutOffset),
+            innerTextFieldBounds = Rect(coreNodeOffset - newLayoutOffset, coreNodeSize.toSize()),
+            decorationBoxBounds = Rect(
+                decoratorNodeOffset - newLayoutOffset,
+                decoratorNodeSize.toSize()
+            ),
         )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo)
     }
@@ -213,16 +233,20 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             selection = textFieldState.selection,
             composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(windowOffset),
-            innerTextFieldBounds = Rect.Zero,
-            decorationBoxBounds = Rect.Zero,
+            matrix = getAndroidMatrix(layoutOffset),
+            innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
+            decorationBoxBounds = Rect(
+                decoratorNodeOffset - layoutOffset,
+                decoratorNodeSize.toSize()
+            ),
         )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo)
         reportedCursorAnchorInfos.clear()
 
         // Trigger new layout.
-        layoutState.coreNodeCoordinates =
-            TestLayoutCoordinates(windowOffset = Offset(67f, 89f), isAttached = true)
+        val newLayoutOffset = Offset(67f, 89f)
+        layoutState.textLayoutNodeCoordinates =
+            TestLayoutCoordinates(windowOffset = newLayoutOffset, isAttached = true)
 
         // Monitoring update.
         val expectedInfo2 = builder.build(
@@ -230,9 +254,12 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             selection = textFieldState.selection,
             composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(Offset(67f, 89f)),
-            innerTextFieldBounds = Rect.Zero,
-            decorationBoxBounds = Rect.Zero,
+            matrix = getAndroidMatrix(newLayoutOffset),
+            innerTextFieldBounds = Rect(coreNodeOffset - newLayoutOffset, coreNodeSize.toSize()),
+            decorationBoxBounds = Rect(
+                decoratorNodeOffset - newLayoutOffset,
+                decoratorNodeSize.toSize()
+            ),
         )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo2)
     }
@@ -252,9 +279,12 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             selection = textFieldState.selection,
             composition = textFieldState.composition,
             textLayoutResult = layoutState.layoutResult!!,
-            matrix = getAndroidMatrix(windowOffset),
-            innerTextFieldBounds = Rect.Zero,
-            decorationBoxBounds = Rect.Zero,
+            matrix = getAndroidMatrix(layoutOffset),
+            innerTextFieldBounds = Rect(coreNodeOffset - layoutOffset, coreNodeSize.toSize()),
+            decorationBoxBounds = Rect(
+                decoratorNodeOffset - layoutOffset,
+                decoratorNodeSize.toSize()
+            ),
         )
         Truth.assertThat(reportedCursorAnchorInfos).containsExactly(expectedInfo)
         reportedCursorAnchorInfos.clear()
@@ -335,12 +365,13 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         override fun localPositionOf(
             sourceCoordinates: LayoutCoordinates,
             relativeToSource: Offset
-        ): Offset = relativeToSource
+        ): Offset = sourceCoordinates.localToWindow(relativeToSource) - windowOffset
 
         override fun localBoundingBoxOf(
             sourceCoordinates: LayoutCoordinates,
             clipBounds: Boolean
-        ): Rect = Rect.Zero
+        ): Rect =
+            Rect(localPositionOf(sourceCoordinates, Offset.Zero), sourceCoordinates.size.toSize())
 
         override fun transformToScreen(matrix: Matrix) {
             matrix.translate(windowOffset.x, windowOffset.y, 0f)

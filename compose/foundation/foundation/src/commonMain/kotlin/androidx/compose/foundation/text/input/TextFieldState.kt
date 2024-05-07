@@ -263,7 +263,8 @@ class TextFieldState internal constructor(
 
         if (mainBuffer.changeTracker.changeCount == 0 &&
             previousValue.selection == mainBuffer.selection &&
-            previousValue.composition == mainBuffer.composition) {
+            previousValue.composition == mainBuffer.composition &&
+            previousValue.highlight == mainBuffer.highlight) {
             // nothing has changed after applying block.
             return
         }
@@ -315,7 +316,8 @@ class TextFieldState internal constructor(
         val afterEditValue = TextFieldCharSequence(
             text = mainBuffer.toString(),
             selection = mainBuffer.selection,
-            composition = mainBuffer.composition
+            composition = mainBuffer.composition,
+            highlight = mainBuffer.highlight
         )
 
         if (inputTransformation == null) {

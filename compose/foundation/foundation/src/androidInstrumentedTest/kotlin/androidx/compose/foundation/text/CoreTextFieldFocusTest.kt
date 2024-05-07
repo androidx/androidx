@@ -50,7 +50,7 @@ class CoreTextFieldFocusTest {
     @get:Rule
     val rule = createComposeRule()
 
-    val keyboardHelper = KeyboardHelper(rule)
+    private val keyboardHelper = KeyboardHelper(rule)
 
     @Test
     fun hideKeyboardWhenDisposed() {

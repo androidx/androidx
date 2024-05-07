@@ -16,6 +16,8 @@
 
 package androidx.compose.material3
 
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.TweenSpec
@@ -43,6 +45,7 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -56,14 +59,19 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.collapse
+import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -104,10 +112,10 @@ import kotlinx.coroutines.launch
  * darker color in light theme and lighter color in dark theme. See also: [Surface].
  * @param scrimColor Color of the scrim that obscures content when the bottom sheet is open.
  * @param dragHandle Optional visual marker to swipe the bottom sheet.
- * @param windowInsets window insets to be passed to the bottom sheet window via [PaddingValues]
+ * @param contentWindowInsets window insets to be passed to the bottom sheet content via [PaddingValues]
  * params.
  * @param properties [ModalBottomSheetProperties] for further customization of this
- * modal bottom sheet's behavior.
+ * modal bottom sheet's window behavior.
  * @param content The content to be displayed inside the bottom sheet.
  */
 @Composable
@@ -123,8 +131,8 @@ fun ModalBottomSheet(
     tonalElevation: Dp = 0.dp,
     scrimColor: Color = BottomSheetDefaults.ScrimColor,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
-    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
-    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties(),
+    contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
+    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -145,7 +153,7 @@ fun ModalBottomSheet(
 
     val predictiveBackProgress = remember { Animatable(initialValue = 0f) }
 
-    ModalBottomSheetPopup(
+    ModalBottomSheetDialog(
         properties = properties,
         onDismissRequest = {
             if (sheetState.currentValue == Expanded && sheetState.hasPartiallyExpandedState) {
@@ -159,9 +167,13 @@ fun ModalBottomSheet(
             }
         },
         predictiveBackProgress = predictiveBackProgress,
-        windowInsets = windowInsets,
     ) {
-        Box(Modifier.fillMaxSize(), propagateMinConstraints = false) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding(),
+            propagateMinConstraints = false
+        ) {
             Scrim(
                 color = scrimColor,
                 onDismissRequest = animateToDismiss,
@@ -180,6 +192,7 @@ fun ModalBottomSheet(
                 contentColor,
                 tonalElevation,
                 dragHandle,
+                contentWindowInsets,
                 content
             )
         }
@@ -206,6 +219,7 @@ internal fun BoxScope.ModalBottomSheetContent(
     contentColor: Color = contentColorFor(containerColor),
     tonalElevation: Dp = BottomSheetDefaults.Elevation,
     dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
+    contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
     content: @Composable ColumnScope.() -> Unit
 ) {
     val bottomSheetPaneTitle = getString(string = Strings.BottomSheetPaneTitle)
@@ -279,6 +293,7 @@ internal fun BoxScope.ModalBottomSheetContent(
         Column(
             Modifier
                 .fillMaxWidth()
+                .windowInsetsPadding(contentWindowInsets())
                 .graphicsLayer {
                     val progress = predictiveBackProgress.value
                     val predictiveBackScaleX = calculatePredictiveBackScaleX(progress)
@@ -357,23 +372,21 @@ private fun GraphicsLayerScope.calculatePredictiveBackScaleY(progress: Float): F
     }
 }
 
+// Logic forked from androidx.compose.ui.window.DialogProperties. Removed dismissOnClickOutside
+// and usePlatformDefaultWidth as they are not relevant for fullscreen experience.
 /**
  * Properties used to customize the behavior of a [ModalBottomSheet].
  *
- * @param isFocusable Whether the modal bottom sheet is focusable. When true,
- * the modal bottom sheet will receive IME events and key presses, such as when
- * the back button is pressed.
+ * @param securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the bottom
+ * sheet's window.
  * @param shouldDismissOnBackPress Whether the modal bottom sheet can be dismissed by pressing
  * the back button. If true, pressing the back button will call onDismissRequest.
- * Note that [isFocusable] must be set to true in order to receive key events such as
- * the back button - if the modal bottom sheet is not focusable then this property does nothing.
  */
+@Immutable
 @ExperimentalMaterial3Api
-expect class ModalBottomSheetProperties constructor(
-    isFocusable: Boolean,
-    shouldDismissOnBackPress: Boolean
+expect class ModalBottomSheetPropertiesconstructor (
+    shouldDismissOnBackPress: Boolean = true,
 ) {
-    val isFocusable: Boolean
     val shouldDismissOnBackPress: Boolean
 }
 
@@ -383,6 +396,11 @@ expect class ModalBottomSheetProperties constructor(
 @Immutable
 @ExperimentalMaterial3Api
 expect object ModalBottomSheetDefaults {
+
+    /**
+     * Properties used to customize the behavior of a [ModalBottomSheet]. */
+    val properties = ModalBottomSheetProperties()
+
     /**
      * Properties used to customize the behavior of a [ModalBottomSheet].
      *
@@ -394,10 +412,16 @@ expect object ModalBottomSheetDefaults {
      * Note that [isFocusable] must be set to true in order to receive key events such as
      * the back button - if the modal bottom sheet is not focusable then this property does nothing.
      */
+    @Deprecated(
+        level = DeprecationLevel.WARNING,
+        message = "'isFocusable' param is no longer used. Use value without this parameter.",
+        replaceWith = ReplaceWith("properties")
+    )
+    @Suppress("UNUSED_PARAMETER")
     fun properties(
         isFocusable: Boolean = true,
         shouldDismissOnBackPress: Boolean = true
-    ): ModalBottomSheetProperties
+    ) = ModalBottomSheetProperties(shouldDismissOnBackPress)
 }
 
 /**
@@ -417,6 +441,95 @@ fun rememberModalBottomSheetState(
     skipPartiallyExpanded = skipPartiallyExpanded,
     confirmValueChange = confirmValueChange,
     initialValue = Hidden,
+)
+
+/**
+ * <a href="https://m3.material.io/components/bottom-sheets/overview" class="external" target="_blank">Material Design modal bottom sheet</a>.
+ *
+ * Modal bottom sheets are used as an alternative to inline menus or simple dialogs on mobile,
+ * especially when offering a long list of action items, or when items require longer descriptions
+ * and icons. Like dialogs, modal bottom sheets appear in front of app content, disabling all other
+ * app functionality when they appear, and remaining on screen until confirmed, dismissed, or a
+ * required action has been taken.
+ *
+ * ![Bottom sheet image](https://developer.android.com/images/reference/androidx/compose/material3/bottom_sheet.png)
+ *
+ * A simple example of a modal bottom sheet looks like this:
+ *
+ * @sample androidx.compose.material3.samples.ModalBottomSheetSample
+ *
+ * @param onDismissRequest Executes when the user clicks outside of the bottom sheet, after sheet
+ * animates to [Hidden].
+ * @param modifier Optional [Modifier] for the bottom sheet.
+ * @param sheetState The state of the bottom sheet.
+ * @param sheetMaxWidth [Dp] that defines what the maximum width the sheet will take.
+ * Pass in [Dp.Unspecified] for a sheet that spans the entire screen width.
+ * @param shape The shape of the bottom sheet.
+ * @param containerColor The color used for the background of this bottom sheet
+ * @param contentColor The preferred color for content inside this bottom sheet. Defaults to either
+ * the matching content color for [containerColor], or to the current [LocalContentColor] if
+ * [containerColor] is not a color from the theme.
+ * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary color
+ * overlay is applied on top of the container. A higher tonal elevation value will result in a
+ * darker color in light theme and lighter color in dark theme. See also: [Surface].
+ * @param scrimColor Color of the scrim that obscures content when the bottom sheet is open.
+ * @param dragHandle Optional visual marker to swipe the bottom sheet.
+ * @param windowInsets window insets to be passed to the bottom sheet content via [PaddingValues]
+ * params.
+ * @param properties [ModalBottomSheetProperties] for further customization of this
+ * modal bottom sheet's window behavior.
+ * @param content The content to be displayed inside the bottom sheet.
+ */
+@Composable
+@ExperimentalMaterial3Api
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Use constructor with contentWindowInsets parameter.",
+    replaceWith = ReplaceWith(
+        "ModalBottomSheet(" +
+            "onDismissRequest," +
+            "modifier," +
+            "sheetState," +
+            "sheetMaxWidth," +
+            "shape," +
+            "containerColor," +
+            "contentColor," +
+            "tonalElevation," +
+            "scrimColor," +
+            "dragHandle," +
+            "{ windowInsets }," +
+            "properties," +
+            "content," +
+            ")")
+)
+fun ModalBottomSheet(
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    sheetState: SheetState = rememberModalBottomSheetState(),
+    sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
+    shape: Shape = BottomSheetDefaults.ExpandedShape,
+    containerColor: Color = BottomSheetDefaults.ContainerColor,
+    contentColor: Color = contentColorFor(containerColor),
+    tonalElevation: Dp = 0.dp,
+    scrimColor: Color = BottomSheetDefaults.ScrimColor,
+    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
+    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
+    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
+    content: @Composable ColumnScope.() -> Unit,
+) = ModalBottomSheet(
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    sheetState = sheetState,
+    sheetMaxWidth = sheetMaxWidth,
+    shape = shape,
+    containerColor = containerColor,
+    contentColor = contentColor,
+    tonalElevation = tonalElevation,
+    scrimColor = scrimColor,
+    dragHandle = dragHandle,
+    contentWindowInsets = { windowInsets },
+    properties = properties,
+    content = content,
 )
 
 @Composable
@@ -451,15 +564,14 @@ private fun Scrim(
     }
 }
 
-/**
- * Popup specific for modal bottom sheet.
- */
+// Fork of androidx.compose.ui.window.AndroidDialog_androidKt.Dialog
+// Added predictiveBackProgress param to pass into BottomSheetDialogWrapper.
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal expect fun ModalBottomSheetPopup(
-    properties: ModalBottomSheetProperties,
+internal expect fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
+    properties: ModalBottomSheetProperties,
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
-    windowInsets: WindowInsets,
     content: @Composable () -> Unit,
 )
 

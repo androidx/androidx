@@ -18,6 +18,7 @@ package androidx.compose.ui.text.input
 
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.Handler
 import android.view.KeyEvent
 import android.view.inputmethod.CompletionInfo
@@ -27,6 +28,7 @@ import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.annotation.RequiresApi
 import java.util.concurrent.Executor
 import java.util.function.IntConsumer
@@ -222,4 +224,10 @@ private open class NullableInputConnectionWrapperApi34(
     ) {
         delegate?.performHandwritingGesture(gesture, executor, consumer)
     }
+
+    final override fun previewHandwritingGesture(
+        gesture: PreviewableHandwritingGesture,
+        cancellationSignal: CancellationSignal?
+    ): Boolean =
+        delegate?.previewHandwritingGesture(gesture, cancellationSignal) ?: false
 }

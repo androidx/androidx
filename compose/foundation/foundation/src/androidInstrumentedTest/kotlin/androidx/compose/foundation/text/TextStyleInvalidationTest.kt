@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -54,7 +53,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
-@Suppress("DEPRECATION")
 @RunWith(Parameterized::class)
 @MediumTest
 class TextStyleInvalidationTest(private val config: Config) {
@@ -78,7 +76,6 @@ class TextStyleInvalidationTest(private val config: Config) {
         }
     }
 
-    @OptIn(ExperimentalTextApi::class)
     companion object {
         @Parameters(name = "{0}")
         @JvmStatic

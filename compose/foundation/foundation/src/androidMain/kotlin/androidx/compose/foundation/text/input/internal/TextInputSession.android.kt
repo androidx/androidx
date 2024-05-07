@@ -16,9 +16,11 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import android.os.CancellationSignal
 import android.view.KeyEvent
 import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
+import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text.input.TextFieldCharSequence
@@ -70,4 +72,12 @@ internal interface TextInputSession {
      * Called from [InputConnection.performHandwritingGesture].
      */
     fun performHandwritingGesture(gesture: HandwritingGesture): Int
+
+    /**
+     * Called from [InputConnection.previewHandwritingGesture].
+     */
+    fun previewHandwritingGesture(
+        gesture: PreviewableHandwritingGesture,
+        cancellationSignal: CancellationSignal?
+    ): Boolean
 }

@@ -20,7 +20,6 @@ import android.view.KeyEvent
 import android.view.KeyEvent.ACTION_DOWN
 import android.view.KeyEvent.ACTION_UP
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
@@ -40,7 +39,6 @@ import org.junit.runner.RunWith
  * This class tests different ways of updating selection in TextFieldState and asserts that
  * IME gets updated for all of them.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 internal class BasicTextFieldImeSelectionChangesTest {

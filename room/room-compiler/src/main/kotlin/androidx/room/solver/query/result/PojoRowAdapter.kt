@@ -151,9 +151,7 @@ class PojoRowAdapter(
 
     override fun getDefaultIndexAdapter() = indexAdapter
 
-    override fun isMigratedToDriver(): Boolean {
-        return relationCollectors.isEmpty()
-    }
+    override fun isMigratedToDriver(): Boolean = relationCollectors.all { it.isMigratedToDriver() }
 
     data class PojoMapping(
         val pojo: Pojo,

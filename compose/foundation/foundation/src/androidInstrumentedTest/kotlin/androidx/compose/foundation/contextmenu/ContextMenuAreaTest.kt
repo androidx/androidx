@@ -59,6 +59,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalTestApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class ContextMenuAreaTest {
@@ -212,12 +213,14 @@ class ContextMenuAreaTest {
         onDismiss: () -> Unit = {},
         contextMenuBuilderBlock: ContextMenuScope.() -> Unit = { testItem() },
         modifier: Modifier = Modifier,
+        enabled: Boolean = true,
         content: @Composable () -> Unit = {},
     ) {
         ContextMenuArea(
             state = state,
             onDismiss = onDismiss,
             contextMenuBuilderBlock = contextMenuBuilderBlock,
+            enabled = enabled,
             content = content,
             modifier = modifier.testTag(tag)
         )
@@ -289,7 +292,6 @@ class ContextMenuAreaTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenContextMenuArea_leftClick_contextMenuDoesNotAppear() {
         val state = ContextMenuState()
@@ -307,7 +309,6 @@ class ContextMenuAreaTest {
         rule.onNodeWithTag(itemTag).assertDoesNotExist()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenContextMenuArea_rightClick_contextMenuAppears() {
         val state = ContextMenuState()
@@ -330,6 +331,26 @@ class ContextMenuAreaTest {
 
         itemInteraction.performClick()
         itemInteraction.assertDoesNotExist()
+    }
+
+    @Test
+    fun whenContextMenuArea_disabled_rightClick_contextMenuDoesNotAppear() {
+        val state = ContextMenuState()
+        rule.setContent {
+            TestArea(
+                state = state,
+                enabled = false,
+                contextMenuBuilderBlock = {
+                    testItem(modifier = Modifier.testTag(itemTag)) { state.close() }
+                },
+                modifier = Modifier
+                    .background(Color.LightGray)
+                    .size(100.dp)
+            )
+        }
+
+        rule.onNodeWithTag(tag).performMouseInput { rightClick() }
+        rule.onNodeWithTag(itemTag).assertDoesNotExist()
     }
     // endregion ContextMenuArea Tests
 }

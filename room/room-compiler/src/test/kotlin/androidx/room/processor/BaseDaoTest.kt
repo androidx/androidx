@@ -219,7 +219,7 @@ class BaseDaoTest {
                 val processed = DaoProcessor(
                     invocation.context, dao, dbType, null
                 ).process()
-                DaoWriter(processed, dbElm, CodeLanguage.JAVA)
+                DaoWriter(processed, dbElm, CodeLanguage.JAVA, false)
                     .write(invocation.processingEnv)
             }
         }
@@ -270,7 +270,8 @@ class BaseDaoTest {
                 invocation.context, daoElm, dbType, null
             ).process()
             handler(processedDao)
-            DaoWriter(processedDao, dbElm, CodeLanguage.JAVA).write(invocation.processingEnv)
+            DaoWriter(processedDao, dbElm, CodeLanguage.JAVA, false)
+                .write(invocation.processingEnv)
         }
     }
 }

@@ -50,7 +50,7 @@ internal class HandwritingDetectorTest {
 
     private val tag = "detector"
 
-    private var callbackCount = 0;
+    private var callbackCount = 0
 
     @Before
     fun setup() {

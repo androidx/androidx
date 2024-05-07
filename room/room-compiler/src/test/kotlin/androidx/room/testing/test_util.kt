@@ -332,7 +332,7 @@ object COMMON {
 
 fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(
-        object : TypeWriter(CodeLanguage.JAVA) {
+        object : TypeWriter(CodeLanguage.JAVA, true) {
             override fun createTypeSpecBuilder(): XTypeSpec.Builder {
                 return XTypeSpec.classBuilder(codeLanguage, XClassName.get("test", "Foo"))
             }

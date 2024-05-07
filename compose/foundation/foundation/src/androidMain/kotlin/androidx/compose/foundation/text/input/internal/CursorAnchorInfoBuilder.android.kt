@@ -28,11 +28,11 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
  * Helper function to build
  * [CursorAnchorInfo](https://developer.android.com/reference/android/view/inputmethod/CursorAnchorInfo).
  *
- * @param matrix matrix that transforms local coordinates into screen coordinates
- * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an empty
- *   rectangle if the text field is not visible
- * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an empty
- *   rectangle if the decoration box is not visible
+ * @param matrix matrix that transforms text layout coordinates into screen coordinates
+ * @param innerTextFieldBounds visible bounds of the text field in text layout coordinates, or an
+ *   empty rectangle if the text field is not visible
+ * @param decorationBoxBounds visible bounds of the decoration box in text layout coordinates, or an
+ *   empty rectangle if the decoration box is not visible
  */
 internal fun CursorAnchorInfo.Builder.build(
     text: CharSequence,

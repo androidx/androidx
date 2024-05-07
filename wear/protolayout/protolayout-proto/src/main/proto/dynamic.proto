@@ -634,7 +634,7 @@ message InstantToZonedDateTimeOp {
   string zone_id = 2;
 }
 
-// The datetime part to retrieve using ZonedDateTimePartOp.
+// The date-time part to retrieve using ZonedDateTimePartOp.
 enum ZonedDateTimePartType {
   // Undefined date-time part type.
   ZONED_DATE_TIME_PART_UNDEFINED = 0;
@@ -654,12 +654,12 @@ enum ZonedDateTimePartType {
   ZONED_DATE_TIME_PART_YEAR = 7;
 }
 
-// Retrieve the specified datetime part of a DynamicZonedDateTime instance as a
+// Retrieve the specified date-time part of a DynamicZonedDateTime instance as a
 // DynamicInt32.
 message GetZonedDateTimePartOp {
-  // The zoned datetime input.
+  // The zoned date-time input.
   DynamicZonedDateTime input = 1;
-  // The datetime part to retrieve.
+  // The date-time part to retrieve.
   ZonedDateTimePartType part_type = 2;
 }
 
@@ -754,7 +754,6 @@ message GetDurationPartOp {
   // The duration part to retrieve.
   DurationPartType duration_part = 2;
 }
-
 
 // A dynamic Instant which sources its data from the a state entry.
 message StateInstantSource {

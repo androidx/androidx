@@ -20,7 +20,6 @@ import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ApproachLayoutModifierNode
@@ -120,7 +119,6 @@ private class AnimateBoundsNode(
         lookaheadCoordinates: LayoutCoordinates
     ) = animateFraction() != 1f
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
         constraints: Constraints
@@ -154,9 +152,9 @@ private class AnimateBoundsNode(
 }
 
 private class SizeTracker(var animationSpec: FiniteAnimationSpec<IntSize>) {
-    private var originalSize: IntSize = IntSize.Zero
-    private var targetSize: IntSize = IntSize.Zero
-    private var currentSize = IntSize.Zero
+    private var originalSize: IntSize = InvalidIntSize
+    private var targetSize: IntSize = InvalidIntSize
+    private var currentSize = InvalidIntSize
     private lateinit var animation: TargetBasedAnimation<IntSize, AnimationVector2D>
 
     fun updateTargetSize(newSize: IntSize) {
@@ -165,7 +163,11 @@ private class SizeTracker(var animationSpec: FiniteAnimationSpec<IntSize>) {
         }
         // TODO(conradchen): Handle the interruption better when the target size changes during
         //                   the animation
-        originalSize = currentSize
+        originalSize = if (currentSize != InvalidIntSize) {
+            currentSize
+        } else {
+            newSize
+        }
         targetSize = newSize
         animation = TargetBasedAnimation(
             animationSpec,
@@ -214,3 +216,5 @@ private class PositionTracker(var animationSpec: FiniteAnimationSpec<IntOffset>)
 }
 
 private fun Offset.toIntOffset() = IntOffset(x.roundToInt(), y.roundToInt())
+
+private val InvalidIntSize = IntSize(-1, -1)

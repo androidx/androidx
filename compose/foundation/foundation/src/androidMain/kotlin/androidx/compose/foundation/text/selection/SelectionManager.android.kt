@@ -17,10 +17,16 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.PlatformMagnifierFactory
+import androidx.compose.foundation.contextmenu.ContextMenuScope
+import androidx.compose.foundation.contextmenu.ContextMenuState
+import androidx.compose.foundation.contextmenu.close
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.text.KeyCommand
+import androidx.compose.foundation.text.TextContextMenuItems
 import androidx.compose.foundation.text.platformDefaultKeyMapping
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,6 +68,35 @@ internal actual fun Modifier.selectionMagnifier(manager: SelectionManager): Modi
                         platformMagnifierFactory = PlatformMagnifierFactory.getForCurrentPlatform()
                     )
             }
+        )
+    }
+}
+
+@ReadOnlyComposable
+@Composable
+internal fun SelectionManager.contextMenuBuilder(
+    state: ContextMenuState,
+): ContextMenuScope.() -> Unit {
+    val copyString = TextContextMenuItems.Copy.resolvedString()
+    val selectAllString = TextContextMenuItems.SelectAll.resolvedString()
+    return {
+        listOf(
+            item(
+                label = copyString,
+                enabled = isNonEmptySelection(),
+                onClick = {
+                    copy()
+                    state.close()
+                },
+            ),
+            item(
+                label = selectAllString,
+                enabled = !isEntireContainerSelected(),
+                onClick = {
+                    selectAll()
+                    state.close()
+                },
+            ),
         )
     }
 }

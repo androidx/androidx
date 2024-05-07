@@ -99,6 +99,11 @@ class Context private constructor(
         }
     }
 
+    // Whether Java 8's lambda syntax is available to be emitted or not.
+    val javaLambdaSyntaxAvailable by lazy {
+        processingEnv.jvmVersion >= 8
+    }
+
     companion object {
         val ARG_OPTIONS by lazy {
             ProcessorOptions.values().map { it.argName } +

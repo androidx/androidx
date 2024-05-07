@@ -18,6 +18,7 @@ package androidx.navigation.serialization
 
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
 import kotlinx.serialization.KSerializer
 
@@ -27,3 +28,9 @@ public fun <T> KSerializer<T>.decodeArguments(
     bundle: Bundle,
     typeMap: Map<String, NavType<*>>
 ): T = RouteDecoder(bundle, typeMap).decodeSerializableValue(this)
+
+// public due to reified toRoute()
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T> KSerializer<T>.decodeArguments(
+    handle: SavedStateHandle
+): T = RouteDecoder(handle).decodeSerializableValue(this)

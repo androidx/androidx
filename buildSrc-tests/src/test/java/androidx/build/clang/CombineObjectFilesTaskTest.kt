@@ -64,7 +64,7 @@ class CombineObjectFilesTaskTest : BaseClangTest() {
                 it.relativeTo(taskOutputDir).path to it.readText()
             }.toList()
         assertThat(outputContents).containsExactly(
-            "linux_x64/libcode.so" to KonanTarget.LINUX_X64.name,
+            "natives/linux_x64/libcode.so" to KonanTarget.LINUX_X64.name,
             "x86/libcode.so" to KonanTarget.ANDROID_X86.name,
             "arm64-v8a/libcode.so" to KonanTarget.ANDROID_ARM64.name
         )

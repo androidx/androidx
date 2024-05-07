@@ -34,7 +34,7 @@ import androidx.compose.ui.util.fastSumBy
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
-import androidx.wear.compose.foundation.rotary.RotaryScrollableLayoutInfoProvider
+import androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
 
 @OptIn(ExperimentalWearFoundationApi::class)
@@ -75,11 +75,11 @@ fun RotarySnapSample() {
             .rotaryScrollable(
                 behavior = RotaryScrollableDefaults.snapBehavior(
                     scrollableState,
-                    // This sample has a custom implementation of RotaryScrollableLayoutInfoProvider
+                    // This sample has a custom implementation of RotarySnapLayoutInfoProvider
                     // which is required for snapping behavior. ScalingLazyColumn has it built-in,
                     // so it's not required there.
                     remember(scrollableState) {
-                        object : RotaryScrollableLayoutInfoProvider {
+                        object : RotarySnapLayoutInfoProvider {
 
                             override val averageItemSize: Float
                                 get() {

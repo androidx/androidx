@@ -92,7 +92,7 @@ android {
 
 androidx {
     name = "Glance"
-    type = LibraryType.PUBLISHED_KOTLIN_ONLY_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."

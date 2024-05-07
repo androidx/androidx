@@ -75,5 +75,5 @@ interface PrefetchRequestScope {
      * How much time is available to do prefetch work. Implementations of [PrefetchRequest] should
      * do their best to fit their work into this time without going over.
      */
-    val availableTimeNanos: Long
+    fun availableTimeNanos(): Long
 }

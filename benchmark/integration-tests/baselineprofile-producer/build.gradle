@@ -32,7 +32,7 @@ plugins {
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        minSdkVersion 24
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     testOptions.managedDevices.devices {
@@ -41,6 +41,10 @@ android {
             apiLevel = 31
             systemImageSource = "aosp"
         }
+    }
+    buildTypes {
+        release { }
+        releaseLibrariesOnly { }
     }
     targetProjectPath = ":benchmark:integration-tests:baselineprofile-consumer"
     namespace "androidx.benchmark.integration.baselineprofile.producer"

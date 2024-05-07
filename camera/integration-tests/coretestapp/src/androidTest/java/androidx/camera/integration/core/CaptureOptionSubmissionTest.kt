@@ -200,9 +200,6 @@ class CaptureOptionSubmissionTest(
                     listOf(
                         VideoCapture.Builder(Recorder.Builder().build())
                             .setTargetFrameRate(targetFpsRange),
-                        // TODO: b/333365764 - Remove extra Preview use case added to avoid capture
-                        //  session failure due to MediaCodec error
-                        Preview.Builder()
                     )
                 )
 

@@ -46,7 +46,7 @@ fun AdvancedFloatingActionButton(
     content: @Composable () -> Unit
 ) {
     CompositionLocalProvider(
-        LocalRippleConfiguration provides RippleConfiguration(isEnabled = enabled)
+        LocalRippleConfiguration provides if (enabled) RippleConfiguration() else null
     ) {
         FloatingActionButton(
             onClick = if (enabled) onClick else { {} },

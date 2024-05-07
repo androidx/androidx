@@ -69,11 +69,11 @@ private fun readForeignKeys(
 ): Set<TableInfo.ForeignKey> {
     // this seems to return everything in order but it is not documented so better be safe
     connection.prepare("PRAGMA foreign_key_list(`$tableName`)").use { stmt ->
-        val idColumnIndex = stmt.getColumnIndex("id")
-        val seqColumnIndex = stmt.getColumnIndex("seq")
-        val tableColumnIndex = stmt.getColumnIndex("table")
-        val onDeleteColumnIndex = stmt.getColumnIndex("on_delete")
-        val onUpdateColumnIndex = stmt.getColumnIndex("on_update")
+        val idColumnIndex = stmt.columnIndexOf("id")
+        val seqColumnIndex = stmt.columnIndexOf("seq")
+        val tableColumnIndex = stmt.columnIndexOf("table")
+        val onDeleteColumnIndex = stmt.columnIndexOf("on_delete")
+        val onUpdateColumnIndex = stmt.columnIndexOf("on_update")
         val ordered = readForeignKeyFieldMappings(stmt)
 
         // Reset cursor as readForeignKeyFieldMappings has moved it
@@ -132,10 +132,10 @@ private class ForeignKeyWithSequence(
 private fun readForeignKeyFieldMappings(
     stmt: SQLiteStatement
 ): List<ForeignKeyWithSequence> {
-    val idColumnIndex = stmt.getColumnIndex("id")
-    val seqColumnIndex = stmt.getColumnIndex("seq")
-    val fromColumnIndex = stmt.getColumnIndex("from")
-    val toColumnIndex = stmt.getColumnIndex("to")
+    val idColumnIndex = stmt.columnIndexOf("id")
+    val seqColumnIndex = stmt.columnIndexOf("seq")
+    val fromColumnIndex = stmt.columnIndexOf("from")
+    val toColumnIndex = stmt.columnIndexOf("to")
 
     return buildList {
         while (stmt.step()) {
@@ -160,11 +160,11 @@ private fun readColumns(
             return emptyMap()
         }
 
-        val nameIndex = stmt.getColumnIndex("name")
-        val typeIndex = stmt.getColumnIndex("type")
-        val notNullIndex = stmt.getColumnIndex("notnull")
-        val pkIndex = stmt.getColumnIndex("pk")
-        val defaultValueIndex = stmt.getColumnIndex("dflt_value")
+        val nameIndex = stmt.columnIndexOf("name")
+        val typeIndex = stmt.columnIndexOf("type")
+        val notNullIndex = stmt.columnIndexOf("notnull")
+        val pkIndex = stmt.columnIndexOf("pk")
+        val defaultValueIndex = stmt.columnIndexOf("dflt_value")
 
         return buildMap {
             do {
@@ -195,9 +195,9 @@ private fun readColumns(
  */
 private fun readIndices(connection: SQLiteConnection, tableName: String): Set<TableInfo.Index>? {
     connection.prepare("PRAGMA index_list(`$tableName`)").use { stmt ->
-        val nameColumnIndex = stmt.getColumnIndex("name")
-        val originColumnIndex = stmt.getColumnIndex("origin")
-        val uniqueIndex = stmt.getColumnIndex("unique")
+        val nameColumnIndex = stmt.columnIndexOf("name")
+        val originColumnIndex = stmt.columnIndexOf("origin")
+        val uniqueIndex = stmt.columnIndexOf("unique")
         if (nameColumnIndex == -1 || originColumnIndex == -1 || uniqueIndex == -1) {
             // we cannot read them so better not validate any index.
             return null
@@ -228,10 +228,10 @@ private fun readIndex(
     unique: Boolean
 ): TableInfo.Index? {
     return connection.prepare("PRAGMA index_xinfo(`$name`)").use { stmt ->
-        val seqnoColumnIndex = stmt.getColumnIndex("seqno")
-        val cidColumnIndex = stmt.getColumnIndex("cid")
-        val nameColumnIndex = stmt.getColumnIndex("name")
-        val descColumnIndex = stmt.getColumnIndex("desc")
+        val seqnoColumnIndex = stmt.columnIndexOf("seqno")
+        val cidColumnIndex = stmt.columnIndexOf("cid")
+        val nameColumnIndex = stmt.columnIndexOf("name")
+        val descColumnIndex = stmt.columnIndexOf("desc")
         if (
             seqnoColumnIndex == -1 ||
             cidColumnIndex == -1 ||
@@ -265,7 +265,7 @@ internal fun readFtsColumns(connection: SQLiteConnection, tableName: String): Se
     return buildSet {
         connection.prepare("PRAGMA table_info(`$tableName`)").use { stmt ->
             if (!stmt.step()) return@use
-            val nameIndex = stmt.getColumnIndex("name")
+            val nameIndex = stmt.columnIndexOf("name")
             do {
                 add(stmt.getText(nameIndex))
             } while (stmt.step())
@@ -278,7 +278,7 @@ internal fun readFtsOptions(connection: SQLiteConnection, tableName: String): Se
         "SELECT * FROM sqlite_master WHERE `name` = '$tableName'"
     ).use { stmt ->
         if (stmt.step()) {
-            stmt.getText(stmt.getColumnIndex("sql"))
+            stmt.getText(stmt.columnIndexOf("sql"))
         } else {
             ""
         }

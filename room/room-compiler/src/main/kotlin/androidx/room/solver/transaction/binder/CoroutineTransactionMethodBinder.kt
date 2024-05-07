@@ -19,13 +19,13 @@ package androidx.room.solver.transaction.binder
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XType
-import androidx.room.ext.Function1TypeSpec
+import androidx.room.ext.InvokeWithLambdaParameter
 import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.LambdaSpec
 import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
@@ -36,8 +36,7 @@ import androidx.room.solver.transaction.result.TransactionMethodAdapter
 class CoroutineTransactionMethodBinder(
     private val returnType: XType,
     adapter: TransactionMethodAdapter,
-    private val continuationParamName: String,
-    private val javaLambdaSyntaxAvailable: Boolean
+    private val continuationParamName: String
 ) : TransactionMethodBinder(adapter) {
     override fun executeAndReturn(
         parameterNames: List<String>,
@@ -46,81 +45,40 @@ class CoroutineTransactionMethodBinder(
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        when (scope.language) {
-            CodeLanguage.JAVA -> executeAndReturnJava(
-                parameterNames, daoName, daoImplName, dbProperty, scope
-            )
-            CodeLanguage.KOTLIN -> executeAndReturnKotlin(
-                parameterNames, daoName, daoImplName, dbProperty, scope
-            )
-        }
-    }
-
-    private fun executeAndReturnJava(
-        parameterNames: List<String>,
-        daoName: XClassName,
-        daoImplName: XClassName,
-        dbProperty: XPropertySpec,
-        scope: CodeGenScope
-    ) {
         val innerContinuationParamName = scope.getTmpVar("_cont")
-        val adapterScope = scope.fork()
-        adapter.createDelegateToSuperCode(
-            parameterNames = parameterNames + innerContinuationParamName,
-            daoName = daoName,
-            daoImplName = daoImplName,
-            scope = adapterScope
-        )
-        val functionImpl: Any = if (javaLambdaSyntaxAvailable) {
-            XCodeBlock.of(
-                scope.language,
-                "(%L) -> %L",
-                innerContinuationParamName, adapterScope.generate()
-            )
-        } else {
-            Function1TypeSpec(
-                language = scope.language,
+        val performBlock = InvokeWithLambdaParameter(
+            scope = scope,
+            functionName = RoomTypeNames.DB_UTIL.packageMember("performInTransactionSuspending"),
+            argFormat = listOf("%N"),
+            args = listOf(dbProperty),
+            continuationParamName = continuationParamName,
+            lambdaSpec = object : LambdaSpec(
                 parameterTypeName = KotlinTypeNames.CONTINUATION.parametrizedBy(
                     XTypeName.getConsumerSuperName(returnType.asTypeName())
                 ),
                 parameterName = innerContinuationParamName,
-                returnTypeName = KotlinTypeNames.ANY
+                returnTypeName = KotlinTypeNames.ANY,
+                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
             ) {
-                addStatement("return %L", adapterScope.generate())
+                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                    val adapterScope = scope.fork()
+                    adapter.createDelegateToSuperCode(
+                        parameterNames = when (scope.language) {
+                            CodeLanguage.JAVA -> parameterNames + innerContinuationParamName
+                            CodeLanguage.KOTLIN -> parameterNames
+                        },
+                        daoName = daoName,
+                        daoImplName = daoImplName,
+                        scope = adapterScope
+                    )
+                    val returnPrefix = when (scope.language) {
+                        CodeLanguage.JAVA -> "return "
+                        CodeLanguage.KOTLIN -> ""
+                    }
+                    addStatement("$returnPrefix%L", adapterScope.generate())
+                }
             }
-        }
-
-        scope.builder.addStatement(
-            "return %M(%N, %L, %L)",
-            RoomTypeNames.DB_UTIL.packageMember("performInTransactionSuspending"),
-            dbProperty,
-            functionImpl,
-            continuationParamName
         )
-    }
-
-    private fun executeAndReturnKotlin(
-        parameterNames: List<String>,
-        daoName: XClassName,
-        daoImplName: XClassName,
-        dbProperty: XPropertySpec,
-        scope: CodeGenScope
-    ) {
-        scope.builder.apply {
-            beginControlFlow(
-                "return %M(%N) {",
-                RoomTypeNames.DB_UTIL.packageMember("performInTransactionSuspending"),
-                dbProperty,
-            )
-            val adapterScope = scope.fork()
-            adapter.createDelegateToSuperCode(
-                parameterNames = parameterNames,
-                daoName = daoName,
-                daoImplName = daoImplName,
-                scope = adapterScope
-            )
-            addStatement("%L", adapterScope.generate())
-            endControlFlow()
-        }
+        scope.builder.add("return %L", performBlock)
     }
 }

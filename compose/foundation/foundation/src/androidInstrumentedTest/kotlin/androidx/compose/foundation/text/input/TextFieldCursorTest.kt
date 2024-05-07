@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.input
 import android.os.Build
 import android.view.DragEvent
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
@@ -91,7 +90,7 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class)
 @LargeTest
 class TextFieldCursorTest : FocusedWindowTest {
 

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalSafeArgsApi::class)
-
 package androidx.navigation
 
 import android.content.Context
@@ -54,6 +52,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.reflect.typeOf
 import kotlin.test.assertFailsWith
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -261,7 +260,7 @@ class NavControllerRouteTest {
 
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id).isEqualTo(
@@ -278,9 +277,33 @@ class NavControllerRouteTest {
 
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
+        assertThat(navController.currentDestination?.id).isEqualTo(
+            serializer<TestClass>().hashCode()
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNestedStartDestinationKClass() {
+        @Serializable
+        class NestedGraph
+
+        @Serializable
+        @SerialName("test")
+        class TestClass
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            startDestination = NestedGraph::class
+        ) {
+            navigation<NestedGraph>(startDestination = TestClass::class) {
+                test<TestClass>()
+            }
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id).isEqualTo(
             serializer<TestClass>().hashCode()
         )
@@ -295,7 +318,7 @@ class NavControllerRouteTest {
 
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass()) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id).isEqualTo(
@@ -314,7 +337,7 @@ class NavControllerRouteTest {
         navController.graph = navController.createGraph(
             startDestination = TestClass(0)
         ) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo(
             "test/{arg}"
@@ -338,7 +361,7 @@ class NavControllerRouteTest {
         navController.graph = navController.createGraph(
             startDestination = TestClass(false)
         ) {
-            test(route = TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo(
             "test?arg={arg}"
@@ -425,6 +448,41 @@ class NavControllerRouteTest {
         val actual = entry.arguments!!.getString("arg")
         val expected = "myArg"
         assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNestedStartDestinationObjectWithPathArg() {
+        @Serializable
+        @SerialName("graph")
+        class NestedGraph(val nestedArg: Int)
+
+        @Serializable
+        @SerialName("test")
+        class TestClass(val arg: Int)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            startDestination = NestedGraph(0)
+        ) {
+            navigation<NestedGraph>(startDestination = TestClass(1)) {
+                test<TestClass>()
+            }
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "test/{arg}"
+        )
+        assertThat(navController.currentDestination?.id).isEqualTo(
+            serializer<TestClass>().hashCode()
+        )
+
+        val nestedArg = navController.currentBackStackEntry?.arguments?.getInt("nestedArg")
+        assertThat(nestedArg).isNotNull()
+        assertThat(nestedArg).isEqualTo(0)
+
+        val arg = navController.currentBackStackEntry?.arguments?.getInt("arg")
+        assertThat(arg).isNotNull()
+        assertThat(arg).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -651,7 +709,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -667,7 +725,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -688,7 +746,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -712,7 +770,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -731,6 +789,56 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectCollectionNavType() {
+        val navController = createNavController()
+        @Serializable
+        data class CustomType(val id: Int)
+        @Serializable
+        class TestClass(val list: List<CustomType>)
+
+        val collectionNavType = object : CollectionNavType<List<CustomType>>(false) {
+            override fun put(bundle: Bundle, key: String, value: List<CustomType>) {
+                val array = value.map { it.id }.toIntArray()
+                bundle.putIntArray(key, array)
+            }
+            override fun serializeAsValues(value: List<CustomType>) = value.map { it.id.toString() }
+            override fun get(bundle: Bundle, key: String): List<CustomType> {
+                return bundle.getIntArray(key)!!.map { CustomType(it) }
+            }
+            override fun parseValue(value: String) = listOf(CustomType(value.toInt()))
+            override fun parseValue(
+                value: String,
+                previousValue: List<CustomType>
+            ): List<CustomType> {
+                val list = mutableListOf<CustomType>()
+                list.addAll(previousValue)
+                list.add(CustomType(value.toInt()))
+                return list
+            }
+        }
+
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>(mapOf(typeOf<List<CustomType>>() to collectionNavType))
+        }
+
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+        assertThat(navController.currentBackStack.value.size).isEqualTo(2)
+
+        val list = listOf(CustomType(1), CustomType(3), CustomType(5))
+        navController.navigate(TestClass(list))
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "androidx.navigation.NavControllerRouteTest." +
+                "testNavigateWithObjectCollectionNavType.TestClass?list={list}"
+        )
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+        assertThat(
+            navController.currentBackStackEntry!!.toRoute<TestClass>().list
+        ).containsExactlyElementsIn(list).inOrder()
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectInvalidObject() {
         @Serializable
         class WrongTestClass
@@ -738,7 +846,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -754,7 +862,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -772,7 +880,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -803,7 +911,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
         assertThat(navController.currentDestination?.route).isEqualTo("start")
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -1344,7 +1452,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -1362,7 +1470,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
@@ -1376,11 +1484,84 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testGetBackStackEntryWithKClassNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClass::class) {
+                test<TestClass>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val entry = navController.getBackStackEntry<TestClass>()
+        assertThat(entry.destination.route).isEqualTo(TEST_CLASS_ROUTE)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithKClassNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry<TestClassPathArg>()
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in " +
+                "navigation graph ${navController.graph}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithKClassNotInBackstack() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry<TestClass>()
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route TestClass is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
     fun testGetBackStackEntryWithObject() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -1400,7 +1581,7 @@ class NavControllerRouteTest {
             route = TestGraph::class,
             startDestination = TestClass::class
         ) {
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -1420,7 +1601,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
@@ -1438,7 +1619,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
@@ -1449,6 +1630,79 @@ class NavControllerRouteTest {
         assertFailsWith<IllegalArgumentException> {
             navController.getBackStackEntry(TestClassPathArg(1))
         }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithObjectNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClassPathArg::class) {
+                test<TestClassPathArg>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClassPathArg(1))
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_PATH_ARG_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val entry = navController.getBackStackEntry(TestClassPathArg(1))
+        assertThat(entry.destination.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithObjectNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(TestClassPathArg(1))
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in " +
+                "navigation graph ${navController.graph}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetBackStackEntryWithObjectNotInBackstack() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.getBackStackEntry(TestClass())
+        }
+        assertThat(exception.message).isEqualTo(
+            "No destination with route $TEST_CLASS_ROUTE is on the NavController's " +
+                "back stack. The current destination is ${navController.currentDestination}"
+        )
     }
 
     @UiThreadTest
@@ -1668,21 +1922,16 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
-
-        // first nav
-        navController.navigate("start")
-
-        // second nav
-        navController.navigate(TEST_CLASS_ROUTE)
+        navController.navigate(TestClass())
 
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navigator.backStack.size).isEqualTo(2)
 
         val popped = navController.popBackStack<TestClass>(true)
         assertThat(popped).isTrue()
-        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -1693,7 +1942,7 @@ class NavControllerRouteTest {
             route = TestGraph::class,
             startDestination = TestClass::class
         ) {
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -1710,11 +1959,42 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testPopBackStackWithKClassNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClass::class) {
+                test<TestClass>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val popped = navController.popBackStack<TestClass>(true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
     fun testPopBackStackWithKClassArg() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         // first nav
@@ -1733,11 +2013,49 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testPopBackStackWithKClassNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.popBackStack<TestClassPathArg>(true)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in " +
+                "navigation graph ${navController.graph}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithKClassNotInBackStack() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val popped = navController.popBackStack<TestClass>(true)
+        assertThat(popped).isFalse()
+    }
+
+    @UiThreadTest
+    @Test
     fun testPopBackStackWithObject() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         // first nav
@@ -1762,7 +2080,7 @@ class NavControllerRouteTest {
             route = TestGraph::class,
             startDestination = TestClass::class
         ) {
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         assertThat(navController.currentBackStack.value.size).isEqualTo(2)
@@ -1783,7 +2101,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         // first nav
@@ -1806,7 +2124,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         // first nav
@@ -1821,6 +2139,75 @@ class NavControllerRouteTest {
         val popped = navController.popBackStack(TestClassPathArg(1), true)
         assertThat(popped).isFalse()
         assertThat(navigator.backStack.size).isEqualTo(3)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObjectNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClass::class) {
+                test<TestClass>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val popped = navController.popBackStack(TestClass(), true)
+        assertThat(popped).isTrue()
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObjectNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.popBackStack(TestClassPathArg(1), true)
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in " +
+                "navigation graph ${navController.graph}"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testPopBackStackWithObjectNotInBackStack() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass>()
+        }
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val popped = navController.popBackStack(TestClass(), true)
+        assertThat(popped).isFalse()
     }
 
     @UiThreadTest
@@ -2158,7 +2545,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -2177,7 +2564,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -2196,7 +2583,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         navController.navigate(TEST_CLASS_PATH_ARG_ROUTE.replace("{arg}", "0"))
@@ -2215,7 +2602,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -2234,7 +2621,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClass::class)
+            test<TestClass>()
         }
 
         navController.navigate(TEST_CLASS_ROUTE)
@@ -2253,7 +2640,7 @@ class NavControllerRouteTest {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = "start") {
             test("start")
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
         }
 
         // second nav
@@ -2272,7 +2659,113 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
-    fun testNavigateViaDeepLinkDefaultArgs() {
+    fun testNavigateViaDeepLinkKClass() {
+        val baseUri = "www.example.com"
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass> {
+                deepLink(
+                    navDeepLink<TestClass>(baseUri)
+                )
+            }
+        }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("http://$baseUri/1")
+
+        navController.navigate(deepLink)
+
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry!!.arguments!!.getInt("arg"))
+            .isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkKClassDefaultArg() {
+        val baseUri = "www.example.com"
+        @Serializable
+        class TestClass(val arg: Int = 1)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass> {
+                deepLink(
+                    navDeepLink<TestClass>(baseUri)
+                )
+            }
+        }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("http://$baseUri")
+
+        navController.navigate(deepLink)
+
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        val dest = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(dest?.arg).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkKClassDefaultArgOverride() {
+        val baseUri = "www.example.com"
+        @Serializable
+        class TestClass(val arg: Int = 1)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass> {
+                deepLink(
+                    navDeepLink<TestClass>(baseUri)
+                )
+            }
+        }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("http://$baseUri?arg=2")
+
+        navController.navigate(deepLink)
+
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        val dest = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(dest?.arg).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkKClassPopUpTo() {
+        val baseUri = "www.example.com"
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            test<TestClass> {
+                deepLink(
+                    navDeepLink<TestClass>(baseUri)
+                )
+            }
+        }
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        val deepLink = Uri.parse("http://$baseUri/1")
+
+        navController.navigate(deepLink, navOptions {
+            popUpTo("start") { inclusive = true }
+        })
+
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        assertThat(navController.currentBackStackEntry!!.arguments!!.getInt("arg"))
+            .isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateViaDeepLinkDefaultArg() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
@@ -3023,7 +3516,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopKClassInclusive() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(TestClass::class)
+            test<TestClass>()
             test("second")
         }
 
@@ -3047,7 +3540,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopKClassNotInclusive() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(TestClass::class)
+            test<TestClass>()
             test("second")
             test("third")
         }
@@ -3076,7 +3569,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopObjectInclusive() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(TestClass::class)
+            test<TestClass>()
             test("second")
         }
 
@@ -3100,7 +3593,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopObjectNotInclusive() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClass::class) {
-            test(TestClass::class)
+            test<TestClass>()
             test("second")
             test("third")
         }
@@ -3129,7 +3622,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopObjectArg() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClassPathArg(0)) {
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
             test("second")
         }
 
@@ -3153,7 +3646,7 @@ class NavControllerRouteTest {
     fun testNavigateWithPopObjectWrongArg() {
         val navController = createNavController()
         navController.graph = navController.createGraph(startDestination = TestClassPathArg(0)) {
-            test(TestClassPathArg::class)
+            test<TestClassPathArg>()
             test("second")
         }
 
@@ -3170,6 +3663,48 @@ class NavControllerRouteTest {
         // should not be popped due to wrong arg
         assertThat(navController.currentBackStack.value.map { it.destination.route })
             .containsExactly(null, TEST_CLASS_PATH_ARG_ROUTE, "second").inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectListArg() {
+        @Serializable
+        class TestClass(val arg: MutableList<Boolean>)
+
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            startDestination = TestClass(mutableListOf(true, false, true))
+        ) {
+           test<TestClass>()
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            "androidx.navigation.NavControllerRouteTest.testNavigateWithObjectListArg" +
+                ".TestClass?arg={arg}"
+        )
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route?.arg is MutableList).isTrue()
+        assertThat(route?.arg).containsExactly(true, false, true).inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNotInGraph() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(
+            startDestination = TestClass::class
+        ) {
+            test<TestClass>()
+        }
+        assertThat(navController.currentDestination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+        val exception = assertFailsWith<IllegalArgumentException> {
+            navController.navigate(TestClassPathArg(1))
+        }
+        assertThat(exception.message).isEqualTo(
+            "Destination with route TestClassPathArg cannot be found in navigation " +
+                "graph ${navController.graph}"
+        )
     }
 
     @UiThreadTest

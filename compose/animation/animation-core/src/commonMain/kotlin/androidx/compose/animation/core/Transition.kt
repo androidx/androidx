@@ -209,6 +209,12 @@ private val SeekableTransitionStateTotalDurationChanged: (SeekableTransitionStat
     it.onTotalDurationChanged()
 }
 
+private val SeekableStateObserver: SnapshotStateObserver by lazy(LazyThreadSafetyMode.NONE) {
+    SnapshotStateObserver { it() }.apply {
+        start()
+    }
+}
+
 /**
  * A [TransitionState] that can manipulate the progress of the [Transition] by seeking
  * with [seekTo] or animating with [animateTo].
@@ -236,8 +242,6 @@ class SeekableTransitionState<S>(
      * with one Transition.
      */
     private var transition: Transition<S>? = null
-
-    private val observer = SnapshotStateObserver { it() }
 
     // Used for seekToFraction calculations to avoid allocation
     internal var totalDurationNanos = 0L
@@ -474,6 +478,7 @@ class SeekableTransitionState<S>(
                 // the correct animation values
                 waitForCompositionAfterTargetStateChange()
             }
+            transition.onTransitionEnd()
         }
     }
 
@@ -688,6 +693,7 @@ class SeekableTransitionState<S>(
                     currentState = targetState
                     waitForComposition()
                     fraction = 0f
+                    transition.onTransitionEnd()
                 }
             }
         }
@@ -698,21 +704,16 @@ class SeekableTransitionState<S>(
             "An instance of SeekableTransitionState has been used in different Transitions. " +
                 "Previous instance: ${this.transition}, new instance: $transition"
         }
-        if (this.transition == null) {
-            observer.start()
-        }
         this.transition = transition
     }
 
     override fun transitionRemoved() {
-        if (this.transition != null) {
-            observer.stop()
-            this.transition = null
-        }
+        this.transition = null
+        SeekableStateObserver.clear(this)
     }
 
     internal fun observeTotalDuration() {
-        observer.observeReads(
+        SeekableStateObserver.observeReads(
             scope = this,
             onValueChangedForScope = SeekableTransitionStateTotalDurationChanged,
             block = recalculateTotalDurationNanos

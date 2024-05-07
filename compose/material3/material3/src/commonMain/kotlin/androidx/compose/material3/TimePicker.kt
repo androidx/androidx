@@ -212,9 +212,7 @@ fun TimePicker(
     colors: TimePickerColors = TimePickerDefaults.colors(),
     layoutType: TimePickerLayoutType = TimePickerDefaults.layoutType(),
 ) {
-    val a11yServicesEnabled by rememberAccessibilityServiceState(
-        listenToSwitchAccessState = false,
-    )
+    val a11yServicesEnabled by rememberAccessibilityServiceState()
 
     if (layoutType == TimePickerLayoutType.Vertical) {
         VerticalTimePicker(

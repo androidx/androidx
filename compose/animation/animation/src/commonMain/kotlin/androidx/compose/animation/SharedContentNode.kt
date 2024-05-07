@@ -42,6 +42,7 @@ import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.node.requireGraphicsContext
+import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
@@ -87,23 +88,18 @@ internal class SharedBoundsNode(
                     provide(ModifierLocalSharedElementInternalState, value)
                     state.parentState = ModifierLocalSharedElementInternalState.current
                     state.layer = layer
-                    state.lookaheadCoords = lookaheadCoords
-                    state.lookaheadSize = lookaheadSize
+                    state.lookaheadCoords = { requireLookaheadLayoutCoordinates() }
                 }
             }
         }
 
-    private var lookaheadCoords: LayoutCoordinates? = state.lookaheadCoords
-        set(value) {
-            state.lookaheadCoords = value
-            field = value
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun requireLookaheadLayoutCoordinates(): LayoutCoordinates =
+        with(state.sharedElement.scope) {
+            requireLayoutCoordinates().toLookaheadCoordinates()
         }
+
     private val boundsAnimation: BoundsAnimation get() = state.boundsAnimation
-    private var lookaheadSize: Size? = state.lookaheadSize
-        set(value) {
-            state.lookaheadSize = value
-            field = value
-        }
 
     private var layer: GraphicsLayer? = state.layer
         set(value) {
@@ -126,13 +122,21 @@ internal class SharedBoundsNode(
         provide(ModifierLocalSharedElementInternalState, state)
         state.parentState = ModifierLocalSharedElementInternalState.current
         layer = requireGraphicsContext().createGraphicsLayer()
+        state.lookaheadCoords = { requireLookaheadLayoutCoordinates() }
     }
 
     override fun onDetach() {
         super.onDetach()
         layer = null
         state.parentState = null
-        lookaheadCoords = null
+        state.lookaheadCoords = { null }
+    }
+
+    override fun onReset() {
+        super.onReset()
+        // Reset layer
+        layer?.let { requireGraphicsContext().releaseGraphicsLayer(it) }
+        layer = requireGraphicsContext().createGraphicsLayer()
     }
 
     override fun MeasureScope.measure(
@@ -141,17 +145,14 @@ internal class SharedBoundsNode(
     ): MeasureResult {
         // Lookahead pass: Record lookahead size and lookahead coordinates
         val placeable = measurable.measure(constraints)
-        lookaheadSize = Size(placeable.width.toFloat(), placeable.height.toFloat())
+        val lookaheadSize = Size(placeable.width.toFloat(), placeable.height.toFloat())
         return layout(placeable.width, placeable.height) {
             val topLeft = coordinates?.let {
-                lookaheadCoords = it
                 rootLookaheadCoords.localPositionOf(it, Offset.Zero).also { topLeft ->
                     if (sharedElement.currentBounds == null) {
                         sharedElement.currentBounds = Rect(
                             topLeft,
-                            requireNotNull(lookaheadSize) {
-                                "Error: Lookahead measure has not happened."
-                            }
+                            lookaheadSize
                         )
                     }
                 }
@@ -160,14 +161,14 @@ internal class SharedBoundsNode(
             // Update the lookahead result after child placement, so that child has an
             // opportunity to use its placement to influence the bounds animation.
             topLeft?.let {
-                sharedElement.onLookaheadResult(state, lookaheadSize!!, it)
+                sharedElement.onLookaheadResult(state, lookaheadSize, it)
             }
         }
     }
 
     private fun MeasureScope.place(placeable: Placeable): MeasureResult {
         val (w, h) = state.placeHolderSize.calculateSize(
-            lookaheadSize!!.roundToIntSize(),
+            requireLookaheadLayoutCoordinates().size,
             IntSize(placeable.width, placeable.height)
         )
         return layout(w, h) {
@@ -262,9 +263,9 @@ internal class SharedBoundsNode(
 
         layer.record {
             this@draw.drawContent()
-            if (VisualDebugging) {
+            if (VisualDebugging && sharedElement.foundMatch) {
                 // TODO: also draw border of the clip path
-                drawRect(Color.Red, style = Stroke(3f))
+                drawRect(Color.Green, style = Stroke(3f))
             }
         }
         if (state.shouldRenderInPlace) {

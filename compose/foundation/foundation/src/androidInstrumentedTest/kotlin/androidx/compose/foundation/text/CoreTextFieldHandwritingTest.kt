@@ -39,6 +39,8 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -55,6 +57,7 @@ class CoreTextFieldHandwritingTest {
     @get:Rule
     val rule = createComposeRule()
     private val inputMethodInterceptor = InputMethodInterceptor(rule)
+    private val keyboardHelper = KeyboardHelper(rule)
 
     private val Tag = "CoreTextField"
 
@@ -238,6 +241,45 @@ class CoreTextFieldHandwritingTest {
         focusWindow.value = true
         rule.waitForIdle()
         performHandwritingAndExpect(stylusHandwritingStarted = true)
+    }
+
+    @Test
+    fun coreTextField_passwordField_notStartStylusHandwriting() {
+        inputMethodManagerFactory = { fakeImm }
+
+        setContent {
+            val value = remember { TextFieldValue() }
+            CoreTextField(
+                value = value,
+                onValueChange = { },
+                imeOptions = ImeOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(Tag),
+            )
+        }
+
+        performHandwritingAndExpect(stylusHandwritingStarted = false)
+    }
+
+    @Test
+    fun coreTextField_passwordField_attemptStylusHandwritingShowSoftInput() {
+        rule.setContent {
+            keyboardHelper.initialize()
+            val value = remember { TextFieldValue() }
+            CoreTextField(
+                value = value,
+                onValueChange = { },
+                imeOptions = ImeOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(Tag),
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performStylusHandwriting()
+        keyboardHelper.waitForKeyboardVisibility(true)
+        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
     }
 
     private fun testStylusHandwriting(

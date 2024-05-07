@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package androidx.compose.ui.layout
 
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReusableComposeNode
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.geometry.Offset
@@ -158,7 +155,6 @@ private data class ApproachLayoutElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class ApproachLayoutModifierNodeImpl(
     var measureBlock: ApproachMeasureScope.(
         measurable: Measurable,
@@ -197,57 +193,108 @@ private class ApproachLayoutModifierNodeImpl(
  */
 interface LookaheadScope {
     /**
-     * Converts a [LayoutCoordinates] into a [LayoutCoordinates] in the Lookahead coordinates space.
-     * This is only applicable to child layouts within [LookaheadScope].
+     * Converts a [LayoutCoordinates] into a [LayoutCoordinates] in the Lookahead coordinate space.
+     * This can be used for layouts within [LookaheadScope].
      */
-    @ExperimentalComposeUiApi
     fun LayoutCoordinates.toLookaheadCoordinates(): LayoutCoordinates
 
     /**
      * Returns the [LayoutCoordinates] of the [LookaheadScope]. This is
      * only accessible from [Placeable.PlacementScope] (i.e. during placement time).
+     *
+     * Note: The returned coordinates is **not** coordinates in the lookahead coordinate space.
+     * If the lookahead coordinates of the lookaheadScope is needed, suggest converting the
+     * returned coordinates using [toLookaheadCoordinates].
      */
-    @ExperimentalComposeUiApi
     val Placeable.PlacementScope.lookaheadScopeCoordinates: LayoutCoordinates
 
     /**
-     * Calculates the localPosition in the Lookahead coordinate space. This is a convenient
-     * method for 1) converting the given [LayoutCoordinates] to lookahead coordinates using
+     * Converts [relativeToSource] in [sourceCoordinates]'s lookahead coordinate space into
+     * local lookahead coordinates. This is a convenient method for 1) converting both [this]
+     * coordinates and [sourceCoordinates] into lookahead space coordinates using
      * [toLookaheadCoordinates], and 2) invoking [LayoutCoordinates.localPositionOf] with the
      * converted coordinates.
+     *
+     * For layouts where [LayoutCoordinates.introducesFrameOfReference] returns false (placed under
+     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement]) you may use
+     * [positionInLocalLookaheadFrameOfReference] to get their position while excluding the
+     * additional Offset.
      */
-    @ExperimentalComposeUiApi
     fun LayoutCoordinates.localLookaheadPositionOf(
-        coordinates: LayoutCoordinates,
-        excludeDirectManipulationOffset: Boolean = false,
-    ): Offset {
-        val lookaheadCoords = this.toLookaheadCoordinates()
-        val source = coordinates.toLookaheadCoordinates()
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset = Offset.Zero,
+    ): Offset = localLookaheadPositionOf(
+        coordinates = this,
+        sourceCoordinates = sourceCoordinates,
+        relativeToSource = relativeToSource,
+        excludeDirectManipulationOffset = false
+    )
 
-        return if (lookaheadCoords is LookaheadLayoutCoordinates) {
-            lookaheadCoords.localPositionOf(
+    /**
+     * Similar to [localLookaheadPositionOf], converts [relativeToSource] in [sourceCoordinates]'s
+     * lookahead coordinate space into local lookahead coordinates.
+     *
+     * However, the Offset introduced on [LayoutCoordinates] when their
+     * [LayoutCoordinates.introducesFrameOfReference] property is false, will be excluded from the
+     * calculation.
+     *
+     * Those [LayoutCoordinates] correspond to when they are placed by their parent under
+     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement], which is typically done by
+     * Layouts that change their children positioning without affecting the overall hierarchy, or
+     * they do so in small increments (such as Scroll).
+     */
+    fun LayoutCoordinates.positionInLocalLookaheadFrameOfReference(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset = Offset.Zero,
+    ): Offset = localLookaheadPositionOf(
+        coordinates = this,
+        sourceCoordinates = sourceCoordinates,
+        relativeToSource = relativeToSource,
+        excludeDirectManipulationOffset = true
+    )
+}
+
+/**
+ * Internal implementation to handle [LookaheadScope.localLookaheadPositionOf] and
+ * [LookaheadScope.positionInLocalLookaheadFrameOfReference].
+ */
+internal fun LookaheadScope.localLookaheadPositionOf(
+    coordinates: LayoutCoordinates,
+    sourceCoordinates: LayoutCoordinates,
+    relativeToSource: Offset,
+    excludeDirectManipulationOffset: Boolean
+): Offset {
+    val lookaheadCoords = coordinates.toLookaheadCoordinates()
+    val source = sourceCoordinates.toLookaheadCoordinates()
+
+    return if (lookaheadCoords is LookaheadLayoutCoordinates) {
+        lookaheadCoords.localPositionOf(
+            sourceCoordinates = source,
+            relativeToSource = relativeToSource,
+            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+        )
+    } else if (source is LookaheadLayoutCoordinates) {
+        // Relative from source, so we take its negative position
+        -source.localPositionOf(
+            sourceCoordinates = lookaheadCoords,
+            relativeToSource = relativeToSource,
+            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+        )
+    } else {
+        if (excludeDirectManipulationOffset) {
+            lookaheadCoords.positionInLocalFrameOfReference(
                 sourceCoordinates = source,
-                relativeToSource = Offset.Zero,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
-            )
-        } else if (source is LookaheadLayoutCoordinates) {
-            // Relative from source, so we take its negative position
-            -source.localPositionOf(
-                sourceCoordinates = lookaheadCoords,
-                relativeToSource = Offset.Zero,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+                relativeToSource = relativeToSource
             )
         } else {
             lookaheadCoords.localPositionOf(
-                sourceCoordinates = source,
-                relativeToSource = Offset.Zero,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+                sourceCoordinates = lookaheadCoords,
+                relativeToSource = relativeToSource
             )
         }
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal class LookaheadScopeImpl(
     var scopeCoordinates: (() -> LayoutCoordinates)? = null
 ) : LookaheadScope {

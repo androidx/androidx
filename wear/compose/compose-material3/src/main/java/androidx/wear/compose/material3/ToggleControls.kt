@@ -18,26 +18,39 @@ package androidx.wear.compose.material3
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.material3.tokens.MotionTokens
+import androidx.wear.compose.materialcore.SelectionStage
 import androidx.wear.compose.materialcore.animateSelectionColor
-import androidx.wear.compose.materialcore.directionVector
-import androidx.wear.compose.materialcore.toRadians
+import androidx.wear.compose.materialcore.animateTick
+import androidx.wear.compose.materialcore.isLayoutDirectionRtl
 
 /**
  * [Checkbox] provides an animated checkbox for use as a toggle control in
@@ -81,7 +94,7 @@ fun ToggleControlScope.Checkbox(
     },
     progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
     width = WIDTH,
-    height = HEIGHT,
+    height = CHECKBOX_HEIGHT,
     ripple = rippleOrFallbackImplementation()
 )
 
@@ -100,51 +113,49 @@ fun ToggleControlScope.Checkbox(
 fun ToggleControlScope.Switch(
     modifier: Modifier = Modifier,
     colors: SwitchColors = SwitchDefaults.colors(),
-) = androidx.wear.compose.materialcore.Switch(
-    modifier = modifier,
-    checked = isChecked,
-    enabled = isEnabled,
-    onCheckedChange = null,
-    interactionSource = null,
-    trackFillColor = { isEnabled, isChecked ->
-        colors.trackColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    trackStrokeColor = { isEnabled, isChecked ->
-        colors.trackStrokeColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    thumbColor = { isEnabled, isChecked ->
-        colors.thumbColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    thumbIconColor = { isEnabled, isChecked ->
-        colors.thumbIconColor(
-            enabled = isEnabled,
-            checked = isChecked
-        )
-    },
-    trackWidth = TRACK_WIDTH,
-    trackHeight = TRACK_HEIGHT,
-    drawThumb = { drawScope, thumbColor, progress, thumbIconColor, isRtl ->
-        drawScope.drawThumb(
-            thumbColor,
-            progress,
-            thumbIconColor,
-            isRtl
-        )
-    },
-    progressAnimationSpec = SWITCH_PROGRESS_ANIMATION_SPEC,
-    width = WIDTH,
-    height = HEIGHT,
-    ripple = rippleOrFallbackImplementation()
-)
+) {
+    val isRtl = isLayoutDirectionRtl()
+    val targetState = if (isChecked) SelectionStage.Checked else SelectionStage.Unchecked
+    val transition = updateTransition(targetState, label = "switchTransition")
+    val thumbProgress = transition.animateFloat(
+        transitionSpec = { SWITCH_PROGRESS_ANIMATION_SPEC }, label = "switchTransition"
+    ) {
+        when (it) {
+            SelectionStage.Unchecked -> 0f
+            SelectionStage.Checked -> 1f
+        }
+    }
+    val thumbColor = colors.thumbColor(enabled = isEnabled, checked = isChecked).value
+    val thumbIconColor = colors.thumbIconColor(enabled = isEnabled, checked = isChecked).value
+    val trackColor = colors.trackColor(enabled = isEnabled, checked = isChecked).value
+    val trackBorderColor = colors.trackBorderColor(enabled = isEnabled, checked = isChecked).value
+    Box(
+        modifier = modifier
+            .semantics { this.role = Role.Switch }
+            .height(SWITCH_HEIGHT)
+            .width(WIDTH)
+            .border(
+                width = SWITCH_TRACK_WIDTH,
+                shape = CircleShape,
+                color = if (trackColor == trackBorderColor) Color.Transparent else trackBorderColor
+            )
+            .background(
+                color = trackColor,
+                shape = CircleShape
+            )
+            .drawBehind {
+                drawThumbAndTick(
+                    isEnabled,
+                    isChecked,
+                    thumbColor,
+                    thumbProgress.value,
+                    thumbIconColor,
+                    isRtl
+                )
+            }
+            .wrapContentSize(Alignment.CenterEnd)
+    )
+}
 
 /**
  * Represents the content colors used in [Checkbox] in different states.
@@ -319,7 +330,7 @@ class SwitchColors(
         )
 
     @Composable
-    internal fun trackStrokeColor(enabled: Boolean, checked: Boolean): State<Color> =
+    internal fun trackBorderColor(enabled: Boolean, checked: Boolean): State<Color> =
         animateSelectionColor(
             enabled = enabled,
             checked = checked,
@@ -417,22 +428,50 @@ object SwitchDefaults {
      * @param checkedThumbColor The thumb color of this [Switch] when enabled and checked.
      * @param checkedThumbIconColor The thumb icon color of this [Switch] when enabled and checked.
      * @param checkedTrackColor The track color of this [Switch] when enabled and checked.
-     * @param checkedTrackBorderColor The track border color of this [Switch] when enabled and checked.
+     * @param checkedTrackBorderColor The border color of this [Switch] when enabled and checked.
      * @param uncheckedThumbColor The thumb color of this [Switch] when enabled and unchecked.
-     * @param uncheckedThumbIconColor The thumb icon color of this [Switch] when enabled and checked.
+     * @param uncheckedThumbIconColor The thumb icon color of this [Switch] when enabled and
+     * checked.
      * @param uncheckedTrackColor The track color of this [Switch] when enabled and unchecked.
-     * @param uncheckedTrackBorderColor The track border color of this [Switch] when enabled and unchecked.
+     * @param uncheckedTrackBorderColor The border color of this [Switch] when enabled and
+     * unchecked.
+     * @param disabledCheckedThumbColor The thumb color of this [Switch] when disabled and checked.
+     * @param disabledCheckedThumbIconColor The thumb icon color of this [Switch] when disabled
+     * and checked.
+     * @param disabledCheckedTrackColor The track color of this [Switch] when disabled and checked.
+     * @param disabledCheckedTrackBorderColor The border color of this [Switch] when disabled and
+     * unchecked.
+     * @param disabledUncheckedThumbColor The thumb color of this [Switch] when disabled and
+     * unchecked.
+     * @param disabledUncheckedThumbIconColor The thumb icon color of this [Switch] when disabled
+     * and unchecked.
+     * @param disabledUncheckedTrackColor The track color of this [Switch] when disabled and
+     * unchecked.
+     * @param disabledUncheckedTrackBorderColor The border color of this [Switch] when disabled
+     * and unchecked.
      */
     @Composable
     fun colors(
         checkedThumbColor: Color = MaterialTheme.colorScheme.onPrimary,
         checkedThumbIconColor: Color = MaterialTheme.colorScheme.primary,
-        checkedTrackColor: Color = MaterialTheme.colorScheme.primaryDim,
-        checkedTrackBorderColor: Color = MaterialTheme.colorScheme.primaryDim,
+        checkedTrackColor: Color = MaterialTheme.colorScheme.primary,
+        checkedTrackBorderColor: Color = MaterialTheme.colorScheme.primary,
         uncheckedThumbColor: Color = MaterialTheme.colorScheme.outline,
-        uncheckedThumbIconColor: Color = MaterialTheme.colorScheme.background,
-        uncheckedTrackColor: Color = MaterialTheme.colorScheme.surface,
-        uncheckedTrackBorderColor: Color = MaterialTheme.colorScheme.outline
+        uncheckedThumbIconColor: Color = Color.Transparent,
+        uncheckedTrackColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+        uncheckedTrackBorderColor: Color = MaterialTheme.colorScheme.outline,
+        disabledCheckedThumbColor: Color = MaterialTheme.colorScheme.background.toDisabledColor(),
+        disabledCheckedThumbIconColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
+        disabledCheckedTrackColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
+        disabledCheckedTrackBorderColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
+        disabledUncheckedThumbColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(),
+        disabledUncheckedThumbIconColor: Color = Color.Transparent,
+        disabledUncheckedTrackColor: Color = Color.Transparent,
+        disabledUncheckedTrackBorderColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor()
     ): SwitchColors = SwitchColors(
         checkedThumbColor = checkedThumbColor,
         checkedThumbIconColor = checkedThumbIconColor,
@@ -442,41 +481,32 @@ object SwitchDefaults {
         uncheckedThumbIconColor = uncheckedThumbIconColor,
         uncheckedTrackColor = uncheckedTrackColor,
         uncheckedTrackBorderColor = uncheckedTrackBorderColor,
-        disabledCheckedThumbColor = checkedThumbColor.toDisabledColor(),
-        disabledCheckedThumbIconColor = checkedThumbIconColor.toDisabledColor(),
-        disabledCheckedTrackColor = checkedTrackColor.toDisabledColor(
-            disabledAlpha = DisabledContainerAlpha
-        ),
-        disabledCheckedTrackBorderColor = checkedTrackBorderColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAlpha
-        ),
-        disabledUncheckedThumbColor = uncheckedThumbColor.toDisabledColor(),
-        disabledUncheckedThumbIconColor = uncheckedThumbIconColor.toDisabledColor(),
-        disabledUncheckedTrackColor = uncheckedTrackColor.toDisabledColor(
-            disabledAlpha = DisabledContainerAlpha
-        ),
-        disabledUncheckedTrackBorderColor = uncheckedTrackBorderColor.toDisabledColor(
-            disabledAlpha = DisabledBorderAlpha
-        )
+        disabledCheckedThumbColor = disabledCheckedThumbColor,
+        disabledCheckedThumbIconColor = disabledCheckedThumbIconColor,
+        disabledCheckedTrackColor = disabledCheckedTrackColor,
+        disabledCheckedTrackBorderColor = disabledCheckedTrackBorderColor,
+        disabledUncheckedThumbColor = disabledUncheckedThumbColor,
+        disabledUncheckedThumbIconColor = disabledUncheckedThumbIconColor,
+        disabledUncheckedTrackColor = disabledUncheckedTrackColor,
+        disabledUncheckedTrackBorderColor = disabledUncheckedTrackBorderColor
     )
 }
 
 private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
     // Centering vertically.
-    val topCornerPx = (HEIGHT - BOX_SIZE).toPx() / 2
+    val topCornerPx = (CHECKBOX_HEIGHT - BOX_SIZE).toPx() / 2
     val strokeWidthPx = BOX_STROKE.toPx()
     val halfStrokeWidthPx = strokeWidthPx / 2.0f
     val radiusPx = BOX_RADIUS.toPx()
     val checkboxSizePx = BOX_SIZE.toPx()
     // Aligning the box to the end.
-    val startXOffsetPx = if (isRtl) 0f else (WIDTH - HEIGHT).toPx()
+    val startXOffsetPx = if (isRtl) 0f else (WIDTH - CHECKBOX_HEIGHT).toPx()
 
     // Draw the outline of the box.
     drawRoundRect(
         color,
         topLeft = Offset(
-            topCornerPx + halfStrokeWidthPx + startXOffsetPx,
-            topCornerPx + halfStrokeWidthPx
+            topCornerPx + halfStrokeWidthPx + startXOffsetPx, topCornerPx + halfStrokeWidthPx
         ),
         size = Size(checkboxSizePx - strokeWidthPx, checkboxSizePx - strokeWidthPx),
         cornerRadius = CornerRadius(radiusPx - halfStrokeWidthPx),
@@ -495,15 +525,17 @@ private fun DrawScope.drawBox(color: Color, progress: Float, isRtl: Boolean) {
     )
 }
 
-private fun DrawScope.drawThumb(
+private fun DrawScope.drawThumbAndTick(
+    enabled: Boolean,
+    checked: Boolean,
     thumbColor: Color,
     progress: Float,
     thumbIconColor: Color,
     isRtl: Boolean
 ) {
 
-    val thumbPaddingUnchecked = TRACK_HEIGHT / 2 - THUMB_RADIUS_UNCHECKED
-    val thumbPaddingChecked = TRACK_HEIGHT / 2 - THUMB_RADIUS_CHECKED
+    val thumbPaddingUnchecked = SWITCH_HEIGHT / 2 - THUMB_RADIUS_UNCHECKED
+    val thumbPaddingChecked = SWITCH_HEIGHT / 2 - THUMB_RADIUS_CHECKED
 
     val switchThumbRadiusPx = lerp(
         start = THUMB_RADIUS_UNCHECKED.toPx(),
@@ -514,18 +546,16 @@ private fun DrawScope.drawThumb(
     val switchTrackLengthPx = WIDTH.toPx()
 
     // For Rtl mode the thumb progress will start from the end of the switch.
-    val thumbProgressPx = if (isRtl)
-        lerp(
-            start = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingUnchecked.toPx(),
-            stop = switchThumbRadiusPx + thumbPaddingChecked.toPx(),
-            fraction = progress
-        )
-    else
-        lerp(
-            start = switchThumbRadiusPx + thumbPaddingUnchecked.toPx(),
-            stop = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingChecked.toPx(),
-            fraction = progress
-        )
+    val thumbProgressPx = if (isRtl) lerp(
+        start = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingUnchecked.toPx(),
+        stop = switchThumbRadiusPx + thumbPaddingChecked.toPx(),
+        fraction = progress
+    )
+    else lerp(
+        start = switchThumbRadiusPx + thumbPaddingUnchecked.toPx(),
+        stop = switchTrackLengthPx - switchThumbRadiusPx - thumbPaddingChecked.toPx(),
+        fraction = progress
+    )
 
     drawCircle(
         color = thumbColor,
@@ -533,81 +563,37 @@ private fun DrawScope.drawThumb(
         center = Offset(thumbProgressPx, center.y)
     )
 
-    val totalDist = switchTrackLengthPx - 2 * switchThumbRadiusPx - 4.dp.toPx()
+    val ltrAdditionalOffset = 5.dp.toPx()
+    val rtlAdditionalOffset = 6.dp.toPx()
+
+    val totalDist = switchTrackLengthPx - 2 * switchThumbRadiusPx - ltrAdditionalOffset
 
     // Offset value to be added if RTL mode is enabled.
     // We need to move the tick to the checked position in ltr mode when unchecked.
-    val rtlOffset = switchTrackLengthPx - 2 * THUMB_RADIUS_CHECKED.toPx() - 4.dp.toPx()
+    val rtlOffset = switchTrackLengthPx - 2 * THUMB_RADIUS_CHECKED.toPx() - rtlAdditionalOffset
 
     val distMoved = if (isRtl) rtlOffset - progress * totalDist else progress * totalDist
 
     // Draw tick icon
-    drawTickIcon(thumbIconColor, progress, distMoved)
-}
-
-private fun DrawScope.drawTickIcon(tickColor: Color, alpha: Float, distMoved: Float) {
-    val tickBaseLength = TICK_BASE_LENGTH.toPx()
-    val tickStickLength = TICK_STICK_LENGTH.toPx()
-    val tickTotalLength = tickBaseLength + tickStickLength
-    val center = Offset(9.dp.toPx(), 9.dp.toPx())
-    val angle = TICK_ROTATION - TICK_ROTATION / tickTotalLength * tickTotalLength
-    val angleRadians = angle.toRadians()
-
-    val baseStart = Offset(6.7f.dp.toPx() + distMoved, 13.3f.dp.toPx())
-
-    val path = Path()
-    path.moveTo(baseStart.rotate(angleRadians, center))
-    path.lineTo(
-        (baseStart + Offset(tickBaseLength, tickBaseLength)).rotate(angleRadians, center)
-    )
-
-    val stickStart = Offset(9.3f.dp.toPx() + distMoved, 16.3f.dp.toPx())
-    // Move back to the start of the stick (without drawing)
-    path.moveTo(stickStart.rotate(angleRadians, center))
-    path.lineTo(
-        Offset(stickStart.x + tickStickLength, stickStart.y - tickStickLength).rotate(
-            angleRadians,
-            center
-        )
-    )
-    // Use StrokeCap.Butt because Square adds an extension on the end of each line.
-    drawPath(
-        path,
-        tickColor,
-        style = Stroke(width = 1.dp.toPx(), cap = StrokeCap.Butt),
-        alpha = alpha
+    animateTick(
+        enabled = enabled,
+        checked = checked,
+        tickColor = thumbIconColor,
+        tickProgress = progress,
+        startXOffset = distMoved.toDp()
     )
 }
-
-private fun Path.moveTo(offset: Offset) {
-    moveTo(offset.x, offset.y)
-}
-
-private fun Path.lineTo(offset: Offset) {
-    lineTo(offset.x, offset.y)
-}
-
-private fun Offset.rotate(angleRadians: Float): Offset {
-    val angledDirection = directionVector(angleRadians)
-    return angledDirection * x + angledDirection.rotate90() * y
-}
-
-private fun Offset.rotate(angleRadians: Float, center: Offset): Offset =
-    (this - center).rotate(angleRadians) + center
-
-private fun Offset.rotate90() = Offset(-y, x)
 
 private val BOX_STROKE = 2.dp
 private val BOX_RADIUS = 2.dp
 private val BOX_SIZE = 18.dp
 
-private val THUMB_RADIUS_UNCHECKED = 7.dp
+private val THUMB_RADIUS_UNCHECKED = 6.dp
 private val THUMB_RADIUS_CHECKED = 9.dp
-private val TRACK_WIDTH = 32.dp
-private val TRACK_HEIGHT = 22.dp
-private val TICK_BASE_LENGTH = 3.dp
-private val TICK_STICK_LENGTH = 7.dp
-private const val TICK_ROTATION = 15f
+private val SWITCH_HEIGHT = 22.dp
+private val CHECKBOX_HEIGHT = 24.dp
+private val WIDTH = 32.dp
+private val SWITCH_TRACK_WIDTH = 2.dp
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
     tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
@@ -615,6 +601,3 @@ private val PROGRESS_ANIMATION_SPEC: TweenSpec<Float> =
     tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
 private val SWITCH_PROGRESS_ANIMATION_SPEC: TweenSpec<Float> =
     tween(MotionTokens.DurationMedium2, 0, MotionTokens.EasingStandardDecelerate)
-
-private val WIDTH = 32.dp
-private val HEIGHT = 24.dp

@@ -199,7 +199,12 @@ internal class TextDelegate(
 
         return MultiParagraph(
             intrinsics = nonNullIntrinsics,
-            constraints = Constraints(maxWidth = width, maxHeight = constraints.maxHeight),
+            constraints = Constraints.fitPrioritizingWidth(
+                minWidth = 0,
+                maxWidth = width,
+                minHeight = 0,
+                maxHeight = constraints.maxHeight
+            ),
             // This is a fallback behavior for ellipsis. Native
             maxLines = finalMaxLines,
             ellipsis = overflow == TextOverflow.Ellipsis
@@ -302,7 +307,6 @@ internal fun Float.ceilToIntPx(): Int = ceil(this).fastRoundToInt()
  * Returns the [TextDelegate] passed as a [current] param if the input didn't change
  * otherwise creates a new [TextDelegate].
  */
-@OptIn(InternalFoundationTextApi::class)
 internal fun updateTextDelegate(
     current: TextDelegate,
     text: AnnotatedString,

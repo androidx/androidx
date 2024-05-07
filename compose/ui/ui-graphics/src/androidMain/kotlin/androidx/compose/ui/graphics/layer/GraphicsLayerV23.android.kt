@@ -57,6 +57,7 @@ internal class GraphicsLayerV23(
     private var layerPaint: android.graphics.Paint? = null
     private var matrix: android.graphics.Matrix? = null
     private var outlineIsProvided = false
+    private var recordWasCalled = false
 
     private fun obtainLayerPaint(): android.graphics.Paint =
         layerPaint ?: android.graphics.Paint().also { layerPaint = it }
@@ -276,12 +277,16 @@ internal class GraphicsLayerV23(
 
     override var isInvalidated: Boolean = true
 
+    override val hasDisplayList: Boolean
+        get() = renderNode.isValid
+
     override fun record(
         density: Density,
         layoutDirection: LayoutDirection,
         layer: GraphicsLayer,
         block: DrawScope.() -> Unit
     ) {
+        recordWasCalled = true
         val recordingCanvas = renderNode.start(size.width, size.height)
         canvasHolder.drawInto(recordingCanvas) {
             canvasDrawScope.draw(
@@ -298,6 +303,14 @@ internal class GraphicsLayerV23(
     }
 
     override fun draw(canvas: androidx.compose.ui.graphics.Canvas) {
+        if (!recordWasCalled) {
+            recordWasCalled = true
+            // Do a placeholder recording of drawing instructions to avoid errors when doing a
+            // persistence render.
+            // This will be overridden by the consumer of the created GraphicsLayer
+            val recordingCanvas = renderNode.start(1, 1)
+            renderNode.end(recordingCanvas)
+        }
         (canvas.nativeCanvas as DisplayListCanvas).drawRenderNode(renderNode)
     }
 
@@ -327,6 +340,7 @@ internal class GraphicsLayerV23(
     }
 
     private fun discardDisplayListInternal() {
+        recordWasCalled = false
         // See b/216660268. RenderNode#discardDisplayList was originally called
         // destroyDisplayListData on Android M and below. Make sure we gate on the corresponding
         // API level and call the original method name on these API levels, otherwise invoke

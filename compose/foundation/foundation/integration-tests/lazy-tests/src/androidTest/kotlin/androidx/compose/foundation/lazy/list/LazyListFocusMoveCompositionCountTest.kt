@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+
 package androidx.compose.foundation.lazy.list
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
@@ -45,6 +48,10 @@ class LazyListFocusMoveCompositionCountTest {
 
     private val composedItems = mutableSetOf<Int>()
 
+    private val state = LazyListState().also {
+        it.prefetchingEnabled = false
+    }
+
     @Test
     fun moveFocus() {
         // Arrange.
@@ -52,7 +59,7 @@ class LazyListFocusMoveCompositionCountTest {
         lateinit var focusManager: FocusManager
         rule.setContent {
             focusManager = LocalFocusManager.current
-            LazyRow(Modifier.size(rowSize)) {
+            LazyRow(Modifier.size(rowSize), state) {
                 items(100) { index ->
                     Box(
                         Modifier
@@ -71,7 +78,7 @@ class LazyListFocusMoveCompositionCountTest {
         rule.runOnIdle { focusManager.moveFocus(FocusDirection.Right) }
 
         // Assert
-        rule.runOnIdle { assertThat(composedItems).containsExactly(5, 6) }
+        rule.runOnIdle { assertThat(composedItems).containsExactly(5) }
     }
 
     @Test
@@ -81,7 +88,7 @@ class LazyListFocusMoveCompositionCountTest {
         lateinit var focusManager: FocusManager
         rule.setContent {
             focusManager = LocalFocusManager.current
-            LazyRow(Modifier.size(rowSize)) {
+            LazyRow(Modifier.size(rowSize), state) {
                 items(100) { index ->
                     Box(Modifier.size(itemSize).focusable()) {
                         Box(Modifier.size(itemSize).focusable().testTag("$index"))
@@ -97,7 +104,7 @@ class LazyListFocusMoveCompositionCountTest {
         rule.runOnIdle { focusManager.moveFocus(FocusDirection.Right) }
 
         // Assert
-        rule.runOnIdle { assertThat(composedItems).containsExactly(5, 6) }
+        rule.runOnIdle { assertThat(composedItems).containsExactly(5) }
     }
 
     @Test
@@ -107,7 +114,7 @@ class LazyListFocusMoveCompositionCountTest {
         lateinit var focusManager: FocusManager
         rule.setContent {
             focusManager = LocalFocusManager.current
-            LazyRow(Modifier.size(rowSize)) {
+            LazyRow(Modifier.size(rowSize), state) {
                 items(100) { index ->
                     Box(Modifier.size(itemSize).focusable()) {
                         Box(Modifier.size(itemSize).focusable()) {
@@ -125,6 +132,6 @@ class LazyListFocusMoveCompositionCountTest {
         rule.runOnIdle { focusManager.moveFocus(FocusDirection.Right) }
 
         // Assert
-        rule.runOnIdle { assertThat(composedItems).containsExactly(5, 6) }
+        rule.runOnIdle { assertThat(composedItems).containsExactly(5) }
     }
 }

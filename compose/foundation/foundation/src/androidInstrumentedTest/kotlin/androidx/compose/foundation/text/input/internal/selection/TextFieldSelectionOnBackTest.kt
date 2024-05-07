@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
@@ -48,10 +47,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(
-    ExperimentalTestApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalTestApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldSelectionOnBackTest : FocusedWindowTest {

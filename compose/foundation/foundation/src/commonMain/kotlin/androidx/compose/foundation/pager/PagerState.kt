@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -147,16 +148,24 @@ private class DefaultPagerState(
 
 /**
  * The state that can be used to control [VerticalPager] and [HorizontalPager]
- * @param currentPage The initial page to be displayed
- * @param currentPageOffsetFraction The offset of the initial page with respect to the start of
- * the layout.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Stable
-abstract class PagerState(
+abstract class PagerState internal constructor(
     currentPage: Int = 0,
-    @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f
+    @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f,
+    prefetchScheduler: PrefetchScheduler? = null
 ) : ScrollableState {
+
+    /**
+     * @param currentPage The initial page to be displayed
+     * @param currentPageOffsetFraction The offset of the initial page with respect to the start of
+     * the layout.
+     */
+    constructor(
+        currentPage: Int = 0,
+        @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f
+    ) : this(currentPage, currentPageOffsetFraction, null)
 
     /**
      * The total amount of pages present in this pager. The source of this data should be
@@ -431,7 +440,7 @@ abstract class PagerState(
      */
     val currentPageOffsetFraction: Float get() = scrollPosition.currentPageOffsetFraction
 
-    internal val prefetchState = LazyLayoutPrefetchState()
+    internal val prefetchState = LazyLayoutPrefetchState(prefetchScheduler)
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
@@ -716,21 +725,38 @@ abstract class PagerState(
             } else {
                 info.visiblePagesInfo.first().index - info.beyondViewportPageCount - PagesToPrefetch
             }
-            if (indexToPrefetch != this.indexToPrefetch &&
-                indexToPrefetch in 0 until pageCount
-            ) {
-                if (wasPrefetchingForward != isPrefetchingForward) {
-                    // the scrolling direction has been changed which means the last prefetched
-                    // is not going to be reached anytime soon so it is safer to dispose it.
-                    // if this item is already visible it is safe to call the method anyway
-                    // as it will be no-op
-                    currentPrefetchHandle?.cancel()
+            if (indexToPrefetch in 0 until pageCount) {
+                if (indexToPrefetch != this.indexToPrefetch) {
+                    if (wasPrefetchingForward != isPrefetchingForward) {
+                        // the scrolling direction has been changed which means the last prefetched
+                        // is not going to be reached anytime soon so it is safer to dispose it.
+                        // if this item is already visible it is safe to call the method anyway
+                        // as it will be no-op
+                        currentPrefetchHandle?.cancel()
+                    }
+                    this.wasPrefetchingForward = isPrefetchingForward
+                    this.indexToPrefetch = indexToPrefetch
+                    currentPrefetchHandle = prefetchState.schedulePrefetch(
+                        indexToPrefetch, premeasureConstraints
+                    )
                 }
-                this.wasPrefetchingForward = isPrefetchingForward
-                this.indexToPrefetch = indexToPrefetch
-                currentPrefetchHandle = prefetchState.schedulePrefetch(
-                    indexToPrefetch, premeasureConstraints
-                )
+                if (isPrefetchingForward) {
+                    val lastItem = info.visiblePagesInfo.last()
+                    val pageSize = info.pageSize + info.pageSpacing
+                    val distanceToReachNextItem =
+                        lastItem.offset + pageSize - info.viewportEndOffset
+                    // if in the next frame we will get the same delta will we reach the item?
+                    if (distanceToReachNextItem < delta) {
+                        currentPrefetchHandle?.markAsUrgent()
+                    }
+                } else {
+                    val firstItem = info.visiblePagesInfo.first()
+                    val distanceToReachNextItem = info.viewportStartOffset - firstItem.offset
+                    // if in the next frame we will get the same delta will we reach the item?
+                    if (distanceToReachNextItem < -delta) {
+                        currentPrefetchHandle?.markAsUrgent()
+                    }
+                }
             }
         }
     }

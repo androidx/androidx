@@ -22,11 +22,10 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
-import androidx.benchmark.Outputs.dateToFileName
+import androidx.benchmark.Profiler
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
@@ -53,8 +52,14 @@ public class MacrobenchmarkScope(
     private val launchWithClearTask: Boolean
 ) {
 
-    private val instrumentation = InstrumentationRegistry.getInstrumentation()
-    private val context = instrumentation.context
+    internal val instrumentation = InstrumentationRegistry.getInstrumentation()
+
+    internal val context = instrumentation.context
+
+    /**
+     * The per-iteration file label used as a prefix when storing Macrobenchmark results.
+     */
+    internal lateinit var fileLabel: String
 
     /**
      * Controls if the process will be launched with method tracing turned on.
@@ -62,19 +67,12 @@ public class MacrobenchmarkScope(
      * Default to false, because we only want to turn on method tracing when explicitly enabled
      * via `Arguments.methodTracingOptions`.
      */
-    internal var launchWithMethodTracing: Boolean = false
+    private var isMethodTracingActive: Boolean = false
 
     /**
-     * Only use this for testing. This forces `--start-profiler` without the check for process
-     * live ness.
+     * This is `true` iff method tracing is currently active for this benchmarking session.
      */
-    @VisibleForTesting
-    internal var methodTracingForTests: Boolean = false
-
-    /**
-     * This is `true` iff method tracing is currently active.
-     */
-    internal var isMethodTracing: Boolean = false
+    private var isMethodTracingSessionActive: Boolean = false
 
     /**
      * When `true`, the app will be forced to flush its ART profiles
@@ -99,6 +97,13 @@ public class MacrobenchmarkScope(
     @get:Suppress("AutoBoxing") // low frequency, non-perf-relevant part of test
     var iteration: Int? = null
         internal set
+
+    /**
+     * The list of method traces accumulated during a benchmarking session. The [Pair] has the
+     * label and the absolute path to the trace. These should be reported at the end of a
+     * Macro benchmarking session, if method tracing was on.
+     */
+    private val methodTraces: MutableList<Pair<String, String>> = mutableListOf()
 
     /**
      * Get the [UiDevice] instance, to use in reading target app UI state, or interacting with the
@@ -152,33 +157,46 @@ public class MacrobenchmarkScope(
         startActivityImpl(intent.toUri(Intent.URI_INTENT_SCHEME))
     }
 
-    @SuppressLint("BanThreadSleep") // Cannot always detect activity launches.
     private fun startActivityImpl(uri: String) {
+        if (
+            isMethodTracingActive &&
+            !isMethodTracingSessionActive &&
+            !Shell.isPackageAlive(packageName)
+        ) {
+            isMethodTracingSessionActive = true
+            // Use the canonical trace path for the given package name.
+            val tracePath = methodTraceRecordPath(packageName)
+            val profileArgs = "--start-profiler \"$tracePath\" --streaming"
+            amStartAndWait(uri, profileArgs)
+        } else {
+            amStartAndWait(uri)
+        }
+    }
+
+    @SuppressLint("BanThreadSleep") // Cannot always detect activity launches.
+    private fun amStartAndWait(uri: String, profilingArgs: String? = null) {
         val ignoredUniqueNames = if (!launchWithClearTask) {
             emptyList()
         } else {
             // ignore existing names, as we expect a new window
             getFrameStats().map { it.uniqueName }
         }
+
         val preLaunchTimestampNs = System.nanoTime()
-        // Only use --start-profiler is the package is not alive. Otherwise re-use the existing
-        // profiling session.
-        val profileArgs =
-            if (launchWithMethodTracing && (methodTracingForTests || !Shell.isPackageAlive(
-                    packageName
-                ))
-            ) {
-                isMethodTracing = true
-                val tracePath = methodTraceRecordPath(packageName)
-                "--start-profiler \"$tracePath\" --streaming"
-            } else {
-                ""
-            }
-        val cmd = "am start $profileArgs -W \"$uri\""
+
+        val additionalArgs = profilingArgs ?: ""
+        val cmd = "am start $additionalArgs -W \"$uri\""
         Log.d(TAG, "Starting activity with command: $cmd")
 
         // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
         val result = Shell.executeScriptCaptureStdoutStderr(cmd)
+
+        if (result.stderr.contains("java.lang.SecurityException")) {
+            throw SecurityException(result.stderr)
+        }
+        if (result.stderr.isNotEmpty()) {
+            throw IllegalStateException(result.stderr)
+        }
 
         val outputLines = result.stdout
             .split("\n")
@@ -189,13 +207,6 @@ public class MacrobenchmarkScope(
             if (it.startsWith("Error:")) {
                 throw IllegalStateException(it)
             }
-        }
-
-        if (result.stderr.contains("java.lang.SecurityException")) {
-            throw SecurityException(result.stderr)
-        }
-        if (result.stderr.isNotEmpty()) {
-            throw IllegalStateException(result.stderr)
         }
 
         Log.d(TAG, "Result: ${result.stdout}")
@@ -286,6 +297,8 @@ public class MacrobenchmarkScope(
      * Force-stop the process being measured.
      */
     public fun killProcess() {
+        // Method traces are only flushed is a method tracing session is active.
+        flushMethodTraces()
         if (flushArtProfiles && Build.VERSION.SDK_INT >= 24) {
             // Flushing ART profiles will also kill the process at the end.
             killProcessAndFlushArtProfiles()
@@ -338,50 +351,6 @@ public class MacrobenchmarkScope(
             return true
         }
         return false
-    }
-
-    /**
-     * Stops method tracing for the given [packageName] and copies the output to the
-     * `additionalTestOutputDir`.
-     *
-     * @return a [Pair] representing the label, and the absolute path of the method trace.
-     */
-    internal fun stopMethodTracing(uniqueLabel: String): Pair<String, String> {
-        val tracePath = methodTraceRecordPath(packageName)
-
-        // We have to poll here as `am profile stop` is async, but it's hard to calibrate these
-        // numbers, as different devices take drastically different amounts of time.
-        // E.g. pixel 8 takes 100ms for it's full flush, while mokey takes 1700ms to start, then a
-        // few hundred ms to complete.
-        //
-        // Ideally, we'd use the native approach that Studio profilers use (on P+):
-        // https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-main:transport/native/utils/activity_manager.cc;l=111;drc=a4c97db784418341c9f1be60b98ba22301b5ced8
-        Shell.waitForFileFlush(
-            tracePath,
-            maxInitialFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to start
-            maxStableFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to complete
-            stableIterations = 8, // 400ms of stability after flush starts
-            pollDurationMs = 50L
-        ) {
-            Shell.executeScriptSilent("am profile stop $packageName")
-        }
-        // unique label so source is clear, dateToFileName so each run of test is unique on host
-        val outputFileName = "$uniqueLabel-methodTracing-${dateToFileName()}.trace"
-        val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
-        // Staging location before we write it again using Outputs.writeFile(...)
-        // NOTE: staging copy may be unnecessary if we just use a single `cp`
-        Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
-
-        // Report file
-        val outputPath = Outputs.writeFile(outputFileName) {
-            Log.d(TAG, "Writing method traces to ${it.absolutePath}")
-            stagingFile.copyTo(it, overwrite = true)
-
-            // Cleanup
-            stagingFile.delete()
-            Shell.executeScriptSilent("rm \"$tracePath\"")
-        }
-        return "MethodTrace iteration ${this.iteration ?: 0}" to outputPath
     }
 
     /**
@@ -511,6 +480,99 @@ public class MacrobenchmarkScope(
             throw IllegalStateException(
                 "Failed to cancel background dexopt job, result: '$result'"
             )
+        }
+    }
+
+    /**
+     * Starts method tracing for the given [packageName].
+     */
+    internal fun startMethodTracing() {
+        require(!isMethodTracingActive && !isMethodTracingSessionActive) {
+            "Method tracing should not already be active."
+        }
+        isMethodTracingActive = true
+        // If the process is running, start a profiling session by connecting to the process.
+        // Otherwise, given isMethodTracingActive = true, startActivityAndWait(...) will ensure
+        // that a subsequent process launch happens with tracing turned on.
+        if (Shell.isPackageAlive(packageName)) {
+            isMethodTracingSessionActive = true
+            // Use the canonical trace path for the given package name.
+            val tracePath = methodTraceRecordPath(packageName)
+            // Clock Type is only available starting Android V
+            // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/app/ProfilerInfo.java;l=115;drc=c58be09d9273485c54d6a16defc42d9f26182b73
+            val clockType = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                "--clock-type wall"
+            } else {
+                ""
+            }
+            val arguments = "--streaming $clockType $packageName \"$tracePath\""
+            Shell.executeScriptSilent("am profile start $arguments")
+        }
+    }
+
+    /**
+     * Stops a method tracing session for the provided [packageName]. This returns a list of traces
+     * accumulated in an active Method tracing session.
+     */
+    internal fun stopMethodTracing(): List<Profiler.ResultFile> {
+        require(isMethodTracingActive) {
+            "startMethodTracing() must be called prior to a call to stopMethodTracing()."
+        }
+        // Only flushes method traces when a trace session is active.
+        flushMethodTraces()
+        isMethodTracingActive = false
+        val results = methodTraces.map {
+            Profiler.ResultFile.ofMethodTrace(it.first, it.second)
+        }
+        methodTraces.clear()
+        return results
+    }
+
+    /**
+     * Stops the current method tracing session and copies the output to the
+     * `additionalTestOutputDir` if a session was active.
+     */
+    private fun flushMethodTraces() {
+        if (isMethodTracingSessionActive) {
+            isMethodTracingSessionActive = false
+            val tracePath = methodTraceRecordPath(packageName)
+
+            // We have to poll here as `am profile stop` is async, but it's hard to calibrate these
+            // numbers, as different devices take drastically different amounts of time.
+            // E.g. pixel 8 takes 100ms for it's full flush, while mokey takes 1700ms to start,
+            // then a few hundred ms to complete.
+            //
+            // Ideally, we'd use the native approach that Studio profilers use (on P+):
+            // https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-main:transport/native/utils/activity_manager.cc;l=111;drc=a4c97db784418341c9f1be60b98ba22301b5ced8
+            Shell.waitForFileFlush(
+                tracePath,
+                maxInitialFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to start
+                maxStableFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to complete
+                stableIterations = 8, // 400ms of stability after flush starts
+                pollDurationMs = 50L
+            ) {
+                Shell.executeScriptSilent("am profile stop $packageName")
+            }
+            // unique label so source is clear, dateToFileName so each run of test is unique on host
+            val outputFileName = "$fileLabel-methodTracing-${Outputs.dateToFileName()}.trace"
+            val stagingFile =
+                File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
+            // Staging location before we write it again using Outputs.writeFile(...)
+            // NOTE: staging copy may be unnecessary if we just use a single `cp`
+            Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
+
+            // Report file
+            val outputPath = Outputs.writeFile(outputFileName) {
+                Log.d(TAG, "Writing method traces to ${it.absolutePath}")
+                stagingFile.copyTo(it, overwrite = true)
+
+                // Cleanup
+                stagingFile.delete()
+                Shell.executeScriptSilent("rm \"$tracePath\"")
+            }
+            val traceLabel = "MethodTrace iteration ${iteration ?: 0}"
+            // Keep track of the label and the corresponding output paths.
+            methodTraces += traceLabel to outputPath
         }
     }
 

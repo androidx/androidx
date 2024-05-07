@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.input
 
 import android.os.Build
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
@@ -44,7 +43,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalFoundationApi::class)
 class BasicTextFieldDrawPhaseToggleTest {
 
     @get:Rule
@@ -182,7 +180,7 @@ class BasicTextFieldDrawPhaseToggleTest {
  * Instead of looking for an exact match of pixel values, this assertion provides the ability to
  * judge each pixel individually to whether it fits a predefined filter.
  */
-private inline fun ImageBitmap.assertPixelConsistency(
+internal inline fun ImageBitmap.assertPixelConsistency(
     filter: (color: Color) -> Boolean
 ) {
     val pixel = toPixelMap()

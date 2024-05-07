@@ -141,9 +141,9 @@ import kotlinx.coroutines.launch
  * services.
  * @param valueRange range of values that this slider can take. The passed [value] will be coerced
  * to this range.
- * @param steps if greater than 0, specifies the amount of discrete allowable values, evenly
- * distributed across the whole value range. If 0, the slider will behave continuously and allow any
- * value from the range specified. Must not be negative.
+ * @param steps if positive, specifies the amount of discrete allowable values (in addition to the
+ * endpoints of the value range). Step values are evenly distributed across the range. If 0, the
+ * slider will behave continuously and allow any value from the range. Must not be negative.
  * @param onValueChangeFinished called when value change has ended. This should not be used to
  * update the slider value (use [onValueChange] instead), but rather to know when the user has
  * completed selecting a new value by ending a drag or a click.
@@ -237,9 +237,9 @@ fun Slider(
  * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
  * for this slider. You can create and pass in your own `remember`ed instance to observe
  * [Interaction]s and customize the appearance / behavior of this slider in different states.
- * @param steps if greater than 0, specifies the amount of discrete allowable values, evenly
- * distributed across the whole value range. If 0, the slider will behave continuously and allow any
- * value from the range specified. Must not be negative.
+ * @param steps if positive, specifies the amount of discrete allowable values (in addition to the
+ * endpoints of the value range). Step values are evenly distributed across the range. If 0, the
+ * slider will behave continuously and allow any value from the range. Must not be negative.
  * @param thumb the thumb to be displayed on the slider, it is placed on top of the track. The
  * lambda receives a [SliderState] which is used to obtain the current active track.
  * @param track the track to be displayed on the slider, it is placed underneath the thumb. The
@@ -403,9 +403,9 @@ fun Slider(
  * @param enabled whether or not component is enabled and can we interacted with or not
  * @param valueRange range of values that Range Slider values can take. Passed [value] will be
  * coerced to this range
- * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
- * between across the whole value range. If 0, range slider will behave as a continuous slider and
- * allow to choose any value from the range specified. Must not be negative.
+ * @param steps if positive, specifies the amount of discrete allowable values (in addition to the
+ * endpoints of the value range). Step values are evenly distributed across the range. If 0, the
+ * range slider will behave continuously and allow any value from the range. Must not be negative.
  * @param onValueChangeFinished lambda to be invoked when value change has ended. This callback
  * shouldn't be used to update the range slider values (use [onValueChange] for that), but rather to
  * know when the user has completed selecting a new value by ending a drag or a click.
@@ -504,9 +504,9 @@ fun RangeSlider(
  * @param endInteractionSource the [MutableInteractionSource] representing the stream of
  * [Interaction]s for the end thumb. You can create and pass in your own
  * `remember`ed instance to observe.
- * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
- * between across the whole value range. If 0, range slider will behave as a continuous slider and
- * allow to choose any value from the range specified. Must not be negative.
+ * @param steps if positive, specifies the amount of discrete allowable values (in addition to the
+ * endpoints of the value range). Step values are evenly distributed across the range. If 0, the
+ * range slider will behave continuously and allow any value from the range. Must not be negative.
  * @param startThumb the start thumb to be displayed on the Range Slider. The lambda receives a
  * [RangeSliderState] which is used to obtain the current active track.
  * @param endThumb the end thumb to be displayed on the Range Slider. The lambda receives a
@@ -2032,9 +2032,9 @@ class SliderPositions(
  * @param value [Float] that indicates the initial
  * position of the thumb. If outside of [valueRange]
  * provided, value will be coerced to this range.
- * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
- * between across the whole value range. If 0, range slider will behave as a continuous slider and
- * allow to choose any value from the range specified. Must not be negative.
+ * @param steps if positive, specifies the amount of discrete allowable values (in addition to the
+ * endpoints of the value range). Step values are evenly distributed across the range. If 0, the
+ * slider will behave continuously and allow any value from the range. Must not be negative.
  * @param onValueChangeFinished lambda to be invoked when value change has ended. This callback
  * shouldn't be used to update the range slider values (use [onValueChange] for that),
  * but rather to know when the user has completed selecting a new value by ending a drag or a click.
@@ -2159,9 +2159,9 @@ class SliderState(
  * @param activeRangeEnd [Float] that indicates the initial
  * end of the active range of the slider. If outside of [valueRange]
  * provided, value will be coerced to this range.
- * @param steps if greater than 0, specifies the amounts of discrete values, evenly distributed
- * between across the whole value range. If 0, range slider will behave as a continuous slider and
- * allow to choose any value from the range specified. Must not be negative.
+ * @param steps if positive, specifies the amount of discrete allowable values (in addition to the
+ * endpoints of the value range). Step values are evenly distributed across the range. If 0, the
+ * range slider will behave continuously and allow any value from the range. Must not be negative.
  * @param onValueChangeFinished lambda to be invoked when value change has ended. This callback
  * shouldn't be used to update the range slider values (use [onValueChange] for that), but rather
  * to know when the user has completed selecting a new value by ending a drag or a click.

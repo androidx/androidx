@@ -124,8 +124,8 @@ private class Listener(
 
     override val value: Boolean
         get() = accessibilityEnabled &&
-            ((touchExplorationListener?.enabled ?: true) ||
-            (switchAccessListener?.enabled ?: true))
+            ((touchExplorationListener?.enabled ?: false) ||
+            (switchAccessListener?.enabled ?: false))
 
     override fun onAccessibilityStateChanged(enabled: Boolean) {
         accessibilityEnabled = enabled

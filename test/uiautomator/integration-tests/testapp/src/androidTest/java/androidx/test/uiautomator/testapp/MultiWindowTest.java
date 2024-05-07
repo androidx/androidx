@@ -35,7 +35,6 @@ public class MultiWindowTest extends BaseTest {
     private static final BySelector STATUS_BAR = By.res("com.android.systemui", "status_bar");
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     public void testMultiWindow_statusBar() {
         // Can locate objects outside of current context.
         assertTrue(mDevice.hasObject(STATUS_BAR));

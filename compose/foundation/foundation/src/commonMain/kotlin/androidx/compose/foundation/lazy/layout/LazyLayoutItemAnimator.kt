@@ -71,6 +71,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         consumedScroll: Int,
         layoutWidth: Int,
         layoutHeight: Int,
+        beforeContentPadding: Int,
+        afterContentPadding: Int,
         positionedItems: MutableList<T>,
         keyIndexMap: LazyLayoutKeyIndexMap,
         itemProvider: LazyLayoutMeasuredItemProvider<T>,
@@ -186,8 +188,10 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 movingInFromEndBound.sortBy { previousKeyToIndexMap.getIndex(it.key) }
                 movingInFromEndBound.fastForEach { item ->
                     val accumulatedOffset = accumulatedOffsetPerLane.updateAndReturnOffsetFor(item)
-                    val mainAxisOffset =
-                        mainAxisLayoutSize + accumulatedOffset - item.mainAxisSizeWithSpacings
+                    // Compensate content padding
+                    val contentPadding = beforeContentPadding + afterContentPadding
+                    val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset -
+                        item.mainAxisSizeWithSpacings + contentPadding
                     initializeAnimation(item, mainAxisOffset)
                     startPlacementAnimationsIfNeeded(item)
                 }
@@ -237,6 +241,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     lane = info.lane,
                     span = info.span
                 )
+
                 item.nonScrollableItem = true
                 // check if we have any active placement animation on the item
                 val inProgress =
@@ -244,6 +249,14 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 if ((!inProgress && newIndex == previousKeyToIndexMap?.getIndex(key))) {
                     removeInfoForKey(key)
                 } else {
+                    // anytime we compose a new item, and we use it,
+                    // we need to update our item info mapping
+                    info.updateAnimation(
+                        item,
+                        coroutineScope,
+                        graphicsContext,
+                        crossAxisOffset = info.crossAxisOffset
+                    )
                     if (newIndex < firstVisibleIndex) {
                         movingAwayToStartBound.add(item)
                     } else {
@@ -285,7 +298,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                     positionedItems.last()
                         .let { it.mainAxisOffset }
                 else {
-                    mainAxisLayoutSize - item.mainAxisSizeWithSpacings
+                    val contentPadding = beforeContentPadding + afterContentPadding
+                    mainAxisLayoutSize - item.mainAxisSizeWithSpacings + contentPadding
                 } + accumulatedOffset
 
                 val itemInfo = keyToItemInfoMap[item.key]!!
@@ -390,19 +404,20 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         return maxOffset
     }
 
-    val minSizeToFitDisappearingItems: IntSize get() {
-        var size = IntSize.Zero
-        disappearingItems.fastForEach {
-            val layer = it.layer
-            if (layer != null) {
-                size = IntSize(
-                    width = maxOf(size.width, it.rawOffset.x + layer.size.width),
-                    height = maxOf(size.height, it.rawOffset.y + layer.size.height)
-                )
+    val minSizeToFitDisappearingItems: IntSize
+        get() {
+            var size = IntSize.Zero
+            disappearingItems.fastForEach {
+                val layer = it.layer
+                if (layer != null) {
+                    size = IntSize(
+                        width = maxOf(size.width, it.rawOffset.x + layer.size.width),
+                        height = maxOf(size.height, it.rawOffset.y + layer.size.height)
+                    )
+                }
             }
+            return size
         }
-        return size
-    }
 
     val modifier: Modifier = DisplayingDisappearingItemsElement(this)
 
@@ -438,7 +453,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
         fun updateAnimation(
             positionedItem: T,
             coroutineScope: CoroutineScope,
-            graphicsContext: GraphicsContext
+            graphicsContext: GraphicsContext,
+            crossAxisOffset: Int = positionedItem.crossAxisOffset
         ) {
             for (i in positionedItem.placeablesCount until animations.size) {
                 animations[i]?.release()
@@ -447,7 +463,7 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
                 animations = animations.copyOf(positionedItem.placeablesCount)
             }
             constraints = positionedItem.constraints
-            crossAxisOffset = positionedItem.crossAxisOffset
+            this.crossAxisOffset = crossAxisOffset
             lane = positionedItem.lane
             span = positionedItem.span
             repeat(positionedItem.placeablesCount) { index ->

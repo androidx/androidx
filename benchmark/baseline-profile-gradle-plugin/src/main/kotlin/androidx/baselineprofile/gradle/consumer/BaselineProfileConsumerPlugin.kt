@@ -17,11 +17,11 @@
 package androidx.baselineprofile.gradle.consumer
 
 import androidx.baselineprofile.gradle.configuration.ConfigurationManager
-import androidx.baselineprofile.gradle.consumer.task.MainGenerateBaselineProfileTask
+import androidx.baselineprofile.gradle.consumer.task.GenerateBaselineProfileTask
+import androidx.baselineprofile.gradle.consumer.task.MainGenerateBaselineProfileTaskForAgp80Only
 import androidx.baselineprofile.gradle.consumer.task.MergeBaselineProfileTask
 import androidx.baselineprofile.gradle.consumer.task.PrintConfigurationForVariantTask
 import androidx.baselineprofile.gradle.consumer.task.PrintMapPropertiesForVariantTask
-import androidx.baselineprofile.gradle.consumer.task.maybeCreateGenerateTask
 import androidx.baselineprofile.gradle.utils.AgpFeature
 import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
@@ -39,6 +39,7 @@ import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.namedOrNull
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.ApplicationVariantBuilder
 import com.android.build.api.variant.Variant
@@ -72,9 +73,12 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
     // List of the non debuggable build types
     private val nonDebuggableBuildTypes = mutableListOf<String>()
 
+    // The baseline profile consumer extension to access non-variant specific configuration options
+    private val baselineProfileExtension = BaselineProfileConsumerExtension.register(project)
+
     // Offers quick access to configuration extension, hiding the property override and merge logic
     private val perVariantBaselineProfileExtensionManager =
-        PerVariantConsumerExtensionManager(BaselineProfileConsumerExtension.register(project))
+        PerVariantConsumerExtensionManager(baselineProfileExtension)
 
     // Manages creation of configurations
     private val configurationManager = ConfigurationManager(project)
@@ -95,13 +99,6 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
     private val Variant.benchmarkVariantName: String
         get() {
             val parts = listOfNotNull(flavorName, BUILD_TYPE_BENCHMARK_PREFIX, buildType)
-                .filter { it.isNotBlank() }
-            return camelCase(*parts.toTypedArray())
-        }
-
-    private val Variant.benchmarkBuildType: String
-        get() {
-            val parts = listOfNotNull(BUILD_TYPE_BENCHMARK_PREFIX, buildType)
                 .filter { it.isNotBlank() }
             return camelCase(*parts.toTypedArray())
         }
@@ -155,6 +152,10 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         )
     }
 
+    override fun onFinalizeDsl(extension: AndroidComponentsExtension<*, *, *>) {
+        setWarnings(baselineProfileExtension.warnings)
+    }
+
     override fun onApplicationBeforeVariants(variantBuilder: ApplicationVariantBuilder) {
 
         // Note that the lifecycle is for each variant `beforeVariant`, `onVariant`. This means
@@ -176,7 +177,10 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         afterVariants {
             if (!variantBuilder.enable && isBaselineProfilePluginCreatedBuildType) {
                 removeOnVariantCallback(variantBuilder.name)
-                logger.info(
+                logger.warn(
+                    property = { disabledVariants },
+                    propertyName = "disabledVariants",
+                    message =
                     "Variant `${variantBuilder.name}` is disabled. If this " +
                         "is not intentional, please check your gradle configuration " +
                         "for beforeVariants blocks. For more information on variant " +
@@ -318,6 +322,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             outputDir = mergedTaskOutputDir,
             filterRules = variantConfiguration.filterRules,
             library = isLibraryModule(),
+            warnings = baselineProfileExtension.warnings,
 
             // Note that the merge task is the last task only if saveInSrc is disabled. When
             // saveInSrc is enabled an additional task is created to copy the profile in the sources
@@ -357,7 +362,9 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                 library = isLibraryModule(),
                 sourceDir = mergeTaskProvider.flatMap { it.baselineProfileDir },
                 outputDir = project.provider { srcOutputDir },
-                isLastTask = true
+                hasDependencies = baselineProfileConfiguration.allDependencies.isNotEmpty(),
+                isLastTask = true,
+                warnings = baselineProfileExtension.warnings
             )
 
             // Applies the source path for this variant. Note that this doesn't apply when the
@@ -498,7 +505,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // Here we create the final generate task that triggers the whole generation for this
         // variant and all the parent tasks. For this one the child task is either copy or merge,
         // depending on the configuration.
-        maybeCreateGenerateTask<Task>(
+        GenerateBaselineProfileTask.maybeCreate(
             project = project,
             variantName = mergeAwareTaskName,
             lastTaskProvider = lastTaskProvider
@@ -511,7 +518,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             !variant.buildType.isNullOrBlank() &&
             variant.buildType != variant.name
         ) {
-            maybeCreateGenerateTask<Task>(
+            GenerateBaselineProfileTask.maybeCreate(
                 project = project,
                 variantName = variant.buildType!!,
                 lastTaskProvider = lastTaskProvider
@@ -534,7 +541,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                     .filter { it != variant.name && it.isNotBlank() }
                     .toSet()
                     .forEach {
-                        maybeCreateGenerateTask<Task>(
+                        GenerateBaselineProfileTask.maybeCreate(
                             project = project,
                             variantName = it,
                             lastTaskProvider = lastTaskProvider
@@ -543,7 +550,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             }
 
             // Generate the main global tasks `generateBaselineProfile
-            maybeCreateGenerateTask<Task>(
+            GenerateBaselineProfileTask.maybeCreate(
                 project = project,
                 variantName = "",
                 lastTaskProvider = lastTaskProvider
@@ -557,10 +564,11 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
             // task, such as `generateFreeBaselineProfile` because that would run generation for
             // all the build types with flavor free, that is not as well supported.
             if (variant.buildType == RELEASE) {
-                maybeCreateGenerateTask<MainGenerateBaselineProfileTask>(
+                MainGenerateBaselineProfileTaskForAgp80Only.maybeCreate(
                     project = project,
                     variantName = "",
-                    lastTaskProvider = lastTaskProvider
+                    lastTaskProvider = lastTaskProvider,
+                    warnings = baselineProfileExtension.warnings
                 )
             }
         }

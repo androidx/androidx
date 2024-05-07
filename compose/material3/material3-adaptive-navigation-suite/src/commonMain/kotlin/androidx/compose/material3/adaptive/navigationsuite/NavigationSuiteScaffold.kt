@@ -19,6 +19,8 @@ package androidx.compose.material3.adaptive.navigationsuite
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.Icon
@@ -40,7 +42,6 @@ import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.contentColorFor
@@ -82,8 +83,6 @@ import androidx.window.core.layout.WindowWidthSizeClass
  * passed in [content] lambda inside the navigation suite scaffold.
  * @param content the content of your screen
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 @Composable
 fun NavigationSuiteScaffold(
     navigationSuiteItems: NavigationSuiteScope.() -> Unit,
@@ -105,7 +104,23 @@ fun NavigationSuiteScaffold(
                 )
             },
             layoutType = layoutType,
-            content = content
+            content = {
+                Box(
+                    Modifier.consumeWindowInsets(
+                        when (layoutType) {
+                            NavigationSuiteType.NavigationBar ->
+                                NavigationBarDefaults.windowInsets
+                            NavigationSuiteType.NavigationRail ->
+                                NavigationRailDefaults.windowInsets
+                            NavigationSuiteType.NavigationDrawer ->
+                                DrawerDefaults.windowInsets
+                            else -> WindowInsets(0, 0, 0, 0)
+                        }
+                    )
+                ) {
+                    content()
+                }
+            }
         )
     }
 }
@@ -124,8 +139,6 @@ fun NavigationSuiteScaffold(
  * [NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo]
  * @param content the content of your screen
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 @Composable
 fun NavigationSuiteScaffoldLayout(
     navigationSuite: @Composable () -> Unit,
@@ -203,8 +216,6 @@ fun NavigationSuiteScaffoldLayout(
  * @param content the content inside the current navigation component, typically
  * [NavigationSuiteScope.item]s
  */
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 @Composable
 fun NavigationSuite(
     modifier: Modifier = Modifier,
@@ -292,7 +303,6 @@ fun NavigationSuite(
 }
 
 /** The scope associated with the [NavigationSuiteScope]. */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 sealed interface NavigationSuiteScope {
 
     /**
@@ -342,7 +352,6 @@ sealed interface NavigationSuiteScope {
  * The [NavigationSuiteType] informs the [NavigationSuite] of what navigation component to expect.
  */
 @JvmInline
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 value class NavigationSuiteType private constructor(private val description: String) {
     override fun toString(): String {
         return description
@@ -382,7 +391,6 @@ value class NavigationSuiteType private constructor(private val description: Str
 }
 
 /** Contains the default values used by the [NavigationSuiteScaffold]. */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 object NavigationSuiteScaffoldDefaults {
     /**
      * Returns the expected [NavigationSuiteType] according to the provided [WindowAdaptiveInfo].
@@ -391,7 +399,6 @@ object NavigationSuiteScaffoldDefaults {
      * @param adaptiveInfo the provided [WindowAdaptiveInfo]
      * @see NavigationSuiteScaffold
      */
-    @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     fun calculateFromAdaptiveInfo(adaptiveInfo: WindowAdaptiveInfo): NavigationSuiteType {
         return with(adaptiveInfo) {
             if (windowPosture.isTabletop ||
@@ -416,7 +423,6 @@ object NavigationSuiteScaffoldDefaults {
 }
 
 /** Contains the default values used by the [NavigationSuite]. */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 object NavigationSuiteDefaults {
     /**
      * Creates a [NavigationSuiteColors] with the provided colors for the container color, according
@@ -501,7 +507,6 @@ object NavigationSuiteDefaults {
  * @param navigationDrawerContentColor the content color for the [PermanentDrawerSheet] of the
  * [NavigationSuite]
  */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
 class NavigationSuiteColors
 internal constructor(
     val navigationBarContainerColor: Color,
@@ -525,14 +530,12 @@ internal constructor(
  * @param navigationDrawerItemColors the [NavigationDrawerItemColors] associated with the
  * [NavigationDrawerItem] of the [NavigationSuiteScope.item]
  */
-@ExperimentalMaterial3AdaptiveNavigationSuiteApi
-class NavigationSuiteItemColors constructor(
+class NavigationSuiteItemColors(
     val navigationBarItemColors: NavigationBarItemColors,
     val navigationRailItemColors: NavigationRailItemColors,
     val navigationDrawerItemColors: NavigationDrawerItemColors,
 )
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal val WindowAdaptiveInfoDefault
     @Composable
     get() = currentWindowAdaptiveInfo()
@@ -542,7 +545,6 @@ private interface NavigationSuiteItemProvider {
     val itemList: MutableVector<NavigationSuiteItem>
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 private class NavigationSuiteItem(
     val selected: Boolean,
     val onClick: () -> Unit,
@@ -557,7 +559,6 @@ private class NavigationSuiteItem(
     val interactionSource: MutableInteractionSource
 )
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 private class NavigationSuiteScopeImpl : NavigationSuiteScope,
     NavigationSuiteItemProvider {
 
@@ -596,7 +597,6 @@ private class NavigationSuiteScopeImpl : NavigationSuiteScope,
         get() = itemList.size
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveNavigationSuiteApi::class)
 @Composable
 private fun rememberStateOfItems(
     content: NavigationSuiteScope.() -> Unit

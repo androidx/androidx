@@ -124,6 +124,8 @@ val IntOffset.Companion.VectorConverter: TwoWayConverter<IntOffset, AnimationVec
 
 /**
  * A type converter that converts a [IntSize] to a [AnimationVector2D], and vice versa.
+ *
+ * Clamps negative values to zero when converting back to [IntSize].
  */
 val IntSize.Companion.VectorConverter: TwoWayConverter<IntSize, AnimationVector2D>
     get() = IntSizeToVector
@@ -174,11 +176,18 @@ private val IntOffsetToVector: TwoWayConverter<IntOffset, AnimationVector2D> =
 
 /**
  * A type converter that converts a [IntSize] to a [AnimationVector2D], and vice versa.
+ *
+ * Clamps negative values to zero when converting back to [IntSize].
  */
 private val IntSizeToVector: TwoWayConverter<IntSize, AnimationVector2D> =
     TwoWayConverter(
         { AnimationVector2D(it.width.toFloat(), it.height.toFloat()) },
-        { IntSize(it.v1.fastRoundToInt(), it.v2.fastRoundToInt()) }
+        {
+            IntSize(
+                width = it.v1.fastRoundToInt().coerceAtLeast(0),
+                height = it.v2.fastRoundToInt().coerceAtLeast(0)
+            )
+        }
     )
 
 /**

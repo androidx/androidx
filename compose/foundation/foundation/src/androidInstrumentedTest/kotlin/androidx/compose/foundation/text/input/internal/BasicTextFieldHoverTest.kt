@@ -22,7 +22,6 @@ import android.view.PointerIcon.TYPE_DEFAULT
 import android.view.PointerIcon.TYPE_HAND
 import android.view.PointerIcon.TYPE_TEXT
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
@@ -48,7 +47,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-@OptIn(ExperimentalTestApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalTestApi::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
 @RunWith(AndroidJUnit4::class)
 class BasicTextFieldHoverTest {

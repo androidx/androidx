@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
@@ -47,7 +46,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class TextFieldLayoutStateCacheTest {
@@ -492,6 +490,7 @@ class TextFieldLayoutStateCacheTest {
         ) { old, new ->
             Truth.assertThat(old.layoutInput.style.fontSize).isEqualTo(12.sp)
             Truth.assertThat(new.layoutInput.style.fontSize).isEqualTo(23.sp)
+            Truth.assertThat(old.multiParagraph).isNotSameInstanceAs(new.multiParagraph)
         }
     }
 
@@ -518,6 +517,8 @@ class TextFieldLayoutStateCacheTest {
             }
         ) { old, new ->
             Truth.assertThat(new).isNotSameInstanceAs(old)
+            Truth.assertThat(old.layoutInput.maxLines).isEqualTo(Int.MAX_VALUE)
+            Truth.assertThat(new.layoutInput.maxLines).isEqualTo(1)
         }
     }
 
@@ -717,6 +718,40 @@ class TextFieldLayoutStateCacheTest {
         } finally {
             snapshot.dispose()
         }
+    }
+
+    @Test
+    fun textLayoutCalculatedInReadOnlySnapshot_returnedFromCacheWhenCalledFromWriteable() {
+        singleLine = true
+        updateNonMeasureInputs()
+        updateMeasureInputs()
+        val initialLayout = cache.value!!
+
+        singleLine = false
+        updateNonMeasureInputs()
+        val snapshot = Snapshot.takeSnapshot()
+
+        lateinit var layoutFromSnapshot: TextLayoutResult
+        snapshot.enter {
+            with(cache.value!!) {
+                layoutFromSnapshot = this
+                Truth.assertThat(initialLayout.layoutInput.maxLines).isEqualTo(1)
+                Truth.assertThat(layoutInput.maxLines).isEqualTo(Int.MAX_VALUE)
+            }
+        }
+
+        val finalLayout = cache.value!!
+
+        Truth.assertThat(initialLayout.multiParagraph)
+            .isNotSameInstanceAs(layoutFromSnapshot.multiParagraph)
+
+        // Even though the initial text layout calculation after TextStyle change was done in a
+        // read-only snapshot, we still expect to get the same MultiParagraph instance when called
+        // with the same measure/non-measure arguments.
+        Truth.assertThat(finalLayout.multiParagraph)
+            .isSameInstanceAs(layoutFromSnapshot.multiParagraph)
+
+        Truth.assertThat(finalLayout.layoutInput).isEqualTo(layoutFromSnapshot.layoutInput)
     }
 
     private fun assertLayoutChange(

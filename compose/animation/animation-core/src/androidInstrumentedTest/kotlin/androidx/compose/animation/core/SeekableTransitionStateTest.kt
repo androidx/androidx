@@ -51,6 +51,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -2388,6 +2389,83 @@ class SeekableTransitionStateTest {
                     Color.Red
                 }
             }
+        }
+    }
+
+    @Test
+    fun isRunningDuringAnimateTo() {
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        lateinit var transition: Transition<AnimStates>
+        var animatedValue by mutableIntStateOf(-1)
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            LaunchedEffect(seekableTransitionState) {
+                seekableTransitionState.animateTo(AnimStates.To)
+            }
+            transition = rememberTransition(seekableTransitionState, label = "Test")
+            animatedValue = transition.animateInt(
+                label = "Value",
+                transitionSpec = { tween(easing = LinearEasing) }
+            ) { state ->
+                when (state) {
+                    AnimStates.From -> 0
+                    else -> 1000
+                }
+            }.value
+        }
+        rule.runOnIdle {
+            assertEquals(0, animatedValue)
+            assertFalse(transition.isRunning)
+        }
+        rule.mainClock.advanceTimeByFrame() // wait for composition after animateTo()
+        rule.mainClock.advanceTimeByFrame() // one frame to set the start time
+        rule.runOnIdle {
+            assertTrue(animatedValue > 0)
+            assertTrue(transition.isRunning)
+        }
+        rule.mainClock.advanceTimeBy(5000)
+        rule.runOnIdle {
+            assertEquals(1000, animatedValue)
+            assertFalse(transition.isRunning)
+        }
+    }
+
+    @Test
+    fun isRunningFalseAfterSnapTo() {
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        lateinit var transition: Transition<AnimStates>
+        var animatedValue by mutableIntStateOf(-1)
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            LaunchedEffect(seekableTransitionState) {
+                awaitFrame() // Not sure why this is needed. Animated val doesn't change without it.
+                seekableTransitionState.snapTo(AnimStates.To)
+            }
+            transition = rememberTransition(seekableTransitionState, label = "Test")
+            animatedValue = transition.animateInt(
+                label = "Value",
+                transitionSpec = { tween(easing = LinearEasing) }
+            ) { state ->
+                when (state) {
+                    AnimStates.From -> 0
+                    else -> 1000
+                }
+            }.value
+        }
+        rule.runOnIdle {
+            assertEquals(0, animatedValue)
+            assertFalse(transition.isRunning)
+        }
+        rule.mainClock.advanceTimeByFrame() // wait for composition after animateTo()
+        rule.mainClock.advanceTimeByFrame() // one frame to snap
+        rule.mainClock.advanceTimeByFrame() // one frame for LaunchedEffect's awaitFrame()
+        rule.runOnIdle {
+            assertEquals(1000, animatedValue)
+            assertFalse(transition.isRunning)
         }
     }
 }

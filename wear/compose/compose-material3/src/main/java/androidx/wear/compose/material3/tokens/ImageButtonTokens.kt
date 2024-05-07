@@ -20,7 +20,7 @@
 package androidx.wear.compose.material3.tokens
 
 internal object ImageButtonTokens {
-    val BackgroundImageGradientColor = ColorSchemeKeyTokens.Surface
+    val BackgroundImageGradientColor = ColorSchemeKeyTokens.SurfaceContainer
     val ContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledContentOpacity = 0.38f
     val DisabledContentColor = ColorSchemeKeyTokens.OnSurface

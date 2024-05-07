@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.input.internal.TextLayoutState
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
@@ -62,7 +61,6 @@ internal expect fun textFieldMagnifierNode(
     visible: Boolean
 ): TextFieldMagnifierNode
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun calculateSelectionMagnifierCenterAndroid(
     textFieldState: TransformedTextFieldState,
     selectionState: TextFieldSelectionState,
@@ -100,7 +98,14 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     // Hide the magnifier when dragged too far (outside the horizontal bounds of how big the
     // magnifier actually is). See
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/Editor.java;l=5228-5231;drc=2fdb6bd709be078b72f011334362456bb758922c
-    if ((dragX - centerX).absoluteValue > magnifierSize.width / 2) {
+    // Also check whether magnifierSize is calculated. A platform magnifier instance is not
+    // created until it's requested for the first time. So the size will only be calculated after we
+    // return a specified offset from this function.
+    // It is very unlikely that this behavior would cause a flicker since magnifier immediately
+    // shows up where the pointer is being dragged. The pointer needs to drag further than the half
+    // of magnifier's width to hide by the following logic.
+    if (magnifierSize != IntSize.Zero &&
+        (dragX - centerX).absoluteValue > magnifierSize.width / 2) {
         return Offset.Unspecified
     }
 

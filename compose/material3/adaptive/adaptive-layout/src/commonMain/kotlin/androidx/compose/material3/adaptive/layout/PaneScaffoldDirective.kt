@@ -126,7 +126,6 @@ fun calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
     }
 }
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy): List<Rect> {
     return when (hingePolicy) {
         HingePolicy.AvoidSeparating -> posture.separatingVerticalHingeBounds
@@ -155,9 +154,7 @@ private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy
  * @property excludedBounds the bounds of all areas in the window that the layout needs to avoid
  *           displaying anything upon it. Usually these bounds represent where physical hinges are.
  */
-@ExperimentalMaterial3AdaptiveApi
 @Immutable
-// TODO(conradchen): Hide the constructor. Please use the copy() method instead.
 class PaneScaffoldDirective(
     val maxHorizontalPartitions: Int,
     val horizontalPartitionSpacerSize: Dp,
@@ -190,8 +187,7 @@ class PaneScaffoldDirective(
         maxVerticalPartitions: Int = this.maxVerticalPartitions,
         verticalPartitionSpacerSize: Dp = this.verticalPartitionSpacerSize,
         defaultPanePreferredWidth: Dp = this.defaultPanePreferredWidth,
-        @Suppress("ListIterator") // No guarantee to be an array list
-        excludedBounds: List<Rect> = this.excludedBounds.toList()
+        excludedBounds: List<Rect> = this.excludedBounds
     ): PaneScaffoldDirective = PaneScaffoldDirective(
         maxHorizontalPartitions,
         horizontalPartitionSpacerSize,

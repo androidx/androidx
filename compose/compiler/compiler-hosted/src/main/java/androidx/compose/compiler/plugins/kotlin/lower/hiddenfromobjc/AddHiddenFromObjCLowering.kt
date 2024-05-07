@@ -25,6 +25,7 @@ import androidx.compose.compiler.plugins.kotlin.lower.needsComposableRemapping
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
 import org.jetbrains.kotlin.ir.IrStatement
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrDeclaration
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
@@ -41,13 +42,13 @@ import org.jetbrains.kotlin.platform.konan.isNative
 /**
  *  AddHiddenFromObjCLowering looks for functions and properties with @Composable types and
  *  adds the `kotlin.native.HiddenFromObjC` annotation to them.
- *  @see https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native/-hidden-from-obj-c/
+ *  [docs](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native/-hidden-from-obj-c/)
  */
 class AddHiddenFromObjCLowering(
     private val pluginContext: IrPluginContext,
     symbolRemapper: ComposableSymbolRemapper,
     metrics: ModuleMetrics,
-    private val hideFromObjCDeclarationsSet: HideFromObjCDeclarationsSet,
+    private val hideFromObjCDeclarationsSet: HideFromObjCDeclarationsSet?,
     stabilityInferencer: StabilityInferencer,
 ) : AbstractComposeLowering(pluginContext, symbolRemapper, metrics, stabilityInferencer) {
 
@@ -55,12 +56,35 @@ class AddHiddenFromObjCLowering(
         getTopLevelClass(ClassId.fromString("kotlin/native/HiddenFromObjC"))
     }
 
+    private var currentShouldAnnotateClass = false
+
     override fun lower(module: IrModuleFragment) {
         require(context.platform.isNative()) {
             "AddHiddenFromObjCLowering is expected to run only for k/native. " +
                 "The platform - ${context.platform}"
         }
         module.transformChildrenVoid(this)
+    }
+
+    /** `visitClass` is only needed until [issue](https://youtrack.jetbrains.com/issue/KT-65288/) fix
+     * after the issue is resolved, `visitClass` could be removed entirely
+     */
+    override fun visitClass(declaration: IrClass): IrStatement {
+        val previousShouldAnnotateClass = currentShouldAnnotateClass
+        currentShouldAnnotateClass = false
+
+        val cls = super.visitClass(declaration) as IrClass
+
+        // We see an issue only with data classes containing something Composable.
+        // Adding an annotation to all classes makes the FirNativeHiddenFromObjCInheritanceChecker (kotlin) complain.
+        // data classes can't be open, so it should work.
+        if (currentShouldAnnotateClass && cls.isData) {
+            cls.addHiddenFromObjCAnnotation()
+            hideFromObjCDeclarationsSet?.add(cls)
+        }
+
+        currentShouldAnnotateClass = previousShouldAnnotateClass
+        return cls
     }
 
     override fun visitFunction(declaration: IrFunction): IrStatement {
@@ -72,7 +96,8 @@ class AddHiddenFromObjCLowering(
 
         if (f.hasComposableAnnotation() || f.needsComposableRemapping()) {
             f.addHiddenFromObjCAnnotation()
-            hideFromObjCDeclarationsSet.add(f)
+            hideFromObjCDeclarationsSet?.add(f)
+            currentShouldAnnotateClass = true
         }
 
         return f
@@ -88,7 +113,8 @@ class AddHiddenFromObjCLowering(
 
         if (shouldAdd) {
             p.addHiddenFromObjCAnnotation()
-            hideFromObjCDeclarationsSet.add(p)
+            hideFromObjCDeclarationsSet?.add(p)
+            currentShouldAnnotateClass = true
         }
 
         return p

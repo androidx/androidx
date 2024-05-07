@@ -141,7 +141,6 @@ fun InputTransformation.maxLength(maxLength: Int): InputTransformation =
 // endregion
 // region Transformation implementations
 
-@OptIn(ExperimentalFoundationApi::class)
 private class FilterChain(
     private val first: InputTransformation,
     private val second: InputTransformation,
@@ -185,7 +184,6 @@ private class FilterChain(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private data class InputTransformationByValue(
     val transformation: (
         old: CharSequence,
@@ -232,7 +230,6 @@ private data class AllCapsTransformation(private val locale: Locale) : InputTran
 }
 
 // This is a very naive implementation for now, not intended to be production-ready.
-@OptIn(ExperimentalFoundationApi::class)
 private data class MaxLengthFilter(
     private val maxLength: Int
 ) : InputTransformation {

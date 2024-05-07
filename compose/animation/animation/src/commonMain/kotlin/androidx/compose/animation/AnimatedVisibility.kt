@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalAnimationApi::class)
-
 package androidx.compose.animation
 
 import androidx.compose.animation.EnterExitState.PostExit
@@ -296,7 +294,6 @@ fun ColumnScope.AnimatedVisibility(
  * @sample androidx.compose.animation.samples.AnimatedVisibilityWithBooleanVisibleParamNoReceiver
  * @see AnimatedVisibility
  */
-@ExperimentalAnimationApi
 enum class EnterExitState {
     /**
      * The initial state of a custom enter animation in [AnimatedVisibility]..
@@ -603,7 +600,6 @@ fun ColumnScope.AnimatedVisibility(
  * @see AnimatedVisibilityScope
  * @see Transition.AnimatedVisibility
  */
-@ExperimentalAnimationApi
 @Composable
 fun <T> Transition<T>.AnimatedVisibility(
     visible: (T) -> Boolean,
@@ -674,46 +670,11 @@ interface AnimatedVisibilityScope {
     }
 }
 
-@ExperimentalAnimationApi
 internal class AnimatedVisibilityScopeImpl internal constructor(
     transition: Transition<EnterExitState>
 ) : AnimatedVisibilityScope {
     override var transition = transition
     internal val targetSize = mutableStateOf(IntSize.Zero)
-}
-
-@ExperimentalAnimationApi
-@Composable
-@Deprecated(
-    "AnimatedVisibility no longer accepts initiallyVisible as a parameter, please use " +
-        "AnimatedVisibility(MutableTransitionState, Modifier, ...) API instead",
-    replaceWith = ReplaceWith(
-        "AnimatedVisibility(" +
-            "transitionState = remember { MutableTransitionState(initiallyVisible) }\n" +
-            ".apply { targetState = visible },\n" +
-            "modifier = modifier,\n" +
-            "enter = enter,\n" +
-            "exit = exit) {\n" +
-            "content() \n" +
-            "}",
-        "androidx.compose.animation.core.MutableTransitionState"
-    )
-)
-fun AnimatedVisibility(
-    visible: Boolean,
-    modifier: Modifier = Modifier,
-    enter: EnterTransition,
-    exit: ExitTransition,
-    initiallyVisible: Boolean,
-    content: @Composable () -> Unit
-) = AnimatedVisibility(
-    visibleState = remember { MutableTransitionState(initiallyVisible) }
-        .apply { targetState = visible },
-    modifier = modifier,
-    enter = enter,
-    exit = exit
-) {
-    content()
 }
 
 /**
@@ -722,7 +683,6 @@ fun AnimatedVisibility(
  * AnimatedVisibilityImpl sets up 2 things: 1) It adds a modifier to report 0 size in lookahead
  * when animating out. 2) It sets up a criteria for when content should be disposed.
  */
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 internal fun <T> AnimatedVisibilityImpl(
     transition: Transition<T>,
@@ -764,7 +724,6 @@ internal fun interface OnLookaheadMeasured {
 @OptIn(
     ExperimentalTransitionApi::class,
     InternalAnimationApi::class,
-    ExperimentalAnimationApi::class,
 )
 @Composable
 internal fun <T> AnimatedEnterExitImpl(
@@ -842,7 +801,6 @@ internal fun <T> AnimatedEnterExitImpl(
 private val Transition<EnterExitState>.exitFinished
     get() = currentState == PostExit && targetState == PostExit
 
-@OptIn(ExperimentalAnimationApi::class)
 private class AnimatedEnterExitMeasurePolicy(
     val scope: AnimatedVisibilityScopeImpl
 ) : MeasurePolicy {
@@ -891,7 +849,6 @@ private class AnimatedEnterExitMeasurePolicy(
 }
 
 // This converts Boolean visible to EnterExitState
-@OptIn(InternalAnimationApi::class, ExperimentalAnimationApi::class)
 @Composable
 private fun <T> Transition<T>.targetEnterExit(
     visible: (T) -> Boolean,

@@ -49,6 +49,19 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".StaticScrollingContentWithChromeInitialCompositionActivity"
+            android:label="C StaticScrollingWithChrome Init"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.STATIC_SCROLLING_CONTENT_WITH_CHROME_INITIAL_COMPOSITION_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.STATIC_SCROLLING_CONTENT_WITH_CHROME_FIRST_FRAME_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".TrivialStartupTracingActivity"
             android:label="C TrivialTracing"
             android:exported="true">
@@ -228,7 +241,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity
+        
+	<activity
             android:name=".VectorsListActivity"
             android:label="Compose vectors list"
             android:exported="true">
@@ -252,6 +266,14 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.CROSSFADE_ACTIVITY" />
+            </intent-filter>
+	</activity>
+
+	<activity android:name=".PagerOfLazyGridActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat">
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.PAGER_LAZYGRID_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

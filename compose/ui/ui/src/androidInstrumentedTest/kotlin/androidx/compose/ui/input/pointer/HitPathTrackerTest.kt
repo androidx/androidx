@@ -4172,12 +4172,7 @@ private class MockOwner(
         explicitLayer: GraphicsLayer?
     ): OwnedLayer {
         return object : OwnedLayer {
-            override fun updateLayerProperties(
-                scope: ReusableGraphicsLayerScope,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ) {
-            }
+            override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {}
 
             override fun isInLayer(position: Offset) = true
 

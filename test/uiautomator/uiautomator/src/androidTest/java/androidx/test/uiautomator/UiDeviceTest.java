@@ -88,7 +88,6 @@ public class UiDeviceTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetDisplayMetrics() throws IOException {
         String densityCmdOutput = mDevice.executeShellCommand("wm density");
         Pattern densityPattern = Pattern.compile("^Physical\\sdensity:\\s(\\d+)\\D+.*");
@@ -202,7 +201,6 @@ public class UiDeviceTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testExecuteShellCommand() throws IOException {
         String output = mDevice.executeShellCommand("pm list packages");
         assertTrue(output.contains("package:androidx.test.uiautomator.test"));

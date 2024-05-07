@@ -28,8 +28,8 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class EasingTest {
-    val ZeroEpsilon = -(1.0f.ulp)
-    val OneEpsilon = 1.0f + 1.0f.ulp
+    private val ZeroEpsilon = -(1.0f.ulp)
+    private val OneEpsilon = 1.0f + 1.0f.ulp
 
     @Test
     fun cubicBezierStartsAt0() {
@@ -40,7 +40,19 @@ class EasingTest {
     @Test
     fun cubicBezierEndsAt1() {
         val easing = FastOutLinearInEasing
-        assertThat(easing.transform(1f) == 1f)
+        assertThat(easing.transform(1f)).isEqualTo(1.0f)
+    }
+
+    @Test
+    fun cubicBezierDoesntExceed1() {
+        val easing = CubicBezierEasing(0f, 0f, 0.15f, 1f)
+        assertThat(easing.transform(0.999999f) <= 1.0f).isTrue()
+    }
+
+    @Test
+    fun cubicBezierDoesExceed1() {
+        val easing = CubicBezierEasing(0.34f, 1.56f, 0.64f, 1.0f)
+        assertThat(easing.transform(0.6f)).isGreaterThan(1.0f)
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.geometry
 
+import kotlin.test.assertFails
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -105,6 +106,7 @@ class OffsetTest {
     @Test
     fun testUnspecifiedEquals() {
         // Verify that verifying equality here does not crash
+        @Suppress("KotlinConstantConditions")
         assertTrue(Offset.Unspecified == Offset.Unspecified)
     }
 
@@ -121,5 +123,39 @@ class OffsetTest {
     @Test
     fun testUnspecifiedOffsetToString() {
         assertEquals("Offset.Unspecified", Offset.Unspecified.toString())
+    }
+
+    @Test
+    fun testUnaryMinus() {
+        assertEquals(Offset(-10.0f, -20.0f), -Offset(10.0f, 20.0f))
+        assertEquals(Offset(10.0f, 20.0f), -Offset(-10.0f, -20.0f))
+        assertEquals(
+            Offset(-10.0f, Float.NEGATIVE_INFINITY),
+            -Offset(10.0f, Float.POSITIVE_INFINITY)
+        )
+        assertEquals(
+            Offset(-10.0f, Float.POSITIVE_INFINITY),
+            -Offset(10.0f, Float.NEGATIVE_INFINITY)
+        )
+        assertFails {
+            -Offset(Float.NaN, Float.NaN)
+        }
+    }
+
+    @Test
+    fun testIsFinite() {
+        assertTrue(Offset(10.0f, 20.0f).isFinite)
+        assertTrue(Offset(0.0f, 0.0f).isFinite)
+        assertTrue(Offset(10.0f, -20.0f).isFinite)
+
+        assertFalse(Offset(10.0f, Float.POSITIVE_INFINITY).isFinite)
+        assertFalse(Offset(10.0f, Float.NEGATIVE_INFINITY).isFinite)
+        assertFalse(Offset(Float.POSITIVE_INFINITY, 20.0f).isFinite)
+        assertFalse(Offset(Float.NEGATIVE_INFINITY, 20.0f).isFinite)
+        assertFalse(Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY).isFinite)
+
+        assertFails {
+            Offset(Float.NaN, Float.NaN).isFinite
+        }
     }
 }

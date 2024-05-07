@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.input.internal.selection
 
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findParagraphEnd
 import androidx.compose.foundation.text.findParagraphStart
@@ -83,7 +82,6 @@ internal class TextFieldPreparedSelectionState {
  * between successive [TextFieldPreparedSelection]s, e.g. original X position of the cursor while
  * moving the cursor up/down.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldPreparedSelection(
     private val state: TransformedTextFieldState,
     private val textLayoutResult: TextLayoutResult?,

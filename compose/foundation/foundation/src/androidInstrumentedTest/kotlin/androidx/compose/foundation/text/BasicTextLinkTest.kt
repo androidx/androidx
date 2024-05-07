@@ -804,7 +804,7 @@ class BasicTextLinkTest {
             BasicText(
                 buildAnnotatedString {
                     withLink(Url("qwerty") {
-                            clickedUrlAnnotation = it as LinkAnnotation.Url
+                            clickedUrlAnnotation = it as Url
                         }
                     ) { append("link") }
                 }

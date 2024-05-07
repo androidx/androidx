@@ -92,10 +92,7 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
         object : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 when (intent.action) {
-                    Intent.ACTION_BATTERY_LOW -> observer.onActionBatteryLow()
-                    Intent.ACTION_BATTERY_OKAY -> observer.onActionBatteryOkay()
-                    Intent.ACTION_POWER_CONNECTED -> observer.onActionPowerConnected()
-                    Intent.ACTION_POWER_DISCONNECTED -> observer.onActionPowerDisconnected()
+                    Intent.ACTION_BATTERY_CHANGED -> processBatteryStatus(intent)
                     Intent.ACTION_TIME_CHANGED -> observer.onActionTimeChanged()
                     Intent.ACTION_TIME_TICK -> observer.onActionTimeTick()
                     Intent.ACTION_TIMEZONE_CHANGED -> observer.onActionTimeZoneChanged()
@@ -112,15 +109,11 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
     init {
         context.registerReceiver(
             receiver,
-            IntentFilter(Intent.ACTION_SCREEN_OFF).apply {
-                addAction(Intent.ACTION_SCREEN_ON)
+            IntentFilter(Intent.ACTION_BATTERY_CHANGED).apply {
+                addAction(Intent.ACTION_TIME_CHANGED)
                 addAction(Intent.ACTION_TIME_TICK)
                 addAction(Intent.ACTION_TIMEZONE_CHANGED)
-                addAction(Intent.ACTION_TIME_CHANGED)
-                addAction(Intent.ACTION_BATTERY_LOW)
-                addAction(Intent.ACTION_BATTERY_OKAY)
-                addAction(Intent.ACTION_POWER_CONNECTED)
-                addAction(Intent.ACTION_POWER_DISCONNECTED)
+                addAction(Intent.ACTION_SCREEN_OFF)
                 addAction(Intent.ACTION_USER_PRESENT)
                 addAction(WatchFaceImpl.MOCK_TIME_INTENT)
                 addAction(ACTION_AMBIENT_STARTED)
@@ -137,7 +130,6 @@ constructor(private val context: Context, private val observer: BroadcastEventOb
         )
     }
 
-    /** Called to send observers initial battery state in advance of receiving any broadcasts. */
     internal fun processBatteryStatus(batteryStatus: Intent?) {
         val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         if (

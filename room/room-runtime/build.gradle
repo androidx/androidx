@@ -146,7 +146,7 @@ androidXMultiplatform {
                 compileOnly("androidx.collection:collection:1.2.0")
                 compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
                 compileOnly("androidx.paging:paging-common:2.0.0")
-                implementation(projectOrArtifact(":annotation:annotation-experimental"))
+                implementation("androidx.annotation:annotation-experimental:1.4.1")
             }
         }
         androidUnitTest {

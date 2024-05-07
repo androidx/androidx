@@ -422,9 +422,11 @@ private fun findQuadraticRoots(
  */
 private fun findDerivativeRoots(
     segment: PathSegment,
+    horizontal: Boolean,
     roots: FloatArray,
-    index: Int = 0,
+    index: Int
 ): Int {
+    val offset = if (horizontal) 0 else 1
     val points = segment.points
     return when (segment.type) {
         PathSegment.Type.Move -> 0
@@ -435,8 +437,8 @@ private fun findDerivativeRoots(
             // Line derivative of a quadratic function
             // We do the computation inline to avoid using arrays of other data
             // structures to return the result
-            val d0 = 2 * (points[2] - points[0])
-            val d1 = 2 * (points[4] - points[2])
+            val d0 = 2 * (points[offset + 2] - points[offset + 0])
+            val d1 = 2 * (points[offset + 4] - points[offset + 2])
             findLineRoot(d0, d1, roots, index)
         }
 
@@ -447,9 +449,9 @@ private fun findDerivativeRoots(
             // Quadratic derivative of a cubic function
             // We do the computation inline to avoid using arrays of other data
             // structures to return the result
-            val d0 = 3.0f * (points[2] - points[0])
-            val d1 = 3.0f * (points[4] - points[2])
-            val d2 = 3.0f * (points[6] - points[4])
+            val d0 = 3.0f * (points[offset + 2] - points[offset + 0])
+            val d1 = 3.0f * (points[offset + 4] - points[offset + 2])
+            val d2 = 3.0f * (points[offset + 6] - points[offset + 4])
             val count = findQuadraticRoots(d0, d1, d2, roots, index)
 
             // Compute the second derivative as a line
@@ -478,7 +480,7 @@ fun computeHorizontalBounds(
     roots: FloatArray,
     index: Int = 0
 ): FloatFloatPair {
-    val count = findDerivativeRoots(segment, roots, index)
+    val count = findDerivativeRoots(segment, true, roots, index)
     var minX = min(segment.startX, segment.endX)
     var maxX = max(segment.startX, segment.endX)
 
@@ -505,18 +507,54 @@ internal fun computeVerticalBounds(
     roots: FloatArray,
     index: Int = 0
 ): FloatFloatPair {
-    val count = findDerivativeRoots(segment, roots, index)
-    var minX = min(segment.startY, segment.endY)
-    var maxX = max(segment.startY, segment.endY)
+    val count = findDerivativeRoots(segment, false, roots, index)
+    var minY = min(segment.startY, segment.endY)
+    var maxY = max(segment.startY, segment.endY)
 
     for (i in 0 until count) {
         val t = roots[i]
         val x = evaluateY(segment, t)
-        minX = min(minX, x)
-        maxX = max(maxX, x)
+        minY = min(minY, x)
+        maxY = max(maxY, x)
     }
 
-    return FloatFloatPair(minX, maxX)
+    return FloatFloatPair(minY, maxY)
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun computeCubicVerticalBounds(
+    p0y: Float,
+    p1y: Float,
+    p2y: Float,
+    p3y: Float,
+    roots: FloatArray,
+    index: Int = 0
+): FloatFloatPair {
+    // Quadratic derivative of a cubic function
+    // We do the computation inline to avoid using arrays of other data
+    // structures to return the result
+    val d0 = 3.0f * (p1y - p0y)
+    val d1 = 3.0f * (p2y - p1y)
+    val d2 = 3.0f * (p3y - p2y)
+    var count = findQuadraticRoots(d0, d1, d2, roots, index)
+
+    // Compute the second derivative as a line
+    val dd0 = 2.0f * (d1 - d0)
+    val dd1 = 2.0f * (d2 - d1)
+    count += findLineRoot(dd0, dd1, roots, index + count)
+
+    var minY = min(p0y, p3y)
+    var maxY = max(p0y, p3y)
+
+    for (i in 0 until count) {
+        val t = roots[i]
+        println(t)
+        val y = evaluateCubic(p0y, p1y, p2y, p3y, t)
+        minY = min(minY, y)
+        maxY = max(maxY, y)
+    }
+
+    return FloatFloatPair(minY, maxY)
 }
 
 @Suppress("NOTHING_TO_INLINE")

@@ -218,9 +218,8 @@ internal fun Offset.coerceIn(rect: Rect): Offset {
  */
 internal fun TextLayoutState.fromTextLayoutToCore(offset: Offset): Offset {
     return textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { textLayoutNodeCoordinates ->
-        coreNodeCoordinates?.takeIf { it.isAttached }?.let { coreNodeCoordinates ->
-            coreNodeCoordinates.localPositionOf(textLayoutNodeCoordinates, offset)
-        }
+        coreNodeCoordinates?.takeIf { it.isAttached }
+            ?.localPositionOf(textLayoutNodeCoordinates, offset)
     } ?: offset
 }
 

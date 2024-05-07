@@ -28,9 +28,7 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.draw
@@ -80,7 +78,7 @@ internal class GraphicsLayerOwnerLayer(
     private val scope = CanvasDrawScope()
     private var mutatedFields: Int = 0
     private var transformOrigin: TransformOrigin = TransformOrigin.Center
-    private var shape: Shape = RectangleShape
+    private var outline: Outline? = null
     private var tmpPath: Path? = null
     /**
      * Optional paint used when the RenderNode is rendered on a software backed
@@ -88,17 +86,10 @@ internal class GraphicsLayerOwnerLayer(
      */
     private var softwareLayerPaint: Paint? = null
 
-    override fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ) {
-        var maybeChangedFields = scope.mutatedFields or mutatedFields
-        if (this.layoutDirection != layoutDirection || this.density != density) {
-            this.layoutDirection = layoutDirection
-            this.density = density
-            maybeChangedFields = maybeChangedFields or Fields.Shape
-        }
+    override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
+        val maybeChangedFields = scope.mutatedFields or mutatedFields
+        this.layoutDirection = scope.layoutDirection
+        this.density = scope.graphicsDensity
         if (maybeChangedFields and Fields.TransformOrigin != 0) {
             this.transformOrigin = scope.transformOrigin
         }
@@ -152,10 +143,6 @@ internal class GraphicsLayerOwnerLayer(
                 transformOrigin.pivotFractionY * size.height
             )
         }
-        if (maybeChangedFields and Fields.Shape != 0) {
-            this.shape = scope.shape
-            updateOutline()
-        }
         if (maybeChangedFields and Fields.Clip != 0) {
             graphicsLayer.clip = scope.clip
         }
@@ -171,8 +158,16 @@ internal class GraphicsLayerOwnerLayer(
             }
         }
 
+        var outlineChanged = false
+
+        if (outline != scope.outline) {
+            outlineChanged = true
+            outline = scope.outline
+            updateOutline()
+        }
+
         mutatedFields = scope.mutatedFields
-        if (maybeChangedFields != 0) {
+        if (maybeChangedFields != 0 || outlineChanged) {
             triggerRepaint()
         }
     }
@@ -189,7 +184,7 @@ internal class GraphicsLayerOwnerLayer(
     }
 
     private fun updateOutline() {
-        val outline = shape.createOutline(size.toSize(), layoutDirection, density)
+        val outline = outline ?: return
         graphicsLayer.setOutline(outline)
         if (outline is Outline.Generic && Build.VERSION.SDK_INT < 33) {
             // before 33 many of the paths are not clipping by rendernode. instead we have to

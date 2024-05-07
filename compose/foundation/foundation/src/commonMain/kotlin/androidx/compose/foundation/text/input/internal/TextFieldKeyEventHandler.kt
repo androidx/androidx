@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.DeadKeyCombiner
 import androidx.compose.foundation.text.KeyCommand
 import androidx.compose.foundation.text.appendCodePointX
@@ -52,7 +51,6 @@ internal expect val KeyEvent.isFromSoftKeyboard: Boolean
  * This class is left abstract to make sure that each platform extends from it. Platforms can
  * decide to extend or completely override KeyEvent actions defined here.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal abstract class TextFieldKeyEventHandler {
     private val preparedSelectionState = TextFieldPreparedSelectionState()
     private val deadKeyCombiner = DeadKeyCombiner()
@@ -259,9 +257,8 @@ internal abstract class TextFieldKeyEventHandler {
      */
     private fun TextLayoutState.getVisibleTextLayoutHeight(): Float {
         return textLayoutNodeCoordinates?.takeIf { it.isAttached }?.let { textLayoutCoordinates ->
-            decoratorNodeCoordinates?.takeIf { it.isAttached }?.let { decoratorCoordinates ->
-                decoratorCoordinates.localBoundingBoxOf(textLayoutCoordinates)
-            }
+            decoratorNodeCoordinates?.takeIf { it.isAttached }
+                ?.localBoundingBoxOf(textLayoutCoordinates)
         }?.size?.height ?: Float.NaN
     }
 }

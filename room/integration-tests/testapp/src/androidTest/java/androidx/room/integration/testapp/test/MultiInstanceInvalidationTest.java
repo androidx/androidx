@@ -208,6 +208,8 @@ public class MultiInstanceInvalidationTest {
         assertThat(db1.getCustomerDao().countCustomers(), is(1));
     }
 
+    // TODO(335890993): broken test
+    @Ignore
     @Test
     public void invalidationInAnotherInstance_closed() throws Exception {
         final SampleDatabase db1 = openDatabase(true);

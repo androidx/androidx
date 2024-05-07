@@ -106,6 +106,7 @@ androidXMultiplatform {
             KonanTarget.ANDROID_X86,
             KonanTarget.MACOS_ARM64,
             KonanTarget.MACOS_X64,
+            KonanTarget.MINGW_X64,
             KonanTarget.LINUX_X64,
     ].collect { it.INSTANCE } // Use INSTANCE to get object class instance from kotlin
 
@@ -144,7 +145,7 @@ androidXMultiplatform {
     )
 
     // Define C++ compilation of JNI
-    def jvmArtJniImplementation = createNativeCompilation("jvmArtJniImplementation") {
+    def jvmArtJniImplementation = createNativeCompilation("sqliteJni") {
         configureEachTarget { nativeCompilation ->
             // add JNI headers as sources
             nativeCompilation.addJniHeaders()

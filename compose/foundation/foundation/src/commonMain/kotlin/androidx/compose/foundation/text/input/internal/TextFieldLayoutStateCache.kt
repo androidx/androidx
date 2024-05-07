@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.internal.TextFieldLayoutStateCache.MeasureInputs
@@ -32,9 +30,9 @@ import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.withCurrent
 import androidx.compose.runtime.snapshots.writable
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Constraints
@@ -58,7 +56,6 @@ import androidx.compose.ui.unit.LayoutDirection
  * in an instance of a dedicated class. This means for each type of update, only one state object
  * is needed.
  */
-@OptIn(ExperimentalFoundationApi::class, InternalFoundationTextApi::class)
 internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject {
     private var nonMeasureInputs: NonMeasureInputs? by mutableStateOf(
         value = null,
@@ -165,12 +162,18 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 cachedRecord.constraints == measureInputs.constraints &&
                 cachedRecord.fontFamilyResolver == measureInputs.fontFamilyResolver
             ) {
+                val isLayoutAffectingSame = cachedRecord.textStyle
+                    ?.hasSameLayoutAffectingAttributes(nonMeasureInputs.textStyle) ?: false
+
+                val isDrawAffectingSame = cachedRecord.textStyle
+                    ?.hasSameDrawAffectingAttributes(nonMeasureInputs.textStyle) ?: false
+
                 // Fast path: None of the inputs changed.
-                if (cachedRecord.textStyle == nonMeasureInputs.textStyle) return cachedResult
+                if (isLayoutAffectingSame && isDrawAffectingSame) {
+                    return cachedResult
+                }
                 // Slightly slower than fast path: Layout did not change but TextLayoutInput did
-                if (cachedRecord.textStyle
-                        ?.hasSameDrawAffectingAttributes(nonMeasureInputs.textStyle) == true
-                ) {
+                if (isLayoutAffectingSame) {
                     return cachedResult.copy(
                         layoutInput = TextLayoutInput(
                             cachedResult.layoutInput.text,
@@ -189,10 +192,13 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
             }
 
             // Slow path: Some input changed, need to re-layout.
-            return computeLayout(visualText, nonMeasureInputs, measureInputs, cachedResult)
+            return computeLayout(visualText, nonMeasureInputs, measureInputs)
                 .also { newResult ->
-                    // TODO(b/294403840) TextDelegate does its own caching and may return the same
-                    //  TextLayoutResult object. We should inline that so we don't check twice.
+                    // Although the snapshot-aware cache is only updated when the current snapshot
+                    // is writable, we still would like to cache the results of text layout
+                    // computation since it's very likely that a follow-up access to the text layout
+                    // result will use the same measure and non-measure inputs. Therefore, we use
+                    // a `TextMeasurer` with a cache size of 1 to compute the text layout result.
                     if (newResult != cachedResult) {
                         updateCacheIfWritable {
                             this.visualText = visualText
@@ -219,31 +225,45 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         }
     }
 
+    private var textMeasurer: TextMeasurer? = null
+
+    /**
+     * Returns a [TextMeasurer] instance, either initialized from [measureInputs] or the one
+     * previously created. If a cached [TextMeasurer] is returned and [measureInputs] do not match
+     * the attributes of previous instance, make sure to call [TextMeasurer.measure] with the
+     * up-to-date parameters. [TextMeasurer] will override its fallback values for
+     * [FontFamily.Resolver], [Density], and [LayoutDirection] when these are passed explicitly
+     * to the [TextMeasurer.measure] function.
+     */
+    private fun obtainTextMeasurer(measureInputs: MeasureInputs): TextMeasurer {
+        return textMeasurer ?: TextMeasurer(
+            defaultFontFamilyResolver = measureInputs.fontFamilyResolver,
+            defaultDensity = measureInputs.density,
+            defaultLayoutDirection = measureInputs.layoutDirection,
+            cacheSize = 1
+        ).also { textMeasurer = it }
+    }
+
     private fun computeLayout(
         visualText: CharSequence,
         nonMeasureInputs: NonMeasureInputs,
-        measureInputs: MeasureInputs,
-        prevResult: TextLayoutResult?
+        measureInputs: MeasureInputs
     ): TextLayoutResult {
-        // TODO(b/294403840) Don't use TextDelegate – it is not designed for this use case,
-        //  optimized for re-use which we don't take advantage of here, and does its own caching
-        //  checks. Maybe we can use MultiParagraphLayoutCache like BasicText?
+        // TODO(b/294403840) Don't use TextMeasurer – it is not designed for this use case,
+        //  optimized for re-use which we don't take a great advantage of here, and does its own
+        //  caching checks. Maybe we can use MultiParagraphLayoutCache like BasicText?
 
-        // We have to always create a new TextDelegate since it contains internal state that is
-        // not snapshot-aware.
-        val textDelegate = TextDelegate(
-            text = AnnotatedString(visualText.toString()),
+        val textMeasurer = obtainTextMeasurer(measureInputs)
+
+        return textMeasurer.measure(
+            text = visualText.toString(),
             style = nonMeasureInputs.textStyle,
+            softWrap = nonMeasureInputs.softWrap,
+            maxLines = if (nonMeasureInputs.singleLine) 1 else Int.MAX_VALUE,
+            constraints = measureInputs.constraints,
+            layoutDirection = measureInputs.layoutDirection,
             density = measureInputs.density,
             fontFamilyResolver = measureInputs.fontFamilyResolver,
-            softWrap = nonMeasureInputs.softWrap,
-            placeholders = emptyList()
-        )
-
-        return textDelegate.layout(
-            layoutDirection = measureInputs.layoutDirection,
-            constraints = measureInputs.constraints,
-            prevResult = prevResult
         )
     }
 

@@ -52,7 +52,7 @@ abstract class LinkAnnotation private constructor() {
     /**
      * An annotation that contains a [url] string. When clicking on the text to which this annotation
      * is attached, the app will try to open the url using [androidx.compose.ui.platform.UriHandler].
-     * However, if [linkInteractionListener] is provided, its [LinkInteractionListener.onClicked]
+     * However, if [linkInteractionListener] is provided, its [LinkInteractionListener.onClick]
      * method will be called instead and so you need to then handle opening url manually (for
      * example by calling [androidx.compose.ui.platform.UriHandler]).
      */

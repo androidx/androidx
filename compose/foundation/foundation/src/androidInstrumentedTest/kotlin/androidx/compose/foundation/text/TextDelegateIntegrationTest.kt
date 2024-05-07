@@ -18,7 +18,6 @@ package androidx.compose.foundation.text
 
 import android.graphics.Bitmap
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -36,7 +35,6 @@ import kotlin.math.roundToInt
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(InternalFoundationTextApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class TextDelegateIntegrationTest {
@@ -44,7 +42,6 @@ class TextDelegateIntegrationTest {
     private val fontFamily = TEST_FONT_FAMILY
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
-    @OptIn(ExperimentalTextApi::class)
     private val fontFamilyResolver = createFontFamilyResolver(context)
 
     @Test
@@ -199,6 +196,23 @@ class TextDelegateIntegrationTest {
         val layoutResultRtl = textDelegate.layout(Constraints(), LayoutDirection.Rtl)
 
         assertThat(layoutResultLtr.size.width).isEqualTo(layoutResultRtl.size.width)
+    }
+
+    @Test
+    fun layoutText_doesntThrow_when2shl14char() {
+        val textDelegate = TextDelegate(
+            text = AnnotatedString(text = "a".repeat(2 shl 14)),
+            style = TextStyle.Default,
+            density = density,
+            fontFamilyResolver = fontFamilyResolver
+        )
+        val subject = textDelegate.layout(
+            Constraints() /* unbounded */,
+            layoutDirection = LayoutDirection.Ltr,
+            null
+        )
+        assertThat(subject.size.width).isGreaterThan(0)
+        assertThat(subject.size.height).isGreaterThan(0)
     }
 }
 

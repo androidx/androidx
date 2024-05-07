@@ -29,7 +29,7 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 
-internal class TextFieldValueSubject constructor(
+internal class TextFieldValueSubject(
     failureMetadata: FailureMetadata?,
     private val subject: TextFieldValue,
     private val textContent: String,

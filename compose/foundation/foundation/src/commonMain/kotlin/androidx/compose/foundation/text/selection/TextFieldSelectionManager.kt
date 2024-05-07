@@ -19,7 +19,6 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.HandleState
-import androidx.compose.foundation.text.InternalFoundationTextApi
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.UndoManager
@@ -89,7 +88,6 @@ internal class TextFieldSelectionManager(
      * The current transformed text from the [LegacyTextFieldState].
      * The original text can be found in [value].
      */
-    @OptIn(InternalFoundationTextApi::class)
     internal val transformedText get() = state?.textDelegate?.text
 
     /**
@@ -122,6 +120,11 @@ internal class TextFieldSelectionManager(
      * Defines if paste and cut toolbar menu actions should be shown
      */
     var editable by mutableStateOf(true)
+
+    /**
+     * Whether the text field should be selectable at all.
+     */
+    var enabled by mutableStateOf(true)
 
     /**
      * The beginning position of the drag gesture. Every time a new drag gesture starts, it wil be
@@ -575,6 +578,23 @@ internal class TextFieldSelectionManager(
         updateFloatingToolbar(show = false)
     }
 
+    internal fun setSelectionPreviewHighlight(range: TextRange) {
+        state?.selectionPreviewHighlightRange = range
+        state?.deletionPreviewHighlightRange = TextRange.Zero
+        if (!range.collapsed) exitSelectionMode()
+    }
+
+    internal fun setDeletionPreviewHighlight(range: TextRange) {
+        state?.deletionPreviewHighlightRange = range
+        state?.selectionPreviewHighlightRange = TextRange.Zero
+        if (!range.collapsed) exitSelectionMode()
+    }
+
+    internal fun clearPreviewHighlight() {
+        state?.deletionPreviewHighlightRange = TextRange.Zero
+        state?.selectionPreviewHighlightRange = TextRange.Zero
+    }
+
     /**
      * The method for copying text.
      *
@@ -849,7 +869,6 @@ internal class TextFieldSelectionManager(
      * line, and the bottom is the bottom of the last selected line. The left is the leftmost
      * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
      */
-    @OptIn(InternalFoundationTextApi::class)
     private fun getContentRect(): Rect {
         // if it's stale layout, return empty Rect
         state?.takeIf { !it.isLayoutResultStale }?.let {
@@ -1056,7 +1075,6 @@ internal expect fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManag
 /**
  * @return the location of the magnifier relative to the inner text field coordinates
  */
-@OptIn(InternalFoundationTextApi::class)
 internal fun calculateSelectionMagnifierCenterAndroid(
     manager: TextFieldSelectionManager,
     magnifierSize: IntSize
@@ -1094,7 +1112,14 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     // Hide the magnifier when dragged too far (outside the horizontal bounds of how big the
     // magnifier actually is). See
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/Editor.java;l=5228-5231;drc=2fdb6bd709be078b72f011334362456bb758922c
-    if ((dragX - centerX).absoluteValue > magnifierSize.width / 2) {
+    // Also check whether magnifierSize is calculated. A platform magnifier instance is not
+    // created until it's requested for the first time. So the size will only be calculated after we
+    // return a specified offset from this function.
+    // It is very unlikely that this behavior would cause a flicker since magnifier immediately
+    // shows up where the pointer is being dragged. The pointer needs to drag further than the half
+    // of magnifier's width to hide by the following logic.
+    if (magnifierSize != IntSize.Zero &&
+        (dragX - centerX).absoluteValue > magnifierSize.width / 2) {
         return Offset.Unspecified
     }
 

@@ -193,6 +193,7 @@ package androidx.compose.ui.graphics {
   }
 
   public final class BezierKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static long computeCubicVerticalBounds(float p0y, float p1y, float p2y, float p3y, float[] roots, optional int index);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static long computeHorizontalBounds(androidx.compose.ui.graphics.PathSegment segment, float[] roots, optional int index);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float evaluateCubic(float p1, float p2, float t);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static float evaluateY(androidx.compose.ui.graphics.PathSegment segment, float t);
@@ -989,7 +990,7 @@ package androidx.compose.ui.graphics {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Shadow lerp(androidx.compose.ui.graphics.Shadow start, androidx.compose.ui.graphics.Shadow stop, float fraction);
   }
 
-  @androidx.compose.runtime.Immutable public interface Shape {
+  @androidx.compose.runtime.Stable public interface Shape {
     method public androidx.compose.ui.graphics.Outline createOutline(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.Density density);
   }
 

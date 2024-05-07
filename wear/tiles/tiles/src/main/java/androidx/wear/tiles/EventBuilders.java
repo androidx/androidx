@@ -33,6 +33,7 @@ public final class EventBuilders {
     private EventBuilders() {}
 
     /** Event fired when a tile has been added to the carousel. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class TileAddEvent {
         private final EventProto.TileAddEvent mImpl;
 
@@ -74,6 +75,8 @@ public final class EventBuilders {
             private final EventProto.TileAddEvent.Builder mImpl =
                     EventProto.TileAddEvent.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             public Builder() {}
 
             /**
@@ -96,6 +99,7 @@ public final class EventBuilders {
     }
 
     /** Event fired when a tile has been removed from the carousel. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class TileRemoveEvent {
         private final EventProto.TileRemoveEvent mImpl;
 
@@ -137,6 +141,8 @@ public final class EventBuilders {
             private final EventProto.TileRemoveEvent.Builder mImpl =
                     EventProto.TileRemoveEvent.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             public Builder() {}
 
             /**
@@ -158,6 +164,7 @@ public final class EventBuilders {
     }
 
     /** Event fired when a tile is swiped to by the user (i.e. it's visible on screen). */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class TileEnterEvent {
         private final EventProto.TileEnterEvent mImpl;
 
@@ -199,6 +206,8 @@ public final class EventBuilders {
             private final EventProto.TileEnterEvent.Builder mImpl =
                     EventProto.TileEnterEvent.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             public Builder() {}
 
             /**
@@ -224,6 +233,7 @@ public final class EventBuilders {
      * Event fired when a tile is swiped away from by the user (i.e. it's no longer visible on
      * screen).
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class TileLeaveEvent {
         private final EventProto.TileLeaveEvent mImpl;
 
@@ -265,6 +275,8 @@ public final class EventBuilders {
             private final EventProto.TileLeaveEvent.Builder mImpl =
                     EventProto.TileLeaveEvent.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             public Builder() {}
 
             /**

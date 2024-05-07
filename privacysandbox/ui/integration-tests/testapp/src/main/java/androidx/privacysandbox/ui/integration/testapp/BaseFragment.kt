@@ -16,11 +16,20 @@
 
 package androidx.privacysandbox.ui.integration.testapp
 
+import android.app.Activity
 import android.os.Bundle
+import android.util.Log
+import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
+import androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
+import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
+import kotlinx.coroutines.runBlocking
 
 /**
  * Base fragment to be used for testing different manual flows.
@@ -31,16 +40,22 @@ import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
  */
 abstract class BaseFragment : Fragment() {
     private lateinit var sdkApi: ISdkApi
+    private lateinit var sdkSandboxManager: SdkSandboxManagerCompat
+    private lateinit var activity: Activity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sdkSandboxManager = SdkSandboxManagerCompat.from(requireContext())
-        val loadedSdks = sdkSandboxManager.getSandboxedSdks()
-        val loadedSdk = loadedSdks.firstOrNull { it.getSdkInfo()?.name == SDK_NAME }
-        if (loadedSdk == null) {
-            throw IllegalStateException("SDK not loaded")
+        activity = requireActivity()
+        sdkSandboxManager = SdkSandboxManagerCompat.from(requireContext())
+        runBlocking {
+            val loadedSdks = sdkSandboxManager.getSandboxedSdks()
+            var loadedSdk = loadedSdks.firstOrNull { it.getSdkInfo()?.name == SDK_NAME }
+            if (loadedSdk == null) {
+                loadedSdk = sdkSandboxManager.loadSdk(SDK_NAME, Bundle())
+                sdkSandboxManager.loadSdk(MEDIATEE_SDK_NAME, Bundle())
+            }
+            sdkApi = ISdkApi.Stub.asInterface(loadedSdk.getInterface())
         }
-        sdkApi = ISdkApi.Stub.asInterface(loadedSdk.getInterface())
     }
 
     /**
@@ -48,6 +63,20 @@ abstract class BaseFragment : Fragment() {
      */
     fun getSdkApi(): ISdkApi {
         return sdkApi
+    }
+
+    fun SandboxedSdkView.addStateChangedListener() {
+        addStateChangedListener(StateChangeListener(this))
+    }
+
+    /**
+     * Unloads all SDKs, resulting in sandbox death. This method registers a death callback to
+     * ensure that the app is not also killed.
+     */
+    fun unloadAllSdks() {
+        sdkSandboxManager.addSdkSandboxProcessDeathCallback(Runnable::run, DeathCallbackImpl())
+        sdkSandboxManager.unloadSdk(SDK_NAME)
+        sdkSandboxManager.unloadSdk(MEDIATEE_SDK_NAME)
     }
 
     /**
@@ -58,8 +87,37 @@ abstract class BaseFragment : Fragment() {
      */
     abstract fun handleDrawerStateChange(isDrawerOpen: Boolean)
 
+    private inner class StateChangeListener(val view: SandboxedSdkView) :
+        SandboxedSdkUiSessionStateChangedListener {
+        override fun onStateChanged(state: SandboxedSdkUiSessionState) {
+            Log.i(TAG, "UI session state changed to: $state")
+            if (state is SandboxedSdkUiSessionState.Error) {
+                // If the session fails to open, display the error.
+                val parent = view.parent as ViewGroup
+                val index = parent.indexOfChild(view)
+                val textView = TextView(requireActivity())
+                textView.text = state.throwable.message
+
+                requireActivity().runOnUiThread {
+                    parent.removeView(view)
+                    parent.addView(textView, index)
+                }
+            }
+        }
+    }
+
+    private inner class DeathCallbackImpl : SdkSandboxProcessDeathCallbackCompat {
+        override fun onSdkSandboxDied() {
+            activity.runOnUiThread {
+                Toast.makeText(activity, "Sandbox died", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     companion object {
         private const val SDK_NAME = "androidx.privacysandbox.ui.integration.testsdkprovider"
+        private const val MEDIATEE_SDK_NAME =
+            "androidx.privacysandbox.ui.integration.mediateesdkprovider"
         const val TAG = "TestSandboxClient"
     }
 }

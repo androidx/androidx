@@ -37,11 +37,11 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
  * @param textFieldValue the text field's [TextFieldValue]
  * @param offsetMapping the offset mapping for the text field's visual transformation
  * @param textLayoutResult the text field's [TextLayoutResult]
- * @param matrix matrix that transforms local coordinates into screen coordinates
- * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an empty
- *   rectangle if the text field is not visible
- * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an empty
- *   rectangle if the decoration box is not visible
+ * @param matrix matrix that transforms text layout coordinates into screen coordinates
+ * @param innerTextFieldBounds visible bounds of the text field in text layout coordinates, or an
+ *   empty rectangle if the text field is not visible
+ * @param decorationBoxBounds visible bounds of the decoration box in text layout coordinates, or an
+ *   empty rectangle if the decoration box is not visible
  * @param includeInsertionMarker whether to include insertion marker info in the CursorAnchorInfo
  * @param includeCharacterBounds whether to include character bounds info in the CursorAnchorInfo
  * @param includeEditorBounds whether to include editor bounds info in the CursorAnchorInfo
@@ -127,8 +127,8 @@ private fun CursorAnchorInfo.Builder.setInsertionMarker(
         flags = flags or CursorAnchorInfo.FLAG_HAS_INVISIBLE_REGION
     if (isRtl) flags = flags or CursorAnchorInfo.FLAG_IS_RTL
 
-    // Sets the location of the text insertion point (zero width cursor) as a rectangle in local
-    // coordinates.
+    // Sets the location of the text insertion point (zero width cursor) as a rectangle in text
+    // layout coordinates.
     setInsertionMarkerLocation(x, cursorRect.top, cursorRect.bottom, cursorRect.bottom, flags)
 
     return this

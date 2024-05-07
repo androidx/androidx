@@ -18,7 +18,7 @@ public class MyDao_Impl(
     this.__db = __db
   }
 
-  public override fun baseConcrete(): Unit = performBlocking(__db, false, true) {
+  public override fun baseConcrete(): Unit = performBlocking(__db, false, true) { _ ->
     super@MyDao_Impl.baseConcrete()
   }
 
@@ -26,11 +26,11 @@ public class MyDao_Impl(
     super@MyDao_Impl.baseSuspendConcrete()
   }
 
-  public override fun concrete(): Unit = performBlocking(__db, false, true) {
+  public override fun concrete(): Unit = performBlocking(__db, false, true) { _ ->
     super@MyDao_Impl.concrete()
   }
 
-  internal override fun concreteInternal(): Unit = performBlocking(__db, false, true) {
+  internal override fun concreteInternal(): Unit = performBlocking(__db, false, true) { _ ->
     super@MyDao_Impl.concreteInternal()
   }
 
@@ -39,7 +39,7 @@ public class MyDao_Impl(
   }
 
   public override fun concreteWithVararg(vararg arr: Long): Unit = performBlocking(__db, false,
-      true) {
+      true) { _ ->
     super@MyDao_Impl.concreteWithVararg(*arr)
   }
 

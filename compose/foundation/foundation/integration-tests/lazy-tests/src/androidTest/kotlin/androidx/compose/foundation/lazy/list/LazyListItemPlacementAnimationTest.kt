@@ -596,6 +596,48 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     }
 
     @Test
+    fun moveItemToTheTop_itemWithMoreChildren_outsideBounds_shouldNotCrash() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4, 5))
+        val listSize = itemSize * 3
+        val listSizeDp = with(rule.density) { listSize.toDp() }
+        rule.setContent {
+            LazyList(
+                maxSize = listSizeDp,
+                startIndex = 3
+            ) {
+                items(list, key = { it }) {
+                    Item(it)
+                    if (it != list.last()) {
+                        Box(modifier = Modifier)
+                    }
+                }
+            }
+        }
+
+        assertPositions(
+            3 to 0f,
+            4 to itemSize,
+            5 to itemSize * 2
+        )
+
+        // move item 5 out of bounds
+        rule.runOnUiThread {
+            list = listOf(5, 0, 1, 2, 3, 4)
+        }
+
+        // should not crash
+        onAnimationFrame { fraction ->
+            if (fraction == 1.0f) {
+                assertPositions(
+                    2 to 0f,
+                    3 to itemSize,
+                    4 to itemSize * 2
+                )
+            }
+        }
+    }
+
+    @Test
     fun moveItemToTheBottomOutsideOfBounds_withSpacing() {
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4, 5))
         val listSize = itemSize * 3 + spacing * 2
@@ -992,6 +1034,50 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
             assertPositions(
                 0 to startPadding,
                 1 to startPadding + itemSize + itemSize * 3 * fraction,
+                2 to startPadding + itemSize * 2 - itemSize * fraction,
+                3 to startPadding + itemSize * 3 - itemSize * fraction,
+                4 to startPadding + itemSize * 4 - itemSize * fraction,
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
+    fun removingItemsCauseOutOfBoundsItemToPopUp_withContentPadding() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4))
+        val rawStartPadding = 8f
+        val rawEndPadding = 12f
+        val (startPaddingDp, endPaddingDp) = with(rule.density) {
+            rawStartPadding.toDp() to rawEndPadding.toDp()
+        }
+        rule.setContent {
+            // only 4 items will be visible 0, 1, 2, 3
+            LazyList(
+                maxSize = itemSizeDp * 4,
+                startPadding = startPaddingDp,
+                endPadding = endPaddingDp
+            ) {
+                items(list, key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        val startPadding = if (reverseLayout) rawEndPadding else rawStartPadding
+        assertPositions(
+            0 to startPadding,
+            1 to startPadding + itemSize,
+            2 to startPadding + itemSize * 2,
+            3 to startPadding + itemSize * 3
+        )
+
+        rule.runOnUiThread {
+            list = listOf(1, 2, 3, 4)
+        }
+
+        onAnimationFrame { fraction ->
+            assertPositions(
+                1 to startPadding + itemSize - itemSize * fraction,
                 2 to startPadding + itemSize * 2 - itemSize * fraction,
                 3 to startPadding + itemSize * 3 - itemSize * fraction,
                 4 to startPadding + itemSize * 4 - itemSize * fraction,

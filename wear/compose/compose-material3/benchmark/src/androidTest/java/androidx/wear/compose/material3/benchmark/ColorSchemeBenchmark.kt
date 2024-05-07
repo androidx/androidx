@@ -135,10 +135,14 @@ class ColorSchemeTestCase : LayeredComposeTestCase() {
                 )
 
                 // Surface
-                Box(modifier = Modifier.size(1.dp).background(MaterialTheme.colorScheme.surface))
-                Box(
-                    modifier = Modifier.size(1.dp).background(
-                        MaterialTheme.colorScheme.contentColorFor(MaterialTheme.colorScheme.surface)
+                Box(modifier = Modifier
+                    .size(1.dp)
+                    .background(MaterialTheme.colorScheme.surfaceContainer))
+                Box(modifier = Modifier
+                    .size(1.dp)
+                    .background(
+                        MaterialTheme.colorScheme
+                            .contentColorFor(MaterialTheme.colorScheme.surfaceContainer)
                     )
                 )
 

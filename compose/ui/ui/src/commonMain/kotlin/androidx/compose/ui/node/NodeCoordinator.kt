@@ -85,8 +85,8 @@ internal abstract class NodeCoordinator(
     override val coordinates: LayoutCoordinates
         get() = this
 
-    override val isPositionedByParentWithDirectManipulation: Boolean
-        get() = isDirectManipulationPlacement
+    override val introducesFrameOfReference: Boolean
+        get() = !isPlacedUsingCurrentFrameOfReference
 
     private var released = false
 
@@ -517,18 +517,16 @@ internal abstract class NodeCoordinator(
             }
             graphicsLayerScope.reset()
             graphicsLayerScope.graphicsDensity = layoutNode.density
+            graphicsLayerScope.layoutDirection = layoutNode.layoutDirection
             graphicsLayerScope.size = size.toSize()
             snapshotObserver.observeReads(this, onCommitAffectingLayerParams) {
                 layerBlock.invoke(graphicsLayerScope)
+                graphicsLayerScope.updateOutline()
             }
             val layerPositionalProperties = layerPositionalProperties
                 ?: LayerPositionalProperties().also { layerPositionalProperties = it }
             layerPositionalProperties.copyFrom(graphicsLayerScope)
-            layer.updateLayerProperties(
-                graphicsLayerScope,
-                layoutNode.layoutDirection,
-                layoutNode.density,
-            )
+            layer.updateLayerProperties(graphicsLayerScope)
             isClipping = graphicsLayerScope.clip
             lastLayerAlpha = graphicsLayerScope.alpha
             if (invokeOnLayoutChange) {
@@ -835,7 +833,15 @@ internal abstract class NodeCoordinator(
         relativeToSource: Offset
     ): Offset = localPositionOf(sourceCoordinates, relativeToSource, false)
 
-    override fun localPositionOf(
+    override fun positionInLocalFrameOfReference(
+        sourceCoordinates: LayoutCoordinates,
+        relativeToSource: Offset
+    ): Offset = localPositionOf(sourceCoordinates, relativeToSource, true)
+
+    /**
+     * Common call
+     */
+    internal fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset,
         excludeDirectManipulationOffset: Boolean
@@ -1000,7 +1006,7 @@ internal abstract class NodeCoordinator(
     ): Offset {
         val layer = layer
         val targetPosition = layer?.mapOffset(position, inverse = false) ?: position
-        return if (excludeDirectManipulationOffset && isDirectManipulationPlacement) {
+        return if (excludeDirectManipulationOffset && isPlacedUsingCurrentFrameOfReference) {
             targetPosition
         } else {
             targetPosition + this.position
@@ -1016,7 +1022,7 @@ internal abstract class NodeCoordinator(
         excludeDirectManipulationOffset: Boolean = false
     ): Offset {
         val relativeToPosition =
-            if (excludeDirectManipulationOffset && isDirectManipulationPlacement) {
+            if (excludeDirectManipulationOffset && isPlacedUsingCurrentFrameOfReference) {
                 position
             } else {
                 position - this.position

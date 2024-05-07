@@ -29,9 +29,10 @@ import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
 import androidx.compose.foundation.lazy.layout.NestedPrefetchScope
+import androidx.compose.foundation.lazy.layout.PrefetchScheduler
+import androidx.compose.foundation.lazy.layout.TestPrefetchScheduler
 import androidx.compose.foundation.lazy.list.LazyListPrefetchStrategyTest.RecordingLazyListPrefetchStrategy.Callback
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
@@ -74,10 +75,11 @@ class LazyListPrefetchStrategyTest(
     private val itemsSizeDp = with(rule.density) { itemsSizePx.toDp() }
 
     lateinit var state: LazyListState
+    private val scheduler = TestPrefetchScheduler()
 
     @Test
     fun callbacksTriggered_whenScrollForwardsWithoutVisibleItemsChanged() {
-        val strategy = RecordingLazyListPrefetchStrategy()
+        val strategy = RecordingLazyListPrefetchStrategy(scheduler)
 
         composeList(prefetchStrategy = strategy)
 
@@ -104,7 +106,7 @@ class LazyListPrefetchStrategyTest(
 
     @Test
     fun callbacksTriggered_whenScrollBackwardsWithoutVisibleItemsChanged() {
-        val strategy = RecordingLazyListPrefetchStrategy()
+        val strategy = RecordingLazyListPrefetchStrategy(scheduler)
 
         composeList(firstItem = 10, itemOffset = 10, prefetchStrategy = strategy)
 
@@ -131,7 +133,7 @@ class LazyListPrefetchStrategyTest(
 
     @Test
     fun callbacksTriggered_whenScrollWithVisibleItemsChanged() {
-        val strategy = RecordingLazyListPrefetchStrategy()
+        val strategy = RecordingLazyListPrefetchStrategy(scheduler)
 
         composeList(prefetchStrategy = strategy)
 
@@ -161,7 +163,7 @@ class LazyListPrefetchStrategyTest(
 
     @Test
     fun callbacksTriggered_whenItemsChangedWithoutScroll() {
-        val strategy = RecordingLazyListPrefetchStrategy()
+        val strategy = RecordingLazyListPrefetchStrategy(scheduler)
         val numItems = mutableStateOf(100)
 
         composeList(prefetchStrategy = strategy, numItems = numItems)
@@ -196,19 +198,16 @@ class LazyListPrefetchStrategyTest(
             }
         }
 
-        waitForPrefetch(2)
+        waitForPrefetch()
         rule.onNodeWithTag("2")
             .assertExists()
     }
 
-    private fun waitForPrefetch(index: Int) {
-        rule.waitUntil {
-            activeNodes.contains(index) && activeMeasuredNodes.contains(index)
+    private fun waitForPrefetch() {
+        rule.runOnIdle {
+            scheduler.executeActiveRequests()
         }
     }
-
-    private val activeNodes = mutableSetOf<Int>()
-    private val activeMeasuredNodes = mutableSetOf<Int>()
 
     @OptIn(ExperimentalFoundationApi::class)
     private fun composeList(
@@ -228,13 +227,6 @@ class LazyListPrefetchStrategyTest(
                 state,
             ) {
                 items(numItems.value) {
-                    DisposableEffect(it) {
-                        activeNodes.add(it)
-                        onDispose {
-                            activeNodes.remove(it)
-                            activeMeasuredNodes.remove(it)
-                        }
-                    }
                     Spacer(
                         Modifier
                             .mainAxisSize(itemsSizeDp)
@@ -242,7 +234,6 @@ class LazyListPrefetchStrategyTest(
                             .testTag("$it")
                             .layout { measurable, constraints ->
                                 val placeable = measurable.measure(constraints)
-                                activeMeasuredNodes.add(it)
                                 layout(placeable.width, placeable.height) {
                                     placeable.place(0, 0)
                                 }
@@ -256,7 +247,10 @@ class LazyListPrefetchStrategyTest(
     /**
      * LazyListPrefetchStrategy that just records callbacks without scheduling prefetches.
      */
-    private class RecordingLazyListPrefetchStrategy : LazyListPrefetchStrategy {
+    private class RecordingLazyListPrefetchStrategy(
+        override val prefetchScheduler: PrefetchScheduler?
+    ) : LazyListPrefetchStrategy {
+
         sealed interface Callback {
             data class OnScroll(val delta: Float, val visibleIndices: List<Int>) : Callback
             data class OnVisibleItemsUpdated(val visibleIndices: List<Int>) : Callback

@@ -18,6 +18,7 @@ package androidx.compose.integration.demos
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.demos.AccessibilityNodeInspectorButton
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.compose.integration.demos.common.allLaunchableDemos
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Api
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -101,8 +103,7 @@ fun DemoApp(
                 onEndFiltering = onEndFiltering
             )
         },
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         val modifier = Modifier
             // as scaffold currently doesn't consume - consume what's needed
@@ -246,6 +247,7 @@ private fun DemoAppBar(
             scrollBehavior = scrollBehavior,
             navigationIcon = navigationIcon,
             actions = {
+                AppBarIcons.AccessibilityNodeInspector()
                 AppBarIcons.Filter(onClick = onStartFiltering)
                 AppBarIcons.Settings(onClick = launchSettings)
             }
@@ -258,6 +260,15 @@ private object AppBarIcons {
     fun Back(onClick: () -> Unit) {
         IconButton(onClick = onClick) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+        }
+    }
+
+    @Composable
+    fun AccessibilityNodeInspector() {
+        AccessibilityNodeInspectorButton {
+            IconButton(onClick = {}) {
+                Icon(Icons.Filled.Api, contentDescription = null)
+            }
         }
     }
 

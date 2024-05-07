@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-
 package androidx.navigation.serialization
 
-import androidx.annotation.RestrictTo
 import androidx.navigation.NavType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -36,8 +33,7 @@ internal class RouteEncoder<T : Any>(
     private val serializer: KSerializer<T>,
     private val typeMap: Map<String, NavType<Any?>>
 ) : AbstractEncoder() {
-    @Suppress("DEPRECATION") // deprecated in 1.6.3
-    override val serializersModule: SerializersModule = EmptySerializersModule
+    override val serializersModule: SerializersModule = EmptySerializersModule()
     private val builder = RouteBuilder.Filled(serializer, typeMap)
 
     /**

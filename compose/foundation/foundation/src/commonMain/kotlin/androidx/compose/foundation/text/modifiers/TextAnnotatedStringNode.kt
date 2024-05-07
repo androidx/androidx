@@ -17,9 +17,6 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.DefaultMinLines
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -63,6 +60,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Constraints.Companion.fitPrioritizingWidth
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastRoundToInt
 
@@ -105,6 +103,12 @@ internal class TextAnnotatedStringNode(
             return _layoutCache!!
         }
 
+    /**
+     * Get the layout cache for the current state of the node.
+     *
+     * If text substitution is active, this will return the layout cache for the substitution.
+     * Otherwise, it will return the layout cache for the original text.
+     */
     private fun getLayoutCache(density: Density): MultiParagraphLayoutCache {
         textSubstitution?.let { textSubstitutionValue ->
             if (textSubstitutionValue.isShowingSubstitution) {
@@ -132,7 +136,7 @@ internal class TextAnnotatedStringNode(
     /**
      * Element has text parameters to update
      */
-    fun updateText(text: AnnotatedString): Boolean {
+    internal fun updateText(text: AnnotatedString): Boolean {
         val charDiff = this.text.text != text.text
         val spanDiff = this.text.spanStyles != text.spanStyles
         val paragraphDiff = this.text.paragraphStyles != text.paragraphStyles
@@ -281,9 +285,9 @@ internal class TextAnnotatedStringNode(
         // TODO(b/283944749): add animation
     )
 
-    internal var textSubstitution: TextSubstitutionValue? by mutableStateOf(null)
+    internal var textSubstitution: TextSubstitutionValue? = null
 
-    internal fun setSubstitution(updatedText: AnnotatedString): Boolean {
+    private fun setSubstitution(updatedText: AnnotatedString): Boolean {
         val currentTextSubstitution = textSubstitution
         if (currentTextSubstitution != null) {
             if (updatedText == currentTextSubstitution.substitution) {
@@ -317,6 +321,15 @@ internal class TextAnnotatedStringNode(
             textSubstitution = newTextSubstitution
         }
         return true
+    }
+
+    /**
+     * Call whenever text substitution changes state
+     */
+    private fun invalidateForTranslate() {
+        invalidateSemantics()
+        invalidateMeasurement()
+        invalidateDraw()
     }
 
     internal fun clearSubstitution() {
@@ -360,8 +373,8 @@ internal class TextAnnotatedStringNode(
 
         setTextSubstitution { updatedText ->
             setSubstitution(updatedText)
-            // TODO: add test to cover the immediate semantics invalidation
-            invalidateSemantics()
+
+            invalidateForTranslate()
 
             true
         }
@@ -373,18 +386,14 @@ internal class TextAnnotatedStringNode(
 
             this@TextAnnotatedStringNode.textSubstitution?.isShowingSubstitution = it
 
-            invalidateSemantics()
-            invalidateMeasurement()
-            invalidateDraw()
+            invalidateForTranslate()
 
             true
         }
         clearTextSubstitution {
             clearSubstitution()
 
-            invalidateSemantics()
-            invalidateMeasurement()
-            invalidateDraw()
+            invalidateForTranslate()
 
             true
         }
@@ -434,9 +443,11 @@ internal class TextAnnotatedStringNode(
 
         // then allow children to measure _inside_ our final box, with the above placeholders
         val placeable = measurable.measure(
-            Constraints.fixedCoerceHeightAndWidthForBits(
-                width = textLayoutResult.size.width,
-                height = textLayoutResult.size.height
+            fitPrioritizingWidth(
+                minWidth = textLayoutResult.size.width,
+                maxWidth = textLayoutResult.size.width,
+                minHeight = textLayoutResult.size.height,
+                maxHeight = textLayoutResult.size.height
             )
         )
 

@@ -2176,24 +2176,24 @@ package androidx.compose.ui.layout {
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface LayoutCoordinates {
     method public operator int get(androidx.compose.ui.layout.AlignmentLine alignmentLine);
+    method public default boolean getIntroducesFrameOfReference();
     method public androidx.compose.ui.layout.LayoutCoordinates? getParentCoordinates();
     method public androidx.compose.ui.layout.LayoutCoordinates? getParentLayoutCoordinates();
     method public java.util.Set<androidx.compose.ui.layout.AlignmentLine> getProvidedAlignmentLines();
     method public long getSize();
     method public boolean isAttached();
-    method public default boolean isPositionedByParentWithDirectManipulation();
     method public androidx.compose.ui.geometry.Rect localBoundingBoxOf(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, optional boolean clipBounds);
     method public long localPositionOf(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, long relativeToSource);
-    method public default long localPositionOf(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, long relativeToSource, boolean excludeDirectManipulationOffset);
     method public long localToRoot(long relativeToLocal);
     method public default long localToScreen(long relativeToLocal);
     method public long localToWindow(long relativeToLocal);
+    method public default long positionInLocalFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, long relativeToSource);
     method public default long screenToLocal(long relativeToScreen);
     method public default void transformFrom(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, float[] matrix);
     method public default void transformToScreen(float[] matrix);
     method public long windowToLocal(long relativeToWindow);
+    property public default boolean introducesFrameOfReference;
     property public abstract boolean isAttached;
-    property public default boolean isPositionedByParentWithDirectManipulation;
     property public abstract androidx.compose.ui.layout.LayoutCoordinates? parentCoordinates;
     property public abstract androidx.compose.ui.layout.LayoutCoordinates? parentLayoutCoordinates;
     property public abstract java.util.Set<androidx.compose.ui.layout.AlignmentLine> providedAlignmentLines;
@@ -2271,8 +2271,9 @@ package androidx.compose.ui.layout {
 
   public interface LookaheadScope {
     method public androidx.compose.ui.layout.LayoutCoordinates getLookaheadScopeCoordinates(androidx.compose.ui.layout.Placeable.PlacementScope);
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default long localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates coordinates, optional boolean excludeDirectManipulationOffset);
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public androidx.compose.ui.layout.LayoutCoordinates toLookaheadCoordinates(androidx.compose.ui.layout.LayoutCoordinates);
+    method public default long localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, optional long relativeToSource);
+    method public default long positionInLocalLookaheadFrameOfReference(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, optional long relativeToSource);
+    method public androidx.compose.ui.layout.LayoutCoordinates toLookaheadCoordinates(androidx.compose.ui.layout.LayoutCoordinates);
   }
 
   public final class LookaheadScopeKt {
@@ -2425,7 +2426,7 @@ package androidx.compose.ui.layout {
     method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, int x, int y, optional float zIndex, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> layerBlock);
     method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, long position, androidx.compose.ui.graphics.layer.GraphicsLayer layer, optional float zIndex);
     method public final void placeWithLayer(androidx.compose.ui.layout.Placeable, long position, optional float zIndex, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.GraphicsLayerScope,kotlin.Unit> layerBlock);
-    method public final void withDirectManipulationPlacement(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> block);
+    method public final void withCurrentFrameOfReferencePlacement(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> block);
     property public androidx.compose.ui.layout.LayoutCoordinates? coordinates;
     property protected abstract androidx.compose.ui.unit.LayoutDirection parentLayoutDirection;
     property protected abstract int parentWidth;

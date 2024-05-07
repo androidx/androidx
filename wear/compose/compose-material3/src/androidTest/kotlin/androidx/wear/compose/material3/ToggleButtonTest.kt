@@ -816,7 +816,7 @@ private fun toggle_button_container_color(
     checked: Boolean
 ): Color {
     return if (checked) MaterialTheme.colorScheme.primaryContainer
-    else MaterialTheme.colorScheme.surface
+    else MaterialTheme.colorScheme.surfaceContainer
 }
 
 @Composable
