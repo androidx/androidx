@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.processing.compat.XConverters.toKS
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
@@ -1396,6 +1397,8 @@ class XExecutableElementTest {
         }
     }
 
+    // When the origin is JAVA_LIB we know the parameter name only when the class was
+    // compiled with `-parameters` flag or, if it's not abstract or native , `-g:vars` flag.
     @Test
     fun parameterNames(
         @TestParameter isJava: Boolean,
@@ -1407,15 +1410,20 @@ class XExecutableElementTest {
             "foo.bar.Baz",
             """
             package foo.bar;
-            public class Baz {
-                private Baz(String param1) {}
+            public abstract class Baz {
+                void jf(String param1) {}
+                abstract void jaf(String param1);
+                native void jnf(String param1);
             }
             """.trimIndent())
         val kotlinSource = Source.kotlin(
             "foo.bar.Baz.kt",
             """
             package foo.bar
-            class Baz private constructor(param1: String)
+            abstract class Baz {
+                fun kf(param1: String): Unit = TODO()
+                abstract fun kaf(param1: String): Unit
+            }
             """.trimIndent())
 
         val sources: List<Source> =
@@ -1450,30 +1458,55 @@ class XExecutableElementTest {
             }
         runProcessorTest(sources = sources, classpath = classes) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
-            assertThat(element.getConstructors().single().parameters.single().name)
-                .isEqualTo(
-                    if (isJava) {
-                        if (isPrecompiled) {
-                            if (hasParametersFlag) {
-                                "param1"
-                            } else {
-                                if (it.isKsp) {
-                                    "p0"
-                                } else { // Javac/KAPT
-                                    if (hasDebugFlag) {
-                                        "param1"
+            val funNames = if (isJava) {
+                listOf("jf", "jaf", "jnf")
+            } else {
+                listOf("kf", "kaf")
+            }
+            funNames.forEach { funName ->
+                val function = element.getDeclaredMethodByJvmName(funName)
+                val isAbstract = function.isAbstract()
+                // We can't yet find Java native modifier in KSP so no
+                // `XHasModifiers.isJavaNative()`:
+                // https://github.com/google/ksp/issues/1869
+                val isJavaNative = funName == "jnf"
+                val parameterName = function.parameters.single().name
+                if (isJava) {
+                    if (isPrecompiled) { // Java classes
+                        if (hasParametersFlag) {
+                            assertThat(parameterName).isEqualTo("param1")
+                        } else {
+                            if (it.isKsp) {
+                                if (hasDebugFlag &&
+                                        it.processingEnv.toKS().kspVersion >=
+                                        KotlinVersion(2, 0)) {
+                                    if (isAbstract || isJavaNative) {
+                                        assertThat(parameterName).isEqualTo("p0")
                                     } else {
-                                        "arg0"
+                                        assertThat(parameterName).isEqualTo("param1")
                                     }
+                                } else {
+                                    assertThat(parameterName).isEqualTo("p0")
+                                }
+                            } else { // Javac
+                                if (hasDebugFlag) {
+                                    if (isAbstract || isJavaNative) {
+                                        assertThat(parameterName).isEqualTo("arg0")
+                                    } else {
+                                        assertThat(parameterName).isEqualTo("param1")
+                                    }
+                                } else {
+                                    assertThat(parameterName).isEqualTo("arg0")
                                 }
                             }
-                        } else { // Java sources
-                            "param1"
                         }
-                    } else { // Kotlin sources or classes
-                        "param1"
+                    } else { // Java sources
+                        assertThat(parameterName).isEqualTo("param1")
                     }
-                )
+                } else { // Kotlin sources or classes
+                    assertThat(parameterName).isEqualTo("param1")
+                }
+            }
         }
     }
 
