@@ -392,7 +392,7 @@ class EmbeddingAdapterTest {
         return mock<OEMSplitInfo>().apply {
             whenever(primaryActivityStack).thenReturn(testPrimaryActivityStack)
             whenever(secondaryActivityStack).thenReturn(testSecondaryActivityStack)
-            if (extensionVersion > 2) {
+            if (extensionVersion >= 2) {
                 whenever(splitAttributes).thenReturn(testSplitAttributes)
             }
             when (extensionVersion) {
