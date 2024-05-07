@@ -18,9 +18,7 @@ package androidx.camera.camera2.pipe.media
 
 import android.hardware.camera2.MultiResolutionImageReader
 import android.media.ImageReader
-import android.os.Build
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.UnsafeWrapper
@@ -28,7 +26,6 @@ import androidx.camera.camera2.pipe.UnsafeWrapper
 /**
  * Simplified wrapper for [ImageReader]-like classes.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
     /**
      * Get a Surface that can be used to produce images for this ImageReader.

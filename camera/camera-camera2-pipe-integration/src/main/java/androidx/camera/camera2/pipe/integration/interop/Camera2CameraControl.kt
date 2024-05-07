@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.interop
 
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
@@ -44,7 +43,6 @@ import kotlinx.coroutines.async
  * CameraX internally. The options from Camera2CameraControl will override, which may result in
  * unexpected behavior depends on the options being applied.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @SuppressWarnings("HiddenSuperclass")
 @ExperimentalCamera2Interop
 class Camera2CameraControl

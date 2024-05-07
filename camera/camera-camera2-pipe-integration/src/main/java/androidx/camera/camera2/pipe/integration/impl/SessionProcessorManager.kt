@@ -18,10 +18,8 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
-import android.os.Build
 import android.view.Surface
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
@@ -51,7 +49,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 @OptIn(ExperimentalCamera2Interop::class)
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class SessionProcessorManager(
     private val sessionProcessor: SessionProcessor,
     private val cameraInfoInternal: CameraInfoInternal,

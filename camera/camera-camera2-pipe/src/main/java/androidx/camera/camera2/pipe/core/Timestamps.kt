@@ -15,12 +15,10 @@
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.camera2.pipe.core
 
 import android.os.SystemClock
-import androidx.annotation.RequiresApi
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -64,12 +62,10 @@ interface TimeSource {
 }
 
 @Singleton
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SystemTimeSource @Inject constructor() : TimeSource {
     override fun now() = TimestampNs(SystemClock.elapsedRealtimeNanos())
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 object Timestamps {
     inline fun now(timeSource: TimeSource): TimestampNs = timeSource.now()
 

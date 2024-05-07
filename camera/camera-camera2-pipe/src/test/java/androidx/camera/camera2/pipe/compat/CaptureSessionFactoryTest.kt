@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-
 package androidx.camera.camera2.pipe.compat
 
 import android.content.Context
@@ -25,7 +23,6 @@ import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior

@@ -38,7 +38,6 @@ import kotlinx.atomicfu.atomic
 /**
  * Implements an [ImageReaderWrapper] using an [ImageReader].
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidImageReader private constructor(
     private val imageReader: ImageReader,
     override val capacity: Int,

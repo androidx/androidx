@@ -16,9 +16,7 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import android.os.Build
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputStatus
@@ -48,7 +46,6 @@ import kotlinx.atomicfu.atomic
  *   without matching [onOutputStarted] event before closing them with the [outputFinalizer].
  * @param outputFinalizer is responsible for closing outputs, if required.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class OutputDistributor<T>(
     private val maximumCachedOutputs: Int = 3,
     private val outputFinalizer: Finalizer<T>

@@ -21,7 +21,6 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -43,7 +42,6 @@ internal interface Camera2DeviceCloser {
 }
 
 @Singleton
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2DeviceCloserImpl @Inject constructor(
     val threads: Threads,
     private val camera2Quirks: Camera2Quirks,

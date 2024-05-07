@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CameraAccessException
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
@@ -35,7 +34,6 @@ internal val graphRequestProcessorIds = atomic(0)
  *
  * GraphRequestProcessors are intended to be in conjunction with a [GraphListener].
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Suppress("NOTHING_TO_INLINE")
 class GraphRequestProcessor
 private constructor(

@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.core.impl.Quirk
 import java.util.Locale
@@ -39,7 +38,6 @@ import java.util.Locale
  * - Device(s):   All devices.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FinalizeSessionOnCloseQuirk : Quirk {
     companion object {
         fun isEnabled() = true

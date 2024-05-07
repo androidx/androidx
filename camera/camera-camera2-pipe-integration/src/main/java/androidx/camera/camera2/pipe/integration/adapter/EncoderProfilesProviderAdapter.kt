@@ -39,7 +39,6 @@ import javax.inject.Named
 /**
  * Adapt the [EncoderProfilesProvider] interface to [CameraPipe].
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 @CameraScope
 class EncoderProfilesProviderAdapter @Inject constructor(
     @Named("CameraId") private val cameraIdString: String,

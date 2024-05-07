@@ -22,7 +22,6 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.CaptureSequence
@@ -42,7 +41,6 @@ import kotlinx.coroutines.CompletableDeferred
  * [CaptureRequest] object to lookup and invoke per-request listeners so that a listener can be
  * defined on a specific request within a burst.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CaptureSequence(
     override val cameraId: CameraId,
     override val repeating: Boolean,

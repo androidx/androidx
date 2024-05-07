@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
@@ -42,7 +41,6 @@ import androidx.camera.core.impl.utils.ExifData
 import java.nio.BufferUnderflowException
 import kotlin.reflect.KClass
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class PartialCaptureResultAdapter(
     private val requestMetadata: RequestMetadata,
     private val frameNumber: FrameNumber,
@@ -75,7 +73,6 @@ class PartialCaptureResultAdapter(
 /**
  * Adapts the [CameraCaptureResult] interface to [CameraPipe].
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureResultAdapter(
     private val requestMetadata: RequestMetadata,
     private val frameNumber: FrameNumber,
@@ -113,7 +110,6 @@ class CaptureResultAdapter(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.getAfMode(): AfMode =
     when (val mode = this[CaptureResult.CONTROL_AF_MODE]) {
         CaptureResult.CONTROL_AF_MODE_OFF,
@@ -132,7 +128,6 @@ private fun FrameMetadata.getAfMode(): AfMode =
         }
     }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.getAfState(): AfState =
     when (val state = this[CaptureResult.CONTROL_AF_STATE]) {
         CaptureResult.CONTROL_AF_STATE_INACTIVE -> AfState.INACTIVE
@@ -150,7 +145,6 @@ private fun FrameMetadata.getAfState(): AfState =
         }
     }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.getAeMode(): AeMode =
     when (val mode = this[CaptureResult.CONTROL_AE_MODE]) {
         CaptureResult.CONTROL_AE_MODE_OFF -> AeMode.OFF
@@ -171,7 +165,6 @@ private fun FrameMetadata.getAeMode(): AeMode =
         }
     }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.getAeState(): AeState =
     when (val state = this[CaptureResult.CONTROL_AE_STATE]) {
         CaptureResult.CONTROL_AE_STATE_INACTIVE -> AeState.INACTIVE
@@ -188,7 +181,6 @@ private fun FrameMetadata.getAeState(): AeState =
         }
     }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.getAwbMode(): AwbMode =
     when (val mode = this[CaptureResult.CONTROL_AWB_MODE]) {
         CaptureResult.CONTROL_AWB_MODE_OFF -> AwbMode.OFF
@@ -215,7 +207,6 @@ private fun FrameMetadata.getAwbMode(): AwbMode =
         }
     }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.getAwbState(): AwbState =
     when (val state = this[CaptureResult.CONTROL_AWB_STATE]) {
         CaptureResult.CONTROL_AWB_STATE_INACTIVE -> AwbState.INACTIVE
@@ -229,7 +220,6 @@ private fun FrameMetadata.getAwbState(): AwbState =
         }
     }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.getFlashState(): FlashState =
     when (val state = this[CaptureResult.FLASH_STATE]) {
         CaptureResult.FLASH_STATE_UNAVAILABLE,
@@ -246,10 +236,8 @@ private fun FrameMetadata.getFlashState(): FlashState =
         }
     }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.getTimestamp(): Long = getOrDefault(CaptureResult.SENSOR_TIMESTAMP, -1L)
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.populateExifData(exifData: ExifData.Builder) {
     // Set orientation
     try {

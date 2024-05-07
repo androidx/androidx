@@ -19,10 +19,8 @@ package androidx.camera.camera2.pipe.integration.compat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.ImageFormatConstants
 
-@RequiresApi(21)
 internal open class StreamConfigurationMapCompatBaseImpl(
     val streamConfigurationMap: StreamConfigurationMap?
 ) :

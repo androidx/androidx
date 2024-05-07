@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
@@ -37,7 +36,6 @@ import androidx.camera.core.impl.CameraThreadConfig
  * to share resources across Camera instances. There should generally be one
  * [CameraFactoryProvider] instance per CameraX instance.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraFactoryProvider(
     private val sharedCameraPipe: CameraPipe? = null,
     private val sharedAppContext: Context? = null,
