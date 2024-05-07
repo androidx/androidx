@@ -650,9 +650,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configurePublicResourcesStub(project.multiplatformExtension!!)
-        kotlinMultiplatformAndroidComponentsExtension.onVariant {
+        kotlinMultiplatformAndroidComponentsExtension.onVariant { variant ->
             project.configureMultiplatformSourcesForAndroid(
-                it.name, androidXExtension.samplesProjects
+                variant.name,
+                kotlinMultiplatformAndroidTarget,
+                androidXExtension.samplesProjects
             )
         }
         project.configureVersionFileWriter(
