@@ -20,6 +20,7 @@ import android.os.Build
 import android.util.Range
 import androidx.camera.core.impl.Config.Option
 import androidx.camera.core.impl.Config.OptionPriority
+import androidx.camera.core.impl.stabilization.StabilizationMode
 import androidx.camera.testing.impl.DeferrableSurfacesUtil
 import com.google.common.collect.Lists
 import com.google.common.truth.Truth.assertThat
@@ -359,6 +360,61 @@ class CaptureConfigTest {
         assertThat(captureConfig.tagBundle.getTag("KEY")).isEqualTo(tagValue1)
         assertThat(captureConfig.implementationOptions.retrieveOption(OPTION))
             .isEqualTo(optionValue1)
+    }
+
+    @Test
+    fun fpsRangeSetToBuilder_correctFpsRangeAtBuiltInstance() {
+        val fpsRange = Range(7, 60)
+        // 1. Arrange
+        val builder = CaptureConfig.Builder()
+
+        // 2. Act
+        builder.setExpectedFrameRateRange(fpsRange)
+        val captureConfig = builder.build()
+
+        // 3. Assert
+        assertThat(captureConfig.expectedFrameRateRange).isEqualTo(fpsRange)
+    }
+
+    @Test
+    fun previewStabilizationModeSetToBuilder_correctModeAtBuiltInstance() {
+        // 1. Arrange
+        val builder = CaptureConfig.Builder()
+
+        // 2. Act
+        builder.setPreviewStabilization(StabilizationMode.ON)
+        val captureConfig = builder.build()
+
+        // 3. Assert
+        assertThat(captureConfig.previewStabilizationMode).isEqualTo(StabilizationMode.ON)
+    }
+
+    @Test
+    fun videoStabilizationModeSetToBuilder_correctModeAtBuiltInstance() {
+        // 1. Arrange
+        val builder = CaptureConfig.Builder()
+
+        // 2. Act
+        builder.setVideoStabilization(StabilizationMode.ON)
+        val captureConfig = builder.build()
+
+        // 3. Assert
+        assertThat(captureConfig.videoStabilizationMode).isEqualTo(StabilizationMode.ON)
+    }
+
+    @Test
+    fun videoStabilizationModeSetToOff_afterPreviewStabilizationSetToOn_noInterference() {
+        // 1. Arrange
+        val builder = CaptureConfig.Builder()
+
+        // 2. Act
+        builder.setPreviewStabilization(StabilizationMode.ON)
+        builder.setVideoStabilization(StabilizationMode.OFF)
+        val captureConfig = builder.build()
+
+        // 3. Assert
+        assertThat(captureConfig.previewStabilizationMode).isEqualTo(StabilizationMode.ON)
+        assertThat(captureConfig.videoStabilizationMode).isEqualTo(StabilizationMode.OFF)
     }
 
     /**
