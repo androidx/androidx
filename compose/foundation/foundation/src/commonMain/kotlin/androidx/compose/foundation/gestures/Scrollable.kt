@@ -76,7 +76,6 @@ import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -334,9 +333,9 @@ private class ScrollableNode(
         scrollingLogic.dispatchDragEvents(forEachDelta)
     }
 
-    override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) {}
+    override fun onDragStarted(startedPosition: Offset) {}
 
-    override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
+    override fun onDragStopped(velocity: Velocity) {
         nestedScrollDispatcher.coroutineScope.launch {
             scrollingLogic.onDragStopped(velocity)
         }

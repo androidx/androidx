@@ -53,7 +53,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sign
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -212,24 +211,27 @@ private class AnchoredDraggableNode<T>(
         }
     }
 
-    override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) { }
+    override fun onDragStarted(startedPosition: Offset) { }
 
-    override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
-        if (overscrollEffect == null) {
-            state.settle(velocity.reverseIfNeeded().toFloat()).toVelocity()
-        } else {
-            overscrollEffect!!.applyToFling(
-                velocity = velocity.reverseIfNeeded()
-            ) { availableVelocity ->
-                val consumed = state.settle(availableVelocity.toFloat()).toVelocity()
-                val currentOffset = state.requireOffset()
-                val minAnchor = state.anchors.minAnchor()
-                val maxAnchor = state.anchors.maxAnchor()
-                // return consumed velocity only if we are reaching the min/max anchors
-                if (currentOffset >= maxAnchor || currentOffset <= minAnchor) {
-                    consumed
-                } else {
-                    availableVelocity
+    override fun onDragStopped(velocity: Velocity) {
+        if (!isAttached) return
+        coroutineScope.launch {
+            if (overscrollEffect == null) {
+                state.settle(velocity.reverseIfNeeded().toFloat()).toVelocity()
+            } else {
+                overscrollEffect!!.applyToFling(
+                    velocity = velocity.reverseIfNeeded()
+                ) { availableVelocity ->
+                    val consumed = state.settle(availableVelocity.toFloat()).toVelocity()
+                    val currentOffset = state.requireOffset()
+                    val minAnchor = state.anchors.minAnchor()
+                    val maxAnchor = state.anchors.maxAnchor()
+                    // return consumed velocity only if we are reaching the min/max anchors
+                    if (currentOffset >= maxAnchor || currentOffset <= minAnchor) {
+                        consumed
+                    } else {
+                        availableVelocity
+                    }
                 }
             }
         }

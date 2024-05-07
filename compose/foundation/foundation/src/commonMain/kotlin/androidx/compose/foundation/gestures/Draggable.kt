@@ -309,11 +309,19 @@ internal class DraggableNode(
         }
     }
 
-    override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) =
-        this@DraggableNode.onDragStarted(this, startedPosition)
+    override fun onDragStarted(startedPosition: Offset) {
+        if (!isAttached || onDragStarted == NoOpOnDragStarted) return
+        coroutineScope.launch {
+            this@DraggableNode.onDragStarted(this, startedPosition)
+        }
+    }
 
-    override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) =
-        this@DraggableNode.onDragStopped(this, velocity.reverseIfNeeded().toFloat(orientation))
+    override fun onDragStopped(velocity: Velocity) {
+        if (!isAttached || onDragStopped == NoOpOnDragStopped) return
+        coroutineScope.launch {
+            this@DraggableNode.onDragStopped(this, velocity.reverseIfNeeded().toFloat(orientation))
+        }
+    }
 
     override fun startDragImmediately(): Boolean = startDragImmediately
 
@@ -395,13 +403,13 @@ internal abstract class DragGestureNode(
      * Passes the action needed when a drag starts. This gives the ability to pass the desired
      * behavior from other nodes implementing AbstractDraggableNode
      */
-    abstract suspend fun CoroutineScope.onDragStarted(startedPosition: Offset)
+    abstract fun onDragStarted(startedPosition: Offset)
 
     /**
      * Passes the action needed when a drag stops. This gives the ability to pass the desired
      * behavior from other nodes implementing AbstractDraggableNode
      */
-    abstract suspend fun CoroutineScope.onDragStopped(velocity: Velocity)
+    abstract fun onDragStopped(velocity: Velocity)
 
     /**
      * If touch slop recognition should be skipped. If this is true, this node will start
@@ -532,30 +540,30 @@ internal abstract class DragGestureNode(
         pointerInputNode?.onCancelPointerInput()
     }
 
-    private suspend fun CoroutineScope.processDragStart(event: DragStarted) {
+    private suspend fun processDragStart(event: DragStarted) {
         dragInteraction?.let { oldInteraction ->
             interactionSource?.emit(DragInteraction.Cancel(oldInteraction))
         }
         val interaction = DragInteraction.Start()
         interactionSource?.emit(interaction)
         dragInteraction = interaction
-        with(this) { onDragStarted(event.startPoint) }
+        onDragStarted(event.startPoint)
     }
 
-    private suspend fun CoroutineScope.processDragStop(event: DragStopped) {
+    private suspend fun processDragStop(event: DragStopped) {
         dragInteraction?.let { interaction ->
             interactionSource?.emit(DragInteraction.Stop(interaction))
             dragInteraction = null
         }
-        with(this) { onDragStopped(event.velocity) }
+        onDragStopped(event.velocity)
     }
 
-    private suspend fun CoroutineScope.processDragCancel() {
+    private suspend fun processDragCancel() {
         dragInteraction?.let { interaction ->
             interactionSource?.emit(DragInteraction.Cancel(interaction))
             dragInteraction = null
         }
-        with(this) { onDragStopped(Velocity.Zero) }
+        onDragStopped(Velocity.Zero)
     }
 
     fun disposeInteractionSource() {
