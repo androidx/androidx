@@ -569,7 +569,7 @@ internal interface ScrollConfig {
 internal expect fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig
 
 private val CanDragCalculation: (PointerInputChange) -> Boolean =
-    { down -> down.type != PointerType.Mouse }
+    { change -> change.type != PointerType.Mouse }
 
 /**
  * Holds all scrolling related logic: controls nested scrolling, flinging, overscroll and delta
