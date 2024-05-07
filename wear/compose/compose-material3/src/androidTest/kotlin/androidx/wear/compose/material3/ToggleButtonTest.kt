@@ -515,10 +515,19 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_height_defaults_52dp() {
+    fun toggle_button_height_defaults_52dp_with_secondary_label() {
+        rule.setContentWithThemeForSizeAssertions {
+            ToggleButtonWithDefaults(
+                secondaryLabel = { Text("Secondary label") }
+            )
+        }.assertHeightIsEqualTo(52.dp)
+    }
+
+    @Test
+    fun toggle_button_height_defaults_48dp_without_secondary_label() {
         rule.setContentWithThemeForSizeAssertions {
             ToggleButtonWithDefaults()
-        }.assertHeightIsEqualTo(52.dp)
+        }.assertHeightIsEqualTo(48.dp)
     }
 
     @Test
@@ -726,15 +735,11 @@ private fun ComposeContentTestRule.verifyToggleButtonColors(
     var actualIconColor = Color.Transparent
     var actualSecondaryLabelColor = Color.Transparent
     setContentWithTheme {
-        expectedContainerColor = toggle_button_container_color(checked)
-            .withDisabledAlphaApplied(enabled = enabled)
+        expectedContainerColor = toggle_button_container_color(checked, enabled)
             .compositeOver(testBackgroundColor)
-        expectedLabelColor = toggle_button_content_color(checked)
-            .withDisabledAlphaApplied(enabled = enabled)
-        expectedSecondaryLabelColor = toggle_button_secondary_label_color(checked)
-            .withDisabledAlphaApplied(enabled = enabled)
-        expectedIconColor = toggle_button_icon_color(checked)
-            .withDisabledAlphaApplied(enabled = enabled)
+        expectedLabelColor = toggle_button_content_color(checked, enabled)
+        expectedSecondaryLabelColor = toggle_button_secondary_label_color(checked, enabled)
+        expectedIconColor = toggle_button_icon_color(enabled)
         Box(
             Modifier
                 .fillMaxSize()
@@ -776,12 +781,12 @@ private fun ComposeContentTestRule.verifySplitToggleButtonColors(
     var actualLabelColor = Color.Transparent
     var actualSecondaryLabelColor = Color.Transparent
     setContentWithTheme {
-        expectedContainerColor = toggle_button_container_color(checked)
+        expectedContainerColor = split_toggle_button_container_color(checked)
             .withDisabledAlphaApplied(enabled = enabled)
             .compositeOver(testBackgroundColor)
-        expectedLabelColor = toggle_button_content_color(checked)
+        expectedLabelColor = split_toggle_button_content_color(checked)
             .withDisabledAlphaApplied(enabled = enabled)
-        expectedSecondaryLabelColor = toggle_button_secondary_label_color(checked)
+        expectedSecondaryLabelColor = split_toggle_button_secondary_label_color(checked)
             .withDisabledAlphaApplied(enabled = enabled)
         Box(
             Modifier
@@ -813,6 +818,44 @@ private fun ComposeContentTestRule.verifySplitToggleButtonColors(
 
 @Composable
 private fun toggle_button_container_color(
+    checked: Boolean,
+    enabled: Boolean,
+): Color {
+    return if (checked && enabled) MaterialTheme.colorScheme.primaryContainer
+    else if (!checked && enabled) MaterialTheme.colorScheme.surfaceContainer
+    else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f)
+}
+
+@Composable
+private fun toggle_button_content_color(
+    checked: Boolean,
+    enabled: Boolean
+): Color {
+    return if (checked && enabled) MaterialTheme.colorScheme.onPrimaryContainer
+    else if (!checked && enabled) MaterialTheme.colorScheme.onSurface
+    else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.38f)
+}
+
+@Composable
+private fun toggle_button_secondary_label_color(
+    checked: Boolean,
+    enabled: Boolean
+): Color {
+    return if (checked && enabled) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+    else if (!checked && enabled) MaterialTheme.colorScheme.onSurfaceVariant
+    else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.38f)
+}
+
+@Composable
+private fun toggle_button_icon_color(
+    enabled: Boolean
+): Color {
+    return if (enabled) MaterialTheme.colorScheme.primary
+    else MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.38f)
+}
+
+@Composable
+private fun split_toggle_button_container_color(
     checked: Boolean
 ): Color {
     return if (checked) MaterialTheme.colorScheme.primaryContainer
@@ -820,7 +863,7 @@ private fun toggle_button_container_color(
 }
 
 @Composable
-private fun toggle_button_content_color(
+private fun split_toggle_button_content_color(
     checked: Boolean
 ): Color {
     return if (checked) MaterialTheme.colorScheme.onPrimaryContainer
@@ -828,19 +871,11 @@ private fun toggle_button_content_color(
 }
 
 @Composable
-private fun toggle_button_secondary_label_color(
+private fun split_toggle_button_secondary_label_color(
     checked: Boolean
 ): Color {
     return if (checked) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
     else MaterialTheme.colorScheme.onSurfaceVariant
-}
-
-@Composable
-private fun toggle_button_icon_color(
-    checked: Boolean
-): Color {
-    return if (checked) MaterialTheme.colorScheme.onPrimaryContainer
-    else MaterialTheme.colorScheme.primary
 }
 
 @Composable

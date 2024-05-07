@@ -158,6 +158,8 @@ public fun ToggleChip(
     toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
     toggleControlWidth = TOGGLE_CONTROL_WIDTH,
     labelSpacerSize = 0.dp,
+    toggleControlSpacing = TOGGLE_CONTROL_SPACING,
+    iconSpacing = ICON_SPACING,
     ripple = rippleOrFallbackImplementation()
 )
 
@@ -1066,3 +1068,5 @@ private class DefaultSplitToggleChipColors(
 
 private val TOGGLE_CONTROL_HEIGHT = 24.dp
 private val TOGGLE_CONTROL_WIDTH = 24.dp
+private val TOGGLE_CONTROL_SPACING = 4.dp
+private val ICON_SPACING = 6.dp
