@@ -134,6 +134,7 @@ class DrawModifierTest {
     fun testObtainGraphicsLayerReleasedAfterModifierDetached() {
         var graphicsLayer: GraphicsLayer? = null
         val useCacheModifier = mutableStateOf(true)
+        val cacheLatch = CountDownLatch(1)
         rule.setContent {
             Box(modifier =
             Modifier
@@ -142,6 +143,7 @@ class DrawModifierTest {
                     if (useCacheModifier.value) {
                         Modifier.drawWithCache {
                             graphicsLayer = obtainGraphicsLayer()
+                            cacheLatch.countDown()
                             onDrawBehind {
                                 // NO-OP
                             }
@@ -153,6 +155,7 @@ class DrawModifierTest {
             )
         }
         rule.waitForIdle()
+        assertTrue(cacheLatch.await(3000, TimeUnit.MILLISECONDS))
         assertNotNull(graphicsLayer)
         assertFalse(graphicsLayer!!.isReleased)
 
@@ -871,7 +874,9 @@ class DrawModifierTest {
     fun recompositionWithTheSameDrawBehindLambdaIsNotTriggeringRedraw() {
         val recompositionCounter = mutableStateOf(0)
         var redrawCounter = 0
+        val drawLatch = CountDownLatch(1)
         val drawBlock: DrawScope.() -> Unit = {
+            drawLatch.countDown()
             redrawCounter++
         }
         rule.setContent {
@@ -881,6 +886,7 @@ class DrawModifierTest {
             }
         }
 
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
         rule.runOnIdle {
             assertThat(redrawCounter).isEqualTo(1)
             recompositionCounter.value = 1
@@ -920,10 +926,14 @@ class DrawModifierTest {
         val recompositionCounter = mutableStateOf(0)
         var cacheRebuildCounter = 0
         var redrawCounter = 0
+        val cacheLatch = CountDownLatch(1)
+        val drawLatch = CountDownLatch(1)
         val drawBlock: CacheDrawScope.() -> DrawResult = {
             cacheRebuildCounter++
+            cacheLatch.countDown()
             onDrawBehind {
                 redrawCounter++
+                drawLatch.countDown()
             }
         }
         rule.setContent {
@@ -933,6 +943,8 @@ class DrawModifierTest {
             }
         }
 
+        assertTrue(cacheLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
         rule.runOnIdle {
             assertThat(cacheRebuildCounter).isEqualTo(1)
             assertThat(redrawCounter).isEqualTo(1)
