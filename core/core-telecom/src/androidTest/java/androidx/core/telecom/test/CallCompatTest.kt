@@ -266,7 +266,7 @@ class CallCompatTest : BaseTelecomTest() {
                         val call = configureCallWithSanitizedExtras(
                             waitForCallDetailExtras, extraToInclude)
 
-                        callCompat = CallCompat(call, mScope)
+                        callCompat = CallCompat(call)
 
                         mScope.async {
                             callCompat.startCapabilityExchange()
@@ -316,7 +316,7 @@ class CallCompatTest : BaseTelecomTest() {
                         // Setup the CapExchange and CallCompat instances for testing:
                         val voipCaps: MutableList<Capability> = mutableListOf(voipCap)
                         val capExchange = createCapExchange(voipCaps)
-                        callCompat = CallCompat(call, mScope)
+                        callCompat = CallCompat(call)
                         callCompat.icsCapabilities.add(icsCap)
                         callCompat.addExtension { }
 
