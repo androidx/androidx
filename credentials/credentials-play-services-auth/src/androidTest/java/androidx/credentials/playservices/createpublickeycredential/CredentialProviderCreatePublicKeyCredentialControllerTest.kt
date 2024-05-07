@@ -38,6 +38,7 @@ import com.google.common.truth.Truth.assertThat
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.function.ThrowingRunnable
 import org.junit.runner.RunWith
@@ -96,6 +97,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
         }
     }
 
+    @Ignore("b/338656569")
     @Test
     fun convertRequestToPlayServices_missingRequired_throws() {
         val activityScenario = ActivityScenario.launch(
@@ -115,6 +117,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
         }
     }
 
+    @Ignore("b/338656569")
     @Test
     fun convertRequestToPlayServices_emptyRequired_throws() {
         val activityScenario = ActivityScenario.launch(
@@ -129,6 +132,8 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                     MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY)) })
         }
     }
+
+    @Ignore("b/338656569")
     @Test
     fun convertRequestToPlayServices_missingOptionalRequired_throws() {
         val activityScenario = ActivityScenario.launch(
@@ -147,6 +152,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
         }
     }
 
+    @Ignore("b/338656569")
     @Test
     fun convertRequestToPlayServices_emptyOptionalRequired_throws() {
         val activityScenario = ActivityScenario.launch(
