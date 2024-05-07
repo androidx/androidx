@@ -30,7 +30,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -46,7 +45,6 @@ import java.util.concurrent.RunnableFuture;
  *
  * @since 1.0
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final String TAG = "HdrPreviewExtenderImpl";
 
