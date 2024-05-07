@@ -34,7 +34,6 @@ import android.util.Range;
 import android.util.Size;
 import android.view.Window;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
@@ -73,6 +72,7 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.utils.ContextUtil;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -368,7 +368,7 @@ public abstract class CameraController {
 
     CameraController(@NonNull Context context,
             @NonNull ListenableFuture<ProcessCameraProviderWrapper> cameraProviderFuture) {
-        mAppContext = getApplicationContext(context);
+        mAppContext = ContextUtil.getApplicationContext(context);
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
         mImageAnalysis = new ImageAnalysis.Builder().build();
@@ -392,25 +392,6 @@ public abstract class CameraController {
             mImageCapture.setTargetRotation(rotation);
             mVideoCapture.setTargetRotation(rotation);
         };
-    }
-
-    /**
-     * Gets the application context and preserves the attribution tag.
-     *
-     * <p> TODO(b/185272953): instrument test getting attribution tag once the view artifact depends
-     * on a core version that has the fix.
-     */
-    private static Context getApplicationContext(@NonNull Context context) {
-        Context applicationContext = context.getApplicationContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            String attributeTag = Api30Impl.getAttributionTag(context);
-
-            if (attributeTag != null) {
-                return Api30Impl.createAttributionContext(applicationContext, attributeTag);
-            }
-        }
-
-        return applicationContext;
     }
 
     /**
@@ -2461,29 +2442,6 @@ public abstract class CameraController {
             builder.addEffect(effect);
         }
         return builder.build();
-    }
-
-    /**
-     * Nested class to avoid verification errors for methods introduced in Android 11 (API 30).
-     */
-    @RequiresApi(30)
-    private static class Api30Impl {
-
-        private Api30Impl() {
-        }
-
-        @DoNotInline
-        @NonNull
-        static Context createAttributionContext(@NonNull Context context,
-                @Nullable String attributeTag) {
-            return context.createAttributionContext(attributeTag);
-        }
-
-        @DoNotInline
-        @Nullable
-        static String getAttributionTag(@NonNull Context context) {
-            return context.getAttributionTag();
-        }
     }
 
     /**
