@@ -25,8 +25,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performCustomAccessibilityActionLabelled
-import androidx.compose.ui.test.performCustomAccessibilityActionWhere
+import androidx.compose.ui.test.performCustomAccessibilityActionWithLabel
+import androidx.compose.ui.test.performCustomAccessibilityActionWithLabelMatching
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -56,7 +56,7 @@ class CustomAccessibilityActionsTest {
 
         val interaction = rule.onNodeWithTag(tag)
         val error = assertFailsWith<AssertionError> {
-            interaction.performCustomAccessibilityActionLabelled("action")
+            interaction.performCustomAccessibilityActionWithLabel("action")
         }
         assertThat(error).hasMessageThat().contains("could not find any node that satisfies")
     }
@@ -74,7 +74,7 @@ class CustomAccessibilityActionsTest {
         }
 
         val error = assertFailsWith<AssertionError> {
-            rule.onNodeWithTag(tag).performCustomAccessibilityActionLabelled("not action")
+            rule.onNodeWithTag(tag).performCustomAccessibilityActionWithLabel("not action")
         }
         assertThat(error).hasMessageThat().startsWith(
             "No custom accessibility actions matched [label is \"not action\"]"
@@ -97,7 +97,7 @@ class CustomAccessibilityActionsTest {
         }
 
         val error = assertFailsWith<AssertionError> {
-            rule.onNodeWithTag(tag).performCustomAccessibilityActionLabelled("action")
+            rule.onNodeWithTag(tag).performCustomAccessibilityActionWithLabel("action")
         }
         assertThat(error).hasMessageThat().startsWith(
             "Expected exactly one custom accessibility action to match [label is \"action\"], " +
@@ -122,7 +122,7 @@ class CustomAccessibilityActionsTest {
             )
         }
 
-        rule.onNodeWithTag(tag).performCustomAccessibilityActionLabelled("foo")
+        rule.onNodeWithTag(tag).performCustomAccessibilityActionWithLabel("foo")
 
         assertThat(fooInvocationCount).isEqualTo(1)
         assertThat(barInvocationCount).isEqualTo(0)
@@ -142,7 +142,7 @@ class CustomAccessibilityActionsTest {
             )
         }
 
-        rule.onNodeWithTag(tag).performCustomAccessibilityActionLabelled("action")
+        rule.onNodeWithTag(tag).performCustomAccessibilityActionWithLabel("action")
     }
 
     @Test
@@ -157,7 +157,7 @@ class CustomAccessibilityActionsTest {
 
         val interaction = rule.onNodeWithTag(tag)
         val error = assertFailsWith<AssertionError> {
-            interaction.performCustomAccessibilityActionWhere("description") { true }
+            interaction.performCustomAccessibilityActionWithLabelMatching("description") { true }
         }
         assertThat(error).hasMessageThat().contains("could not find any node that satisfies")
     }
@@ -175,7 +175,8 @@ class CustomAccessibilityActionsTest {
         }
 
         val error = assertFailsWith<AssertionError> {
-            rule.onNodeWithTag(tag).performCustomAccessibilityActionWhere("description") { false }
+            rule.onNodeWithTag(tag)
+                .performCustomAccessibilityActionWithLabelMatching("description") { false }
         }
         assertThat(error).hasMessageThat().startsWith(
             "No custom accessibility actions matched [description]"
@@ -198,7 +199,8 @@ class CustomAccessibilityActionsTest {
         }
 
         val error = assertFailsWith<AssertionError> {
-            rule.onNodeWithTag(tag).performCustomAccessibilityActionWhere("description") { true }
+            rule.onNodeWithTag(tag)
+                .performCustomAccessibilityActionWithLabelMatching("description") { true }
         }
         assertThat(error).hasMessageThat().startsWith(
             "Expected exactly one custom accessibility action to match [description], " +
@@ -223,7 +225,8 @@ class CustomAccessibilityActionsTest {
             )
         }
 
-        rule.onNodeWithTag(tag).performCustomAccessibilityActionWhere("description") { it == "foo" }
+        rule.onNodeWithTag(tag)
+            .performCustomAccessibilityActionWithLabelMatching("description") { it == "foo" }
 
         assertThat(fooInvocationCount).isEqualTo(1)
         assertThat(barInvocationCount).isEqualTo(0)
@@ -243,6 +246,7 @@ class CustomAccessibilityActionsTest {
             )
         }
 
-        rule.onNodeWithTag(tag).performCustomAccessibilityActionWhere("description") { true }
+        rule.onNodeWithTag(tag)
+            .performCustomAccessibilityActionWithLabelMatching("description") { true }
     }
 }

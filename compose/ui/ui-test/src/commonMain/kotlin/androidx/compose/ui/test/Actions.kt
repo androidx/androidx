@@ -632,20 +632,20 @@ fun SemanticsNodeInteraction.performRotaryScrollInput(
  * to [label] and then invokes it.
  *
  * To use your own logic to find the action to perform instead of matching on the full label, use
- * [performCustomAccessibilityActionWhere].
+ * [performCustomAccessibilityActionWithLabelMatching].
  *
  * @param label The exact label of the [CustomAccessibilityAction] to perform.
  *
  * @throws AssertionError If no [SemanticsNode] is found, or no [CustomAccessibilityAction] has
  * [label], or more than one [CustomAccessibilityAction] has [label].
  *
- * @see performCustomAccessibilityActionWhere
+ * @see performCustomAccessibilityActionWithLabelMatching
  */
 @ExperimentalTestApi
-fun SemanticsNodeInteraction.performCustomAccessibilityActionLabelled(
+fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabel(
     label: String
 ): SemanticsNodeInteraction =
-    performCustomAccessibilityActionWhere("label is \"$label\"") { it == label }
+    performCustomAccessibilityActionWithLabelMatching("label is \"$label\"") { it == label }
 
 /**
  * Finds the [CustomAccessibilityAction] in the node's [CustomActions] list whose label satisfies a
@@ -659,10 +659,10 @@ fun SemanticsNodeInteraction.performCustomAccessibilityActionLabelled(
  * @throws AssertionError If no [SemanticsNode] is found, or no [CustomAccessibilityAction] matches
  * [labelPredicate], or more than one [CustomAccessibilityAction] matches [labelPredicate].
  *
- * @see performCustomAccessibilityActionLabelled
+ * @see performCustomAccessibilityActionWithLabel
  */
 @ExperimentalTestApi
-fun SemanticsNodeInteraction.performCustomAccessibilityActionWhere(
+fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabelMatching(
     predicateDescription: String? = null,
     labelPredicate: (label: String) -> Boolean
 ): SemanticsNodeInteraction {
