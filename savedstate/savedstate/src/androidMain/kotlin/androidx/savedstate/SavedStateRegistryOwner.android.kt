@@ -30,7 +30,7 @@ import androidx.lifecycle.LifecycleOwner
  * call [SavedStateRegistryController.performRestore]
  *
  * [SavedStateRegistryController.performRestore] can be called with a nullable if nothing needs to
- * be restored, or with the state Bundle to be restored. performRestore can be called in one of two
+ * be restored, or with the SavedState to be restored. performRestore can be called in one of two
  * places:
  * 1. Directly before the Lifecycle moves to [Lifecycle.State.CREATED]
  * 2. Before [Lifecycle.State.STARTED] is reached, as part of the [LifecycleObserver] that is added
@@ -38,8 +38,8 @@ import androidx.lifecycle.LifecycleOwner
  *
  * [SavedStateRegistryController.performSave] should be called after owner has been stopped but
  * before it reaches [Lifecycle.State.DESTROYED] state. Hence it should only be called once the
- * owner has received the [Lifecycle.Event.ON_STOP] event. The bundle passed to performSave will be
- * the bundle restored by performRestore.
+ * owner has received the [Lifecycle.Event.ON_STOP] event. The SavedState passed to performSave will
+ * be the SavedState restored by performRestore.
  *
  * @see [ViewTreeSavedStateRegistryOwner]
  */

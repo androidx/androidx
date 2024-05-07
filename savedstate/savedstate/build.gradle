@@ -5,10 +5,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.PlatformIdentifier
+
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
@@ -23,11 +22,21 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain {
-            // TODO(b/334076622)
+            dependencies {
+                api(libs.kotlinStdlib)
+                api("androidx.annotation:annotation:1.8.0")
+                api(projectOrArtifact(":lifecycle:lifecycle-common"))
+            }
         }
 
         commonTest {
-            // TODO(b/334076622)
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+            }
         }
 
         jvmMain {
@@ -42,9 +51,17 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.8.1")
+                implementation("androidx.core:core-ktx:1.13.1")
                 implementation("androidx.arch.core:core-common:2.2.0")
                 implementation("androidx.lifecycle:lifecycle-common:2.6.1")
                 api(libs.kotlinStdlib)
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.robolectric)
             }
         }
 
@@ -60,8 +77,22 @@ androidXMultiplatform {
             }
         }
 
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
         desktopMain {
             dependsOn(jvmMain)
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(nonAndroidTest)
         }
     }
 }

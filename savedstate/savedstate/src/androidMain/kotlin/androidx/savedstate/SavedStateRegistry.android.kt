@@ -15,7 +15,6 @@
  */
 package androidx.savedstate
 
-import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.Lifecycle
@@ -30,7 +29,7 @@ import androidx.lifecycle.LifecycleEventObserver
 class SavedStateRegistry internal constructor() {
     private val components = SafeIterableMap<String, SavedStateProvider>()
     private var attached = false
-    private var restoredState: Bundle? = null
+    private var restoredState: SavedState? = null
 
     /**
      * Whether the state was restored after creation and can be safely consumed with
@@ -52,7 +51,7 @@ class SavedStateRegistry internal constructor() {
      * This call clears an internal reference to returned saved state, so if you call it second time
      * in the row it will return `null`.
      *
-     * All unconsumed values will be saved during `onSaveInstanceState(Bundle savedState)`
+     * All unconsumed values will be saved during `onSaveInstanceState(SavedState savedState)`
      *
      * This method can be called after `super.onCreate(savedStateBundle)` of the corresponding
      * component. Calling it before that will result in `IllegalArgumentException`.
@@ -63,20 +62,21 @@ class SavedStateRegistry internal constructor() {
      * @return `S` with the previously saved state or {@code null}
      */
     @MainThread
-    fun consumeRestoredStateForKey(key: String): Bundle? {
+    fun consumeRestoredStateForKey(key: String): SavedState? {
         check(isRestored) {
-            ("You can consumeRestoredStateForKey " +
-                "only after super.onCreate of corresponding component")
+            "You can consumeRestoredStateForKey " +
+                "only after super.onCreate of corresponding component"
         }
-        if (restoredState != null) {
-            val result = restoredState?.getBundle(key)
-            restoredState?.remove(key)
-            if (restoredState?.isEmpty != false) {
-                restoredState = null
-            }
-            return result
+
+        val state = restoredState ?: return null
+
+        val consumed = state.read { if (contains(key)) getSavedState(key) else null }
+        state.write { remove(key) }
+        if (state.read { isEmpty() }) {
+            restoredState = null
         }
-        return null
+
+        return consumed
     }
 
     /**
@@ -96,9 +96,7 @@ class SavedStateRegistry internal constructor() {
     @MainThread
     fun registerSavedStateProvider(key: String, provider: SavedStateProvider) {
         val previous = components.putIfAbsent(key, provider)
-        require(previous == null) {
-            ("SavedStateProvider with the given key is" + " already registered")
-        }
+        require(previous == null) { "SavedStateProvider with the given key is already registered" }
     }
 
     /**
@@ -193,13 +191,16 @@ class SavedStateRegistry internal constructor() {
 
     /** An interface for an owner of this [SavedStateRegistry] to restore saved state. */
     @MainThread
-    internal fun performRestore(savedState: Bundle?) {
+    internal fun performRestore(savedState: SavedState?) {
         check(attached) {
-            ("You must call performAttach() before calling " + "performRestore(Bundle).")
+            "You must call performAttach() before calling performRestore(SavedState)."
         }
         check(!isRestored) { "SavedStateRegistry was already restored." }
-        restoredState = savedState?.getBundle(SAVED_COMPONENTS_KEY)
 
+        restoredState =
+            savedState?.read {
+                if (contains(SAVED_COMPONENTS_KEY)) getSavedState(SAVED_COMPONENTS_KEY) else null
+            }
         isRestored = true
     }
 
@@ -207,22 +208,19 @@ class SavedStateRegistry internal constructor() {
      * An interface for an owner of this [SavedStateRegistry] to perform state saving, it will call
      * all registered providers and merge with unconsumed state.
      *
-     * @param outBundle Bundle in which to place a saved state
+     * @param outBundle SavedState in which to place a saved state
      */
     @MainThread
-    internal fun performSave(outBundle: Bundle) {
-        val components = Bundle()
-        if (restoredState != null) {
-            components.putAll(restoredState)
+    internal fun performSave(outBundle: SavedState) {
+        val inState = savedState {
+            restoredState?.let { putAll(it) }
+            for ((key, provider) in components) {
+                putSavedState(key, provider.saveState())
+            }
         }
-        val it: Iterator<Map.Entry<String, SavedStateProvider>> =
-            this.components.iteratorWithAdditions()
-        while (it.hasNext()) {
-            val (key, value) = it.next()
-            components.putBundle(key, value.saveState())
-        }
-        if (!components.isEmpty) {
-            outBundle.putBundle(SAVED_COMPONENTS_KEY, components)
+
+        if (inState.read { !isEmpty() }) {
+            outBundle.write { putSavedState(SAVED_COMPONENTS_KEY, inState) }
         }
     }
 
@@ -234,7 +232,7 @@ class SavedStateRegistry internal constructor() {
          *
          * Returns `S` with your saved state.
          */
-        fun saveState(): Bundle
+        fun saveState(): SavedState
     }
 
     private companion object {
