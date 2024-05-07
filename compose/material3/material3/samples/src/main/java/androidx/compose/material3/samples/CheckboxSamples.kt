@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -104,15 +105,45 @@ fun TriStateCheckboxSample() {
         // The sample below composes just basic checkboxes which are not fully accessible on their
         // own. See the CheckboxWithTextSample as a way to ensure your checkboxes are fully
         // accessible.
-        TriStateCheckbox(
-            state = parentState,
-            onClick = onParentClick,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.triStateToggleable(
+                state = parentState,
+                onClick = onParentClick,
+                role = Role.Checkbox
+            )
+        ) {
+            TriStateCheckbox(
+                state = parentState,
+                onClick = null,
+            )
+            Text("Receive Emails")
+        }
         Spacer(Modifier.size(25.dp))
-        Column(Modifier.padding(10.dp, 0.dp, 0.dp, 0.dp)) {
-            Checkbox(state, onStateChange)
+        Column(Modifier.padding(24.dp, 0.dp, 0.dp, 0.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.toggleable(
+                    value = state,
+                    onValueChange = onStateChange,
+                    role = Role.Checkbox
+                )
+            ) {
+                Checkbox(state, null)
+                Text("Daily")
+            }
             Spacer(Modifier.size(25.dp))
-            Checkbox(state2, onStateChange2)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.toggleable(
+                    value = state2,
+                    onValueChange = onStateChange2,
+                    role = Role.Checkbox
+                )
+            ) {
+                Checkbox(state2, null)
+                Text("Weekly")
+            }
         }
     }
 }
