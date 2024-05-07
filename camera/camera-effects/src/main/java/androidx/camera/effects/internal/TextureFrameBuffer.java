@@ -20,7 +20,6 @@ import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.effects.opengl.GlRenderer;
 
@@ -29,7 +28,6 @@ import androidx.camera.effects.opengl.GlRenderer;
  *
  * <p>This class is not thread safe. It is expected to be called from a single GL thread.
  */
-@RequiresApi(21)
 class TextureFrameBuffer {
 
     @NonNull

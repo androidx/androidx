@@ -24,7 +24,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.effects.opengl.GlRenderer;
 
 /**
@@ -33,7 +32,6 @@ import androidx.camera.effects.opengl.GlRenderer;
  * <p>The frame can be empty or filled. A filled frame contains valid information on how to
  * render it. An empty frame can be filled with new content.
  */
-@RequiresApi(21)
 class TextureFrame {
 
     private static final long NO_VALUE = Long.MIN_VALUE;

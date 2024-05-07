@@ -28,7 +28,6 @@ import android.view.Surface;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageInfo;
@@ -44,7 +43,6 @@ import com.google.auto.value.AutoValue;
  * drawing. It also provides metadata for positioning the overlay correctly, including
  * sensor-to-buffer transform, size, crop rect, rotation, mirroring, and timestamp.
  */
-@RequiresApi(21)
 @AutoValue
 public abstract class Frame {
 

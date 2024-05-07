@@ -23,15 +23,12 @@ import static androidx.camera.effects.opengl.Utils.drawArrays;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * A GL program that copies the input texture to the given 2D texture.
  *
  * <p>It assumes that the output texture has the same size as the input, so no transformation
  * needed.
  */
-@RequiresApi(21)
 class GlProgramCopy extends GlProgram {
 
     private static final String VERTEX_SHADER = "attribute vec4 " + POSITION_ATTRIBUTE + ";\n"

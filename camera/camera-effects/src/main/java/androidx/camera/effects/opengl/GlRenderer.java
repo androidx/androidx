@@ -25,12 +25,10 @@ import static androidx.core.util.Preconditions.checkState;
 import android.graphics.Bitmap;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -45,7 +43,6 @@ import androidx.annotation.RestrictTo;
  *
  * <p>It also allows the caller to overlay a texture when rendering to Surface.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class GlRenderer {
 

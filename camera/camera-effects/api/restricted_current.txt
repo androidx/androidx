@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.effects {
 
-  @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class Frame {
+  @com.google.auto.value.AutoValue public abstract class Frame {
     ctor public Frame();
     method public abstract android.graphics.Rect getCropRect();
     method public android.graphics.Canvas getOverlayCanvas();
@@ -12,7 +12,7 @@ package androidx.camera.effects {
     method public abstract boolean isMirroring();
   }
 
-  @RequiresApi(21) public class OverlayEffect extends androidx.camera.core.CameraEffect implements java.lang.AutoCloseable {
+  public class OverlayEffect extends androidx.camera.core.CameraEffect implements java.lang.AutoCloseable {
     ctor public OverlayEffect(int, int, android.os.Handler, androidx.core.util.Consumer<java.lang.Throwable!>);
     method public void clearOnDrawListener();
     method public void close();
