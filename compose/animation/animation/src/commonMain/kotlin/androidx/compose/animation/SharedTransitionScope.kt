@@ -21,6 +21,9 @@ import androidx.compose.animation.SharedTransitionScope.OverlayClip
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.animatedSize
 import androidx.compose.animation.SharedTransitionScope.PlaceHolderSize.Companion.contentSize
+import androidx.compose.animation.SharedTransitionScope.ResizeMode
+import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
+import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.ScaleToBounds
 import androidx.compose.animation.SharedTransitionScope.SharedContentState
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.FiniteAnimationSpec
@@ -36,6 +39,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -45,6 +49,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Alignment.Companion.BottomEnd
+import androidx.compose.ui.Alignment.Companion.BottomStart
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterEnd
+import androidx.compose.ui.Alignment.Companion.CenterStart
+import androidx.compose.ui.Alignment.Companion.TopCenter
+import androidx.compose.ui.Alignment.Companion.TopEnd
+import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
@@ -234,58 +247,90 @@ interface SharedTransitionScope : LookaheadScope {
     }
 
     /**
+     * There are two different modes to resize child layout of [sharedBounds] during bounds
+     * transform: 1) [ScaleToBounds] and 2) [RemeasureToBounds].
+     *
+     * [ScaleToBounds] first measures the child layout with the lookahead constraints, similar
+     * to [skipToLookaheadSize]. Then the child's stable layout will be scaled to fit in the
+     * shared bounds.
+     *
+     * In contrast, [RemeasureToBounds] will remeasure and relayout the child layout of
+     * [sharedBounds] with animated fixed constraints based on the size of the bounds transform.
+     * The re-measurement is triggered by the bounds size change,
+     * which could potentially be every frame.
+     *
+     * [ScaleToBounds] works best for Texts and bespoke layouts that don't respond well to
+     * constraints change. [RemeasureToBounds] works best for background, shared images of
+     * different aspect ratio, and other layouts that adjusts themselves visually nicely and
+     * efficiently to size change.
+     */
+    sealed interface ResizeMode {
+        companion object {
+            /**
+             * In contrast to [ScaleToBounds], [RemeasureToBounds] is a [ResizeMode] that
+             * remeasures and relayouts its child whenever bounds change during the bounds
+             * transform. More specifically, when the [sharedBounds] size changes,
+             * it creates fixed constraints based on the animated size, and uses the fixed
+             * constraints to remeasure child. Therefore, the child layout of [sharedBounds] will
+             * likely change its layout to fit in the animated constraints.
+             *
+             * [RemeasureToBounds] mode works well for layouts that respond well to
+             * constraints change, such as background and Images. It does not work well for layouts
+             * with specific size requirements. Such layouts include Text, and bespoke layouts
+             * that could result in overlapping children
+             * when constrained to too small of a size. In these cases, it's recommended to use
+             * [ScaleToBounds] instead.
+             */
+            val RemeasureToBounds: ResizeMode = RemeasureImpl
+
+            /**
+             * [ScaleToBounds] as a type of [ResizeMode] will measure the child layout with
+             * lookahead constraints to obtain the size of the stable layout. This stable layout is
+             * the post-animation layout of the child. Then based on the stable size of the
+             * child and the animated size of the [sharedBounds], the provided [contentScale] will
+             * be used to calculate a scale for both width and height. The resulting
+             * effect is that the child layout does not re-layout during the bounds transform,
+             * contrary to [RemeasureToBounds] mode. Instead, it will scale
+             * the stable layout based on the animated size of the [sharedBounds].
+             *
+             * [ScaleToBounds] works best for [sharedBounds] when used to animate shared Text.
+             *
+             * [ContentScale.FillWidth] is the default value for [contentScale].
+             * [alignment] will be used to calculate the placement of the scaled content. It is
+             * [Alignment.Center] by default.
+             */
+            fun ScaleToBounds(
+                contentScale: ContentScale = ContentScale.FillWidth,
+                alignment: Alignment = Alignment.Center
+            ): ResizeMode = ScaleToBoundsCached(contentScale, alignment)
+        }
+    }
+
+    /**
      * Indicates whether there is any ongoing transition between matched [sharedElement] or
      * [sharedBounds].
      */
     val isTransitionActive: Boolean
 
-    /**
-     * [scaleInSharedContentToBounds] creates a [EnterTransition] that scales the child content
-     * to the animated size during bounds transform.
-     *
-     * The content will first be measured with lookahead constraints to obtain the size of
-     * the stable layout. Then the scale for both width and height will be derived based
-     * on 1) the stable size of the layout, 2) the animated size of the parent (i.e. the
-     * space to fit the stable content in), and 3) the [contentScale] provided. The resulting
-     * effect is that the child layout does not re-layout during the size animation. Instead, it
-     * will animate the scale of the stable layout based on the animated size.
-     *
-     * [alignment] will be used to calculate the placement of the scaled content. It is
-     * [Alignment.Center] by default.
-     *
-     * The returned [EnterTransition] can be combined with any other [EnterTransition].
-     * The specific order of [EnterTransition] doesn't matter.
-     * [fadeIn] + [scaleInSharedContentToBounds] is the default [EnterTransition] for
-     * [sharedBounds].
-     */
+    @Deprecated(
+        "This EnterTransition has been deprecated. Please replace the usage with " +
+            "resizeMode = ScaleToBounds(...) in sharedBounds to achieve the scale-to-bounds effect."
+    )
     fun scaleInSharedContentToBounds(
         contentScale: ContentScale = ContentScale.Fit,
         alignment: Alignment = Alignment.Center
-    ): EnterTransition
+    ): EnterTransition =
+        EnterTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
 
-    /**
-     * [scaleOutSharedContentToBounds] creates an [ExitTransition] that scales the child content
-     * to the animated size during bounds transform.
-     *
-     * The content will first be measured with lookahead constraints to obtain the size of
-     * the stable layout. Then the scale for both width and height will be derived based
-     * on 1) the stable size of the layout, 2) the animated size of the parent (i.e. the
-     * space to fit the stable content in), and 3) the [contentScale] provided. The resulting
-     * effect is that the child layout does not re-layout during the size animation. Instead, it
-     * will animate the scale of the stable layout based on the animated size.
-     *
-     * [alignment] will be used to calculate the placement of the scaled content. It is
-     * [Alignment.Center] by default.
-     *
-     * The returned [ExitTransition] can be combined with any other [ExitTransition].
-     * The specific order of [ExitTransition] doesn't matter.
-     * [fadeOut] + [scaleOutSharedContentToBounds] is the default [ExitTransition] for
-     * [sharedBounds].
-     */
+    @Deprecated(
+        "This ExitTransition has been deprecated.  Please replace the usage with " +
+            "resizeMode = ScaleToBounds(...) in sharedBounds to achieve the scale-to-bounds effect."
+    )
     fun scaleOutSharedContentToBounds(
         contentScale: ContentScale = ContentScale.Fit,
         alignment: Alignment = Alignment.Center
-    ): ExitTransition
+    ): ExitTransition =
+        ExitTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
 
     /**
      * [skipToLookaheadSize] enables a layout to measure its child with the lookahead constraints,
@@ -361,7 +406,9 @@ interface SharedTransitionScope : LookaheadScope {
      * changing bounds during the layout change. The bounds will be animated from the initial
      * bounds defined by the exiting shared element to the target bounds calculated based on the
      * incoming shared element. The animation for the bounds can be customized using
-     * [boundsTransform].
+     * [boundsTransform]. During the bounds transform, [sharedElement] will re-measure and relayout
+     * its child layout using fixed constraints derived from its animated size, similar to
+     * [RemeasureToBounds] resizeMode in [sharedBounds].
      *
      * In contrast to [sharedBounds], [sharedElement] is designed for shared content that has the
      * exact match in terms of visual content and layout when the measure constraints are the same.
@@ -431,20 +478,23 @@ interface SharedTransitionScope : LookaheadScope {
      * changing bounds during the layout change. The bounds will be animated from the initial
      * bounds defined by the exiting shared bounds to the target bounds calculated based on the
      * incoming shared shared bounds. The animation for the bounds can be customized using
-     * [boundsTransform].
+     * [boundsTransform]. The target bounds for [sharedBounds] are determined by the
+     * bounds of the [sharedBounds] becoming visible based on the target state of
+     * [animatedVisibilityScope].
      *
      * In contrast to [sharedElement], [sharedBounds] is designed for shared content that has the
      * visually different content. While the [sharedBounds] keeps the continuity of the bounds,
      * the incoming and outgoing content within the [sharedBounds] will enter and exit in an
      * enter/exit transition using [enter]/[exit]. By default,
-     * [fadeIn] + [scaleInSharedContentToBounds] and [fadeOut] + [scaleOutSharedContentToBounds]
-     * are used to fade the content in or out while scale the content to [fit][ContentScale.Fit]
-     * within the animating bounds. The target bounds for [sharedBounds] are determined by the
-     * bounds of the [sharedBounds] becoming visible based on the target state of
-     * [animatedVisibilityScope]. If there's a need to relayout content (rather than scaling)
-     * based on the animated bounds size (e.g. dynamically resizing a Row), suggest using
-     * [EnterTransition] and [ExitTransition] that don't include [scaleInSharedContentToBounds]
-     * and [scaleOutSharedContentToBounds].
+     * [fadeIn] and [fadeOut] are used to fade the content in or out.
+     *
+     * [resizeMode] defines how the child layout of [sharedBounds] should be resized during
+     * [boundsTransform]. By default, [ScaleToBounds] will be used to measure the child content
+     * with lookahead constraints to arrive at the stable layout. Then the stable layout will
+     * be scaled to fit or fill (depending on the content scale used) the transforming bounds of
+     * [sharedBounds]. If there's a need to relayout content (rather than scaling)
+     * based on the animated bounds size (e.g. dynamically resizing a Row),  it's recommended
+     * to use [RemeasureToBounds] as the [resizeMode].
      *
      * **Important**:
      * When a shared bounds finds its match and starts a transition, it will be rendered into
@@ -499,10 +549,10 @@ interface SharedTransitionScope : LookaheadScope {
     fun Modifier.sharedBounds(
         sharedContentState: SharedContentState,
         animatedVisibilityScope: AnimatedVisibilityScope,
-        enter: EnterTransition =
-            fadeIn() + scaleInSharedContentToBounds(ContentScale.Fit),
-        exit: ExitTransition = fadeOut() + scaleOutSharedContentToBounds(ContentScale.Fit),
+        enter: EnterTransition = fadeIn(),
+        exit: ExitTransition = fadeOut(),
         boundsTransform: BoundsTransform = DefaultBoundsTransform,
+        resizeMode: ResizeMode = ScaleToBounds(ContentScale.FillWidth, Center),
         placeHolderSize: PlaceHolderSize = contentSize,
         renderInOverlayDuringTransition: Boolean = true,
         zIndexInOverlay: Float = 0f,
@@ -653,18 +703,6 @@ internal class SharedTransitionScopeImpl internal constructor(
     override var isTransitionActive: Boolean by mutableStateOf(false)
         private set
 
-    override fun scaleInSharedContentToBounds(
-        contentScale: ContentScale,
-        alignment: Alignment
-    ): EnterTransition =
-        EnterTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
-
-    override fun scaleOutSharedContentToBounds(
-        contentScale: ContentScale,
-        alignment: Alignment
-    ): ExitTransition =
-        ExitTransition.None withEffect ContentScaleTransitionEffect(contentScale, alignment)
-
     override fun Modifier.skipToLookaheadSize(): Modifier = this.then(SkipToLookaheadElement())
 
     override fun Modifier.renderInSharedTransitionScopeOverlay(
@@ -681,7 +719,6 @@ internal class SharedTransitionScopeImpl internal constructor(
             )
         )
 
-    @OptIn(ExperimentalAnimationApi::class)
     override fun Modifier.sharedElement(
         state: SharedContentState,
         animatedVisibilityScope: AnimatedVisibilityScope,
@@ -709,6 +746,7 @@ internal class SharedTransitionScopeImpl internal constructor(
         enter: EnterTransition,
         exit: ExitTransition,
         boundsTransform: BoundsTransform,
+        resizeMode: SharedTransitionScope.ResizeMode,
         placeHolderSize: PlaceHolderSize,
         renderInOverlayDuringTransition: Boolean,
         zIndexInOverlay: Float,
@@ -727,13 +765,6 @@ internal class SharedTransitionScopeImpl internal constructor(
                 renderOnlyWhenVisible = false
             )
             .composed {
-                // Track the active content scale. Only reset it when the animation is finished
-                // to avoid sudden change of content scale.
-                val activeContentScaleEffect: ContentScaleTransitionEffect? =
-                    animatedVisibilityScope.transition.trackActiveContentScaleEffect(
-                        enter = enter,
-                        exit = exit
-                    )
                 animatedVisibilityScope.transition
                     .createModifier(
                         enter = enter,
@@ -747,8 +778,8 @@ internal class SharedTransitionScopeImpl internal constructor(
                         label = "enter/exit for ${sharedContentState.key}"
                     )
                     .then(
-                        if (activeContentScaleEffect != null) {
-                            Modifier.createContentScaleModifier(activeContentScaleEffect) {
+                        if (resizeMode is ScaleToBoundsImpl) {
+                            Modifier.createContentScaleModifier(resizeMode) {
                                 // Since we don't know if a match is found when this is composed,
                                 // we have to defer the decision to enable or disable content
                                 // scaling until later in the frame. This later time could be
@@ -1122,48 +1153,51 @@ internal class SharedTransitionScopeImpl internal constructor(
 
 private val DefaultEnabled: () -> Boolean = { true }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 private fun Modifier.createContentScaleModifier(
-    contentScaleTransitionEffect: ContentScaleTransitionEffect,
+    scaleToBounds: ScaleToBoundsImpl,
     isEnabled: () -> Boolean
 ): Modifier =
     this.then(
-        if (contentScaleTransitionEffect.contentScale == ContentScale.Crop) {
+        if (scaleToBounds.contentScale == ContentScale.Crop) {
             Modifier.graphicsLayer {
                 clip = isEnabled()
             }
         } else
             Modifier
-    ) then SkipToLookaheadElement(contentScaleTransitionEffect, isEnabled)
+    ) then SkipToLookaheadElement(scaleToBounds, isEnabled)
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 private data class SkipToLookaheadElement(
-    val contentScaleTransitionEffect: ContentScaleTransitionEffect? = null,
+    val scaleToBounds: ScaleToBoundsImpl? = null,
     val isEnabled: () -> Boolean = DefaultEnabled,
 
     ) : ModifierNodeElement<SkipToLookaheadNode>() {
     override fun create(): SkipToLookaheadNode {
-        return SkipToLookaheadNode(contentScaleTransitionEffect, isEnabled)
+        return SkipToLookaheadNode(scaleToBounds, isEnabled)
     }
 
     override fun update(node: SkipToLookaheadNode) {
-        node.contentScaleTransitionEffect = contentScaleTransitionEffect
+        node.scaleToBounds = scaleToBounds
         node.isEnabled = isEnabled
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "skipToLookahead"
-        properties["contentScaleTransitionEffect"] = contentScaleTransitionEffect
+        properties["scaleToBounds"] = scaleToBounds
         properties["isEnabled"] = isEnabled
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 private class SkipToLookaheadNode(
-    contentScaleTransitionEffect: ContentScaleTransitionEffect?,
+    scaleToBounds: ScaleToBoundsImpl?,
     isEnabled: () -> Boolean
 ) : LayoutModifierNode,
     Modifier.Node() {
     var lookaheadConstraints: Constraints? = null
-    var contentScaleTransitionEffect: ContentScaleTransitionEffect? by mutableStateOf(
-        contentScaleTransitionEffect
+    var scaleToBounds: ScaleToBoundsImpl? by mutableStateOf(
+        scaleToBounds
     )
     var isEnabled: () -> Boolean by mutableStateOf(isEnabled)
 
@@ -1178,11 +1212,11 @@ private class SkipToLookaheadNode(
         val contentSize = IntSize(p.width, p.height)
         val constrainedSize = constraints.constrain(contentSize)
         return layout(constrainedSize.width, constrainedSize.height) {
-            val contentScaleTransitionEffect = contentScaleTransitionEffect
-            if (!isEnabled() || contentScaleTransitionEffect == null) {
+            val scaleToBounds = scaleToBounds
+            if (!isEnabled() || scaleToBounds == null) {
                 p.place(0, 0)
             } else {
-                val contentScale = contentScaleTransitionEffect.contentScale
+                val contentScale = scaleToBounds.contentScale
                 val resolvedScale =
                     if (contentSize.width == 0 || contentSize.height == 0) {
                         ScaleFactor(1f, 1f)
@@ -1192,7 +1226,7 @@ private class SkipToLookaheadNode(
                             constrainedSize.toSize()
                         )
 
-                val (x, y) = contentScaleTransitionEffect.alignment.align(
+                val (x, y) = scaleToBounds.alignment.align(
                     IntSize(
                         (contentSize.width * resolvedScale.scaleX).roundToInt(),
                         (contentSize.height * resolvedScale.scaleY).roundToInt()
@@ -1245,3 +1279,48 @@ internal const val VisualDebugging = false
 internal val SharedTransitionObserver by lazy(LazyThreadSafetyMode.NONE) {
     SnapshotStateObserver { it() }.also { it.start() }
 }
+
+/**
+ * Caching immutable ScaleToBoundsImpl objects to avoid extra allocation
+ */
+@ExperimentalSharedTransitionApi
+private fun ScaleToBoundsCached(
+    contentScale: ContentScale,
+    alignment: Alignment
+): ScaleToBoundsImpl {
+    if (contentScale.shouldCache && alignment.shouldCache) {
+        val map = cachedScaleToBoundsImplMap.getOrPut(contentScale) { MutableScatterMap() }
+        return map.getOrPut(alignment) {
+            ScaleToBoundsImpl(contentScale, alignment)
+        }
+    } else {
+        // Custom contentScale or alignment. No caching to avoid memory leak. This should be the
+        // rare case
+        return ScaleToBoundsImpl(contentScale, alignment)
+    }
+}
+
+private val Alignment.shouldCache: Boolean
+    get() = this === TopStart || this === TopCenter || this === TopEnd ||
+        this === CenterStart || this === Center || this === CenterEnd ||
+        this === BottomStart || this === BottomCenter || this === BottomEnd
+
+private val ContentScale.shouldCache: Boolean
+    get() = this === ContentScale.FillWidth || this === ContentScale.FillHeight ||
+        this === ContentScale.FillBounds || this === ContentScale.Fit ||
+        this === ContentScale.Crop || this === ContentScale.None ||
+        this === ContentScale.Inside
+
+@ExperimentalSharedTransitionApi
+private val cachedScaleToBoundsImplMap =
+    MutableScatterMap<ContentScale, MutableScatterMap<Alignment, ScaleToBoundsImpl>>()
+
+@Immutable
+@ExperimentalSharedTransitionApi
+private class ScaleToBoundsImpl(
+    val contentScale: ContentScale,
+    val alignment: Alignment
+) : ResizeMode
+
+@ExperimentalSharedTransitionApi
+private object RemeasureImpl : ResizeMode

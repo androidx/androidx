@@ -907,34 +907,6 @@ internal fun Transition<EnterExitState>.createModifier(
         )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-internal fun Transition<EnterExitState>.trackActiveContentScaleEffect(
-    enter: EnterTransition,
-    exit: ExitTransition
-): ContentScaleTransitionEffect? {
-    // Track the active content scale. Only reset it when the animation is finished
-    // to avoid sudden change of content scale.
-    var activeContentScaleTransitionEffect: ContentScaleTransitionEffect? by remember {
-        mutableStateOf(null)
-    }
-    if (currentState != targetState) {
-        activeContentScaleTransitionEffect =
-            if (targetState == EnterExitState.Visible) {
-                // Favor currently active ones unless it's not set, so that if
-                // the animation is interrupted, we don't swap content scale
-                // and alignment all of a sudden, which would lead to visual
-                // discontinuity.
-                activeContentScaleTransitionEffect ?: enter[ContentScaleTransitionEffect.Key]
-            } else {
-                activeContentScaleTransitionEffect ?: exit[ContentScaleTransitionEffect.Key]
-            }
-    } else {
-        activeContentScaleTransitionEffect = null
-    }
-    return activeContentScaleTransitionEffect
-}
-
 @Composable
 internal fun Transition<EnterExitState>.trackActiveEnter(enter: EnterTransition): EnterTransition {
     // Active enter & active exit reference the enter and exit transition that is currently being
