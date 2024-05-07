@@ -267,9 +267,10 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 var seekable = true
                 var transitioning = true
                 newPendingOperations.forEach { operation ->
-                    seekable = operation.effects.all { effect ->
-                        effect.isSeekingSupported
-                    }
+                    seekable = operation.effects.isNotEmpty() &&
+                        operation.effects.all { effect ->
+                            effect.isSeekingSupported
+                        }
                     if (!operation.fragment.mTransitioning) {
                         transitioning = false
                     }
