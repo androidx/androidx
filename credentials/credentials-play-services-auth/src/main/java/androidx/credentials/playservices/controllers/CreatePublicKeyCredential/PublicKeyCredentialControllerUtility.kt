@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
 package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 
 import android.content.Context
@@ -151,7 +152,7 @@ internal class PublicKeyCredentialControllerUtility {
       val currentVersion = if (Build.VERSION.SDK_INT >= 28)
         GetGMSVersion.getVersionLong(packageManager.getPackageInfo(packageName, 0))
       else
-        @Suppress("DEPRECATION") packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
+        @Suppress("deprecation") packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
 
       return (currentVersion > version)
     }
