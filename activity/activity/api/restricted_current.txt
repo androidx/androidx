@@ -108,7 +108,7 @@ package androidx.activity {
   }
 
   public final class FullyDrawnReporterKt {
-    method public static suspend inline Object? reportWhenComplete(androidx.activity.FullyDrawnReporter, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> reporter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public static suspend inline Object? reportWhenComplete(androidx.activity.FullyDrawnReporter, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> reporter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public interface FullyDrawnReporterOwner {
@@ -249,11 +249,11 @@ package androidx.activity.result {
 
   public abstract class ActivityResultLauncher<I> {
     ctor public ActivityResultLauncher();
-    method public abstract androidx.activity.result.contract.ActivityResultContract<I,?> getContract();
+    method public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object!> getContract();
     method public void launch(I input);
     method public abstract void launch(I input, androidx.core.app.ActivityOptionsCompat? options);
     method @MainThread public abstract void unregister();
-    property public abstract androidx.activity.result.contract.ActivityResultContract<I,?> contract;
+    property public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object!> contract;
   }
 
   public final class ActivityResultLauncherKt {

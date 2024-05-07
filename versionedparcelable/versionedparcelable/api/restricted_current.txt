@@ -145,7 +145,7 @@ package androidx.versionedparcelable {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface VersionedParcelize {
     method public abstract boolean allowSerialization() default false;
     method public abstract int[] deprecatedIds() default {};
-    method public abstract Class<?> factory() default void.class;
+    method public abstract Class<? extends java.lang.Object!> factory() default void.class;
     method public abstract boolean ignoreParcelables() default false;
     method public abstract boolean isCustom() default false;
     method public abstract String jetifyAs() default "";

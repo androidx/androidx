@@ -166,27 +166,27 @@ package androidx.room {
   }
 
   public static fun interface RoomDatabase.QueryCallback {
-    method public void onQuery(String sqlQuery, java.util.List<?> bindArgs);
+    method public void onQuery(String sqlQuery, java.util.List<? extends java.lang.Object?> bindArgs);
   }
 
   public final class RoomDatabaseKt {
     method public static kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> invalidationTrackerFlow(androidx.room.RoomDatabase, String[] tables, optional boolean emitInitialState);
-    method public static suspend <R> Object? useReaderConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
-    method public static suspend <R> Object? useWriterConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
-    method public static suspend <R> Object? withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? useReaderConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? useWriterConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   public interface RoomOpenDelegateMarker {
   }
 
   public interface TransactionScope<T> extends androidx.room.PooledConnection {
-    method public suspend Object? rollback(T result, kotlin.coroutines.Continuation<?>);
-    method public suspend <R> Object? withNestedTransaction(kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend Object? rollback(T result, kotlin.coroutines.Continuation<? extends java.lang.Object!>);
+    method public suspend <R> Object? withNestedTransaction(kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   public interface Transactor extends androidx.room.PooledConnection {
     method public suspend Object? inTransaction(kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-    method public suspend <R> Object? withTransaction(androidx.room.Transactor.SQLiteTransactionType type, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend <R> Object? withTransaction(androidx.room.Transactor.SQLiteTransactionType type, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
   public enum Transactor.SQLiteTransactionType {
@@ -196,10 +196,10 @@ package androidx.room {
   }
 
   public final class TransactorKt {
-    method public static suspend <R> Object? deferredTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
-    method public static suspend <R> Object? exclusiveTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? deferredTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? exclusiveTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend Object? execSQL(androidx.room.PooledConnection, String sql, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public static suspend <R> Object? immediateTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public static suspend <R> Object? immediateTransaction(androidx.room.Transactor, kotlin.jvm.functions.Function2<? super androidx.room.TransactionScope<R>,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
   }
 
 }
