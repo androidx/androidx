@@ -145,8 +145,8 @@ TRACING = "1.3.0-alpha02"
 TRACING_PERFETTO = "1.0.0"
 TRANSITION = "1.5.0-rc01"
 TV = "1.0.0-alpha11"
-TV_MATERIAL = "1.0.0-beta01"
 TVPROVIDER = "1.1.0-alpha02"
+TV_MATERIAL = "1.0.0-beta01"
 VECTORDRAWABLE = "1.2.0"
 VECTORDRAWABLE_ANIMATED = "1.2.0"
 VECTORDRAWABLE_SEEKABLE = "1.0.0"
@@ -162,6 +162,7 @@ WEAR_INPUT_TESTING = "1.2.0-alpha03"
 WEAR_ONGOING = "1.1.0-alpha02"
 WEAR_PHONE_INTERACTIONS = "1.1.0-alpha04"
 WEAR_PROTOLAYOUT = "1.2.0-alpha03"
+WEAR_PROTOLAYOUT_MATERIAL3 = "1.0.0-alpha01"
 WEAR_REMOTE_INTERACTIONS = "1.1.0-alpha02"
 WEAR_TILES = "1.4.0-alpha03"
 WEAR_TOOLING_PREVIEW = "1.0.0-rc01"
@@ -201,7 +202,7 @@ COMPOSE_ANIMATION = { group = "androidx.compose.animation", atomicGroupVersion =
 COMPOSE_COMPILER = { group = "androidx.compose.compiler", atomicGroupVersion = "versions.COMPOSE_COMPILER" }
 COMPOSE_DESKTOP = { group = "androidx.compose.desktop", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_FOUNDATION = { group = "androidx.compose.foundation", atomicGroupVersion = "versions.COMPOSE" }
-COMPOSE_MATERIAL = { group = "androidx.compose.material"}
+COMPOSE_MATERIAL = { group = "androidx.compose.material" }
 COMPOSE_MATERIAL3 = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
 COMPOSE_MATERIAL3_ADAPTIVE = { group = "androidx.compose.material3.adaptive", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_ADAPTIVE" }
 COMPOSE_RUNTIME = { group = "androidx.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
