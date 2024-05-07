@@ -17,14 +17,14 @@
 package androidx.compose.ui.uikit
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.InternalComposeUiApi
 import platform.UIKit.*
 
 /**
  * Wraps valid layout values for iOS UIInterfaceOrientation
  */
-@InternalComposeApi
+@InternalComposeUiApi
 @Immutable
 enum class InterfaceOrientation(private val rawValue: UIInterfaceOrientation) {
     Portrait(UIInterfaceOrientationPortrait),
@@ -44,5 +44,5 @@ enum class InterfaceOrientation(private val rawValue: UIInterfaceOrientation) {
 /**
  * Composition local for [InterfaceOrientation]
  */
-@InternalComposeApi
+@InternalComposeUiApi
 val LocalInterfaceOrientation = staticCompositionLocalOf { InterfaceOrientation.Portrait }

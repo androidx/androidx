@@ -23,6 +23,7 @@ import androidx.compose.ui.awt.AwtEventFilter
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.toAwtRectangle
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.skiko.RecordDrawRectRenderDecorator
 import androidx.compose.ui.unit.Density
@@ -73,7 +74,10 @@ internal abstract class DesktopComposeSceneLayer(
      */
     private var maxDrawInflate = IntRect.Zero
 
-    private var outsidePointerCallback: ((eventType: PointerEventType) -> Unit)? = null
+    private var outsidePointerCallback: ((
+        eventType: PointerEventType,
+        button: PointerButton?
+    ) -> Unit)? = null
     private var isClosed = false
 
     final override var density: Density = density
@@ -85,7 +89,7 @@ internal abstract class DesktopComposeSceneLayer(
     final override var layoutDirection: LayoutDirection = layoutDirection
         set(value) {
             field = value
-            mediator?.onChangeLayoutDirection(value)
+            mediator?.onLayoutDirectionChanged(value)
         }
 
     // It shouldn't be used for setting canvas size - it will crop drawings outside
@@ -119,7 +123,7 @@ internal abstract class DesktopComposeSceneLayer(
     }
 
     final override fun setOutsidePointerEventListener(
-        onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)?
+        onOutsidePointerEvent: ((eventType: PointerEventType, button: PointerButton?) -> Unit)?
     ) {
         outsidePointerCallback = onOutsidePointerEvent
     }
@@ -144,19 +148,19 @@ internal abstract class DesktopComposeSceneLayer(
     /**
      * Called when the focus of the window containing main Compose view has changed.
      */
-    open fun onChangeWindowFocus() {
+    open fun onWindowFocusChanged() {
     }
 
     /**
-     * Called when position of the window containing main Compose view has changed.
+     * Called when position of the window container, containing the main Compose view, has changed.
      */
-    open fun onChangeWindowPosition() {
+    open fun onWindowContainerPositionChanged() {
     }
 
     /**
-     * Called when size of the window containing main Compose view has changed.
+     * Called when size of the window container, containing the main Compose view, has changed.
      */
-    open fun onChangeWindowSize() {
+    open fun onWindowContainerSizeChanged() {
     }
 
     /**
@@ -196,7 +200,7 @@ internal abstract class DesktopComposeSceneLayer(
             MouseEvent.MOUSE_RELEASED -> PointerEventType.Release
             else -> return
         }
-        outsidePointerCallback?.invoke(eventType)
+        outsidePointerCallback?.invoke(eventType, event.composePointerButton)
     }
 
     private fun inBounds(event: MouseEvent): Boolean {

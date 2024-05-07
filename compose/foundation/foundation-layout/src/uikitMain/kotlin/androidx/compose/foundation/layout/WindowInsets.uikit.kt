@@ -17,8 +17,8 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.platform.LocalLayoutMargins
 import androidx.compose.ui.platform.LocalSafeArea
 import androidx.compose.ui.platform.PlatformInsets
@@ -41,7 +41,7 @@ private fun PlatformInsets.toWindowInsets() = WindowInsets(
  */
 private val WindowInsets.Companion.iosSafeArea: WindowInsets
     @Composable
-    @OptIn(InternalComposeApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(InternalComposeUiApi::class, ExperimentalComposeUiApi::class)
     get() = LocalSafeArea.current.toWindowInsets()
 
 /**
@@ -49,7 +49,7 @@ private val WindowInsets.Companion.iosSafeArea: WindowInsets
  */
 private val WindowInsets.Companion.layoutMargins: WindowInsets
     @Composable
-    @OptIn(InternalComposeApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(InternalComposeUiApi::class, ExperimentalComposeUiApi::class)
     get() = LocalLayoutMargins.current.toWindowInsets()
 
 /**
@@ -64,7 +64,7 @@ actual val WindowInsets.Companion.captionBar: WindowInsets
  */
 actual val WindowInsets.Companion.displayCutout: WindowInsets
     @Composable
-    @OptIn(InternalComposeApi::class)
+    @OptIn(InternalComposeUiApi::class)
     get() = when (LocalInterfaceOrientation.current) {
         InterfaceOrientation.Portrait -> iosSafeArea.only(WindowInsetsSides.Top)
         InterfaceOrientation.PortraitUpsideDown -> iosSafeArea.only(WindowInsetsSides.Bottom)
@@ -78,7 +78,7 @@ actual val WindowInsets.Companion.displayCutout: WindowInsets
  */
 actual val WindowInsets.Companion.ime: WindowInsets
     @Composable
-    @OptIn(InternalComposeApi::class)
+    @OptIn(InternalComposeUiApi::class)
     get() = WindowInsets(bottom = LocalKeyboardOverlapHeight.current)
 
 /**
@@ -101,7 +101,7 @@ actual val WindowInsets.Companion.navigationBars: WindowInsets
  */
 actual val WindowInsets.Companion.statusBars: WindowInsets
     @Composable
-    @OptIn(InternalComposeApi::class)
+    @OptIn(InternalComposeUiApi::class)
     get() = when (LocalInterfaceOrientation.current) {
         InterfaceOrientation.Portrait -> iosSafeArea.only(WindowInsetsSides.Top)
         else -> ZeroInsets

@@ -242,13 +242,13 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     override fun setComponentOrientation(o: ComponentOrientation?) {
         super.setComponentOrientation(o)
 
-        _composeContainer?.onChangeLayoutDirection(this)
+        _composeContainer?.onLayoutDirectionChanged(this)
     }
 
     override fun setLocale(l: Locale?) {
         super.setLocale(l)
 
-        _composeContainer?.onChangeLayoutDirection(this)
+        _composeContainer?.onLayoutDirectionChanged(this)
     }
 
     override fun addFocusListener(l: FocusListener?) {

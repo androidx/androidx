@@ -79,7 +79,7 @@ internal class SwingComposeSceneLayer(
                 field = value
                 container.setBounds(0, 0, value.width, value.height)
                 mediator?.contentComponent?.size = container.size
-                mediator?.onChangeComponentSize()
+                mediator?.onComponentSizeChanged()
             }
         }
 
@@ -113,7 +113,7 @@ internal class SwingComposeSceneLayer(
             skiaLayerComponentFactory = ::createSkiaLayerComponent,
             composeSceneFactory = ::createComposeScene,
         ).also {
-            it.onChangeWindowTransparency(true)
+            it.onWindowTransparencyChanged(true)
             it.contentComponent.size = container.size
         }
 
@@ -135,7 +135,7 @@ internal class SwingComposeSceneLayer(
         windowContainer.repaint()
     }
 
-    override fun onChangeWindowSize() {
+    override fun onWindowContainerSizeChanged() {
         containerSize = IntSize(windowContainer.width, windowContainer.height)
     }
 

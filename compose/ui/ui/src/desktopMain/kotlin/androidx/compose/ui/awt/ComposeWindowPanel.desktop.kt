@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.window.LocalWindow
-import java.awt.Color
 import java.awt.Component
 import java.awt.Container
 import java.awt.Dimension
@@ -34,10 +33,7 @@ import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
 import javax.swing.JLayeredPane
-import org.jetbrains.skiko.GraphicsApi
-import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.SkiaLayerAnalytics
-import org.jetbrains.skiko.hostOs
 
 /**
  * A panel used as a main view in [ComposeWindow] and [ComposeDialog].
@@ -88,7 +84,7 @@ internal class ComposeWindowPanel(
                     "Cannot change transparency if window is already displayable."
                 }
                 field = value
-                composeContainer.onChangeWindowTransparency(value)
+                composeContainer.onWindowTransparencyChanged(value)
                 setTransparent(value)
                 window.background = getTransparentWindowBackground(value, renderApi)
             }
@@ -157,7 +153,7 @@ internal class ComposeWindowPanel(
     }
 
     fun onChangeLayoutDirection(component: Component) {
-        composeContainer.onChangeLayoutDirection(component)
+        composeContainer.onLayoutDirectionChanged(component)
     }
 
     fun onRenderApiChanged(action: () -> Unit) {

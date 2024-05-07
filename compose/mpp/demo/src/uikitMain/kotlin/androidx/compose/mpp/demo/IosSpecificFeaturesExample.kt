@@ -52,5 +52,6 @@ val IosSpecificFeatures = Screen.Selection(
     NativeModalWithNaviationExample,
     HapticFeedbackExample,
     LazyColumnWithInteropViewsExample,
-    AccessibilityLiveRegionExample
+    AccessibilityLiveRegionExample,
+    InteropViewAndSemanticsConfigMerge
 )

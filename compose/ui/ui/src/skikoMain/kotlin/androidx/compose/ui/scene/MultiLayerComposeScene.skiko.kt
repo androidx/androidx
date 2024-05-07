@@ -504,7 +504,10 @@ private class MultiLayerComposeSceneImpl(
             inputHandler = inputHandler,
         )
         private var composition: Composition? = null
-        private var outsidePointerCallback: ((eventType: PointerEventType) -> Unit)? = null
+        private var outsidePointerCallback: ((
+            eventType: PointerEventType,
+            button: PointerButton?
+        ) -> Unit)? = null
         private var isClosed = false
 
         override var density: Density by owner::density
@@ -577,7 +580,7 @@ private class MultiLayerComposeSceneImpl(
         }
 
         override fun setOutsidePointerEventListener(
-            onOutsidePointerEvent: ((eventType: PointerEventType) -> Unit)?,
+            onOutsidePointerEvent: ((eventType: PointerEventType, button: PointerButton?) -> Unit)?,
         ) {
             outsidePointerCallback = onOutsidePointerEvent
         }
@@ -607,17 +610,17 @@ private class MultiLayerComposeSceneImpl(
         fun isInBounds(position: Offset) = boundsInWindow.contains(position.round())
 
         fun onOutsidePointerEvent(event: PointerInputEvent) {
-            if (!event.isMainAction()) {
+            if (!event.isMouseOrSingleTouch()) {
                 return
             }
-            outsidePointerCallback?.invoke(event.eventType)
+            outsidePointerCallback?.invoke(event.eventType, event.button)
         }
     }
 }
 
 private val PointerInputEvent.isGestureInProgress get() = pointers.fastAny { it.down }
 
-private fun PointerInputEvent.isMainAction() =
+private fun PointerInputEvent.isMouseOrSingleTouch() =
     button != null || pointers.size == 1
 
 private class CopiedList<T>(

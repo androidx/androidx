@@ -191,8 +191,8 @@ class SkikoComposeUiTest @InternalTestApi constructor(
     }
 
     private fun <R> withScene(block: () -> R): R {
+        scene = runOnUiThread(::createUi)
         try {
-            scene = runOnUiThread(::createUi)
             return block()
         } finally {
             // Close the scene before calling testScope.runTest so that all the coroutines are
