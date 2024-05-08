@@ -25,6 +25,7 @@ import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectR
 import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.impl.utils.TransformUtils.reverseSize;
+import static androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE;
 
 import static java.lang.Math.sqrt;
 
@@ -41,10 +42,12 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.internal.SupportedOutputSizesSorter;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,7 +83,7 @@ public class ResolutionsMerger {
     @NonNull
     private final SupportedOutputSizesSorter mSizeSorter;
     @NonNull
-    private final List<Size> mCameraSupportedSizes;
+    private final CameraInfoInternal mCameraInfo;
     @NonNull
     private final Map<UseCaseConfig<?>, List<Size>> mChildSizesCache = new HashMap<>();
 
@@ -92,20 +95,20 @@ public class ResolutionsMerger {
 
     private ResolutionsMerger(@NonNull Size sensorSize, @NonNull CameraInfoInternal cameraInfo,
             @NonNull Set<UseCaseConfig<?>> childrenConfigs) {
-        this(sensorSize, childrenConfigs, new SupportedOutputSizesSorter(cameraInfo, sensorSize),
-                cameraInfo.getSupportedResolutions(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
+        this(sensorSize, cameraInfo, childrenConfigs,
+                new SupportedOutputSizesSorter(cameraInfo, sensorSize));
     }
 
     @VisibleForTesting
-    ResolutionsMerger(@NonNull Size sensorSize, @NonNull Set<UseCaseConfig<?>> childrenConfigs,
-            @NonNull SupportedOutputSizesSorter supportedOutputSizesSorter,
-            @NonNull List<Size> cameraSupportedResolutions) {
+    ResolutionsMerger(@NonNull Size sensorSize, @NonNull CameraInfoInternal cameraInfo,
+            @NonNull Set<UseCaseConfig<?>> childrenConfigs,
+            @NonNull SupportedOutputSizesSorter supportedOutputSizesSorter) {
         mSensorSize = sensorSize;
         mSensorAspectRatio = getSensorAspectRatio(sensorSize);
         mFallbackAspectRatio = getFallbackAspectRatio(mSensorAspectRatio);
+        mCameraInfo = cameraInfo;
         mChildrenConfigs = childrenConfigs;
         mSizeSorter = supportedOutputSizesSorter;
-        mCameraSupportedSizes = cameraSupportedResolutions;
     }
 
     /**
@@ -116,7 +119,13 @@ public class ResolutionsMerger {
      */
     @NonNull
     List<Size> getMergedResolutions(@NonNull MutableConfig parentConfig) {
-        List<Size> candidateSizes = mCameraSupportedSizes;
+        List<Size> candidateSizes = getCameraSupportedResolutions();
+
+        // Add high resolutions if they need to be included.
+        if (shouldIncludeHighResolutions()) {
+            candidateSizes = new ArrayList<>(candidateSizes);
+            candidateSizes.addAll(getCameraSupportedHighResolutions());
+        }
 
         // Use parent config's supported resolutions when it is set (e.g. Extensions may have
         // its limitations on resolutions).
@@ -258,6 +267,37 @@ public class ResolutionsMerger {
         }
 
         return parentSize;
+    }
+
+    @NonNull
+    private List<Size> getCameraSupportedResolutions() {
+        return mCameraInfo.getSupportedResolutions(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+    }
+
+    @NonNull
+    private List<Size> getCameraSupportedHighResolutions() {
+        return mCameraInfo.getSupportedHighResolutions(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+    }
+
+    private boolean shouldIncludeHighResolutions() {
+        // High resolutions need to be included if the feature is not disabled and allowed in any
+        // child configuration.
+        for (UseCaseConfig<?> childConfig : mChildrenConfigs) {
+            if (childConfig.isHigResolutionDisabled(false)) {
+                continue;
+            }
+
+            if (childConfig instanceof ImageOutputConfig) {
+                ResolutionSelector resolutionSelector =
+                        ((ImageOutputConfig) childConfig).getResolutionSelector(null);
+                if (resolutionSelector != null && resolutionSelector.getAllowedResolutionMode()
+                        == PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     @NonNull
