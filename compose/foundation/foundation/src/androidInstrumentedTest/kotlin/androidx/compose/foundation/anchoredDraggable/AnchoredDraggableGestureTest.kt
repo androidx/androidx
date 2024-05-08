@@ -46,10 +46,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -57,6 +59,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -1011,6 +1014,118 @@ class AnchoredDraggableGestureTest {
         assertThat(state1.requireOffset()).isEqualTo(positionOfB)
         // assert that changes reflected on state2
         assertThat(state2.requireOffset()).isEqualTo(positionOfA)
+    }
+
+    @Test
+    fun anchoredDraggable_reverseDirection_true_reversesDeltas() {
+        val state = AnchoredDraggableState(
+            initialValue = B,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 250f
+                C at 500f
+            },
+            positionalThreshold = DefaultPositionalThreshold,
+            velocityThreshold = DefaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
+        )
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Box(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier
+                            .requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .anchoredDraggable(
+                                state = state,
+                                orientation = Orientation.Horizontal,
+                                reverseDirection = true
+                            )
+                            .offset {
+                                IntOffset(
+                                    state
+                                        .requireOffset()
+                                        .roundToInt(), 0
+                                )
+                            }
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            swipe(
+                start = Offset(x = state.anchors.positionOf(B), y = 0f),
+                end = Offset(x = state.anchors.positionOf(A), y = 0f)
+            )
+        }
+
+        assertThat(state.offset).isEqualTo(state.anchors.positionOf(C))
+    }
+
+    @Test
+    fun anchoredDraggable_reverseDirection_defaultValue_reversesDeltasInRTL() {
+        val state = AnchoredDraggableState(
+            initialValue = A,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 250f
+                C at 500f
+            },
+            positionalThreshold = DefaultPositionalThreshold,
+            velocityThreshold = DefaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
+        )
+        var layoutDirection by mutableStateOf(LayoutDirection.Ltr)
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                WithTouchSlop(0f) {
+                    Box(Modifier.fillMaxSize()) {
+                        Box(
+                            Modifier
+                                .requiredSize(AnchoredDraggableBoxSize)
+                                .testTag(AnchoredDraggableTestTag)
+                                .anchoredDraggable(
+                                    state = state,
+                                    orientation = Orientation.Horizontal
+                                )
+                                .offset {
+                                    IntOffset(
+                                        state
+                                            .requireOffset()
+                                            .roundToInt(), 0
+                                    )
+                                }
+                                .background(Color.Red)
+                        )
+                    }
+                }
+            }
+        }
+
+        assertThat(layoutDirection).isEqualTo(LayoutDirection.Ltr)
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            swipe(
+                start = Offset(x = state.anchors.positionOf(A), y = 0f),
+                end = Offset(x = state.anchors.positionOf(B), y = 0f)
+            )
+        }
+        assertThat(state.offset).isEqualTo(state.anchors.positionOf(B))
+
+        layoutDirection = LayoutDirection.Rtl
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            swipe(
+                start = Offset(x = state.anchors.positionOf(B), y = 0f),
+                end = Offset(x = state.anchors.positionOf(A), y = 0f)
+            )
+        }
+        assertThat(state.offset).isEqualTo(state.anchors.positionOf(C))
     }
 
     private val DefaultPositionalThreshold: (totalDistance: Float) -> Float = {
