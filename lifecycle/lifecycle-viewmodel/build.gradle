@@ -22,8 +22,8 @@
  * modifying its settings.
  */
 
+import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
@@ -134,7 +134,7 @@ android {
 
 androidx {
     name = "Lifecycle ViewModel"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle ViewModel"
 }

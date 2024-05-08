@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
 import androidx.build.RunApiTasks
 
 plugins {
@@ -53,7 +53,7 @@ android {
 
 androidx {
     name = "Security"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenVersion = LibraryVersions.SECURITY_IDENTITY_CREDENTIAL
     inceptionYear = "2019"

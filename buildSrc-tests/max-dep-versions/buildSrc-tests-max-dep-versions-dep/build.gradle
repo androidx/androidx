@@ -19,7 +19,6 @@ android {
 
 androidx {
     name = "Sample"
-    publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.SAMPLES
     inceptionYear = "2020"
     description = "This is a sample library for confirming that maxDepVersions builds work correctly"

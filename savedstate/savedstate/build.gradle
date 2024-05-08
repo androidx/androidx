@@ -5,9 +5,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 
@@ -76,7 +75,7 @@ android {
 
 androidx {
     name = "Saved State"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Lifecycle Saved State"
     metalavaK2UastEnabled = true

@@ -51,6 +51,5 @@ dependencies {
 
 androidx {
     type = type = LibraryType.INTERNAL_TEST_LIBRARY
-    publish = Publish.NONE  // This library exists for CI-testing only - do not publish.
     additionalDeviceTestApkKeys.add("chrome")
 }

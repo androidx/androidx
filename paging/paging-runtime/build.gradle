@@ -21,8 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -68,7 +67,7 @@ dependencies {
 
 androidx {
     name = "Paging-Runtime"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Paging-Runtime"
     legacyDisableKotlinStrictApiMode = true

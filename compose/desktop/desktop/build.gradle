@@ -98,7 +98,6 @@ tasks.withType(Test).configureEach {
 androidx {
     name = "Compose Desktop"
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     legacyDisableKotlinStrictApiMode = true
     runApiTasks = new RunApiTasks.No("Not supported yet, see b/163110180")

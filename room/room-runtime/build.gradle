@@ -25,7 +25,6 @@
 
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 
@@ -223,7 +222,6 @@ dependencies {
 androidx {
     name = "Room-Runtime"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room-Runtime"
 }

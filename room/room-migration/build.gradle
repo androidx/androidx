@@ -23,7 +23,7 @@
  */
 
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
@@ -83,7 +83,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Room Migration"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Room Migration"
     legacyDisableKotlinStrictApiMode = true

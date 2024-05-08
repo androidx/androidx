@@ -39,7 +39,6 @@ android {
 
 androidx {
     name = "Graphics-Core Samples"
-    publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.SAMPLES
     inceptionYear = "2023"
     description = "Contains samples of APIs included in the graphics-core Androidx library"

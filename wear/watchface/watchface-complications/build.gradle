@@ -23,7 +23,7 @@
  */
 import androidx.build.RunApiTasks
 
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -67,7 +67,7 @@ android {
 
 androidx {
     name = "Android Wear Complications"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Android Wear Complications"
     metalavaK2UastEnabled = true

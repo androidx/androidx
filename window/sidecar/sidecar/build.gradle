@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
 import androidx.build.RunApiTasks
 
 plugins {
@@ -35,7 +35,7 @@ dependencies {
 
 androidx {
     name = "WindowManager Sidecar"
-    publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
+    type = LibraryType.PUBLISHED_LIBRARY // Only to generate per-project-zips
     runApiTasks = new RunApiTasks.Yes("Need to track API surface but should never publish")
     inceptionYear = "2020"
     description = "This version of the OEM extension is deprecated. Please use window:extensions:extensions." +
