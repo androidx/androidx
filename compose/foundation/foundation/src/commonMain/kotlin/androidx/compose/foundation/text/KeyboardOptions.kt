@@ -161,6 +161,15 @@ class KeyboardOptions(
     )
     val autoCorrect: Boolean get() = autoCorrectOrDefault
 
+    // Suppress GetterSetterNames because this is how the property was named previously.
+    @Suppress("unused", "GetterSetterNames")
+    @get:Suppress("GetterSetterNames")
+    @Deprecated(
+        "Included for binary compatibility. Use showKeyboardOnFocus.",
+        level = DeprecationLevel.HIDDEN
+    )
+    val shouldShowKeyboardOnFocus: Boolean get() = showKeyboardOnFocus ?: true
+
     private val autoCorrectOrDefault: Boolean
         get() = autoCorrectEnabled
             ?: true
