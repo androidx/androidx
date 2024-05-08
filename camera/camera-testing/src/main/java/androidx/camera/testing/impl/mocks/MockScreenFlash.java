@@ -22,7 +22,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.ImageCapture.ScreenFlashListener;
@@ -39,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * A mock implementations of {@link ScreenFlash} for testing purpose.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MockScreenFlash implements ScreenFlash {
     /**
      * Represents {@link ImageCapture.ScreenFlash#apply} event.

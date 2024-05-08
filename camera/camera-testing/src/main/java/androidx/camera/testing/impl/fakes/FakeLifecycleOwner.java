@@ -17,7 +17,6 @@
 package androidx.camera.testing.impl.fakes;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.lifecycle.Lifecycle;
@@ -29,7 +28,6 @@ import androidx.lifecycle.LifecycleRegistry;
  *
  * @see <a href="https://developer.android.com/topic/libraries/architecture/lifecycle">lifecycle</a>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeLifecycleOwner implements LifecycleOwner {
     private final LifecycleRegistry mLifecycleRegistry;

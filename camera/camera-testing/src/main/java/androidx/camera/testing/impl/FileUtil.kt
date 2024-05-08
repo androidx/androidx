@@ -24,7 +24,6 @@ import android.os.Environment.DIRECTORY_MOVIES
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.provider.MediaStore
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.MediaStoreOutputOptions
@@ -38,7 +37,6 @@ private const val TAG = "FileUtil"
 private const val EXTENSION_MP4 = "mp4"
 private const val EXTENSION_TEXT = "txt"
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 object FileUtil {
 
     /**

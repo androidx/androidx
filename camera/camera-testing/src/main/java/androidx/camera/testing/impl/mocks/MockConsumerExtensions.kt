@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.testing.impl.mocks
 
-import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.mocks.MockConsumer.NO_TIMEOUT
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor
 import androidx.camera.testing.impl.mocks.helpers.CallTimes

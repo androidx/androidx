@@ -26,13 +26,11 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Surface
 import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 import kotlinx.coroutines.CompletableDeferred
 
 /**
  * Convenient suspend functions for invoking camera2 APIs.
  */
-@RequiresApi(21)
 object Camera2Util {
     /**
      * Open the camera device and return the [CameraDevice] instance.
@@ -68,7 +66,6 @@ object Camera2Util {
     /**
      * Creates and returns a configured [CameraCaptureSession].
      */
-    @RequiresApi(21)
     suspend fun openCaptureSession(
         cameraDevice: CameraDevice,
         surfaceList: List<Surface>,

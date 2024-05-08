@@ -18,7 +18,6 @@ package androidx.camera.testing.impl.mocks.helpers;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,6 @@ import java.util.List;
  *
  * @param <T> the type of the arguments to capture
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ArgumentCaptor<T> {
     private final List<T> mArguments = new ArrayList<>();
     private ArgumentMatcher<T> mArgumentMatcher;

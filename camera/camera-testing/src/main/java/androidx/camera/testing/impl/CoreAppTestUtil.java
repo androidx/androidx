@@ -33,7 +33,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.testing.impl.activity.ForegroundTestActivity;
 import androidx.test.espresso.Espresso;
@@ -46,7 +45,6 @@ import org.junit.AssumptionViolatedException;
 import java.io.IOException;
 
 /** Utility functions of tests on CoreTestApp. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CoreAppTestUtil {
 
     private static final String TAG = "CoreAppTestUtil";

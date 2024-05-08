@@ -18,7 +18,6 @@ package androidx.camera.testing.impl.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 
@@ -28,7 +27,6 @@ import java.util.Map;
 /**
  * A fake implementation of the {@link EncoderProfilesProvider} and used for test.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeEncoderProfilesProvider implements EncoderProfilesProvider {
 
     private final Map<Integer, EncoderProfilesProxy> mQualityToProfileMap;
@@ -53,7 +51,6 @@ public class FakeEncoderProfilesProvider implements EncoderProfilesProvider {
     /**
      * The builder to create a FakeEncoderProfilesProvider instance.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class Builder {
 
         private final Map<Integer, EncoderProfilesProxy> mQualityToProfileMap = new HashMap<>();

@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.testing.impl
 
 import android.graphics.Rect
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback

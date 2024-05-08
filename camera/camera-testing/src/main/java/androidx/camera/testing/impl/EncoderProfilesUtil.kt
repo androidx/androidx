@@ -19,7 +19,6 @@ import android.media.EncoderProfiles
 import android.media.MediaFormat
 import android.media.MediaRecorder
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy
 import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy
@@ -30,7 +29,6 @@ import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
  * resolutions, attributes and [EncoderProfilesProxy], which can be used directly on the
  * unit tests.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 object EncoderProfilesUtil {
     /** Resolution for QCIF.  */
