@@ -19,7 +19,6 @@ package androidx.window.layout.util
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.graphics.Rect
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.view.WindowManager
@@ -56,13 +55,6 @@ internal object ContextCompatHelper {
         //  this ambiguity will no longer exist. Again for clarity, on APIs before R, UiContexts are
         //  Activities or InputMethodServices, so we should never reach this point.
         throw IllegalArgumentException("Context $context is not a UiContext")
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.N)
-internal object ContextCompatHelperApi24 {
-    fun isInMultiWindowMode(activity: Activity): Boolean {
-        return activity.isInMultiWindowMode
     }
 }
 
