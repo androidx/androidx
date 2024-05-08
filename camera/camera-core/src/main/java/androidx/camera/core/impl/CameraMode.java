@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -36,7 +35,6 @@ import java.lang.annotation.RetentionPolicy;
  * <p>The surface combination that is used depends on the camera mode. The defined constants are
  * used to identify which supported surface combination list should be used.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraMode {
     /**
      * The camera is in the default mode.

@@ -16,11 +16,8 @@
 
 package androidx.camera.core.streamsharing;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureMetaData;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.TagBundle;
@@ -29,7 +26,6 @@ import androidx.camera.core.impl.TagBundle;
  * A virtual {@link CameraCaptureResult} which based on a real instance with some fields
  * overridden.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class VirtualCameraCaptureResult implements CameraCaptureResult {
 
     private static final long INVALID_TIMESTAMP = -1;

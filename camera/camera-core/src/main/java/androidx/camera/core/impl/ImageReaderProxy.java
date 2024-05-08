@@ -21,7 +21,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageProxy;
@@ -35,8 +34,6 @@ import java.util.concurrent.Executor;
  * ImageReaderProxy} provides {@link ImageProxy} instances.
  *
  */
-
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ImageReaderProxy {
     /**
      * Acquires the latest image in the queue.

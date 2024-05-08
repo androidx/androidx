@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 
 import java.util.Collections;
@@ -27,7 +26,6 @@ import java.util.Set;
 /**
  * Utility class for checking the convergence of 3A states.
  */
-@RequiresApi(21)
 public class ConvergenceUtils {
 
     private static final String TAG = "ConvergenceUtils";

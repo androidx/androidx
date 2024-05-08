@@ -27,7 +27,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInternal;
@@ -47,7 +46,6 @@ import java.util.List;
  * A set of requirements and priorities used to select a camera or return a filtered set of
  * cameras.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraSelector {
 
     /** A camera on the devices that its lens facing is resolved. */

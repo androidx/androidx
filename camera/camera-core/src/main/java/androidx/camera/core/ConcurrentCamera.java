@@ -19,7 +19,6 @@ package androidx.camera.core;
 import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.List;
@@ -41,7 +40,6 @@ import java.util.List;
  * <a href="https://developer.android.com/reference/android/hardware/camera2/CameraManager#getConcurrentCameraIds()">concurrent camera streaming</a>
  *
  */
-@RequiresApi(21)
 public class ConcurrentCamera {
 
     @NonNull

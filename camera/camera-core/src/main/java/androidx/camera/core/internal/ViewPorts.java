@@ -25,7 +25,6 @@ import android.util.Rational;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.StreamSpec;
@@ -38,7 +37,6 @@ import java.util.Map;
 /**
  * Utility methods for calculating viewports.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ViewPorts {
     private ViewPorts() {
 

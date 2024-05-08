@@ -31,7 +31,6 @@ import static androidx.core.util.Preconditions.checkState;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
-import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -40,7 +39,6 @@ import android.view.TextureView;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Preview;
@@ -97,7 +95,6 @@ import java.util.Set;
  * {@link Surface} should no longer be used, and {@link #invalidate()} cleans the current
  * connection so it can be connected again.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class SurfaceEdge {
 
     private final int mFormat;

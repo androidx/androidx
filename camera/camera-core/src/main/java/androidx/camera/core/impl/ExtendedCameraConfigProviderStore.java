@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,6 @@ import java.util.Map;
  * Stores {@link CameraConfigProvider} instances which allow building {@link CameraConfig} using
  * keys (extensions modes for example). The provided {@link CameraConfig}s are unique to the device.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtendedCameraConfigProviderStore {
 
     private static final Object LOCK = new Object();

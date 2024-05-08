@@ -18,12 +18,9 @@ package androidx.camera.core;
 
 import android.hardware.camera2.CaptureRequest;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * PreviewCapabilities is used to query {@link Preview} use case capabilities on the device.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface PreviewCapabilities {
 
     /**

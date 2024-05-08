@@ -21,12 +21,10 @@ import static java.util.Objects.requireNonNull;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.os.Build;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
@@ -41,7 +39,6 @@ import java.util.List;
 /**
  * A post-processing request and its callback.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class ProcessingRequest {
     private final int mRequestId;
     @Nullable

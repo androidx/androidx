@@ -17,7 +17,6 @@
 package androidx.camera.core.internal
 
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.ImageCapture.ScreenFlashListener
 import androidx.camera.core.Logger
@@ -28,7 +27,6 @@ import androidx.camera.core.Logger
  * This allows us to clean up properly in case a capture is cancelled earlier (e.g. ImageCapture is
  * unbound after [apply] is invoked but [clear] is not).
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ScreenFlashWrapper private constructor(
     private val screenFlash: ScreenFlash?
 ) : ScreenFlash {

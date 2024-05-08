@@ -17,7 +17,6 @@
 package androidx.camera.core.impl.utils.executor;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraXThreads;
 
 import java.util.Locale;
@@ -30,7 +29,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A singleton executor which should be used for I/O tasks.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 // TODO(b/115779693): Make this executor configurable
 final class IoExecutor implements Executor {
     private static volatile Executor sExecutor;

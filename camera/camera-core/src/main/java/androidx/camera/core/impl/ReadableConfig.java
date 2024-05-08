@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.util.Set;
 
@@ -28,7 +27,6 @@ import java.util.Set;
  * <p>ReadableConfig objects are also {@link Config} objects, so can be passed to any method that
  * expects a {@link Config}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ReadableConfig extends Config {
 
     /**

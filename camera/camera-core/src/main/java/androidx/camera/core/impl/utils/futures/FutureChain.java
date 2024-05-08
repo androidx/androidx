@@ -20,7 +20,6 @@ import static androidx.core.util.Preconditions.checkNotNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.arch.core.util.Function;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -43,7 +42,6 @@ import java.util.concurrent.TimeoutException;
  *  }</pre>
  *  @param <V>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FutureChain<V> implements ListenableFuture<V> {
     @NonNull
     private final ListenableFuture<V> mDelegate;

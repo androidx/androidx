@@ -24,7 +24,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -60,7 +59,6 @@ import java.util.concurrent.Executor;
  * @see CameraXConfig.Builder
  */
 @SuppressWarnings("HiddenSuperclass")
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraXConfig implements TargetConfig<CameraX> {
 
     /**

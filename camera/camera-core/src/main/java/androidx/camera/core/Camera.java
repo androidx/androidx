@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraConfig;
 
@@ -31,7 +30,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  *androidx.lifecycle.LifecycleOwner, CameraSelector, UseCase...) An example} of how to obtain an
  * instance of this class can be found in the {@link androidx.camera.lifecycle} package.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Camera {
 
     /**

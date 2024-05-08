@@ -21,7 +21,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageOutputConfig;
 
 import com.google.auto.value.AutoValue;
@@ -35,7 +34,6 @@ import com.google.auto.value.AutoValue;
  * {@link ImageAnalysis} before an {@link ImageProxy} is received from
  * {@link ImageAnalysis.Analyzer}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ResolutionInfo {
 
     private final ResolutionInfoInternal mResolutionInfoInternal;

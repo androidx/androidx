@@ -22,10 +22,8 @@ import static androidx.camera.core.ImageProcessingUtil.convertYUVToRGB;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageReaderProxys;
@@ -44,7 +42,6 @@ import java.nio.ByteBuffer;
  * {@link ImageFormat#JPEG} image. {@link IllegalArgumentException} will be thrown if the input
  * image format is not supported.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class Image2Bitmap implements
         Operation<Packet<ImageProxy>, Bitmap> {
     @NonNull

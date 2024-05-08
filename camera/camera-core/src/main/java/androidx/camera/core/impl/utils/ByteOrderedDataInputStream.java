@@ -16,8 +16,6 @@
 
 package androidx.camera.core.impl.utils;
 
-import androidx.annotation.RequiresApi;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -31,7 +29,6 @@ import java.nio.ByteOrder;
  * order.
  */
 // Note: This class is adapted from {@link androidx.exifinterface.media.ExifInterface}
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ByteOrderedDataInputStream extends InputStream implements DataInput {
     private static final ByteOrder LITTLE_ENDIAN = ByteOrder.LITTLE_ENDIAN;
     private static final ByteOrder BIG_ENDIAN = ByteOrder.BIG_ENDIAN;

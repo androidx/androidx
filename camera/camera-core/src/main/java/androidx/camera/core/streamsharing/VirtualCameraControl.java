@@ -20,10 +20,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
@@ -37,7 +34,6 @@ import java.util.List;
 /**
  * A {@link CameraControlInternal} that is used to control the virtual camera.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class VirtualCameraControl extends ForwardingCameraControl {
 
     private static final int DEFAULT_JPEG_QUALITY = 100;

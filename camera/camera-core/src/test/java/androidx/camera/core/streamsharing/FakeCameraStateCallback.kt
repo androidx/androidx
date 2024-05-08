@@ -17,13 +17,10 @@
 package androidx.camera.core.streamsharing
 
 import android.hardware.camera2.CameraDevice
-import android.os.Build
-import androidx.annotation.RequiresApi
 
 /**
  * A fake [CameraDevice.StateCallback].
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class FakeCameraStateCallback : CameraDevice.StateCallback() {
 
     var onOpenedCalled = false

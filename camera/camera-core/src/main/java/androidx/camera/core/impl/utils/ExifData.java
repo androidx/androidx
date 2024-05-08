@@ -115,7 +115,6 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
@@ -145,7 +144,6 @@ import java.util.regex.Pattern;
 // types besides JPEG have been removed. Support for thumbnails/strips has been removed along
 // with many exif tags. If more tags are required, the source code for ExifInterface should be
 // referenced and can be adapted to this class.
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExifData {
     private static final String TAG = "ExifData";
     private static final boolean DEBUG = false;

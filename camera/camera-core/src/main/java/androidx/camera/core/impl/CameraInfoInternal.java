@@ -23,7 +23,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DynamicRange;
@@ -43,7 +42,6 @@ import java.util.concurrent.Executor;
  * that contains the actual implementation and can be cast to an implementation specific class.
  * If the instance itself is the implementation instance, then it should return <code>this</code>.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraInfoInternal extends CameraInfo {
 
     /**

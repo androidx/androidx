@@ -20,11 +20,8 @@ import static androidx.camera.core.impl.utils.futures.Futures.immediateFailedFut
 
 import static java.util.Objects.requireNonNull;
 
-import android.os.Build;
-
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
@@ -45,7 +42,6 @@ import java.util.concurrent.Executor;
  * makes sure that CameraX always invoke the {@link SurfaceProcessor} on the correct
  * {@link Executor}.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class SurfaceProcessorWithExecutor implements SurfaceProcessorInternal {
 
     private static final String TAG = "SurfaceProcessor";

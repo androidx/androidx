@@ -45,7 +45,6 @@ import java.util.Locale;
  * Utility class to convert an {@link Image} from YUV to RGB.
  *
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class ImageProcessingUtil {
 

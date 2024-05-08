@@ -21,11 +21,8 @@ import static androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.ENCODING_SDR;
 import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.UseCaseConfig;
 
@@ -36,7 +33,6 @@ import java.util.Set;
 /**
  * Utility methods for handling dynamic range.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class DynamicRangeUtils {
 
     private DynamicRangeUtils() {

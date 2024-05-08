@@ -29,7 +29,6 @@ import androidx.camera.core.impl.EncoderProfilesProxy;
  * Helper for accessing features of {@link EncoderProfiles} and {@link CamcorderProfile} in a
  * backwards compatible fashion.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class EncoderProfilesProxyCompat {
 
     private static final String TAG = "EncoderProfilesProxyCompat";

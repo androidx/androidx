@@ -16,11 +16,8 @@
 
 package androidx.camera.core.processing;
 
-import android.os.Build;
-
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -32,7 +29,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  * <p>Note: the implementation of this interface must be thread-safe. e.g. methods can be
  * safely invoked on any thread.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public interface SurfaceProcessorInternal extends SurfaceProcessor {
 
     /**

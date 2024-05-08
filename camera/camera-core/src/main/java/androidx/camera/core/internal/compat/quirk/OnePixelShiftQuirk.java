@@ -16,7 +16,6 @@
 
 package androidx.camera.core.internal.compat.quirk;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -25,6 +24,5 @@ import androidx.camera.core.impl.Quirk;
  *
  * <p>Subclasses of this quirk may contain device specific information.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface OnePixelShiftQuirk extends Quirk {
 }

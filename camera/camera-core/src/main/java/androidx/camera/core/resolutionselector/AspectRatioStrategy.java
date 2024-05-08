@@ -21,7 +21,6 @@ import static androidx.camera.core.AspectRatio.RATIO_4_3;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
@@ -43,7 +42,6 @@ import java.lang.annotation.RetentionPolicy;
  * {@link ResolutionSelector} with a {@link ResolutionFilter} to find and select those specific
  * sizes.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AspectRatioStrategy {
     /**
      * CameraX doesn't fall back to select sizes of any other aspect ratio when this fallback
