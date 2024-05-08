@@ -19,7 +19,6 @@
 package androidx.health.connect.client.impl.platform.aggregate
 
 import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
@@ -45,26 +44,20 @@ import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.fold
 
 // Max buffer to account for overlapping records that have startTime < timeRangeFilter.startTime
 val RECORD_START_TIME_BUFFER: Duration = Duration.ofDays(1)
 
 internal suspend fun HealthConnectClient.aggregateFallback(request: AggregateRequest):
     AggregationResult {
-    return request.fallbackMetrics.fold(
-        AggregationResult(
-            longValues = mapOf(),
-            doubleValues = mapOf(),
-            dataOrigins = setOf()
-        )
-    ) { currentAggregateResult, metric ->
-        currentAggregateResult + aggregate(
-            metric,
-            request.timeRangeFilter,
-            request.dataOriginFilter
-        )
-    }
+    return request.fallbackMetrics
+        .fold(emptyAggregationResult()) { currentAggregateResult, metric ->
+            currentAggregateResult + aggregate(
+                metric,
+                request.timeRangeFilter,
+                request.dataOriginFilter
+            )
+        }
 }
 
 private suspend fun <T : Any> HealthConnectClient.aggregate(
@@ -97,46 +90,7 @@ private suspend fun <T : Any> HealthConnectClient.aggregate(
     }
 }
 
-@VisibleForTesting
-internal suspend fun HealthConnectClient.aggregateNutritionTransFatTotal(
-    timeRangeFilter: TimeRangeFilter,
-    dataOriginFilter: Set<DataOrigin>
-): AggregationResult {
-    val readRecordsFlow = readRecordsFlow(
-        NutritionRecord::class,
-        timeRangeFilter.withBufferedStart(),
-        dataOriginFilter
-    )
-
-    val aggregatedData = readRecordsFlow
-        .fold(AggregatedData(0.0)) { currentAggregatedData, records ->
-            val filteredRecords = records.filter {
-                it.overlaps(timeRangeFilter) && it.transFat != null &&
-                    sliceFactor(it, timeRangeFilter) > 0
-            }
-
-            filteredRecords.forEach {
-                currentAggregatedData.value +=
-                    it.transFat!!.inGrams * sliceFactor(it, timeRangeFilter)
-            }
-
-            filteredRecords.mapTo(currentAggregatedData.dataOrigins) { it.metadata.dataOrigin }
-            currentAggregatedData
-        }
-
-    if (aggregatedData.dataOrigins.isEmpty()) {
-        return emptyAggregationResult()
-    }
-
-    return AggregationResult(
-        longValues = mapOf(),
-        doubleValues = mapOf(NutritionRecord.TRANS_FAT_TOTAL.metricKey to aggregatedData.value),
-        dataOrigins = aggregatedData.dataOrigins
-    )
-}
-
 /** Reads all existing records that satisfy [timeRangeFilter] and [dataOriginFilter]. */
-@VisibleForTesting
 suspend fun <T : Record> HealthConnectClient.readRecordsFlow(
     recordType: KClass<T>,
     timeRangeFilter: TimeRangeFilter,
@@ -159,7 +113,7 @@ suspend fun <T : Record> HealthConnectClient.readRecordsFlow(
     }
 }
 
-private fun IntervalRecord.overlaps(timeRangeFilter: TimeRangeFilter): Boolean {
+internal fun IntervalRecord.overlaps(timeRangeFilter: TimeRangeFilter): Boolean {
     val startTimeOverlaps: Boolean
     val endTimeOverlaps: Boolean
     if (timeRangeFilter.useLocalTime()) {
@@ -180,7 +134,7 @@ private fun IntervalRecord.overlaps(timeRangeFilter: TimeRangeFilter): Boolean {
     return startTimeOverlaps && endTimeOverlaps
 }
 
-private fun TimeRangeFilter.withBufferedStart(): TimeRangeFilter {
+internal fun TimeRangeFilter.withBufferedStart(): TimeRangeFilter {
     return TimeRangeFilter(
         startTime = startTime?.minus(RECORD_START_TIME_BUFFER),
         endTime = endTime,
@@ -189,7 +143,7 @@ private fun TimeRangeFilter.withBufferedStart(): TimeRangeFilter {
     )
 }
 
-private fun sliceFactor(record: NutritionRecord, timeRangeFilter: TimeRangeFilter): Double {
+internal fun sliceFactor(record: NutritionRecord, timeRangeFilter: TimeRangeFilter): Double {
     val startTime: Instant
     val endTime: Instant
 
@@ -208,10 +162,10 @@ private fun sliceFactor(record: NutritionRecord, timeRangeFilter: TimeRangeFilte
     return max(0.0, (endTime - startTime) / record.duration)
 }
 
-private fun emptyAggregationResult() =
+internal fun emptyAggregationResult() =
     AggregationResult(longValues = mapOf(), doubleValues = mapOf(), dataOrigins = setOf())
 
-private data class AggregatedData<T>(
+internal data class AggregatedData<T>(
     var value: T,
     var dataOrigins: MutableSet<DataOrigin> = mutableSetOf()
 )
