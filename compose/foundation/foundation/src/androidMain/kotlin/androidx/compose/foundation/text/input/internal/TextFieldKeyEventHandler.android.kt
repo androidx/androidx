@@ -73,6 +73,10 @@ internal class AndroidTextFieldKeyEventHandler : TextFieldKeyEventHandler() {
             // Ignore key release events
             event.type != KeyDown -> false
 
+            // Ignore events that originate from a source that only identifies as keyboard.
+            // This logic is taken from `android.widget.TextView#doKeyDown()` method.
+            event.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD -> false
+
             event.isKeyCode(KEYCODE_DPAD_UP) -> focusManager.moveFocus(FocusDirection.Up)
             event.isKeyCode(KEYCODE_DPAD_DOWN) -> focusManager.moveFocus(FocusDirection.Down)
             event.isKeyCode(KEYCODE_DPAD_LEFT) -> focusManager.moveFocus(FocusDirection.Left)
