@@ -22,7 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.Quirk;
@@ -46,7 +45,6 @@ import java.util.List;
  *     Device(s): OnePlus 6, OnePlus 6T, Huawei P20, Samsung J7 Prime (SM-G610M) API 27, Samsung
  *     J7 (SM-J710MN) API 27, Redmi Note 9 Pro
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExcludedSupportedSizesQuirk implements Quirk {
 
     private static final String TAG = "ExcludedSupportedSizesQuirk";

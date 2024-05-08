@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
@@ -36,7 +35,6 @@ import java.util.Locale;
  *     Description: It will cause a crash when taking pictures with flash AUTO mode.
  *     Device(s): SM-A3000 and all Galaxy A3 devices, SM-J510N
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk implements Quirk {
     static final List<String> AFFECTED_MODELS = Arrays.asList(
             // Enables on all Galaxy A3 devices.

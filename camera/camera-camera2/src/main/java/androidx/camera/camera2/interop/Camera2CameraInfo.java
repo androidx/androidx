@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
@@ -36,7 +35,6 @@ import java.util.Map;
  * An interface for retrieving Camera2-related camera information.
  */
 @ExperimentalCamera2Interop
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraInfo {
     private static final String TAG = "Camera2CameraInfo";
 

@@ -24,7 +24,6 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -57,7 +56,6 @@ import java.util.Set;
 /**
  * A class that contains utility methods for stream use case.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class StreamUseCaseUtil {
 
     private static final String TAG = "StreamUseCaseUtil";

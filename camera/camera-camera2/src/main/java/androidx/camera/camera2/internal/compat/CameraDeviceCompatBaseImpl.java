@@ -24,7 +24,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.core.Logger;
@@ -33,7 +32,6 @@ import androidx.core.util.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 
-@RequiresApi(21)
 class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompatImpl {
 
     final CameraDevice mCameraDevice;

@@ -41,7 +41,6 @@ public final class ApiCompat {
     /**
      * Nested class to avoid verification errors for methods introduced in Android 5.0 (API 21).
      */
-    @RequiresApi(21)
     public static class Api21Impl {
 
         private Api21Impl() {

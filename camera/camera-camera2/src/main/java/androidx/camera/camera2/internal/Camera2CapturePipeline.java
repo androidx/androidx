@@ -38,7 +38,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
@@ -78,7 +77,6 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Implementation detail of the submitStillCaptures method.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class Camera2CapturePipeline {
 
     private static final String TAG = "Camera2CapturePipeline";

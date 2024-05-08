@@ -24,7 +24,6 @@ import android.view.Display;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.workaround.DisplaySizeCorrector;
 import androidx.camera.camera2.internal.compat.workaround.MaxPreviewSize;
@@ -33,7 +32,6 @@ import androidx.camera.core.internal.utils.SizeUtil;
 /**
  * A singleton class to retrieve display related information.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DisplayInfoManager {
     private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
     /**

@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal.compat.workaround;
 import android.graphics.PointF;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.AfRegionFlipHorizontallyQuirk;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
@@ -29,7 +28,6 @@ import androidx.camera.core.impl.Quirks;
  * Correct the metering point if necessary. For some devices, Af region coordinates are flipped
  * horizontally by OEM, hence we should flip it to fix the issue.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MeteringRegionCorrection {
     private final Quirks mCameraQuirks;
     public MeteringRegionCorrection(@NonNull Quirks cameraQuirks) {

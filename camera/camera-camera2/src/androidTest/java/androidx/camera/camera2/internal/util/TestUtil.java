@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.internal.util;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
 import androidx.camera.core.CameraControl;
@@ -24,7 +23,6 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TestUtil {
     public static Camera2CameraControlImpl getCamera2CameraControlImpl(
             CameraControl cameraControl) {

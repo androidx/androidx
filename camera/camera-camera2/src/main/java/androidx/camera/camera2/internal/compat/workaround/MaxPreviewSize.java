@@ -20,7 +20,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk;
@@ -31,7 +30,6 @@ import androidx.camera.core.impl.SurfaceConfig;
  *
  * @see androidx.camera.camera2.internal.SupportedSurfaceCombination
  */
-@RequiresApi(21)
 public class MaxPreviewSize {
 
     @Nullable

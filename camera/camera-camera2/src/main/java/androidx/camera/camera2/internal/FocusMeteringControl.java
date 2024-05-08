@@ -84,7 +84,6 @@ import java.util.concurrent.TimeUnit;
  * {@link FocusMeteringControl#addFocusMeteringOptions} to construct the 3A regions and append
  * them to all repeating requests and single requests.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @OptIn(markerClass = ExperimentalCamera2Interop.class)
 class FocusMeteringControl {
     private static final String TAG = "FocusMeteringControl";

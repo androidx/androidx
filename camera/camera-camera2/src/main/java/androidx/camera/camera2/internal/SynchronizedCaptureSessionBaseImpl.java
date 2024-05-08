@@ -64,7 +64,6 @@ import java.util.concurrent.ScheduledExecutorService;
  * SynchronizedCaptureSessionBaseImpl, it would be useful when implementing the workaround of
  * Quirks.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.StateCallback implements
         SynchronizedCaptureSession, SynchronizedCaptureSession.Opener {
 

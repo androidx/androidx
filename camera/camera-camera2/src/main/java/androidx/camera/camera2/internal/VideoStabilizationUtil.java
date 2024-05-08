@@ -21,13 +21,11 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 
 /**
  * A class that contains utility methods for video stabilization.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoStabilizationUtil {
 
     private VideoStabilizationUtil() {

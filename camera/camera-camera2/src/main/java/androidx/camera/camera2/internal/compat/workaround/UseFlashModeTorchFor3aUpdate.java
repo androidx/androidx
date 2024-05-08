@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.TorchFlashRequiredFor3aUpdateQuirk;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Quirks;
@@ -28,7 +27,6 @@ import androidx.camera.core.impl.Quirks;
  *
  * @see TorchFlashRequiredFor3aUpdateQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class UseFlashModeTorchFor3aUpdate {
     private static final String TAG = "UseFlashModeTorchFor3aUpdate";
 

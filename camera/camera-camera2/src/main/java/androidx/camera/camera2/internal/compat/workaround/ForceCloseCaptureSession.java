@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.SynchronizedCaptureSession;
 import androidx.camera.camera2.internal.compat.quirk.CaptureSessionOnClosedNotCalledQuirk;
 import androidx.camera.core.impl.Quirks;
@@ -35,7 +34,6 @@ import java.util.Set;
  *
  * @see CaptureSessionOnClosedNotCalledQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ForceCloseCaptureSession {
 
     @Nullable

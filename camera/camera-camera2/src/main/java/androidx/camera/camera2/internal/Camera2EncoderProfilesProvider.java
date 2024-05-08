@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 /** An implementation that provides the {@link EncoderProfilesProxy}. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
 
     private static final String TAG = "Camera2EncoderProfilesProvider";

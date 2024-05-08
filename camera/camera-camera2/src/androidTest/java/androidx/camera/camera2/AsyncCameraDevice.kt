@@ -19,7 +19,6 @@ package androidx.camera.camera2
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Handler
-import androidx.annotation.RequiresApi
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.atomicfu.atomic
@@ -30,7 +29,6 @@ import kotlinx.atomicfu.atomic
  *
  * <p>The camera must be explicitly opened and closed, and once closed it cannot be reopened.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AsyncCameraDevice(
     private val cameraManager: CameraManager,
     private val camId: String,

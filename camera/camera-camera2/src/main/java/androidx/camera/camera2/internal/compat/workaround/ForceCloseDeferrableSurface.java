@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.workaround;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.ConfigureSurfaceToSecondarySessionFailQuirk;
 import androidx.camera.camera2.internal.compat.quirk.PreviewOrientationIncorrectQuirk;
 import androidx.camera.camera2.internal.compat.quirk.TextureViewIsClosedQuirk;
@@ -39,7 +38,6 @@ import java.util.List;
  * @see PreviewOrientationIncorrectQuirk
  * @see ConfigureSurfaceToSecondarySessionFailQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ForceCloseDeferrableSurface {
     private final boolean mHasTextureViewIsClosedQuirk;
     private final boolean mHasPreviewOrientationIncorrectQuirk;

@@ -28,7 +28,6 @@ import android.content.Context;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
@@ -41,7 +40,6 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
  * Implementation of UseCaseConfigFactory to provide the default camera2 configurations for use
  * cases.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
     final DisplayInfoManager mDisplayInfoManager;
 

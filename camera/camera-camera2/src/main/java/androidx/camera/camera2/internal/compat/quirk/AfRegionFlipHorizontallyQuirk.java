@@ -21,7 +21,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
 
@@ -34,7 +33,6 @@ import androidx.camera.core.impl.Quirk;
  *                  horizontally when using front-facing cameras.
  *     Device(s): All Samsung devices.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AfRegionFlipHorizontallyQuirk implements Quirk {
     static boolean load(@NonNull final CameraCharacteristicsCompat cameraCharacteristicsCompat) {
         return (Build.BRAND.equalsIgnoreCase("SAMSUNG")

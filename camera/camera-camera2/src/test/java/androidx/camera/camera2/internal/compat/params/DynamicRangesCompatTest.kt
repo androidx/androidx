@@ -254,7 +254,6 @@ class DynamicRangesCompatTest {
 
 private const val CAMERA_ID = "0"
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 fun newCameraCharacteristicsCompat(): CameraCharacteristicsCompat {
     return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
         ShadowCameraCharacteristics.newCameraCharacteristics(),

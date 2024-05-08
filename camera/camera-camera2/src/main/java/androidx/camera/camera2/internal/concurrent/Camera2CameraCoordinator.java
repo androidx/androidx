@@ -23,7 +23,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
@@ -47,7 +46,6 @@ import java.util.Set;
 /**
  * Implementation for {@link CameraCoordinator}.
  */
-@RequiresApi(21)
 public class Camera2CameraCoordinator implements CameraCoordinator {
 
     private static final String TAG = "Camera2CameraCoordinator";

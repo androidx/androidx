@@ -21,7 +21,6 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.Quirk;
 
@@ -34,7 +33,6 @@ import androidx.camera.core.impl.Quirk;
  *                  issues.
  *     Device(s): Motorola Moto E5 Play.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtraSupportedOutputSizeQuirk implements Quirk {
 
     static boolean load() {

@@ -22,7 +22,6 @@ import android.util.Range;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
@@ -43,7 +42,6 @@ import androidx.lifecycle.LiveData;
 import java.util.Set;
 
 @ExperimentalCamera2Interop
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2PhysicalCameraInfoImpl implements CameraInfo {
 
     @NonNull private final String mCameraId;

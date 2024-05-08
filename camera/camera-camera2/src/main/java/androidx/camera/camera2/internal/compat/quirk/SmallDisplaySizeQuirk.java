@@ -20,7 +20,6 @@ import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.HashMap;
@@ -36,7 +35,6 @@ import java.util.Map;
  *                  filtered out.
  *     Device(s): Redmi Note8, Redmi Note 7, SM-A207M (see b/287341266 for the devices list)
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SmallDisplaySizeQuirk implements Quirk {
 
     private static final String TAG = "SmallDisplaySizeQuirk";

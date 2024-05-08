@@ -23,7 +23,6 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.Camera2CaptureCallbacks;
 import androidx.camera.camera2.internal.compat.quirk.CaptureNoResponseQuirk;
 import androidx.camera.camera2.internal.compat.quirk.CaptureSessionStuckQuirk;
@@ -60,7 +59,6 @@ import java.util.Objects;
  * @see CaptureSessionStuckQuirk
  * @see IncorrectCaptureStateQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class RequestMonitor {
 
     private static final String TAG = "RequestMonitor";

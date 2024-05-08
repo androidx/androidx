@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 
@@ -39,7 +38,6 @@ import java.util.Locale;
  *                 environment.
  *     Device(s): SM-N9200 and all Samsung Galaxy Note 5 devices, SM-J510FN
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraNoResponseWhenEnablingFlashQuirk implements UseTorchAsFlashQuirk {
 
     @VisibleForTesting

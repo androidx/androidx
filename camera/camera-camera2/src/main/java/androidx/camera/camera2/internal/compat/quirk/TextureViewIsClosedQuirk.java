@@ -20,7 +20,6 @@ import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCaptureSession;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -33,7 +32,6 @@ import androidx.camera.core.impl.Quirk;
  *                  {@link SurfaceTexture} when activity is stopped.
  *     Device(s): Devices in Android API version <= 23
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TextureViewIsClosedQuirk implements Quirk {
 
     static boolean load() {

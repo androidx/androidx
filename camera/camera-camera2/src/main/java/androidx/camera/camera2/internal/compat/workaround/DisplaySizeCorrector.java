@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal.compat.workaround;
 import android.util.Size;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.SmallDisplaySizeQuirk;
 
@@ -27,7 +26,6 @@ import androidx.camera.camera2.internal.compat.quirk.SmallDisplaySizeQuirk;
  * Provides the correct display size for the problematic devices which might return abnormally
  * small display size.
  */
-@RequiresApi(21)
 public class DisplaySizeCorrector {
 
     @Nullable

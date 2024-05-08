@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.camera2.internal.compat.workaround
 
 import android.os.Build
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.internal.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.impl.SurfaceConfig
 import com.google.common.truth.Truth.assertThat

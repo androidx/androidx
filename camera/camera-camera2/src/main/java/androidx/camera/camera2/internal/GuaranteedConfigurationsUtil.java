@@ -39,7 +39,6 @@ import java.util.List;
  *     CameraDevice</a>
  * </pre>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class GuaranteedConfigurationsUtil {
 
     private GuaranteedConfigurationsUtil() {

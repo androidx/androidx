@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.Quirk;
 
@@ -38,7 +37,6 @@ import java.util.List;
  *                  enabling ZSL.
  *     Device(s): Pixel 2, Pixel 2 XL, Pixel 3, Pixel 3 XL
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCapturePixelHDRPlusQuirk implements Quirk {
 
     public static final List<String> BUILD_MODELS = Arrays.asList(

@@ -21,7 +21,6 @@ import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
@@ -48,7 +47,6 @@ import java.util.concurrent.Executor;
  * camera device is ready to do torch operations and be deactivated when the camera device is
  * closing or closed.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class TorchControl {
     private static final String TAG = "TorchControl";
     static final int DEFAULT_TORCH_STATE = TorchState.OFF;

@@ -22,7 +22,6 @@ import android.util.Range;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.quirk.AeFpsRangeLegacyQuirk;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -34,7 +33,6 @@ import androidx.camera.core.impl.Quirks;
  *
  * @see AeFpsRangeLegacyQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AeFpsRange {
 
     @Nullable

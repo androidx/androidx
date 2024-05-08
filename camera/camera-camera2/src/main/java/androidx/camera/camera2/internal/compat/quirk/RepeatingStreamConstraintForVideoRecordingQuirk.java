@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -30,7 +29,6 @@ import androidx.camera.core.impl.Quirk;
  *                  stream in at least 320x240.
  *     Device(s): Huawei Mate 9
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class RepeatingStreamConstraintForVideoRecordingQuirk implements Quirk {
 
     static boolean load() {

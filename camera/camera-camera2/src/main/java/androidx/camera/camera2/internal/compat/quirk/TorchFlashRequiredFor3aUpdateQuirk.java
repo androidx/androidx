@@ -23,7 +23,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
@@ -46,7 +45,6 @@ import java.util.Locale;
  *                  be used instead and thus setting {@code FLASH_MODE_TORCH} won't be required.
  *     Device(s): Pixel 6A, 6 PRO, 7, 7A, 7 PRO, 8, 8 PRO
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class TorchFlashRequiredFor3aUpdateQuirk implements Quirk {
     private static final List<String> AFFECTED_PIXEL_MODELS = Arrays.asList(
             "PIXEL 6A",

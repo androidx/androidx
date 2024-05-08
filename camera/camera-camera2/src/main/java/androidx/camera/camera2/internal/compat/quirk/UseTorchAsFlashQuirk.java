@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.internal.compat.quirk;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -26,6 +25,5 @@ import androidx.camera.core.impl.Quirk;
  * <p>Subclasses of this interface can denote the reason why torch is required instead of AE
  * pre-capture.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface UseTorchAsFlashQuirk extends Quirk {
 }

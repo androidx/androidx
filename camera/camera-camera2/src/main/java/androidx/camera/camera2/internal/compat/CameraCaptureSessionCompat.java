@@ -37,7 +37,6 @@ import java.util.concurrent.Executor;
 /**
  * Helper for accessing features in {@link CameraCaptureSession} in a backwards compatible fashion.
  */
-@RequiresApi(21)
 public final class CameraCaptureSessionCompat {
 
     private final CameraCaptureSessionCompatImpl mImpl;
@@ -304,7 +303,6 @@ public final class CameraCaptureSessionCompat {
         CameraCaptureSession unwrap();
     }
 
-    @RequiresApi(21)
     static final class CaptureCallbackExecutorWrapper extends CameraCaptureSession.CaptureCallback {
 
         final CameraCaptureSession.CaptureCallback mWrappedCallback;
@@ -367,7 +365,6 @@ public final class CameraCaptureSessionCompat {
         }
     }
 
-    @RequiresApi(21)
     static final class StateCallbackExecutorWrapper extends CameraCaptureSession.StateCallback {
 
         final CameraCaptureSession.StateCallback mWrappedCallback;

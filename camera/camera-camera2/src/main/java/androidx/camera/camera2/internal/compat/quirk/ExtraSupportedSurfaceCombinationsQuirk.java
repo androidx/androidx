@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -46,7 +45,6 @@ import java.util.Set;
  *     Device(s): Some Samsung devices
  *     @see ExtraSupportedSurfaceCombinationsContainer
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
     private static final String TAG = "ExtraSupportedSurfaceCombinationsQuirk";
 

@@ -21,7 +21,6 @@ import android.hardware.camera2.CaptureResult;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureMetaData;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeMode;
@@ -38,7 +37,6 @@ import androidx.camera.core.impl.utils.ExifData;
 import java.nio.BufferUnderflowException;
 
 /** The camera2 implementation for the capture result of a single image capture. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2CameraCaptureResult implements CameraCaptureResult {
     private static final String TAG = "C2CameraCaptureResult";
 

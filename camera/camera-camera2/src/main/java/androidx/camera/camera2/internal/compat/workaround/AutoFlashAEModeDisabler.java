@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal.compat.workaround;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEModeQuirk;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFailWithAutoFlashQuirk;
@@ -30,7 +29,6 @@ import androidx.camera.core.impl.Quirks;
  * {@link CrashWhenTakingPhotoWithAutoFlashAEModeQuirk} or
  * {@link ImageCaptureFailWithAutoFlashQuirk}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AutoFlashAEModeDisabler {
 
     private final boolean mIsImageCaptureFailWithAutoFlashQuirkEnabled;

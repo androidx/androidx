@@ -34,7 +34,6 @@ import java.util.List;
 /**
  * Helper for accessing features in OutputConfiguration in a backwards compatible fashion.
  */
-@RequiresApi(21)
 public final class OutputConfigurationCompat {
 
     /**

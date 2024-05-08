@@ -17,7 +17,6 @@
 package androidx.camera.camera2.internal.util
 
 import android.hardware.camera2.CameraDevice
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.RequestProcessor
@@ -25,7 +24,6 @@ import androidx.camera.core.impl.RequestProcessor
 /**
  * An implementation / builder for RequestProcessor.Request
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class RequestProcessorRequest(
     private val targetOutputConfigIds: List<Int>,
     private val parameters: Config,

@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal.compat.workaround;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.ExtraSupportedOutputSizeQuirk;
 import androidx.camera.core.Logger;
@@ -34,7 +33,6 @@ import java.util.List;
  * 1. ExtraSupportedOutputSizeQuirk
  * 2. ExcludedSupportedSizesContainer
  */
-@RequiresApi(21)
 public class OutputSizesCorrector {
     private static final String TAG = "OutputSizesCorrector";
     private final String mCameraId;

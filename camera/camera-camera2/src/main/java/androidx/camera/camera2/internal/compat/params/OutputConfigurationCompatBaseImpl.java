@@ -25,7 +25,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
@@ -38,7 +37,6 @@ import java.util.Objects;
 /**
  * Implementation of the OutputConfiguration compat methods for API 21 and above.
  */
-@RequiresApi(21) // Needed for LegacyCameraDevice reflection
 class OutputConfigurationCompatBaseImpl implements
         OutputConfigurationCompat.OutputConfigurationCompatImpl {
     static final String TAG = "OutputConfigCompat";
@@ -218,7 +216,6 @@ class OutputConfigurationCompatBaseImpl implements
         return mObject.hashCode();
     }
 
-    @RequiresApi(21)
     private static final class OutputConfigurationParamsApi21 {
         /**
          * Maximum number of surfaces supported by one {@link OutputConfigurationCompat}.

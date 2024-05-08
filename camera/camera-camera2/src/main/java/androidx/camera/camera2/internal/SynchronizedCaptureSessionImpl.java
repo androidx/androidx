@@ -26,7 +26,6 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.quirk.CaptureSessionStuckQuirk;
@@ -53,7 +52,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * The SynchronizedCaptureSessionImpl applies workarounds for Quirks.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl {
 
     private static final String TAG = "SyncCaptureSessionImpl";

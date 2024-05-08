@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
 
@@ -37,7 +36,6 @@ import java.util.Locale;
  *                  mode, and the devices also fail to fire the flash on the flash on mode.
  *     Device(s): Samsung Galaxy J7 (sm-j700f, sm-j710f) front camera
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureFailWithAutoFlashQuirk implements Quirk {
     // List of devices with the issue. See b/228800360.
     private static final List<String> BUILD_MODELS_FRONT_CAMERA = Arrays.asList(
