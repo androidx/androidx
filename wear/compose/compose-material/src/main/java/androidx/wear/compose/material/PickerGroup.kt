@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -137,8 +136,8 @@ public fun PickerGroup(
                             if (pickerSelected && autoCenter) Modifier.autoCenteringTarget()
                             else Modifier
                         )
-                        .focusRequester(focusRequester)
-                        .focusable(),
+                        // Do not need focusable as it's already set in ScalingLazyColumn
+                        .focusRequester(focusRequester),
                     readOnlyLabel = pickerData.readOnlyLabel,
                     flingBehavior = flingBehavior,
                     onSelected = pickerData.onSelected,
