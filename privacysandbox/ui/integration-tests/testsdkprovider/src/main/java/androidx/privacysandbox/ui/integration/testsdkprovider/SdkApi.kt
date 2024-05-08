@@ -233,6 +233,9 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         private val text: String
     ) : View(context) {
 
+        private val viewColor = Color
+            .rgb((0..255).random(), (0..255).random(), (0..255).random())
+
         @SuppressLint("BanThreadSleep")
         override fun onDraw(canvas: Canvas) {
             // We are adding sleep to test the synchronization of the app and the sandbox view's
@@ -243,10 +246,8 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
 
             val paint = Paint()
             paint.textSize = 50F
-            canvas.drawColor(
-                Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
-            )
 
+            canvas.drawColor(viewColor)
             canvas.drawText(text, 75F, 75F, paint)
 
             setOnClickListener {

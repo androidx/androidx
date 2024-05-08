@@ -109,6 +109,8 @@ class MainActivity : AppCompatActivity() {
             val itemId = it.itemId
             when (itemId) {
                 R.id.item_main -> switchContentFragment(MainFragment(), it.title)
+                R.id.item_pooling_container -> switchContentFragment(PoolingContainerFragment(),
+                    it.title)
                 R.id.item_sandbox_death -> switchContentFragment(SandboxDeathFragment(), it.title)
                 else -> {
                     Log.e(TAG, "Invalid fragment option")
