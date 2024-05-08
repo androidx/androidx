@@ -371,7 +371,9 @@ internal abstract class NodeCoordinator(
                 invalidateParentLayer()
             }
         } else {
-            releaseExplicitLayer()
+            if (this.explicitLayer != null) {
+                this.explicitLayer = null
+            }
             updateLayerBlock(layerBlock)
         }
         if (this.position != position) {
@@ -393,9 +395,11 @@ internal abstract class NodeCoordinator(
         }
     }
 
-    fun releaseExplicitLayer() {
-        if (explicitLayer != null) {
-            explicitLayer = null
+    fun releaseLayer() {
+        if (layer != null) {
+            if (explicitLayer != null) {
+                explicitLayer = null
+            }
             updateLayerBlock(null)
         }
     }
@@ -1058,7 +1062,6 @@ internal abstract class NodeCoordinator(
      * released or when the [NodeCoordinator] is released (will not be used anymore).
      */
     fun onRelease() {
-        releaseExplicitLayer()
         released = true
         // It is important to call invalidateParentLayer() here, even though updateLayerBlock() may
         // call it. The reason is because we end up calling this from the bottom up, which means
@@ -1067,9 +1070,7 @@ internal abstract class NodeCoordinator(
         // no layers invalidated. By always calling this, we ensure that after all nodes are
         // removed at least one layer is invalidated.
         invalidateParentLayer()
-        if (layer != null) {
-            updateLayerBlock(null)
-        }
+        releaseLayer()
     }
 
     /**

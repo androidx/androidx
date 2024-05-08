@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.Layout
@@ -441,7 +442,7 @@ class ModifierNodeReuseAndDeactivationTest {
         }
 
         rule.setContent {
-            ReusableContentHost(active) {
+            SubcompositionReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
                         modifier = LayerElement(layerBlock),
@@ -618,7 +619,7 @@ class ModifierNodeReuseAndDeactivationTest {
         }
 
         rule.setContent {
-            ReusableContentHost(active) {
+            SubcompositionReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
                         modifier = DrawElement(drawBlock),
@@ -665,7 +666,7 @@ class ModifierNodeReuseAndDeactivationTest {
         }
 
         rule.setContent {
-            ReusableContentHost(active) {
+            SubcompositionReusableContentHost(active) {
                 ReusableContent(0) {
                     Layout(
                         modifier = OldDrawModifier(drawBlock),
@@ -872,7 +873,9 @@ class ModifierNodeReuseAndDeactivationTest {
             ReusableContentHost(active) {
                 Layout(content = {
                     Layout(
-                        modifier = Modifier.size(50.dp).testTag("child"),
+                        modifier = Modifier
+                            .size(50.dp)
+                            .testTag("child"),
                         measurePolicy = MeasurePolicy
                     )
                 }) { measurables, constraints ->

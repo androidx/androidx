@@ -1393,7 +1393,6 @@ internal class LayoutNode(
             // we don't need to reset state as it was done when deactivated
         } else {
             resetModifierState()
-            resetExplicitLayers()
         }
         // resetModifierState detaches all nodes, so we need to re-attach them upon reuse.
         semanticsId = generateSemanticsId()
@@ -1411,12 +1410,12 @@ internal class LayoutNode(
         if (isAttached) {
             invalidateSemantics()
         }
-        resetExplicitLayers()
+        releaseLayers()
     }
 
-    private fun resetExplicitLayers() {
+    private fun releaseLayers() {
         forEachCoordinatorIncludingInner {
-            it.releaseExplicitLayer()
+            it.releaseLayer()
         }
     }
 
