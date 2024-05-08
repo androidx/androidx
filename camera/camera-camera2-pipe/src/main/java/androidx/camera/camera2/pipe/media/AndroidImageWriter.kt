@@ -43,12 +43,24 @@ class AndroidImageWriter private constructor(
 
     override val format: Int = imageWriter.format
 
-    override fun queueInputImage(image: ImageWrapper) {
-        try {
-            imageWriter.queueInputImage(image.unwrapAs(Image::class))
-        } catch (e: Exception) {
+    override fun queueInputImage(image: ImageWrapper): Boolean {
+        return try {
+            val unwrappedImage = image.unwrapAs(Image::class)
+            if (unwrappedImage == null) {
+                Log.warn {
+                    "Failed to unwrap image wrapper $image"
+                }
+                return false
+            }
+            imageWriter.queueInputImage(unwrappedImage)
+            true
+        } catch (e: Throwable) {
+            Log.warn {
+                "Failed to queue image to $this due to error ${e.message}. " +
+                    "Ignoring failure and closing $image"
+            }
             image.close()
-            Log.warn { "Reprocessing failed due to error: ${e.message}. Closing image.}" }
+            false
         }
     }
 

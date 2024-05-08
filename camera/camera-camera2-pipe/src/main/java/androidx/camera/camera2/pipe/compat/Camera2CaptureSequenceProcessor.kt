@@ -156,16 +156,19 @@ internal class Camera2CaptureSequenceProcessor(
 
             if (request.inputRequest != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 checkNotNull(imageWriter) {
-                    request.inputRequest.image.close()
                     "Failed to create ImageWriter for capture session: $session"
                 }
-
+                val image = request.inputRequest.image
                 Log.debug {
-                    "Queuing image ${request.inputRequest.image} for reprocessing " +
-                        "to ImageWriter $imageWriter"
+                    "Queuing image $image for reprocessing to ImageWriter $imageWriter"
                 }
                 // TODO(b/321603591): Queue image closer to when capture request is submitted
-                imageWriter.queueInputImage(request.inputRequest.image)
+                if (!imageWriter.queueInputImage(image)) {
+                    Log.debug {
+                        "Failed to queue image $image for reprocessing to ImageWriter $imageWriter"
+                    }
+                    return null
+                }
 
                 // Apply request parameters to the builder.
                 requestBuilder.writeParameters(request.parameters)

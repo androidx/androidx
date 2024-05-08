@@ -198,7 +198,8 @@ class Request(
          * This is an artificial callback that will be invoked if a specific request was pending or
          * had already been submitted to when an abort was requested. The behavior of the request is
          * undefined if this method is invoked and images or metadata may or may not be produced for
-         * this request. Repeating requests will not receive onAborted.
+         * this request. Repeating requests will not receive onAborted. Failed reprocessing
+         * requests will be aborted and removed from the queue.
          *
          * @param request information about this specific request.
          */
