@@ -30,6 +30,7 @@ import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestExecutor
@@ -129,6 +130,7 @@ abstract class BaseTelecomTest {
         return mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_TELECOM)
     }
 
+    @OptIn(ExperimentalAppActions::class)
     private suspend fun maybeCleanupStuckCalls() {
         JetpackConnectionService.mPendingConnectionRequests.clear()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

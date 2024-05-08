@@ -90,6 +90,7 @@ internal class CallSession(
         }
     }
 
+    @ExperimentalAppActions
     class CallEventCallbackImpl(
         private val callChannels: CallChannels,
         private val coroutineContext: CoroutineContext,

@@ -33,6 +33,7 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.internal.CallCompat
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
 import kotlinx.coroutines.TimeoutCancellationException
@@ -273,6 +274,7 @@ object TestUtils {
         Log.i(LOG_TAG, "defaultDialer=[${getDefaultDialer()}]")
     }
 
+    @OptIn(ExperimentalAppActions::class)
     @Suppress("deprecation")
     suspend fun waitOnInCallServiceToReachXCalls(targetCallCount: Int): Call? {
         var targetCall: Call?
@@ -325,6 +327,7 @@ object TestUtils {
         }
     }
 
+    @OptIn(ExperimentalAppActions::class)
     internal suspend fun waitOnInCallServiceToReachXCallCompats(targetCallCompatCount: Int):
         CallCompat? {
         var targetCallCompat: CallCompat? = null
@@ -394,6 +397,7 @@ object TestUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
     }
 
+    @ExperimentalAppActions
     fun getDefaultParticipant(): Participant {
         val p = Participant()
         p.id = 123
@@ -409,6 +413,7 @@ object TestUtils {
         )
     }
 
+    @ExperimentalAppActions
     fun printParticipants(participants: Set<Participant>, tag: String) {
         Log.i(LOG_TAG, tag + ": printParticipants: set size=${participants.size}")
         for (v in participants) {

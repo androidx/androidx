@@ -44,6 +44,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
+@ExperimentalAppActions
 @RequiresApi(VERSION_CODES.O)
 internal class CallSessionLegacy(
     private val id: ParcelUuid,
@@ -65,7 +66,6 @@ internal class CallSessionLegacy(
     /**
      * Stubbed supported capabilities for legacy connections.
      */
-    @ExperimentalAppActions
     private val supportedCapabilities = mutableListOf(Capability())
 
     companion object {

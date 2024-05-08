@@ -29,6 +29,7 @@ import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.InCallServiceType
 import androidx.core.telecom.test.utils.MockInCallServiceDelegate
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -44,6 +45,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @RequiresApi(Build.VERSION_CODES.O)
+@ExperimentalAppActions
 class E2ECapabilityExchangeTests : BaseTelecomTest() {
     @get:Rule val serviceRule: ServiceTestRule = ServiceTestRule()
 

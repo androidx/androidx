@@ -32,6 +32,7 @@ import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.test.ITestAppControl
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +41,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalAppActions::class)
 @RequiresApi(Build.VERSION_CODES.O)
 class VoipAppWithExtensionsControl : Service() {
     var mCallsManager: CallsManager? = null
