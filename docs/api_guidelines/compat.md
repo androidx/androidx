@@ -324,19 +324,16 @@ removed when the bug is resolved.
 
 #### Java 8+ APIs and core library desugaring {#compat-desugar}
 
-While the DEX compiler (D8) supports
+The DEX compiler (D8) supports
 [API desugaring](https://developer.android.com/studio/write/java8-support-table)
-to enable usage of Java 8+ APIs on a broader range of platform API levels, there
-is currently no way for a library to express the toolchain requirements
-necessary for desugaring to work as intended.
-
-As of 2023-05-11, there is still a
-[pending feature request](https://issuetracker.google.com/203113147) to allow
-Android libraries to express these requirements.
-
-Libraries **must not** rely on `coreLibraryDesugaring` to access Java language
-APIs on earlier platform API levels. For example, `java.time.*` may only be used
-in code paths targeting API level 26 and above.
+to enable usage of Java 8+ APIs on a broader range of platform API levels.
+Libraries using AGP 8.2+ can express the toolchain requirements necessary for
+desugaring to work as intended, but these requirements are only enforced for
+**apps** that are also building with AGP 8.2+.
+[While adoption of AGP 8.2+ remains low](https://issuetracker.google.com/172590889#comment12),
+AndroidX libraries **must not** rely on `coreLibraryDesugaring` to access Java
+language APIs on earlier platform API levels. For example, `java.time.*` may
+only be used in code paths targeting API level 26 and above.
 
 ### Delegating to API-specific implementations {#delegating-to-api-specific-implementations}
 
