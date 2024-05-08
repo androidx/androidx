@@ -22,8 +22,9 @@ CAR_APP = "1.7.0-alpha02"
 COLLECTION = "1.5.0-alpha01"
 COMPOSE = "1.7.0-beta01"
 COMPOSE_COMPILER = "1.5.14"  # Update when preparing for a release
-COMPOSE_MATERIAL3 = "1.3.0-beta01"
-COMPOSE_MATERIAL3_ADAPTIVE = "1.0.0-beta01"
+COMPOSE_MATERIAL3 = "1.3.0-alpha06"
+COMPOSE_MATERIAL3_ADAPTIVE = "1.0.0-alpha12"
+COMPOSE_MATERIAL3_ADAPTIVE_NAVIGATION_SUITE = "1.0.0-alpha07"
 COMPOSE_MATERIAL3_COMMON = "1.0.0-alpha01"
 COMPOSE_RUNTIME_TRACING = "1.0.0-beta01"
 CONSTRAINTLAYOUT = "2.2.0-alpha13"
@@ -203,7 +204,6 @@ COMPOSE_FOUNDATION = { group = "androidx.compose.foundation", atomicGroupVersion
 COMPOSE_MATERIAL = { group = "androidx.compose.material" }
 COMPOSE_MATERIAL3 = { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
 COMPOSE_MATERIAL3_ADAPTIVE = { group = "androidx.compose.material3.adaptive", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_ADAPTIVE" }
-COMPOSE_MATERIAL3_ADAPTIVE_NAVIGATION_SUITE= { group = "androidx.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3", overrideInclude = [ ":compose:material3:material3-adaptive-navigation-suite" ] }
 COMPOSE_RUNTIME = { group = "androidx.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_RUNTIME_TRACING = { group = "androidx.compose.runtime", atomicGroupVersion = "versions.COMPOSE_RUNTIME_TRACING", overrideInclude = [ ":compose:runtime:runtime-tracing" ] }
 COMPOSE_UI = { group = "androidx.compose.ui", atomicGroupVersion = "versions.COMPOSE" }
