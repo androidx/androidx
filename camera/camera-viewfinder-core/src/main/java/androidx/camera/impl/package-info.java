@@ -17,9 +17,7 @@
 /**
  *
  */
-@RequiresApi(21)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 package androidx.camera.impl; // TODO(b/309517170): move util classes into their own module
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;

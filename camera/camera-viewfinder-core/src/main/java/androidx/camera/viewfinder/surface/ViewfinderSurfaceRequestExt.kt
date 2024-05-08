@@ -20,7 +20,6 @@ package androidx.camera.viewfinder.surface
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
-import androidx.annotation.RequiresApi
 import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion.MIRROR_MODE_HORIZONTAL
 import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion.MIRROR_MODE_NONE
 
@@ -33,7 +32,6 @@ import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion.MIR
  * [ImplementationMode.EMBEDDED].
  */
 @SuppressLint("ClassVerificationFailure")
-@RequiresApi(21)
 fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(
     cameraCharacteristics: CameraCharacteristics
 ): ViewfinderSurfaceRequest.Builder {
