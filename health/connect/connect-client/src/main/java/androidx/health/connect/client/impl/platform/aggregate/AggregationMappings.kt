@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
 @file:RequiresApi(api = 34)
 
-package androidx.health.connect.client.impl.platform.records
+package androidx.health.connect.client.impl.platform.aggregate
 
 import android.health.connect.datatypes.ActiveCaloriesBurnedRecord as PlatformActiveCaloriesBurnedRecord
 import android.health.connect.datatypes.AggregationType as PlatformAggregateMetric
@@ -39,11 +39,24 @@ import android.health.connect.datatypes.units.Length as PlatformLength
 import android.health.connect.datatypes.units.Mass as PlatformMass
 import android.health.connect.datatypes.units.Power as PlatformPower
 import android.health.connect.datatypes.units.Volume as PlatformVolume
+import android.os.Build
+import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.impl.platform.records.PlatformBloodPressureRecord
+import androidx.health.connect.client.impl.platform.records.PlatformCyclingPedalingCadenceRecord
+import androidx.health.connect.client.impl.platform.records.PlatformExerciseSessionRecord
+import androidx.health.connect.client.impl.platform.records.PlatformPressure
+import androidx.health.connect.client.impl.platform.records.PlatformRestingHeartRateRecord
+import androidx.health.connect.client.impl.platform.records.PlatformSleepSessionRecord
+import androidx.health.connect.client.impl.platform.records.PlatformSpeedRecord
+import androidx.health.connect.client.impl.platform.records.PlatformStepsCadenceRecord
+import androidx.health.connect.client.impl.platform.records.PlatformVelocity
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
 import androidx.health.connect.client.records.ExerciseSessionRecord
@@ -55,6 +68,8 @@ import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.WeightRecord
@@ -63,14 +78,31 @@ import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Length
 import androidx.health.connect.client.units.Mass
 import androidx.health.connect.client.units.Power
+import androidx.health.connect.client.units.Pressure
+import androidx.health.connect.client.units.Velocity
 import androidx.health.connect.client.units.Volume
 import java.time.Duration
+
+private val DOUBLE_AGGREGATION_METRIC_TYPE_SDK_EXT_10_PAIRS =
+    if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
+        arrayOf(
+            CyclingPedalingCadenceRecord.RPM_AVG to PlatformCyclingPedalingCadenceRecord.RPM_AVG,
+            CyclingPedalingCadenceRecord.RPM_MAX to PlatformCyclingPedalingCadenceRecord.RPM_MAX,
+            CyclingPedalingCadenceRecord.RPM_MIN to PlatformCyclingPedalingCadenceRecord.RPM_MIN,
+            StepsCadenceRecord.RATE_AVG to PlatformStepsCadenceRecord.STEPS_CADENCE_RATE_AVG,
+            StepsCadenceRecord.RATE_MAX to PlatformStepsCadenceRecord.STEPS_CADENCE_RATE_MAX,
+            StepsCadenceRecord.RATE_MIN to PlatformStepsCadenceRecord.STEPS_CADENCE_RATE_MIN
+        )
+    } else {
+        emptyArray()
+    }
 
 internal val DOUBLE_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Double>, PlatformAggregateMetric<Double>> =
     mapOf(
         FloorsClimbedRecord.FLOORS_CLIMBED_TOTAL to
             PlatformFloorsClimbedRecord.FLOORS_CLIMBED_TOTAL,
+        *DOUBLE_AGGREGATION_METRIC_TYPE_SDK_EXT_10_PAIRS
     )
 
 internal val DURATION_AGGREGATION_METRIC_TYPE_MAP:
@@ -163,7 +195,14 @@ internal val GRAMS_AGGREGATION_METRIC_TYPE_MAP:
         NutritionRecord.VITAMIN_D_TOTAL to PlatformNutritionRecord.VITAMIN_D_TOTAL,
         NutritionRecord.VITAMIN_E_TOTAL to PlatformNutritionRecord.VITAMIN_E_TOTAL,
         NutritionRecord.VITAMIN_K_TOTAL to PlatformNutritionRecord.VITAMIN_K_TOTAL,
-        NutritionRecord.ZINC_TOTAL to PlatformNutritionRecord.ZINC_TOTAL
+        NutritionRecord.ZINC_TOTAL to PlatformNutritionRecord.ZINC_TOTAL,
+        *if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
+            arrayOf(
+                NutritionRecord.TRANS_FAT_TOTAL to PlatformNutritionRecord.TRANS_FAT_TOTAL
+            )
+        } else {
+            emptyArray()
+        }
     )
 
 internal val KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP:
@@ -181,6 +220,33 @@ internal val POWER_AGGREGATION_METRIC_TYPE_MAP:
         PowerRecord.POWER_MAX to PlatformPowerRecord.POWER_MAX,
         PowerRecord.POWER_MIN to PlatformPowerRecord.POWER_MIN,
     )
+
+internal val PRESSURE_AGGREGATION_METRIC_TYPE_MAP:
+    Map<AggregateMetric<Pressure>, PlatformAggregateMetric<PlatformPressure>> =
+    if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
+        arrayOf(
+            BloodPressureRecord.DIASTOLIC_AVG to PlatformBloodPressureRecord.DIASTOLIC_AVG,
+            BloodPressureRecord.DIASTOLIC_MAX to PlatformBloodPressureRecord.DIASTOLIC_MAX,
+            BloodPressureRecord.DIASTOLIC_MIN to PlatformBloodPressureRecord.DIASTOLIC_MIN,
+            BloodPressureRecord.SYSTOLIC_AVG to PlatformBloodPressureRecord.SYSTOLIC_AVG,
+            BloodPressureRecord.SYSTOLIC_MAX to PlatformBloodPressureRecord.SYSTOLIC_MAX,
+            BloodPressureRecord.SYSTOLIC_MIN to PlatformBloodPressureRecord.SYSTOLIC_MIN
+        )
+    } else {
+        emptyArray()
+    }.toMap()
+
+internal val VELOCITY_AGGREGATION_METRIC_TYPE_MAP:
+    Map<AggregateMetric<Velocity>, PlatformAggregateMetric<PlatformVelocity>> =
+    if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10) {
+        arrayOf(
+            SpeedRecord.SPEED_AVG to PlatformSpeedRecord.SPEED_AVG,
+            SpeedRecord.SPEED_MAX to PlatformSpeedRecord.SPEED_MAX,
+            SpeedRecord.SPEED_MIN to PlatformSpeedRecord.SPEED_MIN
+        )
+    } else {
+        emptyArray()
+    }.toMap()
 
 internal val VOLUME_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Volume>, PlatformAggregateMetric<PlatformVolume>> =

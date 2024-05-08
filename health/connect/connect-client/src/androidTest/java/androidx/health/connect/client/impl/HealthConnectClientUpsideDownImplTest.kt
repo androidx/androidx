@@ -64,8 +64,7 @@ import org.junit.runner.RunWith
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @MediumTest
 @TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-// Comment the SDK suppress to run on emulators lower than U.
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class HealthConnectClientUpsideDownImplTest {
 
     private companion object {
@@ -88,7 +87,6 @@ class HealthConnectClientUpsideDownImplTest {
             .filter { it.startsWith(PERMISSION_PREFIX) }
             .toTypedArray()
 
-    // Grant every permission as deletion by id checks for every permission
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(*allHealthPermissions)
 
@@ -167,10 +165,10 @@ class HealthConnectClientUpsideDownImplTest {
         )
 
         assertThat(
-                healthConnectClient
-                    .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
-                    .records
-            )
+            healthConnectClient
+                .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
+                .records
+        )
             .containsExactly(initialRecords[0])
     }
 
@@ -208,10 +206,10 @@ class HealthConnectClientUpsideDownImplTest {
         )
 
         assertThat(
-                healthConnectClient
-                    .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
-                    .records
-            )
+            healthConnectClient
+                .readRecords(ReadRecordsRequest(StepsRecord::class, TimeRangeFilter.none()))
+                .records
+        )
             .containsExactly(initialRecords[1])
     }
 
@@ -336,10 +334,10 @@ class HealthConnectClientUpsideDownImplTest {
                     endTime = START_TIME + 30.seconds,
                     endZoneOffset = ZoneOffset.UTC,
                     samples =
-                        listOf(
-                            HeartRateRecord.Sample(START_TIME, 57L),
-                            HeartRateRecord.Sample(START_TIME + 15.seconds, 120L)
-                        )
+                    listOf(
+                        HeartRateRecord.Sample(START_TIME, 57L),
+                        HeartRateRecord.Sample(START_TIME + 15.seconds, 120L)
+                    )
                 ),
                 HeartRateRecord(
                     startTime = START_TIME + 1.minutes,
@@ -347,10 +345,10 @@ class HealthConnectClientUpsideDownImplTest {
                     endTime = START_TIME + 1.minutes + 30.seconds,
                     endZoneOffset = ZoneOffset.UTC,
                     samples =
-                        listOf(
-                            HeartRateRecord.Sample(START_TIME + 1.minutes, 47L),
-                            HeartRateRecord.Sample(START_TIME + 1.minutes + 15.seconds, 48L)
-                        )
+                    listOf(
+                        HeartRateRecord.Sample(START_TIME + 1.minutes, 47L),
+                        HeartRateRecord.Sample(START_TIME + 1.minutes + 15.seconds, 48L)
+                    )
                 ),
                 NutritionRecord(
                     startTime = START_TIME,
