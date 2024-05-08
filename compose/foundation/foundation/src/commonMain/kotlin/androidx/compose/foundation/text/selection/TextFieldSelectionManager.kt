@@ -19,6 +19,9 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.HandleState
+import androidx.compose.foundation.text.HandleState.Cursor
+import androidx.compose.foundation.text.HandleState.None
+import androidx.compose.foundation.text.HandleState.Selection
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.UndoManager
@@ -216,7 +219,6 @@ internal class TextFieldSelectionManager(
                     )
 
                     enterSelectionMode(showFloatingToolbar = false)
-                    setHandleState(HandleState.Cursor)
                     hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onValueChange(newValue)
                 }
@@ -230,7 +232,7 @@ internal class TextFieldSelectionManager(
                     currentPosition = startPoint,
                     isStartOfSelection = true,
                     isStartHandle = false,
-                    adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                    adjustment = SelectionAdjustment.Word,
                     isTouchBasedSelection = true,
                 )
                 // For touch, set the begin offset to the adjusted selection.
@@ -238,6 +240,9 @@ internal class TextFieldSelectionManager(
                 // beginning offset to the start word boundary of the first selected word.
                 dragBeginOffsetInText = adjustedStartSelection.start
             }
+
+            // don't set selection handle state until drag ends
+            setHandleState(None)
 
             dragBeginPosition = startPoint
             currentDragPosition = dragBeginPosition
@@ -269,7 +274,7 @@ internal class TextFieldSelectionManager(
                         // start and end is in the same end padding, keep the collapsed selection
                         SelectionAdjustment.None
                     } else {
-                        SelectionAdjustment.CharacterWithWordAccelerate
+                        SelectionAdjustment.Word
                     }
 
                     updateSelection(
@@ -301,7 +306,7 @@ internal class TextFieldSelectionManager(
                         currentPosition = currentDragPosition!!,
                         isStartOfSelection = false,
                         isStartHandle = false,
-                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                        adjustment = SelectionAdjustment.Word,
                         isTouchBasedSelection = true,
                     )
                 }
@@ -309,14 +314,23 @@ internal class TextFieldSelectionManager(
             updateFloatingToolbar(show = false)
         }
 
-        override fun onStop() {
+        override fun onStop() = onEnd()
+        override fun onCancel() = onEnd()
+        private fun onEnd() {
             draggingHandle = null
             currentDragPosition = null
             updateFloatingToolbar(show = true)
             dragBeginOffsetInText = null
-        }
 
-        override fun onCancel() {}
+            val collapsed = value.selection.collapsed
+            setHandleState(if (collapsed) Cursor else Selection)
+            state?.showSelectionHandleStart =
+                !collapsed && isSelectionHandleInVisibleBound(isStartHandle = true)
+            state?.showSelectionHandleEnd =
+                !collapsed && isSelectionHandleInVisibleBound(isStartHandle = false)
+            state?.showCursorHandle =
+                collapsed && isSelectionHandleInVisibleBound(isStartHandle = true)
+        }
     }
 
     internal val mouseSelectionObserver = object : MouseSelectionObserver {
@@ -324,13 +338,11 @@ internal class TextFieldSelectionManager(
             // can't update selection without a layoutResult, so don't consume
             state?.layoutResult ?: return false
             previousRawDragOffset = -1
-            updateSelection(
+            updateMouseSelection(
                 value = value,
                 currentPosition = downPosition,
                 isStartOfSelection = false,
-                isStartHandle = false,
                 adjustment = SelectionAdjustment.None,
-                isTouchBasedSelection = false,
             )
             return true
         }
@@ -340,13 +352,11 @@ internal class TextFieldSelectionManager(
             // can't update selection without a layoutResult, so don't consume
             state?.layoutResult ?: return false
 
-            updateSelection(
+            updateMouseSelection(
                 value = value,
                 currentPosition = dragPosition,
                 isStartOfSelection = false,
-                isStartHandle = false,
                 adjustment = SelectionAdjustment.None,
-                isTouchBasedSelection = false,
             )
             return true
         }
@@ -363,13 +373,11 @@ internal class TextFieldSelectionManager(
             dragBeginPosition = downPosition
             previousRawDragOffset = -1
             enterSelectionMode()
-            updateSelection(
+            updateMouseSelection(
                 value = value,
                 currentPosition = dragBeginPosition,
                 isStartOfSelection = true,
-                isStartHandle = false,
                 adjustment = adjustment,
-                isTouchBasedSelection = false,
             )
             return true
         }
@@ -379,15 +387,30 @@ internal class TextFieldSelectionManager(
             // can't update selection without a layoutResult, so don't consume
             state?.layoutResult ?: return false
 
-            updateSelection(
+            updateMouseSelection(
                 value = value,
                 currentPosition = dragPosition,
                 isStartOfSelection = false,
+                adjustment = adjustment,
+            )
+            return true
+        }
+
+        fun updateMouseSelection(
+            value: TextFieldValue,
+            currentPosition: Offset,
+            isStartOfSelection: Boolean,
+            adjustment: SelectionAdjustment,
+        ) {
+            val newSelection = updateSelection(
+                value = value,
+                currentPosition = currentPosition,
+                isStartOfSelection = isStartOfSelection,
                 isStartHandle = false,
                 adjustment = adjustment,
                 isTouchBasedSelection = false,
             )
-            return true
+            setHandleState(if (newSelection.collapsed) Cursor else Selection)
         }
 
         override fun onDragDone() {
@@ -536,7 +559,7 @@ internal class TextFieldSelectionManager(
         }
         oldValue = value
         updateFloatingToolbar(showFloatingToolbar)
-        setHandleState(HandleState.Selection)
+        setHandleState(Selection)
     }
 
     /**
@@ -546,7 +569,7 @@ internal class TextFieldSelectionManager(
      */
     internal fun exitSelectionMode() {
         updateFloatingToolbar(show = false)
-        setHandleState(HandleState.None)
+        setHandleState(None)
     }
 
     internal fun deselect(position: Offset? = null) {
@@ -565,13 +588,8 @@ internal class TextFieldSelectionManager(
             onValueChange(newValue)
         }
 
-        // If a new cursor position is given and the text is not empty, enter the
-        // HandleState.Cursor state.
-        val selectionMode = if (position != null && value.text.isNotEmpty()) {
-            HandleState.Cursor
-        } else {
-            HandleState.None
-        }
+        // If a new cursor position is given and the text is not empty, enter the Cursor state.
+        val selectionMode = if (position != null && value.text.isNotEmpty()) Cursor else None
         setHandleState(selectionMode)
         updateFloatingToolbar(show = false)
     }
@@ -617,7 +635,7 @@ internal class TextFieldSelectionManager(
             selection = TextRange(newCursorOffset, newCursorOffset)
         )
         onValueChange(newValue)
-        setHandleState(HandleState.None)
+        setHandleState(None)
     }
 
     /**
@@ -642,7 +660,7 @@ internal class TextFieldSelectionManager(
             selection = TextRange(newCursorOffset, newCursorOffset)
         )
         onValueChange(newValue)
-        setHandleState(HandleState.None)
+        setHandleState(None)
         undoManager?.forceNextSnapshot()
     }
 
@@ -670,7 +688,7 @@ internal class TextFieldSelectionManager(
             selection = TextRange(newCursorOffset, newCursorOffset)
         )
         onValueChange(newValue)
-        setHandleState(HandleState.None)
+        setHandleState(None)
         undoManager?.forceNextSnapshot()
     }
 
@@ -940,16 +958,21 @@ internal class TextFieldSelectionManager(
         )
         onValueChange(newValue)
 
-        val handle = if (newValue.selection.collapsed) HandleState.Cursor else HandleState.Selection
-        setHandleState(handle)
+        if (!isTouchBasedSelection) {
+            updateFloatingToolbar(show = !newSelection.collapsed)
+        }
 
         state?.isInTouchMode = isTouchBasedSelection
 
         // showSelectionHandleStart/End might be set to false when scrolled out of the view.
         // When the selection is updated, they must also be updated so that handles will be shown
         // or hidden correctly.
-        state?.showSelectionHandleStart = isSelectionHandleInVisibleBound(true)
-        state?.showSelectionHandleEnd = isSelectionHandleInVisibleBound(false)
+        state?.showSelectionHandleStart =
+            !newSelection.collapsed && isSelectionHandleInVisibleBound(isStartHandle = true)
+        state?.showSelectionHandleEnd =
+            !newSelection.collapsed && isSelectionHandleInVisibleBound(isStartHandle = false)
+        state?.showCursorHandle =
+            newSelection.collapsed && isSelectionHandleInVisibleBound(isStartHandle = true)
 
         return newSelection
     }
@@ -1060,7 +1083,8 @@ internal fun calculateSelectionMagnifierCenterAndroid(
     // shows up where the pointer is being dragged. The pointer needs to drag further than the half
     // of magnifier's width to hide by the following logic.
     if (magnifierSize != IntSize.Zero &&
-        (dragX - centerX).absoluteValue > magnifierSize.width / 2) {
+        (dragX - centerX).absoluteValue > magnifierSize.width / 2
+    ) {
         return Offset.Unspecified
     }
 

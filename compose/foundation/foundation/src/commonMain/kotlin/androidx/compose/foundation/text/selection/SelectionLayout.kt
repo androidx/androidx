@@ -322,7 +322,12 @@ private class SingleSelectionLayout(
     }
 
     override val size get() = 1
-    override val crossStatus: CrossStatus get() = info.rawCrossStatus
+    override val crossStatus: CrossStatus
+        get() = when {
+            startSlot < endSlot -> CrossStatus.NOT_CROSSED
+            startSlot > endSlot -> CrossStatus.CROSSED
+            else -> info.rawCrossStatus
+        }
     override val startInfo: SelectableInfo get() = info
     override val endInfo: SelectableInfo get() = info
     override val currentInfo: SelectableInfo get() = info
@@ -337,17 +342,23 @@ private class SingleSelectionLayout(
         previousSelection == null ||
             other == null ||
             other !is SingleSelectionLayout ||
+            startSlot != other.startSlot ||
+            endSlot != other.endSlot ||
             isStartHandle != other.isStartHandle ||
             info.shouldRecomputeSelection(other.info)
 
     override fun createSubSelections(selection: Selection): LongObjectMap<Selection> {
-        check(
-            (selection.handlesCrossed && selection.start.offset >= selection.end.offset) ||
-                (!selection.handlesCrossed && selection.start.offset <= selection.end.offset)
-        ) {
-            "unexpectedly miss-crossed selection: $selection"
+        val finalSelection = selection.run {
+            // uncross handles if necessary
+            if ((!handlesCrossed && start.offset > end.offset) ||
+                (handlesCrossed && start.offset <= end.offset)
+            ) {
+                copy(handlesCrossed = !handlesCrossed)
+            } else {
+                this
+            }
         }
-        return longObjectMapOf(info.selectableId, selection)
+        return longObjectMapOf(info.selectableId, finalSelection)
     }
 
     override fun toString(): String =

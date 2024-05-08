@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.ReducedVisualTransformation
-import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -426,7 +425,7 @@ class TextFieldSelectionTest : FocusedWindowTest {
         }
 
         rule.onNodeWithTag(testTag).performTouchInput {
-            longPress(centerRight)
+            longClick(centerRight)
         }
         rule.waitForIdle()
 
