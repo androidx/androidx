@@ -1474,14 +1474,9 @@ internal class AndroidComposeView(
      * Returns `true` if it was recycled or `false` if it will be discarded.
      */
     internal fun recycle(layer: OwnedLayer): Boolean {
-        // L throws during RenderThread when reusing the Views. The stack trace
-        // wasn't easy to decode, so this work-around keeps up to 10 Views active
-        // only for L. On other versions, it uses the WeakHashMap to retain as many
-        // as are convenient.
         val cacheValue = viewLayersContainer == null ||
             ViewLayer.shouldUseDispatchDraw ||
-            SDK_INT >= M ||
-            layerCache.size < MaximumLayerCacheSize
+            SDK_INT >= M // L throws during RenderThread when reusing the Views.
         if (cacheValue) {
             layerCache.push(layer)
         }
@@ -2346,7 +2341,6 @@ internal class AndroidComposeView(
     override fun shouldDelayChildPressedState(): Boolean = false
 
     companion object {
-        private const val MaximumLayerCacheSize = 10
         private var systemPropertiesClass: Class<*>? = null
         private var getBooleanMethod: Method? = null
 

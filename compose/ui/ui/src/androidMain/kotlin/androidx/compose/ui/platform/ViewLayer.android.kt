@@ -340,11 +340,6 @@ internal class ViewLayer(
         drawBlock = null
         invalidateParentLayer = null
 
-        // L throws during RenderThread when reusing the Views. The stack trace
-        // wasn't easy to decode, so this work-around keeps up to 10 Views active
-        // only for L. On other versions, it uses the WeakHashMap to retain as many
-        // as are convenient.
-
         val recycle = ownerView.recycle(this@ViewLayer)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw || !recycle) {
