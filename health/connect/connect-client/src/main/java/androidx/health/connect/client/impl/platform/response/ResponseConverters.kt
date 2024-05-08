@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 @file:RestrictTo(RestrictTo.Scope.LIBRARY)
 @file:RequiresApi(api = 34)
 
-package androidx.health.connect.client.impl.platform.records
+package androidx.health.connect.client.impl.platform.response
 
 import android.health.connect.AggregateRecordsGroupedByDurationResponse
 import android.health.connect.AggregateRecordsGroupedByPeriodResponse
@@ -32,6 +32,25 @@ import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.impl.platform.aggregate.DOUBLE_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.DURATION_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.ENERGY_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.GRAMS_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.LENGTH_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.LONG_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.POWER_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.PRESSURE_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.VELOCITY_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.aggregate.VOLUME_AGGREGATION_METRIC_TYPE_MAP
+import androidx.health.connect.client.impl.platform.records.PlatformDataOrigin
+import androidx.health.connect.client.impl.platform.records.PlatformLength
+import androidx.health.connect.client.impl.platform.records.PlatformMass
+import androidx.health.connect.client.impl.platform.records.PlatformPower
+import androidx.health.connect.client.impl.platform.records.PlatformPressure
+import androidx.health.connect.client.impl.platform.records.PlatformVelocity
+import androidx.health.connect.client.impl.platform.records.toSdkDataOrigin
+import androidx.health.connect.client.impl.platform.request.toAggregationType
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
 import java.time.LocalDateTime
@@ -99,7 +118,7 @@ internal fun getLongMetricValues(
         metricValueMap.forEach { (key, value) ->
             if (
                 key in DURATION_AGGREGATION_METRIC_TYPE_MAP ||
-                    key in LONG_AGGREGATION_METRIC_TYPE_MAP
+                key in LONG_AGGREGATION_METRIC_TYPE_MAP
             ) {
                 this[key.metricKey] = value as Long
             }
@@ -117,22 +136,36 @@ internal fun getDoubleMetricValues(
                 in DOUBLE_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = value as Double
                 }
+
                 in ENERGY_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] =
                         Energy.calories((value as PlatformEnergy).inCalories).inKilocalories
                 }
-                in LENGTH_AGGREGATION_METRIC_TYPE_MAP -> {
-                    this[key.metricKey] = (value as PlatformLength).inMeters
-                }
+
                 in GRAMS_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformMass).inGrams
                 }
+
+                in LENGTH_AGGREGATION_METRIC_TYPE_MAP -> {
+                    this[key.metricKey] = (value as PlatformLength).inMeters
+                }
+
                 in KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = Mass.grams((value as PlatformMass).inGrams).inKilograms
                 }
+
+                in PRESSURE_AGGREGATION_METRIC_TYPE_MAP -> {
+                    this[key.metricKey] = (value as PlatformPressure).inMillimetersOfMercury
+                }
+
                 in POWER_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformPower).inWatts
                 }
+
+                in VELOCITY_AGGREGATION_METRIC_TYPE_MAP -> {
+                    this[key.metricKey] = (value as PlatformVelocity).inMetersPerSecond
+                }
+
                 in VOLUME_AGGREGATION_METRIC_TYPE_MAP -> {
                     this[key.metricKey] = (value as PlatformVolume).inLiters
                 }
