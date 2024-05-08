@@ -45,7 +45,7 @@ interface ImageWriterWrapper : UnsafeWrapper, AutoCloseable {
      * Queue an input Image back to ImageWriter for the downstream consumer to access.
      * @see [ImageWriter.queueInputImage]
      */
-    fun queueInputImage(image: ImageWrapper)
+    fun queueInputImage(image: ImageWrapper): Boolean
 
     /**
      * Dequeue the next available input Image for the application to produce data into.

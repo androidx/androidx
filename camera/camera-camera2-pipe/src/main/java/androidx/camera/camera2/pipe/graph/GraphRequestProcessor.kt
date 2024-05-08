@@ -139,6 +139,21 @@ private constructor(
 
         // Reject incoming requests if this instance has been stopped or closed.
         if (captureSequence == null) {
+            if (requests.any { it.inputRequest != null }) {
+                // A burst is classified as a reprocessing burst if *any* of the items have a non
+                // null inputRequest. If this happens, abort the entire burst and close all
+                // of the images.
+                for (request in requests) {
+                    // Ensure the image, if it exists, is closed.
+                    request.inputRequest?.image?.close()
+                    for (listener in request.listeners) {
+                        listener.onAborted(request)
+                    }
+                }
+                // Tell the calling method that the request was successfully handled. In this
+                // case, it was handled by aborting the requests and closing the images.
+                return true
+            }
             Log.warn { "Rejecting requests $requests: Could not create the capture sequence." }
 
             // We do not need to invoke the sequenceCompleteListener since it has not been added to
