@@ -49,7 +49,6 @@ android {
 androidx {
     name = "Android Wear Tiles Tooling"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
     description = "Wear Tile tooling library. This library provides the API required to declare" +
             " @Preview on previewable methods in the IDE."

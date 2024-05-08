@@ -6,8 +6,8 @@
  * modifying its settings.
  */
 
+import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
@@ -140,7 +140,7 @@ android {
 
 androidx {
     name = "Lifecycle Runtime"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear "2017"
     description "Android Lifecycle Runtime"
 }

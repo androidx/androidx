@@ -40,7 +40,6 @@ dependencies {
 
 androidx {
     name = "Navigation Compose Hilt Extension Samples"
-    publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.HILT_NAVIGATION_COMPOSE
     inceptionYear = "2021"

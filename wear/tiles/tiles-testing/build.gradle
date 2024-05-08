@@ -70,7 +70,6 @@ android {
 androidx {
     name = "Android Wear Tiles Testing Utilities"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
     metalavaK2UastEnabled = true

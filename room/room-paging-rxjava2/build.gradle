@@ -23,7 +23,6 @@
  */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import androidx.build.LibraryType
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -54,7 +53,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "RxJava2 integration in Room Paging"
-    publish = Publish.SNAPSHOT_AND_RELEASE
     metalavaK2UastEnabled = true
 }
 
