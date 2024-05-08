@@ -40,13 +40,6 @@ public class EmbeddedActivityWindowInfo {
     @NonNull
     private final Rect mActivityStackBounds;
 
-    // TODO(b/287582673): remove after extensions drop
-    EmbeddedActivityWindowInfo(@NonNull Activity activity, boolean isEmbedded,
-            @NonNull Rect activityBounds, @NonNull Rect taskBounds,
-            @NonNull Rect activityStackBounds) {
-        this(activity, isEmbedded, taskBounds, activityStackBounds);
-    }
-
     EmbeddedActivityWindowInfo(@NonNull Activity activity, boolean isEmbedded,
             @NonNull Rect taskBounds, @NonNull Rect activityStackBounds) {
         mActivity = Objects.requireNonNull(activity);
