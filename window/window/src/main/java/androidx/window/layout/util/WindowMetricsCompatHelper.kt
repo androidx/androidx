@@ -67,7 +67,7 @@ private open class WindowMetricsCompatHelperBaseImpl : WindowMetricsCompatHelper
         )
     }
 
-    override fun currentWindowMetrics(context: Context): WindowMetrics {
+    override fun currentWindowMetrics(@UiContext context: Context): WindowMetrics {
         val wm = context.getSystemService(WindowManager::class.java)
         val insets = WindowInsetsCompat.toWindowInsetsCompat(wm.currentWindowMetrics.windowInsets)
         val density = context.resources.displayMetrics.density
@@ -89,7 +89,7 @@ private open class WindowMetricsCompatHelperApi34Impl : WindowMetricsCompatHelpe
         )
     }
 
-    override fun currentWindowMetrics(context: Context): WindowMetrics {
+    override fun currentWindowMetrics(@UiContext context: Context): WindowMetrics {
         val wm = context.getSystemService(WindowManager::class.java)
         return WindowMetrics(wm.currentWindowMetrics.bounds,
             WindowInsetsCompat.toWindowInsetsCompat(wm.currentWindowMetrics.windowInsets),

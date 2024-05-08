@@ -33,6 +33,7 @@ import androidx.window.WindowTestUtils.Companion.assumePlatformUOrAbove
 import androidx.window.WindowTestUtils.Companion.isInMultiWindowMode
 import androidx.window.WindowTestUtils.Companion.runActionsAcrossActivityLifecycle
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.layout.util.DisplayHelper.getRealSizeForDisplay
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assume
@@ -315,7 +316,7 @@ class WindowMetricsCalculatorCompatTest {
                 activity.windowManager.defaultDisplay
             }
             val calculator = WindowMetricsCalculatorCompat()
-            val realDisplaySize = calculator.getRealSizeForDisplay(display)
+            val realDisplaySize = getRealSizeForDisplay(display)
             val bounds = calculator.computeCurrentWindowMetrics(activity).bounds
             assertNotEquals("Device can not have zero width", 0, realDisplaySize.x.toLong())
             assertNotEquals("Device can not have zero height", 0, realDisplaySize.y.toLong())
@@ -340,7 +341,7 @@ class WindowMetricsCalculatorCompatTest {
                 activity.windowManager.defaultDisplay
             }
             val calculator = WindowMetricsCalculatorCompat()
-            val realDisplaySize = calculator.getRealSizeForDisplay(display)
+            val realDisplaySize = getRealSizeForDisplay(display)
             val bounds = calculator.computeMaximumWindowMetrics(activity).bounds
             assertEquals(
                 "Window bounds width does not match real display width",

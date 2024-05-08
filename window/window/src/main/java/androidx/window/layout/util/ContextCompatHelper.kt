@@ -69,16 +69,6 @@ internal object ContextCompatHelperApi24 {
 @RequiresApi(Build.VERSION_CODES.R)
 internal object ContextCompatHelperApi30 {
 
-    fun currentWindowBounds(@UiContext context: Context): Rect {
-        val wm = context.getSystemService(WindowManager::class.java)
-        return wm.currentWindowMetrics.bounds
-    }
-
-    fun maximumWindowBounds(@UiContext context: Context): Rect {
-        val wm = context.getSystemService(WindowManager::class.java)
-        return wm.maximumWindowMetrics.bounds
-    }
-
     /**
      * Computes the [WindowInsetsCompat] for platforms above [Build.VERSION_CODES.R], inclusive.
      * @DoNotInline required for implementation-specific class method to prevent it from being
