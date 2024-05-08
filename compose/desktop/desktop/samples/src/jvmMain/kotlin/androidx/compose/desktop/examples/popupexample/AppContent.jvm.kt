@@ -474,7 +474,9 @@ fun TextFieldWithSuggestions() {
             DropdownMenu(
                 expanded = showMenu.value,
                 onDismissRequest = {},
-                focusable = false
+                properties = PopupProperties(
+                    focusable = false
+                )
             ) {
                 words.forEach { name ->
                     DropdownMenuItem(onClick = { text.value += name }) {
