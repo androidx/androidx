@@ -40,7 +40,7 @@ class TooltipActivity : ComponentActivity() {
                 positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                 tooltip = {
                     PlainTooltip(
-                        caretProperties = TooltipDefaults.caretProperties
+                        caretSize = TooltipDefaults.caretSize
                     ) {
                         Text("Tooltip Description")
                     }
