@@ -92,9 +92,9 @@ class PublicKeyCredentialEntry internal constructor(
     private val isCreatedFromSlice: Boolean = false,
     private val isDefaultIconFromSlice: Boolean = false,
 ) : CredentialEntry(
-    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    beginGetPublicKeyCredentialOption,
-    entryGroupId ?: username,
+    type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+    beginGetCredentialOption = beginGetPublicKeyCredentialOption,
+    entryGroupId = entryGroupId ?: username,
     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
     affiliatedDomain = affiliatedDomain,
 ) {
@@ -153,19 +153,19 @@ class PublicKeyCredentialEntry internal constructor(
         lastUsedTime: Instant? = null,
         icon: Icon = Icon.createWithResource(context, R.drawable.ic_passkey),
         isAutoSelectAllowed: Boolean = false,
-        isDefaultIconPreferredAsSingleProvider: Boolean = false,
+        isDefaultIconPreferredAsSingleProvider: Boolean = false
     ) : this(
-        username,
-        displayName,
-        context.getString(
+        username = username,
+        displayName = displayName,
+        typeDisplayName = context.getString(
             R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
         ),
-        pendingIntent,
-        icon,
-        lastUsedTime,
-        isAutoSelectAllowed,
-        beginGetPublicKeyCredentialOption,
-        isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
+        pendingIntent = pendingIntent,
+        icon = icon,
+        lastUsedTime = lastUsedTime,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        beginGetPublicKeyCredentialOption = beginGetPublicKeyCredentialOption,
+        isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
     )
 
     /**
@@ -211,16 +211,16 @@ class PublicKeyCredentialEntry internal constructor(
         icon: Icon = Icon.createWithResource(context, R.drawable.ic_passkey),
         isAutoSelectAllowed: Boolean = false,
     ) : this(
-        username,
-        displayName,
-        context.getString(
+        username = username,
+        displayName = displayName,
+        typeDisplayName = context.getString(
             R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
         ),
-        pendingIntent,
-        icon,
-        lastUsedTime,
-        isAutoSelectAllowed,
-        beginGetPublicKeyCredentialOption,
+        pendingIntent = pendingIntent,
+        icon = icon,
+        lastUsedTime = lastUsedTime,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        beginGetPublicKeyCredentialOption = beginGetPublicKeyCredentialOption,
         isDefaultIconPreferredAsSingleProvider = false
     )
 
@@ -350,6 +350,7 @@ class PublicKeyCredentialEntry internal constructor(
                     .build(),
                 /*subType=*/null
             )
+            // TODO(b/326243730) : Extend this for API >=35
             return sliceBuilder.build()
         }
 
@@ -410,6 +411,7 @@ class PublicKeyCredentialEntry internal constructor(
                 } else if (it.hasHint(SLICE_HINT_AFFILIATED_DOMAIN)) {
                     affiliatedDomain = it.text
                 }
+                // TODO(b/326243730) : Extend this for API >=35
             }
 
             return try {
@@ -608,15 +610,15 @@ class PublicKeyCredentialEntry internal constructor(
                 R.string.androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
             )
             return PublicKeyCredentialEntry(
-                username,
-                displayName,
-                typeDisplayName,
-                pendingIntent,
-                icon!!,
-                lastUsedTime,
-                autoSelectAllowed,
-                beginGetPublicKeyCredentialOption,
-                isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider
+                username = username,
+                displayName = displayName,
+                typeDisplayName = typeDisplayName,
+                pendingIntent = pendingIntent,
+                icon = icon!!,
+                lastUsedTime = lastUsedTime,
+                isAutoSelectAllowed = autoSelectAllowed,
+                beginGetPublicKeyCredentialOption = beginGetPublicKeyCredentialOption,
+                isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
             )
         }
     }

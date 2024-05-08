@@ -94,9 +94,9 @@ class CustomCredentialEntry internal constructor(
     private var isCreatedFromSlice: Boolean = false,
     private var isDefaultIconFromSlice: Boolean = false,
 ) : CredentialEntry(
-    type,
-    beginGetCredentialOption,
-    entryGroupId ?: title,
+    type = type,
+    beginGetCredentialOption = beginGetCredentialOption,
+    entryGroupId = entryGroupId ?: title,
     isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
     affiliatedDomain = affiliatedDomain,
 ) {
@@ -159,15 +159,15 @@ class CustomCredentialEntry internal constructor(
         @Suppress("AutoBoxing")
         isAutoSelectAllowed: Boolean = false,
     ) : this(
-        beginGetCredentialOption.type,
-        title,
-        pendingIntent,
-        isAutoSelectAllowed,
-        subtitle,
-        typeDisplayName,
-        icon,
-        lastUsedTime,
-        beginGetCredentialOption,
+        type = beginGetCredentialOption.type,
+        title = title,
+        pendingIntent = pendingIntent,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        subtitle = subtitle,
+        typeDisplayName = typeDisplayName,
+        icon = icon,
+        lastUsedTime = lastUsedTime,
+        beginGetCredentialOption = beginGetCredentialOption,
         isDefaultIconPreferredAsSingleProvider = false
     )
 
@@ -215,17 +215,17 @@ class CustomCredentialEntry internal constructor(
         entryGroupId: CharSequence = title,
         isDefaultIconPreferredAsSingleProvider: Boolean = false
     ) : this(
-        beginGetCredentialOption.type,
-        title,
-        pendingIntent,
-        isAutoSelectAllowed,
-        subtitle,
-        typeDisplayName,
-        icon,
-        lastUsedTime,
-        beginGetCredentialOption,
+        type = beginGetCredentialOption.type,
+        title = title,
+        pendingIntent = pendingIntent,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        subtitle = subtitle,
+        typeDisplayName = typeDisplayName,
+        icon = icon,
+        lastUsedTime = lastUsedTime,
+        beginGetCredentialOption = beginGetCredentialOption,
         isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
-        entryGroupId.ifEmpty { title },
+        entryGroupId = entryGroupId.ifEmpty { title },
     )
 
     @RequiresApi(34)
@@ -354,6 +354,7 @@ class CustomCredentialEntry internal constructor(
                     .build(),
                 /*subType=*/null
             )
+            // TODO(b/326243730) : Extend this for API >=35
             return sliceBuilder.build()
         }
 
@@ -417,6 +418,7 @@ class CustomCredentialEntry internal constructor(
                     affiliatedDomain = it.text
                 }
             }
+            // TODO(b/326243730) : Extend this for API >=35
 
             return try {
                 CustomCredentialEntry(
@@ -488,6 +490,12 @@ class CustomCredentialEntry internal constructor(
 
         private const val SLICE_HINT_DEFAULT_ICON_RES_ID =
             "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
+
+        private const val SLICE_HINT_ALLOWED_AUTHENTICATORS =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_ALLOWED_AUTHENTICATORS"
+
+        private const val SLICE_HINT_CRYPTO_OP_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CRYPTO_OP_ID"
 
         private const val TRUE_STRING = "true"
 
@@ -646,15 +654,15 @@ class CustomCredentialEntry internal constructor(
                 icon = Icon.createWithResource(context, R.drawable.ic_other_sign_in)
             }
             return CustomCredentialEntry(
-                type,
-                title,
-                pendingIntent,
-                autoSelectAllowed,
-                subtitle,
-                typeDisplayName,
-                icon!!,
-                lastUsedTime,
-                beginGetCredentialOption,
+                type = type,
+                title = title,
+                pendingIntent = pendingIntent,
+                isAutoSelectAllowed = autoSelectAllowed,
+                subtitle = subtitle,
+                typeDisplayName = typeDisplayName,
+                icon = icon!!,
+                lastUsedTime = lastUsedTime,
+                beginGetCredentialOption = beginGetCredentialOption,
                 isDefaultIconPreferredAsSingleProvider = isDefaultIconPreferredAsSingleProvider,
                 entryGroupId = entryGroupId,
             )
