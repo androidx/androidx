@@ -129,7 +129,7 @@ internal object Api24Compat {
     @DoNotInline
     @Throws(CameraAccessException::class)
     @Suppress("deprecation")
-    fun createCaptureSessionByOutputConfigurations(
+    fun createReprocessableCaptureSessionByConfigurations(
         cameraDevice: CameraDevice,
         inputConfig: InputConfiguration,
         outputs: List<OutputConfiguration?>,
