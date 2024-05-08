@@ -19,6 +19,7 @@ package androidx.room.compiler.processing
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.JArrayTypeName
+import androidx.room.compiler.processing.compat.XConverters.toKS
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.createTypeReference
 import androidx.room.compiler.processing.util.Source
@@ -59,7 +60,12 @@ class XArrayTypeTest {
             )
             if (invocation.isKsp) {
                 assertThat(type.asTypeName().kotlin).isEqualTo(
-                    com.squareup.kotlinpoet.ARRAY.parameterizedBy(String::class.asKTypeName())
+                    if (invocation.processingEnv.toKS().kspVersion >= KotlinVersion(2, 0)) {
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(
+                            KWildcardTypeName.producerOf(String::class.asKTypeName()))
+                    } else {
+                        com.squareup.kotlinpoet.ARRAY.parameterizedBy(String::class.asKTypeName())
+                    }
                 )
             }
             check(type.isArray())
