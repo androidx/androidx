@@ -75,6 +75,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ScaleFactor
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -2802,6 +2803,21 @@ class SharedTransitionTest {
                 }
             }
             rule.mainClock.advanceTimeByFrame()
+        }
+    }
+
+    @Test
+    fun testUserModifierInSharedTransitionLayout() {
+        var scope: SharedTransitionScope? = null
+        rule.setContent {
+            SharedTransitionLayout(Modifier.offset { IntOffset(65, 536) }) {
+                scope = this
+                Box(Modifier.fillMaxSize())
+            }
+        }
+        rule.runOnIdle {
+            val pos = (scope as SharedTransitionScopeImpl).root.positionInWindow()
+            assertEquals(Offset(65f, 536f), pos)
         }
     }
 

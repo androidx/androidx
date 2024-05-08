@@ -109,8 +109,10 @@ fun SharedTransitionLayout(
     modifier: Modifier = Modifier,
     content: @Composable SharedTransitionScope.() -> Unit
 ) {
-    SharedTransitionScope {
-        Box(it.then(modifier)) {
+    SharedTransitionScope { sharedTransitionModifier ->
+        // Put shared transition modifier *after* user provided modifier to support user provided
+        // modifiers to influence the overlay's size, position, clipping, etc.
+        Box(modifier.then(sharedTransitionModifier)) {
             content()
         }
     }
@@ -147,7 +149,7 @@ fun SharedTransitionScope(
                             if (!isLookingAhead) {
                                 sharedScope.root = coords
                             } else {
-                                sharedScope.lookaheadRoot = coords
+                                sharedScope.nullableLookaheadRoot = coords
                             }
                         }
                         p.place(0, 0)
@@ -261,8 +263,8 @@ interface SharedTransitionScope : LookaheadScope {
      *
      * [ScaleToBounds] works best for Texts and bespoke layouts that don't respond well to
      * constraints change. [RemeasureToBounds] works best for background, shared images of
-     * different aspect ratio, and other layouts that adjusts themselves visually nicely and
-     * efficiently to size change.
+     * different aspect ratios, and other layouts that adjust themselves visually nicely and
+     * efficiently to size changes.
      */
     sealed interface ResizeMode {
         companion object {
@@ -271,8 +273,8 @@ interface SharedTransitionScope : LookaheadScope {
              * remeasures and relayouts its child whenever bounds change during the bounds
              * transform. More specifically, when the [sharedBounds] size changes,
              * it creates fixed constraints based on the animated size, and uses the fixed
-             * constraints to remeasure child. Therefore, the child layout of [sharedBounds] will
-             * likely change its layout to fit in the animated constraints.
+             * constraints to remeasure the child. Therefore, the child layout of [sharedBounds]
+             * will likely change its layout to fit in the animated constraints.
              *
              * [RemeasureToBounds] mode works well for layouts that respond well to
              * constraints change, such as background and Images. It does not work well for layouts
@@ -493,7 +495,7 @@ interface SharedTransitionScope : LookaheadScope {
      * with lookahead constraints to arrive at the stable layout. Then the stable layout will
      * be scaled to fit or fill (depending on the content scale used) the transforming bounds of
      * [sharedBounds]. If there's a need to relayout content (rather than scaling)
-     * based on the animated bounds size (e.g. dynamically resizing a Row),  it's recommended
+     * based on the animated bounds size (e.g. dynamically resizing a Row), it's recommended
      * to use [RemeasureToBounds] as the [resizeMode].
      *
      * **Important**:
@@ -1052,7 +1054,14 @@ internal class SharedTransitionScopeImpl internal constructor(
         }
 
     internal lateinit var root: LayoutCoordinates
-    internal lateinit var lookaheadRoot: LayoutCoordinates
+    internal val lookaheadRoot: LayoutCoordinates
+        get() = requireNotNull(nullableLookaheadRoot) {
+            "Error: Uninitialized LayoutCoordinates." +
+                " Please make sure when using the SharedTransitionScope composable function," +
+                " the modifier passed to the child content is being used, or use" +
+                " SharedTransitionLayout instead."
+        }
+    internal var nullableLookaheadRoot: LayoutCoordinates? = null
 
     // TODO: Use MutableObjectList and impl sort
     private val renderers = mutableListOf<LayerRenderer>()
