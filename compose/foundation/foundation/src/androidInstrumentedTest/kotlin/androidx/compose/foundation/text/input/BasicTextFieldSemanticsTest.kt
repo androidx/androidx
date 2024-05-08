@@ -784,12 +784,6 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).assertKey(10, SemanticsProperties.MaxTextLength)
     }
 
-    private fun SemanticsNodeInteraction.assertSelection(expected: TextRange) {
-        val selection = fetchSemanticsNode().config
-            .getOrNull(SemanticsProperties.TextSelectionRange)
-        assertThat(selection).isEqualTo(expected)
-    }
-
     private fun SemanticsNodeInteraction.assertKey(expected: Int, key: SemanticsPropertyKey<Int>) {
         assertThat(fetchSemanticsNode().config.getOrNull(key)).isEqualTo(expected)
     }
@@ -802,4 +796,10 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
                 it.config.getOrNull(SemanticsProperties.EditableText)?.text.equals(value)
             }
         )
+}
+
+internal fun SemanticsNodeInteraction.assertSelection(expected: TextRange) {
+    val selection = fetchSemanticsNode().config
+        .getOrNull(SemanticsProperties.TextSelectionRange)
+    assertThat(selection).isEqualTo(expected)
 }
