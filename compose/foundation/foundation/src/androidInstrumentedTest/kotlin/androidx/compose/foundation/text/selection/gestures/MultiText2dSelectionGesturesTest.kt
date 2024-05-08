@@ -111,7 +111,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
         dragTest(
             dragPosition = characterPosition(3, 6),
             selectableId = 3,
-            offset = 6,
+            offset = 5,
             crossed = true
         )
     }
@@ -131,7 +131,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
         dragTest(
             dragPosition = characterPosition(5, 10),
             selectableId = 5,
-            offset = 10,
+            offset = 14,
             crossed = false
         )
     }
@@ -151,7 +151,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
         dragTest(
             dragPosition = characterPosition(7, 5),
             selectableId = 7,
-            offset = 5,
+            offset = 9,
             crossed = false
         )
     }
@@ -269,7 +269,6 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
         }
 
         assertSelection(
-            startSelectableId = 5,
             startOffset = 5,
             endSelectableId = 5,
             endOffset = 9,
@@ -279,8 +278,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
         touchDragTo(dragPosition)
 
         assertSelection(
-            startSelectableId = 5,
-            startOffset = 5,
+            startOffset = if (crossed) 9 else 5,
             endSelectableId = selectableId,
             endOffset = offset,
             handlesCrossed = crossed
@@ -291,8 +289,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
         }
 
         assertSelection(
-            startSelectableId = 5,
-            startOffset = 5,
+            startOffset = if (crossed) 9 else 5,
             endSelectableId = selectableId,
             endOffset = offset,
             handlesCrossed = crossed
@@ -329,7 +326,6 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
     }
 
     private fun assertSelection(
-        startSelectableId: Int,
         startOffset: Int,
         endSelectableId: Int,
         endOffset: Int,
@@ -341,7 +337,7 @@ internal class MultiText2dSelectionGesturesTest : AbstractSelectionGesturesTest(
                     start = Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,
                         offset = startOffset,
-                        selectableId = startSelectableId.toLong()
+                        selectableId = 5L
                     ),
                     end = Selection.AnchorInfo(
                         direction = ResolvedTextDirection.Ltr,

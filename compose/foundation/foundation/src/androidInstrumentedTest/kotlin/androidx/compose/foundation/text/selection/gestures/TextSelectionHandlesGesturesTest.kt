@@ -16,36 +16,32 @@
 
 package androidx.compose.foundation.text.selection.gestures
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
-import androidx.compose.foundation.text.selection.gestures.util.SelectionAsserter
 import androidx.compose.foundation.text.selection.gestures.util.SelectionSubject
+import androidx.compose.foundation.text.selection.gestures.util.TextSelectionAsserter
 import androidx.compose.foundation.text.selection.gestures.util.applyAndAssert
 import androidx.compose.foundation.text.selection.gestures.util.to
-import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
-import kotlin.math.sign
+import kotlin.test.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,25 +52,20 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
 
     override val pointerAreaTag = "selectionContainer"
 
-    private val textContent = "line1\nline2 text1 text2\nline3"
-    private val selection = mutableStateOf<Selection?>(null)
+    private val textContent = mutableStateOf("line1\nline2 text1 text2\nline3")
+    private val currentSelection = mutableStateOf<Selection?>(null)
 
-    private lateinit var asserter: SelectionAsserter<Selection?>
+    private lateinit var asserter: TextSelectionAsserter
 
     @Before
     fun setupAsserter() {
-        performTouchGesture {
-            longClick(characterBox(13).centerLeft)
-        }
-
-        asserter = object : SelectionAsserter<Selection?>(
-            textContent = textContent,
+        asserter = object : TextSelectionAsserter(
+            textContent = textContent.value,
             rule = rule,
             textToolbar = textToolbar,
             hapticFeedback = hapticFeedback,
-            getActual = { selection.value },
+            getActual = { currentSelection.value },
         ) {
-            var selection: TextRange? = null
             override fun subAssert() {
                 Truth.assertAbout(SelectionSubject.withContent(textContent))
                     .that(getActual())
@@ -84,23 +75,18 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
                         endTextDirection = endLayoutDirection,
                     )
             }
-        }.apply {
-            selection = 12 to 17
-            selectionHandlesShown = true
-            textToolbarShown = true
-            hapticsCount++
         }
     }
 
     @Composable
     override fun Content() {
         SelectionContainer(
-            selection = selection.value,
-            onSelectionChange = { selection.value = it },
-            modifier = Modifier.fillMaxSize()
+            selection = currentSelection.value,
+            onSelectionChange = { currentSelection.value = it },
+            modifier = Modifier.fillMaxWidth()
         ) {
             BasicText(
-                text = textContent,
+                text = textContent.value,
                 style = TextStyle(
                     fontFamily = fontFamily,
                     fontSize = fontSize,
@@ -113,13 +99,62 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
         }
     }
 
+    // TODO(b/316940648)
+    //  The TextToolbar at the top of the screen messes up the popup position calculations,
+    //  so suppress SDKs that don't have the floating popup.
+    @SdkSuppress(minSdkVersion = 23)
     @Test
-    fun whenOnlySetup_middleWordIsSelected() {
-        asserter.assert()
+    fun whenTouchHandle_verifyOneCharStaysSelected_withinLine() {
+        performTouchGesture {
+            longClick(characterPosition(14))
+        }
+
+        asserter.applyAndAssert {
+            selection = 12 to 17
+            selectionHandlesShown = true
+            textToolbarShown = true
+            hapticsCount++
+        }
+
+        withHandlePressed(Handle.SelectionEnd) {
+            moveHandleToCharacter(13)
+            asserter.applyAndAssert {
+                selection = 12 to 13
+                magnifierShown = true
+                textToolbarShown = false
+                hapticsCount++
+            }
+
+            moveHandleToCharacter(12)
+            // shouldn't allow collapsed selection, but keeps previous single char selection
+            asserter.assert()
+
+            moveHandleToCharacter(11)
+            asserter.applyAndAssert {
+                selection = 12 to 11
+                hapticsCount++
+            }
+        }
+
+        asserter.applyAndAssert {
+            textToolbarShown = true
+            magnifierShown = false
+        }
     }
 
     @Test
     fun whenTouchHandle_magnifierReplacesToolbar() {
+        performTouchGesture {
+            longClick(characterBox(13).centerLeft)
+        }
+
+        asserter.applyAndAssert {
+            selection = 12 to 17
+            selectionHandlesShown = true
+            textToolbarShown = true
+            hapticsCount++
+        }
+
         withHandlePressed(Handle.SelectionEnd) {
             asserter.applyAndAssert {
                 magnifierShown = true
@@ -145,34 +180,108 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
         }
     }
 
-    private fun withHandlePressed(
-        handle: Handle,
-        block: SemanticsNodeInteraction.() -> Unit
-    ) = rule.onNode(isSelectionHandle(handle)).run {
-        performTouchInput { down(center) }
-        block()
-        performTouchInput { up() }
+    // TODO(b/316940648)
+    //  The TextToolbar at the top of the screen messes up the popup position calculations,
+    //  so suppress SDKs that don't have the floating popup.
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun whenTouchHandle_thenDragLeftOutOfBounds_keepsFirstCharSelected() {
+        var finalX: Float? = null
+        performTouchGesture {
+            finalX = left - 2f
+            longClick(characterPosition(9))
+        }
+        Truth.assertThat(finalX).isNotNull()
+
+        asserter.applyAndAssert {
+            selection = 6 to 11
+            selectionHandlesShown = true
+            textToolbarShown = true
+            hapticsCount++
+        }
+
+        withHandlePressed(Handle.SelectionEnd) {
+            moveHandleToCharacter(8)
+            moveHandleToCharacter(7)
+            moveHandleToCharacter(6)
+            // simulate drag to select only the first character
+            asserter.applyAndAssert {
+                selection = 6 to 7
+                textToolbarShown = false
+                magnifierShown = true
+                hapticsCount++
+            }
+
+            val y = fetchHandleInfo().position.y
+            moveHandleTo(Offset(finalX!!, y))
+            // drag just outside of the left bound, should be no change.
+            // Regression: we want to ensure the selection doesn't travel to a line above the cursor
+            asserter.assert()
+        }
+
+        asserter.applyAndAssert {
+            textToolbarShown = true
+            magnifierShown = false
+        }
     }
 
-    private fun SemanticsNodeInteraction.moveHandleToCharacter(characterOffset: Int) {
-        val selectionHandleInfo = fetchSemanticsNode().config[SelectionHandleInfoKey]
-        val destinationPosition = characterBox(characterOffset).run {
-            if (selectionHandleInfo.handle == Handle.SelectionStart) bottomLeft else bottomRight
-        }
-        val delta = destinationPosition - selectionHandleInfo.position
+    // Regression test for when a word spanning multiple lines
+    // could not shrink selection within a line.
+    // TODO(b/316940648)
+    //  The TextToolbar at the top of the screen messes up the popup position calculations,
+    //  so suppress SDKs that don't have the floating popup.
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    fun whenTouchHandle_withWordSpanningMultipleLines_selectionCanShrinkWithinLine() {
+        val content = "hello".repeat(100)
+        textContent.value = content
+        rule.waitForIdle()
+        asserter.applyAndAssert { textContent = content }
 
-        var slop: Offset? = null
-        performTouchInput {
-            slop = Offset(
-                x = viewConfiguration.touchSlop * delta.x.sign,
-                y = viewConfiguration.touchSlop * delta.y.sign
-            )
+        performTouchGesture {
+            longClick(characterPosition(content.lastIndex))
         }
-        touchDragBy(delta + slop!!)
+
+        asserter.applyAndAssert {
+            selection = 0 to content.length
+            selectionHandlesShown = true
+            textToolbarShown = true
+            hapticsCount++
+        }
+
+        withHandlePressed(Handle.SelectionEnd) {
+            // two drags to ensure we get some movement on the same line
+            moveHandleToCharacter(10)
+            moveHandleToCharacter(5)
+            asserter.applyAndAssert {
+                selection = 0 to 5
+                magnifierShown = true
+                textToolbarShown = false
+                hapticsCount++
+            }
+        }
+
+        asserter.applyAndAssert {
+            magnifierShown = false
+            textToolbarShown = true
+        }
+    }
+
+    private fun HandlePressedScope.moveHandleToCharacter(characterOffset: Int) {
+        val destinationPosition = characterBox(characterOffset).run {
+            when (fetchHandleInfo().handle) {
+                Handle.SelectionStart -> bottomLeft.nudge(HorizontalDirection.END)
+                Handle.SelectionEnd -> bottomLeft.nudge(HorizontalDirection.START)
+                Handle.Cursor -> fail("Unexpected handle ${Handle.Cursor}")
+            }
+        }
+        moveHandleTo(destinationPosition)
     }
 
     private fun characterBox(offset: Int): Rect {
         val textLayoutResult = rule.onNodeWithTag(pointerAreaTag).fetchTextLayoutResult()
         return textLayoutResult.getBoundingBox(offset)
     }
+
+    private fun characterPosition(offset: Int): Offset = characterBox(offset).centerLeft
 }

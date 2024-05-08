@@ -230,7 +230,7 @@ private fun SelectionRegistrar.makeSelectionModifier(
                         previousPosition = lastPosition,
                         newPosition = newPosition,
                         isStartHandle = false,
-                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                        adjustment = SelectionAdjustment.Word,
                         isInTouchMode = true
                     )
                     if (consumed) {

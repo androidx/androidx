@@ -1000,21 +1000,23 @@ class SelectionLayoutTest {
     }
 
     @Test
-    fun createSubSelections_singleLayout_missNonCrossedSelection_throws() {
+    fun createSubSelections_singleLayout_missNonCrossedSelection_returnsCrossedSelection() {
         val layout = getSingleSelectionLayoutForTest()
         val selection = getSelection(startOffset = 1, endOffset = 0, handlesCrossed = false)
-        assertFailsWith(IllegalStateException::class) {
-            layout.createSubSelections(selection)
-        }
+        val actual = layout.createSubSelections(selection).toMap()
+        assertThat(actual).hasSize(1)
+        assertThat(actual.toList().single().second)
+            .isEqualTo(selection.copy(handlesCrossed = true))
     }
 
     @Test
-    fun createSubSelections_singleLayout_missCrossedSelection_throws() {
+    fun createSubSelections_singleLayout_missCrossedSelection_returnsUncrossedSelection() {
         val layout = getSingleSelectionLayoutForTest()
         val selection = getSelection(startOffset = 0, endOffset = 1, handlesCrossed = true)
-        assertFailsWith(IllegalStateException::class) {
-            layout.createSubSelections(selection)
-        }
+        val actual = layout.createSubSelections(selection).toMap()
+        assertThat(actual).hasSize(1)
+        assertThat(actual.toList().single().second)
+            .isEqualTo(selection.copy(handlesCrossed = false))
     }
 
     @Test
@@ -1037,25 +1039,27 @@ class SelectionLayoutTest {
     }
 
     @Test
-    fun createSubSelections_layoutBuilder_missNonCrossedSingleSelection_throws() {
+    fun createSubSelections_layoutBuilder_missNonCrossedSingleSelection_returnsCrossedSelection() {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(selectableId = 1L)
         }
         val selection = getSelection(startOffset = 1, endOffset = 0, handlesCrossed = false)
-        assertFailsWith(IllegalStateException::class) {
-            layout.createSubSelections(selection)
-        }
+        val actual = layout.createSubSelections(selection).toMap()
+        assertThat(actual).hasSize(1)
+        assertThat(actual.toList().single().second)
+            .isEqualTo(selection.copy(handlesCrossed = true))
     }
 
     @Test
-    fun createSubSelections_layoutBuilder_missCrossedSingleSelection_throws() {
+    fun createSubSelections_layoutBuilder_missCrossedSingleSelection_returnsUncrossedSelection() {
         val layout = buildSelectionLayoutForTest {
             appendInfoForTest(selectableId = 1L)
         }
         val selection = getSelection(startOffset = 0, endOffset = 1, handlesCrossed = true)
-        assertFailsWith(IllegalStateException::class) {
-            layout.createSubSelections(selection)
-        }
+        val actual = layout.createSubSelections(selection).toMap()
+        assertThat(actual).hasSize(1)
+        assertThat(actual.toList().single().second)
+            .isEqualTo(selection.copy(handlesCrossed = false))
     }
 
     @Test
