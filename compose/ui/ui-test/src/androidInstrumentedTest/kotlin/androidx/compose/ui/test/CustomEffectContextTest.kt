@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
@@ -161,7 +162,9 @@ class CustomEffectContextTest {
         // TestDispatcher has an internal constructor so we can't make our own subclass.
         // StandardTestDispatcher was the only other subclass of TestDispatcher at the time this
         // test was initially written.
-        runComposeUiTest(effectContext = customDispatcher) {
+        runAndroidComposeUiTest<ComponentActivity>(effectContext = customDispatcher) {
+            // b/328299124: sometimes the timing of window focus can change the order or execution
+            waitForWindowFocus()
             setContent {
                 LaunchedEffect(Unit) {
                     expect(2)
@@ -189,4 +192,10 @@ class CustomEffectContextTest {
 
         companion object Key : CoroutineContext.Key<TestCoroutineContextElement>
     }
+}
+
+@OptIn(ExperimentalTestApi::class)
+private fun AndroidComposeUiTest<ComponentActivity>.waitForWindowFocus() {
+    val activity = activity ?: error("no activity")
+    waitUntil("did not get window focus") { activity.hasWindowFocus() }
 }
