@@ -82,14 +82,17 @@ internal class KspProcessingEnv(
        }
     }
 
+    internal val isKsp2 by lazy {
+        delegate.kspVersion >= KotlinVersion(2, 0)
+    }
+
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
 
     /**
      * Variance resolver to find JVM types of KSType. See [KSTypeVarianceResolver] docs for details.
      */
-    private val ksTypeVarianceResolver by lazy {
-        KSTypeVarianceResolver(resolver)
-    }
+    private val ksTypeVarianceResolver
+        get() = KSTypeVarianceResolver(resolver)
 
     private var _resolver: Resolver? = null
 
@@ -125,14 +128,10 @@ internal class KspProcessingEnv(
 
     override val messager: XMessager = KspMessager(logger)
 
-    private val arrayTypeFactory by lazy {
-        KspArrayType.Factory(this)
-    }
+    private val arrayTypeFactory
+        get() = KspArrayType.Factory(this)
 
     override val filer: XFiler = KspFiler(codeGenerator, messager)
-
-    val commonTypes
-        get() = CommonTypes()
 
     val voidType
         get() = KspVoidType(
@@ -382,10 +381,6 @@ internal class KspProcessingEnv(
             }
         }
         return returnType(type1).isSameType(returnType(type2))
-    }
-
-    inner class CommonTypes() {
-        val anyType: XType = requireType("kotlin.Any")
     }
 
     internal enum class JvmDefaultMode(val option: String) {

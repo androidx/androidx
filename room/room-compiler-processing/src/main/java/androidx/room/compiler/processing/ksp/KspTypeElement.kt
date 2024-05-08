@@ -102,27 +102,28 @@ internal sealed class KspTypeElement(
     }
 
     override val superClass: XType? by lazy {
+        val anyTypeElement = env.requireTypeElement(Any::class)
         if (isInterface()) {
             // interfaces don't have super classes (they do have super types)
             null
-        } else if (this == env.commonTypes.anyType.typeElement) {
+        } else if (this == anyTypeElement) {
             null
         } else {
             declaration.superTypes
                 .singleOrNull {
                     val declaration = it.resolve().declaration.replaceTypeAliases()
                     declaration is KSClassDeclaration && declaration.classKind == ClassKind.CLASS
-                }?.let { env.wrap(it) }
-                ?: env.commonTypes.anyType
+                }?.let { env.wrap(it).makeNonNullable() }
+                ?: anyTypeElement.type
         }
     }
 
     override val superInterfaces by lazy {
-        declaration.superTypes.asSequence()
+        declaration.superTypes
             .filter {
                 val declaration = it.resolve().declaration.replaceTypeAliases()
                 declaration is KSClassDeclaration && declaration.classKind == ClassKind.INTERFACE
-            }.mapTo(mutableListOf()) { env.wrap(it) }
+            }.mapTo(mutableListOf()) { env.wrap(it).makeNonNullable() }
     }
 
     @Deprecated(
