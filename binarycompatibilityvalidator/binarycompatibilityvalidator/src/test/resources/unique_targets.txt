@@ -5,7 +5,7 @@
 // - Show manifest properties: true
 // - Show declarations: true
 
-// Library unique name: <org.jetbrains.kotlinx.multiplatform-library-template:library>
+// Library unique name: <androidx:library>
 final fun my.lib/commonFun() // my.lib/commonFun|commonFun(){}[0]
 // Targets: [iosX64]
 final fun my.lib/myIosFun() // my.lib/myIosFun|myIosFun(){}[0]

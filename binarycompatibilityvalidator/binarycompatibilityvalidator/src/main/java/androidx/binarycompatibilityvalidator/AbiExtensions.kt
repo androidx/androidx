@@ -49,7 +49,7 @@ internal val AbiTypeArgument.type: AbiType?
     get() = (this as? AbiTypeArgument.TypeProjection)?.type
 internal val AbiTypeArgument.variance: AbiVariance?
     get() = (this as? AbiTypeArgument.TypeProjection)?.variance
-private val AbiClassifierReference.className: AbiQualifiedName?
+internal val AbiClassifierReference.className: AbiQualifiedName?
     get() = (this as? AbiClassifierReference.ClassReference)?.className
-private val AbiClassifierReference.tag: String?
+internal val AbiClassifierReference.tag: String?
     get() = (this as? AbiClassifierReference.TypeParameterReference)?.tag
