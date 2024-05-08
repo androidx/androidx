@@ -18,8 +18,6 @@ package androidx.camera.viewfinder.internal.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * A quirk where SurfaceView is stretched.
  *
@@ -29,7 +27,6 @@ import androidx.annotation.RequiresApi;
  *                  as intended.
  *     Device(s): Samsung Fold2 F2Q, Samsung Fold3 Q2Q, Oppo Find N OP4E75L1, Lenovo P12 Pro
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceViewStretchedQuirk implements Quirk {
 
     // Samsung Galaxy Z Fold2 b/129403806

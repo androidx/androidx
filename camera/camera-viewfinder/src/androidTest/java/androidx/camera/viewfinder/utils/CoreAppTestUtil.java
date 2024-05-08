@@ -30,7 +30,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.viewfinder.internal.utils.Logger;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
@@ -42,7 +41,6 @@ import org.junit.AssumptionViolatedException;
 import java.io.IOException;
 
 /** Utility functions of tests on CoreTestApp. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CoreAppTestUtil {
 
     /** ADB shell input key code for dismissing keyguard for device with API level <= 22. */

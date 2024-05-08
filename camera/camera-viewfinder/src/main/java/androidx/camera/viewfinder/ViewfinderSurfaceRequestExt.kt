@@ -21,7 +21,6 @@ package androidx.camera.viewfinder
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata
-import androidx.annotation.RequiresApi
 import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode
 
 /**
@@ -36,7 +35,6 @@ import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode
     "populateFromCharacteristics returning " +
         "androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder"))
 @SuppressLint("ClassVerificationFailure")
-@RequiresApi(21)
 fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(
     cameraCharacteristics: CameraCharacteristics
 ): ViewfinderSurfaceRequest.Builder {

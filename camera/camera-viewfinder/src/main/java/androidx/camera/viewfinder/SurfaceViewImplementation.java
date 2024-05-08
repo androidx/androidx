@@ -39,7 +39,6 @@ import androidx.core.util.Preconditions;
 /**
  * The SurfaceView implementation for {@link CameraViewfinder}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SurfaceViewImplementation extends ViewfinderImplementation {
 
     private static final String TAG = "SurfaceViewImpl";
@@ -134,7 +133,6 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
      * <p> SurfaceView creates Surface on its own before we can do anything. This class makes
      * sure only the Surface with correct size will be returned to viewfinder.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class SurfaceRequestCallback implements SurfaceHolder.Callback {
 
         // Target Surface size. Only complete the SurfaceRequest when the size of the Surface

@@ -43,7 +43,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType;
 import androidx.camera.viewfinder.internal.transform.TransformationInfo;
@@ -88,7 +87,6 @@ import androidx.core.util.Preconditions;
  * <p> The transformed Surface is how the Viewfinder's inner view should behave, to make the
  * crop rect matches the Viewfinder.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ViewfinderTransformation {
 
     private static final String TAG = "ViewfinderTransformation";
