@@ -1645,6 +1645,7 @@ package androidx.compose.foundation.text {
     method public int getImeAction();
     method public int getKeyboardType();
     method public androidx.compose.ui.text.input.PlatformImeOptions? getPlatformImeOptions();
+    method public boolean getShouldShowKeyboardOnFocus();
     method public Boolean? getShowKeyboardOnFocus();
     method public androidx.compose.foundation.text.KeyboardOptions merge(androidx.compose.foundation.text.KeyboardOptions? other);
     property @Deprecated public final boolean autoCorrect;
@@ -1654,6 +1655,7 @@ package androidx.compose.foundation.text {
     property public final int imeAction;
     property public final int keyboardType;
     property public final androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions;
+    property public boolean shouldShowKeyboardOnFocus;
     property public final Boolean? showKeyboardOnFocus;
     field public static final androidx.compose.foundation.text.KeyboardOptions.Companion Companion;
   }
