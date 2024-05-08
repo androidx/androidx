@@ -16,15 +16,13 @@
 
 package androidx.lifecycle
 
-import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
+import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
@@ -32,17 +30,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
-import org.junit.Test
 
-@SmallTest
-@OptIn(ExperimentalCoroutinesApi::class)
 class FlowWithLifecycleTest {
     private val owner = FakeLifecycleOwner()
 
     @Test
-    fun testFiniteFlowCompletes() = runBlocking(Dispatchers.Main) {
+    fun testFiniteFlowCompletes() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         val result = flowOf(1, 2, 3)
             .flowWithLifecycle(owner.lifecycle, Lifecycle.State.CREATED)
@@ -53,7 +47,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testFlowStartsInSubsequentLifecycleState() = runBlocking(Dispatchers.Main) {
+    fun testFlowStartsInSubsequentLifecycleState() = runLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         val result = flowOf(1, 2, 3)
             .flowWithLifecycle(owner.lifecycle, Lifecycle.State.CREATED)
@@ -64,7 +58,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testFlowDoesNotCollectIfLifecycleIsDestroyed() = runBlocking(Dispatchers.Main) {
+    fun testFlowDoesNotCollectIfLifecycleIsDestroyed() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         owner.setState(Lifecycle.State.DESTROYED)
         val result = flowOf(1, 2, 3)
@@ -75,7 +69,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testCollectionRestartsWithFlowThatCompletes() = runBlocking(Dispatchers.Main) {
+    fun testCollectionRestartsWithFlowThatCompletes() = runLifecycleTest {
         assertFlowCollectsAgainOnRestart(
             flowOf(1, 2),
             expectedItemsBeforeRestarting = listOf(1, 2),
@@ -84,7 +78,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testCollectionRestartsWithFlowThatDoesNotComplete() = runBlocking(Dispatchers.Main) {
+    fun testCollectionRestartsWithFlowThatDoesNotComplete() = runLifecycleTest {
         assertFlowCollectsAgainOnRestart(
             flow {
                 emit(1)
@@ -97,7 +91,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testCollectionRestartsWithAHotFlow() = runBlocking(Dispatchers.Main) {
+    fun testCollectionRestartsWithAHotFlow() = runLifecycleTest {
         val sharedFlow = MutableSharedFlow<Int>()
         assertFlowCollectsAgainOnRestart(
             sharedFlow,
@@ -113,7 +107,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testCancellingCoroutineDoesNotGetUpdates() = runBlocking(Dispatchers.Main) {
+    fun testCancellingCoroutineDoesNotGetUpdates() = runLifecycleTest {
         owner.setState(Lifecycle.State.STARTED)
         val sharedFlow = MutableSharedFlow<Int>()
         val resultList = mutableListOf<Int>()
@@ -138,7 +132,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testDestroyedLifecycleDoesNotGetUpdates() = runBlocking(Dispatchers.Main) {
+    fun testDestroyedLifecycleDoesNotGetUpdates() = runLifecycleTest {
         owner.setState(Lifecycle.State.STARTED)
         val sharedFlow = MutableSharedFlow<Int>()
         val resultList = mutableListOf<Int>()
@@ -161,7 +155,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testWithLaunchIn() = runBlocking(Dispatchers.Main) {
+    fun testWithLaunchIn() = runLifecycleTest {
         owner.setState(Lifecycle.State.STARTED)
         val resultList = mutableListOf<Int>()
         flowOf(1, 2, 3)
@@ -174,7 +168,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testOnEachBeforeOperatorOnlyExecutesInTheRightState() = runBlocking(Dispatchers.Main) {
+    fun testOnEachBeforeOperatorOnlyExecutesInTheRightState() = runLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         val sharedFlow = MutableSharedFlow<Int>()
         val resultList = mutableListOf<Int>()
@@ -207,7 +201,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testExtensionFailsWithInitializedState() = runBlocking(Dispatchers.Main) {
+    fun testExtensionFailsWithInitializedState() = runLifecycleTest {
         try {
             flowOf(1, 2, 3)
                 .flowWithLifecycle(owner.lifecycle, Lifecycle.State.INITIALIZED)
@@ -220,7 +214,7 @@ class FlowWithLifecycleTest {
     }
 
     @Test
-    fun testExtensionDoesNotCollectInDestroyedState() = runBlocking(Dispatchers.Main) {
+    fun testExtensionDoesNotCollectInDestroyedState() = runLifecycleTest {
         owner.setState(Lifecycle.State.STARTED)
         val resultList = mutableListOf<Int>()
         launch(Dispatchers.Main.immediate) {

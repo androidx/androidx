@@ -16,31 +16,26 @@
 
 package androidx.lifecycle
 
-import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
+import kotlin.test.Test
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import org.junit.Test
 
-@SmallTest
 class RepeatOnLifecycleTest {
 
     private val expectations = Expectations()
     private val owner = FakeLifecycleOwner()
 
     @Test
-    fun testBlockRunsWhenCreatedStateIsReached() = runBlocking(Dispatchers.Main) {
+    fun testBlockRunsWhenCreatedStateIsReached() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         expectations.expect(1)
 
@@ -56,7 +51,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testBlockRunsWhenStartedStateIsReached() = runBlocking(Dispatchers.Main) {
+    fun testBlockRunsWhenStartedStateIsReached() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         expectations.expect(1)
 
@@ -73,7 +68,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testBlockRunsWhenResumedStateIsReached() = runBlocking(Dispatchers.Main) {
+    fun testBlockRunsWhenResumedStateIsReached() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         expectations.expect(1)
 
@@ -92,7 +87,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testBlocksRepeatsExecution() = runBlocking(Dispatchers.Main) {
+    fun testBlocksRepeatsExecution() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         var restarted = false
         expectations.expect(1)
@@ -120,7 +115,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testBlocksRepeatsExecutionSerially() = runBlocking(Dispatchers.Main) {
+    fun testBlocksRepeatsExecutionSerially() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         var restarted = false
         expectations.expect(1)
@@ -161,7 +156,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testBlockIsCancelledWhenLifecycleIsDestroyed() = runBlocking(Dispatchers.Main) {
+    fun testBlockIsCancelledWhenLifecycleIsDestroyed() = runLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(1)
 
@@ -185,7 +180,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testBlockRunsOnSubsequentLifecycleState() = runBlocking(Dispatchers.Main) {
+    fun testBlockRunsOnSubsequentLifecycleState() = runLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(1)
 
@@ -201,7 +196,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testBlockDoesNotStartIfLifecycleIsDestroyed() = runBlocking(Dispatchers.Main) {
+    fun testBlockDoesNotStartIfLifecycleIsDestroyed() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         owner.setState(Lifecycle.State.DESTROYED)
         expectations.expect(1)
@@ -217,7 +212,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testCancellingTheReturnedJobCancelsTheBlock() = runBlocking(Dispatchers.Main) {
+    fun testCancellingTheReturnedJobCancelsTheBlock() = runLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(1)
 
@@ -242,7 +237,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testCancellingACustomJobCanBeHandled() = runBlocking(Dispatchers.Main) {
+    fun testCancellingACustomJobCanBeHandled() = runLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(1)
 
@@ -272,7 +267,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testCancellingACustomJobDoesNotReRunThatBlock() = runBlocking(Dispatchers.Main) {
+    fun testCancellingACustomJobDoesNotReRunThatBlock() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         var restarted = false
         expectations.expect(1)
@@ -309,7 +304,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testCancellingTheJobDoesNotRestartTheBlockOnNewStates() = runBlocking(Dispatchers.Main) {
+    fun testCancellingTheJobDoesNotRestartTheBlockOnNewStates() = runLifecycleTest {
         owner.setState(Lifecycle.State.RESUMED)
         expectations.expect(1)
 
@@ -341,14 +336,15 @@ class RepeatOnLifecycleTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun testBlockRunsWhenLogicUsesWithContext() = runBlocking(Dispatchers.Main) {
+    fun testBlockRunsWhenLogicUsesWithContext() = runLifecycleTest {
         owner.setState(Lifecycle.State.CREATED)
         expectations.expect(1)
 
-        runTest(UnconfinedTestDispatcher()) {
+        val unconfinedDispatcher = UnconfinedTestDispatcher()
+        withContext(unconfinedDispatcher) {
             owner.lifecycleScope.launch {
                 owner.repeatOnLifecycle(Lifecycle.State.CREATED) {
-                    withContext(this@runTest.coroutineContext) {
+                    withContext(unconfinedDispatcher) {
                         expectations.expect(2)
                     }
                 }
@@ -360,7 +356,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testBlockDoesNotStartWithDestroyedState() = runBlocking(Dispatchers.Main) {
+    fun testBlockDoesNotStartWithDestroyedState() = runLifecycleTest {
         owner.setState(Lifecycle.State.STARTED)
         expectations.expect(1)
 
@@ -376,7 +372,7 @@ class RepeatOnLifecycleTest {
     }
 
     @Test
-    fun testExceptionWithInitializedState() = runBlocking(Dispatchers.Main) {
+    fun testExceptionWithInitializedState() = runLifecycleTest {
         val exceptions: MutableList<Throwable> = mutableListOf()
         val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
             exceptions.add(exception)
@@ -388,7 +384,7 @@ class RepeatOnLifecycleTest {
             }
         }
 
-        assertThat(exceptions[0]).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(exceptions[0]).isInstanceOf<IllegalArgumentException>()
         assertThat(exceptions).hasSize(1)
     }
 }
