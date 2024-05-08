@@ -110,7 +110,7 @@ internal fun Project.publishAndroidxReference(target: AbstractKotlinTarget, newR
                 // required for publication.
                 val configurationName = usage.name + "-published"
                 configurations.matching { it.name == configurationName }.all { conf ->
-                    newRootComponent.addUsageFromConfiguration(conf, usage)
+                    newRootComponent.addUsageFromConfiguration(conf)
                 }
             }
         }
@@ -130,14 +130,14 @@ internal class CustomRootComponent(
 
     private val extraUsages = mutableSetOf<UsageContext>()
 
-    fun addUsageFromConfiguration(configuration: Configuration, defaultUsage: KotlinUsageContext) {
+    fun addUsageFromConfiguration(configuration: Configuration) {
         val newDependency = customizeDependencyPerConfiguration(configuration)
 
         extraUsages.add(
             CustomUsage(
                 name = configuration.name,
                 attributes = configuration.attributes,
-                dependencies = setOf(newDependency) + defaultUsage.dependencies
+                dependencies = setOf(newDependency)
             )
         )
     }
