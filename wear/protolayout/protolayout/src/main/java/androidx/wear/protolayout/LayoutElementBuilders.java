@@ -87,9 +87,9 @@ import java.util.Set;
  */
 public final class LayoutElementBuilders {
 
-    @VisibleForTesting static final String WEIGHT_AXIS_NAME = "wght";
-    @VisibleForTesting static final String WIDTH_AXIS_NAME = "wdth";
-    @VisibleForTesting static final String TABULAR_OPTION_NAME = "tnum";
+    @VisibleForTesting static final String WEIGHT_AXIS_TAG = "wght";
+    @VisibleForTesting static final String WIDTH_AXIS_TAG = "wdth";
+    @VisibleForTesting static final String TABULAR_OPTION_TAG = "tnum";
 
     private LayoutElementBuilders() {}
 
@@ -1039,27 +1039,27 @@ public final class LayoutElementBuilders {
                 mImpl.clearSettings();
 
                 for (FontSetting setting : settings) {
-                    String settingName = "";
+                    String settingTag = "";
 
                     switch (setting.toFontSettingProto().getInnerCase()) {
                         case VARIATION:
-                            settingName = ((FontVariationSetting) setting).getAxisName();
+                            settingTag = ((FontVariationSetting) setting).getAxisTag();
                             break;
                         case FEATURE:
-                            settingName = ((FontFeatureSetting) setting).getTag();
+                            settingTag = ((FontFeatureSetting) setting).getTag();
                             break;
                         case INNER_NOT_SET:
                             break;
                     }
 
-                    if (settingName.isEmpty() || axes.contains(settingName)) {
+                    if (settingTag.isEmpty() || axes.contains(settingTag)) {
                         // We don't want to add duplicates and will only include the first one.
                         continue;
                     }
 
                     addSetting(setting);
 
-                    axes.add(settingName);
+                    axes.add(settingTag);
                 }
 
                 return this;
@@ -1174,7 +1174,7 @@ public final class LayoutElementBuilders {
         @NonNull
         @RequiresSchemaVersion(major = 1, minor = 400)
         static FontSetting weight(float value) {
-            return new FontVariationSetting.Builder(WEIGHT_AXIS_NAME, value).build();
+            return new FontVariationSetting.Builder(WEIGHT_AXIS_TAG, value).build();
         }
 
         /**
@@ -1186,7 +1186,7 @@ public final class LayoutElementBuilders {
         @NonNull
         @RequiresSchemaVersion(major = 1, minor = 400)
         static FontSetting width(float value) {
-            return new FontVariationSetting.Builder(WIDTH_AXIS_NAME, value).build();
+            return new FontVariationSetting.Builder(WIDTH_AXIS_TAG, value).build();
         }
 
         /**
@@ -1201,7 +1201,7 @@ public final class LayoutElementBuilders {
         @NonNull
         @RequiresSchemaVersion(major = 1, minor = 400)
         static FontSetting tabularNum() {
-            return new FontFeatureSetting.Builder(TABULAR_OPTION_NAME).build();
+            return new FontFeatureSetting.Builder(TABULAR_OPTION_TAG).build();
         }
     }
 
@@ -6414,7 +6414,7 @@ public final class LayoutElementBuilders {
         /** Gets the axis tag for this font setting. This represents a 4 ASCII characters tag. */
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public String getAxisName() {
+        public String getAxisTag() {
             return new String(
                     ByteBuffer.allocate(4).putInt(mImpl.getAxisTag()).array(),
                     StandardCharsets.US_ASCII);
@@ -6431,13 +6431,13 @@ public final class LayoutElementBuilders {
             }
 
             FontVariationSetting that = (FontVariationSetting) o;
-            return Objects.equals(getAxisName(), that.getAxisName())
+            return Objects.equals(getAxisTag(), that.getAxisTag())
                     && Objects.equals(getValue(), that.getValue());
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(getAxisName(), getValue());
+            return Objects.hash(getAxisTag(), getValue());
         }
 
         /** Get the fingerprint for this object, or null if unknown. */
@@ -6481,8 +6481,8 @@ public final class LayoutElementBuilders {
         @NonNull
         public String toString() {
             return "FontVariationSetting{"
-                    + "axisName="
-                    + getAxisName()
+                    + "axisTag="
+                    + getAxisTag()
                     + ", value="
                     + getValue()
                     + "}";
@@ -6507,14 +6507,14 @@ public final class LayoutElementBuilders {
             /**
              * Creates an instance of {@link Builder}.
              *
-             * @param axisName the axis tag for this font setting. This represents a 4 ASCII
+             * @param axisTag the axis tag for this font setting. This represents a 4 ASCII
              *                 characters tag.
              * @param value the value for this font setting.
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @SuppressLint("CheckResult") // (b/247804720)
-            public Builder(@NonNull String axisName, float value) {
-                setAxisName(axisName);
+            public Builder(@NonNull String axisTag, float value) {
+                setAxisTag(axisTag);
                 setValue(value);
             }
 
@@ -6523,10 +6523,10 @@ public final class LayoutElementBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 400)
             @NonNull
-            Builder setAxisName(@NonNull String axisName) {
-                int axisNameInt = ByteBuffer.wrap(axisName.getBytes()).getInt();
-                mImpl.setAxisTag(axisNameInt);
-                mFingerprint.recordPropertyUpdate(1, axisNameInt);
+            Builder setAxisTag(@NonNull String axisTag) {
+                int axisTagInt = ByteBuffer.wrap(axisTag.getBytes()).getInt();
+                mImpl.setAxisTag(axisTagInt);
+                mFingerprint.recordPropertyUpdate(1, axisTagInt);
                 return this;
             }
 
