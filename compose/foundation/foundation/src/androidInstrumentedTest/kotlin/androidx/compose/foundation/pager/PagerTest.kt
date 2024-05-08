@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -520,6 +521,34 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
             }
         }
         assertThat(measurements).isEqualTo(pagerState.numMeasurePasses)
+    }
+
+    @Test
+    fun contentPadding_largerThanConstraints_measuresAsZero() {
+        createPager(
+            modifier = Modifier.requiredSize(100.dp),
+            contentPadding = PaddingValues(200.dp)
+        )
+
+        assertThat(pagerState.pageSize).isEqualTo(0)
+    }
+
+    @Test
+    fun pageSize_smallerThanAvailableSpace_measuresAsZero() {
+        createPager(
+            modifier = Modifier.requiredSize(300.dp),
+            contentPadding = PaddingValues(200.dp),
+            pageSize = {
+                object : PageSize {
+                    override fun Density.calculateMainAxisPageSize(
+                        availableSpace: Int,
+                        pageSpacing: Int
+                    ) = availableSpace - 1
+                }
+            }
+        )
+
+        assertThat(pagerState.pageSize).isEqualTo(0)
     }
 
     companion object {
