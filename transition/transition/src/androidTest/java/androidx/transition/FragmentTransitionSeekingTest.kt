@@ -633,4 +633,63 @@ class FragmentTransitionSeekingTest {
             assertThat(fragment1.requireView().parent).isNotNull()
         }
     }
+
+    @Test
+    fun GestureBackWithNonSeekableSharedElementCancelled() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictViewFragment(R.layout.scene1)
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            val fragment2 = TransitionFragment(R.layout.scene6)
+            fragment2.setEnterTransition(Fade())
+            fragment2.setReturnTransition(Fade())
+
+            val greenSquare = fragment1.requireView().findViewById<View>(R.id.greenSquare)
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .addSharedElement(greenSquare, "green")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment2.waitForTransition()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(
+                        0.1F,
+                        0.1F,
+                        0.1F,
+                        BackEvent.EDGE_LEFT
+                    )
+                )
+            }
+            executePendingTransactions()
+
+            withActivity {
+                dispatcher.dispatchOnBackCancelled()
+            }
+            executePendingTransactions()
+
+            assertThat(fragment1.isAdded).isFalse()
+            assertThat(fm1.findFragmentByTag("2"))
+                .isNotNull()
+
+            // Make sure that fragment 1 does not have a view
+            assertThat(fragment1.view).isNull()
+            // Make sure fragment2 is still in the container
+            assertThat(fragment2.requireView().parent).isNotNull()
+        }
+    }
 }
