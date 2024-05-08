@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TouchInjectionScope
@@ -81,12 +82,14 @@ internal fun SemanticsNode.getSelectionHandleInfo(): SelectionHandleInfo {
     return config[SelectionHandleInfoKey]
 }
 
+@OptIn(ExperimentalTestApi::class)
 internal fun ComposeTestRule.withHandlePressed(
     handle: Handle,
     block: HandlePressedScope.() -> Unit
 ) {
-    onNode(isSelectionHandle(handle)).run {
-        assertExists()
+    val matcher = isSelectionHandle(handle)
+    onNode(matcher).run {
+        waitUntilExactlyOneExists(matcher)
         performTouchInput { down(center) }
         HandlePressedScope(this@withHandlePressed, this@run).block()
         performTouchInput { up() }
