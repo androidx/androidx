@@ -24,7 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.CaretProperties
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -110,7 +110,7 @@ fun PlainTooltipWithCaret() {
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = {
             PlainTooltip(
-                caretProperties = TooltipDefaults.caretProperties
+                caretSize = TooltipDefaults.caretSize
             ) {
                 Text("Add to favorites")
             }
@@ -136,7 +136,7 @@ fun PlainTooltipWithCustomCaret() {
         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
         tooltip = {
             PlainTooltip(
-                caretProperties = CaretProperties(12.dp, 24.dp)
+                caretSize = DpSize(24.dp, 12.dp)
             ) {
                 Text("Add to favorites")
             }
@@ -244,7 +244,7 @@ fun RichTooltipWithCaretSample() {
                         onClick = { scope.launch { tooltipState.dismiss() } }
                     ) { Text(richTooltipActionText) }
                 },
-                caretProperties = TooltipDefaults.caretProperties
+                caretSize = TooltipDefaults.caretSize
             ) {
                 Text(richTooltipText)
             }
@@ -278,7 +278,7 @@ fun RichTooltipWithCustomCaretSample() {
                         onClick = { scope.launch { tooltipState.dismiss() } }
                     ) { Text(richTooltipActionText) }
                 },
-                caretProperties = CaretProperties(16.dp, 32.dp)
+                caretSize = DpSize(32.dp, 16.dp)
             ) {
                 Text(richTooltipText)
             }
