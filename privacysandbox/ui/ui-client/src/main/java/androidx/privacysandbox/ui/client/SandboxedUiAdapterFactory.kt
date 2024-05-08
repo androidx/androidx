@@ -252,14 +252,33 @@ object SandboxedUiAdapterFactory {
             val clientExecutor: Executor
         ) : IRemoteSessionClient.Stub() {
 
+            lateinit var surfaceView: SurfaceView
+
             override fun onRemoteSessionOpened(
                 surfacePackage: SurfaceControlViewHost.SurfacePackage,
                 remoteSessionController: IRemoteSessionController,
                 isZOrderOnTop: Boolean
             ) {
-                val surfaceView = SurfaceView(context)
+                surfaceView = SurfaceView(context)
                 surfaceView.setChildSurfacePackage(surfacePackage)
                 surfaceView.setZOrderOnTop(isZOrderOnTop)
+                surfaceView.addOnAttachStateChangeListener(
+                    object : View.OnAttachStateChangeListener {
+
+                    private var hasViewBeenPreviouslyAttached = false
+
+                    override fun onViewAttachedToWindow(v: View) {
+                        if (hasViewBeenPreviouslyAttached) {
+                            tryToCallRemoteObject {
+                                remoteSessionController.notifyFetchUiForSession()
+                            }
+                        } else {
+                            hasViewBeenPreviouslyAttached = true
+                        }
+                    }
+
+                    override fun onViewDetachedFromWindow(v: View) {}
+                })
 
                 clientExecutor.execute {
                     client
@@ -283,6 +302,12 @@ object SandboxedUiAdapterFactory {
                 clientExecutor.execute {
                     client.onResizeRequested(width, height)
                 }
+            }
+
+            override fun onSessionUiFetched(
+                surfacePackage: SurfaceControlViewHost.SurfacePackage
+            ) {
+                surfaceView.setChildSurfacePackage(surfacePackage)
             }
         }
 

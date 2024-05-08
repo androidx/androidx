@@ -168,6 +168,12 @@ private class BinderAdapterDelegate(
             )
         }
 
+        private fun sendSurfacePackage() {
+            if (surfaceControlViewHost.surfacePackage != null) {
+                remoteSessionClient.onSessionUiFetched(surfaceControlViewHost.surfacePackage)
+            }
+        }
+
         @VisibleForTesting
         private inner class RemoteSessionController(
             val surfaceControlViewHost: SurfaceControlViewHost,
@@ -189,6 +195,10 @@ private class BinderAdapterDelegate(
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
                 session.notifyZOrderChanged(isZOrderOnTop)
+            }
+
+            override fun notifyFetchUiForSession() {
+                sendSurfacePackage()
             }
 
             override fun close() {

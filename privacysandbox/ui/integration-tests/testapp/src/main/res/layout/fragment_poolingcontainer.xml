@@ -14,14 +14,20 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/item_main"
-        android:title="@string/main_cuj" />
-    <item
-        android:id="@+id/item_pooling_container"
-        android:title="@string/poolingcontainer_cuj" />
-    <item
-        android:id="@+id/item_sandbox_death"
-        android:title="Sandbox Death CUJ" />
-</menu>
+
+<LinearLayout android:id="@+id/ad_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="#96CC9D" />
+</LinearLayout>

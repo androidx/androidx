@@ -21,5 +21,7 @@
     <string name="local_to_internet_switch">local webview</string>
     <string name="mediation_switch">Mediation</string>
     <string name="app_owned_mediatee_switch">AppOwnedMediatee</string>
+    <string name="main_cuj">Main CUJ</string>
+    <string name="poolingcontainer_cuj">PoolingContainer CUJ</string>
     <string name="unload_sdks_button">Unload SDKs</string>
 </resources>
