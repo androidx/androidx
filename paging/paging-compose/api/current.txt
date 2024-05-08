@@ -2,7 +2,7 @@
 package androidx.paging.compose {
 
   public final class LazyFoundationExtensionsKt {
-    method public static <T> kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object?> itemContentType(androidx.paging.compose.LazyPagingItems<T>, optional kotlin.jvm.functions.Function1<T,?>? contentType);
+    method public static <T> kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object?> itemContentType(androidx.paging.compose.LazyPagingItems<T>, optional kotlin.jvm.functions.Function1<T,? extends java.lang.Object?>? contentType);
     method public static <T> kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object> itemKey(androidx.paging.compose.LazyPagingItems<T>, optional kotlin.jvm.functions.Function1<T,?>? key);
   }
 

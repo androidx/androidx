@@ -23,7 +23,7 @@ package androidx.security.crypto {
     method @Deprecated public static android.content.SharedPreferences create(android.content.Context, String, androidx.security.crypto.MasterKey, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme) throws java.security.GeneralSecurityException, java.io.IOException;
     method @Deprecated public static android.content.SharedPreferences create(String, String, android.content.Context, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme) throws java.security.GeneralSecurityException, java.io.IOException;
     method @Deprecated public android.content.SharedPreferences.Editor edit();
-    method @Deprecated public java.util.Map<java.lang.String!,?> getAll();
+    method @Deprecated public java.util.Map<java.lang.String!,? extends java.lang.Object!> getAll();
     method @Deprecated public boolean getBoolean(String?, boolean);
     method @Deprecated public float getFloat(String?, float);
     method @Deprecated public int getInt(String?, int);

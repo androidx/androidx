@@ -21,7 +21,7 @@ package androidx.datastore.core {
 
   public interface DataStore<T> {
     method public kotlinx.coroutines.flow.Flow<T> getData();
-    method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> transform, kotlin.coroutines.Continuation<? super T>);
+    method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> transform, kotlin.coroutines.Continuation<? super T>);
     property public abstract kotlinx.coroutines.flow.Flow<T> data;
   }
 
@@ -43,8 +43,8 @@ package androidx.datastore.core {
     method public kotlinx.coroutines.flow.Flow<kotlin.Unit> getUpdateNotifications();
     method public suspend Object? getVersion(kotlin.coroutines.Continuation<? super java.lang.Integer>);
     method public suspend Object? incrementAndGetVersion(kotlin.coroutines.Continuation<? super java.lang.Integer>);
-    method public suspend <T> Object? lock(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
-    method public suspend <T> Object? tryLock(kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method public suspend <T> Object? lock(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method public suspend <T> Object? tryLock(kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
     property public abstract kotlinx.coroutines.flow.Flow<kotlin.Unit> updateNotifications;
   }
 
@@ -85,8 +85,8 @@ package androidx.datastore.core {
 
   public interface StorageConnection<T> extends androidx.datastore.core.Closeable {
     method public androidx.datastore.core.InterProcessCoordinator getCoordinator();
-    method public suspend <R> Object? readScope(kotlin.jvm.functions.Function3<? super androidx.datastore.core.ReadScope<T>,? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
-    method public suspend Object? writeScope(kotlin.jvm.functions.Function2<? super androidx.datastore.core.WriteScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend <R> Object? readScope(kotlin.jvm.functions.Function3<? super androidx.datastore.core.ReadScope<T>,? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend Object? writeScope(kotlin.jvm.functions.Function2<? super androidx.datastore.core.WriteScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract androidx.datastore.core.InterProcessCoordinator coordinator;
   }
 

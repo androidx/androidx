@@ -299,8 +299,8 @@ package androidx.wear.protolayout.expression {
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static interface DynamicDataBuilders.DynamicDataValue<T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool!> fromBool(boolean);
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?> fromByteArray(byte[]);
-    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?> fromByteArray(byte[], int, int);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends java.lang.Object!> fromByteArray(byte[]);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends java.lang.Object!> fromByteArray(byte[], int, int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor!> fromColor(@ColorInt int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration!> fromDuration(java.time.Duration);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> fromFloat(float);
@@ -339,7 +339,7 @@ package androidx.wear.protolayout.expression {
   }
 
   public final class PlatformDataValues {
-    method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!> getAll();
+    method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<? extends java.lang.Object!>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends java.lang.Object!>!> getAll();
     method public static <T extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType> androidx.wear.protolayout.expression.PlatformDataValues of(androidx.wear.protolayout.expression.PlatformDataKey<T!>, androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<T!>);
   }
 

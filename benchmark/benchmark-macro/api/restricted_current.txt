@@ -284,7 +284,7 @@ package androidx.benchmark.perfetto {
   }
 
   @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public final class Row implements kotlin.jvm.internal.markers.KMappedMarker java.util.Map<java.lang.String,java.lang.Object?> {
-    ctor public Row(java.util.Map<java.lang.String,?> map);
+    ctor public Row(java.util.Map<java.lang.String,? extends java.lang.Object?> map);
     method public byte[] bytes(String columnName);
     method public double double(String columnName);
     method public long long(String columnName);
@@ -296,7 +296,7 @@ package androidx.benchmark.perfetto {
   }
 
   public final class RowKt {
-    method @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public static androidx.benchmark.perfetto.Row rowOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method @SuppressCompatibility @androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi public static androidx.benchmark.perfetto.Row rowOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
   }
 
 }

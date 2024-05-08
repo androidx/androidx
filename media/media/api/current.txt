@@ -49,7 +49,7 @@ package android.support.v4.media {
     ctor public MediaBrowserCompat.MediaItem(android.support.v4.media.MediaDescriptionCompat, int);
     method public int describeContents();
     method public static android.support.v4.media.MediaBrowserCompat.MediaItem! fromMediaItem(Object!);
-    method public static java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>! fromMediaItemList(java.util.List<?>!);
+    method public static java.util.List<android.support.v4.media.MediaBrowserCompat.MediaItem!>! fromMediaItemList(java.util.List<? extends java.lang.Object!>!);
     method public android.support.v4.media.MediaDescriptionCompat getDescription();
     method public int getFlags();
     method public String? getMediaId();
@@ -385,7 +385,7 @@ package android.support.v4.media.session {
     ctor public MediaSessionCompat.QueueItem(android.support.v4.media.MediaDescriptionCompat!, long);
     method public int describeContents();
     method public static android.support.v4.media.session.MediaSessionCompat.QueueItem! fromQueueItem(Object!);
-    method public static java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! fromQueueItemList(java.util.List<?>!);
+    method public static java.util.List<android.support.v4.media.session.MediaSessionCompat.QueueItem!>! fromQueueItemList(java.util.List<? extends java.lang.Object!>!);
     method public android.support.v4.media.MediaDescriptionCompat! getDescription();
     method public long getQueueId();
     method public Object! getQueueItem();
