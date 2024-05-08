@@ -61,6 +61,7 @@ import androidx.compose.material3.samples.ElevatedAssistChipSample
 import androidx.compose.material3.samples.ElevatedButtonSample
 import androidx.compose.material3.samples.ElevatedCardSample
 import androidx.compose.material3.samples.ElevatedFilterChipSample
+import androidx.compose.material3.samples.ElevatedSplitButtonSample
 import androidx.compose.material3.samples.ElevatedSuggestionChipSample
 import androidx.compose.material3.samples.EnterAlwaysTopAppBar
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBar
@@ -75,6 +76,7 @@ import androidx.compose.material3.samples.FancyIndicatorTabs
 import androidx.compose.material3.samples.FancyTabs
 import androidx.compose.material3.samples.FilledIconButtonSample
 import androidx.compose.material3.samples.FilledIconToggleButtonSample
+import androidx.compose.material3.samples.FilledSplitButtonSample
 import androidx.compose.material3.samples.FilledTonalButtonSample
 import androidx.compose.material3.samples.FilledTonalIconButtonSample
 import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
@@ -111,6 +113,7 @@ import androidx.compose.material3.samples.OutlinedButtonSample
 import androidx.compose.material3.samples.OutlinedCardSample
 import androidx.compose.material3.samples.OutlinedIconButtonSample
 import androidx.compose.material3.samples.OutlinedIconToggleButtonSample
+import androidx.compose.material3.samples.OutlinedSplitButtonSample
 import androidx.compose.material3.samples.OutlinedTextFieldSample
 import androidx.compose.material3.samples.PasswordTextField
 import androidx.compose.material3.samples.PermanentNavigationDrawerSample
@@ -156,6 +159,9 @@ import androidx.compose.material3.samples.SliderSample
 import androidx.compose.material3.samples.SliderWithCustomThumbSample
 import androidx.compose.material3.samples.SliderWithCustomTrackAndThumb
 import androidx.compose.material3.samples.SmallFloatingActionButtonSample
+import androidx.compose.material3.samples.SplitButtonSample
+import androidx.compose.material3.samples.SplitButtonWithIconSample
+import androidx.compose.material3.samples.SplitButtonWithTextSample
 import androidx.compose.material3.samples.StepRangeSliderSample
 import androidx.compose.material3.samples.StepsSliderSample
 import androidx.compose.material3.samples.SuggestionChipSample
@@ -177,6 +183,7 @@ import androidx.compose.material3.samples.TimeInputSample
 import androidx.compose.material3.samples.TimePickerSample
 import androidx.compose.material3.samples.TimePickerSwitchableSample
 import androidx.compose.material3.samples.TintedIconButtonSample
+import androidx.compose.material3.samples.TonalSplitButtonSample
 import androidx.compose.material3.samples.TriStateCheckboxSample
 import androidx.compose.material3.samples.TwoLineListItem
 import androidx.compose.material3.samples.VerticalFloatingAppBar
@@ -1200,6 +1207,61 @@ val SnackbarsExamples =
         ) {
             ScaffoldWithMultilineSnackbar()
         }
+    )
+
+private const val SplitButtonExampleDescription = "Split Button examples"
+private const val SplitButtonSourceUrl = "$SampleSourceUrl/SplitButtonSamples.kt"
+val SplitButtonExamples =
+    listOf(
+        Example(
+            name = ::SplitButtonSample.name,
+            description = SplitButtonExampleDescription,
+            sourceUrl = SplitButtonSourceUrl
+        ) {
+            SplitButtonSample()
+        },
+        Example(
+            name = ::FilledSplitButtonSample.name,
+            description = SplitButtonExampleDescription,
+            sourceUrl = SplitButtonSourceUrl
+        ) {
+            FilledSplitButtonSample()
+        },
+        Example(
+            name = ::TonalSplitButtonSample.name,
+            description = SplitButtonExampleDescription,
+            sourceUrl = SplitButtonSourceUrl
+        ) {
+            TonalSplitButtonSample()
+        },
+        Example(
+            name = ::ElevatedSplitButtonSample.name,
+            description = SplitButtonExampleDescription,
+            sourceUrl = SplitButtonSourceUrl
+        ) {
+            ElevatedSplitButtonSample()
+        },
+        Example(
+            name = ::OutlinedSplitButtonSample.name,
+            description = SplitButtonExampleDescription,
+            sourceUrl = SplitButtonSourceUrl
+        ) {
+            OutlinedSplitButtonSample()
+        },
+        Example(
+            name = ::SplitButtonWithTextSample.name,
+            description = SplitButtonExampleDescription,
+            sourceUrl = SplitButtonSourceUrl
+        ) {
+            SplitButtonWithTextSample()
+        },
+        Example(
+            name = ::SplitButtonWithIconSample.name,
+            description = SplitButtonExampleDescription,
+            sourceUrl = SplitButtonSourceUrl
+        ) {
+            SplitButtonWithIconSample()
+        },
     )
 
 private const val SwitchExampleDescription = "Switch examples"
