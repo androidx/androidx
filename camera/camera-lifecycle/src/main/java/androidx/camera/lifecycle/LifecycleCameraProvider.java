@@ -17,7 +17,6 @@
 package androidx.camera.lifecycle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.UseCase;
 import androidx.lifecycle.Lifecycle;
@@ -27,7 +26,6 @@ import androidx.lifecycle.LifecycleOwner;
  * Provides access to a camera which has has its opening and closing controlled by a
  * {@link LifecycleOwner}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface LifecycleCameraProvider extends CameraProvider {
 
     /**

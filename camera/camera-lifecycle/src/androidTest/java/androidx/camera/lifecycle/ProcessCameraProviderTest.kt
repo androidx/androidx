@@ -1108,7 +1108,6 @@ private class TestAppContextWrapper(base: Context, val app: Application? = null)
     }
 }
 
-@RequiresApi(21)
 private class TestApplication(val pm: PackageManager) : Application(), CameraXConfig.Provider {
     private val used = atomic(false)
     val providerUsed: Boolean

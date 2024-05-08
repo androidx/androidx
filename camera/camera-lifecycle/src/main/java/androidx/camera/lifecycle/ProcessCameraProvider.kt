@@ -22,7 +22,6 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import androidx.annotation.GuardedBy
 import androidx.annotation.MainThread
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
@@ -80,7 +79,6 @@ import java.util.Objects.requireNonNull
  *
  * This is the standard provider for applications to use.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
     private val mLock = Any()
 
