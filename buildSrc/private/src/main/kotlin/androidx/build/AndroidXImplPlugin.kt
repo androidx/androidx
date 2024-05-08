@@ -61,6 +61,7 @@ import com.android.build.gradle.TestPlugin
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import com.android.build.gradle.api.PrivacySandboxSdkPlugin
 import com.android.build.gradle.tasks.factory.AndroidUnitTest
+import com.android.utils.appendCapitalized
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
@@ -677,6 +678,35 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             project.addToBuildOnServer("lint")
         }
         project.setUpCheckDocsTask(androidXExtension)
+        project.writeBlankPublicTxtToAar(kotlinMultiplatformAndroidComponentsExtension)
+    }
+
+    private fun Project.writeBlankPublicTxtToAar(
+        componentsExtension: KotlinMultiplatformAndroidComponentsExtension
+    ) {
+        val blankPublicResourceDir = project.getSupportRootFolder().resolve(
+            "buildSrc/blank-res-api"
+        )
+        componentsExtension.onVariant { variant ->
+            val taskProvider = tasks.register(
+                "repackageAarWithResourceApi".appendCapitalized(variant.name),
+                RepackagingTask::class.java
+            ) { task ->
+                task.from(blankPublicResourceDir)
+                task.from(zipTree(task.aarFile))
+                task.destinationDirectory.fileProvider(
+                    task.output.locationOnly.map { location -> location.asFile.parentFile }
+                )
+                task.archiveFileName.set(
+                    task.output.locationOnly.map { location -> location.asFile.name }
+                )
+            }
+            variant
+                .artifacts
+                .use(taskProvider)
+                .wiredWithFiles(RepackagingTask::aarFile, RepackagingTask::output)
+                .toTransform(SingleArtifact.AAR)
+        }
     }
 
     @Suppress("UnstableApiUsage") // usage of PrivacySandboxSdkExtension
