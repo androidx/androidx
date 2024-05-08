@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import android.view.InputDevice
 import android.view.InputDevice.SOURCE_DPAD
 import android.view.KeyEvent.KEYCODE_DPAD_CENTER
 import android.view.KeyEvent.KEYCODE_DPAD_DOWN
@@ -61,6 +62,10 @@ internal actual fun Modifier.interceptDPadAndMoveFocus(
 
                 // Ignore key release events
                 keyEvent.type != KeyDown -> false
+
+                // Ignore events that originate from a source that only identifies as keyboard.
+                // This logic is taken from `android.widget.TextView#doKeyDown()` method.
+                keyEvent.nativeKeyEvent.source == InputDevice.SOURCE_KEYBOARD -> false
 
                 keyEvent.isKeyCode(KEYCODE_DPAD_UP) -> focusManager.moveFocus(Up)
                 keyEvent.isKeyCode(KEYCODE_DPAD_DOWN) -> focusManager.moveFocus(Down)
