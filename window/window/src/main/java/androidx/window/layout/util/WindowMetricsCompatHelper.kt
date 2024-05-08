@@ -45,16 +45,16 @@ internal interface WindowMetricsCompatHelper {
         fun getInstance(): WindowMetricsCompatHelper {
             return when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ->
-                    WindowMetricsCompatHelperApi34Impl()
+                    WindowMetricsCompatHelperApi34Impl
                 else ->
-                    WindowMetricsCompatHelperBaseImpl()
+                    WindowMetricsCompatHelperApi30Impl
             }
         }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
-private open class WindowMetricsCompatHelperBaseImpl : WindowMetricsCompatHelper {
+internal object WindowMetricsCompatHelperApi30Impl : WindowMetricsCompatHelper {
 
     override fun translateWindowMetrics(
         windowMetrics: AndroidWindowMetrics,
@@ -76,7 +76,7 @@ private open class WindowMetricsCompatHelperBaseImpl : WindowMetricsCompatHelper
 }
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-private open class WindowMetricsCompatHelperApi34Impl : WindowMetricsCompatHelperBaseImpl() {
+internal object WindowMetricsCompatHelperApi34Impl : WindowMetricsCompatHelper {
 
     override fun translateWindowMetrics(
         windowMetrics: AndroidWindowMetrics,
