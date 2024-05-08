@@ -18,13 +18,21 @@ package androidx.credentials.provider;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import android.content.Intent;
+import android.content.pm.SigningInfo;
+import android.credentials.CredentialOption;
 import android.os.Build;
+import android.os.Bundle;
+import android.service.credentials.CallingAppInfo;
 
 import androidx.annotation.RequiresApi;
 import androidx.credentials.CreatePasswordResponse;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.PasswordCredential;
+import androidx.credentials.TestUtilsKt;
 import androidx.credentials.exceptions.CreateCredentialInterruptedException;
 import androidx.credentials.exceptions.GetCredentialInterruptedException;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -34,12 +42,32 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 @RequiresApi(34)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 public class PendingIntentHandlerJavaTest {
     private static final Intent BLANK_INTENT = new Intent();
+
+    private static final android.credentials.CredentialOption
+            GET_CREDENTIAL_OPTION = new CredentialOption.Builder(
+            "type", new Bundle(), new Bundle())
+            .build();
+
+    private static final android.service.credentials.GetCredentialRequest
+            GET_CREDENTIAL_REQUEST = new android.service.credentials.GetCredentialRequest(
+                    new CallingAppInfo(
+                            "package_name", new SigningInfo()), new ArrayList<>(
+                                    Collections.singleton(GET_CREDENTIAL_OPTION)));
+
+    private static final int BIOMETRIC_AUTHENTICATOR_TYPE = 1;
+
+    private static final int BIOMETRIC_AUTHENTICATOR_ERROR_CODE = 5;
+
+    private static final String BIOMETRIC_AUTHENTICATOR_ERROR_MSG = "error";
 
     @Test
     public void test_setGetCreateCredentialException() {
@@ -154,6 +182,114 @@ public class PendingIntentHandlerJavaTest {
 
         assertThat(IntentHandlerConverters.getGetCredentialResponse(BLANK_INTENT))
                 .isNull();
+    }
+
+    @Test
+    public void test_retrieveProviderCreateCredReqWithSuccessfulBpAuth() {
+        BiometricPromptResult biometricPromptResult = new BiometricPromptResult(
+                new AuthenticationResult(BIOMETRIC_AUTHENTICATOR_TYPE));
+
+        android.service.credentials.CreateCredentialRequest request =
+                TestUtilsKt.setUpCreatePasswordRequest();
+
+        Intent intent = prepareIntentWithCreateRequest(request,
+                biometricPromptResult);
+
+        ProviderCreateCredentialRequest retrievedRequest = PendingIntentHandler
+                .retrieveProviderCreateCredentialRequest(intent);
+
+        assertNotNull(retrievedRequest);
+        TestUtilsKt.equals(request, retrievedRequest);
+        assertEquals(biometricPromptResult, retrievedRequest.getBiometricPromptResult());
+    }
+
+    @Test
+    public void test_retrieveProviderCreateCredReqWithFailureBpAuth() {
+        BiometricPromptResult biometricPromptResult =
+                new BiometricPromptResult(
+                        new AuthenticationError(
+                                BIOMETRIC_AUTHENTICATOR_ERROR_CODE,
+                                BIOMETRIC_AUTHENTICATOR_ERROR_MSG));
+        android.service.credentials.CreateCredentialRequest request =
+                TestUtilsKt.setUpCreatePasswordRequest();
+        Intent intent = prepareIntentWithCreateRequest(
+                request, biometricPromptResult);
+
+        ProviderCreateCredentialRequest retrievedRequest = PendingIntentHandler
+                .retrieveProviderCreateCredentialRequest(intent);
+
+        assertNotNull(retrievedRequest);
+        TestUtilsKt.equals(request, retrievedRequest);
+        assertEquals(biometricPromptResult, retrievedRequest.getBiometricPromptResult());
+    }
+
+    @Test
+    public void test_retrieveProviderGetCredReqWithSuccessfulBpAuth() {
+        BiometricPromptResult biometricPromptResult = new BiometricPromptResult(
+                new AuthenticationResult(
+                BIOMETRIC_AUTHENTICATOR_TYPE));
+        Intent intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST,
+                biometricPromptResult);
+
+        ProviderGetCredentialRequest request = PendingIntentHandler
+                .retrieveProviderGetCredentialRequest(intent);
+
+        assertNotNull(request);
+        TestUtilsKt.equals(GET_CREDENTIAL_REQUEST, request);
+        assertEquals(biometricPromptResult, request.getBiometricPromptResult());
+    }
+
+    @Test
+    public void test_retrieveProviderGetCredReqWithFailingBpAuth() {
+        BiometricPromptResult biometricPromptResult = new BiometricPromptResult(
+                new AuthenticationError(
+                        BIOMETRIC_AUTHENTICATOR_ERROR_CODE,
+                        BIOMETRIC_AUTHENTICATOR_ERROR_MSG));
+        Intent intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST,
+                biometricPromptResult);
+
+        ProviderGetCredentialRequest request = PendingIntentHandler
+                .retrieveProviderGetCredentialRequest(intent);
+
+        assertNotNull(request);
+        TestUtilsKt.equals(GET_CREDENTIAL_REQUEST, request);
+        assertEquals(biometricPromptResult, request.getBiometricPromptResult());
+    }
+
+    private Intent prepareIntentWithGetRequest(
+            android.service.credentials.GetCredentialRequest request,
+            BiometricPromptResult biometricPromptResult
+    ) {
+        Intent intent = new Intent();
+        intent.putExtra(CredentialProviderService
+                        .EXTRA_GET_CREDENTIAL_REQUEST, request);
+        prepareIntentWithBiometricResult(intent, biometricPromptResult);
+        return intent;
+    }
+
+    private Intent prepareIntentWithCreateRequest(
+            android.service.credentials.CreateCredentialRequest request,
+            BiometricPromptResult biometricPromptResult) {
+        Intent intent = new Intent();
+        intent.putExtra(CredentialProviderService.EXTRA_CREATE_CREDENTIAL_REQUEST,
+                request);
+        prepareIntentWithBiometricResult(intent, biometricPromptResult);
+        return intent;
+    }
+
+    private void prepareIntentWithBiometricResult(Intent intent,
+            BiometricPromptResult biometricPromptResult) {
+        if (biometricPromptResult.isSuccessful()) {
+            assertNotNull(biometricPromptResult.getAuthenticationResult());
+            intent.putExtra(AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE,
+                    biometricPromptResult.getAuthenticationResult().getAuthenticationType());
+        } else {
+            assertNotNull(biometricPromptResult.getAuthenticationError());
+            intent.putExtra(AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR,
+                    biometricPromptResult.getAuthenticationError().getErrorCode());
+            intent.putExtra(AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE,
+                    biometricPromptResult.getAuthenticationError().getErrorMsg());
+        }
     }
 
     @Test

@@ -16,17 +16,26 @@
 package androidx.credentials.provider
 
 import android.content.Intent
+import android.content.pm.SigningInfo
+import android.credentials.CredentialOption
 import android.os.Build
+import android.os.Bundle
+import android.service.credentials.CallingAppInfo
+import android.service.credentials.CreateCredentialRequest
+import android.service.credentials.GetCredentialRequest
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.PasswordCredential
+import androidx.credentials.equals
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
+import androidx.credentials.setUpCreatePasswordRequest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -35,6 +44,23 @@ import org.junit.runner.RunWith
 @RequiresApi(34)
 @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
 class PendingIntentHandlerTest {
+    companion object {
+        private val GET_CREDENTIAL_OPTION = CredentialOption.Builder(
+            "type", Bundle(), Bundle()
+        ).build()
+
+        private val GET_CREDENTIAL_REQUEST = GetCredentialRequest(
+            CallingAppInfo("package_name", SigningInfo()),
+            ArrayList(setOf(GET_CREDENTIAL_OPTION))
+        )
+
+        private const val BIOMETRIC_AUTHENTICATOR_TYPE = 1
+
+        private const val BIOMETRIC_AUTHENTICATOR_ERROR_CODE = 5
+
+        private const val BIOMETRIC_AUTHENTICATOR_ERROR_MSG = "error"
+    }
+
     @Test
     fun test_createCredentialException() {
         if (Build.VERSION.SDK_INT >= 34) {
@@ -51,7 +77,7 @@ class PendingIntentHandlerTest {
         assertThat(finalException).isEqualTo(initialException)
     }
 
-    @Test()
+    @Test
     fun test_createCredentialException_throwsWhenEmptyIntent() {
         if (Build.VERSION.SDK_INT >= 34) {
             return
@@ -59,6 +85,126 @@ class PendingIntentHandlerTest {
 
         val intent = Intent()
         assertThat(intent.getCreateCredentialException()).isNull()
+    }
+
+    @Test
+    fun test_retrieveProviderCreateCredReqWithSuccessfulBpAuth() {
+        val biometricPromptResult = BiometricPromptResult(
+            AuthenticationResult(BIOMETRIC_AUTHENTICATOR_TYPE)
+        )
+        val request = setUpCreatePasswordRequest()
+        val intent = prepareIntentWithCreateRequest(
+            request,
+            biometricPromptResult
+        )
+
+        val retrievedRequest = PendingIntentHandler.retrieveProviderCreateCredentialRequest(intent)
+
+        Assert.assertNotNull(request)
+        equals(request, retrievedRequest!!)
+        Assert.assertNotNull(biometricPromptResult.authenticationResult)
+    }
+
+    @Test
+    fun test_retrieveProviderCreateCredReqWithFailureBpAuth() {
+        val biometricPromptResult =
+            BiometricPromptResult(
+                AuthenticationError(
+                    BIOMETRIC_AUTHENTICATOR_ERROR_CODE,
+                    BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+                )
+            )
+        val request = setUpCreatePasswordRequest()
+        val intent = prepareIntentWithCreateRequest(
+            request, biometricPromptResult
+        )
+
+        val retrievedRequest = PendingIntentHandler.retrieveProviderCreateCredentialRequest(intent)
+
+        Assert.assertNotNull(retrievedRequest)
+        equals(request, retrievedRequest!!)
+        Assert.assertEquals(biometricPromptResult, retrievedRequest.biometricPromptResult)
+    }
+
+    @Test
+    fun test_retrieveProviderGetCredReqWithSuccessfulBpAuth() {
+        val biometricPromptResult = BiometricPromptResult(
+            AuthenticationResult(BIOMETRIC_AUTHENTICATOR_TYPE)
+        )
+        val intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST, biometricPromptResult)
+
+        val request = PendingIntentHandler.retrieveProviderGetCredentialRequest(intent)
+
+        Assert.assertNotNull(request)
+        equals(GET_CREDENTIAL_REQUEST, request!!)
+        Assert.assertEquals(biometricPromptResult, request.biometricPromptResult)
+    }
+
+    @Test
+    fun test_retrieveProviderGetCredReqWithFailingBpAuth() {
+        val biometricPromptResult = BiometricPromptResult(
+            AuthenticationError(
+                BIOMETRIC_AUTHENTICATOR_ERROR_CODE,
+                BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+            )
+        )
+        val intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST, biometricPromptResult)
+
+        val request = PendingIntentHandler.retrieveProviderGetCredentialRequest(intent)
+
+        Assert.assertNotNull(request)
+        equals(GET_CREDENTIAL_REQUEST, request!!)
+        Assert.assertEquals(biometricPromptResult, request.biometricPromptResult)
+    }
+
+    private fun prepareIntentWithGetRequest(
+        request: GetCredentialRequest,
+        biometricPromptResult: BiometricPromptResult
+    ): Intent {
+        val intent = Intent()
+        intent.putExtra(
+            android.service.credentials.CredentialProviderService.EXTRA_GET_CREDENTIAL_REQUEST,
+            request
+        )
+        prepareIntentWithBiometricResult(intent, biometricPromptResult)
+        return intent
+    }
+
+    private fun prepareIntentWithCreateRequest(
+        request: CreateCredentialRequest,
+        biometricPromptResult: BiometricPromptResult
+    ): Intent {
+        val intent = Intent()
+        intent.putExtra(
+            android.service.credentials.CredentialProviderService
+                .EXTRA_CREATE_CREDENTIAL_REQUEST,
+            request
+        )
+        prepareIntentWithBiometricResult(intent, biometricPromptResult)
+        return intent
+    }
+
+    private fun prepareIntentWithBiometricResult(
+        intent: Intent,
+        biometricPromptResult: BiometricPromptResult
+    ) {
+        if (biometricPromptResult.isSuccessful) {
+            Assert.assertNotNull(biometricPromptResult.authenticationResult)
+            intent.putExtra(
+                AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE,
+                biometricPromptResult.authenticationResult!!.authenticationType
+            )
+        } else {
+            Assert.assertNotNull(biometricPromptResult.authenticationError)
+            intent.putExtra(
+                AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR,
+                biometricPromptResult.authenticationError!!.errorCode
+            )
+            intent.putExtra(
+                AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE,
+                biometricPromptResult.authenticationError!!.errorMsg
+            )
+        }
     }
 
     @Test

@@ -16,6 +16,9 @@
 
 package androidx.credentials.provider
 
+import android.util.Log
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.CreateCredentialRequest
 
 /**
@@ -27,9 +30,9 @@ import androidx.credentials.CreateCredentialRequest
  *
  * @constructor constructs an instance of [ProviderCreateCredentialRequest]
  *
- * @param callingRequest the complete [CreateCredentialRequest] coming from
+ * @property callingRequest the complete [CreateCredentialRequest] coming from
  * the calling app that is requesting for credential creation
- * @param callingAppInfo information pertaining to the calling app making
+ * @property callingAppInfo information pertaining to the calling app making
  * the request
  *
  * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
@@ -37,7 +40,40 @@ import androidx.credentials.CreateCredentialRequest
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class ProviderCreateCredentialRequest constructor(
+class ProviderCreateCredentialRequest internal constructor(
     val callingRequest: CreateCredentialRequest,
-    val callingAppInfo: CallingAppInfo
-)
+    val callingAppInfo: CallingAppInfo,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val biometricPromptResult: BiometricPromptResult? = null,
+    // TODO: Remove when exposing API and make this the only constructor
+    isInternal: Boolean = true
+) {
+    init {
+        // TODO: Remove when exposing API
+        Log.i("ProvCrCredRequest", isInternal.toString())
+    }
+    /**
+     * Constructs an instance of this class
+     *
+     * @param callingRequest the complete [CreateCredentialRequest] coming from
+     * the calling app that is requesting for credential creation
+     * @param callingAppInfo information pertaining to the calling app making
+     * the request
+     */
+    constructor(
+        callingRequest: CreateCredentialRequest,
+        callingAppInfo: CallingAppInfo,
+    ) : this(
+        callingRequest = callingRequest,
+        callingAppInfo = callingAppInfo,
+        isInternal = false
+    )
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @VisibleForTesting
+    constructor(
+        callingRequest: CreateCredentialRequest,
+        callingAppInfo: CallingAppInfo,
+        biometricPromptResult: BiometricPromptResult?
+    ) : this(callingRequest, callingAppInfo, biometricPromptResult, isInternal = false)
+}

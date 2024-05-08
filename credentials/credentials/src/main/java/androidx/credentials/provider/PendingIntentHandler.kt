@@ -77,9 +77,10 @@ class PendingIntentHandler {
                 Log.i(TAG, "Request not found in pendingIntent")
                 return frameworkReq
             }
+            val biometricPromptResult = retrieveBiometricPromptResult(intent)
             return try {
                 ProviderCreateCredentialRequest(
-                    androidx.credentials.CreateCredentialRequest
+                    callingRequest = androidx.credentials.CreateCredentialRequest
                         .createFrom(
                             frameworkReq.type,
                             frameworkReq.data,
@@ -87,15 +88,41 @@ class PendingIntentHandler {
                             requireSystemProvider = false,
                             frameworkReq.callingAppInfo.origin
                         ),
-                    CallingAppInfo(
+                    callingAppInfo = CallingAppInfo(
                         frameworkReq.callingAppInfo.packageName,
                         frameworkReq.callingAppInfo.signingInfo,
                         frameworkReq.callingAppInfo.origin
-                    )
+                    ),
+                    biometricPromptResult = biometricPromptResult,
+                    isInternal = false
                 )
             } catch (e: IllegalArgumentException) {
                 return null
             }
+        }
+
+        private fun retrieveBiometricPromptResult(intent: Intent): BiometricPromptResult? {
+            if (intent.extras == null) {
+                return null
+            }
+            if (intent.extras!!.containsKey(AuthenticationResult
+                    .EXTRA_BIOMETRIC_AUTH_RESULT_TYPE)) {
+                val authResultType = intent.extras!!.getInt(AuthenticationResult
+                    .EXTRA_BIOMETRIC_AUTH_RESULT_TYPE)
+                return BiometricPromptResult(
+                    authenticationResult = AuthenticationResult(authResultType)
+                )
+            } else if (intent.extras!!.containsKey(AuthenticationError
+                    .EXTRA_BIOMETRIC_AUTH_ERROR)) {
+                val authResultError = intent.extras!!.getInt(
+                    AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR)
+                return BiometricPromptResult(
+                    authenticationError = AuthenticationError(
+                        authResultError, intent.extras?.getCharSequence(
+                            AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE))
+                )
+            }
+            return null
         }
 
         /**
@@ -169,6 +196,7 @@ class PendingIntentHandler {
                 Log.i(TAG, "Get request from framework is null")
                 return null
             }
+            val biometricPromptResult = retrieveBiometricPromptResult(intent)
 
             return ProviderGetCredentialRequest.createFrom(
                 frameworkReq.credentialOptions.stream()
@@ -186,7 +214,8 @@ class PendingIntentHandler {
                     frameworkReq.callingAppInfo.packageName,
                     frameworkReq.callingAppInfo.signingInfo,
                     frameworkReq.callingAppInfo.origin
-                )
+                ),
+                biometricPromptResult
             )
         }
 
