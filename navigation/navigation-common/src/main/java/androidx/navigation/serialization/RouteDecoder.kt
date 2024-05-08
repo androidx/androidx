@@ -17,6 +17,7 @@
 package androidx.navigation.serialization
 
 import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.NavType
 import kotlinx.serialization.DeserializationStrategy
@@ -48,9 +49,10 @@ internal class RouteDecoder : AbstractDecoder {
 
     // SavedStateHandle as argument source
     constructor(
-        handle: SavedStateHandle
+        handle: SavedStateHandle,
+        typeMap: Map<String, NavType<*>>
     ) {
-        val store = SavedStateArgStore(handle)
+        val store = SavedStateArgStore(handle, typeMap)
         decoder = Decoder(store)
     }
 
@@ -153,8 +155,17 @@ private abstract class ArgStore {
     abstract fun contains(key: String): Boolean
 }
 
-private class SavedStateArgStore(private val handle: SavedStateHandle) : ArgStore() {
-    override fun get(key: String): Any? = handle[key]
+private class SavedStateArgStore(
+    private val handle: SavedStateHandle,
+    private val typeMap: Map<String, NavType<*>>
+) : ArgStore() {
+    override fun get(key: String): Any? {
+        val arg: Any? = handle[key]
+        val bundle = bundleOf(key to arg)
+        return checkNotNull(typeMap[key]) {
+            "Failed to find type for $key when decoding $handle"
+        }[bundle, key]
+    }
     override fun contains(key: String) = handle.contains(key)
 }
 
