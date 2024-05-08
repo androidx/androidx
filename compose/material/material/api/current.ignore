@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-ChangedSuperclass: androidx.compose.material.BackdropScaffoldState:
-    Class androidx.compose.material.BackdropScaffoldState superclass changed from androidx.compose.material.SwipeableState to java.lang.Object
-
-
-ParameterNameChange: androidx.compose.material.BackdropScaffoldState#BackdropScaffoldState(androidx.compose.material.BackdropValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean>, androidx.compose.material.SnackbarHostState) parameter #2:
-    Attempted to change parameter name from confirmStateChange to confirmValueChange in constructor androidx.compose.material.BackdropScaffoldState
