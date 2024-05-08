@@ -53,6 +53,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Ignore
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -993,6 +994,111 @@ class DraggableTest {
 
         rule.runOnIdle {
             assertTrue { runningJob.isActive } // check if scope is still active
+        }
+    }
+
+    @Test
+    fun onDragStarted_startDragImmediately_offsetShouldBePositionOfDownEvent() {
+        var onDragStartedOffset = Offset.Unspecified
+        var downEventPosition = Offset.Unspecified
+        rule.setContent {
+            Box(
+                modifier = Modifier
+                    .testTag(draggableBoxTag)
+                    .size(100.dp)
+                    .draggable(
+                        enabled = true,
+                        state = rememberDraggableState { },
+                        orientation = Orientation.Vertical,
+                        onDragStarted = { offset ->
+                            onDragStartedOffset = offset
+                        },
+                        startDragImmediately = true
+                    )
+            )
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            downEventPosition = center
+            down(center)
+            moveBy(Offset(100f, 100f))
+            up()
+        }
+
+        rule.runOnIdle {
+            assertEquals(downEventPosition, onDragStartedOffset)
+        }
+    }
+
+    @Test
+    fun onDragStarted_startDragImmediatelyFalse_offsetShouldBePostSlopPosition_vertical() {
+        var onDragStartedOffset = Offset.Unspecified
+        var downEventPosition = Offset.Unspecified
+        var touchSlop = 0f
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+
+            Box(
+                modifier = Modifier
+                    .testTag(draggableBoxTag)
+                    .size(100.dp)
+                    .draggable(
+                        enabled = true,
+                        state = rememberDraggableState { },
+                        orientation = Orientation.Vertical,
+                        onDragStarted = { offset ->
+                            onDragStartedOffset = offset
+                        },
+                        startDragImmediately = false
+                    )
+            )
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            downEventPosition = center
+            down(center)
+            moveBy(Offset(0f, 100f))
+            up()
+        }
+
+        rule.runOnIdle {
+            assertEquals(downEventPosition.y + touchSlop, onDragStartedOffset.y)
+        }
+    }
+
+    @Test
+    fun onDragStarted_startDragImmediatelyFalse_offsetShouldBePostSlopPosition_horizontal() {
+        var onDragStartedOffset = Offset.Unspecified
+        var downEventPosition = Offset.Unspecified
+        var touchSlop = 0f
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+
+            Box(
+                modifier = Modifier
+                    .testTag(draggableBoxTag)
+                    .size(100.dp)
+                    .draggable(
+                        enabled = true,
+                        state = rememberDraggableState { },
+                        orientation = Orientation.Horizontal,
+                        onDragStarted = { offset ->
+                            onDragStartedOffset = offset
+                        },
+                        startDragImmediately = false
+                    )
+            )
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            downEventPosition = center
+            down(center)
+            moveBy(Offset(100f, 0f))
+            up()
+        }
+
+        rule.runOnIdle {
+            assertEquals(downEventPosition.x + touchSlop, onDragStartedOffset.x)
         }
     }
 
