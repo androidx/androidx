@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 
 /**
  * Plain tooltip that provides a descriptive message.
@@ -37,9 +38,9 @@ import androidx.compose.ui.unit.Dp
  * Usually used with [TooltipBox].
  *
  * @param modifier the [Modifier] to be applied to the tooltip.
- * @param caretProperties [CaretProperties] for the caret of the tooltip, if a default
- * caret is desired with a specific dimension. Please see [TooltipDefaults.caretProperties] to
- * see the default dimensions. Pass in null for this parameter if no caret is desired.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default
+ * caret is desired with a specific dimension. Please see [TooltipDefaults.caretSize] to
+ * see the default dimensions. Pass in Dp.Unspecified for this parameter if no caret is desired.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param contentColor [Color] that will be applied to the tooltip's content.
  * @param containerColor [Color] that will be applied to the tooltip's container.
@@ -49,9 +50,9 @@ import androidx.compose.ui.unit.Dp
  */
 @Composable
 @ExperimentalMaterial3Api
-actual fun CaretScope.PlainTooltip(
+actual fun TooltipScope.PlainTooltip(
     modifier: Modifier,
-    caretProperties: CaretProperties?,
+    caretSize: DpSize,
     shape: Shape,
     contentColor: Color,
     containerColor: Color,
@@ -93,9 +94,9 @@ actual fun CaretScope.PlainTooltip(
  * @param modifier the [Modifier] to be applied to the tooltip.
  * @param title An optional title for the tooltip.
  * @param action An optional action for the tooltip.
- * @param caretProperties [CaretProperties] for the caret of the tooltip, if a default
- * caret is desired with a specific dimension. Pass in null for this parameter if no
- * caret is desired.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default
+ * caret is desired with a specific dimension. Please see [TooltipDefaults.caretSize] to
+ * see the default dimensions. Pass in Dp.Unspecified for this parameter if no caret is desired.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
  * @param tonalElevation the tonal elevation of the tooltip.
@@ -104,11 +105,11 @@ actual fun CaretScope.PlainTooltip(
  */
 @Composable
 @ExperimentalMaterial3Api
-actual fun CaretScope.RichTooltip(
+actual fun TooltipScope.RichTooltip(
     modifier: Modifier,
     title: (@Composable () -> Unit)?,
     action: (@Composable () -> Unit)?,
-    caretProperties: CaretProperties?,
+    caretSize: DpSize,
     shape: Shape,
     colors: RichTooltipColors,
     tonalElevation: Dp,

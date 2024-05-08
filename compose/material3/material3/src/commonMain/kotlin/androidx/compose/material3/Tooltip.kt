@@ -55,6 +55,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -99,7 +100,7 @@ import kotlinx.coroutines.withTimeout
  *
  * @sample androidx.compose.material3.samples.RichTooltipWithCaretSample
  *
- * Rich tooltip shown on long press with a custom [CaretProperties]
+ * Rich tooltip shown on long press with a custom caret
  *
  * @sample androidx.compose.material3.samples.RichTooltipWithCustomCaretSample
  *
@@ -121,7 +122,7 @@ import kotlinx.coroutines.withTimeout
 @ExperimentalMaterial3Api
 fun TooltipBox(
     positionProvider: PopupPositionProvider,
-    tooltip: @Composable CaretScope.() -> Unit,
+    tooltip: @Composable TooltipScope.() -> Unit,
     state: TooltipState,
     modifier: Modifier = Modifier,
     focusable: Boolean = true,
@@ -132,7 +133,7 @@ fun TooltipBox(
     val transition = updateTransition(state.transition, label = "tooltip transition")
     var anchorBounds: LayoutCoordinates? by remember { mutableStateOf(null) }
     val scope = remember {
-        object : CaretScope {
+        object : TooltipScope {
             override fun Modifier.drawCaret(
                 draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
             ): Modifier =
@@ -160,11 +161,11 @@ fun TooltipBox(
 }
 
 /**
- * Caret scope for [TooltipBox] to be used to obtain the [LayoutCoordinates] of the
+ * Tooltip scope for [TooltipBox] to be used to obtain the [LayoutCoordinates] of the
  * anchor content, and to draw a caret for the tooltip.
  */
 @ExperimentalMaterial3Api
-interface CaretScope {
+interface TooltipScope {
     /**
      * [Modifier] that is used to draw the caret for the tooltip. A [LayoutCoordinates] will
      * be provided that can be used to obtain the bounds of the anchor content, which can be used
@@ -182,9 +183,9 @@ interface CaretScope {
  * Usually used with [TooltipBox].
  *
  * @param modifier the [Modifier] to be applied to the tooltip.
- * @param caretProperties [CaretProperties] for the caret of the tooltip, if a default
- * caret is desired with a specific dimension. Please see [TooltipDefaults.caretProperties] to
- * see the default dimensions. Pass in null for this parameter if no caret is desired.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default
+ * caret is desired with a specific dimension. Please see [TooltipDefaults.caretSize] to
+ * see the default dimensions. Pass in Dp.Unspecified for this parameter if no caret is desired.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param contentColor [Color] that will be applied to the tooltip's content.
  * @param containerColor [Color] that will be applied to the tooltip's container.
@@ -194,9 +195,9 @@ interface CaretScope {
  */
 @Composable
 @ExperimentalMaterial3Api
-expect fun CaretScope.PlainTooltip(
+expect fun TooltipScope.PlainTooltip(
     modifier: Modifier = Modifier,
-    caretProperties: CaretProperties? = null,
+    caretSize: DpSize = DpSize.Unspecified,
     shape: Shape = TooltipDefaults.plainTooltipContainerShape,
     contentColor: Color = TooltipDefaults.plainTooltipContentColor,
     containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
@@ -214,9 +215,9 @@ expect fun CaretScope.PlainTooltip(
  * @param modifier the [Modifier] to be applied to the tooltip.
  * @param title An optional title for the tooltip.
  * @param action An optional action for the tooltip.
- * @param caretProperties [CaretProperties] for the caret of the tooltip, if a default
- * caret is desired with a specific dimension. Pass in null for this parameter if no
- * caret is desired.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default
+ * caret is desired with a specific dimension. Please see [TooltipDefaults.caretSize] to
+ * see the default dimensions. Pass in Dp.Unspecified for this parameter if no caret is desired.
  * @param shape the [Shape] that should be applied to the tooltip container.
  * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
  * @param tonalElevation the tonal elevation of the tooltip.
@@ -225,29 +226,16 @@ expect fun CaretScope.PlainTooltip(
  */
 @Composable
 @ExperimentalMaterial3Api
-expect fun CaretScope.RichTooltip(
+expect fun TooltipScope.RichTooltip(
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
-    caretProperties: CaretProperties? = null,
+    caretSize: DpSize = DpSize.Unspecified,
     shape: Shape = TooltipDefaults.richTooltipContainerShape,
     colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
     tonalElevation: Dp = ElevationTokens.Level0,
     shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
     text: @Composable () -> Unit
-)
-
-/**
- * Properties for the caret of the tooltip if enabled.
- *
- * @param caretHeight the height of the caret
- * @param caretWidth the width of the caret
- */
-@Stable
-@ExperimentalMaterial3Api
-data class CaretProperties(
-    val caretHeight: Dp,
-    val caretWidth: Dp
 )
 
 /**
@@ -280,10 +268,10 @@ object TooltipDefaults {
         RichTooltipTokens.ContainerShape.value
 
     /**
-     * The default [CaretProperties] for tooltips.
+     * The default [DpSize] for tooltip carets.
      */
-    val caretProperties: CaretProperties =
-        CaretProperties(8.dp, 16.dp)
+    val caretSize: DpSize =
+        DpSize(16.dp, 8.dp)
 
     /**
      * Method to create a [RichTooltipColors] for [RichTooltip]

@@ -65,7 +65,7 @@ import kotlinx.coroutines.flow.collectLatest
 @ExperimentalMaterial3Api
 @Composable
 fun Label(
-    label: @Composable CaretScope.() -> Unit,
+    label: @Composable TooltipScope.() -> Unit,
     modifier: Modifier = Modifier,
     interactionSource: MutableInteractionSource? = null,
     isPersistent: Boolean = false,
@@ -82,7 +82,7 @@ fun Label(
 
     var anchorBounds: LayoutCoordinates? by remember { mutableStateOf(null) }
     val scope = remember {
-        object : CaretScope {
+        object : TooltipScope {
             override fun Modifier.drawCaret(
                 draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
             ): Modifier =
