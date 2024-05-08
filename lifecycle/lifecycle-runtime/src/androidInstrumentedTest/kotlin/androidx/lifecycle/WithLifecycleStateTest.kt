@@ -16,20 +16,17 @@
 
 package androidx.lifecycle
 
-import androidx.test.filters.SmallTest
-import kotlinx.coroutines.Dispatchers
+import androidx.kruth.assertWithMessage
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
 
-@SmallTest
 class WithLifecycleStateTest {
     @Test
-    fun testInitialResumed() = runBlocking(Dispatchers.Main) {
+    fun testInitialResumed() = runLifecycleTest {
         val owner = FakeLifecycleOwner(Lifecycle.State.RESUMED)
 
         val expected = "initial value"
@@ -40,7 +37,7 @@ class WithLifecycleStateTest {
     }
 
     @Test
-    fun testBlockRunsWithLifecycleStateChange() = runBlocking(Dispatchers.Main) {
+    fun testBlockRunsWithLifecycleStateChange() = runLifecycleTest {
         val owner = FakeLifecycleOwner()
 
         val initial = "initial value"
@@ -57,22 +54,17 @@ class WithLifecycleStateTest {
     }
 
     @Test
-    fun testBlockCancelledWhenInitiallyDestroyed() = runBlocking(Dispatchers.Main) {
+    fun testBlockCancelledWhenInitiallyDestroyed() = runLifecycleTest {
         val owner = FakeLifecycleOwner(Lifecycle.State.CREATED)
         owner.setState(Lifecycle.State.DESTROYED)
 
-        val result = runCatching {
+        assertFailsWith<LifecycleDestroyedException> {
             owner.withStarted {}
         }
-
-        assertTrue(
-            "withStarted threw LifecycleDestroyedException",
-            result.exceptionOrNull() is LifecycleDestroyedException
-        )
     }
 
     @Test
-    fun testBlockCancelledWhenDestroyedWhileSuspended() = runBlocking(Dispatchers.Main) {
+    fun testBlockCancelledWhenDestroyedWhileSuspended() = runLifecycleTest {
         val owner = FakeLifecycleOwner(Lifecycle.State.CREATED)
 
         var launched = false
@@ -82,14 +74,17 @@ class WithLifecycleStateTest {
         }
         yield()
 
-        assertTrue("test ran to first suspension after successfully launching", launched)
-        assertTrue("withStarted is still active", resultTask.isActive)
+        assertWithMessage("test ran to first suspension after successfully launching")
+            .that(launched)
+            .isTrue()
+        assertWithMessage("withStarted is still active")
+            .that(resultTask.isActive)
+            .isTrue()
 
         owner.setState(Lifecycle.State.DESTROYED)
 
-        assertTrue(
-            "result threw LifecycleDestroyedException",
-            resultTask.await().exceptionOrNull() is LifecycleDestroyedException
-        )
+        assertWithMessage("result threw LifecycleDestroyedException")
+            .that(resultTask.await().exceptionOrNull())
+            .isInstanceOf<LifecycleDestroyedException>()
     }
 }

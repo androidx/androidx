@@ -43,6 +43,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
                 implementation(project(":kruth:kruth"))
+                implementation(libs.atomicFu)
             }
         }
 
