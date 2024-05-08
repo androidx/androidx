@@ -544,12 +544,16 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertIsDisplayed()
 
         rule.onNodeWithTag(TAG).performTouchInput {
+            // The swipes are small enough that the selection gesture counts this as a multi-press,
+            // so advance the time so that it isn't counted as a multi press.
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis * 2)
             swipeUp(endY = -bottom)
         }
         rule.waitForIdle()
         rule.onNode(isSelectionHandle(Handle.Cursor)).assertDoesNotExist()
 
         rule.onNodeWithTag(TAG).performTouchInput {
+            advanceEventTime(viewConfiguration.longPressTimeoutMillis * 2)
             swipeDown(endY = 2 * bottom)
         }
         rule.waitForIdle()

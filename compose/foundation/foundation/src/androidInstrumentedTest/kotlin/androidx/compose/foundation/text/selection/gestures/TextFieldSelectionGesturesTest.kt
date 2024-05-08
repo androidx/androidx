@@ -23,7 +23,6 @@ import androidx.compose.foundation.text.selection.gestures.util.applyAndAssert
 import androidx.compose.foundation.text.selection.gestures.util.collapsed
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.text.selection.gestures.util.to
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.click
@@ -32,12 +31,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.input.TextFieldValue
 import org.junit.Before
 import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
-internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGesturesTest() {
+internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGesturesTest() {
 
     override val pointerAreaTag = "testTag"
 
@@ -45,23 +43,16 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
      * Word to use in one-off tests. Subclasses may choose a RTL or BiDi 5 letter word for example.
      */
     protected abstract val word: String
-    protected abstract val textFieldValue: MutableState<TextFieldValue>
-    protected abstract var asserter: TextFieldSelectionAsserter
+    protected abstract var asserter: TextFieldSelectionAsserter<T>
 
     protected abstract fun characterPosition(offset: Int): Offset
 
+    abstract fun setupAsserter()
+    abstract fun setTextContent(text: String)
+
     @Before
     fun setupAsserterAndStartInput() {
-        asserter = TextFieldSelectionAsserter(
-            textContent = textFieldValue.value.text,
-            rule = rule,
-            textToolbar = textToolbar,
-            hapticFeedback = hapticFeedback,
-            getActual = { textFieldValue.value }
-        )
-
-        rule.waitForIdle()
-        rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
+        setupAsserter()
         rule.waitForIdle()
         performTouchGesture { click(characterPosition(0)) }
 
@@ -91,7 +82,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
 
     @Test
     fun whenTouch_withNoTextThenLongPress_noSelection() {
-        textFieldValue.value = TextFieldValue()
+        setTextContent("")
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
@@ -101,6 +92,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         }
 
         performTouchGesture {
+            advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
             longClick(center)
         }
 
@@ -112,7 +104,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
 
     @Test
     fun whenTouch_withNoTextThenLongPressAndDrag_noSelection() {
-        textFieldValue.value = TextFieldValue()
+        setTextContent("")
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
@@ -122,6 +114,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         }
 
         performTouchGesture {
+            advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
             longPress(center)
         }
 
@@ -146,7 +139,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     // then text is added, the magnifier continues not to show.
     @Test
     fun whenTouch_withNoText_thenLongPressAndDrag_thenAddText_longPressAndDragAgain() {
-        textFieldValue.value = TextFieldValue()
+        setTextContent("")
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
@@ -156,6 +149,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         }
 
         performTouchGesture {
+            advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
             longPress(center)
         }
 
@@ -499,7 +493,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     @Test
     fun whenTouch_withLongPressInEndPaddingOfEmptyLine_entersSelectionMode() {
         val content = "$word\n\n$word"
-        textFieldValue.value = TextFieldValue(content)
+        setTextContent(content)
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
@@ -654,7 +648,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     @Test
     fun whenTouch_withLongPressInEndPaddingOfEmptyFinalLine_entersSelectionMode() {
         val content = "$word\n\n"
-        textFieldValue.value = TextFieldValue(content)
+        setTextContent(content)
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
