@@ -20,7 +20,9 @@ import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.only
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.Icon
@@ -109,12 +111,12 @@ fun NavigationSuiteScaffold(
                     Modifier.consumeWindowInsets(
                         when (layoutType) {
                             NavigationSuiteType.NavigationBar ->
-                                NavigationBarDefaults.windowInsets
+                                NavigationBarDefaults.windowInsets.only(WindowInsetsSides.Bottom)
                             NavigationSuiteType.NavigationRail ->
-                                NavigationRailDefaults.windowInsets
+                                NavigationRailDefaults.windowInsets.only(WindowInsetsSides.Start)
                             NavigationSuiteType.NavigationDrawer ->
-                                DrawerDefaults.windowInsets
-                            else -> WindowInsets(0, 0, 0, 0)
+                                DrawerDefaults.windowInsets.only(WindowInsetsSides.Start)
+                            else -> NoWindowInsets
                         }
                     )
                 ) {
@@ -620,6 +622,8 @@ private fun NavigationItemIcon(
         icon()
     }
 }
+
+private val NoWindowInsets = WindowInsets(0, 0, 0, 0)
 
 private const val NavigationSuiteLayoutIdTag = "navigationSuite"
 private const val ContentLayoutIdTag = "content"
