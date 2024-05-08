@@ -46,7 +46,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import kotlin.math.abs
 import kotlin.math.max
@@ -71,10 +74,56 @@ import kotlinx.coroutines.launch
  * Dragging is constrained between the minimum and maximum anchors.
  *
  * @param state The associated [AnchoredDraggableState].
+ * @param reverseDirection Whether to reverse the direction of the drag, so a top to bottom
+ * drag will behave like bottom to top, and a left to right drag will behave like right to left. If
+ * not specified, this will be determined based on [orientation] and [LocalLayoutDirection].
  * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
  * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
- * @param reverseDirection Whether to reverse the direction of the drag, so a top to bottom
- * drag will behave like bottom to top, and a left to right drag will behave like right to left.
+ * @param interactionSource Optional [MutableInteractionSource] that will passed on to
+ * the internal [Modifier.draggable].
+ * @param overscrollEffect optional effect to dispatch any excess delta or velocity to. The excess
+ * delta or velocity are a result of dragging/flinging and reaching the bounds. If you provide an
+ * [overscrollEffect], make sure to apply [androidx.compose.foundation.overscroll] to render the
+ * effect as well.
+ * @param startDragImmediately when set to false, [draggable] will start dragging only when the
+ * gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
+ * widget when pressing on it. See [draggable] to learn more about startDragImmediately.
+ */
+@ExperimentalFoundationApi
+fun <T> Modifier.anchoredDraggable(
+    state: AnchoredDraggableState<T>,
+    reverseDirection: Boolean,
+    orientation: Orientation,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    overscrollEffect: OverscrollEffect? = null,
+    startDragImmediately: Boolean = state.isAnimationRunning
+): Modifier = this then AnchoredDraggableElement(
+    state = state,
+    orientation = orientation,
+    enabled = enabled,
+    reverseDirection = reverseDirection,
+    interactionSource = interactionSource,
+    overscrollEffect = overscrollEffect,
+    startDragImmediately = startDragImmediately
+)
+
+/**
+ * Enable drag gestures between a set of predefined values.
+ *
+ * When a drag is detected, the offset of the [AnchoredDraggableState] will be updated with the drag
+ * delta. If the [orientation] is set to [Orientation.Horizontal] and [LocalLayoutDirection]'s
+ * value is [LayoutDirection.Rtl], the drag deltas will be reversed.
+ * You should use this offset to move your content accordingly (see [Modifier.offset]).
+ * When the drag ends, the offset will be animated to one of the anchors and when that anchor is
+ * reached, the value of the [AnchoredDraggableState] will also be updated to the value
+ * corresponding to the new anchor.
+ *
+ * Dragging is constrained between the minimum and maximum anchors.
+ *
+ * @param state The associated [AnchoredDraggableState].
+ * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
+ * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to
  * the internal [Modifier.draggable].
  * @param overscrollEffect optional effect to dispatch any excess delta or velocity to. The excess
@@ -90,7 +139,6 @@ fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     orientation: Orientation,
     enabled: Boolean = true,
-    reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
     overscrollEffect: OverscrollEffect? = null,
     startDragImmediately: Boolean = state.isAnimationRunning
@@ -98,7 +146,7 @@ fun <T> Modifier.anchoredDraggable(
     state = state,
     orientation = orientation,
     enabled = enabled,
-    reverseDirection = reverseDirection,
+    reverseDirection = null,
     interactionSource = interactionSource,
     overscrollEffect = overscrollEffect,
     startDragImmediately = startDragImmediately
@@ -109,7 +157,7 @@ private class AnchoredDraggableElement<T>(
     private val state: AnchoredDraggableState<T>,
     private val orientation: Orientation,
     private val enabled: Boolean,
-    private val reverseDirection: Boolean,
+    private val reverseDirection: Boolean?,
     private val interactionSource: MutableInteractionSource?,
     private val startDragImmediately: Boolean,
     private val overscrollEffect: OverscrollEffect?,
@@ -180,7 +228,7 @@ private class AnchoredDraggableNode<T>(
     private var state: AnchoredDraggableState<T>,
     private var orientation: Orientation,
     enabled: Boolean,
-    private var reverseDirection: Boolean,
+    private var reverseDirection: Boolean?,
     interactionSource: MutableInteractionSource?,
     private var overscrollEffect: OverscrollEffect?,
     private var startDragImmediately: Boolean
@@ -190,6 +238,13 @@ private class AnchoredDraggableNode<T>(
     interactionSource = interactionSource,
     orientationLock = orientation
 ) {
+
+    private val isReverseDirection: Boolean
+        get() = when (reverseDirection) {
+            null -> requireLayoutDirection() == LayoutDirection.Rtl &&
+                orientation == Orientation.Horizontal
+            else -> reverseDirection!!
+        }
 
     override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
         state.anchoredDrag {
@@ -243,7 +298,7 @@ private class AnchoredDraggableNode<T>(
         state: AnchoredDraggableState<T>,
         orientation: Orientation,
         enabled: Boolean,
-        reverseDirection: Boolean,
+        reverseDirection: Boolean?,
         interactionSource: MutableInteractionSource?,
         overscrollEffect: OverscrollEffect?,
         startDragImmediately: Boolean
@@ -291,8 +346,8 @@ private class AnchoredDraggableNode<T>(
     private fun Offset.toFloat() =
         if (orientation == Orientation.Vertical) this.y else this.x
 
-    private fun Velocity.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
-    private fun Offset.reverseIfNeeded() = if (reverseDirection) this * -1f else this * 1f
+    private fun Velocity.reverseIfNeeded() = if (isReverseDirection) this * -1f else this * 1f
+    private fun Offset.reverseIfNeeded() = if (isReverseDirection) this * -1f else this * 1f
 }
 
 private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
