@@ -964,7 +964,7 @@ internal abstract class AbstractClickableNode(
                 initializeIndicationAndInteractionSourceIfNeeded()
             }
         }
-        focusableNode.update(interactionSource)
+        focusableNode.update(this.interactionSource)
     }
 
     final override fun onAttach() {
@@ -979,6 +979,15 @@ internal abstract class AbstractClickableNode(
 
     final override fun onDetach() {
         disposeInteractions()
+        // If we lazily created an interaction source, reset it in case we are reused / moved. Note
+        // that we need to do it here instead of onReset() - since onReset won't be called in the
+        // movableContent case but we still want to dispose for that case
+        if (userProvidedInteractionSource == null) {
+            interactionSource = null
+        }
+        // Remove indication in case we are reused / moved - we will create a new node when needed
+        indicationNode?.let { undelegate(it) }
+        indicationNode = null
     }
 
     protected fun disposeInteractions() {
