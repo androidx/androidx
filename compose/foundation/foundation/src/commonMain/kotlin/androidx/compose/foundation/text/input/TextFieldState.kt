@@ -377,7 +377,9 @@ class TextFieldState internal constructor(
         if (textChangedByFilter || selectionChangedByFilter) {
             syncMainBufferToTemporaryBuffer(
                 textFieldBuffer = textFieldBuffer,
-                newComposition = afterEditValue.composition,
+                // Composition should be decided by the IME after the content or selection has been
+                // changed programmatically, outside the knowledge of IME.
+                newComposition = null,
                 textChanged = textChangedByFilter,
                 selectionChanged = selectionChangedByFilter
             )
