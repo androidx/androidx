@@ -16,6 +16,9 @@
 
 package androidx.navigation.compose
 
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +30,9 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.NoOpNavigator
 import androidx.navigation.createGraph
 import androidx.navigation.get
@@ -38,6 +43,7 @@ import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.reflect.typeOf
 import kotlinx.serialization.Serializable
 import org.junit.Rule
 import org.junit.Test
@@ -353,6 +359,52 @@ class NavHostControllerTest {
         composeTestRule.runOnIdle {
             assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_ARG_ROUTE)
             assertThat(vm.handle.toRoute<TestClassArg>().arg).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testNavigateKClassCustomArgsSavedStateHandle() {
+        @Serializable
+        class CustomType(val nestedArg: Int) : Parcelable {
+            override fun describeContents() = 0
+            override fun writeToParcel(dest: Parcel, flags: Int) {}
+        }
+
+        val navType = object : NavType<CustomType>(false) {
+            override fun put(bundle: Bundle, key: String, value: CustomType) {
+                bundle.putString(key, value.nestedArg.toString())
+            }
+            override fun get(bundle: Bundle, key: String): CustomType =
+                CustomType(nestedArg = bundle.getString(key)!!.toInt())
+            override fun parseValue(value: String): CustomType = CustomType(value.toInt())
+            override fun serializeAsValue(value: CustomType) = value.nestedArg.toString()
+        }
+
+        @Serializable
+        class TestClass(val arg: CustomType)
+
+        val typeMap = mapOf(typeOf<CustomType>() to navType)
+        lateinit var vm: TestVM
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+
+            NavHost(navController, startDestination = "first") {
+                composable("first") { }
+                composable<TestClass>(typeMap) {
+                    vm = viewModel<TestVM> {
+                        val handle = createSavedStateHandle()
+                        TestVM(handle)
+                    }
+                }
+            }
+        }
+        composeTestRule.runOnUiThread {
+            navController.navigate(TestClass(CustomType(12))) {}
+        }
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentDestination?.hasRoute<TestClass>()).isTrue()
+            assertThat(vm.handle.toRoute<TestClass>(typeMap).arg.nestedArg).isEqualTo(12)
         }
     }
 

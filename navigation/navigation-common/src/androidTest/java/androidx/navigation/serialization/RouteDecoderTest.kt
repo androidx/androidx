@@ -221,14 +221,18 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         @Suppress("DEPRECATION")
         val customArg = navArgument("custom") {
             type = object : NavType<CustomType>(false) {
-                override fun put(bundle: Bundle, key: String, value: CustomType) { }
+                override fun put(bundle: Bundle, key: String, value: CustomType) {
+                    bundle.putString(key, value.nestedArg.toString())
+                }
                 override fun get(bundle: Bundle, key: String): CustomType =
-                    bundle[key] as CustomType
+                    CustomType(nestedArg = bundle.getString(key)!!.toInt())
                 override fun parseValue(value: String): CustomType = CustomType(15)
                 override fun serializeAsValue(value: CustomType) = ""
             }
         }
-        val bundle = bundleOf("custom" to CustomType(1))
+        val bundle = Bundle().apply {
+            customArg.argument.type.put(this, "custom", CustomType(1))
+        }
         val result = decode<TestClass>(
             bundle,
             listOf(customArg)
@@ -407,16 +411,16 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
         bundle: Bundle,
         args: List<NamedNavArgument> = emptyList()
     ): T {
+        val typeMap = mutableMapOf<String, NavType<Any?>>()
+        args.forEach { typeMap[it.name] = it.argument.type }
         return if (source == ArgumentSource.BUNDLE) {
-            val typeMap = mutableMapOf<String, NavType<Any?>>()
-            args.forEach { typeMap[it.name] = it.argument.type }
             serializer<T>().decodeArguments(bundle, typeMap)
         } else {
             val handle = SavedStateHandle()
             bundle.keySet().forEach {
                 handle[it] = bundle[it]
             }
-            serializer<T>().decodeArguments(handle)
+            serializer<T>().decodeArguments(handle, typeMap)
         }
     }
 }
