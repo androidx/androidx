@@ -24,6 +24,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.app.EmbeddingVector;
 
 import java.util.Arrays;
@@ -278,6 +279,7 @@ public final class PropertyParcel extends AbstractSafeParcelable implements Parc
         }
 
         /** Sets String values. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setStringValues(@NonNull String[] stringValues) {
             mStringValues = Objects.requireNonNull(stringValues);
@@ -285,6 +287,7 @@ public final class PropertyParcel extends AbstractSafeParcelable implements Parc
         }
 
         /** Sets long values. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setLongValues(@NonNull long[] longValues) {
             mLongValues = Objects.requireNonNull(longValues);
@@ -292,6 +295,7 @@ public final class PropertyParcel extends AbstractSafeParcelable implements Parc
         }
 
         /** Sets double values. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setDoubleValues(@NonNull double[] doubleValues) {
             mDoubleValues = Objects.requireNonNull(doubleValues);
@@ -299,6 +303,7 @@ public final class PropertyParcel extends AbstractSafeParcelable implements Parc
         }
 
         /** Sets boolean values. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setBooleanValues(@NonNull boolean[] booleanValues) {
             mBooleanValues = Objects.requireNonNull(booleanValues);
@@ -306,6 +311,7 @@ public final class PropertyParcel extends AbstractSafeParcelable implements Parc
         }
 
         /** Sets a two dimension byte array. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setBytesValues(@NonNull byte[][] bytesValues) {
             mBytesValues = Objects.requireNonNull(bytesValues);
@@ -313,6 +319,7 @@ public final class PropertyParcel extends AbstractSafeParcelable implements Parc
         }
 
         /** Sets document values. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setDocumentValues(@NonNull GenericDocumentParcel[] documentValues) {
             mDocumentValues = Objects.requireNonNull(documentValues);
@@ -320,6 +327,7 @@ public final class PropertyParcel extends AbstractSafeParcelable implements Parc
         }
 
         /** Sets embedding values. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setEmbeddingValues(@NonNull EmbeddingVector[] embeddingValues) {
             mEmbeddingValues = Objects.requireNonNull(embeddingValues);

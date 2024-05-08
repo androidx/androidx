@@ -176,7 +176,7 @@ public interface AppSearchSession extends Closeable {
      * <p>The newly added custom functions covered by this feature are:
      * <ul>
      *     <li>createList(String...)</li>
-     *     <li>search(String, List<String>)</li>
+     *     <li>search(String, {@code List<String>})</li>
      *     <li>propertyDefined(String)</li>
      * </ul>
      *

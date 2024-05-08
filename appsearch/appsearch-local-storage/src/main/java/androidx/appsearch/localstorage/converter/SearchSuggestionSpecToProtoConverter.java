@@ -87,7 +87,7 @@ public final class SearchSuggestionSpecToProtoConverter {
     }
 
     /**
-     * @return whether this search's target filters are empty. If any target filter is empty, we
+     * Returns whether this search's target filters are empty. If any target filter is empty, we
      * should skip send request to Icing.
      */
     public boolean hasNothingToSearch() {
