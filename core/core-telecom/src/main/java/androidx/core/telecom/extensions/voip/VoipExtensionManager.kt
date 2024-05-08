@@ -27,10 +27,11 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.ICapabilityExchange
 import androidx.core.telecom.internal.CallChannels
+import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.CoroutineContext
 
 @RequiresApi(Build.VERSION_CODES.O)
-@androidx.annotation.OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
+@ExperimentalAppActions
 internal class VoipExtensionManager(
     private val context: Context,
     private val coroutineContext: CoroutineContext?,
