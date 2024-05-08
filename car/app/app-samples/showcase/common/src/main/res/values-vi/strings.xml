@@ -27,7 +27,7 @@
     <string name="cancel_action_title" msgid="1149738685397349236">"Huỷ"</string>
     <string name="stop_action_title" msgid="1187619482795416314">"Dừng"</string>
     <string name="more_action_title" msgid="1039516575011403837">"Thêm"</string>
-    <string name="call_action_title" msgid="6218977436905001611">"Gọi"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"Cuộc gọi"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"Chính"</string>
     <string name="options_action_title" msgid="1168121856107932984">"Tùy chọn"</string>
     <string name="search_action_title" msgid="3483459674263446335">"Tìm kiếm"</string>
