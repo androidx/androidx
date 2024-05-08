@@ -36,6 +36,7 @@ import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -67,6 +68,7 @@ import org.junit.runner.RunWith
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalAppActions::class)
 @RunWith(AndroidJUnit4::class)
 class CallCompatTest : BaseTelecomTest() {
     private lateinit var callCompat: CallCompat

@@ -39,11 +39,13 @@ import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
+import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.job
 import kotlinx.coroutines.withTimeout
@@ -71,6 +73,7 @@ class CallsManager constructor(context: Context) {
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.
     private val mDirectExecutor = Executor { it.run() }
+    @ExperimentalAppActions
     // Capabilities to be set by the VOIP app which will be used in addCall.
     private var mCapabilities: MutableList<androidx.core.telecom.extensions.Capability> =
         mutableListOf()
@@ -295,7 +298,7 @@ class CallsManager constructor(context: Context) {
      * @throws CancellationException if the call failed to be added within 5000 milliseconds
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalAppActions::class)
     @Suppress("ClassVerificationFailure")
     suspend fun addCall(
         callAttributes: CallAttributesCompat,
@@ -435,6 +438,7 @@ class CallsManager constructor(context: Context) {
         mCapabilities.clear()
     }
 
+    @ExperimentalAppActions
     private suspend fun pauseExecutionUntilCallIsReady_orTimeout(
         openResult: CompletableDeferred<*>,
         request: JetpackConnectionService.PendingConnectionRequest? = null
@@ -482,6 +486,7 @@ class CallsManager constructor(context: Context) {
         return mPhoneAccount
     }
 
+    @ExperimentalAppActions
     internal fun setVoipCapabilities(
         capabilities: List<androidx.core.telecom.extensions.Capability>
     ) {

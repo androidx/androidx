@@ -29,6 +29,7 @@ import androidx.core.telecom.extensions.addParticipantsSupport
 import androidx.core.telecom.internal.CallCompat
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.test.utils.TestUtils.printParticipants
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.core.app.ActivityScenario.launch
 import java.util.Collections
 import kotlinx.coroutines.CoroutineScope
@@ -45,6 +46,7 @@ import kotlinx.coroutines.withTimeout
 @RequiresApi(Build.VERSION_CODES.O)
 internal class MockInCallServiceDelegate : Service() {
 
+    @OptIn(ExperimentalAppActions::class)
     class InCallServiceWoExtensions(context: Context) : InCallService() {
         init {
             // Icky hack, but since we are using a delegate, we need to attach the Context manually.
@@ -60,12 +62,14 @@ internal class MockInCallServiceDelegate : Service() {
                 mCalls.add(callCompat)
             }
         }
+
         override fun onCallRemoved(call: Call) {
             Log.i(LOG_TAG, String.format("ICS.onCallRemoved: call=[%s]", call))
             mCalls.removeIf { c -> c.toCall() == call }
         }
     }
 
+    @ExperimentalAppActions
     class InCallServiceWExtensions(context: Context) : InCallServiceCompat() {
         init {
             // Icky hack, but since we are using a delegate, we need to attach the Context manually.
@@ -98,11 +102,13 @@ internal class MockInCallServiceDelegate : Service() {
 
     companion object {
         const val LOG_TAG = "MockInCallServiceDelegate"
+        @OptIn(ExperimentalAppActions::class)
         val mCalls = Collections.synchronizedList(ArrayList<CallCompat>())
         var mIsServiceBound = false
         var mInCallServiceType: InCallServiceType = InCallServiceType.ICS_WITHOUT_EXTENSIONS
         val mServiceFlow = MutableStateFlow<InCallService?>(null)
 
+        @OptIn(ExperimentalAppActions::class)
         @Suppress("deprecation")
         suspend fun destroyAllCalls() {
             Log.i(LOG_TAG, "destroyAllCalls: Calls.size=[${mCalls.size}]")
@@ -128,6 +134,7 @@ internal class MockInCallServiceDelegate : Service() {
             }
         }
 
+        @ExperimentalAppActions
         fun getLastCall(): CallCompat? {
             return if (mCalls.size == 0) {
                 null
@@ -136,6 +143,7 @@ internal class MockInCallServiceDelegate : Service() {
             }
         }
 
+        @OptIn(ExperimentalAppActions::class)
         fun getCallCount(): Int {
             return mCalls.size
         }
@@ -147,12 +155,14 @@ internal class MockInCallServiceDelegate : Service() {
         fun getService(): InCallService? {
             return mServiceFlow.value
         }
+        @ExperimentalAppActions
         fun getServiceWithExtensions(): InCallServiceCompat? {
             if (getService() !is InCallServiceCompat) return null
             return getService() as InCallServiceCompat
         }
     }
 
+    @OptIn(ExperimentalAppActions::class)
     override fun onCreate() {
         Log.i(LOG_TAG, "Delegate service onCreate")
         mServiceFlow.tryEmit(when (mInCallServiceType) {

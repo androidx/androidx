@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.core.telecom.util;
-
-import androidx.annotation.RequiresOptIn;
+package androidx.core.telecom.util
 
 /**
  * This API is still experimental. Any features associated with this annotation are unstable and
  * should not be used in production.
  */
 @RequiresOptIn
-public @interface ExperimentalAppActions {}
+@Retention(AnnotationRetention.BINARY)
+annotation class ExperimentalAppActions
