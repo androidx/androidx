@@ -557,8 +557,7 @@ private class NavigationSuiteItem(
     val alwaysShowLabel: Boolean,
     val badge: (@Composable () -> Unit)?,
     val colors: NavigationSuiteItemColors?,
-    // TODO(conradchen): Make this nullable when material3 1.3.0 is released.
-    val interactionSource: MutableInteractionSource
+    val interactionSource: MutableInteractionSource?
 )
 
 private class NavigationSuiteScopeImpl : NavigationSuiteScope,
@@ -587,8 +586,7 @@ private class NavigationSuiteScopeImpl : NavigationSuiteScope,
                 alwaysShowLabel = alwaysShowLabel,
                 badge = badge,
                 colors = colors,
-                // TODO(conradchen): Remove the fallback logic when material3 1.3.0 is released.
-                interactionSource = interactionSource ?: MutableInteractionSource()
+                interactionSource = interactionSource
             )
         )
     }
