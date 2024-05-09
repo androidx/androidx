@@ -28,6 +28,7 @@ import android.opengl.EGL14
  *
  * For example to create an 8888 configuration, this can be done with the following:
  *
+ * ```
  * EGLConfigAttributes {
  *      EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
  *      EGL14.EGL_RED_SIZE to 8
@@ -39,6 +40,7 @@ import android.opengl.EGL14
  *      EGL14.EGL_STENCIL_SIZE to 8
  *      EGL14.EGL_SURFACE_TYPE to EGL14.EGL_WINDOW_BIT
  * }
+ * ```
  *
  * @see EGLConfigAttributes.RGBA_8888
  */
