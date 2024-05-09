@@ -73,6 +73,6 @@ public final class Keyword {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mAsText);
+        return Objects.hashCode(mAsText);
     }
 }

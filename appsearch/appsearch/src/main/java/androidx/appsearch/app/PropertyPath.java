@@ -226,7 +226,7 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
 
     @Override
     public int hashCode() {
-        return ObjectsCompat.hash(mPathList);
+        return ObjectsCompat.hashCode(mPathList);
     }
 
     /**
