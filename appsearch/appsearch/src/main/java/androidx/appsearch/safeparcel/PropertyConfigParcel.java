@@ -543,7 +543,7 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
 
         @Override
         public int hashCode() {
-            return ObjectsCompat.hash(mIndexingType);
+            return ObjectsCompat.hashCode(mIndexingType);
         }
 
         @Override
@@ -663,7 +663,7 @@ public final class PropertyConfigParcel extends AbstractSafeParcelable {
 
         @Override
         public int hashCode() {
-            return ObjectsCompat.hash(mIndexingType);
+            return ObjectsCompat.hashCode(mIndexingType);
         }
 
         @Override
