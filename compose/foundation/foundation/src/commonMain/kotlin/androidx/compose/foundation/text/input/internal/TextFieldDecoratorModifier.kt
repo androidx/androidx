@@ -74,10 +74,10 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.editable
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
+import androidx.compose.ui.semantics.isEditable
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.onLongClick
@@ -478,7 +478,7 @@ internal class TextFieldDecoratorModifierNode(
         textSelectionRange = selection
 
         if (!enabled) disabled()
-        if (editable) editable()
+        isEditable = this@TextFieldDecoratorModifierNode.editable
 
         getTextLayoutResult {
             textLayoutState.layoutResult?.let { result -> it.add(result) } ?: false

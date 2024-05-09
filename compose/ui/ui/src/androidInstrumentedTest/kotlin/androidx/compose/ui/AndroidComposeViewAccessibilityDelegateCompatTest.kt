@@ -54,7 +54,6 @@ import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.dismiss
-import androidx.compose.ui.semantics.editable
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.expand
@@ -63,6 +62,7 @@ import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.invisibleToUser
+import androidx.compose.ui.semantics.isEditable
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.semantics.onClick
@@ -766,7 +766,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         textSelectionRange = TextRange(1)
                         focused = true
                         maxTextLength = 100
-                        editable()
+                        isEditable = true
                         getTextLayoutResult { true }
                         setText(setTextActionLabel) { true }
                         setSelection(setSelectionActionLabel) { _, _, _ -> true }
@@ -828,7 +828,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         editableText = AnnotatedString(text)
                         textSelectionRange = TextRange(1)
                         focused = true
-                        editable()
+                        isEditable = true
                         getTextLayoutResult { true }
                         setText(setTextActionLabel) { true }
                         setSelection(setSelectionActionLabel) { _, _, _ -> true }
