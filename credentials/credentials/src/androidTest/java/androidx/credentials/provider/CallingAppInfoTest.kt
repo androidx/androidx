@@ -25,6 +25,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.BeforeClass
@@ -183,7 +184,8 @@ class CallingAppInfoTest {
                 val packageInfo = context.packageManager.getPackageInfo(
                     packageName, PackageManager.GET_SIGNING_CERTIFICATES
                 )
-                signingInfo = packageInfo.signingInfo
+                assertNotNull(signingInfo)
+                signingInfo = packageInfo.signingInfo!!
             } catch (_: PackageManager.NameNotFoundException) {
             }
         }

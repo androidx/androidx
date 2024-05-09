@@ -147,7 +147,7 @@ internal class CredentialProviderFactory(val context: Context) {
 
         val classNames = mutableListOf<String>()
         if (packageInfo.services != null) {
-            for (serviceInfo in packageInfo.services) {
+            for (serviceInfo in packageInfo.services!!) {
                 if (serviceInfo.metaData != null) {
                     val className = serviceInfo.metaData.getString(CREDENTIAL_PROVIDER_KEY)
                     if (className != null) {
