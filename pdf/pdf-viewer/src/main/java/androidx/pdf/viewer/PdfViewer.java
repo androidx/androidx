@@ -136,6 +136,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     private static final String TAG = "PdfViewer";
 
+    @NonNull
     @Override
     protected String getLogTag() {
         return TAG;
@@ -265,6 +266,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
      * If set, this Viewer will call {@link Activity#finish()} if it can't load the PDF. By default,
      * the value is false.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public PdfViewer setQuitOnError(boolean quit) {
         getArguments().putBoolean(KEY_QUIT_ON_ERROR, quit);
@@ -275,6 +277,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
      * If set, this viewer will finish the attached activity when the user presses cancel on the
      * prompt for the document password.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public PdfViewer setExitOnPasswordCancel(boolean shouldExitOnPasswordCancel) {
         getArguments().putBoolean(KEY_EXIT_ON_CANCEL, shouldExitOnPasswordCancel);
@@ -282,15 +285,17 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@NonNull Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFetcher = Fetcher.build(getContext(), 1);
         sScreen = new Screen(this.requireActivity().getApplicationContext());
     }
 
+    @NonNull
     @SuppressLint("InflateParams")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container,
+            @Nullable Bundle savedState) {
         super.onCreateView(inflater, container, savedState);
         mPaginationModel = new PaginationModel();
 
@@ -398,7 +403,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@NonNull Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mZoomView.zoomScroll().addObserver(mZoomScrollObserver);
         if (mPendingScrollPositionObserver != null) {
@@ -409,7 +414,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    protected void onContentsAvailable(DisplayData contents, @Nullable Bundle savedState) {
+    protected void onContentsAvailable(@NonNull DisplayData contents, @Nullable Bundle savedState) {
         mFileData = contents;
 
         // TODO: StrictMode- disk read 58ms.
@@ -504,7 +509,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     /**
      *
      */
-    public void setPassword(String password) {
+    public void setPassword(@NonNull String password) {
         if (mPdfLoader != null) {
             mPdfLoader.applyPassword(password);
         }
@@ -560,7 +565,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(KEY_LAYOUT_REACH, mPageLayoutReach);
         Log.v(TAG, "Saved current reach " + mPageLayoutReach);
 
@@ -1023,6 +1028,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         }
                     }
 
+                    @NonNull
                     @Override
                     public String toString() {
                         return TAG + "#zoomScrollObserver";
@@ -1038,6 +1044,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         mPaginatedView.clearAllOverlays();
                     }
 
+                    @NonNull
                     @Override
                     public String toString() {
                         return TAG + "#searchQueryObserver";
@@ -1065,6 +1072,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         lookAtSelection(newSelection);
                     }
 
+                    @NonNull
                     @Override
                     public String toString() {
                         return TAG + "#selectedMatchObserver";
@@ -1109,6 +1117,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         }
                     }
 
+                    @NonNull
                     @Override
                     public String toString() {
                         return TAG + "#fastscrollerPositionObserver";
@@ -1600,7 +1609,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     @Override
-    public void setFastScrollListener(final FastScrollListener listener) {
+    public void setFastScrollListener(final @NonNull FastScrollListener listener) {
         mZoomView
                 .getViewTreeObserver()
                 .addOnScrollChangedListener(

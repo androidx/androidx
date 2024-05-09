@@ -21,6 +21,7 @@ import android.graphics.ColorFilter;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -31,12 +32,12 @@ import androidx.annotation.RestrictTo;
 public class HighlightOverlay extends Drawable {
     protected final DrawSpec[] mDrawSpecs;
 
-    protected HighlightOverlay(DrawSpec... drawSpecs) {
+    protected HighlightOverlay(@NonNull DrawSpec... drawSpecs) {
         this.mDrawSpecs = drawSpecs;
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         for (DrawSpec drawSpec : mDrawSpecs) {
             drawSpec.draw(canvas);
         }
@@ -54,7 +55,7 @@ public class HighlightOverlay extends Drawable {
     }
 
     @Override
-    public void setColorFilter(ColorFilter cf) {
+    public void setColorFilter(@NonNull ColorFilter cf) {
         throw new UnsupportedOperationException("setColorFilter");
     }
 }

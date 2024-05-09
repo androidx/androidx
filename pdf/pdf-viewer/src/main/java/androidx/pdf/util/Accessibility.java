@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -35,17 +36,18 @@ public class Accessibility {
     /**
      *
      */
+    @NonNull
     public static final Accessibility get() {
         return INSTANCE;
     }
 
     /** Return if accessibility touch exploration is enabled. */
-    public boolean isTouchExplorationEnabled(Context context) {
+    public boolean isTouchExplorationEnabled(@NonNull Context context) {
         return getAccessibilityManager(context).isTouchExplorationEnabled();
     }
 
     /** Returns if accessibility services are currently enabled. */
-    public boolean isAccessibilityEnabled(Context context) {
+    public boolean isAccessibilityEnabled(@NonNull Context context) {
         return getAccessibilityManager(context).isEnabled();
     }
 
@@ -56,7 +58,7 @@ public class Accessibility {
      * @param source  The source of the announcement.
      * @param message The message to be announced.
      */
-    public void announce(Context context, View source, String message) {
+    public void announce(@NonNull Context context, @NonNull View source, @NonNull String message) {
         if (!isAccessibilityEnabled(context)) {
             return;
         }
@@ -75,7 +77,7 @@ public class Accessibility {
      * Calls to {@link #announce(Context, View, String)} using the text from the provided {@code
      * messageId}.
      */
-    public void announce(Context context, View source, int messageId) {
+    public void announce(@NonNull Context context, @NonNull View source, int messageId) {
         announce(context, source, context.getString(messageId));
     }
 

@@ -206,7 +206,7 @@ public abstract class PasswordDialog extends DialogFragment {
     }
 
     @Override
-    public void onCancel(DialogInterface dialog) {
+    public void onCancel(@NonNull DialogInterface dialog) {
         if (mFinishOnCancel) {
             getActivity().finish();
         } else {
@@ -216,7 +216,7 @@ public abstract class PasswordDialog extends DialogFragment {
     }
 
     /** Set the password input by the user. */
-    public abstract void sendPassword(EditText textField);
+    public abstract void sendPassword(@NonNull EditText textField);
 
     /** Show error when user cancels password prompt dialog. */
     public abstract void showErrorOnDialogCancel();

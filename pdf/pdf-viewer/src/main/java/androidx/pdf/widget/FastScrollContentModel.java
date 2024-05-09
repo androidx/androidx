@@ -16,6 +16,7 @@
 
 package androidx.pdf.widget;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -52,7 +53,7 @@ public interface FastScrollContentModel {
     /**
      * Allow the {@link FastScrollView} to update the scroll thumb when the content scrolls.
      */
-    void setFastScrollListener(FastScrollListener listener);
+    void setFastScrollListener(@NonNull FastScrollListener listener);
 
     /**
      * Listener for content scroll events in units consistent with the other methods in this class.

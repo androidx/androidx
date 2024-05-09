@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.Dimensions;
@@ -49,11 +50,11 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     private List<GotoLink> mGotoLinks;
 
     public PageMosaicView(
-            Context context,
+            @NonNull Context context,
             int pageNum,
-            Dimensions pageSize,
-            BitmapSource bitmapSource,
-            BitmapRecycler bitmapRecycler) {
+            @NonNull Dimensions pageSize,
+            @NonNull BitmapSource bitmapSource,
+            @Nullable BitmapRecycler bitmapRecycler) {
         super(context);
         this.mPageNum = pageNum;
         init(pageSize, bitmapRecycler, bitmapSource);
@@ -104,7 +105,7 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
 
     /** Return the URL corresponding to the given point. */
     @Nullable
-    public String getLinkUrl(Point p) {
+    public String getLinkUrl(@NonNull Point p) {
         return (mUrlLinks != null) ? mUrlLinks.getUrlAtPoint(p.x, p.y) : null;
     }
 
@@ -132,6 +133,7 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
         setPageText(null);
     }
 
+    @NonNull
     @Override
     public PageMosaicView getPageView() {
         return this;
@@ -148,7 +150,7 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     }
 
     @Override
-    public void setPageGotoLinks(List<GotoLink> links) {
+    public void setPageGotoLinks(@NonNull List<GotoLink> links) {
         mGotoLinks = links;
     }
 

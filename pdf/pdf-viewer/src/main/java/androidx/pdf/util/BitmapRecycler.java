@@ -19,6 +19,7 @@ package androidx.pdf.util;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.Dimensions;
@@ -47,7 +48,7 @@ public class BitmapRecycler {
      * @return A recycled or new {@link Bitmap}, or null if there's not enough memory to create one.
      */
     @Nullable
-    public Bitmap obtainBitmap(Dimensions dimensions) {
+    public Bitmap obtainBitmap(@NonNull Dimensions dimensions) {
         Bitmap bitmap;
         Iterator<WeakReference<Bitmap>> iterator = null;
         synchronized (mPool) {
@@ -100,7 +101,7 @@ public class BitmapRecycler {
     }
 
     /** Returns the memory usage of a {@link Bitmap} (in kb). */
-    public static int getMemSizeKb(Bitmap bitmap) {
+    public static int getMemSizeKb(@NonNull Bitmap bitmap) {
         return bitmap.getByteCount() / 1024; // could use getAllocationByteCount() for API >= 19
     }
 

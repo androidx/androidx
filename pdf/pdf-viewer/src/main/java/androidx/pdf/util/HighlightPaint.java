@@ -61,20 +61,6 @@ public final class HighlightPaint {
     /** Used to provide a semi-transparent, filled, darkening effect. */
     public static final Paint DARKEN_PAINT = createDarkenPaint();
 
-    /** Used to highlight every outline-only comment anchor. Grayish-white. */
-    public static Paint getOutlinedCommentAnchorPaint() {
-        return createOutlinedPaint(117, 117, 117, 191);
-    }
-
-    /** Used to highlight currently focused, outline-only comment anchor. Darker yellowish brown. */
-    public static Paint getOutlinedSelectedCommentAnchorPaint() {
-        return createOutlinedPaint(243, 179, 0, 128);
-    }
-
-    public static Paint getWhiteOutlinePaint() {
-        return createOutlinedPaint(255, 255, 255, 255);
-    }
-
     /** Used to highlight every triangle corner comment anchor in a spreadsheet. Dark Yellow. */
     public static final Paint TRIANGLE_CORNER_COMMENT_MATCH = createFilledPaint(243, 165, 55, 255);
 

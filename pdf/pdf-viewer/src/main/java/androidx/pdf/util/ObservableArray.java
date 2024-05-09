@@ -18,6 +18,7 @@ package androidx.pdf.util;
 
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -53,6 +54,7 @@ public interface ObservableArray<T> extends Observable<ObservableArray.ArrayObse
     T get(int key);
 
     /** Iterable over the set of mapped keys, in crescent order. */
+    @NonNull
     Iterable<Integer> keys();
 
     /** The number of values in this array. */

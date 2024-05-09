@@ -18,6 +18,7 @@ package androidx.pdf.viewer.loader;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.util.ErrorLog;
@@ -80,7 +81,7 @@ public class PdfTaskExecutor extends Thread {
     }
 
     /** Schedule the given task. */
-    public void schedule(AbstractPdfTask<?> task) {
+    public void schedule(@NonNull AbstractPdfTask<?> task) {
         synchronized (this) {
             Log.v(TAG, "Schedule task: " + task.toString());
             mScheduledTasks.add(task);

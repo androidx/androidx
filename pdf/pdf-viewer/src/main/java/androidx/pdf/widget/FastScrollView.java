@@ -25,6 +25,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
@@ -84,11 +85,11 @@ public class FastScrollView extends FrameLayout implements FastScrollListener {
                 }
             };
 
-    public FastScrollView(Context context, AttributeSet attrs) {
+    public FastScrollView(@NonNull Context context, @NonNull AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public FastScrollView(Context context, AttributeSet attrs, int defStyle) {
+    public FastScrollView(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         setWillNotDraw(false);
@@ -155,12 +156,13 @@ public class FastScrollView extends FrameLayout implements FastScrollListener {
     }
 
     /** Set listener on scrollable. */
-    public void setScrollable(FastScrollContentModel scrollable) {
+    public void setScrollable(@NonNull FastScrollContentModel scrollable) {
         this.mScrollable = scrollable;
         scrollable.setFastScrollListener(this);
     }
 
     /** Return the Y coordinate of center of the Scroller thumb, in pixels. */
+    @NonNull
     public ObservableValue<Integer> getScrollerPositionY() {
         return mThumbY;
     }

@@ -53,7 +53,6 @@ import java.util.Objects;
  * a new request is accepted.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings("BanConcurrentHashMap")
 public class PdfPageLoader {
     public static final String TAG = PdfPageLoader.class.getSimpleName();
 
@@ -86,7 +85,7 @@ public class PdfPageLoader {
      * <p>Map is preferred to SparseArray because of frequent access by key, and leaner API (e.g.
      * combined remove-get).
      */
-    @SuppressLint("UseSparseArrays")
+    @SuppressLint({"UseSparseArrays", "BanConcurrentHashMap"})
     Map<Integer, RenderTileTask> mTileTasks =
             new java.util.concurrent.ConcurrentHashMap<Integer, RenderTileTask>();
 
@@ -124,7 +123,7 @@ public class PdfPageLoader {
     }
 
     /** Schedule task to render a page as a bitmap. */
-    public void loadPageBitmap(Dimensions pageSize) {
+    public void loadPageBitmap(@NonNull Dimensions pageSize) {
         if (mBitmapTask != null && mBitmapTask.mDimensions.getWidth() < pageSize.getWidth()) {
             cancelPageBitmap();
         }
@@ -150,7 +149,7 @@ public class PdfPageLoader {
      * this one, they are all canceled. If any tile request is a duplicate, it will not be
      * scheduled.
      */
-    public void loadTilesBitmaps(Dimensions pageSize, Iterable<TileInfo> tiles) {
+    public void loadTilesBitmaps(@NonNull Dimensions pageSize, @NonNull Iterable<TileInfo> tiles) {
         if (!mTileTasks.isEmpty() && mTilePageWidth != pageSize.getWidth()) {
             cancelAllTileBitmaps();
         }
@@ -204,7 +203,7 @@ public class PdfPageLoader {
     }
 
     /** Schedule task to search a page's text. */
-    public void searchPageText(String query) {
+    public void searchPageText(@NonNull String query) {
         if (!mIsBroken && mSearchPageTextTask != null && !mSearchPageTextTask.mQuery.equals(
                 query)) {
             cancelSearch();
@@ -223,7 +222,7 @@ public class PdfPageLoader {
     }
 
     /** Schedule task to select some of the page text. */
-    public void selectPageText(SelectionBoundary start, SelectionBoundary stop) {
+    public void selectPageText(@NonNull SelectionBoundary start, @NonNull SelectionBoundary stop) {
         // These tasks will be requested almost continuously as long as the user
         // is dragging a handle - only start a new one if we finished the last one.
         if (mSelectionTask != null) {
@@ -371,6 +370,7 @@ public class PdfPageLoader {
             callbacks.pageBroken(mPageNum);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.format("RenderBitmapTask(page=%d width=%d height=%d)",
@@ -420,6 +420,7 @@ public class PdfPageLoader {
             mTileTasks.remove(mTileInfo.getIndex());
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.format("RenderTileTask(page=%d width=%d height=%d tile=%s)",
@@ -480,6 +481,7 @@ public class PdfPageLoader {
             mTextTask = null;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.format("GetPageTextTask(page=%d)", mPageNum);
@@ -521,6 +523,7 @@ public class PdfPageLoader {
             mSearchPageTextTask = null;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.format("SearchPageTextTask(page=%d, query=\"%s\")", mPageNum, mQuery);
@@ -559,6 +562,7 @@ public class PdfPageLoader {
             mSelectionTask = null;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.format("SelectionTask(page=%d, start=%s, stop=%s)", mPageNum, mStart,
@@ -597,6 +601,7 @@ public class PdfPageLoader {
             mLinksTask = null;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.format("GetPageLinksTask(page=%d)", mPageNum);

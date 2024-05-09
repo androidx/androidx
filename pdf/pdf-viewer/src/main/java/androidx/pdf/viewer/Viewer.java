@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
@@ -57,6 +58,7 @@ import androidx.pdf.util.Observables.ExposedValue;
 @SuppressWarnings("deprecation")
 public abstract class Viewer extends Fragment {
 
+    @NonNull
     protected abstract String getLogTag();
 
     protected static final String KEY_DATA = "data";
@@ -114,8 +116,10 @@ public abstract class Viewer extends Fragment {
     protected boolean mIsPasswordProtected;
 
     /** The container where this viewer is attached. */
+    @NonNull
     protected ViewGroup mContainer;
 
+    @NonNull
     protected ExposedValue<ViewState> mViewState = Observables.newExposedValueWithInitialValue(
             ViewState.NO_VIEW);
 
@@ -128,6 +132,7 @@ public abstract class Viewer extends Fragment {
     }
 
     /** Reports the {@link ViewState} of this Fragment. */
+    @NonNull
     public ObservableValue<ViewState> viewState() {
         return mViewState;
     }
@@ -149,7 +154,7 @@ public abstract class Viewer extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@NonNull Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (mEventlog.length() > 1) { // 'B' is logged before onCreate.
             log('<', "Reuse an existing instance: " + getEventlog());
@@ -162,7 +167,8 @@ public abstract class Viewer extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @NonNull ViewGroup container,
+            @NonNull Bundle savedState) {
         if (container == null) {
             // Don't throw an exception here, as this may happen during restoreInstanceState for
             // Viewers that we don't need anymore.
@@ -175,7 +181,7 @@ public abstract class Viewer extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@NonNull Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         log('A', "onActivityCreated " + mViewState.get());
         if (mViewState.get() == ViewState.NO_VIEW || mViewState.get() == ViewState.ERROR) {
@@ -306,7 +312,7 @@ public abstract class Viewer extends Fragment {
         if (!participate) {
             disableAccessibilityPostKitKat();
         } else {
-            getView()
+            requireView()
                     .setImportantForAccessibility(
                             participate
                                     ? View.IMPORTANT_FOR_ACCESSIBILITY_YES
@@ -323,18 +329,19 @@ public abstract class Viewer extends Fragment {
     }
 
     /** Save the {@link DisplayData}'s content reference (not the contents itself) to arguments. */
-    protected void saveToArguments(DisplayData data) {
+    protected void saveToArguments(@NonNull DisplayData data) {
         getArguments().putBundle(KEY_DATA, data.asBundle());
         log('B', "Saved arg " + data.asBundle());
     }
 
     /** Logs a step in the life-cycle of this Viewer (e.g. onStop). */
-    protected void log(char tag, String step) {
+    protected void log(char tag, @NonNull String step) {
         Log.v(getLogTag(), "Lifecycle: " + step);
         mEventlog.append(tag);
     }
 
     /** Returns a compact event log for this Viewer that helps investigating lifecycle issues. */
+    @NonNull
     protected String getEventlog() {
         return mEventlog.toString();
     }

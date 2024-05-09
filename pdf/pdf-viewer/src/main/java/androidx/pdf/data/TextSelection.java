@@ -19,8 +19,11 @@ package androidx.pdf.data;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.SelectionBoundary;
+
+import java.util.Objects;
 
 /** Represents the selection of part of a piece of text - a start and a stop. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -29,15 +32,14 @@ public class TextSelection implements Parcelable {
     public static final TextSelection EMPTY_SELECTION = new TextSelection(
             SelectionBoundary.PAGE_START, SelectionBoundary.PAGE_START);
 
-    @SuppressWarnings("deprecation")
     public static final Creator<TextSelection> CREATOR = new Creator<TextSelection>() {
-        @SuppressWarnings("unchecked")
         @Override
         public TextSelection createFromParcel(Parcel parcel) {
-            return new TextSelection((SelectionBoundary) parcel.readParcelable(
-                    SelectionBoundary.class.getClassLoader()),
-                    (SelectionBoundary) parcel.readParcelable(
-                            SelectionBoundary.class.getClassLoader()));
+            return new TextSelection((SelectionBoundary) Objects.requireNonNull(
+                    parcel.readParcelable(
+                            SelectionBoundary.class.getClassLoader())),
+                    (SelectionBoundary) Objects.requireNonNull(parcel.readParcelable(
+                            SelectionBoundary.class.getClassLoader())));
         }
 
         @Override
@@ -52,26 +54,29 @@ public class TextSelection implements Parcelable {
     /** The end of the selection - index is exclusive. */
     private final SelectionBoundary mStop;
 
-    public TextSelection(SelectionBoundary start, SelectionBoundary stop) {
+    public TextSelection(@NonNull SelectionBoundary start, @NonNull SelectionBoundary stop) {
         this.mStart = start;
         this.mStop = stop;
     }
 
+    @NonNull
     public SelectionBoundary getStart() {
         return mStart;
     }
 
+    @NonNull
     public SelectionBoundary getStop() {
         return mStop;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return String.format("TextSelection(start=%s, stop=%s)", mStart, mStop);
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int flags) {
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeParcelable(mStart, 0);
         parcel.writeParcelable(mStop, 0);
     }

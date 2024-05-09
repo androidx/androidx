@@ -16,6 +16,7 @@
 
 package androidx.pdf.pdflib;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.PdfDocumentRemote;
 
@@ -26,10 +27,11 @@ import androidx.pdf.models.PdfDocumentRemote;
 public class PdfDocumentRemoteProto {
     private PdfDocumentRemote mRemote;
 
-    public PdfDocumentRemoteProto(PdfDocumentRemote remote) {
+    public PdfDocumentRemoteProto(@NonNull PdfDocumentRemote remote) {
         this.mRemote = remote;
     }
 
+    @NonNull
     public PdfDocumentRemote getPdfDocumentRemote() {
         return mRemote;
     }

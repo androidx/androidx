@@ -59,7 +59,8 @@ public class PageLinksView extends LinearLayout {
     private final ObservableValue<ZoomView.ZoomScroll> mZoomScroll;
     private ExploreByTouchHelper mTouchHelper;
 
-    public PageLinksView(Context context, ObservableValue<ZoomView.ZoomScroll> zoomScroll) {
+    public PageLinksView(@NonNull Context context,
+            @NonNull ObservableValue<ZoomView.ZoomScroll> zoomScroll) {
         super(context);
         setLayoutParams(
                 new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,

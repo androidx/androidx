@@ -40,6 +40,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.OverScroller;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -217,11 +218,11 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         mGestureTracker.setDelegateHandler(mGestureHandler);
     }
 
-    public ZoomView(Context context, AttributeSet attrs) {
+    public ZoomView(@NonNull Context context, @NonNull AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ZoomView(Context context, AttributeSet attrs, int defStyle) {
+    public ZoomView(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ZoomView, defStyle,
@@ -299,6 +300,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * Configure how this view fits the content into the screen. See {@link FitMode}. Default is
      * FitMode.FIT_TO_BOTH - the content is fit so both its width and height fit on screen.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setFitMode(int fitMode) {
         this.mFitMode = fitMode;
@@ -309,6 +311,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * Configure which zoom this view starts at, from a value in {@link InitialZoomMode}. Default is
      * InitialZoomMode.CONSTANT with a constant of 1, meaning 100% zoom.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setInitialZoomMode(int initialZoomMode) {
         this.mInitialZoomMode = initialZoomMode;
@@ -319,6 +322,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * Configure how the zoom changes when device rotates, from a value in {@link RotateMode}.
      * Default is RotateMode.KEEP_SAME_ZOOM - the zoom level doesn't change on rotation.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setRotateMode(int rotateMode) {
         this.mRotateMode = rotateMode;
@@ -329,6 +333,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * Configure how the viewport moves when the content changes size. Default is that the viewport
      * tracks the same point in absolute terms, before and after the change.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setContentResizedMode(int contentResizedMode) {
         mContentResizedModeX = mContentResizedModeY = mContentResizedModeZoom = contentResizedMode;
@@ -340,6 +345,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * grows as it is loaded, you might want the view to stay centered as it widens (so X mode is
      * relative) but not to lose the page as it gets taller (so Y mode is absolute).
      */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setContentResizedModeX(int contentResizedMode) {
         this.mContentResizedModeX = contentResizedMode;
@@ -347,6 +353,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** Set value of contentResizedModeY. */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setContentResizedModeY(int contentResizedMode) {
         this.mContentResizedModeY = contentResizedMode;
@@ -354,6 +361,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** Set value of contentResizedModeZoom. */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setContentResizedModeZoom(int contentResizedMode) {
         this.mContentResizedModeZoom = contentResizedMode;
@@ -366,6 +374,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * zoom by an apparently arbitrary amount, depending on the exact screen and content dimensions.
      * If the content does not currently exactly fit the screen, the RotateMode is honored.
      */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setKeepFitZoomOnRotate(boolean keepFitZoomOnRotate) {
         this.mKeepFitZoomOnRotate = keepFitZoomOnRotate;
@@ -373,6 +382,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** Allows zooming out further than min zoom if this is needed to fit content on screen. */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setOverrideMinZoomToFit(boolean overrideMinZoomToFit) {
         this.mOverrideMinZoomToFit = overrideMinZoomToFit;
@@ -380,6 +390,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** Allows zooming in further than max zoom if this is needed to make content fill screen. */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setOverrideMaxZoomToFit(boolean overrideMaxZoomToFit) {
         this.mOverrideMaxZoomToFit = overrideMaxZoomToFit;
@@ -387,6 +398,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** If true, parent must handle scaling/zooming gestures by calling {@link #setZoom(float)}. */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setAllowParentToHandleScaleEvents(boolean allowParentToHandleScaleEvents) {
         this.mAllowParentToHandleScaleEvents = allowParentToHandleScaleEvents;
@@ -394,6 +406,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** Enables/Disables double tap to zoom. */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setEnableDoubleTap(boolean doubleTapEnabled) {
         this.mDoubleTapEnabled = doubleTapEnabled;
@@ -401,6 +414,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** Exposes this view's position as an observable value. */
+    @NonNull
     public ObservableValue<ZoomScroll> zoomScroll() {
         return mPosition;
     }
@@ -633,6 +647,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** Configure which zoom this view starts at. Default is 1, meaning 100% zoom. */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setInitialZoom(float initialZoom) {
         setInitialZoomMode(InitialZoomMode.CONSTANT);
@@ -649,6 +664,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     }
 
     /** Set the minimum zoom - also configurable in XML. Returns this. */
+    @NonNull
     @CanIgnoreReturnValue
     public ZoomView setMinZoom(float minZoom) {
         this.mMinZoom = minZoom;
@@ -726,6 +742,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * view's padding) in co-ordinates of the content. The result is relative to
      * (0, 0)-(rawContentWidth, rawContentHeight).
      */
+    @NonNull
     public Rect getUsableAreaInContentCoords() {
         return new Rect(
                 (int) toContentX(0),
@@ -739,6 +756,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * view's padding) in co-ordinates of the content. The result is relative to (0,
      * 0)-(rawContentWidth, rawContentHeight).
      */
+    @NonNull
     public Rect getVisibleAreaInContentCoords() {
         return new Rect(
                 (int) toContentX(-getPaddingLeft()),
@@ -767,7 +785,8 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * co-ordinate system of the content, before scaling is applied by the zoom factor.
      */
     public void zoomAndCenterAtAnimated(
-            float x, float y, float newZoom, ValueAnimator.AnimatorUpdateListener updateListener) {
+            float x, float y, float newZoom,
+            @NonNull ValueAnimator.AnimatorUpdateListener updateListener) {
         if (newZoom > getMaxZoom() || newZoom < getMinZoom()) {
             return;
         }
@@ -959,6 +978,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         return contentPosition;
     }
 
+    @NonNull
     @Override
     protected Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
@@ -1042,13 +1062,13 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
 
     /** Attempt to restore to the given {@link ZoomScroll} as faithfully as possible. */
     @Override
-    public void attemptRestorePosition(ZoomScroll position) {
+    public void attemptRestorePosition(@NonNull ZoomScroll position) {
         mPositionToRestore = position;
         requestLayout();
     }
 
     @Override
-    protected boolean interceptGesture(GestureTracker gestureTracker) {
+    protected boolean interceptGesture(@NonNull GestureTracker gestureTracker) {
         if (gestureTracker.matches(GestureTracker.Gesture.DOUBLE_TAP) && mDoubleTapEnabled) {
             // We have to send a CANCEL to any child that might track this gesture and would
             // otherwise think it was a single tap.
@@ -1134,7 +1154,8 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         }
 
         /** Get ZoomScroll position from bundle. */
-        public static ZoomScroll fromBundle(Bundle bundle) {
+        @NonNull
+        public static ZoomScroll fromBundle(@androidx.annotation.NonNull Bundle bundle) {
             ZoomScroll position =
                     new ZoomScroll(
                             bundle.getFloat(KEY_ZOOM),
@@ -1152,6 +1173,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         }
 
         /** Save and return ZoomScroll position in a Bundle object. */
+        @NonNull
         public Bundle asBundle() {
             Bundle bundle = new Bundle();
             bundle.putInt(KEY_SCROLL_X, scrollX);

@@ -18,6 +18,7 @@ package androidx.pdf.viewer;
 
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.find.MatchCount;
@@ -96,7 +97,7 @@ public class SearchModel {
      */
     private CycleRange.Iterator mNextSelectedPage;
 
-    public SearchModel(PdfLoader pdfLoader) {
+    public SearchModel(@NonNull PdfLoader pdfLoader) {
         this.mPdfLoader = pdfLoader;
     }
 
@@ -112,16 +113,19 @@ public class SearchModel {
     }
 
     /** Return the current search query. */
+    @NonNull
     public ObservableValue<String> query() {
         return mQuery;
     }
 
     /** Return the currently selected match. */
+    @NonNull
     public ObservableValue<SelectedMatch> selectedMatch() {
         return mSelectedMatch;
     }
 
     /** Return index of the current match out of the total matches found. */
+    @NonNull
     public ObservableValue<MatchCount> matchCount() {
         return mMatchCount;
     }
@@ -180,7 +184,8 @@ public class SearchModel {
      * Add these search results into the model. Returns true if another search task was started now
      * that these results have arrived, false if no further searching is necessary.
      */
-    public boolean updateMatches(String matchesQuery, int page, MatchRects matches) {
+    public boolean updateMatches(@NonNull String matchesQuery, int page,
+            @NonNull MatchRects matches) {
         Preconditions.checkState(
                 getNumPages() >= 0, "updateMatches should only be called after setNumPages");
 
@@ -252,7 +257,7 @@ public class SearchModel {
      * request it from the PdfLoader, which will run asynchronously and eventually call {@link
      * #updateMatches}.
      */
-    public void selectNextMatch(Direction direction, int viewingPage) {
+    public void selectNextMatch(@NonNull Direction direction, int viewingPage) {
         if (getNumPages() < 0) {
             return; // Cannot search until setNumPages is called.
         }
@@ -288,7 +293,8 @@ public class SearchModel {
 
     /** Return the page overlay for the selection. */
     @Nullable
-    public PdfHighlightOverlay getOverlay(String matchesQuery, int page, MatchRects matches) {
+    public PdfHighlightOverlay getOverlay(@NonNull String matchesQuery, int page,
+            @NonNull MatchRects matches) {
         if (page == getSelectedPage()) {
             return mSelectedMatch.get().getOverlay();
         }
@@ -343,7 +349,7 @@ public class SearchModel {
      * newlines, which don't have a highlightable area.
      */
     @Nullable
-    public static String whiteSpaceToNull(String query) {
+    public static String whiteSpaceToNull(@NonNull String query) {
         return (query != null && TextUtils.isGraphic(query)) ? query : null;
     }
 }

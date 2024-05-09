@@ -37,11 +37,6 @@ public class AppInfo {
     private final String mAppVersion;
     private final String mPackageName;
 
-    /** Bootstrap {@link AppInfo} from any {@link Context}. Can be called multiple times. */
-    public static synchronized void bootstrap(@NonNull Context context) {
-        sAppInfo = new AppInfo(context.getApplicationContext());
-    }
-
     /** Singleton-style getter for the {@link AppInfo} instance. Always non-null. */
     @NonNull
     public static AppInfo get() {
@@ -61,10 +56,12 @@ public class AppInfo {
         mAppVersion = NO_VERSION;
     }
 
+    @NonNull
     public String getAppVersion() {
         return mAppVersion;
     }
 
+    @NonNull
     public String getPackageName() {
         return mPackageName;
     }

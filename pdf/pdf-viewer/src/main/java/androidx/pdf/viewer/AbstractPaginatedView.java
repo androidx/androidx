@@ -20,6 +20,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -43,15 +44,16 @@ public abstract class AbstractPaginatedView extends ViewGroup implements Paginat
     @Nullable
     private PaginationModel mModel;
 
-    public AbstractPaginatedView(Context context) {
+    public AbstractPaginatedView(@NonNull Context context) {
         super(context);
     }
 
-    public AbstractPaginatedView(Context context, AttributeSet attrs) {
+    public AbstractPaginatedView(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public AbstractPaginatedView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AbstractPaginatedView(@NonNull Context context, @NonNull AttributeSet attrs,
+            int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 

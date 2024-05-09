@@ -18,6 +18,7 @@ package androidx.pdf.widget;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -31,10 +32,11 @@ public class ReusableToast {
 
     private int mAutoHideDelayMs = 1000;
 
-    public ReusableToast(View view) {
+    public ReusableToast(@NonNull View view) {
         this.mView = view;
     }
 
+    @NonNull
     public View getView() {
         return mView;
     }

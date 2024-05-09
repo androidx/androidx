@@ -19,6 +19,7 @@ package androidx.pdf.util;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -52,7 +53,7 @@ public final class ThreadUtils {
      * Runs the given {@link Runnable} on the UI thread: <br>
      * Run immediately if this is the UI thread, post it on the UI thread otherwise.
      */
-    public static void runOnUiThread(Runnable r) {
+    public static void runOnUiThread(@NonNull Runnable r) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             r.run();
         } else {
@@ -61,24 +62,24 @@ public final class ThreadUtils {
     }
 
     /** Runs the given {@link Runnable} on a background thread. */
-    public static void runInBackground(Runnable r) {
+    public static void runInBackground(@NonNull Runnable r) {
         BACKGROUND_EXECUTOR.execute(r);
     }
 
     /**
      * Posts the given runnable on the UI thread, to be started after the given delay (milliseconds)
      */
-    public static void postOnUiThreadDelayed(Runnable r, long delay) {
+    public static void postOnUiThreadDelayed(long delay, @NonNull Runnable r) {
         UI_THREAD_HANDLER.postDelayed(r, delay);
     }
 
     /** Removes the runnable from the UI thread, if it exists. */
-    public static void removeCallbackOnUiThread(Runnable r) {
+    public static void removeCallbackOnUiThread(@NonNull Runnable r) {
         UI_THREAD_HANDLER.removeCallbacks(r);
     }
 
     /** Posts the given runnable on the UI thread. */
-    public static void postOnUiThread(Runnable r) {
+    public static void postOnUiThread(@NonNull Runnable r) {
         UI_THREAD_HANDLER.post(r);
     }
 

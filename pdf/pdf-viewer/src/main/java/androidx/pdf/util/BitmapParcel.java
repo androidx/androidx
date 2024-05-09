@@ -20,6 +20,7 @@ import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
@@ -53,7 +54,7 @@ public class BitmapParcel {
      * @param bitmap the destination bitmap: its contents will be replaced by what is sent on the
      *               fd.
      */
-    public BitmapParcel(Bitmap bitmap) {
+    public BitmapParcel(@NonNull Bitmap bitmap) {
         this.mBitmap = bitmap;
     }
 
@@ -110,7 +111,7 @@ public class BitmapParcel {
      * @param bitmap   A bitmap whose pixels to populate.
      * @param sourceFd The source file descriptor.
      */
-    protected void receiveBitmap(Bitmap bitmap, ParcelFileDescriptor sourceFd) {
+    protected void receiveBitmap(@NonNull Bitmap bitmap, @NonNull ParcelFileDescriptor sourceFd) {
         readIntoBitmap(bitmap, sourceFd.detachFd());
     }
 

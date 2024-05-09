@@ -31,7 +31,7 @@ public interface FindInFileListener {
      *
      * @param query The text the user is searching for.
      */
-    boolean onQueryTextChange(String query);
+    boolean onQueryTextChange(@Nullable String query);
 
     /**
      * The user is attempting to find the next match of the query text.
@@ -39,7 +39,7 @@ public interface FindInFileListener {
      * @param query     The text the user is searching for.
      * @param backwards True iff the user is searching for the previous match.
      */
-    boolean onFindNextMatch(String query, boolean backwards);
+    boolean onFindNextMatch(@Nullable String query, boolean backwards);
 
     /**
      * Get an ObservableValue that changes whenever MatchCount data is changed -

@@ -20,6 +20,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import java.util.List;
@@ -30,12 +31,12 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RectDrawSpec extends DrawSpec {
 
-    public RectDrawSpec(Paint paint, List<Rect> shapes) {
+    public RectDrawSpec(@NonNull Paint paint, @NonNull List<Rect> shapes) {
         super(paint, shapes);
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         for (Rect rect : mRects) {
             canvas.drawRect(rect, mPaint);
         }

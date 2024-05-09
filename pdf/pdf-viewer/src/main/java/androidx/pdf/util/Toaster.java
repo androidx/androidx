@@ -19,6 +19,7 @@ package androidx.pdf.util;
 import android.content.Context;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -41,14 +42,14 @@ public class Toaster {
     /**
      *
      */
-    public void popToast(Context context, int resId, Object... args) {
+    public void popToast(@NonNull Context context, int resId, @NonNull Object... args) {
         popToast(context, context.getString(resId, args));
     }
 
     /**
      *
      */
-    public void popToast(Context context, String message) {
+    public void popToast(@NonNull Context context, @NonNull String message) {
         Toast.makeText(context, message, mDuration).show();
     }
 }
