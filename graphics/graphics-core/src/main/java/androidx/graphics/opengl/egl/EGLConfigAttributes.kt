@@ -64,7 +64,7 @@ class EGLConfigAttributes internal constructor(
      * values as well as including a previously generated [EGLConfigAttributes]
      * instance to be used as a template and conditionally update individual mapped values
      */
-    class Builder @PublishedApi internal constructor() {
+    class Builder {
         private val attrs = HashMap<Int, Int>()
 
         /**
