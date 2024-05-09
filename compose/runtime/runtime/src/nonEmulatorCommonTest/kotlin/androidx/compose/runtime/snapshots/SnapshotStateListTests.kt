@@ -507,7 +507,7 @@ class SnapshotStateListTests {
 
     @Test
     fun canRetainAllOfAStateList() {
-        val list = mutableStateListOf(0, 1, 2, 3, 4, 5, 6)
+        val list = SnapshotStateList(7) { it }
         val normalList = mutableListOf(0, 1, 2, 3, 4, 5, 6)
         list.retainAll(listOf(2, 4, 6, 8))
         normalList.retainAll(listOf(2, 4, 6, 8))
@@ -516,7 +516,7 @@ class SnapshotStateListTests {
 
     @Test
     fun canSetAnElementOfAStateList() {
-        val list = mutableStateListOf(0, 1, 2, 3, 4, 5, 6)
+        val list = SnapshotStateList(7) { it }
         val normalList = mutableListOf(0, 1, 2, 3, 4, 5, 6)
         list[2] = 100
         normalList[2] = 100
@@ -524,10 +524,17 @@ class SnapshotStateListTests {
     }
 
     @Test
+    fun canCreateViaLambdaExtension() {
+        val expected = mutableStateListOf(0, 1, 2, 3, 4)
+        val actual = SnapshotStateList(expected.size) { it }
+        expected(expected, actual)
+    }
+
+    @Test
     fun stateListsCanBeSnapshot() {
         val original = listOf(0, 1, 2, 3, 4, 5, 6)
         val mutableList = original.toMutableList()
-        val list = mutableStateListOf(0, 1, 2, 3, 4, 5, 6)
+        val list = SnapshotStateList(7) { it }
         val snapshot = Snapshot.takeSnapshot()
         try {
             list[1] = 100
@@ -690,12 +697,12 @@ class SnapshotStateListTests {
 
     @Test
     fun canReverseTheList() {
-        validate(List(100) { it }.toMutableStateList()) { list -> list.reverse() }
+        validate(SnapshotStateList(100) { it }) { list -> list.reverse() }
     }
 
     @Test
     fun canReverseUsingIterators() {
-        validate(List(100) { it }.toMutableStateList()) { list ->
+        validate(SnapshotStateList(100) { it }) { list ->
             val forward = list.listIterator()
             val backward = list.listIterator(list.size)
             val count = list.size shr 1
@@ -721,7 +728,7 @@ class SnapshotStateListTests {
 
     @Test
     fun canIterateForwards() {
-        validate(List(100) { it }.toMutableStateList()) { list ->
+        validate(SnapshotStateList(100) { it }) { list ->
             val forward = list.listIterator()
             var expected = 0
             var count = 0
@@ -735,7 +742,7 @@ class SnapshotStateListTests {
 
     @Test
     fun canIterateBackwards() {
-        validate(List(100) { it }.toMutableStateList()) { list ->
+        validate(SnapshotStateList(100) { it }) { list ->
             val backward = list.listIterator(list.size)
             var expected = 99
             var count = 0
@@ -749,14 +756,14 @@ class SnapshotStateListTests {
 
     @Test
     fun canShuffleTheList() {
-        val list = List(100) { it }.toMutableStateList()
+        val list = SnapshotStateList(100) { it }
         list.shuffle()
         assertEquals(100, list.distinct().size)
     }
 
     @Test
     fun canSortTheList() {
-        validate(List(100) { it }.toMutableStateList()) { list ->
+        validate(SnapshotStateList(100) { it }) { list ->
             list.shuffle()
             list.sort()
         }
