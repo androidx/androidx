@@ -19,13 +19,18 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
+import android.hardware.biometrics.BiometricManager
+import android.hardware.biometrics.BiometricPrompt
+import android.os.Build
 import android.os.Bundle
 import android.service.credentials.CredentialEntry
+import androidx.annotation.RequiresApi
 import androidx.credentials.CredentialOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetPasswordOption
+import androidx.credentials.provider.BiometricPromptData
 import androidx.credentials.provider.PasswordCredentialEntry
 import androidx.credentials.provider.PasswordCredentialEntry.Companion.fromSlice
 import androidx.test.core.app.ApplicationProvider
@@ -34,6 +39,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import javax.crypto.NullCipher
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
 import org.junit.Assert
@@ -41,7 +47,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 28)
 @SmallTest
 class PasswordCredentialEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -203,11 +209,39 @@ class PasswordCredentialEntryTest {
     @Test
     fun constructor_defaultAffiliatedDomain() {
         val defaultEntry = constructEntryWithRequiredParamsOnly()
+
         assertThat(defaultEntry.affiliatedDomain).isNull()
     }
+
+    @Test
+    fun constructor_defaultBiometricPromptData() {
+        val defaultEntry = constructEntryWithRequiredParamsOnly()
+
+        assertThat(defaultEntry.biometricPromptData).isNull()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    @Test
+    fun constructor_nonDefaultBiometricPromptData_setBiometricPromptDataRetrieved() {
+        val entryWithAffiliationType = PasswordCredentialEntry(
+            mContext,
+            USERNAME,
+            mPendingIntent,
+            BEGIN_OPTION,
+            DISPLAYNAME,
+            LAST_USED_TIME,
+            ICON,
+            affiliatedDomain = AFFILIATED_DOMAIN,
+            biometricPromptData = TEST_BIOMETRIC_DATA,
+        )
+
+        assertThat(entryWithAffiliationType.biometricPromptData).isEqualTo(TEST_BIOMETRIC_DATA)
+    }
+
     @Test
     fun constructor_nonEmptyAffiliatedDomainSet_nonEmptyAffiliatedDomainRetrieved() {
         val expectedAffiliatedDomain = "non-empty"
+
         val entryWithAffiliationType = PasswordCredentialEntry(
             mContext,
             USERNAME,
@@ -218,6 +252,7 @@ class PasswordCredentialEntryTest {
             ICON,
             affiliatedDomain = expectedAffiliatedDomain
         )
+
         assertThat(entryWithAffiliationType.affiliatedDomain).isEqualTo(expectedAffiliatedDomain)
     }
     @Test
@@ -233,6 +268,7 @@ class PasswordCredentialEntryTest {
             ICON,
             isDefaultIconPreferredAsSingleProvider = expectedPreferredDefaultIconBit
         )
+
         assertThat(entry.isDefaultIconPreferredAsSingleProvider)
             .isEqualTo(expectedPreferredDefaultIconBit)
     }
@@ -244,6 +280,7 @@ class PasswordCredentialEntryTest {
             mPendingIntent,
             BEGIN_OPTION
         )
+
         assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(
             DEFAULT_SINGLE_PROVIDER_ICON_BIT)
     }
@@ -254,6 +291,15 @@ class PasswordCredentialEntryTest {
 
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun constructor_allRequiredParamsUsed_setBiometricPromptRetrieved() {
+        val entry = constructEntryWithAllParams()
+
+        assertThat(entry.biometricPromptData).isEqualTo(TEST_BIOMETRIC_DATA)
+    }
+
     @Test
     fun builder_constructDefault_containsOnlySetPropertiesAndDefaultValues() {
         val entry = PasswordCredentialEntry.Builder(
@@ -276,6 +322,7 @@ class PasswordCredentialEntryTest {
         assertThat(entry.beginGetCredentialOption).isEqualTo(BEGIN_OPTION)
         assertThat(entry.affiliatedDomain).isNull()
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
+        assertThat(entry.biometricPromptData).isNull()
     }
     @Test
     fun builder_setAffiliatedDomainNull_retrieveNullAffiliatedDomain() {
@@ -285,17 +332,20 @@ class PasswordCredentialEntryTest {
             mPendingIntent,
             BEGIN_OPTION
         ).setAffiliatedDomain(null).build()
+
         assertThat(entry.affiliatedDomain).isNull()
     }
     @Test
     fun builder_setAffiliatedDomainNonNull_retrieveNonNullAffiliatedDomain() {
         val expectedAffiliatedDomain = "name"
+
         val entry = PasswordCredentialEntry.Builder(
             mContext,
             USERNAME,
             mPendingIntent,
             BEGIN_OPTION
         ).setAffiliatedDomain(expectedAffiliatedDomain).build()
+
         assertThat(entry.affiliatedDomain).isEqualTo(expectedAffiliatedDomain)
     }
     @Test
@@ -336,19 +386,36 @@ class PasswordCredentialEntryTest {
         )
     }
     private fun constructEntryWithAllParams(): PasswordCredentialEntry {
-        return PasswordCredentialEntry(
-            mContext,
-            USERNAME,
-            mPendingIntent,
-            BEGIN_OPTION,
-            DISPLAYNAME,
-            LAST_USED_TIME,
-            ICON,
-            IS_AUTO_SELECT_ALLOWED,
-            AFFILIATED_DOMAIN,
-            SINGLE_PROVIDER_ICON_BIT
-        )
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            PasswordCredentialEntry(
+                mContext,
+                USERNAME,
+                mPendingIntent,
+                BEGIN_OPTION,
+                DISPLAYNAME,
+                LAST_USED_TIME,
+                ICON,
+                IS_AUTO_SELECT_ALLOWED,
+                AFFILIATED_DOMAIN,
+                SINGLE_PROVIDER_ICON_BIT,
+                TEST_BIOMETRIC_DATA,
+            )
+        } else {
+            PasswordCredentialEntry(
+                mContext,
+                USERNAME,
+                mPendingIntent,
+                BEGIN_OPTION,
+                DISPLAYNAME,
+                LAST_USED_TIME,
+                ICON,
+                IS_AUTO_SELECT_ALLOWED,
+                AFFILIATED_DOMAIN,
+                SINGLE_PROVIDER_ICON_BIT,
+            )
+        }
     }
+
     private fun assertEntryWithRequiredParamsOnly(entry: PasswordCredentialEntry) {
         assertThat(USERNAME == entry.username)
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
@@ -356,7 +423,9 @@ class PasswordCredentialEntryTest {
         assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(
             DEFAULT_SINGLE_PROVIDER_ICON_BIT)
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
+        assertThat(entry.biometricPromptData).isNull()
     }
+
     private fun assertEntryWithAllParams(entry: PasswordCredentialEntry) {
         assertThat(USERNAME == entry.username)
         assertThat(DISPLAYNAME == entry.displayName)
@@ -373,6 +442,13 @@ class PasswordCredentialEntryTest {
         assertThat(entry.affiliatedDomain).isEqualTo(AFFILIATED_DOMAIN)
         assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(SINGLE_PROVIDER_ICON_BIT)
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        // TODO(b/325469910) : Add cryptoObject tests once opId is retrievable
+        assertThat(entry.biometricPromptData!!.allowedAuthenticators).isEqualTo(
+            TEST_BIOMETRIC_DATA.allowedAuthenticators)
+        } else {
+            assertThat(entry.biometricPromptData).isNull()
+        }
     }
     companion object {
         private val USERNAME: CharSequence = "title"
@@ -392,5 +468,11 @@ class PasswordCredentialEntryTest {
         private val AFFILIATED_DOMAIN = "affiliation-name"
         private const val DEFAULT_SINGLE_PROVIDER_ICON_BIT = false
         private const val SINGLE_PROVIDER_ICON_BIT = true
+        @RequiresApi(28) // CryptoObject necessitates a minimum API level of 28
+        private val TEST_BIOMETRIC_DATA = BiometricPromptData(
+            BiometricPrompt.CryptoObject(
+                NullCipher()),
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
+        )
     }
 }
