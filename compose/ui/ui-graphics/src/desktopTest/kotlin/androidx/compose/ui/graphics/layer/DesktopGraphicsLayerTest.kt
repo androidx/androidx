@@ -47,6 +47,7 @@ import kotlin.test.Test
 import org.jetbrains.skia.IRect
 import org.jetbrains.skia.Surface
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 
 class DesktopGraphicsLayerTest {
 
@@ -264,6 +265,46 @@ class DesktopGraphicsLayerTest {
                 Assert.assertEquals(topLeft, layer!!.topLeft)
                 Assert.assertEquals(size, layer!!.size)
                 it.verifyQuadrants(Color.Black, Color.Red, Color.Black, Color.Black)
+            }
+        )
+    }
+
+    @Test
+    fun testRectOutlineWithNonZeroTopLeft() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                var layerSize = Size.Zero
+                val layer = graphicsContext.createGraphicsLayer().apply {
+                    record {
+                        layerSize = this.size
+                        drawRect(Color.Red, size = this.size / 2f)
+                    }
+                    topLeft = IntOffset(20, 30)
+                    setRectOutline()
+                }
+                drawLayer(layer)
+                val outline = layer.outline
+                assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
+            }
+        )
+    }
+
+    @Test
+    fun testRoundRectOutlineWithNonZeroTopLeft() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                var layerSize = Size.Zero
+                val layer = graphicsContext.createGraphicsLayer().apply {
+                    record {
+                        layerSize = this.size
+                        drawRect(Color.Red, size = this.size / 2f)
+                    }
+                    topLeft = IntOffset(20, 30)
+                    setRoundRectOutline()
+                }
+                drawLayer(layer)
+                val outline = layer.outline
+                assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
             }
         )
     }
@@ -938,7 +979,7 @@ class DesktopGraphicsLayerTest {
 
     private fun graphicsLayerTest(
         block: DrawScope.(GraphicsContext) -> Unit,
-        verify: (PixelMap) -> Unit,
+        verify: ((PixelMap) -> Unit)? = null,
         entireScene: Boolean = false
     ) {
         val graphicsContext = GraphicsContext()
@@ -966,7 +1007,7 @@ class DesktopGraphicsLayerTest {
                 if (entireScene) TEST_HEIGHT * 2 else TEST_HEIGHT
             )
             val imageBitmap = surface.makeImageSnapshot(area)!!.toComposeImageBitmap()
-            verify(imageBitmap.toPixelMap())
+            verify?.invoke(imageBitmap.toPixelMap())
         } finally {
             surface.close()
         }
