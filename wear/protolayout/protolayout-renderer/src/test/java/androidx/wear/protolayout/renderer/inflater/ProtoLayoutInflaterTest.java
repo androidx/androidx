@@ -83,6 +83,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
@@ -203,7 +204,6 @@ import androidx.wear.protolayout.proto.TypesProto.StringProp;
 import androidx.wear.protolayout.protobuf.ByteString;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.common.RenderingArtifact;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.helper.TestFingerprinter;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.InflateResult;
@@ -2890,7 +2890,6 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
-    @Ignore("b/286028644")
     public void inflate_imageView_withSeekableAVDResource() {
         LayoutElement root =
                 LayoutElement.newBuilder()

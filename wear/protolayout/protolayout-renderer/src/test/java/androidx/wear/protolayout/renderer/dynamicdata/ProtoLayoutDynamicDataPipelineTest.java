@@ -41,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
@@ -83,7 +84,6 @@ import androidx.wear.protolayout.proto.TriggerProto.OnVisibleOnceTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.OnVisibleTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger.InnerCase;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline.PipelineMaker;
 import androidx.wear.protolayout.renderer.inflater.DefaultAndroidSeekableAnimatedImageResourceByResIdResolver;
 import androidx.wear.protolayout.renderer.inflater.ResourceResolvers.ResourceAccessException;
@@ -94,7 +94,6 @@ import com.google.common.collect.Range;
 import com.google.common.truth.Expect;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1120,7 +1119,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     @Test
-    @Ignore("b/286028644")
     public void resolvedSeekableAnimatedImage_canStoreAndRegisterWithAnimatableFixedFloat() {
         ProtoLayoutDynamicDataPipeline pipeline =
                 new ProtoLayoutDynamicDataPipeline(
@@ -1153,7 +1151,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     @Test
-    @Ignore("b/286028644")
     public void resolvedSeekableAnimatedImage_canStoreAndRegisterWithAnimatableDynamicFloat() {
         ProtoLayoutDynamicDataPipeline pipeline =
                 new ProtoLayoutDynamicDataPipeline(
@@ -1199,7 +1196,6 @@ public class ProtoLayoutDynamicDataPipelineTest {
     }
 
     @Test
-    @Ignore("b/286028644")
     public void resolvedSeekableAnimatedImage_getSeekableAnimationTotalDurationMillis() {
         ProtoLayoutDynamicDataPipeline pipeline =
                 new ProtoLayoutDynamicDataPipeline(
