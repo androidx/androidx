@@ -23,12 +23,14 @@ import android.os.ext.SdkExtensions
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.impl.HealthConnectClientUpsideDownImpl
 import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.time.TimeRangeFilter
-import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.grams
+import androidx.health.connect.client.units.millimetersOfMercury
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -65,6 +67,8 @@ class HealthConnectClientAggregationExtensionsTest {
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+        HealthPermission.getWritePermission(BloodPressureRecord::class),
+        HealthPermission.getReadPermission(BloodPressureRecord::class),
         HealthPermission.getWritePermission(NutritionRecord::class),
         HealthPermission.getReadPermission(NutritionRecord::class),
         HealthPermission.getWritePermission(StepsRecord::class),
@@ -83,11 +87,17 @@ class HealthConnectClientAggregationExtensionsTest {
 
         healthConnectClient.insertRecords(
             listOf(
+                BloodPressureRecord(
+                    time = START_TIME,
+                    zoneOffset = ZoneOffset.UTC,
+                    diastolic = 70.millimetersOfMercury,
+                    systolic = 110.millimetersOfMercury
+                ),
                 NutritionRecord(
                     startTime = START_TIME,
                     endTime = START_TIME + 1.minutes,
-                    transFat = Mass.grams(0.3),
-                    calcium = Mass.grams(0.1),
+                    transFat = 0.3.grams,
+                    calcium = 0.1.grams,
                     startZoneOffset = ZoneOffset.UTC,
                     endZoneOffset = ZoneOffset.UTC
                 )
@@ -95,14 +105,30 @@ class HealthConnectClientAggregationExtensionsTest {
         )
 
         val aggregationResult =
-            healthConnectClient.aggregateFallback(AggregateRequest(
-                metrics = setOf(NutritionRecord.TRANS_FAT_TOTAL, NutritionRecord.CALCIUM_TOTAL),
-                timeRangeFilter = TimeRangeFilter.none()
-            ))
+            healthConnectClient.aggregateFallback(
+                AggregateRequest(
+                    metrics = setOf(
+                        BloodPressureRecord.DIASTOLIC_AVG,
+                        BloodPressureRecord.DIASTOLIC_MAX,
+                        BloodPressureRecord.DIASTOLIC_MIN,
+                        BloodPressureRecord.SYSTOLIC_AVG,
+                        BloodPressureRecord.SYSTOLIC_MAX,
+                        BloodPressureRecord.SYSTOLIC_MIN,
+                        NutritionRecord.TRANS_FAT_TOTAL,
+                        NutritionRecord.CALCIUM_TOTAL
+                    ),
+                    timeRangeFilter = TimeRangeFilter.none()
+                )
+            )
 
+        assertThat(BloodPressureRecord.DIASTOLIC_AVG in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.DIASTOLIC_MAX in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.DIASTOLIC_MIN in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.SYSTOLIC_AVG in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.SYSTOLIC_MAX in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.SYSTOLIC_MIN in aggregationResult).isFalse()
         assertThat(NutritionRecord.TRANS_FAT_TOTAL in aggregationResult).isFalse()
         assertThat(NutritionRecord.CALCIUM_TOTAL in aggregationResult).isFalse()
-
         assertThat(aggregationResult.dataOrigins).isEmpty()
     }
 
@@ -112,11 +138,17 @@ class HealthConnectClientAggregationExtensionsTest {
 
         healthConnectClient.insertRecords(
             listOf(
+                BloodPressureRecord(
+                    time = START_TIME,
+                    zoneOffset = ZoneOffset.UTC,
+                    diastolic = 70.millimetersOfMercury,
+                    systolic = 110.millimetersOfMercury
+                ),
                 NutritionRecord(
                     startTime = START_TIME,
                     endTime = START_TIME + 1.minutes,
-                    transFat = Mass.grams(0.3),
-                    calcium = Mass.grams(0.1),
+                    transFat = 0.3.grams,
+                    calcium = 0.1.grams,
                     startZoneOffset = ZoneOffset.UTC,
                     endZoneOffset = ZoneOffset.UTC
                 )
@@ -124,16 +156,66 @@ class HealthConnectClientAggregationExtensionsTest {
         )
 
         val aggregationResult =
-            healthConnectClient.aggregateFallback(AggregateRequest(
-                metrics = setOf(NutritionRecord.TRANS_FAT_TOTAL, NutritionRecord.CALCIUM_TOTAL),
-                timeRangeFilter = TimeRangeFilter.none()
-            ))
+            healthConnectClient.aggregateFallback(
+                AggregateRequest(
+                    metrics = setOf(
+                        NutritionRecord.TRANS_FAT_TOTAL,
+                        NutritionRecord.CALCIUM_TOTAL,
+                        BloodPressureRecord.DIASTOLIC_AVG,
+                        BloodPressureRecord.DIASTOLIC_MAX,
+                        BloodPressureRecord.DIASTOLIC_MIN,
+                        BloodPressureRecord.SYSTOLIC_AVG,
+                        BloodPressureRecord.SYSTOLIC_MAX,
+                        BloodPressureRecord.SYSTOLIC_MIN,
+                    ),
+                    timeRangeFilter = TimeRangeFilter.none()
+                )
+            )
 
-        assertThat(aggregationResult[NutritionRecord.TRANS_FAT_TOTAL]).isEqualTo(Mass.grams(0.3))
-        assertThat(NutritionRecord.CALCIUM_TOTAL in aggregationResult).isFalse()
-
+        assertEquals(
+            aggregationResult[BloodPressureRecord.DIASTOLIC_AVG] to 70.millimetersOfMercury,
+            aggregationResult[BloodPressureRecord.DIASTOLIC_MAX] to 70.millimetersOfMercury,
+            aggregationResult[BloodPressureRecord.DIASTOLIC_MIN] to 70.millimetersOfMercury,
+            aggregationResult[BloodPressureRecord.SYSTOLIC_AVG] to 110.millimetersOfMercury,
+            aggregationResult[BloodPressureRecord.SYSTOLIC_MAX] to 110.millimetersOfMercury,
+            aggregationResult[BloodPressureRecord.SYSTOLIC_MIN] to 110.millimetersOfMercury,
+            aggregationResult[NutritionRecord.TRANS_FAT_TOTAL] to 0.3.grams,
+            (NutritionRecord.CALCIUM_TOTAL in aggregationResult) to false,
+        )
         assertThat(aggregationResult.dataOrigins)
             .containsExactly(DataOrigin(context.packageName))
+    }
+
+    @Test
+    fun aggregateFallback_belowSdkExt10NoData() = runTest {
+        assumeFalse(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10)
+
+        val aggregationResult =
+            healthConnectClient.aggregateFallback(
+                AggregateRequest(
+                    metrics = setOf(
+                        BloodPressureRecord.DIASTOLIC_AVG,
+                        BloodPressureRecord.DIASTOLIC_MAX,
+                        BloodPressureRecord.DIASTOLIC_MIN,
+                        BloodPressureRecord.SYSTOLIC_AVG,
+                        BloodPressureRecord.SYSTOLIC_MAX,
+                        BloodPressureRecord.SYSTOLIC_MIN,
+                        NutritionRecord.TRANS_FAT_TOTAL,
+                        NutritionRecord.CALCIUM_TOTAL
+                    ),
+                    timeRangeFilter = TimeRangeFilter.none()
+                )
+            )
+
+        assertThat(BloodPressureRecord.DIASTOLIC_AVG in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.DIASTOLIC_MAX in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.DIASTOLIC_MIN in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.SYSTOLIC_AVG in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.SYSTOLIC_MAX in aggregationResult).isFalse()
+        assertThat(BloodPressureRecord.SYSTOLIC_MIN in aggregationResult).isFalse()
+        assertThat(NutritionRecord.TRANS_FAT_TOTAL in aggregationResult).isFalse()
+        assertThat(NutritionRecord.CALCIUM_TOTAL in aggregationResult).isFalse()
+        assertThat(aggregationResult.dataOrigins).isEmpty()
     }
 
     @Test
@@ -212,6 +294,10 @@ class HealthConnectClientAggregationExtensionsTest {
                 )
             })
         }
+    }
+
+    private fun <A, E> assertEquals(vararg assertions: Pair<A, E>) {
+        assertions.forEach { (actual, expected) -> assertThat(actual).isEqualTo(expected) }
     }
 
     private val Int.seconds: Duration
