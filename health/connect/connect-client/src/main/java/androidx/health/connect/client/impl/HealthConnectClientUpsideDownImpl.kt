@@ -39,6 +39,7 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.impl.platform.aggregate.aggregateFallback
+import androidx.health.connect.client.impl.platform.aggregate.platformMetrics
 import androidx.health.connect.client.impl.platform.aggregate.plus
 import androidx.health.connect.client.impl.platform.records.toPlatformRecord
 import androidx.health.connect.client.impl.platform.records.toPlatformRecordClass
@@ -203,6 +204,16 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     }
 
     override suspend fun aggregate(request: AggregateRequest): AggregationResult {
+        if (request.metrics.isEmpty()) {
+            throw IllegalArgumentException("Requested record types must not be empty.")
+        }
+
+        val fallbackResponse = aggregateFallback(request)
+
+        if (request.platformMetrics.isEmpty()) {
+            return fallbackResponse
+        }
+
         val platformResponse = wrapPlatformException {
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.aggregate(
@@ -212,8 +223,8 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                 )
             }
         }
-            .toSdkResponse(request.metrics)
-        val fallbackResponse = aggregateFallback(request)
+            .toSdkResponse(request.platformMetrics)
+
         return platformResponse + fallbackResponse
     }
 
