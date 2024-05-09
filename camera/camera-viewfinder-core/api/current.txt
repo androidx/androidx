@@ -38,15 +38,15 @@ package androidx.camera.viewfinder.core {
   }
 
   public static final class ZoomGestureDetector.ZoomEvent.End extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
-    ctor public ZoomGestureDetector.ZoomEvent.End(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float scaleFactor);
-    method public float getScaleFactor();
-    property public final float scaleFactor;
+    ctor public ZoomGestureDetector.ZoomEvent.End(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float incrementalScaleFactor);
+    method public float getIncrementalScaleFactor();
+    property public final float incrementalScaleFactor;
   }
 
   public static final class ZoomGestureDetector.ZoomEvent.Move extends androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent {
-    ctor public ZoomGestureDetector.ZoomEvent.Move(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float scaleFactor);
-    method public float getScaleFactor();
-    property public final float scaleFactor;
+    ctor public ZoomGestureDetector.ZoomEvent.Move(@IntRange(from=0L) long eventTime, @IntRange(from=0L) @Px int focusX, @IntRange(from=0L) @Px int focusY, @FloatRange(from=0.0, fromInclusive=false) float incrementalScaleFactor);
+    method public float getIncrementalScaleFactor();
+    property public final float incrementalScaleFactor;
   }
 
 }

@@ -38,9 +38,9 @@ import kotlin.math.roundToInt
  *
  * To use this class to do pinch-to-zoom on the viewfinder:
  * - In the [OnZoomGestureListener.onZoomEvent], when receiving [ZoomEvent.Move], get the
- *   [ZoomEvent.Move.scaleFactor] and use the value with `CameraControl.setZoomRatio` if the factor
- *   is in the range of `ZoomState.getMinZoomRatio` and `ZoomState.getMaxZoomRatio`. Then create an
- *   instance of the `ZoomGestureDetector` with the [OnZoomGestureListener].
+ *   [ZoomEvent.Move.incrementalScaleFactor] and use the value with `CameraControl.setZoomRatio` if
+ *   the factor is in the range of `ZoomState.getMinZoomRatio` and `ZoomState.getMaxZoomRatio`. Then
+ *   create an instance of the `ZoomGestureDetector` with the [OnZoomGestureListener].
  * - In the [View.onTouchEvent], call [onTouchEvent] and pass the [MotionEvent]s to the
  *   `ZoomGestureDetector`.
  *
@@ -99,15 +99,15 @@ constructor(
          *   [SystemClock.uptimeMillis] time base.
          * @param focusX The X coordinate of the current gesture's focal point in pixels.
          * @param focusY The Y coordinate of the current gesture's focal point in pixels.
-         * @param scaleFactor The scaling factor from the previous zoom event to the current event.
-         *   The value will be less than `1.0` when zooming out (larger FOV) and will be larger than
-         *   `1.0` when zooming in (narrower FOV).
+         * @param incrementalScaleFactor The scaling factor from the previous zoom event to the
+         *   current event. The value will be less than `1.0` when zooming out (larger FOV) and will
+         *   be larger than `1.0` when zooming in (narrower FOV).
          */
         class Move(
             @IntRange(from = 0) eventTime: Long,
             @Px @IntRange(from = 0) focusX: Int,
             @Px @IntRange(from = 0) focusY: Int,
-            @FloatRange(from = 0.0, fromInclusive = false) val scaleFactor: Float
+            @FloatRange(from = 0.0, fromInclusive = false) val incrementalScaleFactor: Float
         ) : ZoomEvent(eventTime, focusX, focusY)
 
         /**
@@ -117,15 +117,15 @@ constructor(
          *   [SystemClock.uptimeMillis] time base.
          * @param focusX The X coordinate of the current gesture's focal point in pixels.
          * @param focusY The Y coordinate of the current gesture's focal point in pixels.
-         * @param scaleFactor The scaling factor from the previous zoom event to the current event.
-         *   The value will be less than `1.0` when zooming out (larger FOV) and will be larger than
-         *   `1.0` when zooming in (narrower FOV).
+         * @param incrementalScaleFactor The scaling factor from the previous zoom event to the
+         *   current event. The value will be less than `1.0` when zooming out (larger FOV) and will
+         *   be larger than `1.0` when zooming in (narrower FOV).
          */
         class End(
             @IntRange(from = 0) eventTime: Long,
             @Px @IntRange(from = 0) focusX: Int,
             @Px @IntRange(from = 0) focusY: Int,
-            @FloatRange(from = 0.0, fromInclusive = false) val scaleFactor: Float
+            @FloatRange(from = 0.0, fromInclusive = false) val incrementalScaleFactor: Float
         ) : ZoomEvent(eventTime, focusX, focusY)
     }
 
@@ -295,7 +295,9 @@ constructor(
             // If it's an ACTION_DOWN we're beginning a new event stream.
             // This means the app probably didn't give us all the events.
             if (isInProgress) {
-                listener.onZoomEvent(ZoomEvent.End(eventTime, focusX, focusY, getScaleFactor()))
+                listener.onZoomEvent(
+                    ZoomEvent.End(eventTime, focusX, focusY, getIncrementalScaleFactor())
+                )
                 isInProgress = false
                 initialSpan = 0f
                 anchoredZoomMode = ANCHORED_ZOOM_MODE_NONE
@@ -391,7 +393,9 @@ constructor(
         focusX = focusXFloat.roundToInt()
         focusY = focusYFloat.roundToInt()
         if (!inAnchoredZoomMode() && isInProgress && (span < minSpan || configChanged)) {
-            listener.onZoomEvent(ZoomEvent.End(eventTime, focusX, focusY, getScaleFactor()))
+            listener.onZoomEvent(
+                ZoomEvent.End(eventTime, focusX, focusY, getIncrementalScaleFactor())
+            )
             isInProgress = false
             initialSpan = span
         }
@@ -431,7 +435,7 @@ constructor(
             if (isInProgress) {
                 updatePrev =
                     listener.onZoomEvent(
-                        ZoomEvent.Move(eventTime, focusX, focusY, getScaleFactor())
+                        ZoomEvent.Move(eventTime, focusX, focusY, getIncrementalScaleFactor())
                     )
             }
 
@@ -449,7 +453,7 @@ constructor(
         return anchoredZoomMode != ANCHORED_ZOOM_MODE_NONE
     }
 
-    private fun getScaleFactor(): Float {
+    private fun getIncrementalScaleFactor(): Float {
         if (inAnchoredZoomMode()) {
             // Drag is moving up; the further away from the gesture start, the smaller the span
             // should be, the closer, the larger the span, and therefore the larger the scale

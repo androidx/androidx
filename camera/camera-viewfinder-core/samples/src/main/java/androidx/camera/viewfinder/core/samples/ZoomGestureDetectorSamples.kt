@@ -37,7 +37,7 @@ fun onTouchEventSample(event: MotionEvent): Boolean {
             when (zoomEvent) {
                 is ZoomEvent.Move -> {
                     val zoomState = camera.cameraInfo.zoomState.value!!
-                    val ratio = zoomState.zoomRatio * zoomEvent.scaleFactor
+                    val ratio = zoomState.zoomRatio * zoomEvent.incrementalScaleFactor
                     val minRatio = zoomState.minZoomRatio
                     val maxRatio = zoomState.maxZoomRatio
                     val clampedRatio = min(max(ratio, minRatio), maxRatio)
