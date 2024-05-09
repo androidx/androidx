@@ -188,12 +188,6 @@
             android:background="#AAAAAA" />
 
         <Button
-            android:id="@+id/button_split_activity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Put the activity into split" />
-
-        <Button
             android:id="@+id/button_launch_overlay_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -209,7 +203,7 @@
             android:id="@+id/button_launch_overlay_activity_a"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Launch activity A" />
+            android:text="Launch Overlay Associated Activity A" />
 
         <CheckBox
             android:id="@+id/checkbox_launch_to_overlay"
@@ -221,7 +215,7 @@
             android:id="@+id/button_launch_overlay_activity_b"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Launch activity B" />
+            android:text="Launch Overlay Associated Activity B" />
 
         <Button
             android:id="@+id/button_finish_this_activity"

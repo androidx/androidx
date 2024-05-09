@@ -255,5 +255,19 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="Unpin Top ActivityStack" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/button_launch_overlay_associated_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Launch Overlay Associated Activity A" />
     </LinearLayout>
 </ScrollView>

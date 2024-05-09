@@ -306,7 +306,7 @@
         <!-- The demo app to show how to use overlay features -->
 
         <activity
-            android:name=".embedding.OverlayActivityA"
+            android:name=".embedding.OverlayAssociatedActivityA"
             android:exported="true"
             android:label="Overlay Activity A"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
@@ -317,7 +317,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".embedding.OverlayActivityB"
+            android:name=".embedding.OverlayAssociatedActivityB"
             android:exported="true"
             android:label="Overlay Activity B"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"

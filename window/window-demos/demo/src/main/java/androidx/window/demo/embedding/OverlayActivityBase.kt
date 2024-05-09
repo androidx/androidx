@@ -94,7 +94,6 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
         setContentView(viewBinding.root)
 
         viewBinding.buttonUpdateOverlayLayout.setOnClickListener(this)
-        viewBinding.buttonSplitActivity.setOnClickListener(this)
         viewBinding.buttonLaunchOverlayContainer.setOnClickListener(this)
         viewBinding.buttonLaunchOverlayActivityA.setOnClickListener(this)
         viewBinding.buttonLaunchOverlayActivityB.setOnClickListener(this)
@@ -213,14 +212,14 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
                 }
             }
             R.id.button_launch_overlay_activity_a -> startActivity(
-                Intent(this, OverlayActivityA::class.java).apply {
+                Intent(this, OverlayAssociatedActivityA::class.java).apply {
                     if (viewBinding.checkboxReorderToFront.isChecked) {
                         flags = FLAG_ACTIVITY_REORDER_TO_FRONT
                     }
                 }
             )
             R.id.button_launch_overlay_activity_b -> startActivity(
-                Intent(this, OverlayActivityB::class.java),
+                Intent(this, OverlayAssociatedActivityB::class.java),
                 overlayActivityStack?.let {
                     if (viewBinding.checkboxLaunchToOverlay.isChecked) {
                         ActivityOptions.makeBasic().toBundle().setLaunchingActivityStack(
@@ -231,10 +230,6 @@ open class OverlayActivityBase : AppCompatActivity(), View.OnClickListener,
                         null
                     }
                 }
-            )
-            R.id.button_split_activity -> startActivity(
-                Intent(this, SplitActivityDetail::class.java)
-                    .putExtra(SplitActivityDetail.EXTRA_SELECTED_ITEM, "overlayActivity")
             )
             R.id.button_finish_this_activity -> finish()
             R.id.button_update_overlay_layout -> {
