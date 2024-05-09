@@ -32,15 +32,7 @@ package androidx.compose.foundation {
 
   public final class BasicMarqueeKt {
     method public static androidx.compose.foundation.MarqueeSpacing MarqueeSpacing(float spacing);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier basicMarquee(androidx.compose.ui.Modifier, optional int iterations, optional int animationMode, optional int delayMillis, optional int initialDelayMillis, optional androidx.compose.foundation.MarqueeSpacing spacing, optional float velocity);
-    method public static int getDefaultMarqueeDelayMillis();
-    method public static int getDefaultMarqueeIterations();
-    method public static androidx.compose.foundation.MarqueeSpacing getDefaultMarqueeSpacing();
-    method public static float getDefaultMarqueeVelocity();
-    property public static final int DefaultMarqueeDelayMillis;
-    property public static final int DefaultMarqueeIterations;
-    property public static final androidx.compose.foundation.MarqueeSpacing DefaultMarqueeSpacing;
-    property public static final float DefaultMarqueeVelocity;
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier basicMarquee(androidx.compose.ui.Modifier, optional int iterations, optional int animationMode, optional int repeatDelayMillis, optional int initialDelayMillis, optional androidx.compose.foundation.MarqueeSpacing spacing, optional float velocity);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class BasicTooltipDefaults {
@@ -181,6 +173,18 @@ package androidx.compose.foundation {
     method public int getWhileFocused();
     property public final int Immediately;
     property public final int WhileFocused;
+  }
+
+  public final class MarqueeDefaults {
+    method public int getDefaultMarqueeIterations();
+    method public int getDefaultMarqueeRepeatDelayMillis();
+    method public androidx.compose.foundation.MarqueeSpacing getDefaultMarqueeSpacing();
+    method public float getDefaultMarqueeVelocity();
+    property public final int DefaultMarqueeIterations;
+    property public final int DefaultMarqueeRepeatDelayMillis;
+    property public final androidx.compose.foundation.MarqueeSpacing DefaultMarqueeSpacing;
+    property public final float DefaultMarqueeVelocity;
+    field public static final androidx.compose.foundation.MarqueeDefaults INSTANCE;
   }
 
   @androidx.compose.runtime.Stable public fun interface MarqueeSpacing {

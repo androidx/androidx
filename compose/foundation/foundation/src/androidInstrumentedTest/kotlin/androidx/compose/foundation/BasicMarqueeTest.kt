@@ -1266,7 +1266,7 @@ class BasicMarqueeTest {
     ) = basicMarquee(
         iterations = iterations,
         animationMode = animationMode,
-        delayMillis = delayMillis,
+        repeatDelayMillis = delayMillis,
         initialDelayMillis = initialDelayMillis,
         spacing = spacing,
         velocity = velocity
