@@ -19,14 +19,12 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraMetadata;
 
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalLensFacing;
 
 /**
  * Contains utility methods related to lens facing.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class LensFacingUtil {
 
     // Do not allow instantiation.
@@ -75,7 +73,7 @@ public class LensFacingUtil {
             case CameraSelector.LENS_FACING_FRONT:
                 return CameraMetadata.LENS_FACING_FRONT;
             case CameraSelector.LENS_FACING_EXTERNAL:
-                return CameraSelector.LENS_FACING_EXTERNAL;
+                return CameraMetadata.LENS_FACING_EXTERNAL;
             default:
                 throw new IllegalArgumentException(
                         "The given lens facing: " + lensFacing + " can not be recognized.");
