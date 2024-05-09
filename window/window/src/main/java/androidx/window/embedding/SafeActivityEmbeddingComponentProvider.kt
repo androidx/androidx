@@ -30,6 +30,7 @@ import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.core.util.function.Function
+import androidx.window.extensions.core.util.function.Predicate;
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.ActivityRule
 import androidx.window.extensions.embedding.ActivityStack
@@ -39,10 +40,12 @@ import androidx.window.extensions.embedding.EmbeddedActivityWindowInfo
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.SplitType
+import androidx.window.extensions.embedding.SplitAttributesCalculatorParams
 import androidx.window.extensions.embedding.SplitInfo
 import androidx.window.extensions.embedding.SplitPairRule
 import androidx.window.extensions.embedding.SplitPinRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule
+import androidx.window.extensions.embedding.SplitRule
 import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.extensions.layout.WindowLayoutInfo
 import androidx.window.reflection.ReflectionUtils.doesReturn
@@ -102,21 +105,31 @@ internal class SafeActivityEmbeddingComponentProvider(
      *  - [ActivityEmbeddingComponent.setEmbeddingRules]
      *  - [ActivityEmbeddingComponent.isActivityEmbedded]
      *  - [ActivityEmbeddingComponent.setSplitInfoCallback] with [java.util.function.Consumer]
+     *  - [SplitRule.getSplitRatio]
+     *  - [SplitRule.getLayoutDirection]
      * and following classes:
      *  - [ActivityRule]
+     *  - [ActivityRule.Builder]
      *  - [SplitInfo]
      *  - [SplitPairRule]
+     *  - [SplitPairRule.Builder]
      *  - [SplitPlaceholderRule]
+     *  - [SplitPlaceholderRule.Builder]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel1(): Boolean {
         return isMethodSetEmbeddingRulesValid() &&
             isMethodIsActivityEmbeddedValid() &&
             isMethodSetSplitInfoCallbackJavaConsumerValid() &&
+            isMethodGetSplitRatioValid() &&
+            isMethodGetLayoutDirectionValid() &&
             isClassActivityRuleValid() &&
+            isClassActivityRuleBuilderLevel1Valid() &&
             isClassSplitInfoValid() &&
             isClassSplitPairRuleValid() &&
-            isClassSplitPlaceholderRuleValid()
+            isClassSplitPairRuleBuilderLevel1Valid() &&
+            isClassSplitPlaceholderRuleValid() &&
+            isClassSplitPlaceholderRuleBuilderLevel1Valid()
     }
 
     /**
@@ -126,9 +139,16 @@ internal class SafeActivityEmbeddingComponentProvider(
      *  - [ActivityEmbeddingComponent.setSplitAttributesCalculator]
      *  - [ActivityEmbeddingComponent.clearSplitAttributesCalculator]
      *  - [SplitInfo.getSplitAttributes]
+     *  - [SplitPlaceholderRule.getFinishPrimaryWithPlaceholder]
+     *  - [SplitRule.getDefaultSplitAttributes]
      * and following classes:
+     *  - [ActivityRule.Builder]
+     *  - [EmbeddingRule]
      *  - [SplitAttributes]
      *  - [SplitAttributes.SplitType]
+     *  - [SplitAttributesCalculatorParams]
+     *  - [SplitPairRule.Builder]
+     *  - [SplitPlaceholderRule.Builder]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel2(): Boolean {
@@ -137,8 +157,15 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodClearSplitInfoCallbackValid() &&
             isMethodSplitAttributesCalculatorValid() &&
             isMethodGetSplitAttributesValid() &&
+            isMethodGetFinishPrimaryWithPlaceholderValid() &&
+            isMethodGetDefaultSplitAttributesValid() &&
+            isClassActivityRuleBuilderLevel2Valid() &&
+            isClassEmbeddingRuleValid() &&
             isClassSplitAttributesValid() &&
-            isClassSplitTypeValid()
+            isClassSplitAttributesCalculatorParamsValid() &&
+            isClassSplitTypeValid() &&
+            isClassSplitPairRuleBuilderLevel2Valid() &&
+            isClassSplitPlaceholderRuleBuilderLevel2Valid()
     }
 
     /**
@@ -262,18 +289,39 @@ internal class SafeActivityEmbeddingComponentProvider(
         }
     }
 
+    private fun isMethodGetSplitRatioValid(): Boolean =
+        validateReflection("SplitRule#getSplitRatio is not valid") {
+            val splitRuleClass = SplitRule::class.java
+            val getSplitRatioMethod = splitRuleClass.getMethod("getSplitRatio")
+            getSplitRatioMethod.isPublic &&
+                getSplitRatioMethod.doesReturn(Float::class.java)
+        }
+
+    private fun isMethodGetLayoutDirectionValid(): Boolean =
+        validateReflection("SplitRule#getLayoutDirection is not valid") {
+            val splitRuleClass = SplitRule::class.java
+            val getLayoutDirectionMethod = splitRuleClass.getMethod("getLayoutDirection")
+            getLayoutDirectionMethod.isPublic &&
+                getLayoutDirectionMethod.doesReturn(Int::class.java)
+        }
+
     private fun isClassActivityRuleValid(): Boolean =
         validateReflection("Class ActivityRule is not valid") {
             val activityRuleClass = ActivityRule::class.java
             val shouldAlwaysExpandMethod = activityRuleClass.getMethod("shouldAlwaysExpand")
+            shouldAlwaysExpandMethod.isPublic &&
+                shouldAlwaysExpandMethod.doesReturn(Boolean::class.java)
+        }
+
+    private fun isClassActivityRuleBuilderLevel1Valid(): Boolean =
+        validateReflection("Class ActivityRule.Builder is not valid") {
             val activityRuleBuilderClass = ActivityRule.Builder::class.java
             val setShouldAlwaysExpandMethod = activityRuleBuilderClass.getMethod(
                 "setShouldAlwaysExpand",
                 Boolean::class.java
             )
-            shouldAlwaysExpandMethod.isPublic &&
-                shouldAlwaysExpandMethod.doesReturn(Boolean::class.java) &&
-                setShouldAlwaysExpandMethod.isPublic
+            setShouldAlwaysExpandMethod.isPublic &&
+                setShouldAlwaysExpandMethod.doesReturn(ActivityRule.Builder::class.java)
         }
 
     private fun isClassSplitInfoValid(): Boolean =
@@ -308,6 +356,23 @@ internal class SafeActivityEmbeddingComponentProvider(
                 shouldClearTopMethod.doesReturn(Boolean::class.java)
         }
 
+    private fun isClassSplitPairRuleBuilderLevel1Valid(): Boolean =
+        validateReflection("Class SplitPairRule.Builder is not valid") {
+            val splitPairRuleBuilderClass = SplitPairRule.Builder::class.java
+            val setSplitRatioMethod = splitPairRuleBuilderClass.getMethod(
+                "setSplitRatio",
+                Float::class.java
+            )
+            val setLayoutDirectionMethod = splitPairRuleBuilderClass.getMethod(
+                "setLayoutDirection",
+                Int::class.java
+            )
+            setSplitRatioMethod.isPublic &&
+                setSplitRatioMethod.doesReturn(SplitPairRule.Builder::class.java) &&
+                setLayoutDirectionMethod.isPublic &&
+                setLayoutDirectionMethod.doesReturn(SplitPairRule.Builder::class.java)
+        }
+
     private fun isClassSplitPlaceholderRuleValid(): Boolean =
         validateReflection("Class SplitPlaceholderRule is not valid") {
             val splitPlaceholderRuleClass = SplitPlaceholderRule::class.java
@@ -319,9 +384,39 @@ internal class SafeActivityEmbeddingComponentProvider(
             getPlaceholderIntentMethod.isPublic &&
                 getPlaceholderIntentMethod.doesReturn(Intent::class.java) &&
                 isStickyMethod.isPublic &&
-                isStickyMethod.doesReturn(Boolean::class.java)
-            getFinishPrimaryWithSecondaryMethod.isPublic &&
+                isStickyMethod.doesReturn(Boolean::class.java) &&
+                getFinishPrimaryWithSecondaryMethod.isPublic &&
                 getFinishPrimaryWithSecondaryMethod.doesReturn(Int::class.java)
+        }
+
+    private fun isClassSplitPlaceholderRuleBuilderLevel1Valid(): Boolean =
+        validateReflection("Class SplitPlaceholderRule.Builder is not valid") {
+            val splitPlaceholderRuleBuilderClass = SplitPlaceholderRule.Builder::class.java
+            val setSplitRatioMethod = splitPlaceholderRuleBuilderClass.getMethod(
+                "setSplitRatio",
+                Float::class.java
+            )
+            val setLayoutDirectionMethod = splitPlaceholderRuleBuilderClass.getMethod(
+                "setLayoutDirection",
+                Int::class.java
+            )
+            val setStickyMethod = splitPlaceholderRuleBuilderClass.getMethod(
+                "setSticky",
+                Boolean::class.java
+            )
+            val setFinishPrimaryWithSecondaryMethod = splitPlaceholderRuleBuilderClass.getMethod(
+                "setFinishPrimaryWithSecondary",
+                Int::class.java
+            )
+            setSplitRatioMethod.isPublic &&
+                setSplitRatioMethod.doesReturn(SplitPlaceholderRule.Builder::class.java) &&
+                setLayoutDirectionMethod.isPublic &&
+                setLayoutDirectionMethod.doesReturn(SplitPlaceholderRule.Builder::class.java) &&
+                setStickyMethod.isPublic &&
+                setStickyMethod.doesReturn(SplitPlaceholderRule.Builder::class.java) &&
+                setFinishPrimaryWithSecondaryMethod.isPublic &&
+                setFinishPrimaryWithSecondaryMethod.doesReturn(
+                    SplitPlaceholderRule.Builder::class.java)
         }
 
     /** Vendor API level 2 validation methods */
@@ -369,6 +464,48 @@ internal class SafeActivityEmbeddingComponentProvider(
                 getSplitAttributesMethod.doesReturn(SplitAttributes::class.java)
         }
 
+    private fun isMethodGetFinishPrimaryWithPlaceholderValid(): Boolean =
+        validateReflection("SplitPlaceholderRule#getFinishPrimaryWithPlaceholder is not valid") {
+            val splitPlaceholderRuleClass = SplitPlaceholderRule::class.java
+            val getFinishPrimaryWithPlaceholderMethod =
+                splitPlaceholderRuleClass.getMethod("getFinishPrimaryWithPlaceholder")
+            getFinishPrimaryWithPlaceholderMethod.isPublic &&
+                getFinishPrimaryWithPlaceholderMethod.doesReturn(Int::class.java)
+        }
+
+    private fun isMethodGetDefaultSplitAttributesValid(): Boolean =
+        validateReflection("SplitRule#getDefaultSplitAttributes is not valid") {
+            val splitRuleClass = SplitRule::class.java
+            val getDefaultSplitAttributesMethod =
+                splitRuleClass.getMethod("getDefaultSplitAttributes")
+            getDefaultSplitAttributesMethod.isPublic &&
+                getDefaultSplitAttributesMethod.doesReturn(SplitAttributes::class.java)
+        }
+
+    private fun isClassActivityRuleBuilderLevel2Valid(): Boolean =
+        validateReflection("Class ActivityRule.Builder is not valid") {
+            val activityRuleBuilderClass = ActivityRule.Builder::class.java
+            val activityRuleBuilderConstructor =
+                activityRuleBuilderClass.getDeclaredConstructor(
+                    Predicate::class.java,
+                    Predicate::class.java)
+            val setTagMethod = activityRuleBuilderClass.getMethod(
+                "setTag",
+                String::class.java
+            )
+            activityRuleBuilderConstructor.isPublic &&
+                setTagMethod.isPublic &&
+                setTagMethod.doesReturn(ActivityRule.Builder::class.java)
+        }
+
+    private fun isClassEmbeddingRuleValid(): Boolean =
+        validateReflection("Class EmbeddingRule is not valid") {
+            val embeddingRuleClass = EmbeddingRule::class.java
+            val getTagMethod = embeddingRuleClass.getMethod("getTag")
+            getTagMethod.isPublic &&
+                getTagMethod.doesReturn(String::class.java)
+        }
+
     private fun isClassSplitAttributesValid(): Boolean =
         validateReflection("Class SplitAttributes is not valid") {
             val splitAttributesClass = SplitAttributes::class.java
@@ -389,6 +526,36 @@ internal class SafeActivityEmbeddingComponentProvider(
                 getSplitTypeMethod.isPublic &&
                 getSplitTypeMethod.doesReturn(SplitType::class.java) &&
                 setSplitTypeMethod.isPublic && setLayoutDirectionMethod.isPublic
+        }
+
+    @Suppress("newApi") // Suppress lint check for WindowMetrics
+    private fun isClassSplitAttributesCalculatorParamsValid(): Boolean =
+        validateReflection("Class SplitAttributesCalculatorParams is not valid") {
+            val splitAttributesCalculatorParamsClass = SplitAttributesCalculatorParams::class.java
+            val getParentWindowMetricsMethod =
+                splitAttributesCalculatorParamsClass.getMethod("getParentWindowMetrics")
+            val getParentConfigurationMethod =
+                splitAttributesCalculatorParamsClass.getMethod("getParentConfiguration")
+            val getDefaultSplitAttributesMethod =
+                splitAttributesCalculatorParamsClass.getMethod("getDefaultSplitAttributes")
+            val areDefaultConstraintsSatisfiedMethod =
+                splitAttributesCalculatorParamsClass.getMethod("areDefaultConstraintsSatisfied")
+            val getParentWindowLayoutInfoMethod =
+                splitAttributesCalculatorParamsClass.getMethod("getParentWindowLayoutInfo")
+            val getSplitRuleTagMethod =
+                splitAttributesCalculatorParamsClass.getMethod("getSplitRuleTag")
+            getParentWindowMetricsMethod.isPublic &&
+                getParentWindowMetricsMethod.doesReturn(WindowMetrics::class.java) &&
+                getParentConfigurationMethod.isPublic &&
+                getParentConfigurationMethod.doesReturn(Configuration::class.java) &&
+                getDefaultSplitAttributesMethod.isPublic &&
+                getDefaultSplitAttributesMethod.doesReturn(SplitAttributes::class.java) &&
+                areDefaultConstraintsSatisfiedMethod.isPublic &&
+                areDefaultConstraintsSatisfiedMethod.doesReturn(Boolean::class.java) &&
+                getParentWindowLayoutInfoMethod.isPublic &&
+                getParentWindowLayoutInfoMethod.doesReturn(WindowLayoutInfo::class.java) &&
+                getSplitRuleTagMethod.isPublic &&
+                getSplitRuleTagMethod.doesReturn(String::class.java)
         }
 
     private fun isClassSplitTypeValid(): Boolean =
@@ -415,6 +582,61 @@ internal class SafeActivityEmbeddingComponentProvider(
                 getFallbackSplitTypeMethod.isPublic &&
                 getFallbackSplitTypeMethod.doesReturn(SplitType::class.java) &&
                 expandContainersSplitTypeConstructor.isPublic
+        }
+
+    private fun isClassSplitPairRuleBuilderLevel2Valid(): Boolean =
+        validateReflection("Class SplitPairRule.Builder is not valid") {
+            val splitPairRuleBuilderClass = SplitPairRule.Builder::class.java
+            val splitPairRuleBuilderConstructor =
+                splitPairRuleBuilderClass.getDeclaredConstructor(
+                    Predicate::class.java,
+                    Predicate::class.java,
+                    Predicate::class.java)
+            val setDefaultSplitAttributesMethod = splitPairRuleBuilderClass.getMethod(
+                "setDefaultSplitAttributes",
+                SplitAttributes::class.java,
+            )
+            val setTagMethod = splitPairRuleBuilderClass.getMethod(
+                "setTag",
+                String::class.java
+            )
+            splitPairRuleBuilderConstructor.isPublic &&
+                setDefaultSplitAttributesMethod.isPublic &&
+                setDefaultSplitAttributesMethod.doesReturn(SplitPairRule.Builder::class.java) &&
+                setTagMethod.isPublic &&
+                setTagMethod.doesReturn(SplitPairRule.Builder::class.java)
+        }
+
+    private fun isClassSplitPlaceholderRuleBuilderLevel2Valid(): Boolean =
+        validateReflection("Class SplitPlaceholderRule.Builder is not valid") {
+            val splitPlaceholderRuleBuilderClass = SplitPlaceholderRule.Builder::class.java
+            val splitPlaceholderRuleBuilderConstructor =
+                splitPlaceholderRuleBuilderClass.getDeclaredConstructor(
+                    Intent::class.java,
+                    Predicate::class.java,
+                    Predicate::class.java,
+                    Predicate::class.java)
+            val setDefaultSplitAttributesMethod = splitPlaceholderRuleBuilderClass.getMethod(
+                "setDefaultSplitAttributes",
+                SplitAttributes::class.java,
+            )
+            val setFinishPrimaryWithPlaceholderMethod = splitPlaceholderRuleBuilderClass.getMethod(
+                "setFinishPrimaryWithPlaceholder",
+                Int::class.java
+            )
+            val setTagMethod = splitPlaceholderRuleBuilderClass.getMethod(
+                "setTag",
+                String::class.java
+            )
+            splitPlaceholderRuleBuilderConstructor.isPublic &&
+                setDefaultSplitAttributesMethod.isPublic &&
+                setDefaultSplitAttributesMethod.doesReturn(
+                    SplitPlaceholderRule.Builder::class.java) &&
+                setFinishPrimaryWithPlaceholderMethod.isPublic &&
+                setFinishPrimaryWithPlaceholderMethod.doesReturn(
+                    SplitPlaceholderRule.Builder::class.java) &&
+                setTagMethod.isPublic &&
+                setTagMethod.doesReturn(SplitPlaceholderRule.Builder::class.java)
         }
 
     /** Vendor API level 3 validation methods */
