@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 import org.jetbrains.skia.Picture
 import org.jetbrains.skia.PictureRecorder
@@ -81,7 +80,7 @@ actual class GraphicsLayer {
 
     private var internalOutline: Outline? = null
     private var outlineDirty = true
-    private var roundRectOutlineTopLeft: Offset = Offset.Unspecified
+    private var roundRectOutlineTopLeft: Offset = Offset.Zero
     private var roundRectOutlineSize: Size = Size.Unspecified
     private var roundRectCornerRadius: Float = 0f
     private var outlinePath: Path? = null
@@ -217,18 +216,12 @@ actual class GraphicsLayer {
         outlineSize: Size,
         block: (Offset, Size) -> Outline
     ): Outline {
-        val targetTopLeft = if (outlineTopLeft.isUnspecified) {
-            this.topLeft.toOffset()
-        } else {
-            outlineTopLeft
-        }
-
         val targetSize = if (outlineSize.isUnspecified) {
             this.size.toSize()
         } else {
             outlineSize
         }
-        return block(targetTopLeft, targetSize)
+        return block(outlineTopLeft, targetSize)
     }
 
     private fun configureOutline(): Outline {
@@ -375,11 +368,24 @@ actual class GraphicsLayer {
         internalOutline = null
         outlinePath = null
         roundRectOutlineSize = Size.Unspecified
-        roundRectOutlineTopLeft = Offset.Unspecified
+        roundRectOutlineTopLeft = Offset.Zero
         roundRectCornerRadius = 0f
         outlineDirty = true
     }
 
+    /**
+     * Configures a rounded rect outline for this [GraphicsLayer]. By default, [topLeft] is set to
+     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline
+     * should match the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
+     * is produced using an [Outline] created from the round rect parameters provided. Additionally
+     * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
+     *
+     * @param topLeft The top left of the rounded rect outline
+     * @param size The size of the rounded rect outline
+     * @param cornerRadius The corner radius of the rounded rect outline
+     *
+     * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
+     */
     actual fun setRoundRectOutline(
         topLeft: Offset,
         size: Size,
@@ -413,10 +419,10 @@ actual class GraphicsLayer {
         get() = configureOutline()
 
     /**
-     * Configures a rectangular outline for this [GraphicsLayer]. By default, both [topLeft] and
-     * [size] are set to [Offset.Unspecified] and [Size.Unspecified] indicating that the outline
-     * should match the bounds of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
-     * is produced using with an [Outline] created from the rect parameters provided. Additionally
+     * Configures a rectangular outline for this [GraphicsLayer]. By default, [topLeft] is set to
+     * [Size.Zero] and [size] is set to [Size.Unspecified] indicating that the outline
+     * should match the size of the [GraphicsLayer]. When [shadowElevation] is non-zero a shadow
+     * is produced using an [Outline] created from the round rect parameters provided. Additionally
      * if [clip] is true, the contents of this [GraphicsLayer] will be clipped to this geometry.
      *
      * @param topLeft The top left of the rounded rect outline
