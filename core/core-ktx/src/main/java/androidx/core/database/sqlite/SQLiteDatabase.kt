@@ -22,6 +22,7 @@ import android.database.sqlite.SQLiteDatabase
  * Run [body] in a transaction marking it as successful if it completes without exception.
  *
  * @param exclusive Run in `EXCLUSIVE` mode when true, `IMMEDIATE` mode otherwise.
+ * @body The transaction that will be executed.
  */
 public inline fun <T> SQLiteDatabase.transaction(
     exclusive: Boolean = true,
