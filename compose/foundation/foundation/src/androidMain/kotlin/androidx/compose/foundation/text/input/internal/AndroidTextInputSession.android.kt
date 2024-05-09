@@ -32,6 +32,7 @@ import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.performHandwritingGesture
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.previewHandwritingGesture
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.input.ImeAction
@@ -108,8 +109,15 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
         }
 
         stylusHandwritingTrigger?.let {
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                it.collect { composeImm.startStylusHandwriting() }
+            launch {
+                // When the editor is just focused, we need to wait for imm.startInput
+                // before calling startStylusHandwriting. We need to wait for one frame
+                // because TextInputService.startInput also waits for one frame before
+                // actually calling imm.restartInput.
+                withFrameMillis { }
+                it.collect {
+                    composeImm.startStylusHandwriting()
+                }
             }
         }
 
