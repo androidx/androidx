@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.compat.quirk;
 
+import android.hardware.camera2.CameraDevice;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
@@ -23,7 +24,7 @@ import androidx.camera.core.impl.Quirk;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: b/239369953, b/331754902, b/338869048
+ *     Bug Id: b/239369953, b/331754902, b/338869048, b/339555742
  *     Description: When taking image with VideoCapture is bound, the capture result is returned
  *                  but the resulting image can not be obtained. On Pixel 4XL API29, taking image
  *                  with VideoCapture UHD is bound, camera HAL returns error. Pixel 4XL starts
@@ -64,5 +65,19 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
     public static boolean isMotoE13() {
         return "motorola".equalsIgnoreCase(Build.BRAND) && "moto e13".equalsIgnoreCase(
                 Build.MODEL);
+    }
+
+    /**
+     * Returns if the workaround needs to use {@link CameraDevice#TEMPLATE_PREVIEW} instead of
+     * {@link CameraDevice#TEMPLATE_RECORD}.
+     */
+    public boolean workaroundByTemplatePreview() {
+        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro();
+    }
+
+    /** Returns if the workaround needs to enable OpenGL pipeline. */
+    public boolean workaroundBySurfaceProcessing() {
+        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
+                || isPixel4XLApi29() || isMotoE13();
     }
 }

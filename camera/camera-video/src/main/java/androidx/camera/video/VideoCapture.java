@@ -189,18 +189,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 DeviceQuirks.get(PreviewStretchWhenVideoCaptureIsBoundQuirk.class) != null;
         boolean hasPreviewDelayQuirk =
                 DeviceQuirks.get(PreviewDelayWhenVideoCaptureIsBoundQuirk.class) != null;
-        boolean hasImageCaptureFailedQuirk =
-                DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class) != null;
+        ImageCaptureFailedWhenVideoCaptureIsBoundQuirk imageCaptureFailedQuirk =
+                DeviceQuirks.get(ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.class);
+        boolean useTemplatePreviewByImageCaptureFailedQuirk = imageCaptureFailedQuirk != null
+                && imageCaptureFailedQuirk.workaroundByTemplatePreview();
+        boolean enableSurfaceProcessingByImageCaptureFailedQuirk = imageCaptureFailedQuirk != null
+                && imageCaptureFailedQuirk.workaroundBySurfaceProcessing();
         boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing =
                 hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
         boolean hasExtraSupportedResolutionQuirk =
                 DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
         boolean hasTemporalNoiseQuirk = DeviceQuirks.get(TemporalNoiseQuirk.class) != null;
         USE_TEMPLATE_PREVIEW_BY_QUIRK =
-                hasPreviewStretchQuirk || hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
-                        || hasTemporalNoiseQuirk;
+                hasPreviewStretchQuirk || hasPreviewDelayQuirk
+                        || useTemplatePreviewByImageCaptureFailedQuirk || hasTemporalNoiseQuirk;
         sEnableSurfaceProcessingByQuirk =
-                hasPreviewDelayQuirk || hasImageCaptureFailedQuirk
+                hasPreviewDelayQuirk || enableSurfaceProcessingByImageCaptureFailedQuirk
                         || hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
                         || hasExtraSupportedResolutionQuirk;
     }
