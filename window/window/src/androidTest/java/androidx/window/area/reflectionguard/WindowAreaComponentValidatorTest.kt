@@ -20,7 +20,6 @@ import android.app.Activity
 import android.content.Context
 import android.util.DisplayMetrics
 import android.view.View
-import androidx.window.area.utils.PresentationCompatUtils
 import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
 import androidx.window.extensions.area.WindowAreaComponent
@@ -49,13 +48,11 @@ class WindowAreaComponentValidatorTest {
 
     @Test
     fun isWindowAreaComponentValid_apiLevel1() {
-        if (PresentationCompatUtils.doesSupportPresentationBeforeVendorApi3()) {
-            assertTrue(
-                WindowAreaComponentValidator.isWindowAreaComponentValid(
-                    WindowAreaComponentApi1PresentationRequirements::class.java, 1
-                )
+        assertFalse(
+            WindowAreaComponentValidator.isWindowAreaComponentValid(
+                WindowAreaComponentApiV2Implementation::class.java, apiLevel = 1
             )
-        }
+        )
     }
 
     /**
@@ -64,22 +61,17 @@ class WindowAreaComponentValidatorTest {
      */
     @Test
     fun isWindowAreaComponentValid_apiLevel2() {
-        if (PresentationCompatUtils.doesSupportPresentationBeforeVendorApi3()) {
-            assertTrue(
-                WindowAreaComponentValidator.isWindowAreaComponentValid(
-                    WindowAreaComponentApi1PresentationRequirements::class.java, 2
-                )
+        assertTrue(
+            WindowAreaComponentValidator.isWindowAreaComponentValid(
+                WindowAreaComponentApiV2Implementation::class.java, 2
             )
-        } else {
-            assertTrue(
-                WindowAreaComponentValidator.isWindowAreaComponentValid(
-                    WindowAreaComponentApiV2Implementation::class.java, 2
-                )
-            )
-        }
+        )
+
         assertFalse(
             WindowAreaComponentValidator.isWindowAreaComponentValid(
-                IncompleteWindowAreaComponentApiV2Implementation::class.java, 3))
+                IncompleteWindowAreaComponentApiV2Implementation::class.java, 3
+            )
+        )
     }
 
     /**
@@ -107,11 +99,13 @@ class WindowAreaComponentValidatorTest {
     }
 
     /**
-     * Test that validator returns true if the [ExtensionWindowAreaStatus] is valid
+     * Test that validator returns true if the [ExtensionWindowAreaStatus] is valid and expected to
+     * be found on that vendorApiLevel. Verifies that true is returned if the vendorApiLevel is a
+     * version before [ExtensionWindowAreaStatus] was introduced.
      */
     @Test
     fun isExtensionWindowAreaStatusValid_trueIfValid() {
-        assertFalse(
+        assertTrue(
             WindowAreaComponentValidator.isExtensionWindowAreaStatusValid(
                 ValidExtensionWindowAreaStatus::class.java, 2))
         assertTrue(
@@ -120,13 +114,11 @@ class WindowAreaComponentValidatorTest {
     }
 
     /**
-     * Test that validator returns false if the [ExtensionWindowAreaStatus] is incomplete
+     * Test that validator returns false if the [ExtensionWindowAreaStatus] is incomplete and
+     * expected to be on the device.
      */
     @Test
     fun isExtensionWindowAreaStatusValid_falseIfIncomplete() {
-        assertFalse(
-            WindowAreaComponentValidator.isExtensionWindowAreaStatusValid(
-                IncompleteExtensionWindowAreaStatus::class.java, 2))
         assertFalse(
             WindowAreaComponentValidator.isExtensionWindowAreaStatusValid(
                 IncompleteExtensionWindowAreaStatus::class.java, 3))

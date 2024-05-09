@@ -16,7 +16,6 @@
 
 package androidx.window.area.reflectionguard
 
-import androidx.window.area.utils.PresentationCompatUtils
 import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.reflection.ReflectionUtils.validateImplementation
@@ -28,14 +27,6 @@ internal object WindowAreaComponentValidator {
 
     internal fun isWindowAreaComponentValid(windowAreaComponent: Class<*>, apiLevel: Int): Boolean {
         val isWindowAreaComponentValid: Boolean = when {
-            apiLevel <= 2 && PresentationCompatUtils
-                .doesSupportPresentationBeforeVendorApi3() -> {
-                    validateImplementation(
-                        windowAreaComponent,
-                        WindowAreaComponentApi1PresentationRequirements::class.java
-                    )
-                }
-
             apiLevel <= 1 -> false
 
             apiLevel == 2 -> validateImplementation(
@@ -54,14 +45,7 @@ internal object WindowAreaComponentValidator {
         apiLevel: Int
     ): Boolean {
         val isExtensionWindowAreaStatusValid: Boolean = when {
-            apiLevel <= 2 && PresentationCompatUtils
-                .doesSupportPresentationBeforeVendorApi3() -> {
-                validateImplementation(
-                    extensionWindowAreaStatus, ExtensionWindowAreaStatusRequirements::class.java
-                )
-            }
-
-            apiLevel <= 2 -> false
+            apiLevel <= 2 -> true
 
             else -> validateImplementation(
                 extensionWindowAreaStatus, ExtensionWindowAreaStatusRequirements::class.java
@@ -75,14 +59,7 @@ internal object WindowAreaComponentValidator {
         apiLevel: Int
     ): Boolean {
         val isExtensionWindowAreaPresentationValid: Boolean = when {
-            apiLevel <= 2 && PresentationCompatUtils
-                .doesSupportPresentationBeforeVendorApi3() -> {
-                validateImplementation(
-                    extensionWindowAreaPresentation, ExtensionWindowAreaPresentation::class.java
-                )
-            }
-
-            apiLevel <= 2 -> false
+            apiLevel <= 2 -> true
 
             else -> validateImplementation(
                 extensionWindowAreaPresentation, ExtensionWindowAreaPresentation::class.java
