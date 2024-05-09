@@ -263,6 +263,25 @@ class CoreTextFieldHandwritingTest {
     }
 
     @Test
+    fun coreTextField_numberPasswordField_notStartStylusHandwriting() {
+        inputMethodManagerFactory = { fakeImm }
+
+        setContent {
+            val value = remember { TextFieldValue() }
+            CoreTextField(
+                value = value,
+                onValueChange = { },
+                imeOptions = ImeOptions(keyboardType = KeyboardType.NumberPassword),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(Tag),
+            )
+        }
+
+        performHandwritingAndExpect(stylusHandwritingStarted = false)
+    }
+
+    @Test
     fun coreTextField_passwordField_attemptStylusHandwritingShowSoftInput() {
         rule.setContent {
             keyboardHelper.initialize()
@@ -271,6 +290,26 @@ class CoreTextFieldHandwritingTest {
                 value = value,
                 onValueChange = { },
                 imeOptions = ImeOptions(keyboardType = KeyboardType.Password),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(Tag),
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performStylusHandwriting()
+        keyboardHelper.waitForKeyboardVisibility(true)
+        assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+    }
+
+    @Test
+    fun coreTextField_numberPasswordField_attemptStylusHandwritingShowSoftInput() {
+        rule.setContent {
+            keyboardHelper.initialize()
+            val value = remember { TextFieldValue() }
+            CoreTextField(
+                value = value,
+                onValueChange = { },
+                imeOptions = ImeOptions(keyboardType = KeyboardType.NumberPassword),
                 modifier = Modifier
                     .fillMaxSize()
                     .testTag(Tag),

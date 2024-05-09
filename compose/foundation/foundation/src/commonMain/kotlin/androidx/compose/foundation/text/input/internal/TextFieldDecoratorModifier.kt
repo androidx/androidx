@@ -238,7 +238,9 @@ internal class TextFieldDecoratorModifierNode(
         // Note: TextField will show software keyboard automatically when it
         // gain focus. 3) show a toast message telling that handwriting is not
         // supported for password fields. TODO(b/335294152)
-        if (keyboardOptions.keyboardType != KeyboardType.Password) {
+        if (keyboardOptions.keyboardType != KeyboardType.Password &&
+            keyboardOptions.keyboardType != KeyboardType.NumberPassword
+        ) {
             // Send the handwriting start signal to platform.
             // The editor should send the signal when it is focused or is about
             // to gain focus, Here are more details:
