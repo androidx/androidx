@@ -961,9 +961,9 @@ internal class AndroidComposeView(
      * This function is used by the delegate file to set the time interval between sending
      * accessibility events in milliseconds.
      */
-    override fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long) {
+    override fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) {
         composeAccessibilityDelegate.SendRecurringAccessibilityEventsIntervalMillis =
-            accessibilityInterval
+            intervalMillis
     }
 
     override fun onAttach(node: LayoutNode) {
