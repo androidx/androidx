@@ -389,19 +389,35 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         public @interface DataType {
         }
 
-        /** @exportToFramework:hide */
+        /**
+         * Constant value for String data type.
+         *
+         * @exportToFramework:hide
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_STRING = 1;
 
-        /** @exportToFramework:hide */
+        /**
+         * Constant value for Long data type.
+         *
+         * @exportToFramework:hide
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_LONG = 2;
 
-        /** @exportToFramework:hide */
+        /**
+         * Constant value for Double data type.
+         *
+         * @exportToFramework:hide
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_DOUBLE = 3;
 
-        /** @exportToFramework:hide */
+        /**
+         * Constant value for Boolean data type.
+         *
+         * @exportToFramework:hide
+         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final int DATA_TYPE_BOOLEAN = 4;
 
@@ -786,7 +802,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         }
 
         /** Returns how the property is indexed. */
-        @IndexingType
+        @StringPropertyConfig.IndexingType
         public int getIndexingType() {
             StringIndexingConfigParcel indexingConfigParcel =
                     mPropertyConfigParcel.getStringIndexingConfigParcel();
@@ -829,7 +845,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
-            @IndexingType
+            @StringPropertyConfig.IndexingType
             private int mIndexingType = INDEXING_TYPE_NONE;
             @TokenizerType
             private int mTokenizerType = TOKENIZER_TYPE_NONE;
@@ -848,6 +864,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * <p> For more details about the description field, see {@link
              * AppSearchSchema.PropertyConfig#getDescription}.
              */
+            @CanIgnoreReturnValue
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DESCRIPTION)
@@ -884,7 +901,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              */
             @CanIgnoreReturnValue
             @NonNull
-            public StringPropertyConfig.Builder setIndexingType(@IndexingType int indexingType) {
+            public StringPropertyConfig.Builder setIndexingType(
+                    @StringPropertyConfig.IndexingType int indexingType) {
                 Preconditions.checkArgumentInRange(
                         indexingType, INDEXING_TYPE_NONE, INDEXING_TYPE_PREFIXES, "indexingType");
                 mIndexingType = indexingType;
@@ -1055,7 +1073,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         }
 
         /** Returns how the property is indexed. */
-        @IndexingType
+        @LongPropertyConfig.IndexingType
         public int getIndexingType() {
             PropertyConfigParcel.IntegerIndexingConfigParcel indexingConfigParcel =
                     mPropertyConfigParcel.getIntegerIndexingConfigParcel();
@@ -1071,7 +1089,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
             private String mDescription = "";
             @Cardinality
             private int mCardinality = CARDINALITY_OPTIONAL;
-            @IndexingType
+            @LongPropertyConfig.IndexingType
             private int mIndexingType = INDEXING_TYPE_NONE;
 
             /** Creates a new {@link LongPropertyConfig.Builder}. */
@@ -1085,6 +1103,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * <p> For more details about the description field, see {@link
              * AppSearchSchema.PropertyConfig#getDescription}.
              */
+            @CanIgnoreReturnValue
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DESCRIPTION)
@@ -1121,7 +1140,8 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              */
             @CanIgnoreReturnValue
             @NonNull
-            public LongPropertyConfig.Builder setIndexingType(@IndexingType int indexingType) {
+            public LongPropertyConfig.Builder setIndexingType(
+                    @LongPropertyConfig.IndexingType int indexingType) {
                 Preconditions.checkArgumentInRange(
                         indexingType, INDEXING_TYPE_NONE, INDEXING_TYPE_RANGE, "indexingType");
                 mIndexingType = indexingType;
@@ -1183,6 +1203,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * <p> For more details about the description field, see {@link
              * AppSearchSchema.PropertyConfig#getDescription}.
              */
+            @CanIgnoreReturnValue
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DESCRIPTION)
@@ -1244,6 +1265,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * <p> For more details about the description field, see {@link
              * AppSearchSchema.PropertyConfig#getDescription}.
              */
+            @CanIgnoreReturnValue
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DESCRIPTION)
@@ -1305,6 +1327,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * <p> For more details about the description field, see {@link
              * AppSearchSchema.PropertyConfig#getDescription}.
              */
+            @CanIgnoreReturnValue
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DESCRIPTION)
@@ -1428,6 +1451,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * <p> For more details about the description field, see {@link
              * AppSearchSchema.PropertyConfig#getDescription}.
              */
+            @CanIgnoreReturnValue
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DESCRIPTION)
@@ -1688,6 +1712,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
              * <p> For more details about the description field, see {@link
              * AppSearchSchema.PropertyConfig#getDescription}.
              */
+            @CanIgnoreReturnValue
             @RequiresFeature(
                     enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                     name = Features.SCHEMA_SET_DESCRIPTION)

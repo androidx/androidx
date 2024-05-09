@@ -156,7 +156,11 @@ public final class SearchSpec extends AbstractSafeParcelable {
     @Field(id = 22, getter = "getInformationalRankingExpressions")
     private final List<String> mInformationalRankingExpressions;
 
-    /** @exportToFramework:hide */
+    /**
+     * Default number of documents per page.
+     *
+     * @exportToFramework:hide
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int DEFAULT_NUM_PER_PAGE = 10;
 
@@ -1363,6 +1367,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          *                           is not the tag we are using in {@link android.util.Log}. The
          *                           length of the teg should between 1 and 100.
          */
+        @CanIgnoreReturnValue
         @NonNull
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
@@ -1941,6 +1946,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * {@link AppSearchSchema.LongPropertyConfig#INDEXING_TYPE_RANGE} and all other numeric
          * querying features.
          */
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.NUMERIC_SEARCH)
@@ -1963,6 +1969,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * <p>For example, The verbatim string operator '"foo/bar" OR baz' will ensure that
          * 'foo/bar' is treated as a single 'verbatim' token.
          */
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.VERBATIM_SEARCH)
@@ -1989,7 +1996,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * <p>The newly added custom functions covered by this feature are:
          * <ul>
          * <li>createList(String...)</li>
-         * <li>termSearch(String, List<String>)</li>
+         * <li>termSearch(String, {@code List<String>})</li>
          * </ul>
          *
          * <p>createList takes a variable number of strings and returns a list of strings.
@@ -2001,6 +2008,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * for example, the query "(subject:foo OR body:foo) (subject:bar OR body:bar)"
          * could be rewritten as "termSearch(\"foo bar\", createList(\"subject\", \"bar\"))"
          */
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.LIST_FILTER_QUERY_LANGUAGE)
@@ -2019,6 +2027,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * <p>If disabled, disallows the use of the "hasProperty" function. See
          * {@link AppSearchSession#search} for more details about the function.
          */
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.LIST_FILTER_HAS_PROPERTY_FUNCTION)
@@ -2037,6 +2046,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          *
          * @param enabled Enables the feature if true, otherwise disables it
          */
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG)
@@ -2056,6 +2066,7 @@ public final class SearchSpec extends AbstractSafeParcelable {
          * <p>If disabled, disallows the use of the "tokenize" function. See
          * {@link AppSearchSession#search} for more details about the function.
          */
+        @CanIgnoreReturnValue
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.LIST_FILTER_TOKENIZE_FUNCTION)
@@ -2095,8 +2106,8 @@ public final class SearchSpec extends AbstractSafeParcelable {
                         + "no JoinSpec provided");
             }
             if (!mTypePropertyWeights.isEmpty()
-                    && RANKING_STRATEGY_RELEVANCE_SCORE != mRankingStrategy
-                    && RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION != mRankingStrategy) {
+                    && mRankingStrategy != RANKING_STRATEGY_RELEVANCE_SCORE
+                    && mRankingStrategy != RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION) {
                 throw new IllegalArgumentException("Property weights are only compatible with the "
                         + "RANKING_STRATEGY_RELEVANCE_SCORE and "
                         + "RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION ranking strategies.");

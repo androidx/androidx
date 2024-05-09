@@ -66,6 +66,8 @@ public class GenericDocument {
     private static final int MAX_INDEXED_PROPERTIES = 16;
 
     /**
+     * Fixed constant synthetic property for parent types.
+     *
      * <!--@exportToFramework:hide-->
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1196,8 +1198,9 @@ public class GenericDocument {
     // This builder is specifically designed to be extended by classes deriving from
     // GenericDocument.
     @SuppressLint("StaticFinalBuilder")
+    @SuppressWarnings("rawtypes")
     public static class Builder<BuilderType extends Builder> {
-        private GenericDocumentParcel.Builder mDocumentParcelBuilder;
+        private final GenericDocumentParcel.Builder mDocumentParcelBuilder;
         private final BuilderType mBuilderTypeInstance;
 
         /**

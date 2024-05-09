@@ -192,12 +192,12 @@ public final class SearchSpecToProtoConverter {
     }
 
     /**
-     * @return whether this search's target filters are empty. If any target filter is empty, we
+     * Returns whether this search's target filters are empty. If any target filter is empty, we
      * should skip send request to Icing.
      *
-     * <p> The nestedConverter is not checked as {@link SearchResult}s from the nested query have
-     * to be joined to a {@link SearchResult} from the parent query. If the parent query has
-     * nothing to search, then so does the child query.
+     * <p>The nestedConverter is not checked as {@link SearchResult}s from the nested query have to
+     * be joined to a {@link SearchResult} from the parent query. If the parent query has nothing to
+     * search, then so does the child query.
      */
     public boolean hasNothingToSearch() {
         return mTargetPrefixedNamespaceFilters.isEmpty() || mTargetPrefixedSchemaFilters.isEmpty();
@@ -635,7 +635,7 @@ public final class SearchSpecToProtoConverter {
             String packageName = getPackageName(prefix);
             // Create a new prefix without the database name. This will allow us to group namespaces
             // that have the same name and package but a different database name together.
-            String emptyDatabasePrefix = createPrefix(packageName, /*databaseName*/"");
+            String emptyDatabasePrefix = createPrefix(packageName, /* databaseName= */"");
             for (String prefixedNamespace : prefixedNamespaces) {
                 String namespace;
                 try {

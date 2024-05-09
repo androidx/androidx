@@ -304,9 +304,7 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
             mPropertyIndex = propertyIndex;
         }
 
-        /**
-         * @return the property name
-         */
+        /** Returns the name of the property. */
         @NonNull
         public String getPropertyName() {
             return mPropertyName;

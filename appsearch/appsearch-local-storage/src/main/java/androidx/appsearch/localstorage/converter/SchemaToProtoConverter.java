@@ -208,7 +208,8 @@ public final class SchemaToProtoConverter {
             case VECTOR:
                 return toEmbeddingPropertyConfig(proto);
             default:
-                throw new IllegalArgumentException("Invalid dataType: " + proto.getDataType());
+                throw new IllegalArgumentException(
+                        "Invalid dataType code: " + proto.getDataType().getNumber());
         }
     }
 
@@ -300,12 +301,11 @@ public final class SchemaToProtoConverter {
                 return AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE;
             case QUALIFIED_ID:
                 return AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID;
-            default:
-                // Avoid crashing in the 'read' path; we should try to interpret the document to the
-                // extent possible.
-                Log.w(TAG, "Invalid joinableValueType: " + joinableValueType.getNumber());
-                return AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE;
         }
+        // Avoid crashing in the 'read' path; we should try to interpret the document to the
+        // extent possible.
+        Log.w(TAG, "Invalid joinableValueType: " + joinableValueType.getNumber());
+        return AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE;
     }
 
     @NonNull
@@ -332,12 +332,11 @@ public final class SchemaToProtoConverter {
                 return AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS;
             case PREFIX:
                 return AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES;
-            default:
-                // Avoid crashing in the 'read' path; we should try to interpret the document to the
-                // extent possible.
-                Log.w(TAG, "Invalid indexingType: " + termMatchType.getNumber());
-                return AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE;
         }
+        // Avoid crashing in the 'read' path; we should try to interpret the document to the
+        // extent possible.
+        Log.w(TAG, "Invalid indexingType: " + termMatchType.getNumber());
+        return AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE;
     }
 
     @NonNull
@@ -372,12 +371,11 @@ public final class SchemaToProtoConverter {
                 return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
             case RANGE:
                 return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_RANGE;
-            default:
-                // Avoid crashing in the 'read' path; we should try to interpret the document to the
-                // extent possible.
-                Log.w(TAG, "Invalid indexingType: " + numericMatchType.getNumber());
-                return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
         }
+        // Avoid crashing in the 'read' path; we should try to interpret the document to the
+        // extent possible.
+        Log.w(TAG, "Invalid indexingType: " + numericMatchType.getNumber());
+        return AppSearchSchema.LongPropertyConfig.INDEXING_TYPE_NONE;
     }
 
     @NonNull
@@ -402,11 +400,10 @@ public final class SchemaToProtoConverter {
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
             case LINEAR_SEARCH:
                 return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_SIMILARITY;
-            default:
-                // Avoid crashing in the 'read' path; we should try to interpret the document to the
-                // extent possible.
-                Log.w(TAG, "Invalid indexingType: " + indexingType.getNumber());
-                return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
         }
+        // Avoid crashing in the 'read' path; we should try to interpret the document to the
+        // extent possible.
+        Log.w(TAG, "Invalid indexingType: " + indexingType.getNumber());
+        return AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
     }
 }

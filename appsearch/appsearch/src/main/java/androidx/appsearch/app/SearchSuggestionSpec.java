@@ -434,6 +434,7 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
          * @param schema the {@link AppSearchSchema} that contains the target properties
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
          */
+        @CanIgnoreReturnValue
         @NonNull
         // Getter method is getFilterProperties
         @SuppressLint("MissingGetterMatchingBuilder")
