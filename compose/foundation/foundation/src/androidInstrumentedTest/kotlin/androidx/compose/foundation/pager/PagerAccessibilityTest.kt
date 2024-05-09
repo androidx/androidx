@@ -355,6 +355,42 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
         }
     }
 
+    @Test
+    fun scrollBySemantics_alwaysScrollsFullPage_lessThanPage() {
+        createPager()
+
+        assertThat(pagerState.currentPage).isEqualTo(0)
+        val scrollDelta = with(rule.density) { (pageSize / 2).toDp() }
+        rule.onNodeWithTag(PagerTestTag).scrollBy(
+            x = scrollDelta,
+            y = scrollDelta,
+            density = rule.density
+        )
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(1)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+    }
+
+    @Test
+    fun scrollBySemantics_alwaysScrollsFullPage_TwoPages() {
+        createPager()
+
+        assertThat(pagerState.currentPage).isEqualTo(0)
+        val scrollDelta = with(rule.density) { (3 * pageSize / 2).toDp() }
+        rule.onNodeWithTag(PagerTestTag).scrollBy(
+            x = scrollDelta,
+            y = scrollDelta,
+            density = rule.density
+        )
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(2)
+            assertThat(pagerState.currentPageOffsetFraction).isEqualTo(0.0f)
+        }
+    }
+
     private fun <T> SemanticsNodeInteraction.withSemanticsNode(block: SemanticsNode.() -> T): T {
         return block.invoke(fetchSemanticsNode())
     }
