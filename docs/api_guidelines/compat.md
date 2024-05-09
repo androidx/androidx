@@ -337,6 +337,34 @@ only be used in code paths targeting API level 26 and above.
 
 ### Delegating to API-specific implementations {#delegating-to-api-specific-implementations}
 
+#### Referencing SDK constants {#sdk-constants}
+
+Generally speaking, platform and Mainline SDK constants should not be inlined.
+
+Constants that can be inlined by the compiler (most primitives and `String`s)
+should be referenced directly from the SDK rather than copying and pasting the
+value. This will raise an `InlinedApi` lint warning, which may be suppressed.
+
+```
+public static class ViewCompat {
+  @Suppress("InlinedApi")
+  public static final int SOME_CONSTANT = View.SOME_CONSTANT
+}
+```
+
+In rare cases, some SDK constants are not defined at compile-time and cannot be
+inlined by the compiler. In these cases, you will need to handle them like any
+other API using out-of-lining and version gating.
+
+```
+public static final int RUNTIME_CONSTANT =
+    if (SDK_INT > 34) { Api34Impl.RUNTIME_CONSTANT } else { -1 }
+```
+
+Developers **must not** inline platform or Mainline SDK constants that are not
+part of a finalized public SDK. **Do not** inline values from `@hide` constants
+or public constants in an unfinalized SDK.
+
 #### SDK-dependent reflection {#sdk-reflection}
 
 Note: The
