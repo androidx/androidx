@@ -210,6 +210,21 @@ internal class BasicTextFieldHandwritingTest {
     }
 
     @Test
+    fun textField_numberPasswordField_notStartStylusHandwriting() {
+        immRule.setFactory { imm }
+        inputMethodInterceptor.setTextFieldTestContent {
+            val state = remember { TextFieldState() }
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
+            )
+        }
+
+        performHandwritingAndExpect(stylusHandwritingStarted = false)
+    }
+
+    @Test
     fun coreTextField_passwordField_attemptStylusHandwritingShowSoftInput() {
         rule.setContent {
             keyboardHelper.initialize()
@@ -218,6 +233,23 @@ internal class BasicTextFieldHandwritingTest {
                 state = state,
                 modifier = Modifier.fillMaxSize().testTag(Tag),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
+        }
+
+        rule.onNodeWithTag(Tag).performStylusHandwriting()
+        keyboardHelper.waitForKeyboardVisibility(true)
+        Truth.assertThat(keyboardHelper.isSoftwareKeyboardShown()).isTrue()
+    }
+
+    @Test
+    fun coreTextField_numberPasswordField_attemptStylusHandwritingShowSoftInput() {
+        rule.setContent {
+            keyboardHelper.initialize()
+            val state = remember { TextFieldState() }
+            BasicTextField(
+                state = state,
+                modifier = Modifier.fillMaxSize().testTag(Tag),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword)
             )
         }
 

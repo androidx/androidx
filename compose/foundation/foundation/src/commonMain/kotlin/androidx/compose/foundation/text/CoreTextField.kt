@@ -81,7 +81,6 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
@@ -638,7 +637,9 @@ internal fun CoreTextField(
         // Note: TextField will show software keyboard automatically when it
         // gain focus. 3) show a toast message telling that handwriting is not
         // supported for password fields. TODO(b/335294152)
-        if (imeOptions.keyboardType != KeyboardType.Password) {
+        if (imeOptions.keyboardType != KeyboardType.Password &&
+            imeOptions.keyboardType != KeyboardType.NumberPassword
+        ) {
             // TextInputService is calling LegacyTextInputServiceAdapter under the
             // hood.  And because it's a public API, startStylusHandwriting is added
             // to legacyTextInputServiceAdapter instead.
