@@ -189,21 +189,34 @@ internal sealed class KspAnnotated(
                     KspAnnotation(env, targetAnnotation)
                         .asAnnotationBox(java.lang.annotation.Target::class.java)
                         .value.value.toList()
-                }?.mapNotNull { it.toAnnotationTarget() }?.toSet() ?: emptySet()
+                }?.flatMap { it.toAnnotationTargets() }?.toSet() ?: emptySet()
                 return kotlinTargets + javaTargets
             }
 
-            private fun ElementType.toAnnotationTarget() = when (this) {
-                ElementType.TYPE -> AnnotationTarget.CLASS
-                ElementType.FIELD -> AnnotationTarget.FIELD
-                ElementType.METHOD -> AnnotationTarget.FUNCTION
-                ElementType.PARAMETER -> AnnotationTarget.VALUE_PARAMETER
-                ElementType.CONSTRUCTOR -> AnnotationTarget.CONSTRUCTOR
-                ElementType.LOCAL_VARIABLE -> AnnotationTarget.LOCAL_VARIABLE
-                ElementType.ANNOTATION_TYPE -> AnnotationTarget.ANNOTATION_CLASS
-                ElementType.TYPE_PARAMETER -> AnnotationTarget.TYPE_PARAMETER
-                ElementType.TYPE_USE -> AnnotationTarget.TYPE
-                else -> null
+            // As of Java 22 and Kotlin 1.9, Java annotations can't be used on
+            // AnnotationTarget.EXPRESSION, AnnotationTarget.FILE, and AnnotationTarget.TYPEALIAS,
+            // but can be used on AnnotationTarget.PROPERTY with @property: if
+            // it doesn't have Target defined. There are no mappings from
+            // ElementType.PACKAGE, ElementType.MODULE or ElementType.RECORD_COMPONENT
+            // to AnnotationTarget.
+            private fun ElementType.toAnnotationTargets() = when (this) {
+                ElementType.TYPE -> listOf(
+                    AnnotationTarget.CLASS,
+                    AnnotationTarget.ANNOTATION_CLASS
+                )
+                ElementType.FIELD -> listOf(AnnotationTarget.FIELD)
+                ElementType.METHOD -> listOf(
+                    AnnotationTarget.FUNCTION,
+                    AnnotationTarget.PROPERTY_GETTER,
+                    AnnotationTarget.PROPERTY_SETTER
+                )
+                ElementType.PARAMETER -> listOf(AnnotationTarget.VALUE_PARAMETER)
+                ElementType.CONSTRUCTOR -> listOf(AnnotationTarget.CONSTRUCTOR)
+                ElementType.LOCAL_VARIABLE -> listOf(AnnotationTarget.LOCAL_VARIABLE)
+                ElementType.ANNOTATION_TYPE -> listOf(AnnotationTarget.ANNOTATION_CLASS)
+                ElementType.TYPE_PARAMETER -> listOf(AnnotationTarget.TYPE_PARAMETER)
+                ElementType.TYPE_USE -> listOf(AnnotationTarget.TYPE)
+                else -> emptyList()
             }
         }
     }
