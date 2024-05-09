@@ -29,7 +29,7 @@ import androidx.window.extensions.layout.WindowLayoutInfo;
  * The data class is designed to provide information to calculate the presentation of
  * an {@link ActivityStack}.
  */
-@RequiresVendorApiLevel(level = 5)
+@RequiresVendorApiLevel(level = 6)
 public class ParentContainerInfo {
     @NonNull
     private final WindowMetrics mWindowMetrics;
@@ -56,21 +56,21 @@ public class ParentContainerInfo {
     }
 
     /** Returns the parent container's {@link WindowMetrics}. */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public WindowMetrics getWindowMetrics() {
         return mWindowMetrics;
     }
 
     /** Returns the parent container's {@link Configuration}. */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public Configuration getConfiguration() {
         return mConfiguration;
     }
 
     /** Returns the parent container's {@link WindowLayoutInfo}. */
-    @RequiresVendorApiLevel(level = 5)
+    @RequiresVendorApiLevel(level = 6)
     @NonNull
     public WindowLayoutInfo getWindowLayoutInfo() {
         return mWindowLayoutInfo;
