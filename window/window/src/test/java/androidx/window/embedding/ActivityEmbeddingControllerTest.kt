@@ -20,7 +20,6 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Rect
 import androidx.core.util.Consumer
-import androidx.window.core.ExperimentalWindowApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -75,7 +74,6 @@ class ActivityEmbeddingControllerTest {
     }
 
     @Test
-    @OptIn(ExperimentalWindowApi::class)
     fun testGetActivityStack() {
         val activityStack = ActivityStack(listOf(), true)
         whenever(mockEmbeddingBackend.getActivityStack(mockActivity)).thenReturn(activityStack)
@@ -84,7 +82,6 @@ class ActivityEmbeddingControllerTest {
     }
 
     @Test
-    @OptIn(ExperimentalWindowApi::class)
     fun testFinishActivityStacks() {
         val activityStacks: Set<ActivityStack> = mock()
         activityEmbeddingController.finishActivityStacks(activityStacks)
@@ -124,7 +121,6 @@ class ActivityEmbeddingControllerTest {
     }
 
     @Test
-    @OptIn(ExperimentalWindowApi::class)
     fun testGetInstance() {
         EmbeddingBackend.overrideDecorator(object : EmbeddingBackendDecorator {
             override fun decorate(embeddingBackend: EmbeddingBackend): EmbeddingBackend =

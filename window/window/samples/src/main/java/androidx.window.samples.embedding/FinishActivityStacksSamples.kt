@@ -18,11 +18,9 @@ package androidx.window.samples.embedding
 
 import android.app.Activity
 import androidx.annotation.Sampled
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.SplitController
 
-@OptIn(ExperimentalWindowApi::class)
 @Sampled
 suspend fun expandPrimaryContainer() {
     SplitController.getInstance(primaryActivity).splitInfoList(primaryActivity)

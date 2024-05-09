@@ -18,7 +18,6 @@ package androidx.window.embedding
 
 import androidx.annotation.IntRange
 import androidx.window.RequiresWindowSdkExtension
-import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Configurations of Activity Embedding environment that defines how the
@@ -29,10 +28,8 @@ import androidx.window.core.ExperimentalWindowApi
  * @constructor The [EmbeddingConfiguration] constructor. The properties are undefined
  *              if not specified.
  */
-@ExperimentalWindowApi
 class EmbeddingConfiguration @JvmOverloads constructor(
     @RequiresWindowSdkExtension(5)
-    @OptIn(ExperimentalWindowApi::class)
     val dimAreaBehavior: DimAreaBehavior = DimAreaBehavior.UNDEFINED
 ) {
     /**
@@ -40,7 +37,6 @@ class EmbeddingConfiguration @JvmOverloads constructor(
      *
      * @see [android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND]
      */
-    @ExperimentalWindowApi
     class DimAreaBehavior private constructor(@IntRange(from = 0, to = 2) internal val value: Int) {
         companion object {
             /**
@@ -54,7 +50,6 @@ class EmbeddingConfiguration @JvmOverloads constructor(
              * @see ActivityEmbeddingController.setEmbeddingConfiguration
              */
             @JvmField
-            @ExperimentalWindowApi
             val UNDEFINED = DimAreaBehavior(0)
 
             /**
@@ -64,7 +59,6 @@ class EmbeddingConfiguration @JvmOverloads constructor(
              * requested Activity.
              */
             @JvmField
-            @ExperimentalWindowApi
             val ON_ACTIVITY_STACK = DimAreaBehavior(1)
 
             /**
@@ -78,7 +72,6 @@ class EmbeddingConfiguration @JvmOverloads constructor(
              * [ActivityEmbeddingController.setEmbeddingConfiguration].
              */
             @JvmField
-            @ExperimentalWindowApi
             val ON_TASK = DimAreaBehavior(2)
         }
 
@@ -110,9 +103,7 @@ class EmbeddingConfiguration @JvmOverloads constructor(
     /**
      * Builder for creating an instance of [EmbeddingConfiguration].
      */
-    @ExperimentalWindowApi
     class Builder {
-        @OptIn(ExperimentalWindowApi::class)
         private var mDimAreaBehavior = DimAreaBehavior.UNDEFINED
 
         /**
@@ -123,7 +114,6 @@ class EmbeddingConfiguration @JvmOverloads constructor(
          * @return This [Builder]
          */
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        @ExperimentalWindowApi
         fun setDimAreaBehavior(area: DimAreaBehavior): Builder = apply { mDimAreaBehavior = area }
 
         /**
@@ -131,7 +121,6 @@ class EmbeddingConfiguration @JvmOverloads constructor(
          *
          * @return The new [EmbeddingConfiguration] instance.
          */
-        @ExperimentalWindowApi
         fun build(): EmbeddingConfiguration = EmbeddingConfiguration(mDimAreaBehavior)
     }
 }

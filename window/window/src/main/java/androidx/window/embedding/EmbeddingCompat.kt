@@ -26,7 +26,6 @@ import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
@@ -123,7 +122,6 @@ internal class EmbeddingCompat(
     }
 
     @RequiresWindowSdkExtension(5)
-    @OptIn(ExperimentalWindowApi::class)
     override fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
         windowSdkExtensions.requireExtensionVersion(5)
         return embeddingExtension.pinTopActivityStack(
@@ -171,7 +169,6 @@ internal class EmbeddingCompat(
         )
     }
 
-    @OptIn(ExperimentalWindowApi::class)
     @RequiresWindowSdkExtension(5)
     override fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration) {
         windowSdkExtensions.requireExtensionVersion(5)
@@ -181,7 +178,6 @@ internal class EmbeddingCompat(
         embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
 
-    @OptIn(ExperimentalWindowApi::class)
     private fun setDefaultSplitAttributeCalculatorIfNeeded() {
         // Setting a default SplitAttributeCalculator if the EmbeddingConfiguration is set,
         // in order to ensure the dimAreaBehavior in the SplitAttribute is up-to-date.

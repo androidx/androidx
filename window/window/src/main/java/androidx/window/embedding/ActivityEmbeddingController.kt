@@ -22,7 +22,6 @@ import android.os.Bundle
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
-import androidx.window.core.ExperimentalWindowApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -54,7 +53,6 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @return the [ActivityStack] that this [activity] is part of, or `null` if there is no such
      * [ActivityStack].
      */
-    @ExperimentalWindowApi
     fun getActivityStack(activity: Activity): ActivityStack? =
         backend.getActivityStack(activity)
 
@@ -95,7 +93,6 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      * @throws UnsupportedOperationException if extension version is less than 5.
      * @sample androidx.window.samples.embedding.expandPrimaryContainer
      */
-    @ExperimentalWindowApi
     @RequiresWindowSdkExtension(5)
     fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
         backend.finishActivityStacks(activityStacks)
@@ -121,7 +118,6 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
      *
      * @param embeddingConfiguration The [EmbeddingConfiguration]
      */
-    @ExperimentalWindowApi
     @RequiresWindowSdkExtension(5)
     fun setEmbeddingConfiguration(embeddingConfiguration: EmbeddingConfiguration) {
         backend.setEmbeddingConfiguration(embeddingConfiguration)

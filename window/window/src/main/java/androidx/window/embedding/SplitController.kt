@@ -22,7 +22,6 @@ import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowProperties
 import androidx.window.WindowSdkExtensions
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowMetrics
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -111,7 +110,6 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      *                                       is less than 5.
      */
     @RequiresWindowSdkExtension(5)
-    @ExperimentalWindowApi
     fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
         return embeddingBackend.pinTopActivityStack(taskId, splitPinRule)
     }
@@ -131,7 +129,6 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      *                                       is less than 5.
      */
     @RequiresWindowSdkExtension(5)
-    @ExperimentalWindowApi
     fun unpinTopActivityStack(taskId: Int) {
         embeddingBackend.unpinTopActivityStack(taskId)
     }
@@ -224,7 +221,6 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion]
      *                                       is less than 3.
      */
-    @ExperimentalWindowApi
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
         embeddingBackend.updateSplitAttributes(splitInfo, splitAttributes)
