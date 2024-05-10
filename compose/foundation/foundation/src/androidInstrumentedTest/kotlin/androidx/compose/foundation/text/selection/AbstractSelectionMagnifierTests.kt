@@ -200,6 +200,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
         // start selection at first character
         rule.onNodeWithTag(tag).performTouchInput {
+            advanceEventTime(viewConfiguration.doubleTapTimeoutMillis * 2)
             longPress(firstPressOffset)
         }
         assertMagnifierAt(firstPressOffset)

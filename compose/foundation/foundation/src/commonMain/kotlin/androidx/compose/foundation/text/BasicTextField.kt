@@ -46,6 +46,7 @@ import androidx.compose.foundation.text.input.internal.TextFieldTextLayoutModifi
 import androidx.compose.foundation.text.input.internal.TextLayoutState
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
+import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState.InputType
 import androidx.compose.foundation.text.selection.SelectionHandle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -328,7 +329,8 @@ internal fun BasicTextField(
             orientation = orientation,
             // Disable scrolling when textField is disabled or another dragging gesture is taking
             // place
-            enabled = enabled && textFieldSelectionState.draggingHandle == null,
+            enabled = enabled &&
+                textFieldSelectionState.directDragGestureInitiator == InputType.None,
             reverseDirection = ScrollableDefaults.reverseDirection(
                 layoutDirection = layoutDirection,
                 orientation = orientation,

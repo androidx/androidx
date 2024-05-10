@@ -21,7 +21,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
-import androidx.compose.foundation.text.selection.gestures.util.TextFieldSelectionAsserter
+import androidx.compose.foundation.text.selection.gestures.util.TextField1SelectionAsserter
 import androidx.compose.foundation.text.selection.gestures.util.applyAndAssert
 import androidx.compose.foundation.text.selection.gestures.util.to
 import androidx.compose.runtime.Composable
@@ -52,7 +52,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
 
     private val textFieldValue = mutableStateOf(TextFieldValue(textContent))
 
-    private lateinit var asserter: TextFieldSelectionAsserter
+    private lateinit var asserter: TextField1SelectionAsserter
 
     @Composable
     override fun Content() {
@@ -68,7 +68,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
 
     @Before
     fun setupAsserter() {
-        asserter = TextFieldSelectionAsserter(
+        asserter = TextField1SelectionAsserter(
             textContent = textContent,
             rule = rule,
             textToolbar = textToolbar,

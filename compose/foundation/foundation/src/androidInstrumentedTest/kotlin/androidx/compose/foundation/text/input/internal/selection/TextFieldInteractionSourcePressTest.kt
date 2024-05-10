@@ -235,7 +235,8 @@ class TextFieldInteractionSourcePressTest : FocusedWindowTest {
             assertThat(interactions[0]).isInstanceOf(PressInteraction.Press::class.java)
             assertThat(interactions[1]).isInstanceOf(PressInteraction.Release::class.java)
             assertThat(interactions[2]).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions[3]).isInstanceOf(PressInteraction.Release::class.java)
+            // second tap is consumed to select the tapped word, so this will be cancelled.
+            assertThat(interactions[3]).isInstanceOf(PressInteraction.Cancel::class.java)
         }
     }
 }
