@@ -21,13 +21,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -52,13 +56,11 @@ fun SelectableChips(
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     description: String = "Selectable Chips"
 ) {
-    val applicationContext = LocalContext.current
     val scrollState: ScalingLazyListState = rememberScalingLazyListState()
     var enabled by remember { mutableStateOf(true) }
 
-    var radioIconSelected by remember { mutableStateOf(true) }
-    var radioIconWithSecondarySelected by remember { mutableStateOf(true) }
-    var splitWithRadioIconSelected by remember { mutableStateOf(true) }
+    var selectedRadioIndex by remember { mutableIntStateOf(0) }
+    var splitRadioIndex by remember { mutableIntStateOf(0) }
 
     ScalingLazyColumn(
         state = scrollState,
@@ -79,10 +81,10 @@ fun SelectableChips(
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 // Call the selectionControl variation, with default selectionControl = RadioButton
                 SelectableChip(
-                    selected = radioIconSelected,
-                    onClick = { radioIconSelected = it },
+                    selected = selectedRadioIndex == 0,
+                    onClick = { selectedRadioIndex = 0 },
                     label = {
-                        Text("Radio", maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text("Selectable", maxLines = 2, overflow = TextOverflow.Ellipsis)
                     },
                     enabled = enabled,
                 )
@@ -91,21 +93,21 @@ fun SelectableChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 SelectableChip(
-                    selected = radioIconWithSecondarySelected,
-                    onClick = { radioIconWithSecondarySelected = it },
+                    selected = selectedRadioIndex == 1,
+                    onClick = { selectedRadioIndex = 1 },
                     label = {
                         Text(
-                            "RadioIcon",
+                            "Selectable",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     },
                     secondaryLabel = {
-                        Text("CustomColor", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("Custom", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
                     selectionControl = {
                         RadioButton(
-                            selected = radioIconWithSecondarySelected,
+                            selected = selectedRadioIndex == 1,
                             enabled = enabled,
                             colors = RadioButtonDefaults.colors(
                                 selectedRingColor = MaterialTheme.colors.primary,
@@ -136,17 +138,22 @@ fun SelectableChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 // Call the selectionControl variation, with default selectionControl = RadioButton
-                SplitSelectableChip(
-                    selected = splitWithRadioIconSelected,
-                    onSelectionClick = { splitWithRadioIconSelected = it },
-                    label = { Text("Split with Radio") },
-                    onContainerClick = {
-                        Toast.makeText(
-                            applicationContext, "Body was clicked",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    },
-                    enabled = enabled,
+                DemoSplitSelectableChip(
+                    selected = splitRadioIndex == 0,
+                    onSelectionClick = { splitRadioIndex = 0 },
+                    primaryLabel = "Primary label",
+                    enabled = enabled
+                )
+            }
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                // Call the selectionControl variation, with default selectionControl = RadioButton
+                DemoSplitSelectableChip(
+                    selected = splitRadioIndex == 1,
+                    onSelectionClick = { splitRadioIndex = 1 },
+                    primaryLabel = "Primary label",
+                    enabled = enabled
                 )
             }
         }
@@ -174,4 +181,32 @@ fun SelectableChips(
             }
         }
     }
+}
+
+@Composable
+private fun DemoSplitSelectableChip(
+    enabled: Boolean,
+    selected: Boolean,
+    primaryLabel: String,
+    onSelectionClick: (Boolean) -> Unit = {},
+) {
+    val context = LocalContext.current
+
+    SplitSelectableChip(
+        selected = selected,
+        onSelectionClick = onSelectionClick,
+        label = { Text(primaryLabel) },
+        onContainerClick = {
+            Toast.makeText(context, "Body was clicked", Toast.LENGTH_SHORT).show()
+        },
+        enabled = enabled,
+        selectionControl = {
+            RadioButton(
+                selected = selected,
+                enabled = true,
+                modifier = Modifier.semantics {
+                    contentDescription = primaryLabel
+                })
+        }
+    )
 }
