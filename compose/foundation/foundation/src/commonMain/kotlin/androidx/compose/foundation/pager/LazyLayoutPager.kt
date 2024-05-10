@@ -157,6 +157,12 @@ internal fun Pager(
                 userScrollEnabled = userScrollEnabled,
                 reverseScrolling = reverseLayout,
             )
+            .pagerSemantics(
+                state,
+                orientation == Orientation.Vertical,
+                coroutineScope,
+                userScrollEnabled
+            )
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberPagerBeyondBoundsState(
                     state = state,
