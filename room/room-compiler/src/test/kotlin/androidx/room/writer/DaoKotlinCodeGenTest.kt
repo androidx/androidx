@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.util.compileFiles
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.jetbrains.kotlin.config.JvmDefaultMode
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -2291,6 +2292,46 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun guavaCallable_java() {
+        val daoSrc = Source.java(
+            "MyDao",
+            """
+            import com.google.common.util.concurrent.ListenableFuture;
+            import androidx.room.*;
+
+            @Dao
+            public interface MyDao {
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                ListenableFuture<MyEntity> getListenableFuture(String... arg);
+            }
+            """.trimIndent()
+        )
+        val entitySrc = Source.kotlin(
+            "MyEntity.kt",
+            """
+            import androidx.room.*
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                daoSrc,
+                entitySrc,
+                databaseSrc,
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.GUAVA_ROOM,
+            ),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
     fun liveDataCallable() {
         val src = Source.kotlin(
             "MyDao.kt",
@@ -2361,6 +2402,66 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 src,
                 databaseSrc,
                 COMMON.COROUTINES_ROOM
+            ),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
+    @Ignore("b/339809512")
+    fun shortcutMethods_java() {
+        val daoSrc = Source.java(
+            "MyDao",
+            """
+            import androidx.room.*;
+            import java.util.List;
+
+            @Dao
+            public interface MyDao {
+                @Insert
+                List<Long> insert(MyEntity... entities);
+
+                @Insert
+                long[] insertList(List<MyEntity> entities);
+
+                @Upsert
+                List<Long> upsert(MyEntity... entities);
+
+                @Upsert
+                long[] upsertList(List<MyEntity> entities);
+
+                @Delete
+                void delete(MyEntity entity);
+
+                @Delete
+                int deleteList(List<MyEntity> entity);
+
+                @Update
+                void update(MyEntity entity);
+                
+                @Update
+                int updateList(List<MyEntity> entity);
+            }
+            """.trimIndent()
+        )
+        val entitySrc = Source.kotlin(
+            "MyEntity.kt",
+            """
+            import androidx.room.*
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                daoSrc,
+                entitySrc,
+                databaseSrc,
             ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
