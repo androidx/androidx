@@ -23,45 +23,9 @@ abstract class LinkAnnotation private constructor() {
     /** Interaction listener triggered when user interacts with this link. */
     abstract val linkInteractionListener: LinkInteractionListener?
     /**
-     * Style configuration for this link that is always applied
+     * Style configuration for this link in different states
      */
-    abstract val style: SpanStyle?
-    /**
-     * Style configuration for this link applied on top of the [style] when the link is focused.
-     *
-     * The resulting style of the link is always a combination of all styles merged into one in
-     * the order `style.merge(focusedStyle).merge(hoveredStyle).merge(pressedStyle)`
-     */
-    abstract val focusedStyle: SpanStyle?
-    /**
-     * Style configuration for this link applied on top of the [style] when the link is hovered.
-     *
-     * The resulting style of the link is always a combination of all styles merged into one in
-     * the order `style.merge(focusedStyle).merge(hoveredStyle).merge(pressedStyle)`
-     */
-    abstract val hoveredStyle: SpanStyle?
-    /**
-     * Style configuration for this link applied on top of the [style] when the link is pressed.
-     *
-     * The resulting style of the link is always a combination of all styles merged into one in
-     * the order `style.merge(focusedStyle).merge(hoveredStyle).merge(pressedStyle)`
-     */
-    abstract val pressedStyle: SpanStyle?
-    /**
-     * Returns a new [LinkAnnotation] which styles are a combination of its original styles and
-     * the given default styles.
-     *
-     * This link's style's null or inherit properties are replaced with the non-null properties of
-     * the corresponding default style. Another way to think of it is that the "missing" properties
-     * of the style are _filled_ by the properties of the corresponding default style.
-     */
-    abstract fun withDefaultsFrom(
-        defaultStyle: SpanStyle?,
-        defaultFocusedStyle: SpanStyle?,
-        defaultHoveredStyle: SpanStyle?,
-        defaultPressedStyle: SpanStyle?
-    ): LinkAnnotation
-
+    abstract val styles: TextLinkStyles?
     /**
      * An annotation that contains a [url] string. When clicking on the text to which this annotation
      * is attached, the app will try to open the url using [androidx.compose.ui.platform.UriHandler].
@@ -71,36 +35,16 @@ abstract class LinkAnnotation private constructor() {
      */
     class Url(
         val url: String,
-        override val style: SpanStyle? = null,
-        override val focusedStyle: SpanStyle? = null,
-        override val hoveredStyle: SpanStyle? = null,
-        override val pressedStyle: SpanStyle? = null,
+        override val styles: TextLinkStyles? = null,
         override val linkInteractionListener: LinkInteractionListener? = null
     ) : LinkAnnotation() {
-
-        override fun withDefaultsFrom(
-            defaultStyle: SpanStyle?,
-            defaultFocusedStyle: SpanStyle?,
-            defaultHoveredStyle: SpanStyle?,
-            defaultPressedStyle: SpanStyle?
-        ) = Url(
-            url = this.url,
-            style = defaultStyle?.merge(style) ?: this.style,
-            focusedStyle = defaultFocusedStyle?.merge(this.focusedStyle) ?: this.focusedStyle,
-            hoveredStyle = defaultHoveredStyle?.merge(this.hoveredStyle) ?: this.hoveredStyle,
-            pressedStyle = defaultPressedStyle?.merge(this.pressedStyle) ?: this.pressedStyle,
-            linkInteractionListener = this.linkInteractionListener
-        )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Url) return false
 
             if (url != other.url) return false
-            if (style != other.style) return false
-            if (focusedStyle != other.focusedStyle) return false
-            if (hoveredStyle != other.hoveredStyle) return false
-            if (pressedStyle != other.pressedStyle) return false
+            if (styles != other.styles) return false
             if (linkInteractionListener != other.linkInteractionListener) return false
 
             return true
@@ -108,10 +52,7 @@ abstract class LinkAnnotation private constructor() {
 
         override fun hashCode(): Int {
             var result = url.hashCode()
-            result = 31 * result + (style?.hashCode() ?: 0)
-            result = 31 * result + (focusedStyle?.hashCode() ?: 0)
-            result = 31 * result + (hoveredStyle?.hashCode() ?: 0)
-            result = 31 * result + (pressedStyle?.hashCode() ?: 0)
+            result = 31 * result + (styles?.hashCode() ?: 0)
             result = 31 * result + (linkInteractionListener?.hashCode() ?: 0)
             return result
         }
@@ -128,36 +69,16 @@ abstract class LinkAnnotation private constructor() {
     class Clickable(
         val tag: String,
         // nullable for the save/restore purposes
-        override val style: SpanStyle? = null,
-        override val focusedStyle: SpanStyle? = null,
-        override val hoveredStyle: SpanStyle? = null,
-        override val pressedStyle: SpanStyle? = null,
+        override val styles: TextLinkStyles? = null,
         override val linkInteractionListener: LinkInteractionListener?
     ) : LinkAnnotation() {
-
-        override fun withDefaultsFrom(
-            defaultStyle: SpanStyle?,
-            defaultFocusedStyle: SpanStyle?,
-            defaultHoveredStyle: SpanStyle?,
-            defaultPressedStyle: SpanStyle?
-        ) = Clickable(
-            tag = this.tag,
-            style = defaultStyle?.merge(style) ?: this.style,
-            focusedStyle = defaultFocusedStyle?.merge(this.focusedStyle) ?: this.focusedStyle,
-            hoveredStyle = defaultHoveredStyle?.merge(this.hoveredStyle) ?: this.hoveredStyle,
-            pressedStyle = defaultPressedStyle?.merge(this.pressedStyle) ?: this.pressedStyle,
-            linkInteractionListener = this.linkInteractionListener
-        )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Clickable) return false
 
             if (tag != other.tag) return false
-            if (style != other.style) return false
-            if (focusedStyle != other.focusedStyle) return false
-            if (hoveredStyle != other.hoveredStyle) return false
-            if (pressedStyle != other.pressedStyle) return false
+            if (styles != other.styles) return false
             if (linkInteractionListener != other.linkInteractionListener) return false
 
             return true
@@ -165,10 +86,7 @@ abstract class LinkAnnotation private constructor() {
 
         override fun hashCode(): Int {
             var result = tag.hashCode()
-            result = 31 * result + (style?.hashCode() ?: 0)
-            result = 31 * result + (focusedStyle?.hashCode() ?: 0)
-            result = 31 * result + (hoveredStyle?.hashCode() ?: 0)
-            result = 31 * result + (pressedStyle?.hashCode() ?: 0)
+            result = 31 * result + (styles?.hashCode() ?: 0)
             result = 31 * result + (linkInteractionListener?.hashCode() ?: 0)
             return result
         }

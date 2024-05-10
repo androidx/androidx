@@ -247,26 +247,17 @@ private val LinkSaver = Saver<LinkAnnotation.Url, Any>(
     save = {
         arrayListOf(
             save(it.url),
-            save(it.style, SpanStyleSaver, this),
-            save(it.focusedStyle, SpanStyleSaver, this),
-            save(it.hoveredStyle, SpanStyleSaver, this),
-            save(it.pressedStyle, SpanStyleSaver, this)
+            save(it.styles, TextLinkStylesSaver, this),
         )
     },
     restore = {
         val list = it as List<Any?>
 
         val url: String = restore(list[0])!!
-        val styleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
-        val focusedStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
-        val hoveredStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
-        val pressedStyleOrNull: SpanStyle? = restore(list[4], SpanStyleSaver)
+        val stylesOrNull: TextLinkStyles? = restore(list[1], TextLinkStylesSaver)
         LinkAnnotation.Url(
             url = url,
-            style = styleOrNull,
-            focusedStyle = focusedStyleOrNull,
-            hoveredStyle = hoveredStyleOrNull,
-            pressedStyle = pressedStyleOrNull
+            styles = stylesOrNull
         )
     }
 )
@@ -275,26 +266,17 @@ private val ClickableSaver = Saver<LinkAnnotation.Clickable, Any>(
     save = {
         arrayListOf(
             save(it.tag),
-            save(it.style, SpanStyleSaver, this),
-            save(it.focusedStyle, SpanStyleSaver, this),
-            save(it.hoveredStyle, SpanStyleSaver, this),
-            save(it.pressedStyle, SpanStyleSaver, this)
+            save(it.styles, TextLinkStylesSaver, this),
         )
     },
     restore = {
         val list = it as List<Any?>
 
         val tag: String = restore(list[0])!!
-        val styleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
-        val focusedStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
-        val hoveredStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
-        val pressedStyleOrNull: SpanStyle? = restore(list[4], SpanStyleSaver)
+        val stylesOrNull: TextLinkStyles? = restore(list[1], TextLinkStylesSaver)
         LinkAnnotation.Clickable(
             tag = tag,
-            style = styleOrNull,
-            focusedStyle = focusedStyleOrNull,
-            hoveredStyle = hoveredStyleOrNull,
-            pressedStyle = pressedStyleOrNull,
+            styles = stylesOrNull,
             linkInteractionListener = null
         )
     }
@@ -356,6 +338,30 @@ internal val SpanStyleSaver = Saver<SpanStyle, Any>(
             background = restore(list[11], Color.Saver)!!,
             textDecoration = restore(list[12], TextDecoration.Saver),
             shadow = restore(list[13], Shadow.Saver)
+        )
+    }
+)
+
+internal val TextLinkStylesSaver = Saver<TextLinkStyles, Any>(
+    save = {
+        arrayListOf(
+            save(it.style, SpanStyleSaver, this),
+            save(it.focusedStyle, SpanStyleSaver, this),
+            save(it.hoveredStyle, SpanStyleSaver, this),
+            save(it.pressedStyle, SpanStyleSaver, this),
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+        val styleOrNull: SpanStyle? = restore(list[0], SpanStyleSaver)
+        val focusedStyleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
+        val hoveredStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
+        val pressedStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
+        TextLinkStyles(
+            styleOrNull,
+            focusedStyleOrNull,
+            hoveredStyleOrNull,
+            pressedStyleOrNull
         )
     }
 )

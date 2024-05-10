@@ -75,6 +75,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
@@ -452,7 +453,7 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    style = SpanStyle(color = Color.Red)
+                    TextLinkStyles(style = SpanStyle(color = Color.Red))
                 )
             ) { append("text") }
         }
@@ -465,17 +466,52 @@ class BasicTextLinkTest {
             .assertContainsColor(Color.Red)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun links_textStyleLinkStyling_respectsStyleInLinkAnnotation() {
+        rule.setContent {
+            BasicText(
+                buildAnnotatedString {
+                    append("link")
+                    addLink(Url("url", TextLinkStyles(SpanStyle(color = Color.Green))), 0, 4)
+                },
+                style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Blue)))
+            )
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Green)
+            .assertDoesNotContainColor(Color.Blue)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun links_textStyleLinkStyling_mergedIntoStyleInLinkAnnotation() {
+        rule.setContent {
+            BasicText(
+                buildAnnotatedString {
+                    append("link")
+                    addLink(Url("url", TextLinkStyles(SpanStyle(color = Color.Green))), 0, 4)
+                },
+                style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(background = Color.Blue)))
+            )
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+            .assertContainsColor(Color.Green)
+    }
+
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_withinOtherStyle_styleFromAnnotationUsed() {
         val textWithLink = buildAnnotatedString {
             withStyle(SpanStyle(background = Color.Red)) {
-                withLink(
-                    Url(
-                        "link",
-                        style = SpanStyle(color = Color.Green)
-                    )
-                ) { append("text") }
+                withLink(Url("link", TextLinkStyles(SpanStyle(color = Color.Green)))) {
+                    append("text")
+                }
             }
         }
         setupContent {
@@ -495,8 +531,10 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    style = SpanStyle(background = Color.Red),
-                    hoveredStyle = SpanStyle(background = Color.Green)
+                    TextLinkStyles(
+                        style = SpanStyle(background = Color.Red),
+                        hoveredStyle = SpanStyle(background = Color.Green)
+                    )
                 )
             ) { append("text") }
         }
@@ -520,8 +558,10 @@ class BasicTextLinkTest {
                 withLink(
                     Url(
                         "link",
-                        style = SpanStyle(background = Color.Red),
-                        hoveredStyle = SpanStyle(background = Color.Green)
+                        TextLinkStyles(
+                            style = SpanStyle(background = Color.Red),
+                            hoveredStyle = SpanStyle(background = Color.Green)
+                        )
                     )
                 ) { append("text") }
             }
@@ -545,8 +585,10 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    style = SpanStyle(color = Color.Red),
-                    hoveredStyle = SpanStyle(background = Color.Green)
+                    TextLinkStyles(
+                        style = SpanStyle(color = Color.Red),
+                        hoveredStyle = SpanStyle(background = Color.Green)
+                    )
                 )
             ) { append("text") }
         }
@@ -567,8 +609,10 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    style = SpanStyle(background = Color.Red),
-                    focusedStyle = SpanStyle(background = Color.Blue)
+                    TextLinkStyles(
+                        style = SpanStyle(background = Color.Red),
+                        focusedStyle = SpanStyle(background = Color.Blue)
+                    )
                 )
             ) { append("text") }
         }
@@ -591,8 +635,10 @@ class BasicTextLinkTest {
                 withLink(
                     Url(
                         "link",
-                        style = SpanStyle(background = Color.Red),
-                        focusedStyle = SpanStyle(background = Color.Blue)
+                        TextLinkStyles(
+                            style = SpanStyle(background = Color.Red),
+                            focusedStyle = SpanStyle(background = Color.Blue)
+                        )
                     )
                 ) { append("text") }
             }
@@ -615,8 +661,10 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    style = SpanStyle(color = Color.Red),
-                    focusedStyle = SpanStyle(background = Color.Blue)
+                    TextLinkStyles(
+                        style = SpanStyle(color = Color.Red),
+                        focusedStyle = SpanStyle(background = Color.Blue)
+                    )
                 )
             ) { append("text") }
         }
@@ -638,8 +686,10 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    hoveredStyle = SpanStyle(background = Color.Green),
-                    focusedStyle = SpanStyle(background = Color.Blue)
+                    TextLinkStyles(
+                        hoveredStyle = SpanStyle(background = Color.Green),
+                        focusedStyle = SpanStyle(background = Color.Blue)
+                    )
                 )
             ) { append("text") }
         }
@@ -662,8 +712,10 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    hoveredStyle = SpanStyle(background = Color.Green),
-                    focusedStyle = SpanStyle(background = Color.Blue)
+                    TextLinkStyles(
+                        hoveredStyle = SpanStyle(background = Color.Green),
+                        focusedStyle = SpanStyle(background = Color.Blue)
+                    )
                 )
             ) { append("text") }
         }
@@ -686,8 +738,10 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    hoveredStyle = SpanStyle(color = Color.Green),
-                    focusedStyle = SpanStyle(background = Color.Blue)
+                    TextLinkStyles(
+                        hoveredStyle = SpanStyle(color = Color.Green),
+                        focusedStyle = SpanStyle(background = Color.Blue)
+                    )
                 )
             ) { append("text") }
         }
@@ -709,7 +763,7 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    pressedStyle = SpanStyle(color = Color.Green)
+                    TextLinkStyles(pressedStyle = SpanStyle(color = Color.Green))
                 )
             ) { append("text") }
         }
@@ -731,7 +785,7 @@ class BasicTextLinkTest {
                 withLink(
                     Url(
                         "link",
-                        pressedStyle = SpanStyle(color = Color.Blue)
+                        TextLinkStyles(pressedStyle = SpanStyle(color = Color.Blue))
                     )
                 ) { append("text") }
             }
@@ -754,9 +808,11 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    focusedStyle = SpanStyle(color = Color.Red),
-                    hoveredStyle = SpanStyle(color = Color.Green),
-                    pressedStyle = SpanStyle(color = Color.Blue)
+                    TextLinkStyles(
+                        focusedStyle = SpanStyle(color = Color.Red),
+                        hoveredStyle = SpanStyle(color = Color.Green),
+                        pressedStyle = SpanStyle(color = Color.Blue)
+                    )
                 )
             ) { append("text") }
         }
@@ -780,8 +836,10 @@ class BasicTextLinkTest {
         val textWithLink = buildAnnotatedString {
             withLink(
                 Url("link",
-                    focusedStyle = SpanStyle(background = Color.Green),
-                    pressedStyle = SpanStyle(color = Color.Blue)
+                    TextLinkStyles(
+                        focusedStyle = SpanStyle(background = Color.Green),
+                        pressedStyle = SpanStyle(color = Color.Blue)
+                    )
                 )
             ) { append("text") }
         }

@@ -23,9 +23,5 @@ package androidx.compose.ui.text
  */
 actual fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
-    linkStyle: SpanStyle?,
-    linkFocusedStyle: SpanStyle?,
-    linkHoveredStyle: SpanStyle?,
-    linkPressedStyle: SpanStyle?,
     linkInteractionListener: LinkInteractionListener?
 ): AnnotatedString = AnnotatedString(htmlString)
