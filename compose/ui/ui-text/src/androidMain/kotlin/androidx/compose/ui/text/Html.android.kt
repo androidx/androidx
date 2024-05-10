@@ -52,10 +52,6 @@ import org.xml.sax.XMLReader
 
 actual fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
-    linkStyle: SpanStyle?,
-    linkFocusedStyle: SpanStyle?,
-    linkHoveredStyle: SpanStyle?,
-    linkPressedStyle: SpanStyle?,
     linkInteractionListener: LinkInteractionListener?
 ): AnnotatedString {
     // Check ContentHandlerReplacementTag kdoc for more details
@@ -66,42 +62,21 @@ actual fun AnnotatedString.Companion.fromHtml(
         null,
         TagHandler
     )
-    return spanned.toAnnotatedString(
-        linkStyle,
-        linkFocusedStyle,
-        linkHoveredStyle,
-        linkPressedStyle,
-        linkInteractionListener
-    )
+    return spanned.toAnnotatedString(linkInteractionListener)
 }
 
 @VisibleForTesting
 internal fun Spanned.toAnnotatedString(
-    linkStyle: SpanStyle? = null,
-    linkFocusedStyle: SpanStyle? = null,
-    linkHoveredStyle: SpanStyle? = null,
-    linkPressedStyle: SpanStyle? = null,
     linkInteractionListener: LinkInteractionListener? = null
 ): AnnotatedString {
     return AnnotatedString.Builder(capacity = length)
         .append(this)
-        .also { it.addSpans(
-            this,
-            linkStyle,
-            linkFocusedStyle,
-            linkHoveredStyle,
-            linkPressedStyle,
-            linkInteractionListener
-        ) }
+        .also { it.addSpans(this, linkInteractionListener) }
         .toAnnotatedString()
 }
 
 private fun AnnotatedString.Builder.addSpans(
     spanned: Spanned,
-    linkStyle: SpanStyle?,
-    linkFocusedStyle: SpanStyle?,
-    linkHoveredStyle: SpanStyle?,
-    linkPressedStyle: SpanStyle?,
     linkInteractionListener: LinkInteractionListener?
 ) {
     spanned.getSpans(0, length, Any::class.java).forEach { span ->
@@ -110,10 +85,6 @@ private fun AnnotatedString.Builder.addSpans(
             span,
             range.start,
             range.end,
-            linkStyle,
-            linkFocusedStyle,
-            linkHoveredStyle,
-            linkPressedStyle,
             linkInteractionListener
         )
     }
@@ -123,10 +94,6 @@ private fun AnnotatedString.Builder.addSpan(
     span: Any,
     start: Int,
     end: Int,
-    linkStyle: SpanStyle?,
-    linkFocusedStyle: SpanStyle?,
-    linkHoveredStyle: SpanStyle?,
-    linkPressedStyle: SpanStyle?,
     linkInteractionListener: LinkInteractionListener?
 ) {
     when (span) {
@@ -169,12 +136,8 @@ private fun AnnotatedString.Builder.addSpan(
         is URLSpan -> {
             span.url?.let { url ->
                 val link = LinkAnnotation.Url(
-                    url,
-                    linkStyle,
-                    linkFocusedStyle,
-                    linkHoveredStyle,
-                    linkPressedStyle,
-                    linkInteractionListener
+                    url = url,
+                    linkInteractionListener = linkInteractionListener
                 )
                 addLink(link, start, end)
             }

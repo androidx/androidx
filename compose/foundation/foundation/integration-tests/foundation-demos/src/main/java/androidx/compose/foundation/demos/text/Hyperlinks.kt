@@ -51,6 +51,7 @@ import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.fromHtml
@@ -85,11 +86,13 @@ fun Hyperlinks() {
                 append("Text and a ")
                 withLink(
                     LinkAnnotation.Url(
-                        url = "https://developer.android.com",
-                        style = SpanStyle(color = Color.Magenta),
-                        focusedStyle = SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
-                        hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline),
-                        pressedStyle = SpanStyle(color = Color.Red)
+                        "https://developer.android.com",
+                        TextLinkStyles(
+                            style = SpanStyle(color = Color.Magenta),
+                            focusedStyle = SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
+                            hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline),
+                            pressedStyle = SpanStyle(color = Color.Red)
+                        )
                     )
                 ) {
                     append("DEVELOPER ANDROID COM LINK")
@@ -103,11 +106,7 @@ fun Hyperlinks() {
                 This is a <span style="color:red"><a href="https://developer.android.com">link</a></span> here.
                 Another <a href="https://developer.android.com">link</a> follows.
             """.trimIndent()
-            val annotatedString = AnnotatedString.fromHtml(
-                htmlString,
-                linkFocusedStyle = SpanStyle(background = Color.Yellow.copy(alpha = 0.3f)),
-                linkHoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
-            )
+            val annotatedString = AnnotatedString.fromHtml(htmlString)
             BasicText(annotatedString)
         }
         Sample("Single link styling with SpanStyle") {
@@ -156,9 +155,7 @@ fun Hyperlinks() {
             val text = buildAnnotatedString {
                 withLink(LinkAnnotation.Url(LongWebLink)) { append("The first link") }
                 append(" immediately followed by ")
-                withLink(LinkAnnotation.Url(LongWebLink)) {
-                    append("the second quite long link")
-                }
+                withLink(LinkAnnotation.Url(LongWebLink)) { append("the second quite long link") }
                 append(" so their bounds are overlapped")
             }
             Text(text)
@@ -226,9 +223,7 @@ fun Hyperlinks() {
         Sample("Bidi text") {
             val text = buildAnnotatedString {
                 append(loremIpsum(Language.Arabic, 2))
-                withLink(LinkAnnotation.Url(LongWebLink)) {
-                    append(" developer.android.com ")
-                }
+                withLink(LinkAnnotation.Url(LongWebLink)) { append(" developer.android.com ") }
                 append(loremIpsum(Language.Arabic, 5))
             }
             Text(text)
@@ -302,7 +297,8 @@ private class AnnotatedStringSaver(
                    when (linkRange.item) {
                        is LinkAnnotation.Url -> {
                            // in our example we assume that we never provide listeners to the
-                           // LinkAnnotation.Url annotations. Therefore we restore them as is.
+                           // LinkAnnotation.Url annotations. Therefore we restore
+                           // LinkAnnotation.Url annotations as is.
                            builder.addLink(
                                linkRange.item as LinkAnnotation.Url,
                                linkRange.start,
@@ -312,10 +308,7 @@ private class AnnotatedStringSaver(
                        is LinkAnnotation.Clickable -> {
                            val link = LinkAnnotation.Clickable(
                                (linkRange.item as LinkAnnotation.Clickable).tag,
-                               linkRange.item.style,
-                               linkRange.item.focusedStyle,
-                               linkRange.item.hoveredStyle,
-                               linkRange.item.pressedStyle,
+                               linkRange.item.styles,
                                linkInteractionListener
                            )
                            builder.addLink(link, linkRange.start, linkRange.end)

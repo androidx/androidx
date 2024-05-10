@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-ExecutorRegistration: androidx.compose.ui.text.Html_androidKt#fromHtml(androidx.compose.ui.text.AnnotatedString.Companion, String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
+ExecutorRegistration: androidx.compose.ui.text.Html_androidKt#fromHtml(androidx.compose.ui.text.AnnotatedString.Companion, String, androidx.compose.ui.text.LinkInteractionListener):
     Registration methods should have overload that accepts delivery Executor: `fromHtml`
-ExecutorRegistration: androidx.compose.ui.text.LinkAnnotation.Clickable#Clickable(String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
+ExecutorRegistration: androidx.compose.ui.text.LinkAnnotation.Clickable#Clickable(String, androidx.compose.ui.text.TextLinkStyles, androidx.compose.ui.text.LinkInteractionListener):
     Registration methods should have overload that accepts delivery Executor: `Clickable`
-ExecutorRegistration: androidx.compose.ui.text.LinkAnnotation.Url#Url(String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
+ExecutorRegistration: androidx.compose.ui.text.LinkAnnotation.Url#Url(String, androidx.compose.ui.text.TextLinkStyles, androidx.compose.ui.text.LinkInteractionListener):
     Registration methods should have overload that accepts delivery Executor: `Url`
 
 

@@ -204,6 +204,29 @@ class SaversTest {
     }
 
     @Test
+    fun test_TextLinkStyles() {
+        val original = TextLinkStyles(null)
+        val saved = save(original, TextLinkStylesSaver, defaultSaverScope)
+        val restored: TextLinkStyles? = restore(saved, TextLinkStylesSaver)
+
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
+    fun test_TextLinkStyles_withNonNullValues() {
+        val original = TextLinkStyles(
+            SpanStyle(color = Color.Red),
+            SpanStyle(color = Color.Green),
+            SpanStyle(color = Color.Blue),
+            SpanStyle(color = Color.Gray)
+        )
+        val saved = save(original, TextLinkStylesSaver, defaultSaverScope)
+        val restored: TextLinkStyles? = restore(saved, TextLinkStylesSaver)
+
+        assertThat(restored).isEqualTo(original)
+    }
+
+    @Test
     fun test_FontWeight() {
         val original = FontWeight(123)
         val saved = save(original, FontWeight.Saver, defaultSaverScope)
@@ -360,18 +383,23 @@ class SaversTest {
             withLink(
                 LinkAnnotation.Url(
                     "url3",
-                    SpanStyle(color = Color.Red),
-                    SpanStyle(color = Color.Green),
-                    SpanStyle(color = Color.Blue)
+                    TextLinkStyles(
+                        SpanStyle(color = Color.Red),
+                        SpanStyle(color = Color.Green),
+                        SpanStyle(color = Color.Blue),
+                        SpanStyle(color = Color.White)
+                    )
                 )
             ) { append("7") }
             withLink(
                 LinkAnnotation.Clickable(
                     "tag3",
-                    SpanStyle(color = Color.Red),
-                    SpanStyle(color = Color.Green),
-                    SpanStyle(color = Color.Blue),
-                    SpanStyle(background = Color.Gray),
+                    TextLinkStyles(
+                        SpanStyle(color = Color.Red),
+                        SpanStyle(color = Color.Green),
+                        SpanStyle(color = Color.Blue),
+                        SpanStyle(background = Color.Gray)
+                    ),
                     null
                 )
             ) {
@@ -403,18 +431,23 @@ class SaversTest {
             withLink(
                 LinkAnnotation.Url(
                     "url3",
-                    SpanStyle(color = Color.Red),
-                    SpanStyle(color = Color.Green),
-                    SpanStyle(color = Color.Blue)
+                    TextLinkStyles(
+                        SpanStyle(color = Color.Red),
+                        SpanStyle(color = Color.Green),
+                        SpanStyle(color = Color.Blue),
+                        SpanStyle(color = Color.Yellow)
+                    )
                 )
             ) { append("11") }
             withLink(
                 LinkAnnotation.Clickable(
                     "tag3",
-                    SpanStyle(color = Color.Red),
-                    SpanStyle(color = Color.Green),
-                    SpanStyle(color = Color.Blue),
-                    SpanStyle(background = Color.Gray),
+                    TextLinkStyles(
+                        SpanStyle(color = Color.Red),
+                        SpanStyle(color = Color.Green),
+                        SpanStyle(color = Color.Blue),
+                        SpanStyle(color = Color.Gray)
+                    ),
                     null
                 )
             ) {

@@ -156,8 +156,6 @@ class Colors(
             "isLight=$isLight" +
             ")"
     }
-
-    internal var defaultTextLinkStylesCached: TextLinkStyles? = null
 }
 
 /**

@@ -17,7 +17,7 @@
 package androidx.compose.ui.text.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.material.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
@@ -25,6 +25,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -173,7 +174,7 @@ fun AnnotatedStringAddStringAnnotationSample() {
 @Sampled
 fun AnnotatedStringWithLinkSample() {
     // Display a link in the text
-    Text(
+    BasicText(
         buildAnnotatedString {
             append("Build better apps faster with ")
             withLink(LinkAnnotation.Url("https://developer.android.com/jetpack/compose")) {
@@ -187,12 +188,14 @@ fun AnnotatedStringWithLinkSample() {
 @Composable
 fun AnnotatedStringWithHoveredLinkStylingSample() {
     // Display a link in the text that gets an underline when hovered
-    Text(
+    BasicText(
         buildAnnotatedString {
             append("Build better apps faster with ")
             val link = LinkAnnotation.Url(
                 "https://developer.android.com/jetpack/compose",
-                hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+                TextLinkStyles(
+                    hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
+                )
             )
             withLink(link) { append("Jetpack Compose") }
         }
@@ -205,7 +208,7 @@ fun AnnotatedStringWithListenerSample() {
     // Display a link in the text and log metrics whenever user clicks on it. In that case we handle
     // the link using openUri method of the LocalUriHandler
     val uriHandler = LocalUriHandler.current
-    Text(
+    BasicText(
         buildAnnotatedString {
             append("Build better apps faster with ")
             val link = LinkAnnotation.Url(
