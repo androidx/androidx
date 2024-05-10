@@ -38,7 +38,8 @@ val InteropViewAndSemanticsConfigMerge = Screen.Example("InteropViewAndSemantics
                     view.text = "UILabel"
                     view
                 },
-                modifier = Modifier.size(80.dp, 40.dp)
+                modifier = Modifier.size(80.dp, 40.dp),
+                accessibilityEnabled = false
             )
         }
 
