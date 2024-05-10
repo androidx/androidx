@@ -117,7 +117,7 @@ class CompilationModeTest {
             path = Shell.pmPath(Packages.TARGET)
             kotlin.test.assertTrue { path.isNotEmpty() }
         } finally {
-            Shell.executeScriptSilent("rm $copiedApkPaths")
+            Shell.rm(copiedApkPaths)
         }
     }
 }

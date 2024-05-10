@@ -33,6 +33,8 @@ plugins {
 android {
     defaultConfig {
         minSdkVersion 23
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
+
     }
     sourceSets {
         main.assets.srcDirs += new File(

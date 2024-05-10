@@ -154,7 +154,7 @@ sealed class CompilationMode {
             } finally {
                 // Cleanup the temporary APK
                 Log.d(TAG, "Deleting $copiedApkPaths")
-                Shell.executeScriptSilent("rm $copiedApkPaths")
+                Shell.rm(copiedApkPaths)
             }
         }
     }
@@ -174,7 +174,7 @@ sealed class CompilationMode {
                 val tempApkPath =
                     "/data/local/tmp/$packageName-$index-${System.currentTimeMillis()}.apk"
                 Log.d(TAG, "Copying APK $apkPath to $tempApkPath")
-                Shell.executeScriptSilent("cp $apkPath $tempApkPath")
+                Shell.cp(from = apkPath, to = tempApkPath)
                 tempApkPath
             }
         return tempApkPaths.joinToString(" ")

@@ -561,7 +561,7 @@ public class MacrobenchmarkScope(
                 File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
             // Staging location before we write it again using Outputs.writeFile(...)
             // NOTE: staging copy may be unnecessary if we just use a single `cp`
-            Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
+            Shell.cp(from = tracePath, to = stagingFile.absolutePath)
 
             // Report file
             val outputPath =
@@ -571,7 +571,7 @@ public class MacrobenchmarkScope(
 
                     // Cleanup
                     stagingFile.delete()
-                    Shell.executeScriptSilent("rm \"$tracePath\"")
+                    Shell.rm(tracePath)
                 }
             val traceLabel = "MethodTrace iteration ${iteration ?: 0}"
             // Keep track of the label and the corresponding output paths.

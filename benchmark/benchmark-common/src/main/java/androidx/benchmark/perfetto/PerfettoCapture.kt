@@ -23,6 +23,9 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
+import androidx.benchmark.ShellFile
+import androidx.benchmark.UserFile
+import androidx.benchmark.UserInfo
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
@@ -57,14 +60,15 @@ public class PerfettoCapture(
         inMemoryTrace("start perfetto") {
             // Write config proto to dir that shell can read
             //     We use `.pb` even with textproto so we'll only ever have one file
-            val configProtoFile = File(Outputs.dirUsableByAppAndShell, "trace_config.pb")
-            try {
-                inMemoryTrace("write config") {
-                    config.writeTo(configProtoFile)
-                    if (Outputs.forceFilesForShellAccessible) {
-                        configProtoFile.setReadable(true, /* ownerOnly= */ false)
-                    }
+            val configProtoFile =
+                if (UserInfo.currentUserId > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    ShellFile.inTempDir("trace_config.pb")
+                } else {
+                    UserFile.inOutputsDir("trace_config.pb")
                 }
+
+            try {
+                inMemoryTrace("write config") { config.writeTo(configProtoFile) }
                 inMemoryTrace("start perfetto process") {
                     helper.startCollecting(configProtoFile.absolutePath, config.isTextProto)
                 }
@@ -224,8 +228,8 @@ public class PerfettoCapture(
             )
 
         val mvTmpFileDstFile = { srcFile: File, dstFile: File ->
-            Shell.executeScriptSilent("mkdir -p ${dstFile.parentFile!!.path}")
-            Shell.executeScriptSilent("mv ${srcFile.path} ${dstFile.path}")
+            Shell.mkdir(dstFile.parentFile!!.path)
+            Shell.mv(srcFile.path, dstFile.path)
         }
 
         return PerfettoSdkHandshake.LibrarySource.apkLibrarySource(

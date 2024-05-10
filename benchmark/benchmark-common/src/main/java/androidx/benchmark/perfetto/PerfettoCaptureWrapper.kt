@@ -25,6 +25,9 @@ import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
 import androidx.benchmark.Shell
+import androidx.benchmark.ShellFile
+import androidx.benchmark.UserFile
+import androidx.benchmark.UserInfo
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED
@@ -82,12 +85,26 @@ class PerfettoCaptureWrapper {
     @RequiresApi(23)
     private fun stop(traceLabel: String): String {
         return Outputs.writeFile(fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace") {
-            capture!!.stop(it.absolutePath)
-            if (Outputs.forceFilesForShellAccessible) {
-                // This shell written file must be made readable to be later accessed by this
-                // process (e.g. for appending UiState). Unlike in other places, shell
-                // must increase access, since it's giving the app access
-                Shell.executeScriptSilent("chmod 777 ${it.absolutePath}")
+
+            // The output of this method expects the final to be written in a user writeable folder.
+            // If the default user is selected, perfetto can stop and write the file directly there.
+            // Otherwise, we first need to write it in a shell storage and the use the VirtualFile
+            // to cross between shell and user storage.
+
+            if (UserInfo.isAdditionalUser) {
+                ShellFile.inTempDir(it.name).apply {
+                    capture!!.stop(absolutePath)
+                    copyTo(UserFile(it.absolutePath))
+                    delete()
+                }
+            } else {
+                capture!!.stop(it.absolutePath)
+                if (Outputs.forceFilesForShellAccessible) {
+                    // This shell written file must be made readable to be later accessed by this
+                    // process (e.g. for appending UiState). Unlike in other places, shell
+                    // must increase access, since it's giving the app access
+                    Shell.chmod(path = it.absolutePath, args = "777")
+                }
             }
         }
     }
