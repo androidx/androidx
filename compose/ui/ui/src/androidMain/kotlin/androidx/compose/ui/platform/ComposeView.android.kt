@@ -33,6 +33,7 @@ import androidx.compose.ui.node.Owner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.savedstate.SavedStateRegistryOwner
 import java.lang.ref.WeakReference
 
 /**
@@ -44,6 +45,12 @@ import java.lang.ref.WeakReference
  * Call [disposeComposition] to dispose of the underlying composition earlier, or if the view is
  * never initially attached to a window. (The requirement to dispose of the composition explicitly
  * in the event that the view is never (re)attached is temporary.)
+ *
+ * [AbstractComposeView] only supports being added into view hierarchies propagating [LifecycleOwner]
+ * and [SavedStateRegistryOwner] via [androidx.lifecycle.setViewTreeLifecycleOwner] and
+ * [androidx.savedstate.setViewTreeSavedStateRegistryOwner]. In most cases you will already have
+ * it set up correctly as [androidx.activity.ComponentActivity], [androidx.fragment.app.Fragment]
+ * and [androidx.navigation.NavController] will provide the correct values.
  */
 abstract class AbstractComposeView @JvmOverloads constructor(
     context: Context,
@@ -410,6 +417,12 @@ abstract class AbstractComposeView @JvmOverloads constructor(
  * Call [disposeComposition] to dispose of the underlying composition earlier, or if the view is
  * never initially attached to a window. (The requirement to dispose of the composition explicitly
  * in the event that the view is never (re)attached is temporary.)
+ *
+ * [ComposeView] only supports being added into view hierarchies propagating [LifecycleOwner]
+ * and [SavedStateRegistryOwner] via [androidx.lifecycle.setViewTreeLifecycleOwner] and
+ * [androidx.savedstate.setViewTreeSavedStateRegistryOwner]. In most cases you will already have
+ * it set up correctly as [androidx.activity.ComponentActivity], [androidx.fragment.app.Fragment]
+ * and [androidx.navigation.NavController] will provide the correct values.
  */
 class ComposeView @JvmOverloads constructor(
     context: Context,
