@@ -2010,7 +2010,7 @@ package androidx.compose.material3 {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.TooltipState rememberTooltipState(optional boolean initialIsVisible, optional boolean isPersistent, optional androidx.compose.foundation.MutatorMutex mutatorMutex);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface TooltipScope {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed interface TooltipScope {
     method public androidx.compose.ui.Modifier drawCaret(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.draw.CacheDrawScope,? super androidx.compose.ui.layout.LayoutCoordinates?,androidx.compose.ui.draw.DrawResult> draw);
   }
 

@@ -29,14 +29,12 @@ import androidx.compose.material3.internal.BasicTooltipBox
 import androidx.compose.material3.internal.rememberBasicTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.CacheDrawScope
-import androidx.compose.ui.draw.DrawResult
-import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import kotlinx.coroutines.flow.collectLatest
@@ -80,19 +78,12 @@ fun Label(
     else
         rememberBasicTooltipState(mutatorMutex = MutatorMutex())
 
-    var anchorBounds: LayoutCoordinates? by remember { mutableStateOf(null) }
-    val scope = remember {
-        object : TooltipScope {
-            override fun Modifier.drawCaret(
-                draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
-            ): Modifier =
-                this.drawWithCache { draw(anchorBounds) }
-        }
-    }
+    var anchorBounds: MutableState<LayoutCoordinates?> = remember { mutableStateOf(null) }
+    val scope = remember { TooltipScopeImpl { anchorBounds.value } }
 
     val wrappedContent: @Composable () -> Unit = {
         Box(
-            modifier = Modifier.onGloballyPositioned { anchorBounds = it }
+            modifier = Modifier.onGloballyPositioned { anchorBounds.value = it }
         ) {
             content()
         }
