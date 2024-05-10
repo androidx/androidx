@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.toSize
 import org.junit.Before
 import org.junit.Rule
 
+const val RtlChar = "\u05D1"
+
 @OptIn(ExperimentalTestApi::class)
 internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
 

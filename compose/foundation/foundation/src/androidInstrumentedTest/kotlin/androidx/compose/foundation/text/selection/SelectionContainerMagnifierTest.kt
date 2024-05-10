@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.selection.gestures.RtlChar
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -89,7 +90,7 @@ internal class SelectionContainerMagnifierTest : AbstractSelectionMagnifierTests
                 ) {
                     Column(Modifier.width(IntrinsicSize.Max)) {
                         BasicText(
-                            text = "בבבב",
+                            text = RtlChar.repeat(4),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag(nonEmptyTag)
