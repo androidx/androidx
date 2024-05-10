@@ -1044,11 +1044,13 @@ public abstract class FragmentManager implements FragmentResultOwner {
     void cancelBackStackTransition() {
         if (mTransitioningOp != null) {
             mTransitioningOp.mCommitted = false;
+            mTransitioningOp.runOnCommitInternal(true, () -> {
+                for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
+                    listener.onBackStackChangeCancelled();
+                }
+            });
             mTransitioningOp.commit();
             executePendingTransactions();
-            for (OnBackStackChangedListener listener : mBackStackChangeListeners) {
-                listener.onBackStackChangeCancelled();
-            }
         }
     }
 
