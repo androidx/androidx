@@ -40,7 +40,6 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPA
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_NAME;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
@@ -1567,15 +1566,6 @@ public final class ImageAnalysis extends UseCase {
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
-            return this;
-        }
-
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setUseCaseEventCallback(
-                @NonNull UseCase.EventCallback useCaseEventCallback) {
-            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
             return this;
         }
 

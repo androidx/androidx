@@ -43,7 +43,6 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATION;
-import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
@@ -2868,15 +2867,6 @@ public final class ImageCapture extends UseCase {
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
-            return this;
-        }
-
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        @NonNull
-        public Builder setUseCaseEventCallback(
-                @NonNull UseCase.EventCallback useCaseEventCallback) {
-            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
             return this;
         }
 
