@@ -212,8 +212,6 @@ class MeteringRepeating(
 
         override fun setTargetName(targetName: String) = this
 
-        override fun setUseCaseEventCallback(eventCallback: EventCallback) = this
-
         override fun setDefaultSessionConfig(sessionConfig: SessionConfig) = this
 
         override fun setDefaultCaptureConfig(captureConfig: CaptureConfig) = this

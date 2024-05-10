@@ -153,13 +153,6 @@ class StreamSharingBuilder implements
         return this;
     }
 
-    @NonNull
-    @Override
-    public StreamSharingBuilder setUseCaseEventCallback(
-            @NonNull UseCase.EventCallback eventCallback) {
-        throw new UnsupportedOperationException(UNSUPPORTED_MESSAGE);
-    }
-
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     @Override
