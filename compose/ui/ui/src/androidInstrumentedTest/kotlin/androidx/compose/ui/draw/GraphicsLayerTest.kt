@@ -1878,4 +1878,42 @@ class GraphicsLayerTest {
             assertThat(layer.isReleased).isFalse()
         }
     }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun switchingFromExplicitLayerToImplicit() {
+        var useExplicitLayer by mutableStateOf(true)
+        rule.setContent {
+            val layer = if (useExplicitLayer) {
+                rememberGraphicsLayer()
+            } else {
+                null
+            }
+            Canvas(
+                modifier = Modifier
+                    .testTag("tag")
+                    .layout { measurable, _ ->
+                        val placeable = measurable.measure(Constraints.fixed(10, 10))
+                        layout(placeable.width, placeable.height) {
+                            if (layer != null) {
+                                placeable.placeWithLayer(0, 0, layer)
+                            } else {
+                                placeable.place(0, 0)
+                            }
+                        }
+                    }
+                    .then(if (layer != null) Modifier else Modifier.graphicsLayer())
+            ) {
+                drawRect(Color.Blue)
+            }
+        }
+
+        rule.runOnIdle {
+            useExplicitLayer = false
+        }
+
+        rule.onNodeWithTag("tag")
+            .captureToImage()
+            .assertPixels(IntSize(10, 10)) { Color.Blue }
+    }
 }
