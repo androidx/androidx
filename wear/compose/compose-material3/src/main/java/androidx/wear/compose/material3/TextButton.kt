@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
 import androidx.wear.compose.material3.tokens.FilledTextButtonTokens
 import androidx.wear.compose.material3.tokens.FilledTonalTextButtonTokens
 import androidx.wear.compose.material3.tokens.OutlinedTextButtonTokens
@@ -41,8 +43,9 @@ import androidx.wear.compose.material3.tokens.TextToggleButtonTokens
  * to ensure that the recommended minimum touch target size is available. The recommended
  * [TextButton] sizes are [TextButtonDefaults.DefaultButtonSize],
  * [TextButtonDefaults.LargeButtonSize] and [TextButtonDefaults.SmallButtonSize].
- * [TextButton] uses [Typography.labelMedium] by default and this should be
- * overridden to [Typography.labelLarge] when using [TextButtonDefaults.LargeButtonSize].
+ * Use [TextButtonDefaults.textStyleFor] to determine the text style to pass to [Text] for a given
+ * [TextButtonDefaults] size. This will ensure that [Typography.labelMedium] is used by default and
+ * [Typography.labelLarge] when using [TextButtonDefaults.LargeButtonSize].
  *
  * The default [TextButton] has no border and a transparent background for low emphasis actions.
  * For actions that require high emphasis, set [colors] to
@@ -116,7 +119,8 @@ fun TextButton(
  * to ensure that the background padding will correctly reach the edge of the minimum touch target.
  * The recommended [TextToggleButton] sizes are [TextButtonDefaults.DefaultButtonSize],
  * [TextButtonDefaults.LargeButtonSize] and [TextButtonDefaults.SmallButtonSize].
- * [TextToggleButton] uses [Typography.labelMedium] by default and this should be overridden to
+ * Use [TextButtonDefaults.textStyleFor] to determine the text style to pass to [Text] for a given
+ * [TextButtonDefaults] size. This will ensure that [Typography.labelMedium] is used by default and
  * [Typography.labelLarge] when using [TextButtonDefaults.LargeButtonSize].
  *
  * [TextToggleButton] can be enabled or disabled. A disabled button will not respond to
@@ -291,6 +295,7 @@ object TextButtonDefaults {
 
     @Composable
     fun textButtonColors() = MaterialTheme.colorScheme.defaultTextButtonColors
+
     /**
      * Creates a [TextButtonColors] for a text button - by default, a transparent
      * background with contrasting content color. If the button is disabled
@@ -371,6 +376,18 @@ object TextButtonDefaults {
             disabledUncheckedContentColor = disabledUncheckedContentColor,
         )
     }
+
+    /**
+     * Recommended text style for a given text button size.
+     *
+     * @param size The size of the text button in Dp
+     */
+    @Composable
+    fun textStyleFor(size: Dp): TextStyle =
+        if (size <= DefaultButtonSize)
+            MaterialTheme.typography.labelMedium
+        else
+            MaterialTheme.typography.labelLarge
 
     /**
      * The recommended size for a small button - for this size, it is recommended to set
@@ -478,6 +495,7 @@ class TextButtonColors(
         disabledContainerColor = disabledContainerColor.takeOrElse { this.disabledContainerColor },
         disabledContentColor = disabledContentColor.takeOrElse { this.disabledContentColor }
     )
+
     /**
      * Represents the container color for this text button, depending on [enabled].
      *
