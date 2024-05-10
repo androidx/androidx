@@ -81,8 +81,6 @@ internal fun measureLazyList(
             consumedScroll = 0,
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
             positionedItems = mutableListOf(),
             keyIndexMap = measuredItemProvider.keyIndexMap,
             itemProvider = measuredItemProvider,
@@ -90,6 +88,8 @@ internal fun measureLazyList(
             laneCount = 1,
             isLookingAhead = isLookingAhead,
             hasLookaheadOccurred = hasLookaheadPassOccurred,
+            layoutMinOffset = 0,
+            layoutMaxOffset = 0,
             coroutineScope = coroutineScope,
             graphicsContext = graphicsContext
         )
@@ -354,8 +354,6 @@ internal fun measureLazyList(
             consumedScroll = consumedScroll.toInt(),
             layoutWidth = layoutWidth,
             layoutHeight = layoutHeight,
-            beforeContentPadding = beforeContentPadding,
-            afterContentPadding = afterContentPadding,
             positionedItems = positionedItems,
             keyIndexMap = measuredItemProvider.keyIndexMap,
             itemProvider = measuredItemProvider,
@@ -364,6 +362,8 @@ internal fun measureLazyList(
             isLookingAhead = isLookingAhead,
             hasLookaheadOccurred = hasLookaheadPassOccurred,
             coroutineScope = coroutineScope,
+            layoutMinOffset = currentFirstItemScrollOffset,
+            layoutMaxOffset = currentMainAxisOffset,
             graphicsContext = graphicsContext
         )
 

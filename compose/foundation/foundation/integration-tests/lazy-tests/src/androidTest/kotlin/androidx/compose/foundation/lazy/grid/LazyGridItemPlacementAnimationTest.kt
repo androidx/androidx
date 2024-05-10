@@ -636,10 +636,12 @@ class LazyGridItemPlacementAnimationTest(private val config: Config) {
             list = listOf(0, 8, 2, 3, 4, 5, 6, 7, 1, 9)
         }
 
+        val afterLastVisibleItem = itemSize * 3 + spacing * 3
         onAnimationFrame { fraction ->
             // item 1 moves to and item 8 moves from `gridSize`, right after the end edge
-            val item1Offset = AxisOffset(itemSize, gridSize * fraction)
-            val item8Offset = AxisOffset(itemSize, gridSize - gridSize * fraction)
+            val item1Offset = AxisOffset(itemSize, afterLastVisibleItem * fraction)
+            val item8Offset =
+                AxisOffset(itemSize, afterLastVisibleItem - afterLastVisibleItem * fraction)
             val screenSize = itemSize * 3 + spacing * 2
             val expected = mutableListOf<Pair<Any, Offset>>().apply {
                 add(0 to AxisOffset(0f, 0f))
@@ -783,14 +785,18 @@ class LazyGridItemPlacementAnimationTest(private val config: Config) {
                     rule.onNodeWithTag("2").assertIsNotDisplayed()
                 }
                 add(9 to AxisOffset(itemSize, line3Size))
-                add(10 to AxisOffset(
-                    0f,
-                    line3Size + line4Size - (itemSize - itemSize3) * fraction
-                ))
-                add(11 to AxisOffset(
-                    itemSize,
-                    line3Size + line4Size - (itemSize - itemSize3) * fraction
-                ))
+                add(
+                    10 to AxisOffset(
+                        0f,
+                        line3Size + line4Size - (itemSize - itemSize3) * fraction
+                    )
+                )
+                add(
+                    11 to AxisOffset(
+                        itemSize,
+                        line3Size + line4Size - (itemSize - itemSize3) * fraction
+                    )
+                )
             }
             assertPositions(
                 expected = expected.toTypedArray(),
@@ -834,10 +840,11 @@ class LazyGridItemPlacementAnimationTest(private val config: Config) {
             list = listOf(0, 1, 8, 3, 4, 5, 6, 7, 2, 9, 10, 11)
         }
 
+        val afterLastVisibleItem = itemSize2 + itemSize3 + itemSize
         onAnimationFrame { fraction ->
             // item 8 moves from and item 2 moves to `gridSize`, right after the end edge
             val startItem8Offset = gridSize
-            val endItem2Offset = gridSize
+            val endItem2Offset = afterLastVisibleItem
             val line4Size = itemSize3
             val item2Offset =
                 line0Size + (endItem2Offset - line0Size) * fraction
@@ -852,15 +859,19 @@ class LazyGridItemPlacementAnimationTest(private val config: Config) {
                     rule.onNodeWithTag("8").assertIsNotDisplayed()
                 }
                 add(3 to AxisOffset(itemSize, line0Size))
-                add(4 to AxisOffset(
-                    0f,
-                    line0Size + line1Size - (line1Size - line4Size) * fraction
-                ))
-                add(5 to AxisOffset(
-                    itemSize,
-                    line0Size + line1Size - (line1Size - line4Size) * fraction
-                ))
-                if (item2Offset < gridSize) {
+                add(
+                    4 to AxisOffset(
+                        0f,
+                        line0Size + line1Size - (line1Size - line4Size) * fraction
+                    )
+                )
+                add(
+                    5 to AxisOffset(
+                        itemSize,
+                        line0Size + line1Size - (line1Size - line4Size) * fraction
+                    )
+                )
+                if (item2Offset < afterLastVisibleItem) {
                     add(2 to AxisOffset(0f, item2Offset))
                 } else {
                     rule.onNodeWithTag("2").assertIsNotDisplayed()
