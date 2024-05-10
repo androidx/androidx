@@ -134,6 +134,10 @@ internal class Camera2CaptureSequenceProcessor(
             val requestTemplate = request.template ?: template
             val requestBuilder = buildCaptureRequestBuilder(request, requestTemplate) ?: return null
 
+            val tag = requiredParameters[CameraPipeKeys.camera2CaptureRequestTag]
+                ?: defaultParameters[CameraPipeKeys.camera2CaptureRequestTag]
+            requestBuilder.setTag(tag)
+
             // Apply the output surfaces to the requestBuilder
             var hasSurface = false
             for (i in request.streams.indices) {
