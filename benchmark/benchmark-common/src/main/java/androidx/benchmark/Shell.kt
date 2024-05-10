@@ -633,7 +633,7 @@ object Shell {
             """
                 am force-stop $appPackage
                 pm disable-user $appPackage
-            """".trimIndent()
+            """.trimIndent()
         }
         executeScriptCaptureStdoutStderr(command)
     }
@@ -691,6 +691,14 @@ private object ShellImpl {
     var isSuAvailable = false
 
     init {
+        // b/268107648: UiAutomation always runs on user 0 so shell cannot access other user data.
+        if (UserInfo.currentUserId > 0) {
+            throw IllegalStateException(
+                "Benchmark and Baseline Profile generation are not currently " +
+                    "supported on AAOS and multiuser environment when a secondary user is " +
+                    "selected."
+            )
+        }
         // These variables are used in executeCommand and executeScript, so we keep them as var
         // instead of val and use a separate initializer
         isSessionRooted = executeCommandUnsafe("id").contains("uid=0(root)")
