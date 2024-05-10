@@ -222,7 +222,7 @@ internal class TextFieldDecoratorModifierNode(
                     )
                 }
                 launch(start = CoroutineStart.UNDISPATCHED) {
-                    detectTextFieldLongPressAndAfterDrag(requestFocus)
+                    textFieldSelectionGestures(requestFocus)
                 }
             }
         }

@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-internal class TextFieldSelectionGesturesRtlTest : TextField1SelectionGesturesTest(
+internal class TextField2SelectionGesturesRtlTest : TextField2SelectionGesturesTest(
     initialText = "בבבבב\nבבבבב בבבבב בבבבב\nבבבבב",
     layoutDirection = LayoutDirection.Rtl,
 ) {
