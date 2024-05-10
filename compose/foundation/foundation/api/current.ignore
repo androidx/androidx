@@ -1,3 +1,3 @@
 // Baseline format: 1.0
-AddedMethod: androidx.compose.foundation.text.KeyboardOptions#getShouldShowKeyboardOnFocus():
-    Added method androidx.compose.foundation.text.KeyboardOptions.getShouldShowKeyboardOnFocus()
+AddedClass: androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategyKt:
+    Added class androidx.compose.foundation.lazy.grid.LazyGridPrefetchStrategyKt
