@@ -89,6 +89,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
@@ -207,6 +208,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private Rect mCropRect;
     private int mRotationDegrees;
     private boolean mHasCompensatingTransformation = false;
+    @Nullable
+    private SourceStreamRequirementObserver mSourceStreamRequirementObserver;
 
     /**
      * Create a VideoCapture associated with the given {@link VideoOutput}.
@@ -389,6 +392,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     public void onStateAttached() {
         super.onStateAttached();
+
+        Logger.d(TAG, "VideoCapture#onStateAttached: cameraID = " + getCameraId());
+
         Preconditions.checkNotNull(getAttachedStreamSpec(), "The suggested stream "
                 + "specification should be already updated and shouldn't be null.");
         Preconditions.checkState(mSurfaceRequest == null, "The surface request should be null "
@@ -405,6 +411,15 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         notifyActive();
         getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
                 mStreamInfoObserver);
+        if (mSourceStreamRequirementObserver != null) {
+            // In case a previous observer was not closed, close it first
+            mSourceStreamRequirementObserver.close();
+        }
+        // Camera should be already bound by now, so calling getCameraControl() is ok
+        mSourceStreamRequirementObserver = new SourceStreamRequirementObserver(getCameraControl());
+        // Should automatically trigger once for latest data
+        getOutput().isSourceStreamRequired().addObserver(CameraXExecutors.mainThreadExecutor(),
+                mSourceStreamRequirementObserver);
         setSourceState(VideoOutput.SourceState.ACTIVE_NON_STREAMING);
     }
 
@@ -424,9 +439,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onStateDetached() {
+        Logger.d(TAG, "VideoCapture#onStateDetached");
+
         checkState(isMainThread(), "VideoCapture can only be detached on the main thread.");
+
+        // It's safer to remove and close mSourceStreamRequirementObserver before stopping recorder
+        // in case there is some bug leading to double video usage decrement updates (e.g. once for
+        // recorder stop and once for observer close)
+        if (mSourceStreamRequirementObserver != null) {
+            getOutput().isSourceStreamRequired().removeObserver(mSourceStreamRequirementObserver);
+            mSourceStreamRequirementObserver.close();
+            mSourceStreamRequirementObserver = null;
+        }
+
         setSourceState(VideoOutput.SourceState.INACTIVE);
         getOutput().getStreamInfo().removeObserver(mStreamInfoObserver);
+
         if (mSurfaceUpdateFuture != null) {
             if (mSurfaceUpdateFuture.cancel(false)) {
                 Logger.d(TAG, "VideoCapture is detached from the camera. Surface update "
@@ -865,6 +893,74 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             Logger.w(TAG, "Receive onError from StreamState observer", t);
         }
     };
+
+    /**
+     * Observes whether the source stream is required and updates source i.e. camera layer
+     * accordingly.
+     */
+    static class SourceStreamRequirementObserver implements Observer<Boolean> {
+        @Nullable
+        private CameraControlInternal mCameraControl;
+
+        private boolean mIsSourceStreamRequired = false;
+
+        SourceStreamRequirementObserver(@NonNull CameraControlInternal cameraControl) {
+            mCameraControl = cameraControl;
+        }
+
+        @MainThread
+        @Override
+        public void onNewData(@Nullable Boolean value) {
+            checkState(isMainThread(),
+                    "SourceStreamRequirementObserver can be updated from main thread only");
+            updateVideoUsageInCamera(Boolean.TRUE.equals(value));
+        }
+
+        @Override
+        public void onError(@NonNull Throwable t) {
+            Logger.w(TAG, "SourceStreamRequirementObserver#onError", t);
+        }
+
+        private void updateVideoUsageInCamera(boolean isRequired) {
+            if (mIsSourceStreamRequired == isRequired) {
+                return;
+            }
+            mIsSourceStreamRequired = isRequired;
+            if (mCameraControl != null) {
+                if (mIsSourceStreamRequired) {
+                    mCameraControl.incrementVideoUsage();
+                } else {
+                    mCameraControl.decrementVideoUsage();
+                }
+            } else {
+                Logger.d(TAG,
+                        "SourceStreamRequirementObserver#isSourceStreamRequired: Received"
+                                + " new data despite being closed already");
+            }
+        }
+
+        /**
+         * Closes this object to detach the association with camera and updates recording status if
+         * required.
+         */
+        @MainThread
+        public void close() {
+            checkState(isMainThread(),
+                    "SourceStreamRequirementObserver can be closed from main thread only");
+
+            Logger.d(TAG, "SourceStreamRequirementObserver#close: mIsSourceStreamRequired = "
+                    + mIsSourceStreamRequired);
+
+            if (mCameraControl == null) {
+                Logger.d(TAG, "SourceStreamRequirementObserver#close: Already closed!");
+                return;
+            }
+
+            // Before removing the camera, it should be updated about recording status
+            updateVideoUsageInCamera(false);
+            mCameraControl = null;
+        }
+    }
 
     @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */

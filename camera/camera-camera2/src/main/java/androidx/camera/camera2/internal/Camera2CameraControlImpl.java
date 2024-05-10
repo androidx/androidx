@@ -76,6 +76,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -147,6 +148,9 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @NonNull
     private volatile ListenableFuture<Void> mFlashModeChangeSessionUpdateFuture =
             Futures.immediateFuture(null);
+
+    private final AtomicInteger mVideoUsage = new AtomicInteger(0);
+
     //******************** Should only be accessed by executor *****************************//
     private int mTemplate = DEFAULT_TEMPLATE;
     // SessionUpdateId will auto-increment every time session updates.
@@ -308,6 +312,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      */
     @ExecutedBy("mExecutor")
     void setActive(boolean isActive) {
+        Logger.d(TAG, "setActive: isActive = " + isActive);
         mFocusMeteringControl.setActive(isActive);
         mZoomControl.setActive(isActive);
         mTorchControl.setActive(isActive);
@@ -315,6 +320,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         mCamera2CameraControl.setActive(isActive);
         if (!isActive) {
             mScreenFlash = null;
+            // Since the camera is no longer active, there should not be any recording ongoing with
+            // this camera. If something like persistent recording wants to resume recording with
+            // this camera again, it should update recording status again when being attached.
+            mVideoUsage.set(0);
         }
     }
 
@@ -828,6 +837,30 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @VisibleForTesting
     long getCurrentSessionUpdateId() {
         return mCurrentSessionUpdateId;
+    }
+
+    @Override
+    public void incrementVideoUsage() {
+        int currentVal = mVideoUsage.incrementAndGet();
+        Logger.d(TAG, "incrementVideoUsage: mVideoUsage = " + currentVal);
+    }
+
+    @Override
+    public void decrementVideoUsage() {
+        int currentVal = mVideoUsage.decrementAndGet();
+        if (currentVal < 0) {
+            Logger.w(TAG, "decrementVideoUsage: mVideoUsage = " + currentVal
+                    + ", which is less than 0!");
+        } else {
+            Logger.d(TAG, "decrementVideoUsage: mVideoUsage = " + currentVal);
+        }
+    }
+
+    @Override
+    public boolean isInVideoUsage() {
+        int currentVal = mVideoUsage.get();
+        Logger.d(TAG, "isInVideoUsage: mVideoUsage = " + currentVal);
+        return currentVal > 0;
     }
 
     /** An interface to listen to camera capture results. */
