@@ -59,7 +59,6 @@ import java.util.Map;
  */
 class StillCaptureProcessor {
     private static final String TAG = "StillCaptureProcessor";
-    private static final int MAX_IMAGES = 2;
     @NonNull
     final CaptureProcessorImpl mCaptureProcessorImpl;
     @NonNull
@@ -102,7 +101,7 @@ class StillCaptureProcessor {
     }
 
     interface OnCaptureResultCallback {
-        void onCompleted();
+        void onProcessCompleted();
 
         void onCaptureResult(long shutterTimestamp,
                 @NonNull List<Pair<CaptureResult.Key, Object>> result);
@@ -237,7 +236,7 @@ class StillCaptureProcessor {
                 } finally {
                     Logger.d(TAG, "CaptureProcessorImpl.process() finish");
                     if (mOnCaptureResultCallback != null) {
-                        mOnCaptureResultCallback.onCompleted();
+                        mOnCaptureResultCallback.onProcessCompleted();
                         mOnCaptureResultCallback = null;
                     }
                     clearCaptureResults();

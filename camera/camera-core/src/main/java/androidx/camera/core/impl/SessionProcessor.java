@@ -16,7 +16,6 @@
 
 package androidx.camera.core.impl;
 
-import android.hardware.camera2.CaptureResult;
 import android.media.ImageReader;
 import android.util.Pair;
 import android.util.Size;
@@ -92,11 +91,12 @@ public interface SessionProcessor {
      * Requests the SessionProcessor to start the repeating request that enables
      * preview and image analysis.
      *
+     * @param tagBundle the {@link TagBundle} to be attached to the {@link CameraCaptureResult} in
+     *                  {@link CaptureCallback#onCaptureCompleted(long, int, CameraCaptureResult)}.
      * @param callback callback to notify the status.
      * @return the id of the capture sequence.
      */
-    int startRepeating(@NonNull CaptureCallback callback);
-
+    int startRepeating(@NonNull TagBundle tagBundle, @NonNull CaptureCallback callback);
 
     /**
      * Stop the repeating request.
@@ -108,10 +108,13 @@ public interface SessionProcessor {
      * perform one at a time.
      *
      * @param postviewEnabled if postview is enabled or not.
+     * @param tagBundle the {@link TagBundle} to be attached to the {@link CameraCaptureResult} in
+     *                  {@link CaptureCallback#onCaptureCompleted(long, int, CameraCaptureResult)}.
      * @param callback callback to notify the status.
      * @return the id of the capture sequence.
      */
-    int startCapture(boolean postviewEnabled, @NonNull CaptureCallback callback);
+    int startCapture(boolean postviewEnabled, @NonNull TagBundle tagBundle,
+            @NonNull CaptureCallback callback);
 
     /**
      * Aborts the pending capture.
@@ -120,8 +123,14 @@ public interface SessionProcessor {
 
     /**
      * Sends trigger-type single request such as AF/AE triggers.
+     * @param config the {@link Config} that contains the parameters to be set in the trigger.
+     * @param tagBundle the {@link TagBundle} to be attached to the {@link CameraCaptureResult} in
+     *                  {@link CaptureCallback#onCaptureCompleted(long, int, CameraCaptureResult)}.
+     * @param callback callback to notify the status
+     * @return the id of the capture sequence.
      */
-    default int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
+    default int startTrigger(@NonNull Config config,  @NonNull TagBundle tagBundle,
+            @NonNull CaptureCallback callback) {
         return -1;
     }
 
@@ -236,16 +245,11 @@ public interface SessionProcessor {
          * @param captureSequenceId    the capture id of the request that generated the capture
          *                             results. This is the return value of either
          *                             {@link #startRepeating} or {@link #startCapture}.
-         * @param result               Map containing the supported capture results. Do note
-         *                             that if results 'android.jpeg.quality' and
-         *                             'android.jpeg.orientation' are present in the process
-         *                             capture input results, then the values must also be passed
-         *                             as part of this callback. Both Camera2 and CameraX guarantee
-         *                             that those two settings and results are always supported and
-         *                             applied by the corresponding framework.
+         * @param captureResult        the capture result that contains the metadata and the
+         *                             timestamp of the capture.
          */
         default void onCaptureCompleted(long timestamp, int captureSequenceId,
-                @NonNull Map<CaptureResult.Key, Object> result) {}
+                @NonNull CameraCaptureResult captureResult) {}
 
         /**
          * Capture progress callback that needs to be called when the process capture is

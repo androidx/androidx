@@ -207,7 +207,7 @@ class Camera2RequestProcessorTest {
         // Assert
         withTimeout(5000) {
             val (cameraCaptureResult, receivedRequest) = callbackToVerify.awaitCaptureResults()[0]
-            val camera2CaptureResult = cameraCaptureResult.captureResult
+            val camera2CaptureResult = cameraCaptureResult.captureResult!!
             assertThat(camera2CaptureResult.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
             assertThat(camera2CaptureResult.request.get(CaptureRequest.JPEG_ORIENTATION))
@@ -341,14 +341,14 @@ class Camera2RequestProcessorTest {
             captureImagesRetrieved[0].await()
             captureImagesRetrieved[1].await()
 
-            val camera2CaptureResult1 = cameraCaptureResult1.captureResult
+            val camera2CaptureResult1 = cameraCaptureResult1.captureResult!!
             assertThat(camera2CaptureResult1.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
             assertThat(camera2CaptureResult1.request.get(CaptureRequest.JPEG_ORIENTATION))
                 .isEqualTo(ORIENTATION_1)
             assertThat(receivedRequest1).isSameInstanceAs(request1)
 
-            val camera2CaptureResult2 = cameraCaptureResult2.captureResult
+            val camera2CaptureResult2 = cameraCaptureResult2.captureResult!!
             assertThat(camera2CaptureResult2.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW)
             assertThat(camera2CaptureResult2.request.get(CaptureRequest.JPEG_ORIENTATION))
@@ -400,7 +400,7 @@ class Camera2RequestProcessorTest {
         withTimeout(5000) {
             val (cameraCaptureResult, receivedRequest) = callbackToVerify.awaitCaptureResults()[0]
             previewImageRetrieved.await()
-            val camera2CaptureResult = cameraCaptureResult.captureResult
+            val camera2CaptureResult = cameraCaptureResult.captureResult!!
             assertThat(camera2CaptureResult.request.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureResult.CONTROL_CAPTURE_INTENT_PREVIEW)
             assertThat(camera2CaptureResult.request.get(CaptureRequest.JPEG_ORIENTATION))

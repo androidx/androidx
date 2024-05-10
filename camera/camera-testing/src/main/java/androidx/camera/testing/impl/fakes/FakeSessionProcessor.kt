@@ -38,6 +38,7 @@ import androidx.camera.core.impl.RestrictedCameraInfo
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SessionProcessorSurface
+import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
@@ -244,7 +245,10 @@ class FakeSessionProcessor(
         return postviewSupportedSizes ?: emptyMap()
     }
 
-    override fun startRepeating(callback: SessionProcessor.CaptureCallback): Int {
+    override fun startRepeating(
+        tagBundle: TagBundle,
+        callback: SessionProcessor.CaptureCallback
+    ): Int {
         startRepeatingCalled.complete(SystemClock.elapsedRealtimeNanos())
         val builder =
             RequestProcessorRequest.Builder().apply {
@@ -300,6 +304,7 @@ class FakeSessionProcessor(
 
     override fun startCapture(
         postviewEnabled: Boolean,
+        tagBundle: TagBundle,
         callback: SessionProcessor.CaptureCallback
     ): Int {
         startCaptureCalled.complete(SystemClock.elapsedRealtimeNanos())
@@ -363,7 +368,11 @@ class FakeSessionProcessor(
         return FAKE_CAPTURE_SEQUENCE_ID
     }
 
-    override fun startTrigger(config: Config, callback: SessionProcessor.CaptureCallback): Int {
+    override fun startTrigger(
+        config: Config,
+        tagBundle: TagBundle,
+        callback: SessionProcessor.CaptureCallback
+    ): Int {
         startTriggerCalled.complete(config)
         callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
         return FAKE_CAPTURE_SEQUENCE_ID

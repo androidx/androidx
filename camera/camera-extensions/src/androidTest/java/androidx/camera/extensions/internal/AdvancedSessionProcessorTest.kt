@@ -46,15 +46,18 @@ import androidx.camera.core.ImageCapture.OnImageCapturedCallback
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
+import androidx.camera.core.impl.CameraCaptureResult
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.MutableTagBundle
 import androidx.camera.core.impl.OutputSurface
 import androidx.camera.core.impl.OutputSurfaceConfiguration
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl
@@ -224,9 +227,26 @@ class AdvancedSessionProcessorTest {
                     }
                 }
                 .build()
-        advancedSessionProcessor.startTrigger(config, object : SessionProcessor.CaptureCallback {})
+
+        val tagBundle = MutableTagBundle.create()
+        val captureResultDeferred = CompletableDeferred<CameraCaptureResult>()
+        advancedSessionProcessor.startTrigger(
+            config,
+            tagBundle,
+            object : SessionProcessor.CaptureCallback {
+                override fun onCaptureCompleted(
+                    timestamp: Long,
+                    captureSequenceId: Int,
+                    captureResult: CameraCaptureResult
+                ) {
+                    captureResultDeferred.complete(captureResult)
+                }
+            }
+        )
 
         fakeSessionProcessImpl.assertStartTriggerIsCalledWithParameters(parametersMap)
+        assertThat(captureResultDeferred.awaitWithTimeout(2000).tagBundle)
+            .isSameInstanceAs(tagBundle)
     }
 
     @Test
@@ -433,7 +453,10 @@ class AdvancedSessionProcessorTest {
 
             // Starts repeating first to let fakeSessionProcessImpl obtain the
             // AdvancedSessionProcessor's SessionProcessorImplCaptureCallbackAdapter instance
-            advancedSessionProcessor.startRepeating(object : SessionProcessor.CaptureCallback {})
+            advancedSessionProcessor.startRepeating(
+                TagBundle.emptyBundle(),
+                object : SessionProcessor.CaptureCallback {}
+            )
             val receivedTypeList = mutableListOf<Int>()
             // Sets the count as 2 for receiving the initial extension type and the updated
             // FACE_RETOUCH type
@@ -451,6 +474,43 @@ class AdvancedSessionProcessorTest {
             assertThat(receivedTypeList)
                 .containsExactlyElementsIn(listOf(ExtensionMode.AUTO, ExtensionMode.FACE_RETOUCH))
         }
+
+    @Test
+    fun startCapture_tagBundleIsReturnedCorrectly(): Unit = runBlocking {
+        val fakeSessionProcessImpl =
+            object : SessionProcessorImpl by FakeSessionProcessImpl() {
+                override fun startCapture(callback: SessionProcessorImpl.CaptureCallback): Int {
+                    callback.onCaptureCompleted(-1, 1, mapOf())
+                    return 1
+                }
+            }
+        val advancedSessionProcessor =
+            AdvancedSessionProcessor(
+                fakeSessionProcessImpl,
+                emptyList(),
+                object : VendorExtender {},
+                context
+            )
+
+        var tagBundle = MutableTagBundle.create()
+        val deferredCameraCaptureResult = CompletableDeferred<CameraCaptureResult>()
+
+        advancedSessionProcessor.startCapture(
+            false,
+            tagBundle,
+            object : SessionProcessor.CaptureCallback {
+                override fun onCaptureCompleted(
+                    timestamp: Long,
+                    captureSequenceId: Int,
+                    captureResult: CameraCaptureResult
+                ) {
+                    deferredCameraCaptureResult.complete(captureResult)
+                }
+            }
+        )
+        assertThat(deferredCameraCaptureResult.awaitWithTimeout(2000).tagBundle)
+            .isSameInstanceAs(tagBundle)
+    }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -499,7 +559,10 @@ class AdvancedSessionProcessorTest {
 
         // Starts repeating first to verify that setExtensionStrength function will directly
         // invoke the SessionProcessImpl#startRepeating function.
-        advancedSessionProcessor.startRepeating(object : SessionProcessor.CaptureCallback {})
+        advancedSessionProcessor.startRepeating(
+            TagBundle.emptyBundle(),
+            object : SessionProcessor.CaptureCallback {}
+        )
         val newExtensionStrength = 50
         advancedSessionProcessor.setExtensionStrength(newExtensionStrength)
         // Verifies that setExtensionStrength will invoke the SessionProcessImpl#setParameters
@@ -852,7 +915,7 @@ class AdvancedSessionProcessorTest {
     }
 }
 
-private suspend fun <T> Deferred<T>.awaitWithTimeout(timeMillis: Long): T {
+suspend fun <T> Deferred<T>.awaitWithTimeout(timeMillis: Long): T {
     return withTimeout(timeMillis) { await() }
 }
 
@@ -874,6 +937,7 @@ class FakeSessionProcessImpl(
 ) : SessionProcessorImpl {
     private var requestProcessor: RequestProcessorImpl? = null
     private var nextSequenceId = 0
+    private var nextTimestamp = 0L
     private lateinit var previewOutputConfig: Camera2OutputConfigImpl
     private lateinit var captureOutputConfig: Camera2OutputConfigImpl
     private var analysisOutputConfig: Camera2OutputConfigImpl? = null
@@ -937,7 +1001,12 @@ class FakeSessionProcessImpl(
         callback: SessionProcessorImpl.CaptureCallback
     ): Int {
         startTriggerParametersDeferred.complete(triggers)
-        return 0
+        val timestamp = nextTimestamp++
+        val sequenceId = nextSequenceId++
+        callback.onCaptureStarted(sequenceId, timestamp)
+        callback.onCaptureCompleted(timestamp, sequenceId, emptyMap())
+        callback.onCaptureSequenceCompleted(sequenceId)
+        return sequenceId
     }
 
     suspend fun assertStartTriggerIsCalledWithParameters(

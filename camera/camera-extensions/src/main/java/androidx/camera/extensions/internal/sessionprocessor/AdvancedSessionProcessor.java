@@ -48,6 +48,7 @@ import androidx.camera.core.impl.OutputSurface;
 import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionProcessor;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl;
 import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl;
@@ -67,6 +68,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -320,9 +322,10 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     @Override
     public int startCapture(
             boolean postviewEnabled,
+            @NonNull TagBundle tagBundle,
             @NonNull SessionProcessor.CaptureCallback callback) {
         SessionProcessorImplCaptureCallbackAdapter stillCaptureCallback =
-                new SessionProcessorImplCaptureCallbackAdapter(callback);
+                new SessionProcessorImplCaptureCallbackAdapter(callback, tagBundle);
 
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
@@ -337,23 +340,25 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     }
 
     @Override
-    public int startRepeating(@NonNull SessionProcessor.CaptureCallback callback) {
+    public int startRepeating(@NonNull TagBundle tagBundle,
+            @NonNull SessionProcessor.CaptureCallback callback) {
         SessionProcessorImplCaptureCallbackAdapter captureCallbackAdapter;
         synchronized (mLock) {
             captureCallbackAdapter = new SessionProcessorImplCaptureCallbackAdapter(callback,
-                    mExtensionMetadataMonitor);
+                    tagBundle, mExtensionMetadataMonitor);
             mRepeatingCaptureCallbackAdapter = captureCallbackAdapter;
         }
         return mImpl.startRepeating(captureCallbackAdapter);
     }
 
     @Override
-    public int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
+    public int startTrigger(@NonNull Config config, @NonNull TagBundle tagBundle,
+            @NonNull CaptureCallback callback) {
         HashMap<CaptureRequest.Key<?>, Object> map = convertConfigToMap(config);
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
             return mImpl.startTrigger(map,
-                    new SessionProcessorImplCaptureCallbackAdapter(callback));
+                    new SessionProcessorImplCaptureCallbackAdapter(callback, tagBundle));
         }
         return -1;
     }
@@ -705,17 +710,23 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         private final SessionProcessor.CaptureCallback mCaptureCallback;
         @Nullable
         private final ExtensionMetadataMonitor mExtensionMetadataMonitor;
+        @NonNull
+        private final TagBundle mTagBundle;
+        private long mOnCaptureStartedTimestamp = -1;
 
         SessionProcessorImplCaptureCallbackAdapter(
-                @NonNull SessionProcessor.CaptureCallback callback) {
-            this(callback, null);
+                @NonNull SessionProcessor.CaptureCallback callback,
+                @NonNull TagBundle tagBundle) {
+            this(callback, tagBundle, null);
         }
 
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         SessionProcessorImplCaptureCallbackAdapter(
                 @NonNull SessionProcessor.CaptureCallback callback,
+                @NonNull TagBundle tagBundle,
                 @Nullable ExtensionMetadataMonitor extensionMetadataMonitor) {
             mCaptureCallback = callback;
+            mTagBundle = tagBundle;
             mExtensionMetadataMonitor = extensionMetadataMonitor;
         }
 
@@ -723,6 +734,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         public void onCaptureStarted(
                 int captureSequenceId,
                 long timestamp) {
+            mOnCaptureStartedTimestamp = timestamp;
             mCaptureCallback.onCaptureStarted(captureSequenceId, timestamp);
         }
 
@@ -739,7 +751,17 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
 
         @Override
         public void onCaptureSequenceCompleted(int captureSequenceId) {
-            mCaptureCallback.onCaptureSequenceCompleted(captureSequenceId);
+            if (ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_2)) {
+                // For OEM implementing v1.2 and below, there is no onCaptureCompleted being invoked
+                // so we finish the callback sequence here. We also invoke onCaptureCompleted
+                // so that camera-core layer has a consistent behavior. The timestamp is fetched
+                // from onCaptureStarted callback.
+                mCaptureCallback.onCaptureCompleted(mOnCaptureStartedTimestamp,
+                        captureSequenceId,
+                        new KeyValueMapCameraCaptureResult(
+                                mOnCaptureStartedTimestamp, mTagBundle, Collections.emptyMap()));
+                mCaptureCallback.onCaptureSequenceCompleted(captureSequenceId);
+            }
         }
 
         @Override
@@ -753,7 +775,14 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
             if (mExtensionMetadataMonitor != null) {
                 mExtensionMetadataMonitor.checkExtensionMetadata(result);
             }
-            mCaptureCallback.onCaptureCompleted(timestamp, captureSequenceId, result);
+            if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
+                // For OEMs implementing 1.3 or above, onCaptureCompleted is guaranteed and it could
+                // invoked later than onCaptureSequenceCompleted. So here we invoke
+                // onCaptureSequenceCompleted right after the onCaptureCompleted.
+                mCaptureCallback.onCaptureCompleted(timestamp, captureSequenceId,
+                        new KeyValueMapCameraCaptureResult(timestamp, mTagBundle, result));
+                mCaptureCallback.onCaptureSequenceCompleted(captureSequenceId);
+            }
         }
 
         @Override

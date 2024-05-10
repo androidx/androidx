@@ -172,7 +172,7 @@ class StillCaptureProcessorTest {
             enablePostview,
             captureStageIdList,
             object : OnCaptureResultCallback {
-                override fun onCompleted() {
+                override fun onProcessCompleted() {
                     deferredCaptureCompleted.complete(Unit)
                 }
 
@@ -347,7 +347,7 @@ class StillCaptureProcessorTest {
             false,
             captureStageIdList,
             object : OnCaptureResultCallback {
-                override fun onCompleted() {
+                override fun onProcessCompleted() {
                     deferredCapture.complete(Unit)
                 }
 
