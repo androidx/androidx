@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.core.widgets.Optimizer
+import kotlin.jvm.internal.Ref.FloatRef
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.channels.Channel
 
@@ -81,8 +82,6 @@ enum class MotionLayoutDebugFlags {
 
 /**
  * Layout that can animate between two different layout states described in [ConstraintSet]s.
- *
- * &nbsp;
  *
  * The animation is driven by the [progress] value, so it will typically be a result of
  * using an [Animatable][androidx.compose.animation.core.Animatable] or
@@ -128,6 +127,7 @@ enum class MotionLayoutDebugFlags {
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
+@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     start: ConstraintSet,
@@ -188,8 +188,6 @@ inline fun MotionLayout(
  * Layout that can animate between multiple [ConstraintSet]s as defined by [Transition]s in the
  * given [MotionScene].
  *
- * &nbsp;
- *
  * The animation is driven by the [progress] value, so it will typically be a result of
  * using an [Animatable][androidx.compose.animation.core.Animatable] or
  * [animateFloatAsState][androidx.compose.animation.core.animateFloatAsState]:
@@ -239,6 +237,7 @@ inline fun MotionLayout(
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
+@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
@@ -294,8 +293,6 @@ inline fun MotionLayout(
 /**
  * Layout that can animate between multiple [ConstraintSet]s as defined by [Transition]s in the
  * given [MotionScene].
- *
- * &nbsp;
  *
  * The animation is driven based on the given [constraintSetName]. During recomposition,
  * MotionLayout will interpolate from whichever [ConstraintSet] it currently is, to the one
@@ -364,6 +361,7 @@ inline fun MotionLayout(
  * should be bound to an ID defined in the [ConstraintSet]s using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  */
+@ExperimentalMotionApi
 @Composable
 inline fun MotionLayout(
     motionScene: MotionScene,
@@ -419,6 +417,7 @@ inline fun MotionLayout(
     )
 }
 
+@ExperimentalMotionApi
 @PublishedApi
 @Composable
 internal fun MotionLayoutCore(
@@ -514,6 +513,7 @@ internal fun MotionLayoutCore(
     )
 }
 
+@ExperimentalMotionApi
 @PublishedApi
 @Composable
 internal fun MotionLayoutCore(
@@ -564,6 +564,7 @@ internal fun MotionLayoutCore(
     )
 }
 
+@ExperimentalMotionApi
 @PublishedApi
 @Composable
 internal fun MotionLayoutCore(
@@ -682,6 +683,7 @@ internal fun MotionLayoutCore(
     )
 }
 
+@ExperimentalMotionApi
 @LayoutScopeMarker
 class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constructor(
     private val measurer: MotionMeasurer,
@@ -823,7 +825,8 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
         }
     }
 
-    // TODO: Remove for 1.2.0-alphaXX with all dependent functions
+    // TODO: Remove for 1.2.0-alphaXX with all dependent functions. Note that MotionCarousel Api
+    //  depends on this.
     inner class MotionProperties internal constructor(
         id: String,
         tag: String?
@@ -906,8 +909,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * Returns a [CustomProperties] instance to access the values of custom properties defined for
      * [id] in different return types: Color, Float, Int, Dp, TextUnit.
      *
-     * &nbsp;
-     *
      * Note that there are no type guarantees when setting or getting custom properties, so be
      * mindful of the value type used for it in the MotionScene.
      */
@@ -917,8 +918,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * Return the current [Color] value of the custom property [name], of the [id] layout.
      *
      * Returns [Color.Unspecified] if the property does not exist.
-     *
-     * &nbsp;
      *
      * This is a short version of: `customProperties(id).color(name)`.
      */
@@ -931,8 +930,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      *
      * Returns [Color.Unspecified] if the property does not exist.
      *
-     * &nbsp;
-     *
      * This is a short version of: `customProperties(id).float(name)`.
      */
     fun customFloat(id: String, name: String): Float {
@@ -943,8 +940,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      * Return the current [Int] value of the custom property [name], of the [id] layout.
      *
      * Returns `0` if the property does not exist.
-     *
-     * &nbsp;
      *
      * This is a short version of: `customProperties(id).int(name)`.
      */
@@ -957,8 +952,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      *
      * Returns [Dp.Unspecified] if the property does not exist.
      *
-     * &nbsp;
-     *
      * This is a short version of: `customProperties(id).distance(name)`.
      */
     fun customDistance(id: String, name: String): Dp {
@@ -970,8 +963,6 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
      *
      * Returns [TextUnit.Unspecified] if the property does not exist.
      *
-     * &nbsp;
-     *
      * This is a short version of: `customProperties(id).fontSize(name)`.
      */
     fun customFontSize(id: String, name: String): TextUnit {
@@ -979,6 +970,7 @@ class MotionLayoutScope @Suppress("ShowingMemberInHiddenClass") internal constru
     }
 }
 
+@ExperimentalMotionApi
 internal fun motionLayoutMeasurePolicy(
     contentTracker: State<Unit>,
     compositionSource: Ref<CompositionSource>,
@@ -1053,18 +1045,17 @@ internal fun UpdateWithForcedIfNoUserChange(
  */
 @Composable
 internal fun createAndUpdateMotionProgress(progress: Float): MutableFloatState {
-    val motionProgress = remember {
-        mutableFloatStateOf(progress)
-    }
-    val last = remember { Ref<Float>().apply { value = progress } }
-    if (last.value != progress) {
+    val motionProgress = remember { mutableFloatStateOf(progress) }
+    val last = remember { FloatRef().apply { element = progress } }
+    if (last.element != progress) {
         // Update on progress change
-        last.value = progress
+        last.element = progress
         motionProgress.floatValue = progress
     }
     return motionProgress
 }
 
+@ExperimentalMotionApi
 internal fun Modifier.motionDebug(
     measurer: MotionMeasurer,
     scaleFactor: Float,
@@ -1152,7 +1143,6 @@ value class DebugFlags internal constructor(private val flags: Int) {
         get() = flags and PATHS_FLAG > 0
 
     /**
-     *
      * When enabled, shows a diamond icon representing KeyPositions defined for each widget along
      * the path.
      */
@@ -1209,8 +1199,8 @@ private object Api30Impl {
  *         InvalidationStrategy(
  *             onIncomingConstraints = { old, new ->
  *                 // We invalidate every third frame, or when the change is higher than 5 pixels
- *                 fixedWidthRate(old, new, skipCount = 3, threshold = 5) ||
- *                     fixedHeightRate(old, new, skipCount = 3, threshold = 5)
+ *                 shouldInvalidateOnFixedWidth(old, new, skipCount = 3, threshold = 5) ||
+ *                     shouldInvalidateOnFixedHeight(old, new, skipCount = 3, threshold = 5)
  *             },
  *             onObservedStateChange = null // Default behavior
  *         )
@@ -1220,25 +1210,21 @@ private object Api30Impl {
  * }
  * ```
  *
- * See either [fixedWidthRate] or [fixedHeightRate] to learn more about the intent behind
- * rate-limiting invalidation.
+ * See either [shouldInvalidateOnFixedWidth] or [shouldInvalidateOnFixedHeight] to learn more about
+ * the intent behind rate-limiting invalidation.
  */
-class InvalidationStrategyScope internal constructor() {
+class InvalidationStrategySpecification internal constructor() {
     private var widthRateCount = 0
 
     /**
      * Limits the rate at which MotionLayout is invalidated while [Constraints.hasFixedWidth] is
      * true.
      *
-     * &nbsp;
-     *
      * The rate limit is defined by two variables. Use [skipCount] to indicate how many consecutive
      * measure passes should skip invalidation, you may then provide a [threshold] (in pixels) to
      * indicate when to invalidate regardless of how many passes are left to skip. This is
      * important since you only want to skip invalidation passes when there's **not** a significant
      * change in dimensions.
-     *
-     * &nbsp;
      *
      * Overall, you don't want [skipCount] to be too high otherwise it'll result in a "jumpy" layout
      * behavior, but you also don't want the [threshold] to be too low, otherwise you'll lose the
@@ -1247,7 +1233,7 @@ class InvalidationStrategyScope internal constructor() {
      * A good starting point is setting [skipCount] to 3 and [threshold] to 5. You can then
      * adjust based on your expectations of performance and perceived smoothness.
      */
-    fun fixedWidthRate(
+    fun shouldInvalidateOnFixedWidth(
         oldConstraints: Constraints,
         newConstraints: Constraints,
         skipCount: Int,
@@ -1278,15 +1264,11 @@ class InvalidationStrategyScope internal constructor() {
      * Limits the rate at which MotionLayout is invalidated while [Constraints.hasFixedHeight] is
      * true.
      *
-     * &nbsp;
-     *
      * The rate limit is defined by two variables. Use [skipCount] to indicate how many consecutive
      * measure passes should skip invalidation, you may then provide a [threshold] (in pixels) to
      * indicate when to invalidate regardless of how many passes are left to skip. This is
      * important since you only want to skip invalidation passes when there's **not** a significant
      * change in dimensions.
-     *
-     * &nbsp;
      *
      * Overall, you don't want [skipCount] to be too high otherwise it'll result in a "jumpy" layout
      * behavior, but you also don't want the [threshold] to be too low, otherwise you'll lose the
@@ -1295,7 +1277,7 @@ class InvalidationStrategyScope internal constructor() {
      * A good starting point is setting [skipCount] to 3 and [threshold] to 5. You can then
      * adjust based on your expectations of performance and perceived smoothness.
      */
-    fun fixedHeightRate(
+    fun shouldInvalidateOnFixedHeight(
         oldConstraints: Constraints,
         newConstraints: Constraints,
         skipCount: Int,
@@ -1323,8 +1305,6 @@ class InvalidationStrategyScope internal constructor() {
 
 /**
  * Provide different invalidation strategies for [MotionLayout].
- *
- * &nbsp;
  *
  * Whenever [MotionLayout] needs invalidating, it has to recalculate all animations based on the
  * current state at the measure pass, this is the slowest process in the [MotionLayout] cycle.
@@ -1394,8 +1374,6 @@ class InvalidationStrategyScope internal constructor() {
  * ```
  *
  * *When should I provide States to read then?*
- *
- * &nbsp;
  *
  * Whenever a State backed variable that affects the Layout's measure result changes. The most
  * common cases are Strings on the Text Composable.
@@ -1467,8 +1445,6 @@ class InvalidationStrategyScope internal constructor() {
  *
  * *What if my Text changes continuously?*
  *
- * &nbsp;
- *
  * There's a few strategies you can take depending on how you expect the Text to behave.
  *
  * For example, if you don't expect the text to need more than one line, you can set the Text with
@@ -1536,8 +1512,8 @@ class InvalidationStrategyScope internal constructor() {
  *         InvalidationStrategy(
  *             onIncomingConstraints = { old, new ->
  *                 // We invalidate every third frame, or when the change is higher than 5 pixels
- *                 fixedWidthRate(old, new, skipCount = 3, threshold = 5) ||
- *                     fixedHeightRate(old, new, skipCount = 3, threshold = 5)
+ *                 shouldInvalidateOnFixedWidth(old, new, skipCount = 3, threshold = 5) ||
+ *                     shouldInvalidateOnFixedHeight(old, new, skipCount = 3, threshold = 5)
  *             },
  *             // No need to worry about content state changes for this example
  *             onObservedStateChange = {}
@@ -1559,10 +1535,9 @@ class InvalidationStrategyScope internal constructor() {
  * }
  * ```
  *
- * Note that [fixedWidthRate][InvalidationStrategyScope.fixedWidthRate] and [fixedHeightRate][InvalidationStrategyScope.fixedHeightRate]
- * are helper methods available in [InvalidationStrategyScope].
- *
- * &nbsp;
+ * Note that [shouldInvalidateOnFixedWidth][InvalidationStrategySpecification.shouldInvalidateOnFixedWidth]
+ * and [shouldInvalidateOnFixedHeight][InvalidationStrategySpecification.shouldInvalidateOnFixedHeight]
+ * are helper methods available in [InvalidationStrategySpecification].
  *
  * An alternative to rate-limiting is to "simply" avoid invalidation from changed fixed size constraints.
  * This can be done by leaving [MotionLayout] as wrap content and then have it choose its own start
@@ -1607,15 +1582,30 @@ class InvalidationStrategyScope internal constructor() {
  * as [MotionLayout] will animate through both sizes without invalidating.
  *
  * @see InvalidationStrategy.DefaultInvalidationStrategy
- * @see InvalidationStrategy.OnIncomingConstraints
- * @see InvalidationStrategyScope
- * @see InvalidationStrategyScope.fixedWidthRate
- * @see InvalidationStrategyScope.fixedHeightRate
+ * @see InvalidationStrategySpecification
+ * @see InvalidationStrategySpecification.shouldInvalidateOnFixedWidth
+ * @see InvalidationStrategySpecification.shouldInvalidateOnFixedHeight
  *
+ * @property onIncomingConstraints
  * @property onObservedStateChange
  */
 class InvalidationStrategy(
-    val onIncomingConstraints: OnIncomingConstraints? = null,
+    /**
+     * Lambda to implement invalidation based on incoming [Constraints].
+     *
+     * Called every measure pass after the first measure (to obtain "old" [Constraints]), return
+     * `true` to indicate when to invalidate [MotionLayout]. The default behavior, would be to
+     * always return `false`.
+     *
+     * See the documentation on [InvalidationStrategy] or either of
+     * [shouldInvalidateOnFixedWidth][InvalidationStrategySpecification.shouldInvalidateOnFixedWidth]
+     * /[shouldInvalidateOnFixedHeight][InvalidationStrategySpecification.shouldInvalidateOnFixedHeight]
+     * to learn some strategies on how to improve invalidation due to incoming constraints.
+     */
+    val onIncomingConstraints: (InvalidationStrategySpecification.(
+        old: Constraints,
+        new: Constraints
+        ) -> Boolean)? = null,
     /**
      * Lambda to implement invalidation on observed State changes.
      *
@@ -1642,19 +1632,22 @@ class InvalidationStrategy(
      */
     val onObservedStateChange: (() -> Unit)?
 ) {
-    private val scope = InvalidationStrategyScope()
+    private val scope = InvalidationStrategySpecification()
 
     /**
-     * Hacky thing to transform: `(InvalidationStrategyScope.(old: Constraints, new: Constraints) -> Boolean)?`
-     * into `((old: Constraints, new: Constraints) -> Boolean)?`
+     * Transform: `(InvalidationStrategyScope.(old: Constraints, new: Constraints) -> Boolean)?`
+     * into `(old: Constraints, new: Constraints) -> Boolean`
+     *
+     * Returns null to indicate that there's no user logic to handle this type of invalidation.
      */
     internal val shouldInvalidate: ShouldInvalidateCallback? = kotlin.run {
         if (onIncomingConstraints == null) {
+            // Nothing to invalidate with, let MotionMeasurer decide
             null
         } else {
             ShouldInvalidateCallback { old, new ->
-                with(onIncomingConstraints) {
-                    scope(old, new)
+                onIncomingConstraints.let { lambda ->
+                    scope.lambda(old, new)
                 }
             }
         }
@@ -1664,20 +1657,9 @@ class InvalidationStrategy(
         /**
          * Default invalidation strategy for [MotionLayout].
          *
-         * This will cause it to invalidate whenever its content recomposes or when it receives different
-         * fixed size [Constraints] at the measure pass.
+         * This will cause it to invalidate whenever its content recomposes or when it receives
+         * different fixed size [Constraints] at the measure pass.
          */
         val DefaultInvalidationStrategy = InvalidationStrategy(null, null)
-    }
-
-    /**
-     * Functional interface to implement invalidation on incoming constraints.
-     *
-     * See [InvalidationStrategy] or either of [fixedWidthRate][InvalidationStrategyScope.fixedWidthRate]/[fixedHeightRate][InvalidationStrategyScope.fixedHeightRate].
-     *
-     * To learn some strategies on how to improve invalidation due to incoming constraints.
-     */
-    fun interface OnIncomingConstraints {
-        operator fun InvalidationStrategyScope.invoke(old: Constraints, new: Constraints): Boolean
     }
 }

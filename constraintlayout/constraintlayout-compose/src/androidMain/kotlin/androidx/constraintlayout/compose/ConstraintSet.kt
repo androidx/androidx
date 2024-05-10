@@ -62,8 +62,6 @@ import androidx.constraintlayout.core.state.Transition
  *
  * See [ConstrainScope] to learn more about how to constrain elements together.
  *
- * &nbsp;
- *
  * In the ConstraintLayout or MotionLayout Composables, the children must be bound using
  * [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  *
@@ -104,14 +102,10 @@ import androidx.constraintlayout.core.state.Transition
  * layout behaviors, you may find these in the [ConstraintSetScope] with the '`create...`' prefix,
  * a few of these are **Guidelines**, **Chains** and **Barriers**.
  *
- * &nbsp;
- *
  * ### Guidelines
  * Lines to which other [ConstrainedLayoutReference]s may be constrained to, these are defined at
  * either a fixed or percent position from an anchor of the ConstraintLayout parent (top, bottom,
  * start, end, absoluteLeft, absoluteRight).
- *
- * &nbsp;
  *
  * Example:
  * ```
@@ -138,8 +132,6 @@ import androidx.constraintlayout.core.state.Transition
  * given order, meaning that an horizontal chain will create constraints between the start and end anchors.
  *
  * The result, a layout that evenly distributes the space within its elements.
- *
- * &nbsp;
  *
  * For example, to make a layout with three text elements distributed so that the spacing between
  * them (and around them) is equal:
@@ -177,8 +169,6 @@ import androidx.constraintlayout.core.state.Transition
  * Weighted chains are useful when you want the size of the elements to depend on the remaining size
  * of the chain. As opposed to just distributing the space around and/or in-between the items.
  *
- * &nbsp;
- *
  * For example, to create a layout with three text elements in a row where each element takes the
  * exact same size regardless of content, you can use a simple weighted chain where each item has the
  * same weight:
@@ -203,8 +193,6 @@ import androidx.constraintlayout.core.state.Transition
  * Also note that when using [ConstraintSetScope] you can apply the same constrains to multiple
  * references at a time.
  *
- * &nbsp;
- *
  * Keep in mind that chains have a relatively high performance cost. For example, if you plan on
  * having multiple chains one below the other, consider instead, applying just one chain and using
  * it as a reference to constrain all other elements to the ones that match their position in that
@@ -212,8 +200,6 @@ import androidx.constraintlayout.core.state.Transition
  *
  * Alternatively, consider if other helpers such as [ConstraintSetScope.createGrid] can
  * accomplish the same layout.
- *
- * &nbsp;
  *
  * See
  * - [ConstraintSetScope.createHorizontalChain]
@@ -223,8 +209,6 @@ import androidx.constraintlayout.core.state.Transition
  * ### Barriers
  * Barriers take a set of [ConstrainedLayoutReference]s and creates the most further point in a
  * given direction where other [ConstrainedLayoutReference] can constrain to.
- *
- * &nbsp;
  *
  * This is useful in situations where elements in a layout may have different sizes but you want to
  * always constrain to the largest item, for example, if you have a text element on top of another

@@ -30,6 +30,7 @@ import org.intellij.lang.annotations.Language
 /**
  * Information for MotionLayout to animate between multiple [ConstraintSet]s.
  */
+@ExperimentalMotionApi
 @Immutable
 interface MotionScene : CoreMotionScene {
     fun getConstraintSetInstance(name: String): ConstraintSet?
@@ -42,6 +43,7 @@ interface MotionScene : CoreMotionScene {
  *
  * See the official [Github Wiki](https://github.com/androidx/constraintlayout/wiki/Compose-MotionLayout-JSON-Syntax) to learn the syntax.
  */
+@ExperimentalMotionApi
 @SuppressLint("ComposableNaming")
 @Composable
 fun MotionScene(@Language("json5") content: String): MotionScene {
@@ -52,6 +54,7 @@ fun MotionScene(@Language("json5") content: String): MotionScene {
     }
 }
 
+@ExperimentalMotionApi
 internal class JSONMotionScene(
     @Language("json5") content: String
 ) : EditableJSONLayout(content), MotionScene {

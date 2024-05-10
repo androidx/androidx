@@ -89,11 +89,10 @@ fun ChainsAnimatedOrientationDemo() {
                     createVerticalChain(box0, box1, box2)
                 }
             },
-            animateChanges = true, // Set to true, to automatically animate on ConstraintSet changes
-            animationSpec = tween(800),
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1.0f, true)
+                .weight(1.0f, true),
+            animateChangesSpec = tween(800),
         ) {
             boxColors.forEachIndexed { index, color ->
                 Box(
@@ -117,14 +116,12 @@ fun ChainsAnimatedOrientationDemo1() {
 
     Column(Modifier.fillMaxSize()) {
         ConstraintLayout(
-            animateChanges = true, // Set to true, to automatically animate on ConstraintSet changes
-            animationSpec = tween(800),
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1.0f, true)
+                .weight(1.0f, true),
+            animateChangesSpec = tween(800)
         ) {
             val (box0, box1, box2) = createRefs()
-
             if (isHorizontal) {
                 createHorizontalChain(
                     box0,
@@ -138,7 +135,6 @@ fun ChainsAnimatedOrientationDemo1() {
                     box2
                 )
             }
-
             Box(
                 modifier = Modifier
                     .constrainAs(box0) {
