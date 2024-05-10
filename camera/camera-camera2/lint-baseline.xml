@@ -1030,15 +1030,6 @@
     <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/LensFacingUtil.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="@RequiresApi(21)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
