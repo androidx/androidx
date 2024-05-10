@@ -24,6 +24,7 @@ package androidx.binarycompatibilityvalidator
 import org.jetbrains.kotlin.library.abi.AbiClass
 import org.jetbrains.kotlin.library.abi.AbiCompoundName
 import org.jetbrains.kotlin.library.abi.AbiDeclaration
+import org.jetbrains.kotlin.library.abi.AbiEnumEntry
 import org.jetbrains.kotlin.library.abi.AbiFunction
 import org.jetbrains.kotlin.library.abi.AbiModality
 import org.jetbrains.kotlin.library.abi.AbiProperty
@@ -33,6 +34,7 @@ import org.jetbrains.kotlin.library.abi.LibraryAbi
 import org.jetbrains.kotlin.library.abi.LibraryManifest
 import org.jetbrains.kotlin.library.abi.impl.AbiClassImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiConstructorImpl
+import org.jetbrains.kotlin.library.abi.impl.AbiEnumEntryImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiFunctionImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiPropertyImpl
 import org.jetbrains.kotlin.library.abi.impl.AbiSignaturesImpl
@@ -118,6 +120,8 @@ class KlibDumpParser(klibDump: String) {
             return parseFunction(parentQualifiedName)
         } else if (cursor.hasPropertyKind()) {
             return parseProperty(parentQualifiedName)
+        } else if (cursor.hasEnumEntry()) {
+            return parseEnumEntry(parentQualifiedName)
         } else if (cursor.currentLine.isBlank()) {
             cursor.nextLine()
         } else {
@@ -207,6 +211,27 @@ class KlibDumpParser(klibDump: String) {
             kind = kind,
             getter = getter,
             setter = setter,
+        )
+    }
+
+    internal fun parseEnumEntry(parentQualifiedName: AbiQualifiedName?): AbiEnumEntry {
+        cursor.parseEnumEntryKind()
+        val enumName = cursor.parseEnumName()
+            ?: throw ParseException(cursor, "Failed to parse enum name")
+        val relativeName = parentQualifiedName?.let {
+            it.relativeName.value + "." + enumName
+        } ?: throw ParseException(cursor, "Enum entry must have parent qualified name")
+        val qualifiedName = AbiQualifiedName(
+            parentQualifiedName.packageName,
+            AbiCompoundName(
+                relativeName
+            )
+        )
+        cursor.nextLine()
+        return AbiEnumEntryImpl(
+            qualifiedName = qualifiedName,
+            signatures = fakeSignatures,
+            annotations = emptySet()
         )
     }
 
@@ -333,6 +358,7 @@ class KlibDumpParser(klibDump: String) {
 
     companion object {
         // placeholder signatures, currently not considered during parsing / compatibility checking
+        // https://github.com/JetBrains/kotlin/blob/master/compiler/util-klib-abi/ReadMe.md
         private val fakeSignatures = AbiSignaturesImpl(
             signatureV1 = null,
             signatureV2 = null
