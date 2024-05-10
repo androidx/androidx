@@ -160,7 +160,11 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 cachedRecord.densityValue == measureInputs.density.density &&
                 cachedRecord.fontScale == measureInputs.density.fontScale &&
                 cachedRecord.constraints == measureInputs.constraints &&
-                cachedRecord.fontFamilyResolver == measureInputs.fontFamilyResolver
+                cachedRecord.fontFamilyResolver == measureInputs.fontFamilyResolver &&
+                // one of the resolved fonts has updated, and this MultiParagraph is no longer
+                // valid for measure or display. This read is also a snapshot read guaranteeing
+                // that when the resolved font is stale, readers of text layout will be notified.
+                !cachedResult.multiParagraph.intrinsics.hasStaleResolvedFonts
             ) {
                 val isLayoutAffectingSame = cachedRecord.textStyle
                     ?.hasSameLayoutAffectingAttributes(nonMeasureInputs.textStyle) ?: false
