@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import android.graphics.Typeface
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.getValue
@@ -29,6 +30,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -39,6 +41,10 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
@@ -138,6 +144,31 @@ class TextFieldLayoutStateCacheTest {
         assertInvalidationsOnChange(1) {
             textStyle = TextStyle(fontSize = 23.sp)
             updateNonMeasureInputs()
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun updateNonMeasureInputs_invalidatesSnapshot_whenFontFamilyResolves() {
+        val loader = AsyncTestTypefaceLoader()
+        val asyncFauxFont = AsyncFauxFont(loader)
+        val fontFamily = asyncFauxFont.toFontFamily()
+
+        val context = InstrumentationRegistry.getInstrumentation().context
+
+        textStyle = TextStyle(fontSize = 12.sp, fontFamily = fontFamily)
+        runTest(UnconfinedTestDispatcher()) {
+            val resolverJob = Job(coroutineContext[Job])
+            val resolverContext = coroutineContext + resolverJob
+            fontFamilyResolver = createFontFamilyResolver(context, resolverContext)
+
+            assertInvalidationsOnChange(1) {
+                Snapshot.withMutableSnapshot {
+                    loader.completeOne(asyncFauxFont, Typeface.MONOSPACE)
+                }
+            }
+
+            resolverJob.cancel()
         }
     }
 
