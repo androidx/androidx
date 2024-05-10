@@ -226,8 +226,10 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                             if (layoutNode.parent?.measurePending != true) {
                                 relayoutNodes.add(layoutNode, false)
                             }
+                            !duringFullMeasureLayoutPass
+                        } else {
+                            false // it can't affect parent
                         }
-                        !duringFullMeasureLayoutPass
                     }
                 }
             }
@@ -320,8 +322,10 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                             if (parent?.layoutPending != true && parent?.measurePending != true) {
                                 relayoutNodes.add(layoutNode, false)
                             }
+                            !duringFullMeasureLayoutPass
+                        } else {
+                            false // the node can't affect parent
                         }
-                        !duringFullMeasureLayoutPass
                     }
                 }
             }
