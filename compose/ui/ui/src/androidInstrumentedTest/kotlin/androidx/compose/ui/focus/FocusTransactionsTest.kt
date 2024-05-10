@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
-import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
@@ -92,6 +91,40 @@ class FocusTransactionsTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun reentrantRequestFocus_byCallingRequestFocusWithinOnFocusChanged2() {
+        // Arrange.
+        val (item1, item2) = FocusRequester.createRefs()
+        var (item1Focused, item2Focused) = List(2) { false }
+        rule.setFocusableContent {
+            Box(
+                Modifier
+                    .focusRequester(item1)
+                    .onFocusChanged {
+                        item1Focused = it.isFocused
+                        if (item1Focused) item2.requestFocus()
+                    }
+                    .focusTarget()
+            )
+            Box(
+                Modifier
+                    .focusRequester(item2)
+                    .onFocusChanged { item2Focused = it.isFocused }
+                    .focusTarget()
+            )
+        }
+
+        // Act.
+        rule.runOnIdle { item1.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(item1Focused).isFalse()
+            assertThat(item2Focused).isTrue()
+        }
+    }
+
     @Test
     fun cancelTakeFocus_fromOnFocusChanged() {
         // Arrange.
@@ -129,10 +162,8 @@ class FocusTransactionsTest {
         // Assert.
         rule.runOnIdle {
             assertThat(focusState1).isEqualTo(Inactive)
-            // TODO(b/312524818): When a focus transaction is cancelled, we should re-notify
-            //  all the focus event modifiers that were called in the previous transaction.
-            assertThat(focusState2).isEqualTo(Active) // Should be Inactive.
-            assertThat(focusState3).isEqualTo(Active) // Should be Inactive.
+            assertThat(focusState2).isEqualTo(Inactive)
+            assertThat(focusState3).isEqualTo(Inactive)
 
             val root = view as AndroidComposeView
 
