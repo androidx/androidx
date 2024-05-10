@@ -521,4 +521,27 @@ class KlibParsingCursorExtensionsTest {
         val targets = cursor.parseTargets()
         assertThat(targets).containsExactly("linuxX64", "iosX64")
     }
+
+    @Test fun parseEnumEntryName() {
+        val input = "SOME_ENUM something else"
+        val cursor = Cursor(input)
+        val enumName = cursor.parseEnumName()
+        assertThat(enumName).isEqualTo("SOME_ENUM")
+        assertThat(cursor.currentLine).isEqualTo("something else")
+    }
+
+    @Test fun parseEnumEntryKind() {
+        val input = "enum entry SOME_ENUM"
+        val cursor = Cursor(input)
+        val enumName = cursor.parseEnumEntryKind()
+        assertThat(enumName).isEqualTo("enum entry")
+        assertThat(cursor.currentLine).isEqualTo("SOME_ENUM")
+    }
+
+    @Test fun hasEnumEntry() {
+        val input = "enum entry SOME_ENUM"
+        val cursor = Cursor(input)
+        assertThat(cursor.hasEnumEntry()).isTrue()
+        assertThat(cursor.currentLine).isEqualTo(input)
+    }
 }
