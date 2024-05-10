@@ -21,10 +21,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.material3.ButtonDefaults
-import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
+import androidx.wear.compose.material3.TextButtonDefaults.textStyleFor
 
 @Composable
 @Sampled
@@ -53,8 +53,7 @@ fun LargeFilledTonalTextButtonSample() {
         colors = TextButtonDefaults.filledTonalTextButtonColors(),
         modifier = Modifier.size(TextButtonDefaults.LargeButtonSize)
     ) {
-        // For large TextButton, use [Typography.labelLarge].
-        Text(text = "ABC", style = MaterialTheme.typography.labelLarge)
+        Text(text = "ABC", style = textStyleFor(TextButtonDefaults.LargeButtonSize))
     }
 }
 
