@@ -296,6 +296,7 @@ internal object ConnectedSampling : Profiler() {
  * Could potentially lower, but that would require root or debuggable.
  */
 internal object StackSamplingSimpleperf : Profiler() {
+
     @RequiresApi(29)
     private var session: ProfileSession? = null
 
@@ -361,4 +362,6 @@ internal object StackSamplingSimpleperf : Profiler() {
     )
 
     override val requiresLibraryOutputDir: Boolean = false
+
+    override val requiresExtraRuntime: Boolean = true
 }
