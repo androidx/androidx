@@ -48,7 +48,9 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
     protected abstract fun characterPosition(offset: Int): Offset
 
     abstract fun setupAsserter()
-    abstract fun setTextContent(text: String)
+    protected abstract var textContent: String
+    protected abstract var readOnly: Boolean
+    protected abstract var enabled: Boolean
 
     @Before
     fun setupAsserterAndStartInput() {
@@ -82,7 +84,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withNoTextThenLongPress_noSelection() {
-        setTextContent("")
+        textContent = ""
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
@@ -104,7 +106,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
 
     @Test
     fun whenTouch_withNoTextThenLongPressAndDrag_noSelection() {
-        setTextContent("")
+        textContent = ""
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
@@ -139,7 +141,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
     // then text is added, the magnifier continues not to show.
     @Test
     fun whenTouch_withNoText_thenLongPressAndDrag_thenAddText_longPressAndDragAgain() {
-        setTextContent("")
+        textContent = ""
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click() }
@@ -493,7 +495,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
     @Test
     fun whenTouch_withLongPressInEndPaddingOfEmptyLine_entersSelectionMode() {
         val content = "$word\n\n$word"
-        setTextContent(content)
+        textContent = content
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
@@ -648,7 +650,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
     @Test
     fun whenTouch_withLongPressInEndPaddingOfEmptyFinalLine_entersSelectionMode() {
         val content = "$word\n\n"
-        setTextContent(content)
+        textContent = content
         rule.waitForIdle()
 
         rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
@@ -1069,5 +1071,131 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
         asserter.applyAndAssert {
             selection = 6 to 23
         }
+    }
+
+    @Test
+    fun whenReadOnly_touchTap_setsCollapsedSelection() {
+        readOnly = true
+        rule.waitForIdle()
+
+        performTouchGesture { click(characterPosition(13)) }
+
+        asserter.applyAndAssert {
+            selection = 13.collapsed
+        }
+    }
+
+    @Test
+    open fun whenReadOnly_touchLongPress_startsSelection() {
+        readOnly = true
+        rule.waitForIdle()
+
+        performTouchGesture { longPress(characterPosition(13)) }
+
+        asserter.applyAndAssert {
+            selection = 12 to 17
+            magnifierShown = true
+            hapticsCount++
+        }
+
+        performTouchGesture { up() }
+
+        asserter.applyAndAssert {
+            magnifierShown = false
+            selectionHandlesShown = true
+            textToolbarShown = true
+        }
+    }
+
+    @Test
+    fun whenReadOnly_mouseSingleClick_setsCollapsedSelection() {
+        readOnly = true
+        rule.waitForIdle()
+
+        performMouseGesture { click(characterPosition(13)) }
+
+        asserter.applyAndAssert {
+            selection = 13.collapsed
+        }
+    }
+
+    @Test
+    fun whenReadOnly_mouseDoubleClick_selectsWord() {
+        readOnly = true
+        rule.waitForIdle()
+
+        performMouseGesture {
+            repeat(2) { click(characterPosition(13)) }
+        }
+
+        asserter.applyAndAssert {
+            selection = 12 to 17
+        }
+    }
+
+    @Test
+    fun whenReadOnly_mouseTripleClick_selectsParagraph() {
+        readOnly = true
+        rule.waitForIdle()
+
+        performMouseGesture {
+            repeat(3) { click(characterPosition(13)) }
+        }
+
+        asserter.applyAndAssert {
+            selection = 6 to 23
+        }
+    }
+
+    @Test
+    fun whenDisabled_touchTap_doesNothing() {
+        enabled = false
+        rule.waitForIdle()
+
+        performTouchGesture { click(characterPosition(13)) }
+        asserter.assert()
+    }
+
+    @Test
+    fun whenDisabled_touchLongPress_doesNothing() {
+        enabled = false
+        rule.waitForIdle()
+
+        performTouchGesture { longPress(characterPosition(13)) }
+        asserter.assert()
+
+        performTouchGesture { up() }
+        asserter.assert()
+    }
+
+    @Test
+    fun whenDisabled_mouseSingleClick_doesNothing() {
+        enabled = false
+        rule.waitForIdle()
+
+        performMouseGesture { click(characterPosition(13)) }
+        asserter.assert()
+    }
+
+    @Test
+    fun whenDisabled_mouseDoubleClick_doesNothing() {
+        enabled = false
+        rule.waitForIdle()
+
+        performMouseGesture {
+            repeat(2) { click(characterPosition(13)) }
+        }
+        asserter.assert()
+    }
+
+    @Test
+    fun whenDisabled_mouseTripleClick_doesNothing() {
+        enabled = false
+        rule.waitForIdle()
+
+        performMouseGesture {
+            repeat(3) { click(characterPosition(13)) }
+        }
+        asserter.assert()
     }
 }

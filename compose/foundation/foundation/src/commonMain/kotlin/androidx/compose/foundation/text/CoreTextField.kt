@@ -379,7 +379,7 @@ internal fun CoreTextField(
         .updateSelectionTouchMode { state.isInTouchMode = it }
         .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
             tapToFocus(state, focusRequester, !readOnly)
-            if (state.hasFocus) {
+            if (state.hasFocus && enabled) {
                 if (state.handleState != HandleState.Selection) {
                     state.layoutResult?.let { layoutResult ->
                         TextFieldDelegate.setCursorOffset(

@@ -88,6 +88,17 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
+/**
+ * Handles selection behaviors and gestures for a text field.
+ *
+ * @param textFieldState The [TransformedTextFieldState] associated with this text field.
+ * @param textLayoutState The [TextLayoutState] associated with this text field.
+ * @param density The [Density] used for this text field.
+ * @param enabled If false, all selection behaviors and gestures will be disabled.
+ * @param readOnly If true, selection behaviors still work, but the text field cannot be edited.
+ * @param isFocused True iff component is focused and the window is focused.
+ * @param isPassword True if the text field is for a password.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldSelectionState(
     private val textFieldState: TransformedTextFieldState,
@@ -95,7 +106,7 @@ internal class TextFieldSelectionState(
     private var density: Density,
     private var enabled: Boolean,
     private var readOnly: Boolean,
-    var isFocused: Boolean, /* true iff component is focused and the window is focused */
+    var isFocused: Boolean,
     private var isPassword: Boolean,
 ) {
     /**
@@ -660,7 +671,7 @@ internal class TextFieldSelectionState(
         private var dragBeginPosition: Offset = Offset.Unspecified
 
         override fun onStart(downPosition: Offset, adjustment: SelectionAdjustment): Boolean {
-            if (textFieldState.visualText.isEmpty()) return false
+            if (!enabled || textFieldState.visualText.isEmpty()) return false
             logDebug { "Mouse.onStart" }
             directDragGestureInitiator = InputType.Mouse
 
@@ -677,7 +688,7 @@ internal class TextFieldSelectionState(
         }
 
         override fun onDrag(dragPosition: Offset, adjustment: SelectionAdjustment): Boolean {
-            if (textFieldState.visualText.isEmpty()) return false
+            if (!enabled || textFieldState.visualText.isEmpty()) return false
             logDebug { "Mouse.onDrag $dragPosition" }
             updateSelection(dragPosition, adjustment, isStartOfSelection = false)
             return true
@@ -777,6 +788,7 @@ internal class TextFieldSelectionState(
         override fun onCancel() = onDragStop()
 
         override fun onStart(startPoint: Offset) {
+            if (!enabled) return
             logDebug { "Touch.onDragStart after longPress at $startPoint" }
             // this gesture detector is applied on the decoration box. We do not need to
             // convert the gesture offset, that's going to be calculated by [handleDragPosition]
@@ -827,7 +839,7 @@ internal class TextFieldSelectionState(
 
         override fun onDrag(delta: Offset) {
             // selection never started, did not consume any drag
-            if (textFieldState.visualText.isEmpty()) return
+            if (!enabled || textFieldState.visualText.isEmpty()) return
 
             dragTotalDistance += delta
 
