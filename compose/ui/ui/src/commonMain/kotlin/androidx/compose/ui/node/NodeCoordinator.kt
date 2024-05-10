@@ -373,6 +373,10 @@ internal abstract class NodeCoordinator(
         } else {
             if (this.explicitLayer != null) {
                 this.explicitLayer = null
+                // we need to first release the OwnedLayer created for explicitLayer
+                // as we don't support updating the same OwnedLayer object from using
+                // explicit layer to implicit one.
+                updateLayerBlock(null)
             }
             updateLayerBlock(layerBlock)
         }
