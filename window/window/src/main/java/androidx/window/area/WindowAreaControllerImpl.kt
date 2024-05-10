@@ -21,6 +21,7 @@ import android.os.Binder
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNKNOWN
@@ -59,6 +60,7 @@ import kotlinx.coroutines.launch
  * this functionality.
  */
 @ExperimentalWindowApi
+@RequiresWindowSdkExtension(2)
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class WindowAreaControllerImpl(
     private val windowAreaComponent: WindowAreaComponent,
@@ -89,12 +91,7 @@ internal class WindowAreaControllerImpl(
                         channel.trySend(currentWindowAreaInfoMap.values.toList())
                     }
 
-                if (ExtensionsUtil.safeVendorApiLevel >= 3 ||
-                    (ExtensionsUtil.safeVendorApiLevel == 2 &&
-                        DeviceMetricsCompatUtils.hasDeviceMetrics())
-                ) {
-                    windowAreaComponent.addRearDisplayStatusListener(rearDisplayListener)
-                }
+                windowAreaComponent.addRearDisplayStatusListener(rearDisplayListener)
 
                 if (presentationSupported) {
                     windowAreaComponent.addRearDisplayPresentationStatusListener(
@@ -103,9 +100,8 @@ internal class WindowAreaControllerImpl(
                 }
 
                 awaitClose {
-                    if (ExtensionsUtil.safeVendorApiLevel >= 3) {
-                        windowAreaComponent.removeRearDisplayStatusListener(rearDisplayListener)
-                    }
+                    windowAreaComponent.removeRearDisplayStatusListener(rearDisplayListener)
+
                     if (presentationSupported) {
                         windowAreaComponent.removeRearDisplayPresentationStatusListener(
                             rearDisplayPresentationListener
