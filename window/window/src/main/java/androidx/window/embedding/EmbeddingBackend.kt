@@ -22,7 +22,6 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
-import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 
 /**
@@ -52,7 +51,6 @@ interface EmbeddingBackend {
     fun isActivityEmbedded(activity: Activity): Boolean
 
     @RequiresWindowSdkExtension(5)
-    @OptIn(ExperimentalWindowApi::class)
     fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean
 
     @RequiresWindowSdkExtension(5)
@@ -77,7 +75,6 @@ interface EmbeddingBackend {
     @RequiresWindowSdkExtension(5)
     fun finishActivityStacks(activityStacks: Set<ActivityStack>)
 
-    @OptIn(ExperimentalWindowApi::class)
     @RequiresWindowSdkExtension(5)
     fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration)
 

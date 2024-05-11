@@ -33,7 +33,6 @@ import androidx.window.WindowProperties
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.core.VerificationMode
@@ -354,7 +353,6 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
     }
 
     @RequiresWindowSdkExtension(5)
-    @OptIn(ExperimentalWindowApi::class)
     override fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
         return embeddingExtension?.pinTopActivityStack(taskId, splitPinRule) ?: false
     }
@@ -421,7 +419,6 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         embeddingExtension?.finishActivityStacks(activityStacks)
     }
 
-    @OptIn(ExperimentalWindowApi::class)
     @RequiresWindowSdkExtension(5)
     override fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration) {
         embeddingExtension?.setEmbeddingConfiguration(embeddingConfig)

@@ -17,7 +17,6 @@
 package androidx.window.embedding
 
 import androidx.annotation.IntRange
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT
 import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_ALWAYS_ALLOW
@@ -27,7 +26,6 @@ import androidx.window.embedding.SplitRule.Companion.SPLIT_MIN_DIMENSION_DP_DEFA
  * Split configuration rules for pinning an [ActivityStack]. Define how the pinned [ActivityStack]
  * should be displayed side-by-side with the other [ActivityStack].
  */
-@ExperimentalWindowApi
 class SplitPinRule internal constructor(
     /**
      * A unique string to identify this [SplitPinRule].
@@ -57,7 +55,6 @@ class SplitPinRule internal constructor(
      * Builder for [SplitPinRule].
      *
      */
-    @ExperimentalWindowApi
     class Builder {
         private var tag: String? = null
         @IntRange(from = 0)

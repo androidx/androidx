@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import java.util.concurrent.Executor
 
@@ -43,7 +42,6 @@ internal interface EmbeddingInterfaceCompat {
     fun isActivityEmbedded(activity: Activity): Boolean
 
     @RequiresWindowSdkExtension(5)
-    @OptIn(ExperimentalWindowApi::class)
     fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean
 
     @RequiresWindowSdkExtension(5)
@@ -66,7 +64,6 @@ internal interface EmbeddingInterfaceCompat {
     @RequiresWindowSdkExtension(5)
     fun finishActivityStacks(activityStacks: Set<ActivityStack>)
 
-    @OptIn(ExperimentalWindowApi::class)
     @RequiresWindowSdkExtension(5)
     fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration)
 

@@ -128,12 +128,12 @@ package androidx.window.embedding {
 
   public final class ActivityEmbeddingController {
     method @androidx.window.RequiresWindowSdkExtension(version=6) public kotlinx.coroutines.flow.Flow<androidx.window.embedding.EmbeddedActivityWindowInfo> embeddedActivityWindowInfo(android.app.Activity activity);
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public void finishActivityStacks(java.util.Set<androidx.window.embedding.ActivityStack> activityStacks);
-    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public void finishActivityStacks(java.util.Set<androidx.window.embedding.ActivityStack> activityStacks);
+    method public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
     method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
     method @androidx.window.RequiresWindowSdkExtension(version=3) public void invalidateVisibleActivityStacks();
     method public boolean isActivityEmbedded(android.app.Activity activity);
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public void setEmbeddingConfiguration(androidx.window.embedding.EmbeddingConfiguration embeddingConfiguration);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public void setEmbeddingConfiguration(androidx.window.embedding.EmbeddingConfiguration embeddingConfiguration);
     field public static final androidx.window.embedding.ActivityEmbeddingController.Companion Companion;
   }
 
@@ -254,24 +254,24 @@ package androidx.window.embedding {
     method public androidx.window.embedding.EmbeddingBounds.Dimension ratio(@FloatRange(from=0.0, fromInclusive=false, to=1.0, toInclusive=false) float ratio);
   }
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class EmbeddingConfiguration {
+  public final class EmbeddingConfiguration {
     ctor public EmbeddingConfiguration();
     ctor public EmbeddingConfiguration(optional @androidx.window.RequiresWindowSdkExtension(version=5) androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior dimAreaBehavior);
     method public androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior getDimAreaBehavior();
     property public final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior dimAreaBehavior;
   }
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class EmbeddingConfiguration.Builder {
+  public static final class EmbeddingConfiguration.Builder {
     ctor public EmbeddingConfiguration.Builder();
-    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.EmbeddingConfiguration build();
-    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.EmbeddingConfiguration.Builder setDimAreaBehavior(androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior area);
+    method public androidx.window.embedding.EmbeddingConfiguration build();
+    method public androidx.window.embedding.EmbeddingConfiguration.Builder setDimAreaBehavior(androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior area);
   }
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class EmbeddingConfiguration.DimAreaBehavior {
+  public static final class EmbeddingConfiguration.DimAreaBehavior {
     field public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion Companion;
-    field @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior ON_ACTIVITY_STACK;
-    field @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior ON_TASK;
-    field @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior UNDEFINED;
+    field public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior ON_ACTIVITY_STACK;
+    field public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior ON_TASK;
+    field public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior UNDEFINED;
   }
 
   public static final class EmbeddingConfiguration.DimAreaBehavior.Companion {
@@ -438,11 +438,11 @@ package androidx.window.embedding {
     method @androidx.window.RequiresWindowSdkExtension(version=2) public void clearSplitAttributesCalculator();
     method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
     method public androidx.window.embedding.SplitController.SplitSupportStatus getSplitSupportStatus();
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public boolean pinTopActivityStack(int taskId, androidx.window.embedding.SplitPinRule splitPinRule);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public boolean pinTopActivityStack(int taskId, androidx.window.embedding.SplitPinRule splitPinRule);
     method @androidx.window.RequiresWindowSdkExtension(version=2) public void setSplitAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.SplitAttributesCalculatorParams,androidx.window.embedding.SplitAttributes> calculator);
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.embedding.SplitInfo>> splitInfoList(android.app.Activity activity);
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public void unpinTopActivityStack(int taskId);
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=3) @androidx.window.core.ExperimentalWindowApi public void updateSplitAttributes(androidx.window.embedding.SplitInfo splitInfo, androidx.window.embedding.SplitAttributes splitAttributes);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public void unpinTopActivityStack(int taskId);
+    method @androidx.window.RequiresWindowSdkExtension(version=3) public void updateSplitAttributes(androidx.window.embedding.SplitInfo splitInfo, androidx.window.embedding.SplitAttributes splitAttributes);
     property public final androidx.window.embedding.SplitController.SplitSupportStatus splitSupportStatus;
     field public static final androidx.window.embedding.SplitController.Companion Companion;
   }
@@ -509,12 +509,12 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitPairRule.Builder setTag(String? tag);
   }
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class SplitPinRule extends androidx.window.embedding.SplitRule {
+  public final class SplitPinRule extends androidx.window.embedding.SplitRule {
     method public boolean isSticky();
     property public final boolean isSticky;
   }
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class SplitPinRule.Builder {
+  public static final class SplitPinRule.Builder {
     ctor public SplitPinRule.Builder();
     method public androidx.window.embedding.SplitPinRule build();
     method public androidx.window.embedding.SplitPinRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
