@@ -42,8 +42,8 @@ import java.util.Set;
 @SmallTest
 public class GetPublicKeyCredentialOptionJavaTest {
     private static final String TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
-    private static final @PriorityHints int EXPECTED_PASSKEY_PRIORITY =
-            PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR;
+    private static final int EXPECTED_PASSKEY_PRIORITY =
+            CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR;
 
 
     @Test

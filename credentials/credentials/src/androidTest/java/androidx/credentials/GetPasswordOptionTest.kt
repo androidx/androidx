@@ -151,7 +151,6 @@ class GetPasswordOptionTest {
     }
 
     private companion object {
-        const val EXPECTED_PASSWORD_PRIORITY: @PriorityHints Int = PriorityHints
-            .PRIORITY_PASSWORD_OR_SIMILAR
+        const val EXPECTED_PASSWORD_PRIORITY = CredentialOption.PRIORITY_PASSWORD_OR_SIMILAR
     }
 }
