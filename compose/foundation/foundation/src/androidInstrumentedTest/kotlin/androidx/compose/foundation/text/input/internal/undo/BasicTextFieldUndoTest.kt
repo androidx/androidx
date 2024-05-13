@@ -38,6 +38,7 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextRange
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Ignore
@@ -194,6 +195,7 @@ internal class BasicTextFieldUndoTest {
         state.assertTextAndSelection("Hello", TextRange(0, 5))
     }
 
+    @FlakyTest(bugId = 338623734)
     @Test
     fun redo_revertsSelection() {
         val state = TextFieldState("Hello", TextRange(5))
