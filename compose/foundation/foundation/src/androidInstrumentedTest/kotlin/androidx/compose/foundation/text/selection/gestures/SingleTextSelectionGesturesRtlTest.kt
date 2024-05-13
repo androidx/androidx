@@ -44,8 +44,8 @@ internal class SingleTextSelectionGesturesRtlTest : TextSelectionGesturesTest() 
 
     private val testTag = "testTag"
 
-    override val word = "בבבבב"
-    override val textContent = mutableStateOf("בבבבב\nבבבבב בבבבב בבבבב\nבבבבב")
+    override val word = RtlChar.repeat(5)
+    override val textContent = mutableStateOf("$word\n$word $word $word\n$word")
     override var textDirection: ResolvedTextDirection = ResolvedTextDirection.Rtl
 
     override lateinit var asserter: TextSelectionAsserter

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
+import androidx.compose.foundation.text.selection.gestures.RtlChar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -76,18 +77,18 @@ internal class TextFieldVisualTransformationMagnifierTest(
 
     @Test
     fun magnifier_appears_whileHandleTouched() {
+        val handle = config.handle
+        val layoutDirection = config.layoutDirection
+        val isLtr = layoutDirection == LayoutDirection.Ltr
+        val char = if (isLtr) "a" else RtlChar
+        val word = char.repeat(4)
         rule.setTextFieldTestContent {
             TestContent(
-                if (config.layoutDirection == LayoutDirection.Ltr) {
-                    "text ".repeat(10)
-                } else {
-                    "באמת ".repeat(10)
-                },
-                Modifier.testTag(tag)
+                text = "$word ".repeat(10).trim(),
+                modifier = Modifier.testTag(tag)
             )
         }
 
-        val handle = config.handle
         showHandle(handle)
 
         assertNoMagnifierExists(rule)
@@ -108,15 +109,14 @@ internal class TextFieldVisualTransformationMagnifierTest(
     fun checkMagnifierFollowsHandleHorizontally() {
         val handle = config.handle
         val layoutDirection = config.layoutDirection
-        val dragDistance = Offset(if (layoutDirection == LayoutDirection.Ltr) 1f else -1f, 0f)
+        val isLtr = layoutDirection == LayoutDirection.Ltr
+        val dragDistance = Offset(if (isLtr) 1f else -1f, 0f)
+        val char = if (isLtr) "a" else RtlChar
+        val word = char.repeat(4)
         rule.setTextFieldTestContent {
             TestContent(
-                if (layoutDirection == LayoutDirection.Ltr) {
-                    "text ".repeat(10)
-                } else {
-                    "באמת ".repeat(10)
-                },
-                Modifier
+                text = "$word ".repeat(10).trim(),
+                modifier = Modifier
                     // Center the text to give the magnifier lots of room to move.
                     .fillMaxSize()
                     .wrapContentSize()
@@ -231,7 +231,11 @@ internal class ReducedVisualTransformation : VisualTransformation {
             object : OffsetMapping {
                 override fun originalToTransformed(offset: Int) = offset / 2
 
-                override fun transformedToOriginal(offset: Int) = offset * 2
+                // on an odd length string, the last transformed position will
+                // map back to one past the length of the original, so constrain
+                // that specific index
+                override fun transformedToOriginal(offset: Int) = (offset * 2)
+                    .let { if (it == text.length + 1) it - 1 else it }
             }
         )
     }
