@@ -99,10 +99,16 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
         return out;
     }
 
+    @Override
+    public boolean select(@NonNull SystemRouteItem item) {
+        throw new UnsupportedOperationException();
+    }
+
     @NonNull
-    private static SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
-        SystemRouteItem.Builder builder = new SystemRouteItem.Builder(routeInfo.getId())
-                .setName(routeInfo.getName());
+    private SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
+        SystemRouteItem.Builder builder =
+                new SystemRouteItem.Builder(getSourceId(), routeInfo.getId())
+                        .setName(routeInfo.getName());
 
         String description = routeInfo.getDescription();
         if (description != null) {

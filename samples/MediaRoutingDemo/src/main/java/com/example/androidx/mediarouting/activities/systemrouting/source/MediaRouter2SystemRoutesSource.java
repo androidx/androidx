@@ -37,6 +37,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -136,6 +137,20 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
         return mRouteItems;
     }
 
+    @Override
+    public boolean select(@NonNull SystemRouteItem item) {
+        Optional<MediaRoute2Info> route =
+                mMediaRouter2.getRoutes().stream()
+                        .filter(it -> it.getId().equals(item.mId))
+                        .findFirst();
+        if (!route.isPresent()) {
+            return false;
+        } else {
+            mMediaRouter2.transferTo(route.get());
+            return true;
+        }
+    }
+
     // BanUncheckedReflection: See b/336510942 for details on why reflection is needed.
     // NewApi: We don't need to check the API level because the transfer reason method is only
     // available on API 35, which is greater than API 34, where getRoutingSessionInfo was added.
@@ -173,9 +188,7 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
             Integer routeTransferReason = isSelectedRoute ? sessionTransferReason : null;
             mRouteItems.add(
                     createRouteItemFor(
-                            route,
-                            wasTransferredBySelf,
-                            routeTransferReason));
+                            route, isSelectedRoute, wasTransferredBySelf, routeTransferReason));
         }
         mOnRoutesChangedListener.run();
     }
@@ -183,11 +196,16 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
     @NonNull
     private SystemRouteItem createRouteItemFor(
             @NonNull MediaRoute2Info routeInfo,
+            boolean isSelectedRoute,
             @Nullable Boolean wasTransferredBySelf,
             @Nullable Integer transferReason) {
         SystemRouteItem.Builder builder =
-                new SystemRouteItem.Builder(routeInfo.getId())
+                new SystemRouteItem.Builder(getSourceId(), routeInfo.getId())
                         .setName(String.valueOf(routeInfo.getName()))
+                        .setSelectionSupportState(
+                                isSelectedRoute
+                                        ? SystemRouteItem.SelectionSupportState.RESELECTABLE
+                                        : SystemRouteItem.SelectionSupportState.SELECTABLE)
                         .setDescription(String.valueOf(routeInfo.getDescription()))
                         .setTransferInitiatedBySelf(wasTransferredBySelf)
                         .setTransferReason(getHumanReadableTransferReason(transferReason));

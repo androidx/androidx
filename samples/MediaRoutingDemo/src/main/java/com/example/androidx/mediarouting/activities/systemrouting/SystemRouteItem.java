@@ -21,11 +21,38 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.androidx.mediarouting.activities.systemrouting.source.SystemRoutesSource;
+
 import java.util.Objects;
 
 /** Holds information about a system route. */
 public final class SystemRouteItem implements SystemRoutesAdapterItem {
 
+    /**
+     * Describes the support of a route for selection.
+     *
+     * <p>We understand by selection the action that makes a specific route the active route. Note
+     * that this terminology may not match the terminology used by the underlying {@link
+     * SystemRoutesSource}.
+     */
+    public enum SelectionSupportState {
+        /** The underlying route source doesn't support selection. */
+        UNSUPPORTED,
+        /**
+         * The corresponding route is already selected, but can be reselected.
+         *
+         * <p>Selecting an already selected route (reselection) can change the metadata of the route
+         * source. For example, reselecting a MediaRouter2 route can alter the transfer reason.
+         */
+        RESELECTABLE,
+        /** The route is available for selection. */
+        SELECTABLE
+    }
+
+    /** The {@link SystemRoutesSource#getSourceId()} of the source that created this item. */
+    @NonNull public final String mSourceId;
+
+    /** An id that uniquely identifies this route item within the source. */
     @NonNull public final String mId;
 
     @NonNull public final String mName;
@@ -40,7 +67,10 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
 
     @Nullable public final String mTransferReason;
 
+    @NonNull public final SelectionSupportState mSelectionSupportState;
+
     private SystemRouteItem(@NonNull Builder builder) {
+        mSourceId = Objects.requireNonNull(builder.mSourceId);
         mId = Objects.requireNonNull(builder.mId);
         mName = Objects.requireNonNull(builder.mName);
         mAddress = builder.mAddress;
@@ -48,6 +78,7 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
         mSuitabilityStatus = builder.mSuitabilityStatus;
         mTransferInitiatedBySelf = builder.mTransferInitiatedBySelf;
         mTransferReason = builder.mTransferReason;
+        mSelectionSupportState = builder.mSelectionSupportState;
     }
 
     @Override
@@ -55,25 +86,29 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SystemRouteItem that = (SystemRouteItem) o;
-        return mId.equals(that.mId)
+        return mSourceId.equals(that.mSourceId)
+                && mId.equals(that.mId)
                 && mName.equals(that.mName)
                 && Objects.equals(mAddress, that.mAddress)
                 && Objects.equals(mDescription, that.mDescription)
                 && Objects.equals(mSuitabilityStatus, that.mSuitabilityStatus)
                 && Objects.equals(mTransferInitiatedBySelf, that.mTransferInitiatedBySelf)
-                && Objects.equals(mTransferReason, that.mTransferReason);
+                && Objects.equals(mTransferReason, that.mTransferReason)
+                && mSelectionSupportState.equals(that.mSelectionSupportState);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(
+                mSourceId,
                 mId,
                 mName,
                 mAddress,
                 mDescription,
                 mSuitabilityStatus,
                 mTransferInitiatedBySelf,
-                mTransferReason);
+                mTransferReason,
+                mSelectionSupportState);
     }
 
     /**
@@ -81,6 +116,7 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
      */
     public static final class Builder {
 
+        @NonNull private String mSourceId;
         @NonNull private final String mId;
         @NonNull private String mName;
         @Nullable private String mAddress;
@@ -88,9 +124,18 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
         @Nullable private String mSuitabilityStatus;
         @Nullable private Boolean mTransferInitiatedBySelf;
         @Nullable private String mTransferReason;
+        @NonNull public SelectionSupportState mSelectionSupportState;
 
-        public Builder(@NonNull String id) {
+        /**
+         * Creates a builder with the mandatory properties.
+         *
+         * @param sourceId See {@link SystemRouteItem#mSourceId}.
+         * @param id See {@link SystemRouteItem#mId}.
+         */
+        public Builder(@NonNull String sourceId, @NonNull String id) {
+            mSourceId = sourceId;
             mId = id;
+            mSelectionSupportState = SelectionSupportState.UNSUPPORTED;
         }
 
         /**
@@ -150,6 +195,14 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
         @NonNull
         public Builder setTransferReason(@Nullable String transferReason) {
             mTransferReason = transferReason;
+            return this;
+        }
+
+        /** Sets the {@link SelectionSupportState} for the corresponding route. */
+        @NonNull
+        public Builder setSelectionSupportState(
+                @NonNull SelectionSupportState selectionSupportState) {
+            mSelectionSupportState = Objects.requireNonNull(selectionSupportState);
             return this;
         }
 
