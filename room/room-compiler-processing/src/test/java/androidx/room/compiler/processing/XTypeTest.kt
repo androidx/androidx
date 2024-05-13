@@ -19,6 +19,7 @@ package androidx.room.compiler.processing
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XClassName
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeName.Companion.ANY_OBJECT
 import androidx.room.compiler.codegen.XTypeName.Companion.UNAVAILABLE_KTYPE_NAME
 import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
@@ -144,7 +145,7 @@ class XTypeTest {
                 )
                 if (it.isKsp) {
                     assertThat(wildcardParam.type.asTypeName().kotlin).isEqualTo(
-                        MUTABLE_SET.parameterizedBy(STAR)
+                        MUTABLE_SET.parameterizedBy(STAR).copy(nullable = true)
                     )
                     assertThat(extendsBoundOrSelf.rawType)
                         .isEqualTo(
@@ -165,7 +166,7 @@ class XTypeTest {
                 )
                 if (it.isKsp) {
                     assertThat(rawParamType.type.asTypeName().kotlin).isEqualTo(
-                        KClassName("kotlin.collections", "MutableSet")
+                        KClassName("kotlin.collections", "MutableSet").copy(nullable = true)
                     )
                 }
             }
@@ -180,8 +181,8 @@ class XTypeTest {
                 if (it.isKsp) {
                     assertThat(rawParamTypeArgument.type.asTypeName().kotlin).isEqualTo(
                         KClassName("kotlin.collections", "MutableList").parameterizedBy(
-                            KClassName("kotlin.collections", "MutableSet")
-                        )
+                            KClassName("kotlin.collections", "MutableSet").copy(nullable = true)
+                        ).copy(nullable = true)
                     )
                 }
                 val rawTypeArgument = rawParamTypeArgument.type.typeArguments.single()
@@ -190,7 +191,7 @@ class XTypeTest {
                 )
                 if (it.isKsp) {
                     assertThat(rawTypeArgument.asTypeName().kotlin).isEqualTo(
-                        KClassName("kotlin.collections", "MutableSet")
+                        KClassName("kotlin.collections", "MutableSet").copy(nullable = true)
                     )
                 }
             }
@@ -628,22 +629,19 @@ class XTypeTest {
                 val expectedTypeStringDumpKotlin = """
                 SelfReferencing<T>
                 | T
-                | > SelfReferencing<T>?
-                | > | T
-                | > | > SelfReferencing<T>?
-                | > | > | T
+                | > SelfReferencing<T?>?
+                | > | T?
+                | > | > SelfReferencing<T?>?
+                | > | > | T?
                 """.trimIndent()
                 assertThat(typeElement.type.asTypeName().kotlin.dumpToString(5))
                     .isEqualTo(expectedTypeStringDumpKotlin)
             }
-            val expectedParamStringDump = """
-                SelfReferencing
-                """.trimIndent()
             assertThat(parameter.type.asTypeName().java.dumpToString(5))
-                .isEqualTo(expectedParamStringDump)
+                .isEqualTo("SelfReferencing")
             if (invocation.isKsp) {
                 assertThat(parameter.type.asTypeName().kotlin.dumpToString(5))
-                    .isEqualTo(expectedParamStringDump)
+                    .isEqualTo("SelfReferencing?")
             }
         }
     }
@@ -1381,38 +1379,48 @@ class XTypeTest {
 
     @Test
     fun getWildcardType() {
-        fun XTestInvocation.checkType() {
+        fun XTestInvocation.checkType(isJavaSrc: Boolean) {
             val usageElement = processingEnv.requireTypeElement("test.Usage")
             val fooElement = processingEnv.requireTypeElement("test.Foo")
-            val barType = processingEnv.requireType("test.Bar")
+            val barType = processingEnv.requireType("test.Bar").run {
+                if (isJavaSrc) makeNullable() else makeNonNullable()
+            }
 
             // Test a manually constructed Foo<Bar>
-            val fooBarType = processingEnv.getDeclaredType(fooElement, barType)
+            val fooBarType = processingEnv.getDeclaredType(fooElement, barType).run {
+                if (isJavaSrc) makeNullable() else makeNonNullable()
+            }
             val fooBarUsageType = usageElement.getDeclaredField("fooBar").type
-            assertThat(fooBarType.asTypeName()).isEqualTo(fooBarUsageType.asTypeName())
+            assertThat(fooBarUsageType.asTypeName()).isEqualTo(fooBarType.asTypeName())
 
             // Test a manually constructed Foo<? extends Bar>
             val fooExtendsBarType = processingEnv.getDeclaredType(
                 fooElement,
                 processingEnv.getWildcardType(producerExtends = barType)
-            )
+            ).run {
+                if (isJavaSrc) makeNullable() else makeNonNullable()
+            }
             val fooExtendsBarUsageType = usageElement.getDeclaredField("fooExtendsBar").type
-            assertThat(fooExtendsBarType.asTypeName())
-                .isEqualTo(fooExtendsBarUsageType.asTypeName())
+            assertThat(fooExtendsBarUsageType.asTypeName())
+                .isEqualTo(fooExtendsBarType.asTypeName())
 
             // Test a manually constructed Foo<? super Bar>
             val fooSuperBarType = processingEnv.getDeclaredType(
                 fooElement,
                 processingEnv.getWildcardType(consumerSuper = barType)
-            )
+            ).run {
+                if (isJavaSrc) makeNullable() else makeNonNullable()
+            }
             val fooSuperBarUsageType = usageElement.getDeclaredField("fooSuperBar").type
-            assertThat(fooSuperBarType.asTypeName()).isEqualTo(fooSuperBarUsageType.asTypeName())
+            assertThat(fooSuperBarUsageType.asTypeName()).isEqualTo(fooSuperBarType.asTypeName())
 
             // Test a manually constructed Foo<?>
             val fooUnboundedType = processingEnv.getDeclaredType(
                 fooElement,
                 processingEnv.getWildcardType()
-            )
+            ).run {
+                if (isJavaSrc) makeNullable() else makeNonNullable()
+            }
             val fooUnboundedUsageType = usageElement.getDeclaredField("fooUnbounded").type
             assertThat(fooUnboundedType.asTypeName()).isEqualTo(fooUnboundedUsageType.asTypeName())
         }
@@ -1430,10 +1438,10 @@ class XTypeTest {
             interface Foo<T> {}
             interface Bar {}
             """.trimIndent()
-        ))) { it.checkType() }
+        ))) { it.checkType(isJavaSrc = true) }
 
         runProcessorTest(listOf(Source.kotlin(
-            "test.Usage.kt",
+            "Usage.kt",
             """
             package test
             class Usage {
@@ -1445,7 +1453,7 @@ class XTypeTest {
             interface Foo<T>
             interface Bar
             """.trimIndent()
-        ))) { it.checkType() }
+        ))) { it.checkType(isJavaSrc = false) }
     }
 
     @Test
@@ -1599,45 +1607,87 @@ class XTypeTest {
             """.trimIndent()
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
-            fun assertHasTypeName(type: XType, expectedTypeName: String) {
-                assertThat(type.asTypeName().java.toString()).isEqualTo(expectedTypeName)
-                if (invocation.isKsp) {
-                    assertThat(type.asTypeName().kotlin.toString()).isEqualTo(expectedTypeName)
-                }
+            val fooTypeName = XClassName.get("test", "Foo")
+            val barTypeName = XClassName.get("test", "Bar")
+
+            fun assertHasTypeName(type: XType, expectedTypeName: XTypeName) {
+                assertThat(type.asTypeName()).isEqualTo(expectedTypeName)
             }
 
             val subject = invocation.processingEnv.requireTypeElement("test.Subject")
-            assertHasTypeName(subject.getDeclaredField("foo").type, "test.Foo")
-            assertHasTypeName(subject.getDeclaredField("fooFoo").type, "test.Foo<test.Foo>")
             assertHasTypeName(
-                subject.getDeclaredField("fooFooFoo").type, "test.Foo<test.Foo<test.Foo>>")
+                type = subject.getDeclaredField("foo").type,
+                expectedTypeName = fooTypeName.copy(nullable = true)
+            )
             assertHasTypeName(
-                subject.getDeclaredField("barFooFoo").type, "test.Bar<test.Foo, test.Foo>")
+                type = subject.getDeclaredField("fooFoo").type,
+                expectedTypeName = fooTypeName.parametrizedBy(
+                    fooTypeName.copy(nullable = true)
+                ).copy(nullable = true)
+            )
+            assertHasTypeName(
+                type = subject.getDeclaredField("fooFooFoo").type,
+                expectedTypeName = fooTypeName.parametrizedBy(
+                    fooTypeName.parametrizedBy(
+                        fooTypeName.copy(nullable = true)
+                    ).copy(nullable = true)
+                ).copy(nullable = true)
+            )
+            assertHasTypeName(
+                type = subject.getDeclaredField("barFooFoo").type,
+                expectedTypeName = barTypeName.parametrizedBy(
+                    fooTypeName.copy(nullable = true), fooTypeName.copy(nullable = true)
+                ).copy(nullable = true)
+            )
 
             // Test manually wrapping raw type using XProcessingEnv#getDeclaredType()
             subject.getDeclaredField("foo").type.let { foo ->
                 val fooTypeElement = invocation.processingEnv.requireTypeElement("test.Foo")
                 val fooFoo: XType = invocation.processingEnv.getDeclaredType(fooTypeElement, foo)
-                assertHasTypeName(fooFoo, "test.Foo<test.Foo>")
+                assertHasTypeName(
+                    type = fooFoo,
+                    expectedTypeName = fooTypeName.parametrizedBy(
+                        fooTypeName.copy(nullable = true)
+                    )
+                )
 
                 val fooFooFoo: XType =
                     invocation.processingEnv.getDeclaredType(fooTypeElement, fooFoo)
-                assertHasTypeName(fooFooFoo, "test.Foo<test.Foo<test.Foo>>")
+                assertHasTypeName(
+                    type = fooFooFoo,
+                    expectedTypeName = fooTypeName.parametrizedBy(
+                        fooTypeName.parametrizedBy(fooTypeName.copy(nullable = true))
+                    )
+                )
 
                 val barTypeElement = invocation.processingEnv.requireTypeElement("test.Bar")
                 val barFooFoo: XType =
                     invocation.processingEnv.getDeclaredType(barTypeElement, foo, foo)
-                assertHasTypeName(barFooFoo, "test.Bar<test.Foo, test.Foo>")
+                assertHasTypeName(
+                    type = barFooFoo,
+                    expectedTypeName = barTypeName.parametrizedBy(
+                        fooTypeName.copy(nullable = true), fooTypeName.copy(nullable = true)
+                    )
+                )
             }
 
             // Test manually unwrapping a type with a raw type argument:
             subject.getDeclaredField("fooFoo").type.let { fooFoo ->
-                assertHasTypeName(fooFoo.typeArguments.single(), "test.Foo")
+                assertHasTypeName(
+                    type = fooFoo.typeArguments.single(),
+                    expectedTypeName = fooTypeName.copy(nullable = true)
+                )
             }
             subject.getDeclaredField("barFooFoo").type.let { barFooFoo ->
                 assertThat(barFooFoo.typeArguments).hasSize(2)
-                assertHasTypeName(barFooFoo.typeArguments[0], "test.Foo")
-                assertHasTypeName(barFooFoo.typeArguments[1], "test.Foo")
+                assertHasTypeName(
+                    type = barFooFoo.typeArguments[0],
+                    expectedTypeName = fooTypeName.copy(nullable = true)
+                )
+                assertHasTypeName(
+                    type = barFooFoo.typeArguments[1],
+                    expectedTypeName = fooTypeName.copy(nullable = true)
+                )
             }
         }
     }

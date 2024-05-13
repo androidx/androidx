@@ -36,8 +36,16 @@ public final class UpsertDao_Impl implements UpsertDao {
       @Override
       protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
         statement.bindLong(1, entity.uid);
-        statement.bindText(2, entity.name);
-        statement.bindText(3, entity.getLastName());
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
+        }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
+        }
         statement.bindLong(4, entity.age);
       }
     }, new EntityDeleteOrUpdateAdapter<User>() {
@@ -50,8 +58,16 @@ public final class UpsertDao_Impl implements UpsertDao {
       @Override
       protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
         statement.bindLong(1, entity.uid);
-        statement.bindText(2, entity.name);
-        statement.bindText(3, entity.getLastName());
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
+        }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
+        }
         statement.bindLong(4, entity.age);
         statement.bindLong(5, entity.uid);
       }

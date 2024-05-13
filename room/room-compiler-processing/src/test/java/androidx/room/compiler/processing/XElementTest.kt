@@ -266,7 +266,7 @@ class XElementTest {
             )
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
-                tTypeName = String::class.asClassName(),
+                tTypeName = String::class.asClassName().copy(nullable = true),
                 rTypeName = XTypeName.getTypeVariableName("R", listOf(
                     XTypeName.ANY_OBJECT.copy(nullable = true)))
             )

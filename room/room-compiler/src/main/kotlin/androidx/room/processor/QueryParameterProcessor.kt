@@ -16,15 +16,15 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XVariableElement
 import androidx.room.parser.Section
 import androidx.room.vo.QueryParameter
 
 class QueryParameterProcessor(
     baseContext: Context,
     val containing: XType,
-    val element: XVariableElement,
+    val element: XExecutableParameterElement,
     private val sqlName: String,
     private val bindVarSection: Section.BindVar?
 ) {

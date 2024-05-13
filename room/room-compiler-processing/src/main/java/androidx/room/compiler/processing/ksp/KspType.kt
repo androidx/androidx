@@ -113,7 +113,8 @@ internal abstract class KspType(
     }
 
     override val superTypes: List<XType> by lazy {
-        if (xTypeName == XTypeName.ANY_OBJECT) {
+        val anyType = env.requireType(Any::class)
+        if (this == anyType) {
             // The object class doesn't have any supertypes.
             return@lazy emptyList<XType>()
         }
@@ -125,16 +126,16 @@ internal abstract class KspType(
             env.wrap(
                 ksType = resolveTypeArguments(it.resolve(), resolvedTypeArguments),
                 allowPrimitives = false
-            )
+            ).makeNonNullable()
         } ?: emptyList()
         val (superClasses, superInterfaces) = superTypes.partition {
             it.typeElement?.isClass() == true
         }
         // Per documentation, always return the class before the interfaces.
         if (superClasses.isEmpty()) {
-            // Return Object when there's no explicit super class specified on the class/interface.
-            // This matches javac's Types#directSupertypes().
-            listOf(env.requireType(TypeName.OBJECT)) + superInterfaces
+            // Return Any / Object when there's no explicit super class specified on the\
+            // class/interface. This matches javac's Types#directSupertypes().
+            listOf(anyType) + superInterfaces
         } else {
             check(superClasses.size == 1) {
                 "Class ${this.typeName} should have only one super class. Found" +
