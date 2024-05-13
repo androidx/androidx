@@ -41,6 +41,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -647,6 +648,7 @@ private fun ModalBottomSheetDialog(
     val currentContent by rememberUpdatedState(content)
     val dialogId = rememberSaveable { UUID.randomUUID() }
     val scope = rememberCoroutineScope()
+    val darkThemeEnabled = isSystemInDarkTheme()
     val dialog = remember(view, density) {
         ModalBottomSheetDialogWrapper(
             onDismissRequest,
@@ -657,6 +659,7 @@ private fun ModalBottomSheetDialog(
             dialogId,
             predictiveBackProgress,
             scope,
+            darkThemeEnabled,
         ).apply {
             setContent(composition) {
                 Box(
@@ -826,6 +829,7 @@ private class ModalBottomSheetDialogWrapper(
     dialogId: UUID,
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     scope: CoroutineScope,
+    darkThemeEnabled: Boolean,
 ) : ComponentDialog(
     ContextThemeWrapper(
         composeView.context,
@@ -888,8 +892,8 @@ private class ModalBottomSheetDialogWrapper(
         updateParameters(onDismissRequest, properties, layoutDirection)
 
         WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = false
-            isAppearanceLightNavigationBars = false
+            isAppearanceLightStatusBars = !darkThemeEnabled
+            isAppearanceLightNavigationBars = !darkThemeEnabled
         }
         // Due to how the onDismissRequest callback works
         // (it enforces a just-in-time decision on whether to update the state to hide the dialog)
