@@ -16,11 +16,13 @@
 
 package androidx.biometric;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -512,6 +514,27 @@ public class BiometricFragment extends Fragment {
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             Api29Impl.setDeviceCredentialAllowed(
                     builder, AuthenticatorUtils.isDeviceCredentialAllowed(authenticators));
+        }
+
+        // Set the custom biometric prompt features introduced in Android 15 (API 35).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            final int logoRes = mViewModel.getLogoRes();
+            final Bitmap logoBitmap = mViewModel.getLogoBitmap();
+            final String logoDescription = mViewModel.getLogoDescription();
+            final android.hardware.biometrics.PromptContentView contentView =
+                    PromptContentViewUtils.wrapForBiometricPrompt(mViewModel.getContentView());
+            if (logoRes != -1) {
+                Api35Impl.setLogoRes(builder, logoRes);
+            }
+            if (logoBitmap != null) {
+                Api35Impl.setLogoBitmap(builder, logoBitmap);
+            }
+            if (logoDescription != null && !logoDescription.isEmpty()) {
+                Api35Impl.setLogoDescription(builder, logoDescription);
+            }
+            if (contentView != null) {
+                Api35Impl.setContentView(builder, contentView);
+            }
         }
 
         authenticateWithBiometricPrompt(Api28Impl.buildPrompt(builder), getContext());
@@ -1094,6 +1117,72 @@ public class BiometricFragment extends Fragment {
         return context != null && DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL)
                 ? 0
                 : HIDE_DIALOG_DELAY_MS;
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 15.0 (API 35).
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @SuppressLint("MissingPermission")
+    private static class Api35Impl {
+        // Prevent instantiation.
+        private Api35Impl() {
+        }
+
+        /**
+         * Sets the prompt content view for the given framework prompt builder.
+         *
+         * @param builder An instance of
+         *                {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param logoRes A drawable resource of the logo that will be shown on the prompt.
+         */
+        @DoNotInline
+        static void setLogoRes(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder, int logoRes) {
+            builder.setLogoRes(logoRes);
+        }
+
+        /**
+         * Sets the prompt content view for the given framework prompt builder.
+         *
+         * @param builder    An instance of
+         *                   {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param logoBitmap A bitmap drawable of the logo that will be shown on the prompt.
+         */
+        @DoNotInline
+        static void setLogoBitmap(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                @NonNull Bitmap logoBitmap) {
+            builder.setLogoBitmap(logoBitmap);
+        }
+
+        /**
+         * Sets the prompt content view for the given framework prompt builder.
+         *
+         * @param builder         An instance of
+         *                        {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param logoDescription The content view for the prompt.
+         */
+        @DoNotInline
+        static void setLogoDescription(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                String logoDescription) {
+            builder.setLogoDescription(logoDescription);
+        }
+
+        /**
+         * Sets the prompt content view for the given framework prompt builder.
+         *
+         * @param builder     An instance of
+         *                    {@link android.hardware.biometrics.BiometricPrompt.Builder}.
+         * @param contentView The content view for the prompt.
+         */
+        @DoNotInline
+        static void setContentView(
+                @NonNull android.hardware.biometrics.BiometricPrompt.Builder builder,
+                @NonNull android.hardware.biometrics.PromptContentView contentView) {
+            builder.setContentView(contentView);
+        }
     }
 
     /**

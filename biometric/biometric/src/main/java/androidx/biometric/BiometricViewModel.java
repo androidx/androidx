@@ -16,7 +16,9 @@
 
 package androidx.biometric;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -327,6 +329,47 @@ public class BiometricViewModel extends ViewModel {
     }
 
     /**
+     * Gets the logo res to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The logo res for the prompt, or -1 if not set.
+     */
+    @SuppressLint("MissingPermission")
+    int getLogoRes() {
+        return mPromptInfo != null ? mPromptInfo.getLogoRes() : -1;
+    }
+
+    /**
+     * Gets the logo bitmap to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The logo bitmap for the prompt, or null if not set.
+     */
+    @SuppressLint("MissingPermission")
+    @Nullable
+    Bitmap getLogoBitmap() {
+        return mPromptInfo != null ? mPromptInfo.getLogoBitmap() : null;
+    }
+
+    /**
+     * Gets the logo description to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The logo description for the prompt, or null if not set.
+     */
+    @SuppressLint("MissingPermission")
+    @Nullable
+    String getLogoDescription() {
+        return mPromptInfo != null ? mPromptInfo.getLogoDescription() : null;
+    }
+
+    /**
      * Gets the title to be shown on the biometric prompt.
      *
      * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
@@ -363,6 +406,19 @@ public class BiometricViewModel extends ViewModel {
     @Nullable
     CharSequence getDescription() {
         return mPromptInfo != null ? mPromptInfo.getDescription() : null;
+    }
+
+    /**
+     * Gets the prompt content view to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The prompt content view for the prompt, or {@code null} if not set.
+     */
+    @Nullable
+    PromptContentView getContentView() {
+        return mPromptInfo != null ? mPromptInfo.getContentView() : null;
     }
 
     /**

@@ -16,15 +16,20 @@
 
 package androidx.biometric;
 
+import static android.Manifest.permission.SET_BIOMETRIC_DIALOG_ADVANCED;
+
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.biometric.BiometricManager.Authenticators;
@@ -438,13 +443,73 @@ public class BiometricPrompt {
          */
         public static class Builder {
             // Mutable options to be set on the builder.
+            @DrawableRes private int mLogoRes = -1;
+            @Nullable private Bitmap mLogoBitmap = null;
+            @Nullable private String mLogoDescription = null;
             @Nullable private CharSequence mTitle = null;
             @Nullable private CharSequence mSubtitle = null;
             @Nullable private CharSequence mDescription = null;
+            @Nullable private PromptContentView mPromptContentView = null;
             @Nullable private CharSequence mNegativeButtonText = null;
             private boolean mIsConfirmationRequired = true;
             private boolean mIsDeviceCredentialAllowed = false;
             @BiometricManager.AuthenticatorTypes private int mAllowedAuthenticators = 0;
+
+            /**
+             * Optional: Sets the drawable resource of the logo that will be shown on the prompt.
+             *
+             * <p> Note that using this method is not recommended in most scenarios because the
+             * calling application's icon will be used by default. Setting the logo is intended
+             * for large bundled applications that perform a wide range of functions and need to
+             * show distinct icons for each function.
+             *
+             * @param logoRes A drawable resource of the logo that will be shown on the prompt.
+             * @return This builder.
+             */
+            @RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
+            @NonNull
+            public Builder setLogoRes(@DrawableRes int logoRes) {
+                mLogoRes = logoRes;
+                return this;
+            }
+
+            /**
+             * Optional: Sets the bitmap drawable of the logo that will be shown on the prompt.
+             *
+             * <p> Note that using this method is not recommended in most scenarios because the
+             * calling application's icon will be used by default. Setting the logo is intended
+             * for large bundled applications that perform a wide range of functions and need to
+             * show distinct icons for each function.
+             *
+             * @param logoBitmap A bitmap drawable of the logo that will be shown on the prompt.
+             * @return This builder.
+             */
+            @RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
+            @NonNull
+            public Builder setLogoBitmap(@NonNull Bitmap logoBitmap) {
+                mLogoBitmap = logoBitmap;
+                return this;
+            }
+
+            /**
+             * Optional: Sets logo description text that will be shown on the prompt.
+             *
+             * <p> Note that using this method is not recommended in most scenarios because the
+             * calling application's name will be used by default. Setting the logo description
+             * is intended for large bundled applications that perform a wide range of functions
+             * and need to show distinct description for each function.
+             *
+             * @param logoDescription The logo description text that will be shown on the prompt.
+             * @return This builder.
+             * @throws IllegalArgumentException If logo description is null or exceeds certain
+             *                                  character limit.
+             */
+            @RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
+            @NonNull
+            public Builder setLogoDescription(@NonNull String logoDescription) {
+                mLogoDescription = logoDescription;
+                return this;
+            }
 
             /**
              * Required: Sets the title for the prompt.
@@ -471,14 +536,36 @@ public class BiometricPrompt {
             }
 
             /**
-             * Optional: Sets the description for the prompt.
+             * Optional: Sets a description that will be shown on the prompt.
              *
-             * @param description The description to be displayed on the prompt.
+             * <p> Note that the description set by {@link Builder#setDescription(CharSequence)}
+             * will be overridden by {@link Builder#setContentView(PromptContentView)}. The view
+             * provided to {@link Builder#setContentView(PromptContentView)} will be used if both
+             * methods are called.
+             *
+             * @param description The description to display.
              * @return This builder.
              */
             @NonNull
             public Builder setDescription(@Nullable CharSequence description) {
                 mDescription = description;
+                return this;
+            }
+
+            /**
+             * Optional: Sets application customized content view that will be shown on the prompt.
+             *
+             * <p> Note that the description set by {@link Builder#setDescription(CharSequence)}
+             * will be overridden by {@link Builder#setContentView(PromptContentView)}. The view
+             * provided to {@link Builder#setContentView(PromptContentView)} will be used if both
+             * methods are called.
+             *
+             * @param view The customized view information.
+             * @return This builder.
+             */
+            @NonNull
+            public Builder setContentView(@NonNull PromptContentView view) {
+                mPromptContentView = view;
                 return this;
             }
 
@@ -623,9 +710,13 @@ public class BiometricPrompt {
                 }
 
                 return new PromptInfo(
+                        mLogoRes,
+                        mLogoBitmap,
+                        mLogoDescription,
                         mTitle,
                         mSubtitle,
                         mDescription,
+                        mPromptContentView,
                         mNegativeButtonText,
                         mIsConfirmationRequired,
                         mIsDeviceCredentialAllowed,
@@ -634,9 +725,13 @@ public class BiometricPrompt {
         }
 
         // Immutable fields for the prompt info object.
+        @DrawableRes private int mLogoRes;
+        @Nullable private Bitmap mLogoBitmap;
+        @Nullable private String mLogoDescription;
         @NonNull private final CharSequence mTitle;
         @Nullable private final CharSequence mSubtitle;
         @Nullable private final CharSequence mDescription;
+        @Nullable private PromptContentView mPromptContentView;
         @Nullable private final CharSequence mNegativeButtonText;
         private final boolean mIsConfirmationRequired;
         private final boolean mIsDeviceCredentialAllowed;
@@ -645,20 +740,66 @@ public class BiometricPrompt {
         // Prevent direct instantiation.
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         PromptInfo(
+                int logoRes,
+                @Nullable Bitmap logoBitmap,
+                @Nullable String logoDescription,
                 @NonNull CharSequence title,
                 @Nullable CharSequence subtitle,
                 @Nullable CharSequence description,
+                @Nullable PromptContentView promptContentView,
                 @Nullable CharSequence negativeButtonText,
                 boolean confirmationRequired,
                 boolean deviceCredentialAllowed,
                 @BiometricManager.AuthenticatorTypes int allowedAuthenticators) {
+            mLogoRes = logoRes;
+            mLogoBitmap = logoBitmap;
+            mLogoDescription = logoDescription;
             mTitle = title;
             mSubtitle = subtitle;
             mDescription = description;
+            mPromptContentView = promptContentView;
             mNegativeButtonText = negativeButtonText;
             mIsConfirmationRequired = confirmationRequired;
             mIsDeviceCredentialAllowed = deviceCredentialAllowed;
             mAllowedAuthenticators = allowedAuthenticators;
+        }
+
+        /**
+         * Gets the drawable resource of the logo for the prompt, as set by
+         * {@link Builder#setLogoRes(int)}. Currently for system applications use only.
+         *
+         * @return The drawable resource of the logo, or -1 if the prompt has no logo resource set.
+         */
+        @RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
+        @DrawableRes
+        public int getLogoRes() {
+            return mLogoRes;
+        }
+
+        /**
+         * Gets the logo bitmap for the prompt, as set by {@link Builder#setLogoBitmap(Bitmap)}.
+         * Currently for system applications use only.
+         *
+         * @return The logo bitmap of the prompt, or null if the prompt has no logo bitmap set.
+         */
+        @RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
+        @Nullable
+        public Bitmap getLogoBitmap() {
+            return mLogoBitmap;
+        }
+
+        /**
+         * Gets the logo description for the prompt, as set by
+         * {@link Builder#setLogoDescription(String)}.
+         * Currently for system applications use only.
+         *
+         * @return The logo description of the prompt, or null if the prompt has no logo description
+         * set.
+         */
+        @RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
+        @Nullable
+        public String getLogoDescription() {
+            return mLogoDescription;
         }
 
         /**
@@ -695,6 +836,17 @@ public class BiometricPrompt {
         @Nullable
         public CharSequence getDescription() {
             return mDescription;
+        }
+
+        /**
+         * Gets the content view for the prompt, as set by
+         * {@link Builder#setContentView(PromptContentView)}.
+         *
+         * @return The content view for the prompt, or null if the prompt has no content view.
+         */
+        @Nullable
+        public PromptContentView getContentView() {
+            return mPromptContentView;
         }
 
         /**
