@@ -21,6 +21,7 @@
             android:name=".SimpleMorph"
             android:exported="true"
             android:label="Simple Morph"
+            android:taskAffinity=".morph"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,6 +33,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="Graphics Shapes Test - Compose"
+            android:taskAffinity=".main"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,6 +43,7 @@
         <activity android:name=".ProgressActivity"
             android:label="Animating, Shaped Progress Bar"
             android:exported="true"
+            android:taskAffinity=".progress"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
