@@ -27,6 +27,7 @@ import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
@@ -36,6 +37,9 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.EndpointUtils
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
@@ -62,6 +66,8 @@ internal class CallSessionLegacy(
     private val TAG: String = CallSessionLegacy::class.java.simpleName
     private var mCachedBluetoothDevices: ArrayList<BluetoothDevice> = ArrayList()
     private var mAlreadyRequestedSpeaker: Boolean = false
+    private var mCurrentCallEndpoint: CallEndpointCompat? = null
+    private var mLastClientRequestedEndpoint: CallEndpointCompat? = null
 
     /**
      * Stubbed supported capabilities for legacy connections.
@@ -112,16 +118,24 @@ internal class CallSessionLegacy(
         if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
             Api28PlusImpl.refreshBluetoothDeviceCache(mCachedBluetoothDevices, state)
         }
-
-        val currentEndpoint = EndpointUtils.toCallEndpointCompat(state)
-        callChannels.currentEndpointChannel.trySend(currentEndpoint).getOrThrow()
+        val previousCallEndpoint = mCurrentCallEndpoint
+        mCurrentCallEndpoint = EndpointUtils.toCallEndpointCompat(state)
+        callChannels.currentEndpointChannel.trySend(mCurrentCallEndpoint!!).getOrThrow()
 
         val availableEndpoints = EndpointUtils.toCallEndpointsCompat(state)
         callChannels.availableEndpointChannel.trySend(availableEndpoints).getOrThrow()
 
         callChannels.isMutedChannel.trySend(state.isMuted).getOrThrow()
 
-        maybeSwitchToSpeakerOnCallStart(currentEndpoint, availableEndpoints)
+        maybeSwitchToSpeakerOnCallStart(mCurrentCallEndpoint!!, availableEndpoints)
+        maybeSwitchToSpeakerOnHeadsetDisconnect(
+            mCurrentCallEndpoint!!,
+            previousCallEndpoint,
+            availableEndpoints
+        )
+        // clear out the last user requested CallEndpoint. It's only used to determine if the
+        // change in current endpoints was intentional.
+        mLastClientRequestedEndpoint = null
     }
 
     /**
@@ -135,8 +149,8 @@ internal class CallSessionLegacy(
     ) {
         if (!mAlreadyRequestedSpeaker && attributes.isVideoCall()) {
             try {
-                val speakerEndpoint = EndpointUtils.getSpeakerEndpoint(availableEndpoints)
-                if (EndpointUtils.isEarpieceEndpoint(currentEndpoint) &&
+                val speakerEndpoint = getSpeakerEndpoint(availableEndpoints)
+                if (isEarpieceEndpoint(currentEndpoint) &&
                     speakerEndpoint != null
                 ) {
                     Log.i(
@@ -150,6 +164,39 @@ internal class CallSessionLegacy(
                 Log.e(TAG, "maybeSwitchToSpeaker: hit exception=[$e]")
             }
             mAlreadyRequestedSpeaker = true
+        }
+    }
+
+    /**
+     * Due to the fact that OEMs may diverge from AOSP telecom platform behavior, Core-Telecom
+     * needs to ensure that if a video calls headset disconnects, the speakerphone is defaulted
+     * instead of the earpiece route.
+     */
+    @VisibleForTesting
+    fun maybeSwitchToSpeakerOnHeadsetDisconnect(
+        newEndpoint: CallEndpointCompat,
+        previousEndpoint: CallEndpointCompat?,
+        availableEndpoints: List<CallEndpointCompat>
+    ) {
+        try {
+            if (attributes.isVideoCall() &&
+                /* Only switch if the users headset disconnects & earpiece is defaulted */
+                isEarpieceEndpoint(newEndpoint) && isWiredHeadsetOrBtEndpoint(previousEndpoint) &&
+                /* Do not switch request a switch to speaker if the client specifically requested
+                 * to switch from the headset from an earpiece */
+                !isEarpieceEndpoint(mLastClientRequestedEndpoint)
+            ) {
+                val speakerCompat = getSpeakerEndpoint(availableEndpoints)
+                if (speakerCompat != null) {
+                    Log.i(TAG,
+                        "maybeSwitchToSpeakerOnHeadsetDisconnect: headset disconnected while" +
+                            " in a video call. requesting switch to speaker."
+                    )
+                    requestEndpointChange(speakerCompat)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "maybeSwitchToSpeakerOnHeadsetDisconnect: exception=[$e]")
         }
     }
 
@@ -214,6 +261,8 @@ internal class CallSessionLegacy(
     // TODO:: verify the CallEndpoint change was successful. tracking bug: b/283324578
     @Suppress("deprecation")
     fun requestEndpointChange(callEndpoint: CallEndpointCompat): CallControlResult {
+        // cache the last CallEndpoint the user requested to reference in audio callbacks
+        mLastClientRequestedEndpoint = callEndpoint
         return if (Build.VERSION.SDK_INT < VERSION_CODES.P) {
             Api26PlusImpl.setAudio(callEndpoint, this)
             CallControlResult.Success()
