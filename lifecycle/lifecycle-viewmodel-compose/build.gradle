@@ -43,7 +43,6 @@ androidXMultiplatform {
                 api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
                 api("androidx.annotation:annotation:1.8.0")
                 api("androidx.compose.runtime:runtime:1.6.0")
-                api("androidx.compose.ui:ui:1.6.0")
                 implementation(libs.kotlinStdlib)
             }
         }
@@ -56,6 +55,7 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
+                api("androidx.compose.ui:ui:1.6.0")
                 // Converting `lifecycle-viewmodel-compose` to KMP and including a transitive
                 // dependency on `lifecycle-livedata-core` triggered a Gradle bug. Adding the
                 // `livedata` dependency directly works around the issue.
