@@ -20,6 +20,7 @@ package androidx.appsearch.cts.app.usagereporting;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.usagereporting.ActionConstants;
 import androidx.appsearch.app.usagereporting.SearchAction;
 import androidx.appsearch.app.usagereporting.TakenAction;
 
@@ -39,7 +40,7 @@ public class SearchActionCtsTest {
         assertThat(searchAction.getId()).isEqualTo("id");
         assertThat(searchAction.getActionTimestampMillis()).isEqualTo(123);
         assertThat(searchAction.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(searchAction.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_SEARCH);
+        assertThat(searchAction.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_SEARCH);
         assertThat(searchAction.getQuery()).isEqualTo("query");
         assertThat(searchAction.getFetchedResultCount()).isEqualTo(1);
     }
@@ -55,7 +56,7 @@ public class SearchActionCtsTest {
         assertThat(searchAction.getActionTimestampMillis()).isEqualTo(123);
         assertThat(searchAction.getDocumentTtlMillis())
                 .isEqualTo(TakenAction.DEFAULT_DOCUMENT_TTL_MILLIS);
-        assertThat(searchAction.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_SEARCH);
+        assertThat(searchAction.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_SEARCH);
         assertThat(searchAction.getQuery()).isNull();
         assertThat(searchAction.getFetchedResultCount()).isEqualTo(-1);
     }
@@ -74,7 +75,7 @@ public class SearchActionCtsTest {
         assertThat(searchAction2.getId()).isEqualTo("id");
         assertThat(searchAction2.getActionTimestampMillis()).isEqualTo(123);
         assertThat(searchAction2.getDocumentTtlMillis()).isEqualTo(456);
-        assertThat(searchAction2.getActionType()).isEqualTo(TakenAction.ACTION_TYPE_SEARCH);
+        assertThat(searchAction2.getActionType()).isEqualTo(ActionConstants.ACTION_TYPE_SEARCH);
         assertThat(searchAction2.getQuery()).isEqualTo("query");
         assertThat(searchAction2.getFetchedResultCount()).isEqualTo(1);
     }
@@ -94,7 +95,7 @@ public class SearchActionCtsTest {
         assertThat(document.getCreationTimestampMillis()).isEqualTo(123);
         assertThat(document.getTtlMillis()).isEqualTo(456);
         assertThat(document.getPropertyLong("actionType"))
-                .isEqualTo(TakenAction.ACTION_TYPE_SEARCH);
+                .isEqualTo(ActionConstants.ACTION_TYPE_SEARCH);
         assertThat(document.getPropertyString("query")).isEqualTo("query");
         assertThat(document.getPropertyLong("fetchedResultCount")).isEqualTo(1);
     }

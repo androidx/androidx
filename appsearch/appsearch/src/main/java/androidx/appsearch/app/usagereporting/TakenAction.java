@@ -43,30 +43,13 @@ public abstract class TakenAction {
     /** AppSearch taken action type. */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {
-            ACTION_TYPE_UNKNOWN,
-            ACTION_TYPE_SEARCH,
-            ACTION_TYPE_CLICK,
+            ActionConstants.ACTION_TYPE_UNKNOWN,
+            ActionConstants.ACTION_TYPE_SEARCH,
+            ActionConstants.ACTION_TYPE_CLICK,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionType {
     }
-
-    /**
-     * Unknown action type.
-     *
-     * <p>It is defined for abstract action class and compatibility, so it should not be used in any
-     * concrete instances.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int ACTION_TYPE_UNKNOWN = 0;
-
-    /** Search action type. It is the action type for {@link SearchAction}. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int ACTION_TYPE_SEARCH = 1;
-
-    /** Click action type. It is the action type for {@link ClickAction}. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int ACTION_TYPE_CLICK = 2;
 
     @NonNull
     @Document.Namespace
@@ -83,11 +66,11 @@ public abstract class TakenAction {
     private final long mActionTimestampMillis;
 
     @Document.LongProperty
-    @TakenAction.ActionType
+    @ActionType
     private final int mActionType;
 
     TakenAction(@NonNull String namespace, @NonNull String id, long documentTtlMillis,
-            long actionTimestampMillis, @TakenAction.ActionType int actionType) {
+            long actionTimestampMillis, @ActionType int actionType) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mId = Preconditions.checkNotNull(id);
         mDocumentTtlMillis = documentTtlMillis;
@@ -138,7 +121,7 @@ public abstract class TakenAction {
      * @see TakenAction.ActionType
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @TakenAction.ActionType
+    @ActionType
     public int getActionType() {
         return mActionType;
     }
@@ -177,7 +160,7 @@ public abstract class TakenAction {
         protected final String mId;
         protected long mDocumentTtlMillis;
         protected long mActionTimestampMillis;
-        @TakenAction.ActionType
+        @ActionType
         protected int mActionType;
 
         /**

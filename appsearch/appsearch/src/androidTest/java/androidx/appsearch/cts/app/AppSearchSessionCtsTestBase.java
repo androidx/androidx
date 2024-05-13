@@ -94,6 +94,11 @@ public abstract class AppSearchSessionCtsTestBase {
     static final String DB_NAME_1 = "";
     static final String DB_NAME_2 = "testDb2";
 
+    // Since we cannot call non-public API in the cts test, make a copy of these 2 action types, so
+    // we can create taken actions in GenericDocument form.
+    private static final int ACTION_TYPE_SEARCH = 1;
+    private static final int ACTION_TYPE_CLICK = 2;
+
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
     private AppSearchSession mDb1;
@@ -1627,13 +1632,13 @@ public abstract class AppSearchSessionCtsTestBase {
         GenericDocument searchAction =
                 new GenericDocument.Builder<>("namespace", "search", "builtin:SearchAction")
                         .setCreationTimestampMillis(1000)
-                        .setPropertyLong("actionType", 1)
+                        .setPropertyLong("actionType", ACTION_TYPE_SEARCH)
                         .setPropertyString("query", "body")
                         .build();
         GenericDocument clickAction =
                 new GenericDocument.Builder<>("namespace", "click", "builtin:ClickAction")
                         .setCreationTimestampMillis(2000)
-                        .setPropertyLong("actionType", 2)
+                        .setPropertyLong("actionType", ACTION_TYPE_CLICK)
                         .setPropertyString("query", "body")
                         .setPropertyString("referencedQualifiedId", "pkg$db/ns#refId")
                         .build();
@@ -2820,27 +2825,27 @@ public abstract class AppSearchSessionCtsTestBase {
         GenericDocument searchAction =
                 new GenericDocument.Builder<>("namespace", "search1", "builtin:SearchAction")
                         .setCreationTimestampMillis(1000)
-                        .setPropertyLong("actionType", 1)
+                        .setPropertyLong("actionType", ACTION_TYPE_SEARCH)
                         .setPropertyString("query", "body")
                         .build();
         GenericDocument clickAction1 =
                 new GenericDocument.Builder<>("namespace", "click1", "builtin:ClickAction")
                         .setCreationTimestampMillis(2000)
-                        .setPropertyLong("actionType", 2)
+                        .setPropertyLong("actionType", ACTION_TYPE_CLICK)
                         .setPropertyString("query", "body")
                         .setPropertyString("referencedQualifiedId", qualifiedId1)
                         .build();
         GenericDocument clickAction2 =
                 new GenericDocument.Builder<>("namespace", "click2", "builtin:ClickAction")
                         .setCreationTimestampMillis(3000)
-                        .setPropertyLong("actionType", 2)
+                        .setPropertyLong("actionType", ACTION_TYPE_CLICK)
                         .setPropertyString("query", "body")
                         .setPropertyString("referencedQualifiedId", qualifiedId2)
                         .build();
         GenericDocument clickAction3 =
                 new GenericDocument.Builder<>("namespace", "click3", "builtin:ClickAction")
                         .setCreationTimestampMillis(4000)
-                        .setPropertyLong("actionType", 2)
+                        .setPropertyLong("actionType", ACTION_TYPE_CLICK)
                         .setPropertyString("query", "body")
                         .setPropertyString("referencedQualifiedId", qualifiedId1)
                         .build();
