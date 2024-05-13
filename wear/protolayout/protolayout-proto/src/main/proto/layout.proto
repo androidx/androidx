@@ -157,18 +157,26 @@ message FontStyle {
 // A single point of customization in a font.
 message FontSetting {
   oneof inner {
-    // A single point of customization in a font variation, with axis name and a value for it.
+    // A single point of customization in a font variation, with axis tag and a value for it.
     FontVariationSetting variation = 1;
+    // A single point of customization in a font feature, with specified tag.
+    FontFeatureSetting feature = 2;
   }
 }
 
-// A single point of customization in a font variation, with axis name and a value for it.
+// A single point of customization in a font variation, with axis tag and a value for it.
 message FontVariationSetting {
-  // The axis name for this setting. This represents a 4 ASCII characters tag.
-  fixed32 axis_name = 1;
+  // The axis tag for this setting. This represents a 4 ASCII characters tag.
+  fixed32 axis_tag = 1;
 
   // The value for this setting.
   float value = 2;
+}
+
+// A single point of customization in a font feature, with specified tag.
+message FontFeatureSetting {
+  // The feature tag. This represents a 4 ASCII characters tag.
+  fixed32 tag = 1;
 }
 
 // How text that will not fit inside the bounds of a Text element will be
