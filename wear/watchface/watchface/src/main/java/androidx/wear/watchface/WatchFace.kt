@@ -316,6 +316,18 @@ public class WatchFace(
          * they should be buffered until [onDestroy] is called.
          */
         public fun setOverrideComplications(slotIdToComplicationData: Map<Int, ComplicationData>)
+
+        /**
+         * When a complication slot has been edited, we don't want to see a glimpse of the previous
+         * complication when the user has selected a new complication. To prevent that the
+         * complication will be replaced with EmptyComplicationData when [onDestroy] is called.
+         */
+        public fun clearComplicationSlotAfterEditing(slotId: Int)
+
+        /**
+         * Instructs the system to ignore any previous calls to [clearComplicationSlotAfterEditing].
+         */
+        public fun dontClearAnyComplicationSlotsAfterEditing()
     }
 
     /** Used to inform EditorSession about changes to [ComplicationSlot.configExtras]. */
@@ -943,7 +955,21 @@ constructor(
             InteractiveInstanceManager
                 .getCurrentInteractiveInstance()
                 ?.engine
-                ?.overrideComplications(slotIdToComplicationData)
+                ?.overrideComplicationsForEditing(slotIdToComplicationData)
+        }
+
+        override fun clearComplicationSlotAfterEditing(slotId: Int) {
+            InteractiveInstanceManager
+                .getCurrentInteractiveInstance()
+                ?.engine
+                ?.clearComplicationSlotAfterEditing(slotId)
+        }
+
+        override fun dontClearAnyComplicationSlotsAfterEditing() {
+            InteractiveInstanceManager
+                .getCurrentInteractiveInstance()
+                ?.engine
+                ?.dontClearAnyComplicationSlotsAfterEditing()
         }
 
         @SuppressLint("NewApi") // release
@@ -951,7 +977,7 @@ constructor(
             TraceEvent("WFEditorDelegate.onDestroy").use {
                 InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let {
                     it.editorObscuresWatchFace = false
-                    it.removeAnyComplicationOverrides()
+                    it.onEditSessionFinished()
                 }
                 if (watchState.isHeadless) {
                     headlessWatchFaceImpl!!.release()

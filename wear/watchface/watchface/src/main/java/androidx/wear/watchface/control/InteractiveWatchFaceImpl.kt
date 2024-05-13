@@ -296,7 +296,7 @@ internal class InteractiveWatchFaceImpl(
     override fun overrideComplicationData(
         complicationDatumWireFormats: List<IdAndComplicationDataWireFormat>
     ): Unit = aidlMethod(TAG, "overrideComplicationData") {
-        engine?.overrideComplications(
+        engine?.overrideComplicationsForEditing(
             complicationDatumWireFormats.associateBy(
                 { it.id },
                 { it.complicationData.toApiComplicationData() }
@@ -306,7 +306,7 @@ internal class InteractiveWatchFaceImpl(
 
     override fun clearComplicationDataOverride(): Unit =
         aidlMethod(TAG, "overrideComplicationData") {
-            engine?.removeAnyComplicationOverrides()
+            engine?.onEditSessionFinished()
         }
 
     fun onDestroy() {

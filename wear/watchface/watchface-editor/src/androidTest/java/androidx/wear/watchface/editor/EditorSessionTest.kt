@@ -675,6 +675,12 @@ public class EditorSessionTest {
                 ) {
                     lastOverrideComplications = slotIdToComplicationData
                 }
+
+                override fun clearComplicationSlotAfterEditing(slotId: Int) {
+                }
+
+                override fun dontClearAnyComplicationSlotsAfterEditing() {
+                }
             }
         if (!shouldTimeout) {
             WatchFace.registerEditorDelegate(watchComponentName, editorDelegate)
@@ -1255,10 +1261,6 @@ public class EditorSessionTest {
                 chosenComplicationDataSourceInfo,
                 chosenComplicationDataSource.complicationDataSourceInfo
             )
-
-            // This should set the interactive complication to empty, preventing briefly seeing the
-            // old complication.
-            assertThat(leftComplication.complicationData.value).isEqualTo(EmptyComplicationData())
 
             // This should update the preview data to point to the updated DataSource3 data.
             val previewComplication =
@@ -2032,9 +2034,6 @@ public class EditorSessionTest {
         runBlocking {
             activity.editorSession.openComplicationDataSourceChooser(LEFT_COMPLICATION_ID)
         }
-        // This should set the interactive complication to empty, preventing briefly seeing the
-        // old complication.
-        assertThat(leftComplication.complicationData.value).isEqualTo(EmptyComplicationData())
 
         // This should cause the style on the to be reverted back to the initial style.
         activity.editorSession.commitChangesOnClose = false
