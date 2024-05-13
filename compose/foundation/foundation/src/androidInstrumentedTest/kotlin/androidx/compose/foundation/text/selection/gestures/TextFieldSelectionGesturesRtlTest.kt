@@ -25,13 +25,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.runner.RunWith
 
+private val rtlWord = RtlChar.repeat(5)
+
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 internal class TextFieldSelectionGesturesRtlTest : TextField1SelectionGesturesTest(
-    initialText = "בבבבב\nבבבבב בבבבב בבבבב\nבבבבב",
+    initialText = "$rtlWord\n$rtlWord $rtlWord $rtlWord\n$rtlWord",
     layoutDirection = LayoutDirection.Rtl,
 ) {
-    override val word = "בבבבב"
+    override val word = rtlWord
     override var textDirection: ResolvedTextDirection = ResolvedTextDirection.Rtl
 
     override fun characterPosition(offset: Int): Offset {
