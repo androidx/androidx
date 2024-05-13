@@ -70,16 +70,21 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
     }
 
     // Returns all (valid) artifact versions that appear to exist in <dir>
-    fun listVersions(dir: File): List<Version> {
+    private fun listVersions(dir: File): List<Version> {
         val pathNames: Array<String> = dir.list() ?: arrayOf()
-        val files = pathNames.map({ name -> File(dir, name) })
-        val subdirs = files.filter({ child -> child.isDirectory() })
-        val versions = subdirs.map({ child -> Version(child.name) })
-        val validVersions = versions.filter({ v -> isValidArtifactVersion(v) })
+        val files = pathNames.map { name -> File(dir, name) }
+        val subdirs = files.filter { child -> child.isDirectory() }
+        val versions = subdirs.map { child -> Version(child.name) }
+        val validVersions = versions.filter { v -> isValidArtifactVersion(v) }
         return validVersions.sorted()
     }
 
-    fun regenerate(runnerProject: Project, groupId: String, artifactId: String, version: Version) {
+    private fun regenerate(
+        runnerProject: Project,
+        groupId: String,
+        artifactId: String,
+        version: Version
+    ) {
         val mavenId = "$groupId:$artifactId:$version"
         val inputs: JavaCompileInputs?
         try {
@@ -106,9 +111,9 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
         }
     }
 
-    fun getFiles(runnerProject: Project, mavenId: String): JavaCompileInputs {
+    private fun getFiles(runnerProject: Project, mavenId: String): JavaCompileInputs {
         val jars = getJars(runnerProject, mavenId)
-        val sources = getSources(runnerProject, mavenId + ":sources")
+        val sources = getSources(runnerProject, "$mavenId:sources")
 
         return JavaCompileInputs(
             sourcePaths = sources,
@@ -120,38 +125,38 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
         )
     }
 
-    fun getJars(runnerProject: Project, mavenId: String): FileCollection {
+    private fun getJars(runnerProject: Project, mavenId: String): FileCollection {
         val configuration =
             runnerProject.configurations.detachedConfiguration(
-                runnerProject.dependencies.create("$mavenId")
+                runnerProject.dependencies.create(mavenId)
             )
         val resolvedConfiguration = configuration.resolvedConfiguration.resolvedArtifacts
-        val dependencyFiles = resolvedConfiguration.map({ artifact -> artifact.file })
+        val dependencyFiles = resolvedConfiguration.map { artifact -> artifact.file }
 
-        val jars = dependencyFiles.filter({ file -> file.name.endsWith(".jar") })
-        val aars = dependencyFiles.filter({ file -> file.name.endsWith(".aar") })
+        val jars = dependencyFiles.filter { file -> file.name.endsWith(".jar") }
+        val aars = dependencyFiles.filter { file -> file.name.endsWith(".aar") }
         val classesJars =
-            aars.map({ aar ->
+            aars.map { aar ->
                 val tree = project.zipTree(aar)
                 val classesJar =
                     tree
                         .matching { filter: PatternFilterable -> filter.include("classes.jar") }
                         .single()
                 classesJar
-            })
+            }
         val embeddedLibs = getEmbeddedLibs(runnerProject, mavenId)
         val undeclaredJarDeps = getUndeclaredJarDeps(runnerProject, mavenId)
         return runnerProject.files(jars + classesJars + embeddedLibs + undeclaredJarDeps)
     }
 
-    fun getUndeclaredJarDeps(runnerProject: Project, mavenId: String): FileCollection {
+    private fun getUndeclaredJarDeps(runnerProject: Project, mavenId: String): FileCollection {
         if (mavenId.startsWith("androidx.wear:wear:")) {
             return runnerProject.files("wear/wear_stubs/com.google.android.wearable-stubs.jar")
         }
         return runnerProject.files()
     }
 
-    fun getSources(runnerProject: Project, mavenId: String): FileCollection {
+    private fun getSources(runnerProject: Project, mavenId: String): FileCollection {
         val configuration =
             runnerProject.configurations.detachedConfiguration(
                 runnerProject.dependencies.create(mavenId)
@@ -161,14 +166,14 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
         val sanitizedMavenId = mavenId.replace(":", "-")
         @Suppress("DEPRECATION")
         val unzippedDir = File("${runnerProject.buildDir.path}/sources-unzipped/$sanitizedMavenId")
-        runnerProject.copy({ copySpec ->
+        runnerProject.copy { copySpec ->
             copySpec.from(runnerProject.zipTree(configuration.singleFile))
             copySpec.into(unzippedDir)
-        })
+        }
         return project.files(unzippedDir)
     }
 
-    fun getEmbeddedLibs(runnerProject: Project, mavenId: String): Collection<File> {
+    private fun getEmbeddedLibs(runnerProject: Project, mavenId: String): Collection<File> {
         val configuration =
             runnerProject.configurations.detachedConfiguration(
                 runnerProject.dependencies.create(mavenId)
@@ -178,13 +183,13 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
         val sanitizedMavenId = mavenId.replace(":", "-")
         @Suppress("DEPRECATION")
         val unzippedDir = File("${runnerProject.buildDir.path}/aars-unzipped/$sanitizedMavenId")
-        runnerProject.copy({ copySpec ->
+        runnerProject.copy { copySpec ->
             copySpec.from(runnerProject.zipTree(configuration.singleFile))
             copySpec.into(unzippedDir)
-        })
+        }
         val libsDir = File(unzippedDir, "libs")
         if (libsDir.exists()) {
-            return libsDir.listFiles().toList()
+            return libsDir.listFiles()?.toList() ?: listOf()
         }
 
         return listOf()
