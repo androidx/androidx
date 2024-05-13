@@ -72,18 +72,33 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * Namespace for constants representing the default values for various [basicMarquee] parameters.
+ */
 object MarqueeDefaults {
+    /**
+     * Default value for the `iterations` parameter to [basicMarquee].
+     */
     // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=736;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
     @Suppress("MayBeConstant")
     val DefaultMarqueeIterations: Int = 3
 
+    /**
+     * Default value for the `repeatDelayMillis` parameter to [basicMarquee].
+     */
     // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13979;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
     @Suppress("MayBeConstant")
     val DefaultMarqueeRepeatDelayMillis: Int = 1_200
 
+    /**
+     * Default value for the `spacing` parameter to [basicMarquee].
+     */
     // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=14088;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
     val DefaultMarqueeSpacing: MarqueeSpacing = MarqueeSpacing.fractionOfContainer(1f / 3f)
 
+    /**
+     * Default value for the `velocity` parameter to [basicMarquee].
+     */
     // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13980;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
     val DefaultMarqueeVelocity: Dp = 30.dp
 }
@@ -102,15 +117,13 @@ object MarqueeDefaults {
  * the marquee, and may not match its drawn position on screen. This modifier also does not
  * currently support content that accepts position-based input such as pointer events.
  *
- * @sample androidx.compose.foundation.samples.BasicMarqueeSample
- *
  * To only animate when the composable is focused, specify [animationMode] and make the composable
- * focusable.
- * @sample androidx.compose.foundation.samples.BasicFocusableMarqueeSample
+ * focusable. This modifier does not add any visual effects aside from scrolling, but you can add
+ * your own by placing modifiers before this one.
  *
- * This modifier does not add any visual effects aside from scrolling, but you can add your own by
- * placing modifiers before this one.
+ * @sample androidx.compose.foundation.samples.BasicMarqueeSample
  * @sample androidx.compose.foundation.samples.BasicMarqueeWithFadedEdgesSample
+ * @sample androidx.compose.foundation.samples.BasicFocusableMarqueeSample
  *
  * @param iterations The number of times to repeat the animation. `Int.MAX_VALUE` will repeat
  * forever, and 0 will disable animation.
