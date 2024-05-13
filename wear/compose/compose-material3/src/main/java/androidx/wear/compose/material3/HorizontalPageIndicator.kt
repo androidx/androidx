@@ -16,8 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import androidx.annotation.FloatRange
-import androidx.annotation.IntRange
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -69,14 +67,20 @@ import androidx.wear.compose.materialcore.isRoundDevice
  * on the left and on the right
  * o O O O X O - current page is 9 out of 10, as there're no more items on the right
  *
- * [HorizontalPageIndicator] is linear or curved, depending on the screen shape
+ * [HorizontalPageIndicator] can be linear or curved, depending on the screen shape
  * of the device - for circular screens it will be curved,
  * whilst for square screens it will be linear.
  *
  * @sample androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
  *
- * @param pageIndicatorState The state object of a [HorizontalPageIndicator] to be used to
- * observe the Pager's state.
+ * Example usage with HorizontalPager:
+ * @sample androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
+ *
+ * @param pageCount Total number of pages
+ * @param currentPage The currently selected page index
+ * @param currentPageOffsetFraction The offset fraction of the currently selected page.
+ * Represents the offset as a fraction of the transition from the selected page to the next or
+ * previous page. Can be positive or negative.
  * @param modifier Modifier to be applied to the [HorizontalPageIndicator]
  * @param selectedColor The color of the selected [HorizontalPageIndicator] item
  * @param unselectedColor The color of unselected [HorizontalPageIndicator] items.
@@ -86,7 +90,9 @@ import androidx.wear.compose.materialcore.isRoundDevice
  **/
 @Composable
 public fun HorizontalPageIndicator(
-    pageIndicatorState: PageIndicatorState,
+    pageCount: Int,
+    currentPage: Int,
+    currentPageOffsetFraction: () -> Float,
     modifier: Modifier = Modifier,
     selectedColor: Color = MaterialTheme.colorScheme.onBackground,
     unselectedColor: Color = selectedColor.copy(alpha = 0.3f),
@@ -94,13 +100,16 @@ public fun HorizontalPageIndicator(
     spacing: Dp = 4.dp
 ) {
     val isScreenRound = isRoundDevice()
-    val selectedPage: Int = pageIndicatorState.selectedPageWithOffsetFraction().toInt()
-    val offset = pageIndicatorState.selectedPageWithOffsetFraction() - selectedPage
 
-    val pagesOnScreen = Integer.min(MaxNumberOfIndicators, pageIndicatorState.pageCount)
-    val pagesState = remember(pageIndicatorState.pageCount) {
+    // Converting offsetFraction into range 0..1f
+    val currentPageOffsetWithFraction = currentPage + currentPageOffsetFraction()
+    val selectedPage: Int = currentPageOffsetWithFraction.toInt()
+    val offset = currentPageOffsetWithFraction - selectedPage
+
+    val pagesOnScreen = Integer.min(MaxNumberOfIndicators, pageCount)
+    val pagesState = remember(pageCount) {
         PagesState(
-            totalPages = pageIndicatorState.pageCount,
+            totalPages = pageCount,
             pagesOnScreen = pagesOnScreen
         )
     }
@@ -168,59 +177,6 @@ public fun HorizontalPageIndicator(
 internal object PageIndicatorDefaults {
 
     val MaxNumberOfIndicators = 6
-}
-
-// TODO(b/290732498): Add rememberPageIndicatorState for HorizontalPager
-//  once HorizontalPager is stable
-
-/**
- * Creates and remembers [PageIndicatorState] based on [pageCount] and
- * [selectedPageWithOffsetFraction] parameters.
- * @param pageCount Total number of pages.
- * @param selectedPageWithOffsetFraction The currently selected page index with offset fraction.
- * Integer part represents the selected page index and the fractional part represents
- * the offset as a fraction of the transition from the selected page
- * to the next page in the range 0f..1f
- */
-@ExperimentalWearMaterial3Api
-@Composable
-public fun rememberPageIndicatorState(
-    pageCount: Int,
-    selectedPageWithOffsetFraction: () -> Float
-): PageIndicatorState =
-    remember(pageCount, selectedPageWithOffsetFraction) {
-        object : PageIndicatorState {
-
-            override fun selectedPageWithOffsetFraction(): Float =
-                selectedPageWithOffsetFraction()
-
-            override val pageCount: Int
-                get() = pageCount
-        }
-    }
-
-/**
- * An interface for connection between Pager and [HorizontalPageIndicator].
- */
-public interface PageIndicatorState {
-    /**
-     * The currently selected page index with offset fraction.
-     * Integer part represents the selected page index and the fractional part represents
-     * the offset as a fraction of the transition from the selected page
-     * to the next page in the range 0f..1f
-     *
-     * For example 5.5f equals to selectedPage = 5, offset 0.5f
-     *
-     * It changes when a scroll (drag, swipe or fling) happens between pages in Pager.
-     */
-    @FloatRange(from = 0.0)
-    public fun selectedPageWithOffsetFraction(): Float
-
-    /**
-     * Total number of pages
-     */
-    @get:IntRange(from = 0)
-    public val pageCount: Int
 }
 
 @Composable

@@ -214,8 +214,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class HorizontalPageIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(androidx.wear.compose.material3.PageIndicatorState pageIndicatorState, optional androidx.compose.ui.Modifier modifier, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing);
-    method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static androidx.wear.compose.material3.PageIndicatorState rememberPageIndicatorState(int pageCount, kotlin.jvm.functions.Function0<java.lang.Float> selectedPageWithOffsetFraction);
+    method @androidx.compose.runtime.Composable public static void HorizontalPageIndicator(int pageCount, int currentPage, kotlin.jvm.functions.Function0<java.lang.Float> currentPageOffsetFraction, optional androidx.compose.ui.Modifier modifier, optional long selectedColor, optional long unselectedColor, optional float indicatorSize, optional float spacing);
   }
 
   @androidx.compose.runtime.Immutable public final class IconButtonColors {
@@ -340,12 +339,6 @@ package androidx.wear.compose.material3 {
 
   public final class MaterialThemeKt {
     method @androidx.compose.runtime.Composable public static void MaterialTheme(optional androidx.wear.compose.material3.ColorScheme colorScheme, optional androidx.wear.compose.material3.Typography typography, optional androidx.wear.compose.material3.Shapes shapes, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-  }
-
-  public interface PageIndicatorState {
-    method @IntRange(from=0L) public int getPageCount();
-    method @FloatRange(from=0.0) public float selectedPageWithOffsetFraction();
-    property @IntRange(from=0L) public abstract int pageCount;
   }
 
   public final class ProgressIndicatorColors {
