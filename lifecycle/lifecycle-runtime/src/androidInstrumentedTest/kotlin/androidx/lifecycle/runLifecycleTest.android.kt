@@ -19,11 +19,6 @@ package androidx.lifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestResult
 
-/**
- * Runs provided [block] in an environment suitable for testing [Lifecycle].
- * It must provide a [Dispatchers.Main] which is able to dispatch coroutines.
- */
-fun runLifecycleTest(block: suspend CoroutineScope.() -> TestResult): TestResult =
-    runBlocking(context = Dispatchers.Main, block = block)
+actual fun runLifecycleTest(block: suspend CoroutineScope.() -> Unit) =
+    runBlocking(Dispatchers.Main, block = block)
