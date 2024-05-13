@@ -55,14 +55,25 @@ public final class SystemRouteItem implements SystemRoutesAdapterItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SystemRouteItem that = (SystemRouteItem) o;
-        return mId.equals(that.mId) && mName.equals(that.mName)
-                && Objects.equals(mAddress, that.mAddress) && Objects.equals(
-                mDescription, that.mDescription);
+        return mId.equals(that.mId)
+                && mName.equals(that.mName)
+                && Objects.equals(mAddress, that.mAddress)
+                && Objects.equals(mDescription, that.mDescription)
+                && Objects.equals(mSuitabilityStatus, that.mSuitabilityStatus)
+                && Objects.equals(mTransferInitiatedBySelf, that.mTransferInitiatedBySelf)
+                && Objects.equals(mTransferReason, that.mTransferReason);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mId, mName, mAddress, mDescription);
+        return Objects.hash(
+                mId,
+                mName,
+                mAddress,
+                mDescription,
+                mSuitabilityStatus,
+                mTransferInitiatedBySelf,
+                mTransferReason);
     }
 
     /**

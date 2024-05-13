@@ -16,6 +16,7 @@
 
 package com.example.androidx.mediarouting.activities.systemrouting;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -165,17 +166,12 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             }
         }
 
+        @SuppressLint("DiffUtilEquals")
         @Override
-        public boolean areContentsTheSame(@NonNull SystemRoutesAdapterItem oldItem,
+        public boolean areContentsTheSame(
+                @NonNull SystemRoutesAdapterItem oldItem,
                 @NonNull SystemRoutesAdapterItem newItem) {
-            if (oldItem instanceof SystemRouteItem && newItem instanceof SystemRouteItem) {
-                return oldItem.equals(newItem);
-            } else if (oldItem instanceof SystemRoutesSourceItem
-                    && newItem instanceof SystemRoutesSourceItem) {
-                return oldItem.equals(newItem);
-            } else {
-                return false;
-            }
+            return oldItem.equals(newItem);
         }
     }
 
