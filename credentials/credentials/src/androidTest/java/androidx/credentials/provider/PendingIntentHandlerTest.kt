@@ -62,6 +62,59 @@ class PendingIntentHandlerTest {
     }
 
     @Test
+    fun test_retrieveProviderCreateCredReqWithFailureBpAuth_correctlyConvertedError() {
+        for (frameworkError in AuthenticationError.biometricFrameworkToJetpackErrorMap.keys) {
+            val biometricPromptResult =
+                BiometricPromptResult(
+                    AuthenticationError(
+                        frameworkError,
+                        BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+                    )
+                )
+            val expectedErrorCode = AuthenticationError
+                .biometricFrameworkToJetpackErrorMap[frameworkError]
+            val request = setUpCreatePasswordRequest()
+            val intent = prepareIntentWithCreateRequest(
+                request, biometricPromptResult
+            )
+
+            val retrievedRequest = PendingIntentHandler
+                .retrieveProviderCreateCredentialRequest(intent)
+
+            Assert.assertNotNull(retrievedRequest)
+            equals(request, retrievedRequest!!)
+            Assert.assertNotNull(retrievedRequest.biometricPromptResult!!.authenticationError)
+            Assert.assertEquals(
+                retrievedRequest.biometricPromptResult!!.authenticationError!!.errorCode,
+                expectedErrorCode)
+        }
+    }
+
+    @Test
+    fun test_retrieveProviderGetCredReqWithFailureBpAuth_correctlyConvertedError() {
+        for (frameworkError in AuthenticationError.biometricFrameworkToJetpackErrorMap.keys) {
+            val biometricPromptResult = BiometricPromptResult(
+                AuthenticationError(
+                    frameworkError,
+                    BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+                )
+            )
+            val expectedErrorCode = AuthenticationError
+                .biometricFrameworkToJetpackErrorMap[frameworkError]
+            val intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST, biometricPromptResult)
+
+            val retrievedRequest = PendingIntentHandler.retrieveProviderGetCredentialRequest(intent)
+
+            Assert.assertNotNull(retrievedRequest)
+            equals(GET_CREDENTIAL_REQUEST, retrievedRequest!!)
+            Assert.assertNotNull(retrievedRequest.biometricPromptResult!!.authenticationError)
+            Assert.assertEquals(
+                retrievedRequest.biometricPromptResult!!.authenticationError!!.errorCode,
+                expectedErrorCode)
+        }
+    }
+
+    @Test
     fun test_createCredentialException() {
         if (Build.VERSION.SDK_INT >= 34) {
             return

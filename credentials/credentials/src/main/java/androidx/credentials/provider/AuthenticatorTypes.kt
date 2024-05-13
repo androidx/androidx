@@ -17,11 +17,11 @@
 package androidx.credentials.provider
 
 import android.hardware.biometrics.BiometricManager
-import android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_STRONG
-import android.hardware.biometrics.BiometricManager.Authenticators.BIOMETRIC_WEAK
-import android.hardware.biometrics.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
+import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 
 /**
  * This allows verification when users pass in [BiometricManager.Authenticators] constants; namely
@@ -32,6 +32,6 @@ import androidx.annotation.RestrictTo
  */
 @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
 @Retention(AnnotationRetention.SOURCE)
-@IntDef(value = [BIOMETRIC_STRONG, DEVICE_CREDENTIAL, BIOMETRIC_WEAK])
+@IntDef(value = [BIOMETRIC_STRONG, BIOMETRIC_WEAK, DEVICE_CREDENTIAL])
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class AuthenticatorTypes
