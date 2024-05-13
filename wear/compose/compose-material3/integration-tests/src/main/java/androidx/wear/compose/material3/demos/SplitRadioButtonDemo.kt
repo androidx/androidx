@@ -27,10 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.Radio
 import androidx.wear.compose.material3.SplitRadioButton
 import androidx.wear.compose.material3.Text
 
@@ -128,9 +131,14 @@ private fun DemoSplitRadioButton(
         selected = selected,
         onSelect = onSelected,
         onClick = {
-            val toastText = if (selected) "Checked" else "Not Checked"
+            val toastText = primary + " " + if (selected) "Checked" else "Not Checked"
             Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         },
         enabled = enabled,
+        selectionControl = {
+            Radio(modifier = Modifier.semantics {
+                contentDescription = primary
+            })
+        }
     )
 }
