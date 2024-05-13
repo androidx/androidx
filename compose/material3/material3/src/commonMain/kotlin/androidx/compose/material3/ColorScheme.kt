@@ -19,6 +19,7 @@ package androidx.compose.material3
 import androidx.compose.material3.tokens.ColorDarkTokens
 import androidx.compose.material3.tokens.ColorLightTokens
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
+import androidx.compose.material3.tokens.PaletteTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -916,6 +917,20 @@ fun ColorScheme.surfaceColorAtElevation(
     val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f
     return surfaceTint.copy(alpha = alpha).compositeOver(surface)
 }
+
+/**
+ * Returns a light Material color scheme.
+ *
+ * The default color scheme for [MaterialExpressiveTheme]. For dark mode, use [darkColorScheme].
+ */
+// TODO: Mark as experimental if scope is changed to public
+// TODO: Add samples for MaterialExpressiveTheme toggling expressiveLightColorScheme and darkTheme.
+internal fun expressiveLightColorScheme() = lightColorScheme(
+    // TODO: Replace palette references with color token references when available.
+    onPrimaryContainer = PaletteTokens.Primary30,
+    onSecondaryContainer = PaletteTokens.Secondary30,
+    onTertiaryContainer = PaletteTokens.Secondary30,
+)
 
 /**
  * Helper function for component color tokens. Here is an example on how to use component color
