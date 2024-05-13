@@ -271,6 +271,27 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
     }
 
     @Test
+    fun clickOnText_readOnly() {
+        state = TextFieldState("abc")
+        rule.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                textStyle = defaultTextStyle,
+                readOnly = true,
+                modifier = Modifier
+                    .testTag(TAG)
+                    .width(50.dp)
+                    .height(15.dp)
+            )
+        }
+
+        with(rule.onNodeWithTag(TAG)) {
+            performTouchInput { click(Offset((fontSize * 2).toPx(), height / 2f)) }
+        }
+        assertThat(state.selection).isEqualTo(TextRange(2))
+    }
+
+    @Test
     fun textFieldInsideDialog_tapsChangeCursorPosition() {
         state = TextFieldState("abc abc abc abc")
         val show = mutableStateOf(true)

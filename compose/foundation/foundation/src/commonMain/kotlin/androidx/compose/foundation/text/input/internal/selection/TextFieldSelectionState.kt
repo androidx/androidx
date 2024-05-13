@@ -457,10 +457,12 @@ internal class TextFieldSelectionState(
                 logDebug { "onTapTextField" }
                 requestFocus()
 
-                if (editable && isFocused) {
-                    showKeyboard()
-                    if (textFieldState.visualText.isNotEmpty()) {
-                        showCursorHandle = true
+                if (enabled && isFocused) {
+                    if (!readOnly) {
+                        showKeyboard()
+                        if (textFieldState.visualText.isNotEmpty()) {
+                            showCursorHandle = true
+                        }
                     }
 
                     // do not show any TextToolbar.
