@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.spdxGradlePluginz)
     implementation(libs.androidKotlinMultiplatform)
     implementation(libs.kotlinCompilerEmbeddable) // for clang compiler
+    implementation(libs.binaryCompatibilityValidator)
 
     // For Room Gradle Plugin
     implementation(libs.kspGradlePluginz)
