@@ -59,6 +59,7 @@ import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationPersistencePolicies
+import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
@@ -1362,6 +1363,7 @@ public abstract class WatchFaceService : WallpaperService() {
         private var lastWatchFaceColors: WatchFaceColors? = null
         private var lastPreviewImageNeedsUpdateRequest: String? = null
         private var overriddenComplications: HashMap<Int, ComplicationData>? = null
+        private val complicationSlotsToClearAfterEditing = HashSet<Int>()
 
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
@@ -1688,8 +1690,11 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
+        /**
+         * Overrides the complications that are rendered until [onEditSessionFinished] is called.
+         */
         @AnyThread
-        internal fun overrideComplications(complications: Map<Int, ComplicationData>) {
+        internal fun overrideComplicationsForEditing(complications: Map<Int, ComplicationData>) {
             synchronized(lock) {
                 if (overriddenComplications == null) {
                     // Take a copy of the current complications to later restore.
@@ -1706,14 +1711,53 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
+        /**
+         * Marks [slotId] to be cleared after editing, to prevent the user seeing a glimpse of the
+         * old complication.
+         */
         @AnyThread
-        internal fun removeAnyComplicationOverrides() {
+        internal fun clearComplicationSlotAfterEditing(slotId: Int) {
+            synchronized(lock) {
+                complicationSlotsToClearAfterEditing.add(slotId)
+            }
+        }
+
+        /** Forgets any calls to [clearComplicationSlotAfterEditing]. */
+        @AnyThread
+        internal fun dontClearAnyComplicationSlotsAfterEditing() {
+            synchronized(lock) {
+                complicationSlotsToClearAfterEditing.clear()
+            }
+        }
+
+        /**
+         * Undoes any complication overrides by [overrideComplicationsForEditing], restoring the
+         * original data. However any complications marked as being cleared after editing by
+         * [clearComplicationSlotAfterEditing] will be replaced by [EmptyComplicationData] to
+         * prevent the user seeing a flash of the old data.
+         */
+        @AnyThread
+        internal fun onEditSessionFinished() {
             synchronized(lock) {
                 if (overriddenComplications == null) {
-                   return
+                    complicationsFlow.update {
+                        it.toMutableMap().apply {
+                            for (frozenSlot in complicationSlotsToClearAfterEditing) {
+                                put(frozenSlot, EmptyComplicationData())
+                            }
+                            complicationSlotsToClearAfterEditing.clear()
+                        }
+                    }
+                    return
                 }
 
-                // Restore the original complications.
+                // Restore the original complications, except for any frozen slots which are
+                // replaced with EmptyComplicationData.
+                for (frozenSlot in complicationSlotsToClearAfterEditing) {
+                    overriddenComplications!![frozenSlot] = EmptyComplicationData()
+                }
+                complicationSlotsToClearAfterEditing.clear()
+
                 complicationsFlow.update {
                     overriddenComplications!!
                 }
