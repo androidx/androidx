@@ -338,12 +338,12 @@ internal class RootNodeOwner(
                 if (measureAndLayoutDelegate.requestLookaheadRemeasure(layoutNode, forceRequest) &&
                     scheduleMeasureAndLayout
                 ) {
-                    snapshotInvalidationTracker.requestLayout()
+                    snapshotInvalidationTracker.requestMeasureAndLayout()
                 }
             } else if (measureAndLayoutDelegate.requestRemeasure(layoutNode, forceRequest) &&
                 scheduleMeasureAndLayout
             ) {
-                snapshotInvalidationTracker.requestLayout()
+                snapshotInvalidationTracker.requestMeasureAndLayout()
             }
         }
 
@@ -352,12 +352,20 @@ internal class RootNodeOwner(
             affectsLookahead: Boolean,
             forceRequest: Boolean
         ) {
-            this.onRequestMeasure(layoutNode, affectsLookahead, forceRequest, scheduleMeasureAndLayout = true)
+            if (affectsLookahead) {
+                if (measureAndLayoutDelegate.requestLookaheadRelayout(layoutNode, forceRequest)) {
+                    snapshotInvalidationTracker.requestMeasureAndLayout()
+                }
+            } else {
+                if (measureAndLayoutDelegate.requestRelayout(layoutNode, forceRequest)) {
+                    snapshotInvalidationTracker.requestMeasureAndLayout()
+                }
+            }
         }
 
         override fun requestOnPositionedCallback(layoutNode: LayoutNode) {
             measureAndLayoutDelegate.requestOnPositionedCallback(layoutNode)
-            snapshotInvalidationTracker.requestLayout()
+            snapshotInvalidationTracker.requestMeasureAndLayout()
         }
 
         override fun createLayer(
@@ -434,7 +442,7 @@ internal class RootNodeOwner(
 
         override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
             measureAndLayoutDelegate.registerOnLayoutCompletedListener(listener)
-            snapshotInvalidationTracker.requestLayout()
+            snapshotInvalidationTracker.requestMeasureAndLayout()
         }
     }
 

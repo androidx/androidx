@@ -58,7 +58,7 @@ internal abstract class BaseComposeScene(
     protected val snapshotInvalidationTracker = SnapshotInvalidationTracker(::invalidateIfNeeded)
     protected val inputHandler: ComposeSceneInputHandler =
         ComposeSceneInputHandler(
-            prepareForPointerInputEvent = ::doLayout,
+            prepareForPointerInputEvent = ::doMeasureAndLayout,
             processPointerInputEvent = ::processPointerInputEvent,
             processKeyEvent = ::processKeyEvent
         )
@@ -159,7 +159,7 @@ internal abstract class BaseComposeScene(
             recomposer.performScheduledRecomposerTasks()
             frameClock.sendFrame(nanoTime) // withFrameMillis/Nanos and recomposition
 
-            doLayout()  // Layout
+            doMeasureAndLayout()  // Layout
 
             // Schedule synthetic events to be sent after `render` completes
             if (inputHandler.needUpdatePointerPosition) {
@@ -223,8 +223,8 @@ internal abstract class BaseComposeScene(
         inputHandler.onKeyEvent(keyEvent)
     }
 
-    private fun doLayout() {
-        snapshotInvalidationTracker.onLayout()
+    private fun doMeasureAndLayout() {
+        snapshotInvalidationTracker.onMeasureAndLayout()
         measureAndLayout()
     }
 
