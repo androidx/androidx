@@ -18,6 +18,7 @@ package androidx.wear.compose.integration.demos
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -25,9 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -40,6 +44,7 @@ import androidx.wear.compose.material.CheckboxDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.SplitToggleChip
+import androidx.wear.compose.material.SplitToggleChipColors
 import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.SwitchDefaults
 import androidx.wear.compose.material.Text
@@ -51,7 +56,6 @@ fun ToggleChips(
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     description: String = "Toggle Chips"
 ) {
-    val applicationContext = LocalContext.current
     val scrollState: ScalingLazyListState = rememberScalingLazyListState()
     var enabled by remember { mutableStateOf(true) }
 
@@ -64,7 +68,6 @@ fun ToggleChips(
 
     var switchIconWithSecondaryChecked by remember { mutableStateOf(true) }
     var switchIconWithIconChecked by remember { mutableStateOf(true) }
-    var splitWithCustomColorChecked by remember { mutableStateOf(true) }
 
     ScalingLazyColumn(
         state = scrollState,
@@ -266,137 +269,61 @@ fun ToggleChips(
         }
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                SplitToggleChip(
-                    label = { Text("Split with Checkbox") },
-                    checked = splitWithCheckboxIconChecked,
-                    toggleControl = {
-                        Checkbox(
-                            checked = splitWithCheckboxIconChecked,
-                            enabled = enabled,
-                        )
-                    },
-                    onCheckedChange = { splitWithCheckboxIconChecked = it },
-                    onClick = {
-                        Toast.makeText(
-                            applicationContext, "Text was clicked",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    },
+                DemoSplitToggleChip(
                     enabled = enabled,
-                )
-            }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                SplitToggleChip(
-                    label = { Text("Split with Switch") },
                     checked = splitWithSwitchIconChecked,
-                    // For Switch  toggle controls the Wear Material UX guidance is to set the
-                    // unselected toggle control color to
-                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
-                    colors = ToggleChipDefaults.splitToggleChipColors(
-                        uncheckedToggleControlColor = ToggleChipDefaults
-                            .SwitchUncheckedIconColor
-                    ),
-                    toggleControl = {
-                        Switch(
-                            checked = splitWithSwitchIconChecked,
-                            enabled = enabled,
-                        )
-                    },
                     onCheckedChange = { splitWithSwitchIconChecked = it },
-                    onClick = {
-                        Toast.makeText(
-                            applicationContext, "Text was clicked",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    },
-                    enabled = enabled,
-                )
-            }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                SplitToggleChip(
-                    label = {
-                        Text(
-                            "Split with Switch", maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    secondaryLabel = {
-                        Text(
-                            "and custom color", maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    checked = splitWithCustomColorChecked,
-                    toggleControl = {
-                        Switch(
-                            checked = splitWithCustomColorChecked,
-                            enabled = enabled,
-                        )
-                    },
-                    onCheckedChange = { splitWithCustomColorChecked = it },
-                    onClick = {
-                        Toast.makeText(
-                            applicationContext,
-                            "Text was clicked", Toast.LENGTH_SHORT
-                        ).show()
-                    },
+                    primaryLabel = "Primary Label",
                     // For Switch  toggle controls the Wear Material UX guidance is to set the
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.splitToggleChipColors(
-                        checkedToggleControlColor = AlternatePrimaryColor1,
                         uncheckedToggleControlColor = ToggleChipDefaults
                             .SwitchUncheckedIconColor
                     ),
+                ) { Switch(
+                    modifier = Modifier.semantics { contentDescription = "Primary Label" },
+                    checked = splitWithSwitchIconChecked,
                     enabled = enabled,
-                )
+                ) }
             }
         }
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                SplitToggleChip(
-                    label = {
-                        Text(
-                            "Long primary label split across maximum three lines of text",
-                            maxLines = 3,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    secondaryLabel = {
-                        Text(
-                            "Long secondary label split across maximum two lines of text",
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    checked = splitWithCustomColorChecked,
-                    toggleControl = {
-                        Switch(
-                            checked = splitWithCustomColorChecked,
-                            enabled = enabled,
-                        )
-                    },
-                    onCheckedChange = { splitWithCustomColorChecked = it },
-                    onClick = {
-                        Toast.makeText(
-                            applicationContext,
-                            "Text was clicked", Toast.LENGTH_SHORT
-                        ).show()
-                    },
+                DemoSplitToggleChip(
+                    enabled = enabled,
+                    checked = splitWithCheckboxIconChecked,
+                    onCheckedChange = { splitWithCheckboxIconChecked = it },
+                    primaryLabel = "Primary Label",
+                ) {
+                    Checkbox(
+                        modifier = Modifier.semantics { contentDescription = "Primary Label" },
+                        checked = splitWithCheckboxIconChecked,
+                        enabled = enabled,
+                    )
+                }
+            }
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                DemoSplitToggleChip(
+                    enabled = enabled,
+                    checked = splitWithSwitchIconChecked,
+                    onCheckedChange = { splitWithSwitchIconChecked = it },
+                    primaryLabel = "Long primary label split across maximum three lines of text",
+                    secondaryLabel = "Long secondary label split across maximum two lines of text",
                     // For Switch  toggle controls the Wear Material UX guidance is to set the
                     // unselected toggle control color to
                     // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
                     colors = ToggleChipDefaults.splitToggleChipColors(
-                        checkedToggleControlColor = AlternatePrimaryColor1,
                         uncheckedToggleControlColor = ToggleChipDefaults
                             .SwitchUncheckedIconColor
                     ),
+                ) { Switch(
+                    modifier = Modifier.semantics { contentDescription = "Primary Label" },
+                    checked = splitWithSwitchIconChecked,
                     enabled = enabled,
-                )
+                ) }
             }
         }
         item {
@@ -423,4 +350,42 @@ fun ToggleChips(
             }
         }
     }
+}
+
+@Composable
+fun DemoSplitToggleChip(
+    enabled: Boolean,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    primaryLabel: String,
+    secondaryLabel: String? = null,
+    colors: SplitToggleChipColors = ToggleChipDefaults.splitToggleChipColors(),
+    content: @Composable BoxScope.() -> Unit,
+) {
+    val context = LocalContext.current
+
+    SplitToggleChip(
+        label = {
+            Text(
+                primaryLabel,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        secondaryLabel = { secondaryLabel?.let {
+            Text(
+                it,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+        } },
+        checked = checked,
+        toggleControl = content,
+        onCheckedChange = onCheckedChange,
+        onClick = {
+            Toast.makeText(context, "Text was clicked", Toast.LENGTH_SHORT).show()
+        },
+        colors = colors,
+        enabled = enabled,
+    )
 }
