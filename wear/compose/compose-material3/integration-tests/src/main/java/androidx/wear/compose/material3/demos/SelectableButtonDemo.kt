@@ -34,47 +34,47 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.RadioButton
+import androidx.wear.compose.material3.SelectableButton
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun RadioButtonDemo() {
+fun SelectableButtonDemo() {
     var selectedRadioIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize().selectableGroup(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            ListHeader { Text("Radio Button") }
+            ListHeader { Text("Selectable Button") }
         }
         item {
-            DemoRadioButton(
+            DemoSelectableButton(
                 enabled = true,
                 selected = selectedRadioIndex == 0,
                 onSelected = { selectedRadioIndex = 0 }
             )
         }
         item {
-            DemoRadioButton(
+            DemoSelectableButton(
                 enabled = true,
                 selected = selectedRadioIndex == 1,
                 onSelected = { selectedRadioIndex = 1 }
             )
         }
         item {
-            ListHeader { Text("Disabled Radio Button") }
+            ListHeader { Text("Disabled Selectable Button") }
         }
         item {
-            DemoRadioButton(enabled = false, selected = true)
+            DemoSelectableButton(enabled = false, selected = true)
         }
         item {
-            DemoRadioButton(enabled = false, selected = false)
+            DemoSelectableButton(enabled = false, selected = false)
         }
         item {
             ListHeader { Text("Icon") }
         }
         item {
-            DemoRadioButton(
+            DemoSelectableButton(
                 enabled = true,
                 selected = true,
             ) {
@@ -82,7 +82,7 @@ fun RadioButtonDemo() {
             }
         }
         item {
-            DemoRadioButton(
+            DemoSelectableButton(
                 enabled = true,
                 selected = true,
                 secondary = "Secondary label"
@@ -94,7 +94,7 @@ fun RadioButtonDemo() {
             ListHeader { Text("Multi-line") }
         }
         item {
-            DemoRadioButton(
+            DemoSelectableButton(
                 enabled = true,
                 selected = true,
                 primary = "8:15AM",
@@ -102,17 +102,17 @@ fun RadioButtonDemo() {
             )
         }
         item {
-            DemoRadioButton(
+            DemoSelectableButton(
                 enabled = true,
                 selected = true,
-                primary = "Primary Label with 3 lines of content max"
+                primary = "Primary Label with 3 lines of very long content max"
             )
         }
         item {
-            DemoRadioButton(
+            DemoSelectableButton(
                 enabled = true,
                 selected = true,
-                primary = "Primary Label with 3 lines of content max",
+                primary = "Primary Label with 3 lines of very long content max",
                 secondary = "Secondary label with 2 lines"
             )
         }
@@ -120,7 +120,7 @@ fun RadioButtonDemo() {
 }
 
 @Composable
-private fun DemoRadioButton(
+private fun DemoSelectableButton(
     enabled: Boolean,
     selected: Boolean,
     onSelected: () -> Unit = {},
@@ -128,7 +128,7 @@ private fun DemoRadioButton(
     secondary: String? = null,
     content: (@Composable BoxScope.() -> Unit)? = null,
 ) {
-    RadioButton(
+    SelectableButton(
         modifier = Modifier.fillMaxWidth(),
         icon = content,
         label = {

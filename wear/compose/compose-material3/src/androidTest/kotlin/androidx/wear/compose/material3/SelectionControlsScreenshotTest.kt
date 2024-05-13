@@ -54,7 +54,7 @@ class SelectionControlsScreenshotTest {
     fun radiobutton_checked_enabled() =
         verifyScreenshot {
             with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                Radio(modifier = testBackgroundModifier())
+                RadioButton(modifier = testBackgroundModifier())
             }
         }
 
@@ -62,7 +62,7 @@ class SelectionControlsScreenshotTest {
     fun radiobutton_unchecked_enabled() =
         verifyScreenshot {
             with(SelectionControlScope(isEnabled = true, isSelected = false)) {
-                Radio(modifier = testBackgroundModifier())
+                RadioButton(modifier = testBackgroundModifier())
             }
         }
 
@@ -70,7 +70,7 @@ class SelectionControlsScreenshotTest {
     fun radiobutton_checked_disabled() =
         verifyScreenshot {
             with(SelectionControlScope(isEnabled = false, isSelected = true)) {
-                Radio(modifier = testBackgroundModifier())
+                RadioButton(modifier = testBackgroundModifier())
             }
         }
 
@@ -78,7 +78,7 @@ class SelectionControlsScreenshotTest {
     fun radiobutton_unchecked_disabled() =
         verifyScreenshot {
             with(SelectionControlScope(isEnabled = false, isSelected = false)) {
-                Radio(modifier = testBackgroundModifier())
+                RadioButton(modifier = testBackgroundModifier())
             }
         }
 

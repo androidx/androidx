@@ -32,19 +32,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.RadioButton
-import androidx.wear.compose.material3.SplitRadioButton
+import androidx.wear.compose.material3.SelectableButton
+import androidx.wear.compose.material3.SplitSelectableButton
 import androidx.wear.compose.material3.Text
 
 @Sampled
 @Composable
-fun RadioButton() {
+fun SelectableButtonSample() {
     Column(modifier = Modifier.selectableGroup()) {
         var selectedButton by remember { mutableStateOf(0) }
         // RadioButton uses the Radio selection control by default.
-        RadioButton(
+        SelectableButton(
             label = {
-                Text("Radio button", maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text("Selectable button", maxLines = 3, overflow = TextOverflow.Ellipsis)
             },
             secondaryLabel = {
                 Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -60,9 +60,9 @@ fun RadioButton() {
             enabled = true,
         )
         Spacer(modifier = Modifier.height(4.dp))
-        RadioButton(
+        SelectableButton(
             label = {
-                Text("Radio button", maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text("Selectable button", maxLines = 3, overflow = TextOverflow.Ellipsis)
             },
             secondaryLabel = {
                 Text("With secondary label", maxLines = 3, overflow = TextOverflow.Ellipsis)
@@ -82,29 +82,29 @@ fun RadioButton() {
 
 @Sampled
 @Composable
-fun SplitRadioButton() {
+fun SplitSelectableButtonSample() {
     Column(modifier = Modifier.selectableGroup()) {
         var selectedButton by remember { mutableStateOf(0) }
         // SplitRadioButton uses the Radio selection control by default.
-        SplitRadioButton(
+        SplitSelectableButton(
             label = {
-                Text("First Radio Button", maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text("First Button", maxLines = 3, overflow = TextOverflow.Ellipsis)
             },
             selected = selectedButton == 0,
-            onSelect = { selectedButton = 0 },
-            onClick = {
+            onSelectionClick = { selectedButton = 0 },
+            onContainerClick = {
                 /* Do something */
             },
             enabled = true,
         )
         Spacer(modifier = Modifier.height(4.dp))
-        SplitRadioButton(
+        SplitSelectableButton(
             label = {
-                Text("Second Radio Button", maxLines = 3, overflow = TextOverflow.Ellipsis)
+                Text("Second Button", maxLines = 3, overflow = TextOverflow.Ellipsis)
             },
             selected = selectedButton == 1,
-            onSelect = { selectedButton = 1 },
-            onClick = {
+            onSelectionClick = { selectedButton = 1 },
+            onContainerClick = {
                 /* Do something */
             },
             enabled = true,

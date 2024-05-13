@@ -33,28 +33,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.Radio
-import androidx.wear.compose.material3.SplitRadioButton
+import androidx.wear.compose.material3.RadioButton
+import androidx.wear.compose.material3.SplitSelectableButton
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun SplitRadioButtonDemo() {
+fun SplitSelectableButtonDemo() {
     var selectedRadioIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            ListHeader { Text("Radio Button") }
+            ListHeader { Text("Split Selectable Button") }
         }
         item {
-            DemoSplitRadioButton(
+            DemoSplitSelectableButton(
                 enabled = true,
                 (selectedRadioIndex == 0)
             ) { selectedRadioIndex = 0 }
         }
         item {
-            DemoSplitRadioButton(
+            DemoSplitSelectableButton(
                 enabled = true,
                 (selectedRadioIndex == 1)
             ) { selectedRadioIndex = 1 }
@@ -63,16 +63,16 @@ fun SplitRadioButtonDemo() {
             ListHeader { Text("Disabled Radio Button") }
         }
         item {
-            DemoSplitRadioButton(enabled = false, selected = true)
+            DemoSplitSelectableButton(enabled = false, selected = true)
         }
         item {
-            DemoSplitRadioButton(enabled = false, selected = false)
+            DemoSplitSelectableButton(enabled = false, selected = false)
         }
         item {
             ListHeader { Text("Multi-line") }
         }
         item {
-            DemoSplitRadioButton(
+            DemoSplitSelectableButton(
                 enabled = true,
                 selected = true,
                 primary = "8:15AM",
@@ -80,17 +80,17 @@ fun SplitRadioButtonDemo() {
             )
         }
         item {
-            DemoSplitRadioButton(
+            DemoSplitSelectableButton(
                 enabled = true,
                 selected = true,
-                primary = "Primary Label with 3 lines of content max"
+                primary = "Primary Label with 3 lines of very long content max"
             )
         }
         item {
-            DemoSplitRadioButton(
+            DemoSplitSelectableButton(
                 enabled = true,
                 selected = true,
-                primary = "Primary Label with 3 lines of content max",
+                primary = "Primary Label with 3 lines of very long content max",
                 secondary = "Secondary label with 2 lines"
             )
         }
@@ -98,7 +98,7 @@ fun SplitRadioButtonDemo() {
 }
 
 @Composable
-private fun DemoSplitRadioButton(
+private fun DemoSplitSelectableButton(
     enabled: Boolean,
     selected: Boolean,
     primary: String = "Primary label",
@@ -106,7 +106,7 @@ private fun DemoSplitRadioButton(
     onSelected: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    SplitRadioButton(
+    SplitSelectableButton(
         modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
@@ -129,14 +129,14 @@ private fun DemoSplitRadioButton(
             }
         },
         selected = selected,
-        onSelect = onSelected,
-        onClick = {
+        onSelectionClick = onSelected,
+        onContainerClick = {
             val toastText = primary + " " + if (selected) "Checked" else "Not Checked"
             Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         },
         enabled = enabled,
         selectionControl = {
-            Radio(modifier = Modifier.semantics {
+            RadioButton(modifier = Modifier.semantics {
                 contentDescription = primary
             })
         }
