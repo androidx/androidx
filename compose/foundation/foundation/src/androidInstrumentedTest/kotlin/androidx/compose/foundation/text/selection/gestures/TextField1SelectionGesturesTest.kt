@@ -22,8 +22,9 @@ import androidx.compose.foundation.text.selection.gestures.util.TextField1Select
 import androidx.compose.foundation.text.selection.gestures.util.TextFieldSelectionAsserter
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -35,18 +36,26 @@ internal abstract class TextField1SelectionGesturesTest(
     initialText: String,
     private val layoutDirection: LayoutDirection,
 ) : TextFieldSelectionGesturesTest<TextFieldValue>() {
-    private val textFieldValue: MutableState<TextFieldValue> =
-        mutableStateOf(TextFieldValue(initialText))
+    private var textFieldValue by mutableStateOf(TextFieldValue(initialText))
+
+    override var textContent: String
+        get() = textFieldValue.text
+        set(value) {
+            textFieldValue = TextFieldValue(value)
+        }
+
+    override var readOnly by mutableStateOf(false)
+    override var enabled by mutableStateOf(true)
 
     override lateinit var asserter: TextFieldSelectionAsserter<TextFieldValue>
 
     override fun setupAsserter() {
         asserter = TextField1SelectionAsserter(
-            textContent = textFieldValue.value.text,
+            textContent = textFieldValue.text,
             rule = rule,
             textToolbar = textToolbar,
             hapticFeedback = hapticFeedback,
-            getActual = { textFieldValue.value }
+            getActual = { textFieldValue }
         )
     }
 
@@ -54,18 +63,15 @@ internal abstract class TextField1SelectionGesturesTest(
     override fun Content() {
         CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
             BasicTextField(
-                value = textFieldValue.value,
-                onValueChange = { textFieldValue.value = it },
+                value = textFieldValue,
+                onValueChange = { textFieldValue = it },
+                readOnly = readOnly,
+                enabled = enabled,
                 textStyle = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(pointerAreaTag),
             )
         }
-    }
-
-    override fun setTextContent(text: String) {
-        textFieldValue.value = TextFieldValue(text)
-        rule.waitForIdle()
     }
 }
