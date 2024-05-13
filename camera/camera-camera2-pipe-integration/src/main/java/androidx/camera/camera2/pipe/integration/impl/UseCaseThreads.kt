@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import androidx.annotation.VisibleForTesting
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
@@ -33,8 +34,9 @@ class UseCaseThreads(
     val backgroundDispatcher: CoroutineDispatcher,
 ) {
     val sequentialExecutor = CameraXExecutors.newSequentialExecutor(backgroundExecutor)
-    val sequentialDispatcher = sequentialExecutor.asCoroutineDispatcher()
-    val sequentialScope = CoroutineScope(
+    private val sequentialDispatcher = sequentialExecutor.asCoroutineDispatcher()
+    var sequentialScope: CoroutineScope = CoroutineScope(
         scope.coroutineContext + SupervisorJob() + sequentialDispatcher
     )
+        @VisibleForTesting set
 }
