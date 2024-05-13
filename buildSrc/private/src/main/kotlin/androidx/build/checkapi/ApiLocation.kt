@@ -21,6 +21,10 @@ import androidx.build.version
 import java.io.File
 import java.io.Serializable
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.provider.Provider
+
+private const val BCV_DIR_NAME = "bcv"
 
 /**
  * Contains information about the files used to record a library's API surfaces. This class may
@@ -115,6 +119,9 @@ private fun Version.toApiFileBaseName(): String {
     return getApiFileVersion(this).toString()
 }
 
+/** Returns the directory containing the project's versioned and current ABI files. */
+fun Project.getBcvFileDirectory(): File = File(project.projectDir, BCV_DIR_NAME)
+
 /** Returns the directory containing the project's versioned and current API files. */
 fun Project.getApiFileDirectory(): File {
     return File(project.projectDir, "api")
@@ -129,6 +136,10 @@ fun Project.hasApiFileDirectory(): Boolean {
 private fun Project.getBuiltApiFileDirectory(): File {
     @Suppress("DEPRECATION") return File(project.buildDir, "api")
 }
+
+/** Returns the directory containing the project's built current ABI file. */
+fun Project.getBuiltBcvFileDirectory(): Provider<Directory> =
+    project.layout.buildDirectory.dir(BCV_DIR_NAME)
 
 /**
  * Returns an ApiLocation with the given version, or with the project's current version if not

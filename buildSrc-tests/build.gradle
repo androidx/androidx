@@ -57,6 +57,7 @@ dependencies {
     implementation(project(":benchmark:benchmark-gradle-plugin"))
     implementation(project(":inspection:inspection-gradle-plugin"))
     implementation(project(":stableaidl:stableaidl-gradle-plugin"))
+    implementation(project(":binarycompatibilityvalidator:binarycompatibilityvalidator"))
     implementation(project.ext.findGradleKotlinDsl())
     testImplementation(libs.junit)
     testImplementation(libs.truth)

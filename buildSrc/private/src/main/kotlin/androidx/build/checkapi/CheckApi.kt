@@ -93,6 +93,9 @@ fun getRequiredCompatibilityApiFileFromDir(
     var highestPath: Path? = null
     var highestVersion: Version? = null
 
+    if (!apiDir.exists()) {
+        return null
+    }
     // Find the path with highest version that is lower than the current API version.
     Files.newDirectoryStream(apiDir.toPath()).forEach { path ->
         val pathName = path.name

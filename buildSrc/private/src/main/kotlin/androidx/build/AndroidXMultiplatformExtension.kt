@@ -65,6 +65,8 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
  */
 open class AndroidXMultiplatformExtension(val project: Project) {
 
+    var enableBinaryCompatibilityValidator = false
+
     // Kotlin multiplatform plugin is only applied if at least one target / sourceset is added.
     private val kotlinExtensionDelegate = lazy {
         project.validateMultiplatformPluginHasNotBeenApplied()
