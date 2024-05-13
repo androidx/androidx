@@ -17,6 +17,7 @@
 package androidx.room.processor
 
 import COMMON
+import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XClassName
@@ -38,8 +39,6 @@ import androidx.room.ext.RxJava3TypeNames
 import androidx.room.testing.context
 import androidx.room.vo.DeleteOrUpdateShortcutMethod
 import kotlin.reflect.KClass
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 
 /**
@@ -85,8 +84,8 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public void foo();
                 """
         ) { shortcut, invocation ->
-            assertThat(shortcut.element.jvmName, `is`("foo"))
-            assertThat(shortcut.parameters.size, `is`(0))
+            assertThat(shortcut.element.jvmName).isEqualTo("foo")
+            assertThat(shortcut.parameters.size).isEqualTo(0)
             invocation.assertCompilationResult {
                 hasErrorContaining(noParamsError())
             }
@@ -103,17 +102,14 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public int foo(User user);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.element.jvmName, `is`("foo"))
-            assertThat(shortcut.parameters.size, `is`(1))
+            assertThat(shortcut.element.jvmName).isEqualTo("foo")
+            assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
-            assertThat(param.type.asTypeName(), `is`(USER_TYPE_NAME))
-            assertThat(param.pojoType?.asTypeName(), `is`(USER_TYPE_NAME))
-            assertThat(shortcut.entities.size, `is`(1))
-            assertThat(shortcut.entities["user"]?.isPartialEntity, `is`(false))
-            assertThat(
-                shortcut.entities["user"]?.pojo?.typeName,
-                `is`(USER_TYPE_NAME)
-            )
+            assertThat(param.type.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+            assertThat(param.pojoType?.asTypeName()).isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+            assertThat(shortcut.entities.size).isEqualTo(1)
+            assertThat(shortcut.entities["user"]?.isPartialEntity).isEqualTo(false)
+            assertThat(shortcut.entities["user"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
         }
     }
 
@@ -139,9 +135,9 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public void foo(NotAnEntity notValid);
                 """
         ) { shortcut, invocation ->
-            assertThat(shortcut.element.jvmName, `is`("foo"))
-            assertThat(shortcut.parameters.size, `is`(1))
-            assertThat(shortcut.entities.size, `is`(0))
+            assertThat(shortcut.element.jvmName).isEqualTo("foo")
+            assertThat(shortcut.parameters.size).isEqualTo(1)
+            assertThat(shortcut.entities.size).isEqualTo(0)
             invocation.assertCompilationResult {
                 hasErrorContaining(
                     ProcessorErrors.CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER
@@ -158,26 +154,21 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public void foo(User u1, User u2);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.element.jvmName, `is`("foo"))
+            assertThat(shortcut.element.jvmName).isEqualTo("foo")
 
-            assertThat(shortcut.parameters.size, `is`(2))
+            assertThat(shortcut.parameters.size).isEqualTo(2)
             shortcut.parameters.forEach {
-                assertThat(it.type.asTypeName(), `is`(USER_TYPE_NAME))
-                assertThat(it.pojoType?.asTypeName(), `is`(USER_TYPE_NAME))
+                assertThat(it.type.asTypeName())
+                    .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+                assertThat(it.pojoType?.asTypeName())
+                    .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
             }
-            assertThat(shortcut.entities.size, `is`(2))
-            assertThat(
-                shortcut.entities["u1"]?.pojo?.typeName,
-                `is`(USER_TYPE_NAME)
-            )
-            assertThat(
-                shortcut.entities["u1"]?.pojo?.typeName,
-                `is`(USER_TYPE_NAME)
-            )
-            assertThat(
-                shortcut.parameters.map { it.name },
-                `is`(listOf("u1", "u2"))
-            )
+            assertThat(shortcut.entities.size).isEqualTo(2)
+            assertThat(shortcut.entities["u1"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
+
+            assertThat(shortcut.entities["u1"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
+
+            assertThat(shortcut.parameters.map { it.name }).isEqualTo(listOf("u1", "u2"))
         }
     }
 
@@ -215,21 +206,20 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public $type users(List<User> users);
                 """
             ) { shortcut, _ ->
-                assertThat(shortcut.element.jvmName, `is`("users"))
-                assertThat(shortcut.parameters.size, `is`(1))
+                assertThat(shortcut.element.jvmName).isEqualTo("users")
+                assertThat(shortcut.parameters.size).isEqualTo(1)
                 val param = shortcut.parameters.first()
-                assertThat(
-                    param.type.asTypeName(),
-                    `is`(
-                        CommonTypeNames.MUTABLE_LIST.parametrizedBy(USER_TYPE_NAME)
+                assertThat(param.type.asTypeName())
+                    .isEqualTo(
+                        CommonTypeNames.MUTABLE_LIST.parametrizedBy(
+                            USER_TYPE_NAME.copy(nullable = true)
+                        ).copy(nullable = true)
                     )
-                )
-                assertThat(param.pojoType?.asTypeName(), `is`(USER_TYPE_NAME))
-                assertThat(shortcut.entities.size, `is`(1))
-                assertThat(
-                    shortcut.entities["users"]?.pojo?.typeName,
-                    `is`(USER_TYPE_NAME)
-                )
+
+                assertThat(param.pojoType?.asTypeName())
+                    .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+                assertThat(shortcut.entities.size).isEqualTo(1)
+                assertThat(shortcut.entities["users"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
             }
         }
     }
@@ -260,20 +250,17 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public void users(User[] users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.element.jvmName, `is`("users"))
-            assertThat(shortcut.parameters.size, `is`(1))
+            assertThat(shortcut.element.jvmName).isEqualTo("users")
+            assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
-            assertThat(
-                param.type.asTypeName(),
-                `is`(
-                    XTypeName.getArrayName(COMMON.USER_TYPE_NAME)
-                )
+            assertThat(param.type.asTypeName()).isEqualTo(
+                XTypeName.getArrayName(
+                    COMMON.USER_TYPE_NAME.copy(nullable = true)
+                ).copy(nullable = true)
             )
-            assertThat(shortcut.entities.size, `is`(1))
-            assertThat(
-                shortcut.entities["users"]?.pojo?.typeName,
-                `is`(USER_TYPE_NAME)
-            )
+
+            assertThat(shortcut.entities.size).isEqualTo(1)
+            assertThat(shortcut.entities["users"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
         }
     }
 
@@ -301,20 +288,18 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public void modifyUsers(Set<User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
-            assertThat(shortcut.parameters.size, `is`(1))
+            assertThat(shortcut.element.jvmName).isEqualTo("modifyUsers")
+            assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
-            assertThat(
-                param.type.asTypeName(),
-                `is`(
-                    CommonTypeNames.MUTABLE_SET.parametrizedBy(COMMON.USER_TYPE_NAME)
+            assertThat(param.type.asTypeName())
+                .isEqualTo(
+                    CommonTypeNames.MUTABLE_SET.parametrizedBy(
+                        COMMON.USER_TYPE_NAME.copy(nullable = true)
+                    ).copy(nullable = true)
                 )
-            )
-            assertThat(shortcut.entities.size, `is`(1))
-            assertThat(
-                shortcut.entities["users"]?.pojo?.typeName,
-                `is`(USER_TYPE_NAME)
-            )
+
+            assertThat(shortcut.entities.size).isEqualTo(1)
+            assertThat(shortcut.entities["users"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
         }
     }
 
@@ -344,20 +329,18 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public void modifyUsers(Iterable<User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
-            assertThat(shortcut.parameters.size, `is`(1))
+            assertThat(shortcut.element.jvmName).isEqualTo("modifyUsers")
+            assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
-            assertThat(
-                param.type.asTypeName(),
-                `is`(
-                    Iterable::class.asMutableClassName().parametrizedBy(COMMON.USER_TYPE_NAME)
+            assertThat(param.type.asTypeName())
+                .isEqualTo(
+                    Iterable::class.asMutableClassName().parametrizedBy(
+                        COMMON.USER_TYPE_NAME.copy(nullable = true)
+                    ).copy(nullable = true)
                 )
-            )
-            assertThat(shortcut.entities.size, `is`(1))
-            assertThat(
-                shortcut.entities["users"]?.pojo?.typeName,
-                `is`(USER_TYPE_NAME)
-            )
+
+            assertThat(shortcut.entities.size).isEqualTo(1)
+            assertThat(shortcut.entities["users"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
         }
     }
 
@@ -370,22 +353,19 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public void modifyUsers(MyList<String, User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
-            assertThat(shortcut.parameters.size, `is`(1))
+            assertThat(shortcut.element.jvmName).isEqualTo("modifyUsers")
+            assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
-            assertThat(
-                param.type.asTypeName(),
-                `is`(
-                    XClassName.get("foo.bar", "MyClass", "MyList").parametrizedBy(
-                        CommonTypeNames.STRING, COMMON.USER_TYPE_NAME
-                    )
-                )
+            assertThat(param.type.asTypeName()).isEqualTo(
+                    XClassName.get("foo.bar", "MyClass", "MyList")
+                        .parametrizedBy(
+                            CommonTypeNames.STRING.copy(nullable = true),
+                            COMMON.USER_TYPE_NAME.copy(nullable = true)
+                        ).copy(nullable = true)
             )
-            assertThat(shortcut.entities.size, `is`(1))
-            assertThat(
-                shortcut.entities["users"]?.pojo?.typeName,
-                `is`(USER_TYPE_NAME)
-            )
+
+            assertThat(shortcut.entities.size).isEqualTo(1)
+            assertThat(shortcut.entities["users"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
         }
     }
 
@@ -428,25 +408,20 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 abstract public $type foo(User u1, Book b1);
                 """
             ) { shortcut, _ ->
-                assertThat(shortcut.parameters.size, `is`(2))
+                assertThat(shortcut.parameters.size).isEqualTo(2)
                 assertThat(
-                    shortcut.parameters[0].type.asTypeName().toString(CodeLanguage.JAVA),
-                    `is`("foo.bar.User")
-                )
+                    shortcut.parameters[0].type.asTypeName().toString(CodeLanguage.JAVA)
+                ).isEqualTo("foo.bar.User")
+
                 assertThat(
-                    shortcut.parameters[1].type.asTypeName().toString(CodeLanguage.JAVA),
-                    `is`("foo.bar.Book")
-                )
-                assertThat(shortcut.parameters.map { it.name }, `is`(listOf("u1", "b1")))
-                assertThat(shortcut.entities.size, `is`(2))
-                assertThat(
-                    shortcut.entities["u1"]?.pojo?.typeName,
-                    `is`(USER_TYPE_NAME)
-                )
-                assertThat(
-                    shortcut.entities["b1"]?.pojo?.typeName,
-                    `is`(BOOK_TYPE_NAME)
-                )
+                    shortcut.parameters[1].type.asTypeName().toString(CodeLanguage.JAVA)
+                ).isEqualTo("foo.bar.Book")
+
+                assertThat(shortcut.parameters.map { it.name }).isEqualTo(listOf("u1", "b1"))
+                assertThat(shortcut.entities.size).isEqualTo(2)
+                assertThat(shortcut.entities["u1"]?.pojo?.typeName).isEqualTo(USER_TYPE_NAME)
+
+                assertThat(shortcut.entities["b1"]?.pojo?.typeName).isEqualTo(BOOK_TYPE_NAME)
             }
         }
     }
@@ -550,19 +525,17 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 """,
             additionalSources = listOf(usernameSource)
         ) { shortcut, _ ->
-            assertThat(shortcut.element.jvmName, `is`("foo"))
-            assertThat(shortcut.parameters.size, `is`(1))
+            assertThat(shortcut.element.jvmName).isEqualTo("foo")
+            assertThat(shortcut.parameters.size).isEqualTo(1)
             val param = shortcut.parameters.first()
-            assertThat(param.type.asTypeName(), `is`(USERNAME_TYPE_NAME))
-            assertThat(param.pojoType?.asTypeName(), `is`(USERNAME_TYPE_NAME))
-            assertThat(shortcut.entities.size, `is`(1))
-            assertThat(shortcut.entities["username"]?.isPartialEntity, `is`(true))
-            assertThat(shortcut.entities["username"]?.entityTypeName,
-                `is`(USER_TYPE_NAME))
-            assertThat(
-                shortcut.entities["username"]?.pojo?.typeName,
-                `is`(USERNAME_TYPE_NAME)
-            )
+            assertThat(param.type.asTypeName())
+                .isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
+            assertThat(param.pojoType?.asTypeName())
+                .isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
+            assertThat(shortcut.entities.size).isEqualTo(1)
+            assertThat(shortcut.entities["username"]?.isPartialEntity).isEqualTo(true)
+            assertThat(shortcut.entities["username"]?.entityTypeName).isEqualTo(USER_TYPE_NAME)
+            assertThat(shortcut.entities["username"]?.pojo?.typeName).isEqualTo(USERNAME_TYPE_NAME)
         }
     }
 
