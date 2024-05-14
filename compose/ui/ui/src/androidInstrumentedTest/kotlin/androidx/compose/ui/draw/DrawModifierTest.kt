@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +74,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -163,6 +166,99 @@ class DrawModifierTest {
         rule.waitForIdle()
 
         assertTrue(graphicsLayer!!.isReleased)
+    }
+
+    @Test
+    fun testLayoutDirectionChangeInvalidatesDrawWithCache() {
+        var resolvedLayoutDirection: LayoutDirection? = null
+        var drawLayoutDirection: LayoutDirection? = null
+        var drawLatch = CountDownLatch(1)
+        val tag = "tag"
+        rule.setContent {
+            var providedLayoutDirection by remember {
+                mutableStateOf(LayoutDirection.Ltr)
+            }
+            Column {
+                CompositionLocalProvider(LocalLayoutDirection provides providedLayoutDirection) {
+                    Button(modifier = Modifier.testTag(tag), onClick = {
+                        providedLayoutDirection =
+                            if (providedLayoutDirection == LayoutDirection.Ltr) {
+                                LayoutDirection.Rtl
+                            } else {
+                                LayoutDirection.Ltr
+                            }
+                    }) {
+                        Text(modifier = Modifier
+                            .drawWithCache {
+                                resolvedLayoutDirection = layoutDirection
+                                drawLatch.countDown()
+                                onDrawBehind {
+                                    drawLayoutDirection = layoutDirection
+                                }
+                            },
+                            text = "Change Layout Direction"
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(LayoutDirection.Ltr, resolvedLayoutDirection)
+        assertEquals(LayoutDirection.Ltr, drawLayoutDirection)
+
+        drawLatch = CountDownLatch(1)
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.waitForIdle()
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(LayoutDirection.Rtl, resolvedLayoutDirection)
+        assertEquals(LayoutDirection.Rtl, drawLayoutDirection)
+    }
+
+    @Test
+    fun testDensityChangeInvalidatesDrawWithCache() {
+        var resolvedDensity: Density? = null
+        var drawDensity: Density? = null
+        var drawLatch = CountDownLatch(1)
+        val tag = "tag"
+        rule.setContent {
+            var providedDensity by remember { mutableStateOf(Density(2f, 2f)) }
+            Column {
+                CompositionLocalProvider(LocalDensity provides providedDensity) {
+                    Button(modifier = Modifier.testTag(tag), onClick = {
+                        providedDensity = if (providedDensity.density == 2f) {
+                            Density(3f, 3f)
+                        } else {
+                            Density(2f, 2f)
+                        }
+                    }) {
+                        Text(modifier = Modifier
+                            .drawWithCache {
+                                resolvedDensity = Density(density, fontScale)
+                                drawLatch.countDown()
+                                onDrawBehind {
+                                    drawDensity = Density(density, fontScale)
+                                }
+                            },
+                            text = "Change Layout Direction"
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(Density(2f, 2f), resolvedDensity)
+        assertEquals(Density(2f, 2f), drawDensity)
+
+        drawLatch = CountDownLatch(1)
+        rule.onNodeWithTag(tag).performClick()
+
+        rule.waitForIdle()
+        assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(Density(3f, 3f), resolvedDensity)
+        assertEquals(Density(3f, 3f), drawDensity)
     }
 
     @Test
