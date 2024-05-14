@@ -142,7 +142,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.tasks.register(BUILD_ON_SERVER_TASK, DefaultTask::class.java)
         // Perform different actions based on which plugins have been applied to the project.
         // Many of the actions overlap, ex. API tracking.
-        project.plugins.all { plugin ->
+        project.plugins.configureEach { plugin ->
             @Suppress("UnstableApiUsage") // PrivacySandboxSdkPlugin, KMPAndroidPlugin
             when (plugin) {
                 is JavaGradlePluginPlugin -> configureGradlePluginPlugin(project)
@@ -357,7 +357,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         val kotlinTestVersionStringProvider = androidXConfiguration.kotlinTestBomVersion
 
         // Resolve unspecified Kotlin versions to the target version.
-        configurations.all { configuration ->
+        configurations.configureEach { configuration ->
             val useVersionStringProvider = if (configuration.isTest()) {
                 kotlinTestVersionStringProvider
             } else {
@@ -976,7 +976,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         // Workaround for b/120487939 wherein Gradle's default resolution strategy prefers external
         // modules with lower versions over local projects with higher versions.
-        project.configurations.all { configuration ->
+        project.configurations.configureEach { configuration ->
             configuration.resolutionStrategy.preferProjectModules()
         }
 
@@ -1074,7 +1074,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureErrorProneForAndroid()
 
         // workaround for b/120487939
-        project.configurations.all { configuration ->
+        project.configurations.configureEach { configuration ->
             // Gradle seems to crash on androidtest configurations
             // preferring project modules...
             if (!configuration.name.lowercase(Locale.US).contains("androidtest")) {
@@ -1193,8 +1193,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         // that test bytecode is binary- and behavior-compatible with the main source set's
         // bytecode. For AndroidX, though, we require backward compatibility and therefore
         // don't need to enforce such constraints.
-        project.configurations.all { configuration ->
-            if (!configuration.isTest()) return@all
+        project.configurations.configureEach { configuration ->
+            if (!configuration.isTest()) return@configureEach
 
             configuration.dependencyConstraints.configureEach { dependencyConstraint ->
                 val strictVersion = dependencyConstraint.versionConstraint.strictVersion
@@ -1237,7 +1237,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         // Configure all KMP targets to allow expect/actual classes that are not stable.
         // (see https://youtrack.jetbrains.com/issue/KT-61573)
-        kmpExtension.targets.all { kotlinTarget ->
+        kmpExtension.targets.configureEach { kotlinTarget ->
             kotlinTarget.compilations.configureEach {
                 it.compilerOptions.options.freeCompilerArgs.add("-Xexpect-actual-classes")
             }
@@ -1643,7 +1643,7 @@ private fun Test.configureForRobolectric() {
 }
 
 private fun Project.enforceBanOnVersionRanges() {
-    configurations.all { configuration ->
+    configurations.configureEach { configuration ->
         configuration.resolutionStrategy.eachDependency { dep ->
             val target = dep.target
             val version = target.version

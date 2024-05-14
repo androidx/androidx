@@ -40,7 +40,7 @@ import org.jetbrains.kotlin.tooling.core.withClosure
 
 /** Single entry point to Android Lint configuration. */
 fun Project.configureLint() {
-    project.plugins.all { plugin ->
+    project.plugins.configureEach { plugin ->
         when (plugin) {
             is AppPlugin -> configureAndroidProjectForLint(isLibrary = false)
             is LibraryPlugin -> configureAndroidProjectForLint(isLibrary = true)
