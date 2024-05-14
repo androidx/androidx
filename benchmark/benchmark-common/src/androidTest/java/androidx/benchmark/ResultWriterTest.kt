@@ -88,6 +88,7 @@ class ResultWriterTest {
         val sustainedPerformanceModeInUse = IsolationActivity.sustainedPerformanceModeInUse
 
         ResultWriter.writeReport(tempFile, listOf(reportA, reportB))
+        val context = BenchmarkData.Context()
         assertEquals(
             """
             {
@@ -96,8 +97,11 @@ class ResultWriterTest {
                         "brand": "${Build.BRAND}",
                         "device": "${Build.DEVICE}",
                         "fingerprint": "${Build.FINGERPRINT}",
+                        "id": "${Build.ID}",
                         "model": "${Build.MODEL}",
+                        "type": "${Build.TYPE}",
                         "version": {
+                            "codename": "${Build.VERSION.CODENAME}",
                             "sdk": ${Build.VERSION.SDK_INT}
                         }
                     },
@@ -105,7 +109,9 @@ class ResultWriterTest {
                     "cpuLocked": ${CpuInfo.locked},
                     "cpuMaxFreqHz": ${CpuInfo.maxFreqHz},
                     "memTotalBytes": ${MemInfo.memTotalBytes},
-                    "sustainedPerformanceModeEnabled": $sustainedPerformanceModeInUse
+                    "sustainedPerformanceModeEnabled": $sustainedPerformanceModeInUse,
+                    "artMainlineVersion": ${context.artMainlineVersion},
+                    "osCodenameAbbreviated": "${context.osCodenameAbbreviated}"
                 },
                 "benchmarks": [
                     {

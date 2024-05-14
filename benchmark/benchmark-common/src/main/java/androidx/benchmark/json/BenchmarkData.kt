@@ -17,6 +17,7 @@
 package androidx.benchmark.json
 
 import androidx.benchmark.CpuInfo
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.IsolationActivity
 import androidx.benchmark.MemInfo
 import androidx.benchmark.Profiler
@@ -52,6 +53,9 @@ data class BenchmarkData(
         @Suppress("GetterSetterNames") // 1.0 JSON compat
         @get:Suppress("GetterSetterNames") // 1.0 JSON compat
         val sustainedPerformanceModeEnabled: Boolean,
+        val artMainlineVersion: Long, // -1 if not found
+        val osCodenameAbbreviated: String,
+        // Note: Convention is to add new entries at bottom
     ) {
         /**
          * Default constructor populates with current run state
@@ -62,19 +66,33 @@ data class BenchmarkData(
             cpuLocked = CpuInfo.locked,
             cpuMaxFreqHz = CpuInfo.maxFreqHz,
             memTotalBytes = MemInfo.memTotalBytes,
-            sustainedPerformanceModeEnabled = IsolationActivity.sustainedPerformanceModeInUse
+            sustainedPerformanceModeEnabled = IsolationActivity.sustainedPerformanceModeInUse,
+            artMainlineVersion = DeviceInfo.artMainlineVersion,
+            osCodenameAbbreviated = if (android.os.Build.VERSION.CODENAME != "REL") {
+                // non-release build, use codename
+                android.os.Build.VERSION.CODENAME
+            } else {
+                // release build, use start of build ID
+                android.os.Build.ID
+            }.substring(0, 1),
         )
 
         /**
          * Device & OS information, corresponds to `android.os.Build`
+         *
+         * Anything that doesn't correspond exactly to `android.os.Build` should be in context
+         * instead
          */
         @JsonClass(generateAdapter = true)
         data class Build(
             val brand: String,
             val device: String,
             val fingerprint: String,
+            val id: String,
             val model: String,
+            val type: String,
             val version: Version
+            // Note: Convention is alphabetical
         ) {
             /**
              * Default constructor which populates values from `android.os.BUILD`
@@ -83,13 +101,19 @@ data class BenchmarkData(
                 brand = android.os.Build.BRAND,
                 device = android.os.Build.DEVICE,
                 fingerprint = android.os.Build.FINGERPRINT,
+                id = android.os.Build.ID,
                 model = android.os.Build.MODEL,
-                version = Version(android.os.Build.VERSION.SDK_INT)
+                type = android.os.Build.TYPE,
+                version = Version(
+                    codename = android.os.Build.VERSION.CODENAME,
+                    sdk = android.os.Build.VERSION.SDK_INT,
+                ),
             )
 
             @JsonClass(generateAdapter = true)
             data class Version(
-                val sdk: Int
+                val codename: String,
+                val sdk: Int,
             )
         }
     }
