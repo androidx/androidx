@@ -9224,4 +9224,41 @@ public abstract class AppSearchSessionCtsTestBase {
                 Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS
                 + " are not available on this AppSearch implementation.");
     }
+
+    @Test
+    public void testPutDocuments_emptyBytesAndDocuments() throws Exception {
+        // Schema registration
+        AppSearchSchema schema = new AppSearchSchema.Builder("testSchema")
+                .addProperty(new AppSearchSchema.BytesPropertyConfig.Builder("bytes")
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                        .build())
+                .addProperty(new AppSearchSchema.DocumentPropertyConfig.Builder(
+                        "document", AppSearchEmail.SCHEMA_TYPE)
+                        .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+                        .setShouldIndexNestedProperties(true)
+                        .build())
+                .build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(schema, AppSearchEmail.SCHEMA).build()).get();
+
+        // Index a document
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "testSchema")
+                .setPropertyBytes("bytes")
+                .setPropertyDocument("document")
+                .build();
+
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(document).build()));
+        assertThat(result.getSuccesses()).containsExactly("id1", null);
+        assertThat(result.getFailures()).isEmpty();
+
+        GetByDocumentIdRequest request = new GetByDocumentIdRequest.Builder("namespace")
+                .addIds("id1")
+                .build();
+        List<GenericDocument> outDocuments = doGet(mDb1, request);
+        assertThat(outDocuments).hasSize(1);
+        GenericDocument outDocument = outDocuments.get(0);
+        assertThat(outDocument.getPropertyBytesArray("bytes")).isEmpty();
+        assertThat(outDocument.getPropertyDocumentArray("document")).isEmpty();
+    }
 }
