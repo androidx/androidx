@@ -15,7 +15,9 @@
  */
 package androidx.compose.ui.awt
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -29,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -36,7 +39,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.sendMouseEvent
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.ThrowUncaughtExceptionRule
@@ -47,6 +49,7 @@ import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.GraphicsEnvironment
 import java.awt.event.MouseEvent
+import javax.swing.JButton
 import javax.swing.JFrame
 import javax.swing.JPanel
 import junit.framework.TestCase.assertTrue
@@ -457,6 +460,61 @@ class ComposePanelTest {
             assertEquals(1, exitEvents)
         } finally {
             window.dispose()
+        }
+    }
+
+    @Test
+    fun `requestFocus assigns focus to first focusable element`() = runApplicationTest {
+        assumeFalse(GraphicsEnvironment.getLocalGraphicsEnvironment().isHeadlessInstance)
+
+        var focusedElement: String? = null
+        val composePanel = ComposePanel()
+        composePanel.setBounds(0, 25, 100, 100)
+        composePanel.setContent {
+            Column {
+                Box(Modifier
+                    .size(10.dp)
+                    .onFocusChanged {
+                        focusedElement = if (it.isFocused) "first" else null
+                    }
+                    .focusable()
+                )
+                Box(Modifier
+                    .size(10.dp)
+                    .onFocusChanged {
+                        focusedElement = if (it.isFocused) "second" else null
+                    }
+                    .focusable()
+                )
+            }
+        }
+
+        val frame = JFrame()
+        try {
+            val button = JButton("Button")
+            frame.size = Dimension(500, 500)
+            frame.contentPane.add(button, BorderLayout.NORTH)
+            frame.contentPane.add(composePanel, BorderLayout.CENTER)
+            frame.isVisible = true
+
+            assertEquals(null, focusedElement)
+
+            // The first requestFocus sends a focusGained(Cause.ACTIVATION) event
+            composePanel.requestFocus()
+            awaitIdle()
+            assertEquals("first", focusedElement)
+
+            // Switch focus back to Swing
+            button.requestFocus()
+            awaitIdle()
+            assertEquals(null, focusedElement)
+
+            // The 2nd requestFocus sends a focusGained(Cause.UNKNOWN) event; we want to test both
+            composePanel.requestFocus()
+            awaitIdle()
+            assertEquals("first", focusedElement)
+        } finally {
+            frame.dispose()
         }
     }
 }

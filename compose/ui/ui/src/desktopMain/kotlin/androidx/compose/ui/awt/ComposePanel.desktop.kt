@@ -216,11 +216,12 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
                             FocusEvent.Cause.TRAVERSAL_FORWARD -> {
                                 focusManager.moveFocus(FocusDirection.Next)
                             }
-
                             FocusEvent.Cause.TRAVERSAL_BACKWARD -> {
                                 focusManager.moveFocus(FocusDirection.Previous)
                             }
-
+                            FocusEvent.Cause.UNKNOWN, FocusEvent.Cause.ACTIVATION -> {
+                                focusManager.moveFocus(FocusDirection.Enter)
+                            }
                             else -> Unit
                         }
                     }
