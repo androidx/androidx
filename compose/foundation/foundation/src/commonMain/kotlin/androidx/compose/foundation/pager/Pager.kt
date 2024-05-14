@@ -400,7 +400,7 @@ private class DefaultPagerNestedScrollConnection(
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         return if (
         // rounding error and drag only
-            source == NestedScrollSource.UserInput && abs(state.currentPageOffsetFraction) > 0e-6
+            source == NestedScrollSource.UserInput && abs(state.currentPageOffsetFraction) > 1e-6
         ) {
             // find the current and next page (in the direction of dragging)
             val currentPageOffset = state.currentPageOffsetFraction * state.pageSize
