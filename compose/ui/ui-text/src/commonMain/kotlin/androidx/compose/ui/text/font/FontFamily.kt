@@ -168,16 +168,14 @@ sealed class SystemFontFamily : FontFamily(true)
  */
 @Immutable
 class FontListFontFamily internal constructor(
-    fonts: List<Font>
+    /**
+     * The fallback list of fonts used for resolving typefaces for this FontFamily.
+     */
+    val fonts: List<Font>
 ) : FileBasedFontFamily(), List<Font> by fonts {
     init {
         check(fonts.isNotEmpty()) { "At least one font should be passed to FontFamily" }
     }
-
-    /**
-     * The fallback list of fonts used for resolving typefaces for this FontFamily.
-     */
-    val fonts: List<Font> = ArrayList(fonts)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
