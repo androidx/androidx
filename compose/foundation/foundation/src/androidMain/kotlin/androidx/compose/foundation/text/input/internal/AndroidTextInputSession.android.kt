@@ -36,7 +36,6 @@ import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.KeyboardType
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -87,22 +86,21 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                 val oldComposition = oldValue.composition
                 val newComposition = newValue.composition
 
-                if ((oldSelection != newSelection) || oldComposition != newComposition) {
+                // No need to restart the IME if there wasn't a composing region. This is useful
+                // to not unnecessarily restart filtered digit only, or password fields.
+                if (restartImeIfContentChanges &&
+                    oldValue.composition != null &&
+                    !oldValue.contentEquals(newValue)
+                ) {
+                    composeImm.restartInput()
+                } else if (oldSelection != newSelection || oldComposition != newComposition) {
+                    // Don't call updateSelection if input is going to be restarted anyway
                     composeImm.updateSelection(
                         selectionStart = newSelection.min,
                         selectionEnd = newSelection.max,
                         compositionStart = newComposition?.min ?: -1,
                         compositionEnd = newComposition?.max ?: -1
                     )
-                }
-
-                // No need to restart the IME if keyboard type is configured as Password. IME
-                // should not keep an internal input state if the content needs to be secured.
-                if (restartImeIfContentChanges &&
-                    !oldValue.contentEquals(newValue) &&
-                    imeOptions.keyboardType != KeyboardType.Password
-                ) {
-                    composeImm.restartInput()
                 }
             }
         }
