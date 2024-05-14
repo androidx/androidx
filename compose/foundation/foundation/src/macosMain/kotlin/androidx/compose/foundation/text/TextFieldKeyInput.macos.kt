@@ -18,9 +18,18 @@ package androidx.compose.foundation.text
 
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.key.utf16CodePoint
 
 actual val KeyEvent.isTypedEvent: Boolean
-    get() = type == KeyEventType.KeyDown && !isMetaPressed && utf16CodePoint != 0
+    get() = type == KeyEventType.KeyDown &&
+        !isISOControl(utf16CodePoint) &&
+        !isAppKitReserved(utf16CodePoint)
+
+private fun isISOControl(codePoint: Int): Boolean =
+    codePoint in 0x00..0x1F ||
+    codePoint in 0x7F..0x9F
+
+// https://www.unicode.org/Public/MAPPINGS/VENDORS/APPLE/CORPCHAR.TXT
+private fun isAppKitReserved(codePoint: Int): Boolean =
+    codePoint in 0xF700..0xF8FF
