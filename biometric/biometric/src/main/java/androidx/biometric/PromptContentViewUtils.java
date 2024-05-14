@@ -17,11 +17,14 @@
 package androidx.biometric;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+
+import java.util.concurrent.Executor;
 
 /**
  * Utility class for creating and converting between different types of prompt content view that may
@@ -35,19 +38,21 @@ class PromptContentViewUtils {
     /**
      * Wraps a prompt content view to be passed to {@link BiometricPrompt}.
      *
-     * @param contentView An instance of {@link PromptContentView}.
+     * @param contentView               An instance of {@link PromptContentView}.
+     * @param executor                  An executor for the more options button callback.
+     * @param moreOptionsButtonListener A listener for the more options button press event.
      * @return An equivalent prompt content view that is compatible with
      * {@link android.hardware.biometrics.PromptContentView}.
      */
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @Nullable
     static android.hardware.biometrics.PromptContentView wrapForBiometricPrompt(
-            @Nullable PromptContentView contentView) {
+            @Nullable PromptContentView contentView, @NonNull Executor executor,
+            @NonNull DialogInterface.OnClickListener moreOptionsButtonListener) {
 
         if (contentView == null) {
             return null;
         }
-
 
         // Prompt content view is only supported on API 35 and above.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
@@ -56,7 +61,8 @@ class PromptContentViewUtils {
                         (PromptVerticalListContentView) contentView);
             } else if (contentView instanceof PromptContentViewWithMoreOptionsButton) {
                 return Api35Impl.createPromptContentViewWithMoreOptionsButton(
-                        (PromptContentViewWithMoreOptionsButton) contentView);
+                        (PromptContentViewWithMoreOptionsButton) contentView, executor,
+                        moreOptionsButtonListener);
             }
         }
 
@@ -81,13 +87,15 @@ class PromptContentViewUtils {
          * @param contentView The prompt content view to be wrapped.
          * @return An instance of {@link android.hardware.biometrics.PromptVerticalListContentView}.
          */
-        @Nullable
+        @NonNull
         static android.hardware.biometrics.PromptContentView createPromptVerticalListContentView(
                 @NonNull PromptVerticalListContentView contentView) {
             android.hardware.biometrics.PromptVerticalListContentView.Builder
                     contentViewBuilder =
                     new android.hardware.biometrics.PromptVerticalListContentView.Builder();
-            contentViewBuilder.setDescription(contentView.getDescription());
+            if (contentView.getDescription() != null) {
+                contentViewBuilder.setDescription(contentView.getDescription());
+            }
             contentView.getListItems().forEach(
                     it -> {
                         if (it instanceof PromptContentItemPlainText) {
@@ -108,20 +116,26 @@ class PromptContentViewUtils {
          * {@link android.hardware.biometrics.PromptContentViewWithMoreOptionsButton} from the
          * given content view.
          *
-         * @param contentView The prompt content view to be wrapped.
+         * @param contentView               The prompt content view to be wrapped.
+         * @param executor                  An executor for the more options button callback.
+         * @param moreOptionsButtonListener A listener for the more options button press event.
          * @return An instance of
          * {@link android.hardware.biometrics.PromptContentViewWithMoreOptionsButton}.
          */
-        @Nullable
+        @NonNull
         static android.hardware.biometrics.PromptContentView
                 createPromptContentViewWithMoreOptionsButton(
-                        @NonNull PromptContentViewWithMoreOptionsButton contentView) {
+                        @NonNull PromptContentViewWithMoreOptionsButton contentView,
+                        @NonNull Executor executor,
+                        @NonNull DialogInterface.OnClickListener moreOptionsButtonListener) {
             android.hardware.biometrics.PromptContentViewWithMoreOptionsButton.Builder
                     contentViewBuilder =
                     new android.hardware.biometrics.PromptContentViewWithMoreOptionsButton
                             .Builder();
-            contentViewBuilder.setDescription(contentView.getDescription());
-            // TODO(b/302735285) Call setMoreOptionsButtonListener()
+            if (contentView.getDescription() != null) {
+                contentViewBuilder.setDescription(contentView.getDescription());
+            }
+            contentViewBuilder.setMoreOptionsButtonListener(executor, moreOptionsButtonListener);
             return contentViewBuilder.build();
         }
     }
