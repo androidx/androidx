@@ -21,10 +21,10 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.hardware.biometrics.BiometricManager
 import android.hardware.biometrics.BiometricPrompt
-import android.os.Build
 import android.os.Bundle
 import android.service.credentials.CredentialEntry
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 import androidx.credentials.CredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
@@ -48,7 +48,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = 26) // Instant usage
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class PublicKeyCredentialEntryTest {
@@ -139,14 +139,6 @@ class PublicKeyCredentialEntryTest {
         val entry = constructWithAllParams()
 
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun constructor_allRequiredParamsUsed_setBiometricPromptRetrieved() {
-        val entry = constructWithAllParams()
-
-        assertThat(entry.biometricPromptData).isEqualTo(TEST_BIOMETRIC_DATA)
     }
 
     @Test
@@ -294,18 +286,7 @@ class PublicKeyCredentialEntryTest {
         )
     }
     private fun constructWithAllParams(): PublicKeyCredentialEntry {
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            PublicKeyCredentialEntry(
-            mContext,
-            USERNAME,
-            mPendingIntent,
-            BEGIN_OPTION,
-            DISPLAYNAME,
-            Instant.ofEpochMilli(LAST_USED_TIME),
-            ICON,
-            IS_AUTO_SELECT_ALLOWED,
-            SINGLE_PROVIDER_ICON_BIT,
-        ) } else {
+        return if (BuildCompat.isAtLeastV()) {
             PublicKeyCredentialEntry(
                 mContext,
                 USERNAME,
@@ -316,7 +297,19 @@ class PublicKeyCredentialEntryTest {
                 ICON,
                 IS_AUTO_SELECT_ALLOWED,
                 SINGLE_PROVIDER_ICON_BIT,
-                TEST_BIOMETRIC_DATA
+                testBiometricPromptData()
+            )
+        } else {
+            PublicKeyCredentialEntry(
+                mContext,
+                USERNAME,
+                mPendingIntent,
+                BEGIN_OPTION,
+                DISPLAYNAME,
+                Instant.ofEpochMilli(LAST_USED_TIME),
+                ICON,
+                IS_AUTO_SELECT_ALLOWED,
+                SINGLE_PROVIDER_ICON_BIT,
             )
         }
     }
@@ -340,10 +333,9 @@ class PublicKeyCredentialEntryTest {
         assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(SINGLE_PROVIDER_ICON_BIT)
         assertThat(entry.affiliatedDomain).isNull()
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            entry.biometricPromptData != null) {
+        if (BuildCompat.isAtLeastV() && entry.biometricPromptData != null) {
             assertThat(entry.biometricPromptData!!.allowedAuthenticators).isEqualTo(
-                TEST_BIOMETRIC_DATA.allowedAuthenticators)
+                testBiometricPromptData().allowedAuthenticators)
         } else {
             assertThat(entry.biometricPromptData).isNull()
         }
@@ -368,12 +360,12 @@ class PublicKeyCredentialEntryTest {
         private const val DEFAULT_SINGLE_PROVIDER_ICON_BIT = false
         private const val SINGLE_PROVIDER_ICON_BIT = true
 
-        @RequiresApi(Build.VERSION_CODES.P)
-        private val TEST_BIOMETRIC_DATA = BiometricPromptData(
-            BiometricPrompt.CryptoObject(
-                NullCipher()
-            ),
-            BiometricManager.Authenticators.BIOMETRIC_STRONG
-        )
+        @RequiresApi(35)
+        private fun testBiometricPromptData(): BiometricPromptData {
+            return BiometricPromptData.Builder()
+                .setCryptoObject(BiometricPrompt.CryptoObject(NullCipher()))
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build()
+        }
     }
 }

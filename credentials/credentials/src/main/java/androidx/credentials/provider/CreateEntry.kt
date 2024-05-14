@@ -62,7 +62,7 @@ import java.util.Collections
  *
  * @throws IllegalArgumentException If [accountName] is empty
  */
-@RequiresApi(26)
+@RequiresApi(23)
 class CreateEntry internal constructor(
     val accountName: CharSequence,
     val pendingIntent: PendingIntent,

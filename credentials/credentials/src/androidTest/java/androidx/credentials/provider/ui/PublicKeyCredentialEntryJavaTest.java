@@ -31,10 +31,10 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.hardware.biometrics.BiometricManager;
 import android.hardware.biometrics.BiometricPrompt;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.os.BuildCompat;
 import androidx.credentials.PublicKeyCredential;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
@@ -54,7 +54,7 @@ import java.time.Instant;
 import javax.crypto.NullCipher;
 
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = 26) // Instant usage
 @SmallTest
 public class PublicKeyCredentialEntryJavaTest {
     private static final CharSequence USERNAME = "title";
@@ -65,11 +65,6 @@ public class PublicKeyCredentialEntryJavaTest {
     private static final boolean SINGLE_PROVIDER_ICON_BIT = true;
     private static final Icon ICON = Icon.createWithBitmap(
             Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888));
-    @RequiresApi(28) // CryptoObject necessitates a minimum API level of 28
-    private static final BiometricPromptData TEST_BIOMETRIC_DATA = new BiometricPromptData.Builder()
-            .setCryptoObject(new BiometricPrompt.CryptoObject(new NullCipher()))
-            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-            .build();
     private static final boolean IS_AUTO_SELECT_ALLOWED = true;
     private final BeginGetPublicKeyCredentialOption mBeginOption =
             new BeginGetPublicKeyCredentialOption(new Bundle(), "id",
@@ -244,8 +239,8 @@ public class PublicKeyCredentialEntryJavaTest {
                 mBeginOption).setAutoSelectAllowed(IS_AUTO_SELECT_ALLOWED).setDisplayName(
                 DISPLAYNAME).setLastUsedTime(Instant.ofEpochMilli(LAST_USED_TIME)).setIcon(
                 ICON).setDefaultIconPreferredAsSingleProvider(SINGLE_PROVIDER_ICON_BIT);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            testBuilder.setBiometricPromptData(TEST_BIOMETRIC_DATA);
+        if (BuildCompat.isAtLeastV()) {
+            testBuilder.setBiometricPromptData(testBiometricPromptData());
         }
         return testBuilder.build();
     }
@@ -270,12 +265,19 @@ public class PublicKeyCredentialEntryJavaTest {
                 SINGLE_PROVIDER_ICON_BIT);
         assertThat(entry.getAffiliatedDomain()).isNull();
         assertThat(entry.getEntryGroupId()).isEqualTo(USERNAME);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
-                && entry.getBiometricPromptData() != null) {
+        if (BuildCompat.isAtLeastV() && entry.getBiometricPromptData() != null) {
             assertThat(entry.getBiometricPromptData().getAllowedAuthenticators()).isEqualTo(
-                    TEST_BIOMETRIC_DATA.getAllowedAuthenticators());
+                    testBiometricPromptData().getAllowedAuthenticators());
         } else {
             assertThat(entry.getBiometricPromptData()).isNull();
         }
+    }
+
+    @RequiresApi(35)
+    private static BiometricPromptData testBiometricPromptData() {
+        return new BiometricPromptData.Builder()
+                .setCryptoObject(new BiometricPrompt.CryptoObject(new NullCipher()))
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build();
     }
 }

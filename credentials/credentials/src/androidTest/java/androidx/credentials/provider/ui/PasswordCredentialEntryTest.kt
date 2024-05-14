@@ -21,10 +21,10 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.hardware.biometrics.BiometricManager
 import android.hardware.biometrics.BiometricPrompt
-import android.os.Build
 import android.os.Bundle
 import android.service.credentials.CredentialEntry
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 import androidx.credentials.CredentialOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.R
@@ -46,8 +46,9 @@ import org.junit.Assert
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
+
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = 26) // Instant usage
 @SmallTest
 class PasswordCredentialEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -220,24 +221,6 @@ class PasswordCredentialEntryTest {
         assertThat(defaultEntry.biometricPromptData).isNull()
     }
 
-    @RequiresApi(Build.VERSION_CODES.P)
-    @Test
-    fun constructor_nonDefaultBiometricPromptData_setBiometricPromptDataRetrieved() {
-        val entryWithAffiliationType = PasswordCredentialEntry(
-            mContext,
-            USERNAME,
-            mPendingIntent,
-            BEGIN_OPTION,
-            DISPLAYNAME,
-            LAST_USED_TIME,
-            ICON,
-            affiliatedDomain = AFFILIATED_DOMAIN,
-            biometricPromptData = TEST_BIOMETRIC_DATA,
-        )
-
-        assertThat(entryWithAffiliationType.biometricPromptData).isEqualTo(TEST_BIOMETRIC_DATA)
-    }
-
     @Test
     fun constructor_nonEmptyAffiliatedDomainSet_nonEmptyAffiliatedDomainRetrieved() {
         val expectedAffiliatedDomain = "non-empty"
@@ -290,14 +273,6 @@ class PasswordCredentialEntryTest {
         val entry = constructEntryWithAllParams()
 
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 28)
-    fun constructor_allRequiredParamsUsed_setBiometricPromptRetrieved() {
-        val entry = constructEntryWithAllParams()
-
-        assertThat(entry.biometricPromptData).isEqualTo(TEST_BIOMETRIC_DATA)
     }
 
     @Test
@@ -386,7 +361,7 @@ class PasswordCredentialEntryTest {
         )
     }
     private fun constructEntryWithAllParams(): PasswordCredentialEntry {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        return if (BuildCompat.isAtLeastV()) {
             PasswordCredentialEntry(
                 mContext,
                 USERNAME,
@@ -398,7 +373,7 @@ class PasswordCredentialEntryTest {
                 IS_AUTO_SELECT_ALLOWED,
                 AFFILIATED_DOMAIN,
                 SINGLE_PROVIDER_ICON_BIT,
-                TEST_BIOMETRIC_DATA,
+                testBiometricPromptData(),
             )
         } else {
             PasswordCredentialEntry(
@@ -442,10 +417,10 @@ class PasswordCredentialEntryTest {
         assertThat(entry.affiliatedDomain).isEqualTo(AFFILIATED_DOMAIN)
         assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(SINGLE_PROVIDER_ICON_BIT)
         assertThat(entry.entryGroupId).isEqualTo(USERNAME)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (BuildCompat.isAtLeastV()) {
         // TODO(b/325469910) : Add cryptoObject tests once opId is retrievable
         assertThat(entry.biometricPromptData!!.allowedAuthenticators).isEqualTo(
-            TEST_BIOMETRIC_DATA.allowedAuthenticators)
+            testBiometricPromptData().allowedAuthenticators)
         } else {
             assertThat(entry.biometricPromptData).isNull()
         }
@@ -468,11 +443,12 @@ class PasswordCredentialEntryTest {
         private val AFFILIATED_DOMAIN = "affiliation-name"
         private const val DEFAULT_SINGLE_PROVIDER_ICON_BIT = false
         private const val SINGLE_PROVIDER_ICON_BIT = true
-        @RequiresApi(28) // CryptoObject necessitates a minimum API level of 28
-        private val TEST_BIOMETRIC_DATA = BiometricPromptData(
-            BiometricPrompt.CryptoObject(
-                NullCipher()),
-            BiometricManager.Authenticators.BIOMETRIC_STRONG
-        )
+        @RequiresApi(35)
+        private fun testBiometricPromptData(): BiometricPromptData {
+            return BiometricPromptData.Builder()
+                .setCryptoObject(BiometricPrompt.CryptoObject(NullCipher()))
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build()
+        }
     }
 }

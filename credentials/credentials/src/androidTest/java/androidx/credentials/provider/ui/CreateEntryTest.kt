@@ -24,6 +24,7 @@ import android.hardware.biometrics.BiometricManager
 import android.hardware.biometrics.BiometricPrompt
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 import androidx.credentials.provider.BiometricPromptData
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromCreateEntry
@@ -44,7 +45,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = 26) // Instant usage
 @SmallTest
 class CreateEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -69,14 +70,6 @@ class CreateEntryTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun constructor_allRequiredParamsUsed_setBiometricPromptRetrieved() {
-        val entry = constructEntryWithAllParams(TEST_BIOMETRIC_DATA)
-
-        assertThat(entry.biometricPromptData).isEqualTo(TEST_BIOMETRIC_DATA)
-    }
-
-    @Test
     fun constructor_requiredParameters_success() {
         val entry = constructEntryWithRequiredParams()
 
@@ -92,7 +85,7 @@ class CreateEntryTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     fun constructor_allParametersAboveApiO_success() {
-        val entry = constructEntryWithAllParams(TEST_BIOMETRIC_DATA)
+        val entry = constructEntryWithAllParams()
 
         assertNotNull(entry)
         assertEntryWithAllParams(entry)
@@ -172,9 +165,7 @@ class CreateEntryTest {
         assertThat(entry.biometricPromptData).isNull()
     }
 
-    private fun constructEntryWithAllParams(
-        biometricPromptData: BiometricPromptData? = null
-    ): CreateEntry {
+    private fun constructEntryWithAllParams(): CreateEntry {
         return CreateEntry(
             ACCOUNT_NAME,
             mPendingIntent,
@@ -185,7 +176,7 @@ class CreateEntryTest {
             PUBLIC_KEY_CREDENTIAL_COUNT,
             TOTAL_COUNT,
             AUTO_SELECT_BIT,
-            biometricPromptData
+            if (BuildCompat.isAtLeastV()) testBiometricPromptData() else null,
         )
     }
 
@@ -210,19 +201,13 @@ class CreateEntryTest {
             entry.getTotalCredentialCount()
         )
         assertThat(AUTO_SELECT_BIT).isTrue()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            entry.biometricPromptData != null) {
-            assertAboveApiP(entry)
+        if (BuildCompat.isAtLeastV() && entry.biometricPromptData != null) {
+            assertThat(entry.biometricPromptData!!.allowedAuthenticators).isEqualTo(
+                testBiometricPromptData().allowedAuthenticators
+            )
         } else {
             assertThat(entry.biometricPromptData).isNull()
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.P)
-    private fun assertAboveApiP(entry: CreateEntry) {
-        assertThat(entry.biometricPromptData!!.allowedAuthenticators).isEqualTo(
-            TEST_BIOMETRIC_DATA.allowedAuthenticators
-        )
     }
 
     companion object {
@@ -239,12 +224,12 @@ class CreateEntryTest {
             )
         )
 
-        @RequiresApi(Build.VERSION_CODES.P) // The CryptoObject limits to API 28 and above
-        private val TEST_BIOMETRIC_DATA = BiometricPromptData(
-            BiometricPrompt.CryptoObject(
-                NullCipher()
-            ),
-            BiometricManager.Authenticators.BIOMETRIC_STRONG
-        )
+        @RequiresApi(35)
+        private fun testBiometricPromptData(): BiometricPromptData {
+            return BiometricPromptData.Builder()
+                .setCryptoObject(BiometricPrompt.CryptoObject(NullCipher()))
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build()
+        }
     }
 }

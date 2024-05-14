@@ -75,8 +75,8 @@ import java.util.Collections
  *
  * @see CredentialEntry
  */
+@RequiresApi(23)
 @Suppress("DEPRECATION") // For usage of slice
-@RequiresApi(26)
 class PublicKeyCredentialEntry internal constructor(
     val username: CharSequence,
     val displayName: CharSequence?,

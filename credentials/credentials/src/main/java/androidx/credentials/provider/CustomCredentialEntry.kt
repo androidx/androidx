@@ -76,7 +76,7 @@ import java.util.Collections
  *
  * @see CredentialEntry
  */
-@RequiresApi(26)
+@RequiresApi(23)
 class CustomCredentialEntry internal constructor(
     override val type: String,
     val title: CharSequence,
