@@ -21,6 +21,7 @@ import androidx.build.Release
 import androidx.build.RunApiTasks
 import androidx.build.Version
 import androidx.build.binarycompatibilityvalidator.BinaryCompatibilityValidation
+import androidx.build.getSupportRootFolder
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.java.JavaCompileInputs
 import androidx.build.metalava.MetalavaTasks
@@ -211,7 +212,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
             // "api" file to make sure the check task breaks if there were tracked resources before
             ResourceTasks.setupProject(
                 project,
-                project.provider { BlankRegularFile() },
+                project.provider { BlankApiRegularFile(project) },
                 builtApiLocation,
                 outputApiLocations
             )
@@ -223,7 +224,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
     }
 }
 
-internal class BlankRegularFile() : RegularFile {
-    private val tempFile = File.createTempFile("res", null)
-    override fun getAsFile(): File = tempFile
+internal class BlankApiRegularFile(project: Project) : RegularFile {
+    val file = File(project.getSupportRootFolder(), "buildSrc/blank-res-api/public.txt")
+    override fun getAsFile(): File = file
 }
