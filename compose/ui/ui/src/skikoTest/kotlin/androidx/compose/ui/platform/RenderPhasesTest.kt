@@ -30,6 +30,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -289,5 +290,36 @@ class RenderPhasesTest {
             mainClock.advanceTimeByFrame()
             assertEquals(1, layoutCount)
         }
+    }
+
+    @Test
+    fun measureAndLayoutRunsAgainBeforeDraw() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        // Android runs measureAndLayout again right before drawing; validate this behavior.
+        val state = mutableStateOf(0)
+        val events = mutableListOf<String>()
+        setContent {
+            Layout(
+                modifier = Modifier.drawBehind {
+                    events.add("draw.${state.value}")
+                },
+                measurePolicy = { _, _ ->
+                    events.add("measure.${state.value}")
+                    layout(100, 100) {
+                        events.add("layout.${state.value}")
+                        if (state.value == 0) {
+                            // Invalidate the scope exactly once
+                            state.value += 1
+                        }
+                    }
+                },
+            )
+        }
+
+        assertContentEquals(
+            expected = listOf("measure.0", "layout.0", "measure.1", "layout.1", "draw.1"),
+            actual = events
+        )
     }
 }
