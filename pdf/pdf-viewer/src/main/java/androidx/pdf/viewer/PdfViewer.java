@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -312,7 +313,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 .setInitialZoomMode(InitialZoomMode.ZOOM_TO_FIT)
                 .setRotateMode(RotateMode.KEEP_SAME_VIEWPORT_WIDTH)
                 .setContentResizedModeX(ContentResizedMode.KEEP_SAME_RELATIVE);
-        adjustZoomViewMargins();
 
         // Setting an id so that the View can restore itself. The Id has to be unique and
         // predictable. An alternative that doesn't require id is to rely on this Fragment's
@@ -325,6 +325,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
         mPageIndicator = new PageIndicator(getActivity(), mFastScrollView);
         applyReservedSpace();
+        adjustZoomViewMargins();
         mFastscrollerPositionObserver.onChange(null, mFastScrollView.getScrollerPositionY().get());
         mFastscrollerPositionObserverKey =
                 mFastScrollView.getScrollerPositionY().addObserver(mFastscrollerPositionObserver);
@@ -596,6 +597,12 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         Log.v(TAG, "Saved current reach " + mPageLayoutReach);
 
         outState.putBoolean(KEY_EDITING_AUTHORIZED, mEditingAuthorized);
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        adjustZoomViewMargins();
     }
 
     @Override
