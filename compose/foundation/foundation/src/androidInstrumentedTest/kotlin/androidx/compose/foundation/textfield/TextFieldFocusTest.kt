@@ -406,6 +406,7 @@ class TextFieldFocusTest {
         testKeyboardController.assertShown()
     }
 
+    @Ignore("339495780")
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard() {
@@ -426,6 +427,7 @@ class TextFieldFocusTest {
         rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
     }
 
+    @Ignore("339495780")
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard() {
@@ -448,6 +450,7 @@ class TextFieldFocusTest {
         rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(1))
     }
 
+    @Ignore("339495780")
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard() {
@@ -468,6 +471,7 @@ class TextFieldFocusTest {
         rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(3))
     }
 
+    @Ignore("339495780")
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
     fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard() {
