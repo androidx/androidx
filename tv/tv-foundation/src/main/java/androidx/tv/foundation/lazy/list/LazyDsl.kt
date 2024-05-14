@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.list
 
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +32,7 @@ compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/
  and modified */
 
 /** Receiver scope which is used by [TvLazyColumn] and [TvLazyRow]. */
+@Deprecated("Use `LazyListScope` instead.")
 @TvLazyListScopeMarker
 sealed interface TvLazyListScope {
     /**
@@ -112,6 +115,7 @@ sealed interface TvLazyListScope {
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Use `LazyListScope.items` instead.")
 inline fun <T> TvLazyListScope.items(
     items: List<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -141,6 +145,7 @@ inline fun <T> TvLazyListScope.items(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Use `LazyListScope.itemsIndexed` instead.")
 inline fun <T> TvLazyListScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -170,6 +175,7 @@ inline fun <T> TvLazyListScope.itemsIndexed(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Use `LazyListScope.items` instead.")
 inline fun <T> TvLazyListScope.items(
     items: Array<T>,
     noinline key: ((item: T) -> Any)? = null,
@@ -199,6 +205,7 @@ inline fun <T> TvLazyListScope.items(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
+@Deprecated("Use `LazyListScope.itemsIndexed` instead.")
 inline fun <T> TvLazyListScope.itemsIndexed(
     items: Array<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
@@ -240,6 +247,22 @@ inline fun <T> TvLazyListScope.itemsIndexed(
  * @param content a block which describes the content. Inside this block you can use methods like
  *   [TvLazyListScope.item] to add a single item or [TvLazyListScope.items] to add a list of items.
  */
+@Deprecated(
+    "LazyRow will, by default, set the position of focused item while scrolling on " +
+        "Tv. BringIntoViewSpec should be used to control the position.",
+    replaceWith =
+        ReplaceWith(
+            "LazyRow(" +
+                "modifier = modifier, " +
+                "contentPadding = contentPadding, " +
+                "reverseLayout = reverseLayout, " +
+                "horizontalArrangement = horizontalArrangement, " +
+                "verticalAlignment = verticalAlignment, " +
+                "userScrollEnabled = userScrollEnabled" +
+                ") { content() }",
+            imports = ["androidx.compose.foundation.lazy.LazyRow"],
+        )
+)
 @Composable
 fun TvLazyRow(
     modifier: Modifier = Modifier,
@@ -295,6 +318,22 @@ fun TvLazyRow(
  *   from the pivot defined by the parentOffset. [TvLazyListScope.item] to add a single item or
  *   [TvLazyListScope.items] to add a list of items.
  */
+@Deprecated(
+    "LazyColumn will, by default, set the position of focused item while scrolling on " +
+        "Tv. BringIntoViewSpec should be used to control the position.",
+    replaceWith =
+        ReplaceWith(
+            "LazyColumn(" +
+                "modifier = modifier, " +
+                "contentPadding = contentPadding, " +
+                "reverseLayout = reverseLayout, " +
+                "verticalArrangement = verticalArrangement, " +
+                "horizontalAlignment = horizontalAlignment, " +
+                "userScrollEnabled = userScrollEnabled" +
+                ") { content() }",
+            imports = ["androidx.compose.foundation.lazy.LazyColumn"],
+        )
+)
 @Composable
 fun TvLazyColumn(
     modifier: Modifier = Modifier,

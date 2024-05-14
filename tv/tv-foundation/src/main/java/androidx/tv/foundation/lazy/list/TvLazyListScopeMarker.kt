@@ -17,4 +17,6 @@
 package androidx.tv.foundation.lazy.list
 
 /** DSL marker used to distinguish between lazy layout scope and the item scope. */
-@DslMarker annotation class TvLazyListScopeMarker
+@Deprecated("No longer needed as TvLazyRow and TvLazyColumn have been deprecated.")
+@DslMarker
+annotation class TvLazyListScopeMarker

@@ -22,6 +22,7 @@ package androidx.tv.foundation.lazy.list
  *
  * @see TvLazyListLayoutInfo
  */
+@Deprecated("Use `LazyListItemInfo` instead.")
 sealed interface TvLazyListItemInfo {
     /** The index of the item in the list. */
     val index: Int

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation
 
 import androidx.annotation.FloatRange
@@ -27,6 +29,10 @@ import androidx.compose.runtime.Immutable
  * @property childFraction defines the offset of the starting edge of the child from the pivot
  *   defined by parentFraction. This value should be between 0 and 1.
  */
+@Deprecated(
+    "BringIntoViewSpec should be used to control the position of the " +
+        "focused item while scrolling."
+)
 @Immutable
 class PivotOffsets
 constructor(

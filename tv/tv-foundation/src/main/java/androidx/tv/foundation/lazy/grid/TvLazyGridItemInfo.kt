@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.IntSize
  *
  * @see TvLazyGridLayoutInfo
  */
+@Deprecated("Use `LazyGridItemInfo` instead.")
 sealed interface TvLazyGridItemInfo {
     /** The index of the item in the grid. */
     val index: Int

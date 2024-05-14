@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -22,6 +24,7 @@ import androidx.compose.runtime.Immutable
 /** Represents the span of an item in a [TvLazyVerticalGrid]. */
 @Immutable
 @kotlin.jvm.JvmInline
+@Deprecated("Use `GridItemSpan` instead.")
 value class TvGridItemSpan internal constructor(private val packedValue: Long) {
     /**
      * The span of the item on the current line. This will be the horizontal span for items of
@@ -36,9 +39,18 @@ value class TvGridItemSpan internal constructor(private val packedValue: Long) {
  * Creates a [TvGridItemSpan] with a specified [currentLineSpan]. This will be the horizontal span
  * for an item of a [TvLazyVerticalGrid].
  */
+@Deprecated(
+    "Use `GridItemSpan` instead.",
+    replaceWith =
+        ReplaceWith(
+            "GridItemSpan",
+            imports = arrayOf("androidx.compose.foundation.lazy.grid.GridItemSpan")
+        )
+)
 fun TvGridItemSpan(currentLineSpan: Int) = TvGridItemSpan(currentLineSpan.toLong())
 
 /** Scope of lambdas used to calculate the spans of items in lazy grids. */
+@Deprecated("Use `LazyGridItemSpanScope` instead.")
 @TvLazyGridScopeMarker
 sealed interface TvLazyGridItemSpanScope {
     /**
