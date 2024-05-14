@@ -682,7 +682,7 @@ class RouteFilledTest {
 
         assertFailsWith<SerializationException> {
             // the class must be serializable
-            TestClass().generateRouteWithArgs(emptyMap<String, NavType<Any?>>())
+            generateRouteWithArgs(TestClass(), emptyMap())
         }
     }
 
@@ -781,7 +781,7 @@ private fun <T : Any> assertThatRouteFilledFrom(
 ): String {
     val typeMap = mutableMapOf<String, NavType<Any?>>()
     customArgs?.forEach { typeMap[it.name] = it.argument.type }
-    return obj.generateRouteWithArgs(typeMap)
+    return generateRouteWithArgs(obj, typeMap)
 }
 
 internal fun String.isEqualTo(other: String) {

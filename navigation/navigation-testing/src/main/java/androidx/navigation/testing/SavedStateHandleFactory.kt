@@ -45,7 +45,7 @@ public operator fun SavedStateHandle.Companion.invoke(
         typeMap
     ).build()
     val map = dest.arguments.mapValues { it.value.type }
-    val deeplink = route.generateRouteWithArgs(map)
+    val deeplink = generateRouteWithArgs(route, map)
     val matching = dest.matchDeepLink(deeplink)
     checkNotNull(matching) {
         "Cannot match route [$deeplink] to [${route::class.simpleName}]"
