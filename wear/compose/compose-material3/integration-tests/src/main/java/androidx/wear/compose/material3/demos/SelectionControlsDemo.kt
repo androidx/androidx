@@ -28,51 +28,51 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.RadioButton
+import androidx.wear.compose.material3.SelectableButton
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun RadioDemos() {
+fun RadioButtonDemo() {
     var selectedIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            ListHeader { Text(text = "Radio control") }
+            ListHeader { Text(text = "Radio Button") }
         }
         item {
-            RadioDemo(
+            RadioButtonDemo(
                 selected = selectedIndex == 0,
                 onSelected = { selectedIndex = 0 },
                 enabled = true
             )
         }
         item {
-            RadioDemo(
+            RadioButtonDemo(
                 selected = selectedIndex == 1,
                 onSelected = { selectedIndex = 1 },
                 enabled = true
             )
         }
         item {
-            ListHeader { Text(text = "Disabled Radio control", textAlign = TextAlign.Center) }
+            ListHeader { Text(text = "Disabled Radio Button", textAlign = TextAlign.Center) }
         }
         item {
-            RadioDemo(selected = false, enabled = false)
+            RadioButtonDemo(selected = false, enabled = false)
         }
         item {
-            RadioDemo(selected = true, enabled = false)
+            RadioButtonDemo(selected = true, enabled = false)
         }
     }
 }
 
 @Composable
-private fun RadioDemo(
+private fun RadioButtonDemo(
     selected: Boolean,
     enabled: Boolean,
     onSelected: () -> Unit = {}
 ) {
-    RadioButton(
+    SelectableButton(
         label = {
             Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
