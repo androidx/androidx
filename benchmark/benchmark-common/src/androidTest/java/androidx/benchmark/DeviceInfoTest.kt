@@ -62,36 +62,49 @@ class DeviceInfoTest {
     }
 
     @Test
-    fun artMainlineVersion() {
-        // bypass main test if appear to be on go device without art mainline module
-        if (Build.VERSION.SDK_INT in 31..33 && DeviceInfo.isLowRamDevice) {
-            if (DeviceInfo.artMainlineVersion == DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED) {
-                return // bypass rest of test, appear to be on go device
-            }
+    fun artMainlineVersion() = validateArtMainlineVersion(
+        artMainlineVersion = DeviceInfo.artMainlineVersion
+    )
+}
+
+/**
+ * Shared logic for art mainline version validation, also used by
+ * [androidx.benchmark.json.BenchmarkDataTest.artMainlineVersion]
+ */
+fun validateArtMainlineVersion(
+    artMainlineVersion: Long?
+) {
+    // bypass main test if appear to be on go device without art mainline module
+    if (Build.VERSION.SDK_INT in 31..33 && DeviceInfo.isLowRamDevice) {
+        if (artMainlineVersion == DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED) {
+            return // bypass rest of test, appear to be on go device
         }
+    }
 
-        if (Build.VERSION.SDK_INT >= 30) {
-            // validate we have a reasonable looking number
-            if (Build.VERSION.SDK_INT >= 31) {
-                assertTrue(DeviceInfo.artMainlineVersion > 300000000)
-            } else {
-                assertEquals(1, DeviceInfo.artMainlineVersion)
-            }
-            // validate parsing by checking against shell command,
-            // which we don't use at runtime due to cost of shell commands
-            val shellVersion = Shell.executeCommandCaptureStdoutOnly(
-                "cmd package list packages --show-versioncode --apex-only art"
-            ).trim()
-
-            // "google" and "go" may or may not be present in package
-            val expectedRegExStr = "package:com(\\.google)?\\.android(\\.go)?\\.art" +
-                " versionCode:${DeviceInfo.artMainlineVersion}"
+    if (Build.VERSION.SDK_INT >= 30) {
+        // validate we have a reasonable looking number
+        if (Build.VERSION.SDK_INT >= 31) {
             assertTrue(
-                expectedRegExStr.toRegex().matches(shellVersion),
-                "Expected shell version ($shellVersion) to match $expectedRegExStr"
+                artMainlineVersion!! > 300000000,
+                "observed $artMainlineVersion, expected over 300000000"
             )
         } else {
-            assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, DeviceInfo.artMainlineVersion)
+            assertEquals(1, artMainlineVersion)
         }
+        // validate parsing by checking against shell command,
+        // which we don't use at runtime due to cost of shell commands
+        val shellVersion = Shell.executeCommandCaptureStdoutOnly(
+            "cmd package list packages --show-versioncode --apex-only art"
+        ).trim()
+
+        // "google" and "go" may or may not be present in package
+        val expectedRegExStr = "package:com(\\.google)?\\.android(\\.go)?\\.art" +
+            " versionCode:$artMainlineVersion"
+        assertTrue(
+            expectedRegExStr.toRegex().matches(shellVersion),
+            "Expected shell version ($shellVersion) to match $expectedRegExStr"
+        )
+    } else {
+        assertEquals(DeviceInfo.ART_MAINLINE_VERSION_UNDETECTED, artMainlineVersion)
     }
 }

@@ -4,8 +4,11 @@
             "brand": "google",
             "device": "mokey_go32",
             "fingerprint": "google/mokey_go32/mokey_go32:VanillaIceCream/MAIN/11551339:userdebug/dev-keys",
+            "id": "MAIN",
             "model": "32-bit Go Reference Device",
+            "type": "userdebug",
             "version": {
+                "codename": "VanillaIceCream",
                 "sdk": 34
             }
         },
@@ -13,7 +16,9 @@
         "cpuLocked": true,
         "cpuMaxFreqHz": 2000000000,
         "memTotalBytes": 1903734784,
-        "sustainedPerformanceModeEnabled": false
+        "sustainedPerformanceModeEnabled": false,
+        "osCodenameAbbreviated": "V",
+        "artMainlineVersion": 350090000
     },
     "benchmarks": [
         {
