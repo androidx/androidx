@@ -25,7 +25,7 @@ import static androidx.appcompat.testutils.TestUtilsMatchers.isBackground;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.testutils.LifecycleOwnerUtils.waitUntilState;
+import static androidx.testutils.lifecycle.LifecycleOwnerUtils.waitUntilState;
 import static androidx.testutils.PollingCheck.waitFor;
 
 import static org.junit.Assert.assertNull;

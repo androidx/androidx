@@ -38,7 +38,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.testutils.LifecycleOwnerUtils.waitForRecreation
+import androidx.testutils.lifecycle.LifecycleOwnerUtils.waitForRecreation
 import androidx.testutils.waitForExecution
 import java.util.concurrent.CountDownLatch
 import org.junit.Assert.assertEquals
