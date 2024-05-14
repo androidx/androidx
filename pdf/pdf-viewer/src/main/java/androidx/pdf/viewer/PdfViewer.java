@@ -934,7 +934,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @UiThread
     public void showSpinner() {
         if (mLoadingSpinner != null) {
-            mLoadingSpinner.setVisibility(View.VISIBLE);
+            mLoadingSpinner.post(() -> mLoadingSpinner.setVisibility(View.VISIBLE));
         }
     }
 
@@ -942,7 +942,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @UiThread
     public void hideSpinner() {
         if (mLoadingSpinner != null) {
-            mLoadingSpinner.setVisibility(View.GONE);
+            mLoadingSpinner.post(() -> mLoadingSpinner.setVisibility(View.GONE));
         }
     }
 
