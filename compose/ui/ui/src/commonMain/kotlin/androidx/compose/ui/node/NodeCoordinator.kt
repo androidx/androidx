@@ -405,6 +405,11 @@ internal abstract class NodeCoordinator(
                 explicitLayer = null
             }
             updateLayerBlock(null)
+
+            // as we removed the layer the node was placed with, we have to request relayout in
+            // case the node will be reused in future. during the relayout the layer will be
+            // recreated again if needed.
+            layoutNode.requestRelayout()
         }
     }
 
