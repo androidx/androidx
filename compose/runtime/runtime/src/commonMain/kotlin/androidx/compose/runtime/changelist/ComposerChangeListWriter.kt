@@ -386,6 +386,7 @@ internal class ComposerChangeListWriter(
     }
 
     fun moveUp() {
+        realizeNodeMovementOperations()
         if (pendingDownNodes.isNotEmpty()) {
             pendingDownNodes.pop()
         } else {
@@ -394,6 +395,7 @@ internal class ComposerChangeListWriter(
     }
 
     fun moveDown(node: Any?) {
+        realizeNodeMovementOperations()
         pendingDownNodes.push(node)
     }
 
