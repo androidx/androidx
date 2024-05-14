@@ -405,7 +405,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
             val args = startDestination.arguments.mapValues {
                 it.value.type
             }
-            startDestRoute.generateRouteWithArgs(args)
+            generateRouteWithArgs(startDestRoute, args)
         }
     }
 
