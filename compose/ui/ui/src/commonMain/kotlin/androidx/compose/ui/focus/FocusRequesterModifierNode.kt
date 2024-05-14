@@ -18,6 +18,7 @@ package androidx.compose.ui.focus
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
+import androidx.compose.ui.layout.PinnableContainer.PinnedHandle
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.visitSelfAndChildren
@@ -125,4 +126,12 @@ fun FocusRequesterModifierNode.restoreFocusedChild(): Boolean {
         if (it.restoreFocusedChild()) return true
     }
     return false
+}
+
+// TODO: Consider making this public, or make findActiveFocusTargetModifierNode public.
+internal fun FocusRequesterModifierNode.pinFocusedChild(): PinnedHandle? {
+    visitSelfAndChildren(Nodes.FocusTarget) {
+        it.pinFocusedChild()?.let { return it }
+    }
+    return null
 }
