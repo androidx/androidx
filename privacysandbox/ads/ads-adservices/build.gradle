@@ -55,6 +55,9 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 
     compileSdk = 34
     compileSdkExtension = 11
