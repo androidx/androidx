@@ -2,9 +2,9 @@
 set -e
 cd "$(dirname "$0")"
 
-# Builds all projects that support KMP except for Compose-specific projects
+# Builds all projects that support KMP
 # Must be run on Mac
-export ANDROIDX_PROJECTS=INFRAROGUE   # TODO: Switch from `INFRAROGUE` to `KMP`
+export ANDROIDX_PROJECTS=KMP
 
 # This target is for testing that clean builds work correctly
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
