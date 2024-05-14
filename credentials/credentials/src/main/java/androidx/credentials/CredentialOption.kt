@@ -18,6 +18,7 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
+import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -27,15 +28,15 @@ import androidx.credentials.internal.FrameworkClassParsingException
  * [GetCredentialRequest] will be composed of a list of [CredentialOption] subclasses to indicate
  * the specific credential types and configurations that your app accepts.
  *
- * The [typePriorityHint] bit helps decide where the credential will be displayed on the
+ * The [typePriorityHint] value helps decide where the credential will be displayed on the
  * selector. It is used with more importance than signals like 'last recently used' but with less
  * importance than other signals, such as the ordering of displayed accounts.
  * It is expected to be one of the defined [PriorityHints] constants. By default,
- * [GetCustomCredentialOption] will have [PriorityHints.PRIORITY_DEFAULT], [GetPasswordOption] will
- * have [PriorityHints.PRIORITY_PASSWORD_OR_SIMILAR] and [GetPublicKeyCredentialOption] will have
- * [PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR]. It is expected that [GetCustomCredentialOption]
+ * [GetCustomCredentialOption] will have [PRIORITY_DEFAULT], [GetPasswordOption] will
+ * have [PRIORITY_PASSWORD_OR_SIMILAR] and [GetPublicKeyCredentialOption] will have
+ * [PRIORITY_PASSKEY_OR_SIMILAR]. It is expected that [GetCustomCredentialOption]
  * types will remain unchanged unless strong reasons arise and cannot ever have
- * [PriorityHints.PRIORITY_PASSKEY_OR_SIMILAR]. Given passkeys prevent many security threats that
+ * [PRIORITY_PASSKEY_OR_SIMILAR]. Given passkeys prevent many security threats that
  * other credentials do not, we enforce that nothing is shown higher than
  * passkey types in order to provide end users with the safest credentials first. See the spec
  * [here](https://w3c.github.io/webauthn/) for more information on passkeys.
@@ -78,7 +79,28 @@ abstract class CredentialOption internal constructor(
         candidateQueryData.putInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE, typePriorityHint)
     }
 
-    internal companion object {
+    /** Display priority hint for each type of credentials. */
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef(value = [
+        PRIORITY_PASSKEY_OR_SIMILAR,
+        PRIORITY_OIDC_OR_SIMILAR,
+        PRIORITY_PASSWORD_OR_SIMILAR,
+        PRIORITY_DEFAULT
+    ])
+    annotation class PriorityHints
+
+    companion object {
+        /** Value of display priority for passkeys or credentials of similar security level. */
+        const val PRIORITY_PASSKEY_OR_SIMILAR = 100
+        /** Value of display priority for OpenID credentials or those of similar security level. */
+        const val PRIORITY_OIDC_OR_SIMILAR = 500
+        /** Value of display priority for passwords or credentials of similar security level. */
+        const val PRIORITY_PASSWORD_OR_SIMILAR = 1000
+        /** Default value of display priority. */
+        const val PRIORITY_DEFAULT = 2000
+
         internal const val BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED =
             "androidx.credentials.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED"
 
@@ -124,8 +146,9 @@ abstract class CredentialOption internal constructor(
                     isAutoSelectAllowed = requestData.getBoolean(
                         BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false),
                     allowedProviders = allowedProviders,
-                    typePriorityHint = requestData.getInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE,
-                        GetCustomCredentialOption.CUSTOM_OPTION_PRIORITY_CATEGORY
+                    typePriorityHint = requestData.getInt(
+                        BUNDLE_KEY_TYPE_PRIORITY_VALUE,
+                        PRIORITY_DEFAULT
                     ),
                 )
             }
