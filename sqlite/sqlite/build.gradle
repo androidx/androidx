@@ -70,7 +70,7 @@ androidXMultiplatform {
         nativeMain {
             dependsOn(commonMain)
         }
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 def main = target.compilations["main"]
                 main.defaultSourceSet {

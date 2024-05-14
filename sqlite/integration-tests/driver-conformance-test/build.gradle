@@ -71,7 +71,7 @@ androidXMultiplatform {
                 implementation(project(":sqlite:sqlite-bundled"))
             }
         }
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["test"].defaultSourceSet {
                     dependsOn(nativeTest)

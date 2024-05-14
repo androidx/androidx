@@ -69,7 +69,7 @@ androidXMultiplatform {
             }
         }
 
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
                 target.compilations["main"].defaultSourceSet {
                     dependsOn(nonJvmMain)
