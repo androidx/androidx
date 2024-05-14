@@ -39,8 +39,8 @@ import java.util.Set;
 @SmallTest
 public class GetCustomCredentialOptionJavaTest {
 
-    private static final @PriorityHints int EXPECTED_CUSTOM_DEFAULT_PRIORITY =
-            PriorityHints.PRIORITY_DEFAULT;
+    private static final int EXPECTED_CUSTOM_DEFAULT_PRIORITY =
+            CredentialOption.PRIORITY_DEFAULT;
 
     @Test
     public void constructor_nullType_throws() {
@@ -86,7 +86,7 @@ public class GetCustomCredentialOptionJavaTest {
 
     @Test
     public void constructor_priorityPassedIn_setPriorityRetrievedSuccess() {
-        @PriorityHints int expectedOverwrittenPriorityHint = PriorityHints.PRIORITY_OIDC_OR_SIMILAR;
+        int expectedOverwrittenPriorityHint = CredentialOption.PRIORITY_OIDC_OR_SIMILAR;
 
         GetCustomCredentialOption customCredentialOption = new GetCustomCredentialOption("T",
                 new Bundle(), new Bundle(), true, false,
@@ -144,7 +144,7 @@ public class GetCustomCredentialOptionJavaTest {
                 new ComponentName("pkg", "cls"),
                 new ComponentName("pkg2", "cls2")
         );
-        @PriorityHints int expectedPriorityHint = PriorityHints.PRIORITY_OIDC_OR_SIMILAR;
+        int expectedPriorityHint = CredentialOption.PRIORITY_OIDC_OR_SIMILAR;
         GetCustomCredentialOption option = new GetCustomCredentialOption(expectedType,
                 expectedBundle,
                 expectedCandidateQueryDataBundle,

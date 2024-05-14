@@ -144,7 +144,6 @@ class GetPublicKeyCredentialOptionTest {
 
     companion object Constant {
         private const val TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
-        const val EXPECTED_PASSKEY_PRIORITY: @PriorityHints Int = PriorityHints
-            .PRIORITY_PASSKEY_OR_SIMILAR
+        const val EXPECTED_PASSKEY_PRIORITY = CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR
     }
 }
