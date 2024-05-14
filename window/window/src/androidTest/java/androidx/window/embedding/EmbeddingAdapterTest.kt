@@ -23,11 +23,15 @@ import android.os.IBinder
 import androidx.window.WindowSdkExtensions
 import androidx.window.WindowTestUtils
 import androidx.window.core.PredicateAdapter
+import androidx.window.embedding.DividerAttributes.DragRange.SplitRatioDragRange
+import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes
+import androidx.window.embedding.DividerAttributes.FixedDividerAttributes
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.ActivityStack.Token as OEMActivityStackToken
 import androidx.window.extensions.embedding.AnimationBackground as OEMEmbeddingAnimationBackground
+import androidx.window.extensions.embedding.DividerAttributes as OEMDividerAttributes
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection.TOP_TO_BOTTOM
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
@@ -326,16 +330,24 @@ class EmbeddingAdapterTest {
             .build()
 
         // Translate from Window to Extensions
-        assertEquals(extensionsSplitAttributesWithColorBackground,
-            adapter.translateSplitAttributes(splitAttributesWithColorBackground))
-        assertEquals(extensionsSplitAttributesWithDefaultBackground,
-            adapter.translateSplitAttributes(splitAttributesWithDefaultBackground))
+        assertEquals(
+            extensionsSplitAttributesWithColorBackground,
+            adapter.translateSplitAttributes(splitAttributesWithColorBackground)
+        )
+        assertEquals(
+            extensionsSplitAttributesWithDefaultBackground,
+            adapter.translateSplitAttributes(splitAttributesWithDefaultBackground)
+        )
 
         // Translate from Extensions to Window
-        assertEquals(splitAttributesWithColorBackground,
-            adapter.translate(extensionsSplitAttributesWithColorBackground))
-        assertEquals(splitAttributesWithDefaultBackground,
-            adapter.translate(extensionsSplitAttributesWithDefaultBackground))
+        assertEquals(
+            splitAttributesWithColorBackground,
+            adapter.translate(extensionsSplitAttributesWithColorBackground)
+        )
+        assertEquals(
+            splitAttributesWithDefaultBackground,
+            adapter.translate(extensionsSplitAttributesWithDefaultBackground)
+        )
     }
 
     @Test
@@ -352,8 +364,10 @@ class EmbeddingAdapterTest {
             .build()
 
         // No difference after translate before API level 5
-        assertEquals(adapter.translateSplitAttributes(splitAttributesWithColorBackground),
-            adapter.translateSplitAttributes(splitAttributesWithDefaultBackground))
+        assertEquals(
+            adapter.translateSplitAttributes(splitAttributesWithColorBackground),
+            adapter.translateSplitAttributes(splitAttributesWithDefaultBackground)
+        )
     }
 
     @OptIn(androidx.window.core.ExperimentalWindowApi::class)
@@ -366,6 +380,53 @@ class EmbeddingAdapterTest {
         val oemSplitAttributes = adapter.translateSplitAttributes(SplitAttributes.Builder().build())
 
         assertEquals(dimAreaBehavior.value, oemSplitAttributes.windowAttributes.dimAreaBehavior)
+    }
+
+    @Test
+    fun testTranslateDividerAttributes_draggable() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(6)
+        val dividerAttributes = DraggableDividerAttributes.Builder()
+            .setWidthDp(20)
+            .setDragRange(SplitRatioDragRange(0.3f, 0.7f))
+            .setColor(Color.GRAY)
+            .build()
+        val oemDividerAttributes =
+            OEMDividerAttributes.Builder(OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE)
+                .setWidthDp(20)
+                .setPrimaryMinRatio(0.3f)
+                .setPrimaryMaxRatio(0.7f)
+                .setDividerColor(Color.GRAY)
+                .build()
+
+        assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
+        assertEquals(dividerAttributes, adapter.translateDividerAttributes(oemDividerAttributes))
+    }
+
+    @Test
+    fun testTranslateDividerAttributes_fixed() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(6)
+        val dividerAttributes = FixedDividerAttributes.Builder()
+            .setWidthDp(20)
+            .setColor(Color.GRAY)
+            .build()
+        val oemDividerAttributes =
+            OEMDividerAttributes.Builder(OEMDividerAttributes.DIVIDER_TYPE_FIXED)
+                .setWidthDp(20)
+                .setDividerColor(Color.GRAY)
+                .build()
+
+        assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
+        assertEquals(dividerAttributes, adapter.translateDividerAttributes(oemDividerAttributes))
+    }
+
+    @Test
+    fun testTranslateDividerAttributes_noDivider() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(6)
+        val dividerAttributes = DividerAttributes.NO_DIVIDER
+        val oemDividerAttributes = null
+
+        assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
+        assertEquals(dividerAttributes, adapter.translateDividerAttributes(oemDividerAttributes))
     }
 
     private fun createTestOEMSplitInfo(

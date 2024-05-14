@@ -176,6 +176,60 @@ package androidx.window.embedding {
     property public final boolean isEmpty;
   }
 
+  public abstract class DividerAttributes {
+    method public final int getColor();
+    method public final int getWidthDp();
+    property public final int color;
+    property public final int widthDp;
+    field public static final androidx.window.embedding.DividerAttributes.Companion Companion;
+    field public static final androidx.window.embedding.DividerAttributes NO_DIVIDER;
+    field public static final int WIDTH_SYSTEM_DEFAULT = -1; // 0xffffffff
+  }
+
+  public static final class DividerAttributes.Companion {
+  }
+
+  public abstract static class DividerAttributes.DragRange {
+    field public static final androidx.window.embedding.DividerAttributes.DragRange.Companion Companion;
+    field public static final androidx.window.embedding.DividerAttributes.DragRange DRAG_RANGE_SYSTEM_DEFAULT;
+  }
+
+  public static final class DividerAttributes.DragRange.Companion {
+  }
+
+  public static final class DividerAttributes.DragRange.SplitRatioDragRange extends androidx.window.embedding.DividerAttributes.DragRange {
+    ctor public DividerAttributes.DragRange.SplitRatioDragRange(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float minRatio, @FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float maxRatio);
+    method public float getMaxRatio();
+    method public float getMinRatio();
+    property public final float maxRatio;
+    property public final float minRatio;
+  }
+
+  public static final class DividerAttributes.DraggableDividerAttributes extends androidx.window.embedding.DividerAttributes {
+    method public androidx.window.embedding.DividerAttributes.DragRange getDragRange();
+    property public final androidx.window.embedding.DividerAttributes.DragRange dragRange;
+  }
+
+  @androidx.window.RequiresWindowSdkExtension(version=6) public static final class DividerAttributes.DraggableDividerAttributes.Builder {
+    ctor public DividerAttributes.DraggableDividerAttributes.Builder();
+    ctor @androidx.window.RequiresWindowSdkExtension(version=6) public DividerAttributes.DraggableDividerAttributes.Builder(androidx.window.embedding.DividerAttributes.DraggableDividerAttributes original);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes build();
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setColor(@ColorInt int color);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setDragRange(androidx.window.embedding.DividerAttributes.DragRange dragRange);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setWidthDp(@IntRange(from=androidx.window.embedding.DividerAttributes.WIDTH_SYSTEM_DEFAULT.toLong()) int widthDp);
+  }
+
+  public static final class DividerAttributes.FixedDividerAttributes extends androidx.window.embedding.DividerAttributes {
+  }
+
+  @androidx.window.RequiresWindowSdkExtension(version=6) public static final class DividerAttributes.FixedDividerAttributes.Builder {
+    ctor public DividerAttributes.FixedDividerAttributes.Builder();
+    ctor @androidx.window.RequiresWindowSdkExtension(version=6) public DividerAttributes.FixedDividerAttributes.Builder(androidx.window.embedding.DividerAttributes.FixedDividerAttributes original);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.FixedDividerAttributes build();
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.FixedDividerAttributes.Builder setColor(@ColorInt int color);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.FixedDividerAttributes.Builder setWidthDp(@IntRange(from=androidx.window.embedding.DividerAttributes.WIDTH_SYSTEM_DEFAULT.toLong()) int widthDp);
+  }
+
   public final class EmbeddedActivityWindowInfo {
     method public android.graphics.Rect getBoundsInParentHost();
     method public android.graphics.Rect getParentHostBounds();
@@ -375,10 +429,13 @@ package androidx.window.embedding {
     ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType);
     ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
     ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground);
+    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground, optional androidx.window.embedding.DividerAttributes dividerAttributes);
     method public androidx.window.embedding.EmbeddingAnimationBackground getAnimationBackground();
+    method public androidx.window.embedding.DividerAttributes getDividerAttributes();
     method public androidx.window.embedding.SplitAttributes.LayoutDirection getLayoutDirection();
     method public androidx.window.embedding.SplitAttributes.SplitType getSplitType();
     property public final androidx.window.embedding.EmbeddingAnimationBackground animationBackground;
+    property public final androidx.window.embedding.DividerAttributes dividerAttributes;
     property public final androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection;
     property public final androidx.window.embedding.SplitAttributes.SplitType splitType;
     field public static final androidx.window.embedding.SplitAttributes.Companion Companion;
@@ -388,6 +445,7 @@ package androidx.window.embedding {
     ctor public SplitAttributes.Builder();
     method public androidx.window.embedding.SplitAttributes build();
     method @androidx.window.RequiresWindowSdkExtension(version=5) public androidx.window.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.embedding.EmbeddingAnimationBackground background);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.SplitAttributes.Builder setDividerAttributes(androidx.window.embedding.DividerAttributes dividerAttributes);
     method public androidx.window.embedding.SplitAttributes.Builder setLayoutDirection(androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
     method public androidx.window.embedding.SplitAttributes.Builder setSplitType(androidx.window.embedding.SplitAttributes.SplitType type);
   }

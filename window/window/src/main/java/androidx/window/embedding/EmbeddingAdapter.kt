@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.util.LayoutDirection
+import android.util.Log
 import android.util.Pair as AndroidPair
 import android.view.WindowMetrics as AndroidWindowMetrics
 import androidx.window.RequiresWindowSdkExtension
@@ -29,6 +30,10 @@ import androidx.window.WindowSdkExtensions
 import androidx.window.core.Bounds
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
+import androidx.window.embedding.DividerAttributes.DragRange.Companion.DRAG_RANGE_SYSTEM_DEFAULT
+import androidx.window.embedding.DividerAttributes.DragRange.SplitRatioDragRange
+import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes
+import androidx.window.embedding.DividerAttributes.FixedDividerAttributes
 import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_ACTIVITY_STACK
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
@@ -46,6 +51,8 @@ import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.AnimationBackground as OEMEmbeddingAnimationBackground
+import androidx.window.extensions.embedding.DividerAttributes as OEMDividerAttributes
+import androidx.window.extensions.embedding.DividerAttributes.RATIO_SYSTEM_DEFAULT
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
 import androidx.window.extensions.embedding.ParentContainerInfo as OEMParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
@@ -143,6 +150,10 @@ internal class EmbeddingAdapter(
                     EmbeddingAnimationBackground.DEFAULT
                 }
             )
+        }
+        if (extensionVersion >= 6) {
+            builder.setDividerAttributes(
+                translateDividerAttributes(splitAttributes.dividerAttributes))
         }
         return builder.build()
     }
@@ -289,6 +300,10 @@ internal class EmbeddingAdapter(
                 .setAnimationBackground(
                     translateAnimationBackground(splitAttributes.animationBackground))
         }
+        if (extensionVersion >= 6) {
+            builder.setDividerAttributes(
+                translateDividerAttributes(splitAttributes.dividerAttributes))
+        }
         return builder.build()
     }
 
@@ -416,6 +431,76 @@ internal class EmbeddingAdapter(
             OEMEmbeddingAnimationBackground.createColorBackground(animationBackground.color)
         } else {
             OEMEmbeddingAnimationBackground.ANIMATION_BACKGROUND_DEFAULT
+        }
+    }
+
+    @RequiresWindowSdkExtension(6)
+    fun translateDividerAttributes(
+        dividerAttributes: DividerAttributes
+    ): OEMDividerAttributes? {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(6)
+        if (dividerAttributes === DividerAttributes.NO_DIVIDER) {
+            return null
+        }
+        val builder = OEMDividerAttributes.Builder(
+            when (dividerAttributes) {
+                is FixedDividerAttributes -> OEMDividerAttributes.DIVIDER_TYPE_FIXED
+                is DraggableDividerAttributes -> OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE
+                else ->
+                    throw IllegalArgumentException("Unknown divider attributes $dividerAttributes")
+            }
+        )
+            .setDividerColor(dividerAttributes.color)
+            .setWidthDp(dividerAttributes.widthDp)
+
+        if (dividerAttributes is DraggableDividerAttributes &&
+            dividerAttributes.dragRange is SplitRatioDragRange
+        ) {
+            builder
+                .setPrimaryMinRatio(dividerAttributes.dragRange.minRatio)
+                .setPrimaryMaxRatio(dividerAttributes.dragRange.maxRatio)
+        }
+        return builder.build()
+    }
+
+    @RequiresWindowSdkExtension(6)
+    fun translateDividerAttributes(
+        oemDividerAttributes: OEMDividerAttributes?
+    ): DividerAttributes {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(6)
+        if (oemDividerAttributes == null) {
+            return DividerAttributes.NO_DIVIDER
+        }
+        return when (oemDividerAttributes.dividerType) {
+            OEMDividerAttributes.DIVIDER_TYPE_FIXED ->
+                FixedDividerAttributes.Builder()
+                    .setWidthDp(oemDividerAttributes.widthDp)
+                    .setColor(oemDividerAttributes.dividerColor)
+                    .build()
+            OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE ->
+                DraggableDividerAttributes.Builder()
+                    .setWidthDp(oemDividerAttributes.widthDp)
+                    .setColor(oemDividerAttributes.dividerColor)
+                    .setDragRange(
+                        if (oemDividerAttributes.primaryMinRatio == RATIO_SYSTEM_DEFAULT &&
+                            oemDividerAttributes.primaryMaxRatio == RATIO_SYSTEM_DEFAULT
+                        )
+                            DRAG_RANGE_SYSTEM_DEFAULT
+                        else
+                            SplitRatioDragRange(
+                                oemDividerAttributes.primaryMinRatio,
+                                oemDividerAttributes.primaryMaxRatio,
+                            )
+                    ).build()
+            // Default to DividerType.FIXED
+            else -> {
+                Log.w(TAG, "Unknown divider type $oemDividerAttributes.dividerType, default" +
+                    " to fixed divider type")
+                FixedDividerAttributes.Builder()
+                    .setWidthDp(oemDividerAttributes.widthDp)
+                    .setColor(oemDividerAttributes.dividerColor)
+                    .build()
+            }
         }
     }
 
@@ -609,6 +694,8 @@ internal class EmbeddingAdapter(
     }
 
     internal companion object {
+        private val TAG = EmbeddingAdapter::class.simpleName
+
         /**
          * The default token of [SplitInfo], which provides compatibility for device prior to
          * vendor API level 3

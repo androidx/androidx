@@ -18,6 +18,8 @@ package androidx.window.embedding
 
 import android.graphics.Color
 import androidx.window.core.WindowStrictModeException
+import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes
+import androidx.window.embedding.DividerAttributes.FixedDividerAttributes
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
@@ -79,6 +81,52 @@ class SplitAttributesTest {
 
         assertEquals(attrs4, attrs5)
         assertEquals(attrs4.hashCode(), attrs5.hashCode())
+    }
+
+    @Test
+    fun testSplitAttributesEquals_withDividerAttributes() {
+        // No divider
+        val attrs1 = SplitAttributes.Builder()
+            .setSplitType(SPLIT_TYPE_EQUAL)
+            .setLayoutDirection(LOCALE)
+            .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
+            .build()
+
+        // Fixed divider
+        val attrs2 = SplitAttributes.Builder()
+            .setSplitType(SPLIT_TYPE_EQUAL)
+            .setLayoutDirection(LOCALE)
+            .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
+            .setDividerAttributes(FixedDividerAttributes.Builder().build())
+            .build()
+
+        // Draggable divider
+        val attrs3 = SplitAttributes.Builder()
+            .setSplitType(SPLIT_TYPE_EQUAL)
+            .setLayoutDirection(LOCALE)
+            .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
+            .setDividerAttributes(DraggableDividerAttributes.Builder().build())
+            .build()
+
+        // Draggable divider same as attrs3
+        val attrs4 = SplitAttributes.Builder()
+            .setSplitType(SPLIT_TYPE_EQUAL)
+            .setLayoutDirection(LOCALE)
+            .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
+            .setDividerAttributes(DraggableDividerAttributes.Builder().build())
+            .build()
+
+        // No divider vs fixed divider
+        assertNotEquals(attrs1, attrs2)
+        assertNotEquals(attrs1.hashCode(), attrs2.hashCode())
+
+        // Fixed divider vs draggable divider
+        assertNotEquals(attrs2, attrs3)
+        assertNotEquals(attrs2.hashCode(), attrs3.hashCode())
+
+        // Same draggable divider
+        assertEquals(attrs3, attrs4)
+        assertEquals(attrs3.hashCode(), attrs4.hashCode())
     }
 
     @Test
