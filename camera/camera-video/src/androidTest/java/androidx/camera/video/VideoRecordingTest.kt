@@ -78,9 +78,9 @@ import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -914,9 +914,14 @@ class VideoRecordingTest(
         file2.delete()
     }
 
-    @Ignore("b/285940946")
     @Test
     fun canContinueRecordingAfterRebind() {
+        // TODO(b/340406044): Enable the test for stream sharing use case.
+        assumeFalse(
+            "The test is temporarily ignored when stream sharing is enabled.",
+            forceEnableStreamSharing
+        )
+
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
 
         instrumentation.runOnMainSync {
@@ -959,9 +964,14 @@ class VideoRecordingTest(
         file.delete()
     }
 
-    @Ignore("b/285940946")
     @Test
     fun canContinueRecordingPausedAfterRebind() {
+        // TODO(b/340406044): Enable the test for stream sharing use case.
+        assumeFalse(
+            "The test is temporarily ignored when stream sharing is enabled.",
+            forceEnableStreamSharing
+        )
+
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
 
         instrumentation.runOnMainSync {
