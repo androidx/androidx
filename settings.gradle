@@ -1143,6 +1143,7 @@ includeProject(":internal-testutils-navigation", "testutils/testutils-navigation
 includeProject(":internal-testutils-paging", "testutils/testutils-paging", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.TOOLS])
 includeProject(":internal-testutils-mockito", "testutils/testutils-mockito", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":internal-testutils-lifecycle", "testutils/testutils-lifecycle", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN, BuildType.KMP])
 includeProject(":kruth:kruth", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP, BuildType.COMPOSE])
 
 /////////////////////////////
