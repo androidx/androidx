@@ -23,8 +23,8 @@ import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.RadioButton
-import androidx.wear.compose.material3.SplitRadioButton
+import androidx.wear.compose.material3.SelectableButton
+import androidx.wear.compose.material3.SplitSelectableButton
 import androidx.wear.compose.material3.Text
 import org.junit.Rule
 import org.junit.Test
@@ -32,42 +32,45 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class RadioButtonBenchmark {
+class SelectableButtonBenchmark {
 
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    private val radioButtonTestCaseFactory = { RadioButtonTestCase(RadioButtonType.RadioButton) }
-    private val splitRadioButtonTestCaseFactory = {
-        RadioButtonTestCase(RadioButtonType.SplitRadioButton)
+    private val selectableButtonTestCaseFactory = {
+        SelectableButtonTestCase(SelectableButtonType.SelectableButton)
+    }
+
+    private val splitSelectableButtonTestCaseFactory = {
+        SelectableButtonTestCase(SelectableButtonType.SplitSelectableButton)
     }
 
     @Test
-    fun radio_button_first_pixel() {
-        benchmarkRule.benchmarkToFirstPixel(radioButtonTestCaseFactory)
+    fun selectable_button_first_pixel() {
+        benchmarkRule.benchmarkToFirstPixel(selectableButtonTestCaseFactory)
     }
 
     @Test
-    fun split_radio_button_first_pixel() {
-        benchmarkRule.benchmarkToFirstPixel(splitRadioButtonTestCaseFactory)
+    fun split_selectable_button_first_pixel() {
+        benchmarkRule.benchmarkToFirstPixel(splitSelectableButtonTestCaseFactory)
     }
 }
 
-internal class RadioButtonTestCase(
-    private val type: RadioButtonType
+internal class SelectableButtonTestCase(
+    private val type: SelectableButtonType
 ) : LayeredComposeTestCase() {
     @Composable
     override fun MeasuredContent() {
-        if (type == RadioButtonType.RadioButton) {
-            RadioButton(selected = true, onSelect = { /* do something*/ }) {
-                Text(text = "RadioButton")
+        if (type == SelectableButtonType.SelectableButton) {
+            SelectableButton(selected = true, onSelect = { /* do something*/ }) {
+                Text(text = "SelectableButton")
             }
         } else {
-            SplitRadioButton(
+            SplitSelectableButton(
                 selected = true,
-                onSelect = { /* do something */ },
-                onClick = { /* do something */ }) {
-                Text(text = "SplitRadioButton")
+                onSelectionClick = { /* do something */ },
+                onContainerClick = { /* do something */ }) {
+                Text(text = "SplitSelectableButton")
             }
         }
     }
@@ -80,6 +83,6 @@ internal class RadioButtonTestCase(
     }
 }
 
-enum class RadioButtonType {
-    RadioButton, SplitRadioButton
+enum class SelectableButtonType {
+    SelectableButton, SplitSelectableButton
 }

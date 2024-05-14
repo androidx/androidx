@@ -81,7 +81,7 @@ import androidx.wear.compose.material3.tokens.ColorTokens
  */
 @Immutable
 @Stable
-public class ColorScheme(
+class ColorScheme(
     val primary: Color = ColorTokens.Primary,
     val primaryDim: Color = ColorTokens.PrimaryDim,
     val primaryContainer: Color = ColorTokens.PrimaryContainer,
@@ -233,8 +233,8 @@ public class ColorScheme(
     internal var defaultSplitToggleButtonColorsCached: SplitToggleButtonColors? = null
 
     // Radio Button
-    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
-    internal var defaultSplitRadioButtonColorsCached: SplitRadioButtonColors? = null
+    internal var defaultSelectableButtonColorsCached: SelectableButtonColors? = null
+    internal var defaultSplitSelectableButtonColorsCached: SplitSelectableButtonColors? = null
 
     // Progress Indicator
     internal var defaultProgressIndicatorColorsCached: ProgressIndicatorColors? = null

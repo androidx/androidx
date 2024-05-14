@@ -28,20 +28,20 @@ import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
- * [Radio] provides an animated radio selection control for use in [RadioButton]
- * or [SplitRadioButton].
+ * [RadioButton] provides an animated radio selection control for use in [SelectableButton]
+ * or [SplitSelectableButton].
  *
  * RadioButton sample:
- * @sample androidx.wear.compose.material3.samples.RadioButton
+ * @sample androidx.wear.compose.material3.samples.SelectableButtonSample
  *
- * @param modifier Modifier to be applied to the radio control. This can be used to provide a
+ * @param modifier Modifier to be applied to the radio button control. This can be used to provide a
  * content description for accessibility.
- * @param colors [RadioColors] from which the [Radio] control colors will be obtained.
+ * @param colors [RadioButtonColors] from which the [RadioButton] control colors will be obtained.
  */
 @Composable
-fun SelectionControlScope.Radio(
+fun SelectionControlScope.RadioButton(
     modifier: Modifier = Modifier,
-    colors: RadioColors = RadioDefaults.colors(),
+    colors: RadioButtonColors = RadioButtonDefaults.colors(),
 ) = androidx.wear.compose.materialcore.RadioButton(
     modifier = modifier,
     selected = isSelected,
@@ -72,7 +72,7 @@ fun SelectionControlScope.Radio(
 )
 
 /**
- * Represents the content colors used in the [Radio] selection control in different states.
+ * Represents the content colors used in the [RadioButton] selection control in different states.
  *
  * @param selectedColor The color of the radio control when enabled and selected.
  * @param unselectedColor The color of the radio control when enabled and unselected.
@@ -80,7 +80,7 @@ fun SelectionControlScope.Radio(
  * @param disabledUnselectedColor The color of the radio control when disabled and unselected.
  */
 @Immutable
-class RadioColors(
+class RadioButtonColors(
     val selectedColor: Color,
     val unselectedColor: Color,
     val disabledSelectedColor: Color,
@@ -99,7 +99,7 @@ class RadioColors(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || other !is RadioColors) return false
+        if (other == null || other !is RadioButtonColors) return false
 
         if (selectedColor != other.selectedColor) return false
         if (unselectedColor != other.unselectedColor) return false
@@ -119,11 +119,11 @@ class RadioColors(
 }
 
 /**
- * Contains the default values used by the [Radio] selection control.
+ * Contains the default values used by the [RadioButton] selection control.
  */
-object RadioDefaults {
+object RadioButtonDefaults {
     /**
-     * Creates a [RadioColors] for use in a [Radio] selection control.
+     * Creates a [RadioButtonColors] for use in a [RadioButton] selection control.
      *
      * @param selectedColor The color of the radio control when enabled and selected.
      * @param unselectedColor The color of the radio control when enabled and unselected.
@@ -138,8 +138,8 @@ object RadioDefaults {
             MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
         disabledUnselectedColor: Color =
             MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
-    ): RadioColors {
-        return RadioColors(
+    ): RadioButtonColors {
+        return RadioButtonColors(
             selectedColor = selectedColor,
             unselectedColor = unselectedColor,
             disabledSelectedColor = disabledSelectedColor,

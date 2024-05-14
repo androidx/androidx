@@ -59,44 +59,44 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.MotionTokens
-import androidx.wear.compose.material3.tokens.RadioButtonTokens
-import androidx.wear.compose.material3.tokens.SplitRadioButtonTokens
+import androidx.wear.compose.material3.tokens.SelectableButtonTokens
+import androidx.wear.compose.material3.tokens.SplitSelectableButtonTokens
 import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
- * The Wear Material [RadioButton] offers four slots and a specific layout for an icon, a
- * label, a secondaryLabel and selection control (such as [Radio]).
+ * The Wear Material [SelectableButton] offers four slots and a specific layout for an icon, a
+ * label, a secondaryLabel and selection control (such as [RadioButton]).
  * The icon and secondaryLabel are optional.
  * The items are laid out in a row with the optional icon at the start, a column containing the two
  * label slots in the middle and a slot for the selection control at the end.
  *
- * The [RadioButton] is Stadium shaped and has a max height designed to take no more than
+ * The [SelectableButton] is Stadium shaped and has a max height designed to take no more than
  * two lines of text.
- * With localisation and/or large font sizes, the [RadioButton] height adjusts to
+ * With localisation and/or large font sizes, the [SelectableButton] height adjusts to
  * accommodate the contents. The label and secondary label should be start aligned.
  *
  * Note that Modifier.selectableGroup() must be present on the parent control (such as
  * Column) to ensure correct accessibility behavior.
  *
  * Samples:
- * Example of a RadioButton with a [Radio] control:
- * @sample androidx.wear.compose.material3.samples.RadioButton
+ * Example of a SelectableButton with a [RadioButton] control:
+ * @sample androidx.wear.compose.material3.samples.SelectableButtonSample
  *
- * [RadioButton] can be enabled or disabled. A disabled button will not respond to click events.
+ * [SelectableButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * The recommended set of [RadioButton] colors can be obtained from
- * [RadioButtonDefaults], e.g. [RadioButtonDefaults.radioButtonColors].
+ * The recommended set of [SelectableButton] colors can be obtained from
+ * [SelectableButtonDefaults], e.g. [SelectableButtonDefaults.selectableButtonColors].
  *
  * @param selected Boolean flag indicating whether this button is currently selected.
  * @param onSelect Callback to be invoked when this button has been selected by clicking.
  * @param selectionControl A slot for the button's selection control.
- * The [Radio] selection control is provided for this purpose.
- * @param modifier Modifier to be applied to the [RadioButton].
+ * The [RadioButton] selection control is provided for this purpose.
+ * @param modifier Modifier to be applied to the [SelectableButton].
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme.
- * @param colors [RadioButtonColors] that will be used to resolve the background and
+ * @param colors [SelectableButtonColors] that will be used to resolve the background and
  * content color for this button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content.
@@ -113,17 +113,17 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  * which is "start" aligned.
  */
 @Composable
-fun RadioButton(
+fun SelectableButton(
     selected: Boolean,
     onSelect: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     selectionControl: @Composable SelectionControlScope.() -> Unit = {
-        Radio()
+        RadioButton()
     },
-    shape: Shape = RadioButtonTokens.Shape.value,
-    colors: RadioButtonColors = RadioButtonDefaults.radioButtonColors(),
-    contentPadding: PaddingValues = RadioButtonDefaults.ContentPadding,
+    shape: Shape = SelectableButtonDefaults.selectableButtonShape,
+    colors: SelectableButtonColors = SelectableButtonDefaults.selectableButtonColors(),
+    contentPadding: PaddingValues = SelectableButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
@@ -150,7 +150,7 @@ fun RadioButton(
             .padding(contentPadding)
             .semantics {
                 // For a selectable button, the role is always RadioButton.
-                // See also b/330869742 for issue with setting the RadioButton role
+                // See also b/330869742 for issue with setting the SelectableButton role
                 // within the selection control.
                 role = Role.RadioButton
             },
@@ -169,12 +169,12 @@ fun RadioButton(
         Labels(
             label = provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, selected = selected),
-                textStyle = RadioButtonTokens.LabelFont.value,
+                textStyle = SelectableButtonTokens.LabelFont.value,
                 content = label
             ),
             secondaryLabel = provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled, selected = selected),
-                textStyle = RadioButtonTokens.SecondaryLabelFont.value,
+                textStyle = SelectableButtonTokens.SecondaryLabelFont.value,
                 content = secondaryLabel
             )
         )
@@ -196,46 +196,46 @@ fun RadioButton(
 }
 
 /**
- * The Wear Material [SplitRadioButton] offers three slots and a specific layout for a label,
+ * The Wear Material [SplitSelectableButton] offers three slots and a specific layout for a label,
  * secondaryLabel and selection control. The secondaryLabel is optional. The items are laid out
  * with a column containing the two label slots and a slot for the selection control at the
  * end.
  *
- * The [SplitRadioButton] is Stadium shaped and has a max height designed to take no more than
+ * The [SplitSelectableButton] is Stadium shaped and has a max height designed to take no more than
  * two lines of text.
- * With localisation and/or large font sizes, the [SplitRadioButton] height adjusts to
+ * With localisation and/or large font sizes, the [SplitSelectableButton] height adjusts to
  * accommodate the contents. The label and secondary label should be consistently aligned.
  *
- * A [SplitRadioButton] has two tappable areas, one tap area for the labels and another for the
- * selection control. The [onClick] listener will be associated with the main body of the
- * split radio button with the [onSelect] listener associated with the selection control
+ * A [SplitSelectableButton] has two tappable areas, one tap area for the labels and another for the
+ * selection control. The [onContainerClick] listener will be associated with the main body of the
+ * split radio button with the [onSelectionClick] listener associated with the selection control
  * area only.
  *
  * Samples:
- * Example of a SplitRadioButton with a [Radio] control:
- * @sample androidx.wear.compose.material3.samples.SplitRadioButton
+ * Example of a SplitSelectableButton with a [RadioButton] control:
+ * @sample androidx.wear.compose.material3.samples.SplitSelectableButtonSample
  *
- * For a SplitRadioButton the background of the tappable background area behind the selection
+ * For a SplitSelectableButton the background of the tappable background area behind the selection
  * control will have a visual effect applied to provide a "divider" between the two tappable areas.
  *
  * The recommended set of colors can be obtained from
- * [RadioButtonDefaults], e.g. [RadioButtonDefaults.splitRadioButtonColors].
+ * [SelectableButtonDefaults], e.g. [SelectableButtonDefaults.splitSelectableButtonColors].
  *
- * [SplitRadioButton] can be enabled or disabled. A disabled button will not respond to
+ * [SplitSelectableButton] can be enabled or disabled. A disabled button will not respond to
  * click events.
  *
  * @param selected Boolean flag indicating whether this button is currently selected.
- * @param onSelect Callback to be invoked when this button has been selected by clicking.
- * @param onClick Click listener called when the user clicks the main body of the button, the area
- * behind the labels.
+ * @param onSelectionClick Callback to be invoked when this button has been selected.
+ * @param onContainerClick Click listener called when the user clicks the main body of the button,
+ * the area containing the labels.
  * @param selectionControl A slot for providing the button's selection control.
- * The [Radio] selection control is provided for this purpose.
+ * The [RadioButton] selection control is provided for this purpose.
  * @param modifier Modifier to be applied to the button.
  * @param enabled Controls the enabled state of the button. When `false`, this button will not
  * be clickable.
  * @param shape Defines the button's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme.
- * @param colors [SplitRadioButtonColors] that will be used to resolve the background and
+ * @param colors [SplitSelectableButtonColors] that will be used to resolve the background and
  * content color for this button in different states.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content.
@@ -243,7 +243,7 @@ fun RadioButton(
  * and emitting [Interaction]s for this button's "selectable" tap area. You can use this to change
  * the button's appearance or preview the button in different states. Note that if `null` is
  * provided, interactions will still happen internally.
- * @param clickInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * @param containerInteractionSource an optional hoisted [MutableInteractionSource] for observing and
  * emitting [Interaction]s for this button's "clickable" tap area. You can use this to change the
  * button's appearance or preview the button in different states. Note that if `null` is provided,
  * interactions will still happen internally.
@@ -253,20 +253,20 @@ fun RadioButton(
  * which is "start" aligned.
  */
 @Composable
-fun SplitRadioButton(
+fun SplitSelectableButton(
     selected: Boolean,
-    onSelect: () -> Unit,
-    onClick: () -> Unit,
+    onSelectionClick: () -> Unit,
+    onContainerClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     selectionControl: @Composable SelectionControlScope.() -> Unit = {
-        Radio()
+        RadioButton()
     },
-    shape: Shape = SplitRadioButtonTokens.Shape.value,
-    colors: SplitRadioButtonColors = RadioButtonDefaults.splitRadioButtonColors(),
+    shape: Shape = SelectableButtonDefaults.splitSelectableButtonShape,
+    colors: SplitSelectableButtonColors = SelectableButtonDefaults.splitSelectableButtonColors(),
     selectionInteractionSource: MutableInteractionSource? = null,
-    clickInteractionSource: MutableInteractionSource? = null,
-    contentPadding: PaddingValues = RadioButtonDefaults.ContentPadding,
+    containerInteractionSource: MutableInteractionSource? = null,
+    contentPadding: PaddingValues = SelectableButtonDefaults.ContentPadding,
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit
 ) {
@@ -285,9 +285,9 @@ fun SplitRadioButton(
             modifier = Modifier
                 .clickable(
                     enabled = enabled,
-                    onClick = onClick,
+                    onClick = onContainerClick,
                     indication = rippleOrFallbackImplementation(),
-                    interactionSource = clickInteractionSource,
+                    interactionSource = containerInteractionSource,
                 )
                 .semantics {
                     role = Role.Button
@@ -300,13 +300,13 @@ fun SplitRadioButton(
             Labels(
                 label = provideScopeContent(
                     contentColor = colors.contentColor(enabled = enabled, selected = selected),
-                    textStyle = SplitRadioButtonTokens.LabelFont.value,
+                    textStyle = SplitSelectableButtonTokens.LabelFont.value,
                     content = label
                 ),
                 secondaryLabel = provideNullableScopeContent(
                     contentColor =
                         colors.secondaryContentColor(enabled = enabled, selected = selected),
-                    textStyle = SplitRadioButtonTokens.SecondaryLabelFont.value,
+                    textStyle = SplitSelectableButtonTokens.SecondaryLabelFont.value,
                     content = secondaryLabel
                 ),
             )
@@ -323,7 +323,7 @@ fun SplitRadioButton(
                 .selectable(
                     enabled = enabled,
                     selected = selected,
-                    onClick = onSelect,
+                    onClick = onSelectionClick,
                     indication = rippleOrFallbackImplementation(),
                     interactionSource = selectionInteractionSource
                 )
@@ -341,7 +341,7 @@ fun SplitRadioButton(
                 .then(endPadding)
                 .semantics {
                     // For a selectable button, the role is always RadioButton.
-                    // See also b/330869742 for issue with setting the RadioButton role
+                    // See also b/330869742 for issue with setting the SelectableButton role
                     // within the selection control.
                     role = Role.RadioButton
                 },
@@ -353,54 +353,65 @@ fun SplitRadioButton(
 }
 
 /**
- * Contains the default values used by [RadioButton]s and [SplitRadioButton]s
+ * Contains the default values used by [SelectableButton]s and [SplitSelectableButton]s
  */
-object RadioButtonDefaults {
+object SelectableButtonDefaults {
+    /**
+     * Recommended [Shape] for [SelectableButton].
+     */
+    val selectableButtonShape: Shape
+        @Composable get() = SelectableButtonTokens.Shape.value
 
     /**
-     * Creates a [RadioButtonColors] for use in a [RadioButton].
+     * Recommended [Shape] for [SplitSelectableButton].
+     */
+    val splitSelectableButtonShape: Shape
+        @Composable get() = SplitSelectableButtonTokens.Shape.value
+
+    /**
+     * Creates a [SelectableButtonColors] for use in a [SelectableButton].
      */
     @Composable
-    fun radioButtonColors() = MaterialTheme.colorScheme.defaultRadioButtonColors
+    fun selectableButtonColors() = MaterialTheme.colorScheme.defaultSelectableButtonColors
 
     /**
-     * Creates a [RadioButtonColors] for use in a [RadioButton].
+     * Creates a [SelectableButtonColors] for use in a [SelectableButton].
      *
-     * @param selectedContainerColor The container color of the [RadioButton]
+     * @param selectedContainerColor The container color of the [SelectableButton]
      * when enabled and selected.
-     * @param selectedContentColor The content color of the [RadioButton]
+     * @param selectedContentColor The content color of the [SelectableButton]
      * when enabled and selected.
-     * @param selectedSecondaryContentColor The secondary content color of the [RadioButton]
+     * @param selectedSecondaryContentColor The secondary content color of the [SelectableButton]
      * when enabled and selected, used for secondaryLabel content.
-     * @param selectedIconColor The icon color of the [RadioButton]
+     * @param selectedIconColor The icon color of the [SelectableButton]
      * when enabled and selected.
-     * @param unselectedContainerColor  The container color of the [RadioButton]
+     * @param unselectedContainerColor  The container color of the [SelectableButton]
      * when enabled and not selected.
-     * @param unselectedContentColor The content color of a [RadioButton]
+     * @param unselectedContentColor The content color of a [SelectableButton]
      * when enabled and not selected.
-     * @param unselectedSecondaryContentColor The secondary content color of this [RadioButton]
+     * @param unselectedSecondaryContentColor The secondary content color of this [SelectableButton]
      * when enabled and not selected, used for secondaryLabel content
-     * @param unselectedIconColor The icon color of the [RadioButton]
+     * @param unselectedIconColor The icon color of the [SelectableButton]
      * when enabled and not selected.
-     * @param disabledSelectedContainerColor The container color of the [RadioButton] when disabled
+     * @param disabledSelectedContainerColor The container color of the [SelectableButton] when disabled
      * and selected.
-     * @param disabledSelectedContentColor The content color of the [RadioButton] when disabled
+     * @param disabledSelectedContentColor The content color of the [SelectableButton] when disabled
      * and selected.
-     * @param disabledSelectedSecondaryContentColor The secondary content color of the [RadioButton]
+     * @param disabledSelectedSecondaryContentColor The secondary content color of the [SelectableButton]
      * when disabled and selected, used for the secondary content.
-     * @param disabledSelectedIconColor The icon color of the [RadioButton] when disabled and
+     * @param disabledSelectedIconColor The icon color of the [SelectableButton] when disabled and
      * selected.
-     * @param disabledUnselectedContainerColor The container color of the [RadioButton] when
+     * @param disabledUnselectedContainerColor The container color of the [SelectableButton] when
      * disabled and not selected.
-     * @param disabledUnselectedContentColor The content color of the [RadioButton] when disabled
+     * @param disabledUnselectedContentColor The content color of the [SelectableButton] when disabled
      * and not selected.
      * @param disabledUnselectedSecondaryContentColor The secondary content color of the
-     * [RadioButton] when disabled and not selected, used for secondary label content.
-     * @param disabledUnselectedIconColor The icon color of the [RadioButton] when disabled and
+     * [SelectableButton] when disabled and not selected, used for secondary label content.
+     * @param disabledUnselectedIconColor The icon color of the [SelectableButton] when disabled and
      * not selected.
      */
     @Composable
-    fun radioButtonColors(
+    fun selectableButtonColors(
         selectedContainerColor: Color = Color.Unspecified,
         selectedContentColor: Color = Color.Unspecified,
         selectedSecondaryContentColor: Color = Color.Unspecified,
@@ -417,7 +428,7 @@ object RadioButtonDefaults {
         disabledUnselectedContentColor: Color = Color.Unspecified,
         disabledUnselectedSecondaryContentColor: Color = Color.Unspecified,
         disabledUnselectedIconColor: Color = Color.Unspecified
-    ) = MaterialTheme.colorScheme.defaultRadioButtonColors.copy(
+    ) = MaterialTheme.colorScheme.defaultSelectableButtonColors.copy(
             selectedContainerColor = selectedContainerColor,
             selectedContentColor = selectedContentColor,
             selectedSecondaryContentColor = selectedSecondaryContentColor,
@@ -437,49 +448,49 @@ object RadioButtonDefaults {
         )
 
     /**
-     * Creates a [SplitRadioButtonColors] for use in a [SplitRadioButton].
+     * Creates a [SplitSelectableButtonColors] for use in a [SplitSelectableButton].
      */
     @Composable
-    fun splitRadioButtonColors() = MaterialTheme.colorScheme.defaultSplitRadioButtonColors
+    fun splitSelectableButtonColors() = MaterialTheme.colorScheme.defaultSplitSelectableButtonColors
 
     /**
-     * Creates a [SplitRadioButtonColors] for use in a [SplitRadioButton].
+     * Creates a [SplitSelectableButtonColors] for use in a [SplitSelectableButton].
      *
-     * @param selectedContainerColor The container color of the [SplitRadioButton] when enabled and
+     * @param selectedContainerColor The container color of the [SplitSelectableButton] when enabled and
      * selected.
-     * @param selectedContentColor The content color of the [SplitRadioButton] when enabled and
+     * @param selectedContentColor The content color of the [SplitSelectableButton] when enabled and
      * selected.
-     * @param selectedSecondaryContentColor The secondary content color of the [SplitRadioButton]
+     * @param selectedSecondaryContentColor The secondary content color of the [SplitSelectableButton]
      * when enabled and selected, used for secondaryLabel content.
-     * @param selectedSplitContainerColor The split container color of the [SplitRadioButton]
+     * @param selectedSplitContainerColor The split container color of the [SplitSelectableButton]
      * when enabled and selected.
-     * @param unselectedContainerColor The container color of the [SplitRadioButton] when enabled
+     * @param unselectedContainerColor The container color of the [SplitSelectableButton] when enabled
      * and not selected.
-     * @param unselectedContentColor The content color of the [SplitRadioButton] when enabled and
+     * @param unselectedContentColor The content color of the [SplitSelectableButton] when enabled and
      * not selected.
-     * @param unselectedSecondaryContentColor The secondary content color of the [SplitRadioButton]
+     * @param unselectedSecondaryContentColor The secondary content color of the [SplitSelectableButton]
      * when enabled and not selected, used for secondaryLabel content.
-     * @param unselectedSplitContainerColor The split container color of the [SplitRadioButton] when
+     * @param unselectedSplitContainerColor The split container color of the [SplitSelectableButton] when
      * enabled and not selected.
-     * @param disabledSelectedContainerColor The container color of the [SplitRadioButton] when
+     * @param disabledSelectedContainerColor The container color of the [SplitSelectableButton] when
      * disabled and selected.
-     * @param disabledSelectedContentColor The content color of the [SplitRadioButton] when disabled
+     * @param disabledSelectedContentColor The content color of the [SplitSelectableButton] when disabled
      * and selected.
      * @param disabledSelectedSecondaryContentColor The secondary content color of the
-     * [SplitRadioButton] when disabled and selected, used for secondaryLabel content.
+     * [SplitSelectableButton] when disabled and selected, used for secondaryLabel content.
      * @param disabledSelectedSplitContainerColor The split container color of the
-     * [SplitRadioButton] when disabled and selected.
-     * @param disabledUnselectedContainerColor The container color of the [SplitRadioButton] when
+     * [SplitSelectableButton] when disabled and selected.
+     * @param disabledUnselectedContainerColor The container color of the [SplitSelectableButton] when
      * disabled and not selected.
-     * @param disabledUnselectedContentColor The content color of the [SplitRadioButton] when
+     * @param disabledUnselectedContentColor The content color of the [SplitSelectableButton] when
      * disabled and not selected.
      * @param disabledUnselectedSecondaryContentColor The secondary content color of the
-     * [SplitRadioButton] when disabled and not selected, used for secondaryLabel content.
+     * [SplitSelectableButton] when disabled and not selected, used for secondaryLabel content.
      * @param disabledUnselectedSplitContainerColor The split container color of the
-     * [SplitRadioButton] when disabled and not selected.
+     * [SplitSelectableButton] when disabled and not selected.
      */
     @Composable
-    fun splitRadioButtonColors(
+    fun splitSelectableButtonColors(
         selectedContainerColor: Color = Color.Unspecified,
         selectedContentColor: Color = Color.Unspecified,
         selectedSecondaryContentColor: Color = Color.Unspecified,
@@ -496,7 +507,7 @@ object RadioButtonDefaults {
         disabledUnselectedContentColor: Color = Color.Unspecified,
         disabledUnselectedSecondaryContentColor: Color = Color.Unspecified,
         disabledUnselectedSplitContainerColor: Color = Color.Unspecified
-    ) = MaterialTheme.colorScheme.defaultSplitRadioButtonColors.copy(
+    ) = MaterialTheme.colorScheme.defaultSplitSelectableButtonColors.copy(
             selectedContainerColor = selectedContainerColor,
             selectedContentColor = selectedContentColor,
             selectedSecondaryContentColor = selectedSecondaryContentColor,
@@ -520,7 +531,7 @@ object RadioButtonDefaults {
     private val VerticalPadding = 8.dp
 
     /**
-     * The default content padding used by [RadioButton]
+     * The default content padding used by [SelectableButton]
      */
     val ContentPadding: PaddingValues = PaddingValues(
         start = HorizontalPadding,
@@ -529,104 +540,110 @@ object RadioButtonDefaults {
         bottom = VerticalPadding
     )
 
-    private val ColorScheme.defaultRadioButtonColors: RadioButtonColors
+    private val ColorScheme.defaultSelectableButtonColors: SelectableButtonColors
         get() {
-            return defaultRadioButtonColorsCached ?: RadioButtonColors(
-                selectedContainerColor = fromToken(RadioButtonTokens.SelectedContainerColor),
-                selectedContentColor = fromToken(RadioButtonTokens.SelectedContentColor),
+            return defaultSelectableButtonColorsCached ?: SelectableButtonColors(
+                selectedContainerColor = fromToken(SelectableButtonTokens.SelectedContainerColor),
+                selectedContentColor = fromToken(SelectableButtonTokens.SelectedContentColor),
                 selectedSecondaryContentColor =
-                fromToken(RadioButtonTokens.SelectedSecondaryLabelColor)
-                    .copy(alpha = RadioButtonTokens.SelectedSecondaryLabelOpacity),
-                selectedIconColor = fromToken(RadioButtonTokens.SelectedIconColor),
-                unselectedContainerColor = fromToken(RadioButtonTokens.UnselectedContainerColor),
-                unselectedContentColor = fromToken(RadioButtonTokens.UnselectedContentColor),
+                fromToken(SelectableButtonTokens.SelectedSecondaryLabelColor)
+                    .copy(alpha = SelectableButtonTokens.SelectedSecondaryLabelOpacity),
+                selectedIconColor = fromToken(SelectableButtonTokens.SelectedIconColor),
+                unselectedContainerColor = fromToken(
+                    SelectableButtonTokens.UnselectedContainerColor
+                ),
+                unselectedContentColor = fromToken(SelectableButtonTokens.UnselectedContentColor),
                 unselectedSecondaryContentColor =
-                fromToken(RadioButtonTokens.UnselectedSecondaryLabelColor),
-                unselectedIconColor = fromToken(RadioButtonTokens.UnselectedIconColor),
+                fromToken(SelectableButtonTokens.UnselectedSecondaryLabelColor),
+                unselectedIconColor = fromToken(SelectableButtonTokens.UnselectedIconColor),
                 disabledSelectedContainerColor =
-                fromToken(RadioButtonTokens.DisabledSelectedContainerColor)
+                fromToken(SelectableButtonTokens.DisabledSelectedContainerColor)
                     .toDisabledColor(
-                        disabledAlpha = RadioButtonTokens.DisabledSelectedContainerOpacity
+                        disabledAlpha = SelectableButtonTokens.DisabledSelectedContainerOpacity
                     ),
                 disabledSelectedContentColor =
-                fromToken(RadioButtonTokens.DisabledSelectedContentColor)
-                    .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
+                fromToken(SelectableButtonTokens.DisabledSelectedContentColor)
+                    .toDisabledColor(disabledAlpha = SelectableButtonTokens.DisabledOpacity),
                 disabledSelectedSecondaryContentColor =
-                fromToken(RadioButtonTokens.DisabledSelectedSecondaryLabelColor)
-                    .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
+                fromToken(SelectableButtonTokens.DisabledSelectedSecondaryLabelColor)
+                    .toDisabledColor(disabledAlpha = SelectableButtonTokens.DisabledOpacity),
                 disabledSelectedIconColor =
-                fromToken(RadioButtonTokens.DisabledSelectedIconColor)
-                    .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
+                fromToken(SelectableButtonTokens.DisabledSelectedIconColor)
+                    .toDisabledColor(disabledAlpha = SelectableButtonTokens.DisabledOpacity),
                 disabledUnselectedContainerColor =
-                fromToken(RadioButtonTokens.DisabledUnselectedContainerColor)
+                fromToken(SelectableButtonTokens.DisabledUnselectedContainerColor)
                     .toDisabledColor(
-                        disabledAlpha = RadioButtonTokens.DisabledUnselectedContainerOpacity
+                        disabledAlpha = SelectableButtonTokens.DisabledUnselectedContainerOpacity
                     ),
                 disabledUnselectedContentColor =
-                fromToken(RadioButtonTokens.DisabledUnselectedContentColor)
-                    .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
+                fromToken(SelectableButtonTokens.DisabledUnselectedContentColor)
+                    .toDisabledColor(disabledAlpha = SelectableButtonTokens.DisabledOpacity),
                 disabledUnselectedSecondaryContentColor =
-                fromToken(RadioButtonTokens.DisabledUnselectedSecondaryLabelColor)
-                    .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
+                fromToken(SelectableButtonTokens.DisabledUnselectedSecondaryLabelColor)
+                    .toDisabledColor(disabledAlpha = SelectableButtonTokens.DisabledOpacity),
                 disabledUnselectedIconColor =
-                fromToken(RadioButtonTokens.DisabledUnselectedIconColor)
-                    .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity)
-            ).also { defaultRadioButtonColorsCached = it }
+                fromToken(SelectableButtonTokens.DisabledUnselectedIconColor)
+                    .toDisabledColor(disabledAlpha = SelectableButtonTokens.DisabledOpacity)
+            ).also { defaultSelectableButtonColorsCached = it }
         }
 
-    private val ColorScheme.defaultSplitRadioButtonColors: SplitRadioButtonColors
+    private val ColorScheme.defaultSplitSelectableButtonColors: SplitSelectableButtonColors
         get() {
-            return defaultSplitRadioButtonColorsCached ?: SplitRadioButtonColors(
-                selectedContainerColor = fromToken(SplitRadioButtonTokens.SelectedContainerColor),
-                selectedContentColor = fromToken(SplitRadioButtonTokens.SelectedContentColor),
+            return defaultSplitSelectableButtonColorsCached ?: SplitSelectableButtonColors(
+                selectedContainerColor = fromToken(
+                    SplitSelectableButtonTokens.SelectedContainerColor
+                ),
+                selectedContentColor = fromToken(SplitSelectableButtonTokens.SelectedContentColor),
                 selectedSecondaryContentColor =
-                fromToken(SplitRadioButtonTokens.SelectedSecondaryLabelColor)
-                    .copy(alpha = SplitRadioButtonTokens.SelectedSecondaryLabelOpacity),
+                fromToken(SplitSelectableButtonTokens.SelectedSecondaryLabelColor)
+                    .copy(alpha = SplitSelectableButtonTokens.SelectedSecondaryLabelOpacity),
                 selectedSplitContainerColor =
-                fromToken(SplitRadioButtonTokens.SelectedSplitContainerColor)
-                    .copy(alpha = SplitRadioButtonTokens.SelectedSplitContainerOpacity),
+                fromToken(SplitSelectableButtonTokens.SelectedSplitContainerColor)
+                    .copy(alpha = SplitSelectableButtonTokens.SelectedSplitContainerOpacity),
                 unselectedContainerColor =
-                fromToken(SplitRadioButtonTokens.UnselectedContainerColor),
-                unselectedContentColor = fromToken(SplitRadioButtonTokens.UnselectedContentColor),
+                fromToken(SplitSelectableButtonTokens.UnselectedContainerColor),
+                unselectedContentColor = fromToken(
+                    SplitSelectableButtonTokens.UnselectedContentColor
+                ),
                 unselectedSecondaryContentColor =
-                fromToken(SplitRadioButtonTokens.UnselectedSecondaryLabelColor),
+                fromToken(SplitSelectableButtonTokens.UnselectedSecondaryLabelColor),
                 unselectedSplitContainerColor =
-                fromToken(SplitRadioButtonTokens.UnselectedSplitContainerColor),
+                fromToken(SplitSelectableButtonTokens.UnselectedSplitContainerColor),
                 disabledSelectedContainerColor =
-                fromToken(SplitRadioButtonTokens.DisabledSelectedContainerColor)
-                    .toDisabledColor(disabledAlpha = SplitRadioButtonTokens.DisabledOpacity),
+                fromToken(SplitSelectableButtonTokens.DisabledSelectedContainerColor)
+                    .toDisabledColor(disabledAlpha = SplitSelectableButtonTokens.DisabledOpacity),
                 disabledSelectedContentColor =
-                fromToken(SplitRadioButtonTokens.DisabledSelectedContentColor)
-                    .toDisabledColor(disabledAlpha = SplitRadioButtonTokens.DisabledOpacity),
+                fromToken(SplitSelectableButtonTokens.DisabledSelectedContentColor)
+                    .toDisabledColor(disabledAlpha = SplitSelectableButtonTokens.DisabledOpacity),
                 disabledSelectedSecondaryContentColor =
-                fromToken(SplitRadioButtonTokens.DisabledSelectedSecondaryLabelColor)
-                    .copy(alpha = SplitRadioButtonTokens.DisabledSelectedSecondaryLabelOpacity)
-                    .toDisabledColor(disabledAlpha = SplitRadioButtonTokens.DisabledOpacity),
+                fromToken(SplitSelectableButtonTokens.DisabledSelectedSecondaryLabelColor)
+                    .copy(alpha = SplitSelectableButtonTokens.DisabledSelectedSecondaryLabelOpacity)
+                    .toDisabledColor(disabledAlpha = SplitSelectableButtonTokens.DisabledOpacity),
                 disabledSelectedSplitContainerColor =
-                fromToken(SplitRadioButtonTokens.DisabledSelectedSplitContainerColor)
-                    .copy(alpha = SplitRadioButtonTokens.DisabledSelectedSplitContainerOpacity)
-                    .toDisabledColor(disabledAlpha = SplitRadioButtonTokens.DisabledOpacity),
+                fromToken(SplitSelectableButtonTokens.DisabledSelectedSplitContainerColor)
+                    .copy(alpha = SplitSelectableButtonTokens.DisabledSelectedSplitContainerOpacity)
+                    .toDisabledColor(disabledAlpha = SplitSelectableButtonTokens.DisabledOpacity),
                 disabledUnselectedContainerColor =
-                fromToken(SplitRadioButtonTokens.DisabledUnselectedContainerColor)
-                    .toDisabledColor(disabledAlpha = SplitRadioButtonTokens.DisabledOpacity),
+                fromToken(SplitSelectableButtonTokens.DisabledUnselectedContainerColor)
+                    .toDisabledColor(disabledAlpha = SplitSelectableButtonTokens.DisabledOpacity),
                 disabledUnselectedContentColor =
-                fromToken(SplitRadioButtonTokens.DisabledUnselectedContentColor)
-                    .toDisabledColor(disabledAlpha = SplitRadioButtonTokens.DisabledOpacity),
+                fromToken(SplitSelectableButtonTokens.DisabledUnselectedContentColor)
+                    .toDisabledColor(disabledAlpha = SplitSelectableButtonTokens.DisabledOpacity),
                 disabledUnselectedSecondaryContentColor =
-                fromToken(SplitRadioButtonTokens.DisabledUnselectedSecondaryLabelColor)
-                    .toDisabledColor(disabledAlpha = SplitRadioButtonTokens.DisabledOpacity),
+                fromToken(SplitSelectableButtonTokens.DisabledUnselectedSecondaryLabelColor)
+                    .toDisabledColor(disabledAlpha = SplitSelectableButtonTokens.DisabledOpacity),
                 disabledUnselectedSplitContainerColor =
-                fromToken(SplitRadioButtonTokens.DisabledUnselectedSplitContainerColor)
-                    .toDisabledColor(disabledAlpha = SplitRadioButtonTokens.DisabledOpacity)
-            ).also { defaultSplitRadioButtonColorsCached = it }
+                fromToken(SplitSelectableButtonTokens.DisabledUnselectedSplitContainerColor)
+                    .toDisabledColor(disabledAlpha = SplitSelectableButtonTokens.DisabledOpacity)
+            ).also { defaultSplitSelectableButtonColorsCached = it }
         }
 }
 
 /**
- * Represents the different container and content colors used for [RadioButton] in various states,
+ * Represents the different container and content colors used for [SelectableButton] in various states,
  * that are selected, unselected, enabled and disabled.
  *
- * @constructor [RadioButtonColors] constructor to be used with [RadioButton]
+ * @constructor [SelectableButtonColors] constructor to be used with [SelectableButton]
  * @param selectedContainerColor Container or background color when the radio button is selected
  * @param selectedContentColor Color of the content (e.g. label) when the radio button is selected
  * @param selectedSecondaryContentColor Color of the secondary content (e.g. secondary label)
@@ -654,7 +671,7 @@ object RadioButtonDefaults {
  * @param disabledUnselectedIconColor Icon color when the radio button is disabled and unselected
  */
 @Immutable
-class RadioButtonColors constructor(
+class SelectableButtonColors constructor(
     val selectedContainerColor: Color,
     val selectedContentColor: Color,
     val selectedSecondaryContentColor: Color,
@@ -690,7 +707,7 @@ class RadioButtonColors constructor(
         disabledUnselectedContentColor: Color,
         disabledUnselectedSecondaryContentColor: Color,
         disabledUnselectedIconColor: Color,
-    ): RadioButtonColors = RadioButtonColors(
+    ): SelectableButtonColors = SelectableButtonColors(
         selectedContainerColor = selectedContainerColor.takeOrElse { this.selectedContainerColor },
         selectedContentColor = selectedContentColor.takeOrElse { this.selectedContentColor },
         selectedSecondaryContentColor = selectedSecondaryContentColor
@@ -761,8 +778,8 @@ class RadioButtonColors constructor(
     /**
      * Represents the secondary content color depending on the [enabled] and [selected] properties.
      *
-     * @param enabled Whether the RadioButton is enabled.
-     * @param selected Whether the RadioButton is currently selected or unselected.
+     * @param enabled Whether the SelectableButton is enabled.
+     * @param selected Whether the SelectableButton is currently selected or unselected.
      */
     @Composable
     internal fun secondaryContentColor(enabled: Boolean, selected: Boolean): State<Color> =
@@ -777,11 +794,11 @@ class RadioButtonColors constructor(
         )
 
     /**
-     * Represents the icon color for the [RadioButton] depending on the
+     * Represents the icon color for the [SelectableButton] depending on the
      * [enabled] and [selected] properties.
      *
-     * @param enabled Whether the RadioButton is enabled.
-     * @param selected Whether the RadioButton is currently selected or unselected.
+     * @param enabled Whether the SelectableButton is enabled.
+     * @param selected Whether the SelectableButton is currently selected or unselected.
      */
     @Composable
     internal fun iconColor(enabled: Boolean, selected: Boolean): State<Color> =
@@ -800,7 +817,7 @@ class RadioButtonColors constructor(
         if (other == null) return false
         if (this::class != other::class) return false
 
-        other as RadioButtonColors
+        other as SelectableButtonColors
 
         if (selectedContainerColor != other.selectedContainerColor) return false
         if (selectedContentColor != other.selectedContentColor) return false
@@ -849,42 +866,42 @@ class RadioButtonColors constructor(
 }
 
 /**
- * Represents the different colors used in [SplitRadioButton] in different states.
+ * Represents the different colors used in [SplitSelectableButton] in different states.
  *
- * @constructor [SplitRadioButtonColors] constructor to be used with [SplitRadioButton]
- * @param selectedContainerColor Container or background color when the [SplitRadioButton] is
+ * @constructor [SplitSelectableButtonColors] constructor to be used with [SplitSelectableButton]
+ * @param selectedContainerColor Container or background color when the [SplitSelectableButton] is
  * selected
- * @param selectedContentColor Color of the content (e.g. label) when the [SplitRadioButton] is
+ * @param selectedContentColor Color of the content (e.g. label) when the [SplitSelectableButton] is
  * selected
  * @param selectedSecondaryContentColor Color of the secondary content (e.g. secondary label)
- * when the [SplitRadioButton] is selected
- * @param selectedSplitContainerColor Split container color when the [SplitRadioButton] is selected
- * @param unselectedContainerColor Container or background color when the [SplitRadioButton] is
+ * when the [SplitSelectableButton] is selected
+ * @param selectedSplitContainerColor Split container color when the [SplitSelectableButton] is selected
+ * @param unselectedContainerColor Container or background color when the [SplitSelectableButton] is
  * unselected
- * @param unselectedContentColor Color of the content (e.g. label) when the [SplitRadioButton] is
+ * @param unselectedContentColor Color of the content (e.g. label) when the [SplitSelectableButton] is
  * unselected
  * @param unselectedSecondaryContentColor Color of the secondary content (e.g. secondary label)
- * when the [SplitRadioButton] is unselected
- * @param unselectedSplitContainerColor Split container color when the [SplitRadioButton] is
+ * when the [SplitSelectableButton] is unselected
+ * @param unselectedSplitContainerColor Split container color when the [SplitSelectableButton] is
  * unselected
- * @param disabledSelectedContainerColor Container color when the [SplitRadioButton] is disabled
+ * @param disabledSelectedContainerColor Container color when the [SplitSelectableButton] is disabled
  * and selected
- * @param disabledSelectedContentColor Color of the content (e.g. label) when the [SplitRadioButton]
+ * @param disabledSelectedContentColor Color of the content (e.g. label) when the [SplitSelectableButton]
  * is disabled and selected
  * @param disabledSelectedSecondaryContentColor Color of the secondary content
- * (e.g. secondary label) when the [SplitRadioButton] is disabled and selected
- * @param disabledSelectedSplitContainerColor Split container color when the [SplitRadioButton] is
+ * (e.g. secondary label) when the [SplitSelectableButton] is disabled and selected
+ * @param disabledSelectedSplitContainerColor Split container color when the [SplitSelectableButton] is
  * disabled and selected
- * @param disabledUnselectedContainerColor Container color when the [SplitRadioButton] is unselected
+ * @param disabledUnselectedContainerColor Container color when the [SplitSelectableButton] is unselected
  * and disabled
  * @param disabledUnselectedContentColor Color of the content (e.g. label) when the split radio
  * button is unselected and disabled
  * @param disabledUnselectedSecondaryContentColor Color of the secondary content (e.g. secondary
- * label) when the [SplitRadioButton] is unselected and disabled
- * @param disabledUnselectedSplitContainerColor Split container color when the [SplitRadioButton]
+ * label) when the [SplitSelectableButton] is unselected and disabled
+ * @param disabledUnselectedSplitContainerColor Split container color when the [SplitSelectableButton]
  * is unselected and disabled
  */
-class SplitRadioButtonColors constructor(
+class SplitSelectableButtonColors constructor(
     val selectedContainerColor: Color,
     val selectedContentColor: Color,
     val selectedSecondaryContentColor: Color,
@@ -920,7 +937,7 @@ class SplitRadioButtonColors constructor(
         disabledUnselectedContentColor: Color,
         disabledUnselectedSecondaryContentColor: Color,
         disabledUnselectedSplitContainerColor: Color,
-    ): SplitRadioButtonColors = SplitRadioButtonColors(
+    ): SplitSelectableButtonColors = SplitSelectableButtonColors(
         selectedContainerColor = selectedContainerColor.takeOrElse { this.selectedContainerColor },
         selectedContentColor = selectedContentColor.takeOrElse { this.selectedContentColor },
         selectedSecondaryContentColor = selectedSecondaryContentColor
@@ -953,11 +970,11 @@ class SplitRadioButtonColors constructor(
     )
 
     /**
-     * Determines the container color based on whether the [SplitRadioButton] is [enabled]
+     * Determines the container color based on whether the [SplitSelectableButton] is [enabled]
      * and [selected].
      *
-     * @param enabled Whether the [SplitRadioButton] is enabled
-     * @param selected Whether the [SplitRadioButton] is currently checked/selected
+     * @param enabled Whether the [SplitSelectableButton] is enabled
+     * @param selected Whether the [SplitSelectableButton] is currently checked/selected
      */
     @Composable
     internal fun containerColor(enabled: Boolean, selected: Boolean): State<Color> =
@@ -972,11 +989,11 @@ class SplitRadioButtonColors constructor(
         )
 
     /**
-     * Determines the content color based on whether the [SplitRadioButton] is [enabled]
+     * Determines the content color based on whether the [SplitSelectableButton] is [enabled]
      * and [selected].
      *
-     * @param enabled Whether the [SplitRadioButton] is enabled
-     * @param selected Whether the [SplitRadioButton] is currently selected
+     * @param enabled Whether the [SplitSelectableButton] is enabled
+     * @param selected Whether the [SplitSelectableButton] is currently selected
      */
     @Composable
     internal fun contentColor(enabled: Boolean, selected: Boolean): State<Color> =
@@ -991,11 +1008,11 @@ class SplitRadioButtonColors constructor(
         )
 
     /**
-     * Represents the secondary content color for the [SplitRadioButton] depending on the
+     * Represents the secondary content color for the [SplitSelectableButton] depending on the
      * [enabled] and [selected] properties.
      *
-     * @param enabled Whether the [SplitRadioButton] is enabled.
-     * @param selected Whether the [SplitRadioButton] is currently selected.
+     * @param enabled Whether the [SplitSelectableButton] is enabled.
+     * @param selected Whether the [SplitSelectableButton] is currently selected.
      */
     @Composable
     internal fun secondaryContentColor(enabled: Boolean, selected: Boolean): State<Color> =
@@ -1010,11 +1027,11 @@ class SplitRadioButtonColors constructor(
         )
 
     /**
-     * Represents the split container for the [SplitRadioButton] color depending on the
+     * Represents the split container for the [SplitSelectableButton] color depending on the
      * [enabled] and [selected] properties.
      *
-     * @param enabled Whether the [SplitRadioButton] is enabled.
-     * @param selected Whether the [SplitRadioButton] is currently selected.
+     * @param enabled Whether the [SplitSelectableButton] is enabled.
+     * @param selected Whether the [SplitSelectableButton] is currently selected.
      */
     @Composable
     internal fun splitContainerColor(enabled: Boolean, selected: Boolean): State<Color> =
@@ -1033,7 +1050,7 @@ class SplitRadioButtonColors constructor(
         if (other == null) return false
         if (this::class != other::class) return false
 
-        other as SplitRadioButtonColors
+        other as SplitSelectableButtonColors
 
         if (selectedContainerColor != other.selectedContainerColor) return false
         if (selectedContentColor != other.selectedContentColor) return false
@@ -1103,7 +1120,7 @@ private fun RowScope.Labels(
     Column(modifier = Modifier.weight(1.0f)) {
         Row(content = label)
         if (secondaryLabel != null) {
-            Spacer(modifier = Modifier.size(RadioButtonDefaults.LabelSpacerSize))
+            Spacer(modifier = Modifier.size(SelectableButtonDefaults.LabelSpacerSize))
             Row(content = secondaryLabel)
         }
     }
