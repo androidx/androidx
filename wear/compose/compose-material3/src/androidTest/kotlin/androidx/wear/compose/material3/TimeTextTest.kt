@@ -262,7 +262,7 @@ class TimeTextTest {
     }
 
     @Test
-    fun changes_material_theme_on_non_round_device() {
+    fun changes_material_theme_on_non_round_device_except_color() {
         val timeText = "testTime"
 
         val testTextStyle = TextStyle(
@@ -294,11 +294,125 @@ class TimeTextTest {
             }
         }
         val actualStyle = rule.textStyleOf(timeText)
-        Assert.assertEquals(testTextStyle.color, actualStyle.color)
         Assert.assertEquals(testTextStyle.background, actualStyle.background)
         Assert.assertEquals(testTextStyle.fontSize, actualStyle.fontSize)
         Assert.assertEquals(testTextStyle.fontStyle, actualStyle.fontStyle)
         Assert.assertEquals(testTextStyle.fontFamily, actualStyle.fontFamily)
+        Assert.assertNotEquals(testTextStyle.color, actualStyle.color)
+    }
+
+    @Test
+    fun color_remains_onBackground_when_material_theme_changed_on_non_round_device() {
+        val timeText = "testTime"
+        var onBackgroundColor = Color.Unspecified
+
+        val testTextStyle = TextStyle(
+            color = Color.Green,
+            background = Color.Black,
+            fontStyle = FontStyle.Italic,
+            fontSize = 25.sp,
+            fontFamily = FontFamily.SansSerif
+        )
+        rule.setContent {
+            MaterialTheme(
+                typography = MaterialTheme.typography.copy(
+                    labelSmall = testTextStyle
+                )
+            ) {
+                onBackgroundColor = MaterialTheme.colorScheme.onBackground
+                DeviceConfigurationOverride(
+                    DeviceConfigurationOverride.RoundScreen(false)
+                ) {
+                    TimeText(
+                        timeSource = object : TimeSource {
+                            override val currentTime: String
+                                @Composable
+                                get() = timeText
+                        }
+                    ) {
+                        time()
+                    }
+                }
+            }
+        }
+        val actualStyle = rule.textStyleOf(timeText)
+        Assert.assertEquals(onBackgroundColor, actualStyle.color)
+    }
+
+    @Test
+    fun has_correct_default_leading_text_color_on_non_round_device() {
+        val leadingText = "leadingText"
+        var primaryColor = Color.Unspecified
+
+        rule.setContentWithTheme {
+            primaryColor = MaterialTheme.colorScheme.primary
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.RoundScreen(false)
+            ) {
+                TimeText {
+                    text(leadingText)
+                    separator()
+                    time()
+                }
+            }
+        }
+        val actualStyle = rule.textStyleOf(leadingText)
+        Assert.assertEquals(primaryColor, actualStyle.color)
+    }
+
+    @Test
+    fun supports_custom_leading_text_color_on_non_round_device() {
+        val leadingText = "leadingText"
+        val customColor = Color.Green
+
+        rule.setContentWithTheme {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.RoundScreen(false)
+            ) {
+                TimeText(
+                    contentColor = customColor,
+                ) {
+                    text(leadingText)
+                    separator()
+                    time()
+                }
+            }
+        }
+        val actualStyle = rule.textStyleOf(leadingText)
+        Assert.assertEquals(customColor, actualStyle.color)
+    }
+
+    @Test
+    fun supports_custom_text_style_on_non_round_device() {
+        val leadingText = "leadingText"
+
+        val timeTextStyle = TextStyle(
+            background = Color.Blue,
+            fontSize = 14.sp
+        )
+        val contentTextStyle = TextStyle(
+            color = Color.Green,
+            background = Color.Black,
+            fontSize = 20.sp
+        )
+        rule.setContentWithTheme {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.RoundScreen(false)
+            ) {
+                TimeText(
+                    contentColor = Color.Red,
+                    timeTextStyle = timeTextStyle
+                ) {
+                    text(leadingText, contentTextStyle)
+                    separator()
+                    time()
+                }
+            }
+        }
+        val actualStyle = rule.textStyleOf(leadingText)
+        Assert.assertEquals(contentTextStyle.color, actualStyle.color)
+        Assert.assertEquals(contentTextStyle.background, actualStyle.background)
+        Assert.assertEquals(contentTextStyle.fontSize, actualStyle.fontSize)
     }
 
     @Test
