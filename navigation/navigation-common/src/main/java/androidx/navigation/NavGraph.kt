@@ -178,6 +178,35 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     }
 
     /**
+     * Searches all children and parents recursively.
+     *
+     * Does not revisit graphs (whether it's a child or parent) if it has already been visited.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun findNodeComprehensive(
+        @IdRes resId: Int,
+        lastVisited: NavDestination?,
+    ): NavDestination? {
+        // first search direct children
+        var destination = nodes[resId]
+        if (destination != null) return destination
+
+        // then dfs through children. Avoid re-visiting children that were recursing up this way.
+        destination = nodes.valueIterator().asSequence().firstNotNullOfOrNull { child ->
+            if (child is NavGraph && child != lastVisited) {
+                child.findNodeComprehensive(resId, this)
+            } else null
+        }
+
+        // lastly search through parents. Avoid re-visiting parents that were recursing down
+        // this way.
+        return destination
+            ?: if (parent != null && parent != lastVisited) {
+                parent!!.findNodeComprehensive(resId, this)
+            } else null
+    }
+
+    /**
      * Finds a destination in the collection by route. This will recursively check the
      * [parent][parent] of this navigation graph if node is not found in this navigation graph.
      *
@@ -220,24 +249,6 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         // and searchParents is true
         return destination
             ?: if (searchParents && parent != null) parent!!.findNode(route) else null
-    }
-
-    // searches through child nodes, does not search through parents
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findChildNode(
-        @IdRes resId: Int,
-    ): NavDestination? {
-        // first search through children directly added to graph
-        var destination = nodes[resId]
-        if (destination != null) return destination
-
-        // then search through child graphs
-        destination = nodes.valueIterator().asSequence().firstNotNullOfOrNull { child ->
-            if (child is NavGraph) {
-                child.findChildNode(resId)
-            } else null
-        }
-        return destination
     }
 
     /**
