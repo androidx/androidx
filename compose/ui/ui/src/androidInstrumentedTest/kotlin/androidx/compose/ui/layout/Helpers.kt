@@ -104,6 +104,18 @@ private class FakeOwner(
         }
     }
 
+    override fun onRequestRelayout(
+        layoutNode: LayoutNode,
+        affectsLookahead: Boolean,
+        forceRequest: Boolean
+    ) {
+        if (affectsLookahead) {
+            delegate.requestLookaheadRelayout(layoutNode, forceRequest)
+        } else {
+            delegate.requestRelayout(layoutNode, forceRequest)
+        }
+    }
+
     override fun measureAndLayout(sendPointerUpdate: Boolean) {
         delegate.measureAndLayout()
     }
@@ -215,12 +227,6 @@ private class FakeOwner(
         invalidateParentLayer: () -> Unit,
         explicitLayer: GraphicsLayer?
     ) = createLayer()
-
-    override fun onRequestRelayout(
-        layoutNode: LayoutNode,
-        affectsLookahead: Boolean,
-        forceRequest: Boolean
-    ) = TODO("Not yet implemented")
 
     override fun requestOnPositionedCallback(layoutNode: LayoutNode) {
         TODO("Not yet implemented")
