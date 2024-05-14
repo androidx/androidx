@@ -289,6 +289,19 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
         )
     }
 
+    /**
+     * Recreates the CoroutineContext associated with Compose being cancelled. This happens
+     * when an app moves from a regular ("Full screen") view of the app to a "Pop up" view AND
+     * certain properties in the manifest's android:configChanges are set to prevent a
+     * full tear down of the app. This is a somewhat rare case (see
+     * issuetracker.google.com/issues/309326720 for more details).
+     *
+     * It does this by canceling the existing Recomposer and creates a new Recomposer (including a
+     * new recomposer coroutine scope for that new Recomposer) and a new ComposeIdlingResource.
+     *
+     * To see full test:
+     * click_viewAddedAndRemovedWithRecomposerCancelledAndRecreated_clickStillWorks
+     */
     fun cancelAndRecreateRecomposer() {
         recomposer.cancel()
         createRecomposer()

@@ -347,6 +347,15 @@ class AndroidComposeTestRule<R : TestRule, A : ComponentActivity> private constr
 
     override fun setContent(composable: @Composable () -> Unit) = composeTest.setContent(composable)
 
+    /**
+     * Cancels AndroidComposeUiTestEnvironment's current Recomposer and creates a new one.
+     *
+     * Recreates the CoroutineContext associated with Compose being cancelled. This happens
+     * when an app moves from a regular ("Full screen") view of the app to a "Pop up" view AND
+     * certain properties in the manifest's android:configChanges are set to prevent a
+     * full tear down of the app. This is a somewhat rare case (see
+     * [AndroidComposeUiTestEnvironment] for more details).
+     */
     fun cancelAndRecreateRecomposer() {
         environment.cancelAndRecreateRecomposer()
     }
