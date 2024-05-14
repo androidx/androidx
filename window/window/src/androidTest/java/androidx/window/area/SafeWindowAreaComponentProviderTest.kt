@@ -18,6 +18,7 @@ package androidx.window.area
 
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensionsProvider
+import kotlin.test.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -42,8 +43,8 @@ class SafeWindowAreaComponentProviderTest {
         try {
             val extensions = WindowExtensionsProvider.getWindowExtensions()
             val actualComponent = extensions.windowAreaComponent
-            if (actualComponent == null) {
-                assertNull(safeComponent)
+            if (actualComponent != null) {
+                assertNotNull(safeComponent)
             }
             // TODO(b/267831038): verify upon each api level
             // TODO(b/267708462): more reliable test for testing actual method matching

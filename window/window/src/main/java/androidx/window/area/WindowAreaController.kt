@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo
 import androidx.window.WindowSdkExtensions
 import androidx.window.area.WindowAreaInfo.Type.Companion.TYPE_REAR_FACING
 import androidx.window.area.utils.DeviceMetricsCompatUtils
-import androidx.window.area.utils.PresentationCompatUtils
 import androidx.window.core.BuildConfig
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
@@ -152,19 +151,16 @@ interface WindowAreaController {
                 null
             }
 
-            val presentationSupported = ExtensionsUtil.safeVendorApiLevel >= 3 ||
-                PresentationCompatUtils.doesSupportPresentationBeforeVendorApi3()
-
             val deviceSupported = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q &&
                 windowAreaComponentExtensions != null &&
-                (ExtensionsUtil.safeVendorApiLevel >= 3 || presentationSupported ||
+                (ExtensionsUtil.safeVendorApiLevel >= 3 ||
                     DeviceMetricsCompatUtils.hasDeviceMetrics())
 
             val controller =
                 if (deviceSupported) {
                     WindowAreaControllerImpl(
-                        windowAreaComponentExtensions!!,
-                        presentationSupported,
+                        windowAreaComponent = windowAreaComponentExtensions!!,
+                        presentationSupported = ExtensionsUtil.safeVendorApiLevel >= 3,
                     )
                 } else {
                     EmptyWindowAreaControllerImpl()
