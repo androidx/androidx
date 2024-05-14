@@ -267,7 +267,7 @@ package androidx.camera.core {
     method public default void updateTransform(android.graphics.Matrix?);
   }
 
-  public static final class ImageAnalysis.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageAnalysis> {
+  public static final class ImageAnalysis.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageAnalysis!> {
     ctor public ImageAnalysis.Builder();
     method public androidx.camera.core.ImageAnalysis build();
     method public androidx.camera.core.ImageAnalysis.Builder setBackgroundExecutor(java.util.concurrent.Executor);
@@ -307,7 +307,7 @@ package androidx.camera.core {
     field public static final int FLASH_MODE_ON = 1; // 0x1
   }
 
-  public static final class ImageCapture.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageCapture> {
+  public static final class ImageCapture.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageCapture!> {
     ctor public ImageCapture.Builder();
     method public androidx.camera.core.ImageCapture build();
     method public androidx.camera.core.ImageCapture.Builder setCaptureMode(int);
@@ -432,7 +432,7 @@ package androidx.camera.core {
     method public void setTargetRotation(int);
   }
 
-  public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview> {
+  public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview!> {
     ctor public Preview.Builder();
     method public androidx.camera.core.Preview build();
     method public androidx.camera.core.Preview.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);

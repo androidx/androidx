@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.loader.app {
 
   public abstract class LoaderManager {
@@ -24,7 +24,7 @@ package androidx.loader.app {
 
 package androidx.loader.content {
 
-  public abstract class AsyncTaskLoader<D> extends androidx.loader.content.Loader<D> {
+  public abstract class AsyncTaskLoader<D> extends androidx.loader.content.Loader<D!> {
     ctor public AsyncTaskLoader(android.content.Context);
     method public void cancelLoadInBackground();
     method protected java.util.concurrent.Executor getExecutor();
@@ -35,7 +35,7 @@ package androidx.loader.content {
     method public void setUpdateThrottle(long);
   }
 
-  public class CursorLoader extends androidx.loader.content.AsyncTaskLoader<android.database.Cursor> {
+  public class CursorLoader extends androidx.loader.content.AsyncTaskLoader<android.database.Cursor!> {
     ctor public CursorLoader(android.content.Context);
     ctor public CursorLoader(android.content.Context, android.net.Uri, String![]?, String?, String![]?, String?);
     method public void deliverResult(android.database.Cursor!);

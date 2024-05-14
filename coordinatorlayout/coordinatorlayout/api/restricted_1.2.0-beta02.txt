@@ -73,17 +73,17 @@ package androidx.coordinatorlayout.widget {
   }
 
   @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public static @interface CoordinatorLayout.DefaultBehavior {
-    method @Deprecated public abstract Class<? extends androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior> value();
+    method @Deprecated public abstract Class<? extends androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior!> value();
   }
 
   @IntDef({0x0, 0x1, 0x2}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CoordinatorLayout.DispatchChangeEvent {
   }
 
   public static class CoordinatorLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
-    ctor public CoordinatorLayout.LayoutParams(int, int);
-    ctor public CoordinatorLayout.LayoutParams(androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams!);
-    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
     ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public CoordinatorLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
+    ctor public CoordinatorLayout.LayoutParams(androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams!);
+    ctor public CoordinatorLayout.LayoutParams(int, int);
     method @IdRes public int getAnchorId();
     method public androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior? getBehavior();
     method public void setAnchorId(@IdRes int);

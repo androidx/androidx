@@ -2,7 +2,7 @@
 package androidx.health.services.client {
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ExerciseClient {
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> addGoalToActiveExerciseAsync(androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> addGoalToActiveExerciseAsync(androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!> exerciseGoal);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback callback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> endExerciseAsync();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> flushAsync();
@@ -13,7 +13,7 @@ package androidx.health.services.client {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> overrideBatchingModesForActiveExerciseAsync(java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModes);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> pauseExerciseAsync();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> prepareExerciseAsync(androidx.health.services.client.data.WarmUpConfig configuration);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> removeGoalFromActiveExerciseAsync(androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> removeGoalFromActiveExerciseAsync(androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!> exerciseGoal);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> resumeExerciseAsync();
     method public void setUpdateCallback(androidx.health.services.client.ExerciseUpdateCallback callback);
     method public void setUpdateCallback(java.util.concurrent.Executor executor, androidx.health.services.client.ExerciseUpdateCallback callback);
@@ -22,7 +22,7 @@ package androidx.health.services.client {
   }
 
   public final class ExerciseClientExtensionKt {
-    method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? addGoalToActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
+    method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? addGoalToActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? clearUpdateCallback(androidx.health.services.client.ExerciseClient, androidx.health.services.client.ExerciseUpdateCallback callback, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? endExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? flush(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
@@ -33,14 +33,14 @@ package androidx.health.services.client {
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? overrideBatchingModesForActiveExercise(androidx.health.services.client.ExerciseClient, java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModes, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? pauseExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? prepareExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.WarmUpConfig configuration, kotlin.coroutines.Continuation<? super kotlin.Unit>) throws androidx.health.services.client.HealthServicesException;
-    method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? removeGoalFromActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<?> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
+    method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? removeGoalFromActiveExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!> exerciseGoal, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? resumeExercise(androidx.health.services.client.ExerciseClient, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? startExercise(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseConfig configuration, kotlin.coroutines.Continuation<? super kotlin.Unit>) throws androidx.health.services.client.HealthServicesException;
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? updateExerciseTypeConfig(androidx.health.services.client.ExerciseClient, androidx.health.services.client.data.ExerciseTypeConfig exerciseTypeConfig, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
   }
 
   public interface ExerciseUpdateCallback {
-    method public void onAvailabilityChanged(androidx.health.services.client.data.DataType<?,?> dataType, androidx.health.services.client.data.Availability availability);
+    method public void onAvailabilityChanged(androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!> dataType, androidx.health.services.client.data.Availability availability);
     method public void onExerciseUpdateReceived(androidx.health.services.client.data.ExerciseUpdate update);
     method public void onLapSummaryReceived(androidx.health.services.client.data.ExerciseLapSummary lapSummary);
     method public void onRegistered();
@@ -70,7 +70,7 @@ package androidx.health.services.client {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface MeasureCallback {
-    method public void onAvailabilityChanged(androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.data.Availability availability);
+    method public void onAvailabilityChanged(androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!> dataType, androidx.health.services.client.data.Availability availability);
     method public void onDataReceived(androidx.health.services.client.data.DataPointContainer data);
     method public default void onRegistered();
     method public default void onRegistrationFailed(Throwable throwable);
@@ -78,14 +78,14 @@ package androidx.health.services.client {
 
   public interface MeasureClient {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.MeasureCapabilities> getCapabilitiesAsync();
-    method public void registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.MeasureCallback callback);
-    method public void registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<?,?> dataType, java.util.concurrent.Executor executor, androidx.health.services.client.MeasureCallback callback);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterMeasureCallbackAsync(androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.MeasureCallback callback);
+    method public void registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!> dataType, androidx.health.services.client.MeasureCallback callback);
+    method public void registerMeasureCallback(androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!> dataType, java.util.concurrent.Executor executor, androidx.health.services.client.MeasureCallback callback);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterMeasureCallbackAsync(androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!> dataType, androidx.health.services.client.MeasureCallback callback);
   }
 
   public final class MeasureClientExtensionKt {
     method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? getCapabilities(androidx.health.services.client.MeasureClient, kotlin.coroutines.Continuation<? super androidx.health.services.client.data.MeasureCapabilities>) throws androidx.health.services.client.HealthServicesException;
-    method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? unregisterMeasureCallback(androidx.health.services.client.MeasureClient, androidx.health.services.client.data.DeltaDataType<?,?> dataType, androidx.health.services.client.MeasureCallback callback, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
+    method @kotlin.jvm.Throws(exceptionClasses=HealthServicesException::class) public static suspend Object? unregisterMeasureCallback(androidx.health.services.client.MeasureClient, androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!> dataType, androidx.health.services.client.MeasureCallback callback, kotlin.coroutines.Continuation<? super java.lang.Void>) throws androidx.health.services.client.HealthServicesException;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PassiveListenerCallback {
@@ -187,20 +187,20 @@ package androidx.health.services.client.data {
   }
 
   public final class DataPointContainer {
-    ctor public DataPointContainer(java.util.List<? extends androidx.health.services.client.data.DataPoint<?>> dataPointList);
-    ctor public DataPointContainer(java.util.Map<androidx.health.services.client.data.DataType<?,?>,? extends java.util.List<? extends androidx.health.services.client.data.DataPoint<?>>> dataPoints);
-    method public java.util.List<androidx.health.services.client.data.CumulativeDataPoint<?>> getCumulativeDataPoints();
+    ctor public DataPointContainer(java.util.List<? extends androidx.health.services.client.data.DataPoint<? extends java.lang.Object!>> dataPointList);
+    ctor public DataPointContainer(java.util.Map<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>,? extends java.util.List<? extends androidx.health.services.client.data.DataPoint<? extends java.lang.Object!>>> dataPoints);
+    method public java.util.List<androidx.health.services.client.data.CumulativeDataPoint<? extends java.lang.Object!>> getCumulativeDataPoints();
     method public <T extends java.lang.Number, D extends androidx.health.services.client.data.DataPoint<T>> D? getData(androidx.health.services.client.data.AggregateDataType<T,D> type);
     method public <T, D extends androidx.health.services.client.data.DataPoint<T>> java.util.List<D> getData(androidx.health.services.client.data.DeltaDataType<T,D> type);
-    method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getDataTypes();
-    method public java.util.List<androidx.health.services.client.data.IntervalDataPoint<?>> getIntervalDataPoints();
-    method public java.util.List<androidx.health.services.client.data.SampleDataPoint<?>> getSampleDataPoints();
-    method public java.util.List<androidx.health.services.client.data.StatisticalDataPoint<?>> getStatisticalDataPoints();
-    property public final java.util.List<androidx.health.services.client.data.CumulativeDataPoint<?>> cumulativeDataPoints;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<?,?>> dataTypes;
-    property public final java.util.List<androidx.health.services.client.data.IntervalDataPoint<?>> intervalDataPoints;
-    property public final java.util.List<androidx.health.services.client.data.SampleDataPoint<?>> sampleDataPoints;
-    property public final java.util.List<androidx.health.services.client.data.StatisticalDataPoint<?>> statisticalDataPoints;
+    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> getDataTypes();
+    method public java.util.List<androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object!>> getIntervalDataPoints();
+    method public java.util.List<androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object!>> getSampleDataPoints();
+    method public java.util.List<androidx.health.services.client.data.StatisticalDataPoint<? extends java.lang.Object!>> getStatisticalDataPoints();
+    property public final java.util.List<androidx.health.services.client.data.CumulativeDataPoint<? extends java.lang.Object!>> cumulativeDataPoints;
+    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes;
+    property public final java.util.List<androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object!>> intervalDataPoints;
+    property public final java.util.List<androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object!>> sampleDataPoints;
+    property public final java.util.List<androidx.health.services.client.data.StatisticalDataPoint<? extends java.lang.Object!>> statisticalDataPoints;
   }
 
   public abstract class DataType<T, D extends androidx.health.services.client.data.DataPoint<T>> {
@@ -331,13 +331,13 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseConfig {
-    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters);
-    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters, optional androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig);
-    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters, optional androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig, optional java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides);
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters);
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters, optional androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig);
+    ctor public ExerciseConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes, boolean isAutoPauseAndResumeEnabled, boolean isGpsEnabled, optional java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!>> exerciseGoals, optional android.os.Bundle exerciseParams, optional @FloatRange(from=0.0) float swimmingPoolLengthMeters, optional androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig, optional java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides);
     method public static androidx.health.services.client.data.ExerciseConfig.Builder builder(androidx.health.services.client.data.ExerciseType exerciseType);
     method public java.util.Set<androidx.health.services.client.data.BatchingMode> getBatchingModeOverrides();
-    method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getDataTypes();
-    method public java.util.List<androidx.health.services.client.data.ExerciseGoal<?>> getExerciseGoals();
+    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> getDataTypes();
+    method public java.util.List<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!>> getExerciseGoals();
     method public android.os.Bundle getExerciseParams();
     method public androidx.health.services.client.data.ExerciseType getExerciseType();
     method public androidx.health.services.client.data.ExerciseTypeConfig? getExerciseTypeConfig();
@@ -345,8 +345,8 @@ package androidx.health.services.client.data {
     method public boolean isAutoPauseAndResumeEnabled();
     method public boolean isGpsEnabled();
     property public final java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<?,?>> dataTypes;
-    property public final java.util.List<androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals;
+    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes;
+    property public final java.util.List<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!>> exerciseGoals;
     property public final android.os.Bundle exerciseParams;
     property public final androidx.health.services.client.data.ExerciseType exerciseType;
     property public final androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig;
@@ -361,8 +361,8 @@ package androidx.health.services.client.data {
     ctor public ExerciseConfig.Builder(androidx.health.services.client.data.ExerciseType exerciseType);
     method public androidx.health.services.client.data.ExerciseConfig build();
     method public androidx.health.services.client.data.ExerciseConfig.Builder setBatchingModeOverrides(java.util.Set<androidx.health.services.client.data.BatchingMode> batchingModeOverrides);
-    method public androidx.health.services.client.data.ExerciseConfig.Builder setDataTypes(java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes);
-    method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseGoals(java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<?>> exerciseGoals);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setDataTypes(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseGoals(java.util.List<? extends androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!>> exerciseGoals);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseParams(android.os.Bundle exerciseParams);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseTypeConfig(androidx.health.services.client.data.ExerciseTypeConfig? exerciseTypeConfig);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setIsAutoPauseAndResumeEnabled(boolean isAutoPauseAndResumeEnabled);
@@ -375,25 +375,25 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseGoal<T extends java.lang.Number> implements android.os.Parcelable {
-    method public static <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestone(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,?>> condition, T period);
+    method public static <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestone(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object!>> condition, T period);
     method public static <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestoneGoalWithUpdatedThreshold(androidx.health.services.client.data.ExerciseGoal<T> goal, T newThreshold);
-    method public static <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createOneTimeGoal(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,?>> condition);
+    method public static <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createOneTimeGoal(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object!>> condition);
     method public int describeContents();
-    method public androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,?>> getDataTypeCondition();
+    method public androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object!>> getDataTypeCondition();
     method public androidx.health.services.client.data.ExerciseGoalType getExerciseGoalType();
     method public T? getPeriod();
     method public void writeToParcel(android.os.Parcel dest, int flags);
-    property public final androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,?>> dataTypeCondition;
+    property public final androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object!>> dataTypeCondition;
     property public final androidx.health.services.client.data.ExerciseGoalType exerciseGoalType;
     property public final T? period;
-    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseGoal<?>> CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseGoal<? extends java.lang.Object!>> CREATOR;
     field public static final androidx.health.services.client.data.ExerciseGoal.Companion Companion;
   }
 
   public static final class ExerciseGoal.Companion {
-    method public <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestone(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,?>> condition, T period);
+    method public <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestone(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object!>> condition, T period);
     method public <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createMilestoneGoalWithUpdatedThreshold(androidx.health.services.client.data.ExerciseGoal<T> goal, T newThreshold);
-    method public <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createOneTimeGoal(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,?>> condition);
+    method public <T extends java.lang.Number> androidx.health.services.client.data.ExerciseGoal<T> createOneTimeGoal(androidx.health.services.client.data.DataTypeCondition<T,androidx.health.services.client.data.AggregateDataType<T,? extends java.lang.Object!>> condition);
   }
 
   public final class ExerciseGoalType {
@@ -576,14 +576,14 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseTypeCapabilities {
-    ctor public ExerciseTypeCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> supportedDataTypes, java.util.Map<androidx.health.services.client.data.AggregateDataType<?,?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.AggregateDataType<?,?>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume);
-    method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getSupportedDataTypes();
-    method public java.util.Map<androidx.health.services.client.data.AggregateDataType<?,?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedGoals();
-    method public java.util.Map<androidx.health.services.client.data.AggregateDataType<?,?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedMilestones();
+    ctor public ExerciseTypeCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> supportedDataTypes, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object!,? extends java.lang.Object!>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals, java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object!,? extends java.lang.Object!>,? extends java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones, boolean supportsAutoPauseAndResume);
+    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> getSupportedDataTypes();
+    method public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object!,? extends java.lang.Object!>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedGoals();
+    method public java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object!,? extends java.lang.Object!>,java.util.Set<androidx.health.services.client.data.ComparisonType>> getSupportedMilestones();
     method public boolean getSupportsAutoPauseAndResume();
-    property public final java.util.Set<androidx.health.services.client.data.DataType<?,?>> supportedDataTypes;
-    property public final java.util.Map<androidx.health.services.client.data.AggregateDataType<?,?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals;
-    property public final java.util.Map<androidx.health.services.client.data.AggregateDataType<?,?>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones;
+    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> supportedDataTypes;
+    property public final java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object!,? extends java.lang.Object!>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedGoals;
+    property public final java.util.Map<androidx.health.services.client.data.AggregateDataType<? extends java.lang.Object!,? extends java.lang.Object!>,java.util.Set<androidx.health.services.client.data.ComparisonType>> supportedMilestones;
     property public final boolean supportsAutoPauseAndResume;
   }
 
@@ -595,8 +595,8 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseUpdate {
-    method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.IntervalDataPoint<?> dataPoint);
-    method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.SampleDataPoint<?> dataPoint);
+    method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.IntervalDataPoint<? extends java.lang.Object!> dataPoint);
+    method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.SampleDataPoint<? extends java.lang.Object!> dataPoint);
     method public androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? getActiveDurationCheckpoint();
     method public androidx.health.services.client.data.ExerciseConfig? getExerciseConfig();
     method public androidx.health.services.client.data.ExerciseStateInfo getExerciseStateInfo();
@@ -755,9 +755,9 @@ package androidx.health.services.client.data {
   }
 
   public final class MeasureCapabilities {
-    ctor public MeasureCapabilities(java.util.Set<? extends androidx.health.services.client.data.DeltaDataType<?,?>> supportedDataTypesMeasure);
-    method public java.util.Set<androidx.health.services.client.data.DeltaDataType<?,?>> getSupportedDataTypesMeasure();
-    property public final java.util.Set<androidx.health.services.client.data.DeltaDataType<?,?>> supportedDataTypesMeasure;
+    ctor public MeasureCapabilities(java.util.Set<? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!>> supportedDataTypesMeasure);
+    method public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!>> getSupportedDataTypesMeasure();
+    property public final java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!>> supportedDataTypesMeasure;
   }
 
   public final class MilestoneMarkerSummary {
@@ -775,20 +775,20 @@ package androidx.health.services.client.data {
   }
 
   public final class PassiveGoal {
-    ctor public PassiveGoal(androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,?>> dataTypeCondition);
-    method public androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,?>> getDataTypeCondition();
-    property public final androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,?>> dataTypeCondition;
+    ctor public PassiveGoal(androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object!>> dataTypeCondition);
+    method public androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object!>> getDataTypeCondition();
+    property public final androidx.health.services.client.data.DataTypeCondition<? extends java.lang.Number,? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Number,? extends java.lang.Object!>> dataTypeCondition;
   }
 
   public final class PassiveListenerConfig {
-    ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldUserActivityInfoBeRequested, java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
+    ctor public PassiveListenerConfig(java.util.Set<? extends androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes, boolean shouldUserActivityInfoBeRequested, java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
     method public static androidx.health.services.client.data.PassiveListenerConfig.Builder builder();
     method public java.util.Set<androidx.health.services.client.data.PassiveGoal> getDailyGoals();
-    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
+    method public java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> getDataTypes();
     method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
     method public boolean getShouldUserActivityInfoBeRequested();
     property public final java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
+    property public final java.util.Set<androidx.health.services.client.data.DataType<?,? extends androidx.health.services.client.data.DataPoint<?>>> dataTypes;
     property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
     property public final boolean shouldUserActivityInfoBeRequested;
     field public static final androidx.health.services.client.data.PassiveListenerConfig.Companion Companion;
@@ -798,7 +798,7 @@ package androidx.health.services.client.data {
     ctor public PassiveListenerConfig.Builder();
     method public androidx.health.services.client.data.PassiveListenerConfig build();
     method public androidx.health.services.client.data.PassiveListenerConfig.Builder setDailyGoals(java.util.Set<androidx.health.services.client.data.PassiveGoal> dailyGoals);
-    method public androidx.health.services.client.data.PassiveListenerConfig.Builder setDataTypes(java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> dataTypes);
+    method public androidx.health.services.client.data.PassiveListenerConfig.Builder setDataTypes(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes);
     method public androidx.health.services.client.data.PassiveListenerConfig.Builder setHealthEventTypes(java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
     method public androidx.health.services.client.data.PassiveListenerConfig.Builder setShouldUserActivityInfoBeRequested(boolean shouldUserActivityInfoBeRequested);
   }
@@ -808,13 +808,13 @@ package androidx.health.services.client.data {
   }
 
   public final class PassiveMonitoringCapabilities {
-    ctor public PassiveMonitoringCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> supportedDataTypesPassiveMonitoring, java.util.Set<? extends androidx.health.services.client.data.DataType<?,?>> supportedDataTypesPassiveGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes, java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates);
-    method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getSupportedDataTypesPassiveGoals();
-    method public java.util.Set<androidx.health.services.client.data.DataType<?,?>> getSupportedDataTypesPassiveMonitoring();
+    ctor public PassiveMonitoringCapabilities(java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> supportedDataTypesPassiveMonitoring, java.util.Set<? extends androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> supportedDataTypesPassiveGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes, java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates);
+    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> getSupportedDataTypesPassiveGoals();
+    method public java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> getSupportedDataTypesPassiveMonitoring();
     method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getSupportedHealthEventTypes();
     method public java.util.Set<androidx.health.services.client.data.UserActivityState> getSupportedUserActivityStates();
-    property public final java.util.Set<androidx.health.services.client.data.DataType<?,?>> supportedDataTypesPassiveGoals;
-    property public final java.util.Set<androidx.health.services.client.data.DataType<?,?>> supportedDataTypesPassiveMonitoring;
+    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> supportedDataTypesPassiveGoals;
+    property public final java.util.Set<androidx.health.services.client.data.DataType<? extends java.lang.Object!,? extends java.lang.Object!>> supportedDataTypesPassiveMonitoring;
     property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes;
     property public final java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates;
   }
@@ -899,10 +899,10 @@ package androidx.health.services.client.data {
   }
 
   public final class WarmUpConfig {
-    ctor public WarmUpConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DeltaDataType<?,?>> dataTypes);
-    method public java.util.Set<androidx.health.services.client.data.DeltaDataType<?,?>> getDataTypes();
+    ctor public WarmUpConfig(androidx.health.services.client.data.ExerciseType exerciseType, java.util.Set<? extends androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes);
+    method public java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!>> getDataTypes();
     method public androidx.health.services.client.data.ExerciseType getExerciseType();
-    property public final java.util.Set<androidx.health.services.client.data.DeltaDataType<?,?>> dataTypes;
+    property public final java.util.Set<androidx.health.services.client.data.DeltaDataType<? extends java.lang.Object!,? extends java.lang.Object!>> dataTypes;
     property public final androidx.health.services.client.data.ExerciseType exerciseType;
   }
 
