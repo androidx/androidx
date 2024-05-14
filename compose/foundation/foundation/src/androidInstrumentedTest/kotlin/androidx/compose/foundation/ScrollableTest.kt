@@ -28,6 +28,7 @@ import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.Interaction
@@ -86,8 +87,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.ScrollWheel
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -3124,6 +3128,46 @@ class ScrollableTest {
             assertThat(controller.lastScrolledForward).isFalse()
             assertThat(controller.lastScrolledBackward).isTrue()
         }
+    }
+
+    @Test
+    fun enabledChange_semanticsShouldBeCleared() {
+        var enabled by mutableStateOf(true)
+        rule.setContentAndGetScope {
+            Box(
+                modifier = Modifier
+                    .testTag(scrollableBoxTag)
+                    .size(100.dp)
+                    .scrollable(
+                        state = rememberScrollableState { it },
+                        orientation = Orientation.Horizontal,
+                        enabled = enabled
+                    )
+            )
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollByOffset))
+
+        rule.runOnIdle {
+            enabled = false
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.ScrollByOffset))
+
+        rule.runOnIdle {
+            enabled = true
+        }
+
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollBy))
+        rule.onNodeWithTag(scrollableBoxTag)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.ScrollByOffset))
     }
 
     private fun setScrollableContent(scrollableModifierFactory: @Composable () -> Modifier) {

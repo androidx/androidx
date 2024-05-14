@@ -18,7 +18,6 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutSemanticState
 import androidx.compose.foundation.lazy.layout.estimatedLazyMaxScrollOffset
 import androidx.compose.foundation.lazy.layout.estimatedLazyScrollOffset
@@ -45,9 +44,6 @@ internal fun rememberLazyStaggeredGridSemanticState(
                     state.firstVisibleItemScrollOffset,
                     state.canScrollForward
                 )
-
-            override suspend fun animateScrollBy(delta: Float): Float =
-                state.animateScrollBy(delta)
 
             override suspend fun scrollToItem(index: Int) {
                 state.scrollToItem(index)
