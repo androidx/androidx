@@ -524,7 +524,7 @@ internal constructor(
         }
 
     override fun overrideComplicationData(slotIdToComplicationData: Map<Int, ComplicationData>) {
-        if (iInteractiveWatchFace.apiVersion >= 11) {
+        if (iInteractiveWatchFace.apiVersion >= 12) {
             iInteractiveWatchFace.overrideComplicationData(
                 slotIdToComplicationData.map {
                     IdAndComplicationDataWireFormat(
@@ -541,7 +541,7 @@ internal constructor(
     }
 
     override fun clearComplicationDataOverride() {
-        if (iInteractiveWatchFace.apiVersion >= 11) {
+        if (iInteractiveWatchFace.apiVersion >= 12) {
             iInteractiveWatchFace.clearComplicationDataOverride()
         } else {
             overrideSlotIdToComplicationData.clear()
@@ -562,7 +562,7 @@ internal constructor(
                         renderParameters.toWireFormat(),
                         instant.toEpochMilli(),
                         userStyle?.toWireFormat(),
-                        if (iInteractiveWatchFace.apiVersion >= 11) {
+                        if (iInteractiveWatchFace.apiVersion >= 12) {
                             idAndComplicationData
                         } else {
                             mergeWithOverrideComplicationData(idAndComplicationData)
