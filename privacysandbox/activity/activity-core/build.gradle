@@ -40,7 +40,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         stableAidl {
             version 1
         }

@@ -60,7 +60,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
         stableAidl {
             version 1
@@ -73,7 +73,7 @@ androidXMultiplatform {
     android()
     ios() {
         // Link to sqlite3 available in iOS
-        binaries.all {
+        binaries.configureEach {
             linkerOpts += ["-lsqlite3"]
         }
     }
