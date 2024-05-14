@@ -175,7 +175,7 @@ class CreatePasswordRequest private constructor(
                 val id = data.getString(BUNDLE_KEY_ID)!!
                 val password = data.getString(BUNDLE_KEY_PASSWORD)!!
                 val displayInfo = try {
-                    DisplayInfo.parseFromCredentialDataBundle(data)
+                    DisplayInfo.createFrom(data)
                 } catch (e: IllegalArgumentException) {
                     DisplayInfo(id, null)
                 }
