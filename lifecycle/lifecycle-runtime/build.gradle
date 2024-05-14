@@ -42,6 +42,7 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
+                implementation(project(":internal-testutils-lifecycle"))
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
                 implementation(project(":kruth:kruth"))
@@ -61,6 +62,7 @@ androidXMultiplatform {
         }
 
         desktopTest {
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinCoroutinesSwing)
             }
