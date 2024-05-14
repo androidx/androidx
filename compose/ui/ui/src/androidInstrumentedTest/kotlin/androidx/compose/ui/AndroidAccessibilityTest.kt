@@ -42,6 +42,7 @@ import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTE
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -110,8 +111,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -5314,6 +5317,44 @@ class AndroidAccessibilityTest {
             assertThat(columnInfo.className).isNotEqualTo("android.widget.ScrollView")
             assertThat(rowInfo.className).isNotEqualTo("android.widget.HorizontalScrollView")
         }
+    }
+
+    @Test
+    fun testAndroidViewSemanticBounds_whenAddedInRecomposition() {
+        // disable to ensure that androidViewHandler is not created by accessibility observers
+        delegate.accessibilityForceEnabledForTesting = false
+
+        var state by mutableStateOf(false)
+        val viewId = 42
+        val viewSize = 50
+        setContent {
+            Box(Modifier.size(100.dp)) {
+                if (state) {
+                    AndroidView(
+                        factory = {
+                            FrameLayout(it).apply {
+                                addView(View(it).apply {
+                                    layoutParams = FrameLayout.LayoutParams(viewSize, viewSize)
+                                    setBackgroundColor(Color.Red.toArgb())
+                                    id = viewId
+                                })
+                            }
+                        },
+                    )
+                }
+            }
+        }
+        rule.mainClock.autoAdvance = true // ensure complete recomposition
+
+        rule.runOnIdle {
+            state = true
+        }
+
+        rule.waitForIdle()
+        val info = androidComposeView.findViewById<View>(viewId).createAccessibilityNodeInfo()
+        val bounds = Rect().apply { info.getBoundsInScreen(this) }
+        assertThat(bounds.width()).isEqualTo(viewSize)
+        assertThat(bounds.height()).isEqualTo(viewSize)
     }
 
     @Test
