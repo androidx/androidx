@@ -35,7 +35,7 @@ import org.jetbrains.annotations.VisibleForTesting
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class AuthenticationResult(
-    val authenticationType: @AuthenticatorResultTypes Int,
+    val authenticationType: @AuthenticationResultTypes Int,
 ) {
 
     companion object {

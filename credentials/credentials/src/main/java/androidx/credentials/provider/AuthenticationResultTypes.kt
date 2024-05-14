@@ -40,4 +40,4 @@ import androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN
         ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class AuthenticatorResultTypes
+annotation class AuthenticationResultTypes
