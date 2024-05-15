@@ -39,9 +39,6 @@ import androidx.lifecycle.LifecycleOwner
 import java.util.Collections
 import java.util.WeakHashMap
 
-// TODO(chuckj): This is a temporary work-around until subframes exist so that
-// nextFrame() inside recompose() doesn't really start a new frame, but a new subframe
-// instead.
 @MainThread
 internal actual fun createSubcomposition(
     container: LayoutNode,
