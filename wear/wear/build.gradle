@@ -61,7 +61,7 @@ android {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear"
     }
 
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
 

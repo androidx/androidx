@@ -48,7 +48,7 @@ android {
         aidl = true
     }
 
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.wear.watchface.data"

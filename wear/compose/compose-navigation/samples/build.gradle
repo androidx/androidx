@@ -63,7 +63,7 @@ androidx {
     description = "Contains the sample code for the Android Wear Compose Navigation Classes"
 }
 
-configurations.all {
+configurations.configureEach {
     resolutionStrategy.dependencySubstitution {
         substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
                 using project(":lifecycle:lifecycle-viewmodel")
