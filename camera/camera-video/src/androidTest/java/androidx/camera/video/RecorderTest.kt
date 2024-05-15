@@ -109,7 +109,6 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -540,7 +539,6 @@ class RecorderTest(
         runLocationTest(createLocation(-27.14394722411734, -109.33053675296067))
     }
 
-    @Ignore // b/293639941
     @Test
     fun stop_withErrorWhenDurationLimitReached() {
         // Arrange.
