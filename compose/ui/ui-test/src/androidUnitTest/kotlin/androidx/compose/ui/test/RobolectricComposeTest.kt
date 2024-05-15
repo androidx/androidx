@@ -24,6 +24,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -53,6 +54,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
@@ -724,5 +726,32 @@ class RobolectricComposeTest {
         assertThat(composableTapCount).isEqualTo(0)
         assertThat(composableDoubleTapCount).isEqualTo(1)
         assertThat(composableLongTapCount).isEqualTo(0)
+    }
+
+    @Test
+    fun testInputInjectionIntoClippedItemChangingItsSize() = runComposeUiTest {
+        var size by mutableStateOf(0.dp)
+        var clicks = 0
+        setContent {
+            Column {
+                Box(
+                    Modifier
+                        .clipToBounds()
+                        .size(size)
+                        .testTag("tag")
+                        .clickable(onClick = { clicks++ })
+                )
+            }
+        }
+
+        runOnIdle {
+            size = 200.dp
+        }
+
+        onNodeWithTag("tag").performClick()
+
+        runOnIdle {
+            assertThat(clicks).isEqualTo(1)
+        }
     }
 }
