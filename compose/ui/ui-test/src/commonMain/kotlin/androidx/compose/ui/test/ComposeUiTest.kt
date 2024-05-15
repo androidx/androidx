@@ -64,8 +64,8 @@ expect fun runComposeUiTest(
  * time necessary to position the button in the middle of the screen.
  *
  * To test a composable in isolation, use [setContent] to set the composable in a host. On Android,
- * a host will mostly be an Activity. When using [runComposeUiTest] or any of its platform specific
- * friends, the host will be started for you automatically, unless otherwise specified. To test an
+ * the host is an Activity. When using [runComposeUiTest] or any of its platform specific variants,
+ * the host will be started for you automatically, unless otherwise specified. To test an
  * application, use the platform specific variant of [runComposeUiTest] that launches the app.
  *
  * An instance of [ComposeUiTest] can be obtained through [runComposeUiTest] or any of its platform
@@ -106,30 +106,34 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     fun <T> runOnIdle(action: () -> T): T
 
     /**
-     * Waits for compose to be idle. If [auto advancement][MainTestClock.autoAdvance] is enabled on
-     * the [mainClock], this method will actively advance the clock to process any pending
-     * composition, invalidation and animation. If auto advancement is not enabled, the clock will
-     * not be advanced actively which usually means that the Compose UI appears to be frozen. This
-     * is ideal for testing animations in a deterministic way. In either case, this method will wait
-     * for all [IdlingResource]s to become idle.
+     * Waits for the UI to become idle. Quiescence is reached when there are no more pending changes
+     * (e.g. pending recompositions or a pending draw call) and all [IdlingResource]s are idle.
+     *
+     * If [auto advancement][MainTestClock.autoAdvance] is enabled on the [mainClock], this method
+     * will advance the clock to process any pending composition, invalidation and animation. If
+     * auto advancement is not enabled, the clock will not be advanced which means that the Compose
+     * UI appears to be frozen. This is ideal for testing animations in a deterministic way. This
+     * method will always wait for all [IdlingResource]s to become idle.
      *
      * Note that some processes are driven by the host operating system and will therefore still
-     * execute when auto advancement is disabled. For example, on Android measure, layout and draw
-     * can still happen if the host view is invalidated by other parts of the View hierarchy.
+     * execute when auto advancement is disabled. For example, Android's measure, layout and draw
+     * passes can still happen if required by the View system.
      */
     fun waitForIdle()
 
     /**
-     * Suspends until compose is idle. If [auto advancement][MainTestClock.autoAdvance] is enabled
-     * on the [mainClock], this method will actively advance the clock to process any pending
-     * composition, invalidation and animation. If auto advancement is not enabled, the clock will
-     * not be advanced actively which usually means that the Compose UI appears to be frozen. This
-     * is ideal for testing animations in a deterministic way. In either case, this method will wait
-     * for all [IdlingResource]s to become idle.
+     * Suspends until the UI is idle. Quiescence is reached when there are no more pending changes
+     * (e.g. pending recompositions or a pending draw call) and all [IdlingResource]s are idle.
+     *
+     * If [auto advancement][MainTestClock.autoAdvance] is enabled on the [mainClock], this method
+     * will advance the clock to process any pending composition, invalidation and animation. If
+     * auto advancement is not enabled, the clock will not be advanced which means that the Compose
+     * UI appears to be frozen. This is ideal for testing animations in a deterministic way. This
+     * method will always wait for all [IdlingResource]s to become idle.
      *
      * Note that some processes are driven by the host operating system and will therefore still
-     * execute when auto advancement is disabled. For example, on Android measure, layout and draw
-     * can still happen if the host view is invalidated by other parts of the View hierarchy.
+     * execute when auto advancement is disabled. For example, Android's measure, layout and draw
+     * passes can still happen if required by the View system.
      */
     suspend fun awaitIdle()
 
@@ -139,24 +143,19 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      * If [auto advancement][MainTestClock.autoAdvance] is enabled on the [mainClock], this method
      * will actively advance the clock to process any pending composition, invalidation and
      * animation. If auto advancement is not enabled, the clock will not be advanced actively which
-     * usually means that the Compose UI appears to be frozen. This is ideal for testing animations
-     * in a deterministic way. In either case, this method will wait for all [IdlingResource]s to
-     * become idle.
-     *
-     * Note that some processes are driven by the host operating system and will therefore still
-     * execute when auto advancement is disabled. For example, on Android measure, layout and draw
-     * can still happen if the host view is invalidated by other parts of the View hierarchy.
+     * means that the Compose UI appears to be frozen. It is still valid to use this method in this
+     * way, if the condition will be satisfied by something not driven by our clock.
      *
      * Compared to [MainTestClock.advanceTimeUntil], [waitUntil] sleeps after every iteration to
-     * give the host operating system the opportunity to do measure/layout/draw passes. This gives
-     * [waitUntil] a better integration with the host, but it is less preferred from a performance
-     * viewpoint. Therefore, we recommend that you try using [MainTestClock.advanceTimeUntil] before
-     * resorting to [waitUntil].
+     * yield to other processes. This gives [waitUntil] a better integration with the host, but it
+     * is less preferred from a performance viewpoint. Therefore, we recommend that you try using
+     * [MainTestClock.advanceTimeUntil] before resorting to [waitUntil].
      *
-     * @param timeoutMillis The time after which this method throws an exception if the given
-     *   condition is not satisfied. This observes wall clock time, not [frame time][mainClock].
      * @param conditionDescription An optional human-readable description of [condition] that will
      *   be included in the timeout exception if thrown.
+     * @param timeoutMillis The time after which this method throws an exception if the given
+     *   condition is not satisfied. This observes wall clock time, not
+     *   [test clock time][mainClock].
      * @param condition Condition that must be satisfied in order for this method to successfully
      *   finish.
      * @throws androidx.compose.ui.test.ComposeTimeoutException If the condition is not satisfied
