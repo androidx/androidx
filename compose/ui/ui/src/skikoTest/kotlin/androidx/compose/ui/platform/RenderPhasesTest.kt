@@ -23,11 +23,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -41,6 +44,8 @@ import androidx.compose.ui.test.runInternalSkikoComposeUiTest
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 
@@ -211,6 +216,110 @@ class RenderPhasesTest {
         assertContentEquals(
             expected = listOf("draw", "launchedWithFrame", "launchedFromComposition", "launchedFromEffect"),
             actual = phases
+        )
+    }
+
+    @Test
+    fun layoutScopeInvalidationDoesNotCauseRemeasure() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        var measureCount = 0
+        var layoutCount = 0
+
+        var layoutScopeInvalidation by mutableStateOf(Unit, neverEqualPolicy())
+
+        setContent {
+            Layout(
+                measurePolicy = { _, _ ->
+                    measureCount += 1
+                    layout(100, 100) {
+                        @Suppress("UNUSED_EXPRESSION")
+                        layoutScopeInvalidation
+                        layoutCount += 1
+                    }
+                }
+            )
+        }
+
+        assertEquals(measureCount, layoutCount)
+
+        measureCount = 0
+        layoutCount = 0
+        layoutScopeInvalidation = Unit
+        waitForIdle()
+
+        assertEquals(0, measureCount)
+        assertTrue(layoutCount > 0)
+    }
+
+    @Test
+    fun readingStateInLayoutModifiedByMeasureDoesNotCauseInfiniteRemeasureAndLayout() {
+        // https://github.com/JetBrains/compose-multiplatform/issues/4760
+        runInternalSkikoComposeUiTest(coroutineDispatcher = StandardTestDispatcher()) {
+            mainClock.autoAdvance = false
+            val state = mutableStateOf(0)
+            // Don't read the state initially so that the test fails rather than getting stuck
+            var readStateInLayout by mutableStateOf(false)
+            var layoutCount = 0
+            setContent {
+                Layout(
+                    measurePolicy = { _, _ ->
+                        val prevValue = Snapshot.withoutReadObservation {
+                            state.value
+                        }
+                        state.value = prevValue+1
+                        layout(100, 100) {
+                            if (readStateInLayout) {
+                                state.value  // Read the state value!
+                            }
+                            layoutCount++
+                        }
+                    },
+                )
+            }
+
+            mainClock.advanceTimeByFrame()
+            assertEquals(1, state.value)
+
+            readStateInLayout = true
+            layoutCount = 0
+            mainClock.advanceTimeByFrame()
+            assertEquals(1, layoutCount)
+
+            // Check that no more layout happens
+            mainClock.advanceTimeByFrame()
+            assertEquals(1, layoutCount)
+        }
+    }
+
+    @Test
+    fun measureAndLayoutRunsAgainBeforeDraw() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        // Android runs measureAndLayout again right before drawing; validate this behavior.
+        val state = mutableStateOf(0)
+        val events = mutableListOf<String>()
+        setContent {
+            Layout(
+                modifier = Modifier.drawBehind {
+                    events.add("draw.${state.value}")
+                },
+                measurePolicy = { _, _ ->
+                    events.add("measure.${state.value}")
+                    layout(100, 100) {
+                        events.add("layout.${state.value}")
+                        if (state.value == 0) {
+                            // Invalidate the scope exactly once
+                            state.value += 1
+                        }
+                    }
+                },
+            )
+        }
+
+        assertContentEquals(
+            expected = listOf("measure.0", "layout.0", "measure.1", "layout.1", "draw.1"),
+            actual = events
         )
     }
 }

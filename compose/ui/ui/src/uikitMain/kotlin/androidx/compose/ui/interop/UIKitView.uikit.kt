@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
@@ -92,6 +93,19 @@ internal val InteropViewSemanticsKey = AccessibilityKey<InteropWrappingView>(
 private var SemanticsPropertyReceiver.interopView by InteropViewSemanticsKey
 
 /**
+ * Chain [this] with [Modifier.semantics] that sets the [interopView] of the node if [enabled] is true.
+ * If [enabled] is false, [this] is returned as is.
+ */
+private fun Modifier.interopSemantics(enabled: Boolean, wrappingView: InteropWrappingView): Modifier =
+    if (enabled) {
+        this then semantics {
+            interopView = wrappingView
+        }
+    } else {
+        this
+    }
+
+/**
  * @param factory The block creating the [UIView] to be composed.
  * @param modifier The modifier to be applied to the layout. Size should be specified in modifier.
  * Modifier may contains crop() modifier with different shapes.
@@ -102,6 +116,22 @@ private var SemanticsPropertyReceiver.interopView by InteropViewSemanticsKey
  * View should be freed at this time.
  * @param onResize May be used to custom resize logic.
  * @param interactive If true, then user touches will be passed to this UIView
+ * @param accessibilityEnabled If `true`, then the view will be visible to accessibility services.
+ *
+ * If this Composable is within a modifier chain that merges
+ * the semantics of its children (such as `Modifier.clickable`), the merged subtree data will be ignored in favor of
+ * the native UIAccessibility resolution for the view constructed by [factory]. For example, `Button` containing [UIKitView]
+ * will be invisible for accessibility services, only the [UIView] created by [factory] will be accessible.
+ * To avoid this behavior, set [accessibilityEnabled] to `false` and use custom [Modifier.semantics] for `Button` to
+ * make the information associated with this view accessible.
+ *
+ * If there are multiple [UIKitView] or [UIKitViewController] with [accessibilityEnabled] set to `true` in the merged tree, only the first one will be accessible.
+ * Consider using a single [UIKitView] or [UIKitViewController] with multiple views inside it if you need multiple accessible views.
+ *
+ * In general, [accessibilityEnabled] set to `true` is not recommended to use in such cases.
+ * Consider using [Modifier.semantics] on Composable that merges its semantics instead.
+ *
+ * @see Modifier.semantics
  */
 @Composable
 fun <T : UIView> UIKitView(
@@ -112,6 +142,7 @@ fun <T : UIView> UIKitView(
     onRelease: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
     onResize: (view: T, rect: CValue<CGRect>) -> Unit = DefaultViewResize,
     interactive: Boolean = true,
+    accessibilityEnabled: Boolean = true,
 ) {
     // TODO: adapt UIKitView to reuse inside LazyColumn like in AndroidView:
     //  https://developer.android.com/reference/kotlin/androidx/compose/ui/viewinterop/package-summary#AndroidView(kotlin.Function1,kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1)
@@ -157,9 +188,7 @@ fun <T : UIView> UIKitView(
             } else {
                 it
             }
-        }.semantics {
-            interopView = embeddedInteropComponent.wrappingView
-        }
+        }.interopSemantics(accessibilityEnabled, embeddedInteropComponent.wrappingView)
     )
 
     DisposableEffect(Unit) {
@@ -201,6 +230,24 @@ fun <T : UIView> UIKitView(
  * view controller should be freed at this time.
  * @param onResize May be used to custom resize logic.
  * @param interactive If true, then user touches will be passed to this UIViewController
+ * @param accessibilityEnabled If `true`, then the [UIViewController.view] will be visible to accessibility services.
+ *
+ * If this Composable is within a modifier chain that merges the semantics of its children (such as `Modifier.clickable`),
+ * the merged subtree data will be ignored in favor of
+ * the native UIAccessibility resolution for the [UIViewController.view] of [UIViewController] constructed by [factory].
+ * For example, `Button` containing [UIKitViewController] will be invisible for accessibility services,
+ * only the [UIViewController.view] of [UIViewController] created by [factory] will be accessible.
+ * To avoid this behavior, set [accessibilityEnabled] to `false` and use custom [Modifier.semantics] for `Button` to
+ * make the information associated with the [UIViewController] accessible.
+ *
+ * If there are multiple [UIKitView] or [UIKitViewController] with [accessibilityEnabled] set to `true` in the merged tree,
+ * only the first one will be accessible.
+ * Consider using a single [UIKitView] or [UIKitViewController] with multiple views inside it if you need multiple accessible views.
+ *
+ * In general, [accessibilityEnabled] set to `true` is not recommended to use in such cases.
+ * Consider using [Modifier.semantics] on Composable that merges its semantics instead.
+ *
+ * @see Modifier.semantics
  */
 @Composable
 fun <T : UIViewController> UIKitViewController(
@@ -211,6 +258,7 @@ fun <T : UIViewController> UIKitViewController(
     onRelease: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
     onResize: (viewController: T, rect: CValue<CGRect>) -> Unit = DefaultViewControllerResize,
     interactive: Boolean = true,
+    accessibilityEnabled: Boolean = true,
 ) {
     // TODO: adapt UIKitViewController to reuse inside LazyColumn like in AndroidView:
     //  https://developer.android.com/reference/kotlin/androidx/compose/ui/viewinterop/package-summary#AndroidView(kotlin.Function1,kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1)
@@ -259,9 +307,7 @@ fun <T : UIViewController> UIKitViewController(
             } else {
                 it
             }
-        }.semantics {
-            interopView = embeddedInteropComponent.wrappingView
-        }
+        }.interopSemantics(accessibilityEnabled, embeddedInteropComponent.wrappingView)
     )
 
     DisposableEffect(Unit) {

@@ -32,7 +32,7 @@ internal class SnapshotInvalidationTracker(
     private val invalidate: () -> Unit = {}
 ) {
     private val snapshotChanges = CommandList(invalidate)
-    private var needLayout = true
+    private var needMeasureAndLayout = true
     private var needDraw = true
 
     /**
@@ -43,15 +43,15 @@ internal class SnapshotInvalidationTracker(
     private var renderingThreadId: Long? by atomic(null)
 
     val hasInvalidations: Boolean
-        get() = needLayout || needDraw || snapshotChanges.hasCommands
+        get() = needMeasureAndLayout || needDraw || snapshotChanges.hasCommands
 
-    fun requestLayout() {
-        needLayout = true
+    fun requestMeasureAndLayout() {
+        needMeasureAndLayout = true
         invalidate()
     }
 
-    fun onLayout() {
-        needLayout = false
+    fun onMeasureAndLayout() {
+        needMeasureAndLayout = false
     }
 
     fun requestDraw() {

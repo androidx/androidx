@@ -25,6 +25,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -55,10 +56,10 @@ internal abstract class BaseComposeScene(
     val composeSceneContext: ComposeSceneContext,
     private val invalidate: () -> Unit,
 ) : ComposeScene {
-    protected val snapshotInvalidationTracker = SnapshotInvalidationTracker(::invalidateIfNeeded)
+    protected val snapshotInvalidationTracker = SnapshotInvalidationTracker(::updateInvalidations)
     protected val inputHandler: ComposeSceneInputHandler =
         ComposeSceneInputHandler(
-            prepareForPointerInputEvent = ::doLayout,
+            prepareForPointerInputEvent = ::doMeasureAndLayout,
             processPointerInputEvent = ::processPointerInputEvent,
             processKeyEvent = ::processKeyEvent
         )
@@ -66,7 +67,7 @@ internal abstract class BaseComposeScene(
     // Store this to avoid creating a lambda every frame
     private val updatePointerPosition = inputHandler::updatePointerPosition
 
-    private val frameClock = BroadcastFrameClock(onNewAwaiters = ::invalidateIfNeeded)
+    private val frameClock = BroadcastFrameClock(onNewAwaiters = ::updateInvalidations)
     private val recomposer: ComposeSceneRecomposer =
         ComposeSceneRecomposer(coroutineContext, frameClock)
     private var composition: Composition? = null
@@ -90,13 +91,13 @@ internal abstract class BaseComposeScene(
         } finally {
             isInvalidationDisabled = false
         }.also {
-            invalidateIfNeeded()
+            updateInvalidations()
         }
     }
 
     @Volatile
     private var hasPendingDraws = true
-    protected fun invalidateIfNeeded() {
+    protected fun updateInvalidations() {
         hasPendingDraws = frameClock.hasAwaiters ||
             snapshotInvalidationTracker.hasInvalidations
         if (hasPendingDraws && !isInvalidationDisabled && !isClosed && composition != null) {
@@ -159,14 +160,25 @@ internal abstract class BaseComposeScene(
             recomposer.performScheduledRecomposerTasks()
             frameClock.sendFrame(nanoTime) // withFrameMillis/Nanos and recomposition
 
-            doLayout()  // Layout
+            doMeasureAndLayout()  // Layout
 
             // Schedule synthetic events to be sent after `render` completes
             if (inputHandler.needUpdatePointerPosition) {
                 recomposer.scheduleAsEffect(updatePointerPosition)
             }
 
-            // Draw
+            // Between layout and draw, Android's Choreographer flushes the main dispatcher.
+            // We can't do quite that, but an important side effect of that is that the
+            // GlobalSnapshotManager gets to run and call `Snapshot.sendApplyNotifications()`, which
+            // we can (and must) do.
+            Snapshot.sendApplyNotifications()
+
+            // The drawing phase.
+            // Android calls these two before drawing (AndroidComposeView.dispatchDraw)
+            doMeasureAndLayout()
+            Snapshot.sendApplyNotifications()
+
+            // Actually draw
             snapshotInvalidationTracker.onDraw()
             draw(canvas)
         }
@@ -223,8 +235,8 @@ internal abstract class BaseComposeScene(
         inputHandler.onKeyEvent(keyEvent)
     }
 
-    private fun doLayout() {
-        snapshotInvalidationTracker.onLayout()
+    private fun doMeasureAndLayout() {
+        snapshotInvalidationTracker.onMeasureAndLayout()
         measureAndLayout()
     }
 

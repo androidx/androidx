@@ -429,7 +429,7 @@ private class MultiLayerComposeSceneImpl(
         onOwnerAppended(layer.owner)
 
         inputHandler.onPointerUpdate()
-        invalidateIfNeeded()
+        updateInvalidations()
     }
 
     private fun detachLayer(layer: AttachedComposeSceneLayer) {
@@ -440,7 +440,7 @@ private class MultiLayerComposeSceneImpl(
         onOwnerRemoved(layer.owner)
 
         inputHandler.onPointerUpdate()
-        invalidateIfNeeded()
+        updateInvalidations()
     }
 
     private fun requestFocus(layer: AttachedComposeSceneLayer) {
@@ -536,7 +536,7 @@ private class MultiLayerComposeSceneImpl(
                     releaseFocus(this)
                 }
                 inputHandler.onPointerUpdate()
-                invalidateIfNeeded()
+                updateInvalidations()
             }
 
         private val background: Modifier
