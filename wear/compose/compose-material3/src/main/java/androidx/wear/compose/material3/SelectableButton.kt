@@ -132,10 +132,7 @@ fun SelectableButton(
     // Stadium/Pill shaped toggle button
     Row(
         modifier = modifier
-            .defaultMinSize(
-                minHeight = if (secondaryLabel == null) MIN_HEIGHT_WITHOUT_SECONDARY_LABEL
-                else MIN_HEIGHT
-            )
+            .defaultMinSize(minHeight = MIN_HEIGHT)
             .height(IntrinsicSize.Min)
             .width(IntrinsicSize.Max)
             .clip(shape = shape)
@@ -1149,5 +1146,4 @@ private val SELECTION_CONTROL_HEIGHT = 24.dp
 private val SELECTION_CONTROL_SPACING = 6.dp
 private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
-private val MIN_HEIGHT_WITHOUT_SECONDARY_LABEL = 48.dp
 private val SPLIT_WIDTH = 52.dp
