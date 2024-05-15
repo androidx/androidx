@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.CalendarLocale
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toNSTimeZone
@@ -23,9 +24,6 @@ import platform.Foundation.NSCalendar
 import platform.Foundation.NSDate
 import platform.Foundation.NSDateFormatter
 import platform.Foundation.NSDateFormatterShortStyle
-import platform.Foundation.NSLocale
-import platform.Foundation.NSTimeZone
-import platform.Foundation.currentLocale
 import platform.Foundation.dateWithTimeIntervalSince1970
 import platform.Foundation.timeIntervalSince1970
 
