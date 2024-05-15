@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.CalendarLocale
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import java.text.DateFormat
