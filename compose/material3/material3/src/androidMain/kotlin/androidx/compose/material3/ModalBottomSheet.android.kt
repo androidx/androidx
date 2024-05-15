@@ -626,7 +626,7 @@ private fun Scrim(
                 .fillMaxSize()
                 .then(dismissSheet)
         ) {
-            drawRect(color = color, alpha = alpha)
+            drawRect(color = color, alpha = alpha.coerceIn(0f, 1f))
         }
     }
 }
