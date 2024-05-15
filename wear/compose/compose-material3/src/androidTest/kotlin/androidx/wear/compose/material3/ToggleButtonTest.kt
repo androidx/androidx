@@ -515,19 +515,12 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_height_defaults_52dp_with_secondary_label() {
+    fun toggle_button_height_defaults_52dp() {
         rule.setContentWithThemeForSizeAssertions {
             ToggleButtonWithDefaults(
                 secondaryLabel = { Text("Secondary label") }
             )
         }.assertHeightIsEqualTo(52.dp)
-    }
-
-    @Test
-    fun toggle_button_height_defaults_48dp_without_secondary_label() {
-        rule.setContentWithThemeForSizeAssertions {
-            ToggleButtonWithDefaults()
-        }.assertHeightIsEqualTo(48.dp)
     }
 
     @Test
