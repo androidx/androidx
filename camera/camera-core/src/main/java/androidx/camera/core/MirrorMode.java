@@ -42,12 +42,16 @@ public class MirrorMode {
      */
     public static final int MIRROR_MODE_ON_FRONT_ONLY = 2;
 
+    /** The mirror mode is not specified by the user **/
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int MIRROR_MODE_UNSPECIFIED = -1;
+
     private MirrorMode() {
     }
 
     /**
      */
-    @IntDef({MIRROR_MODE_OFF, MIRROR_MODE_ON, MIRROR_MODE_ON_FRONT_ONLY})
+    @IntDef({MIRROR_MODE_OFF, MIRROR_MODE_ON, MIRROR_MODE_ON_FRONT_ONLY, MIRROR_MODE_UNSPECIFIED})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface Mirror {

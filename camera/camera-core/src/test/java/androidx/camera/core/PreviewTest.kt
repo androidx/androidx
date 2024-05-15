@@ -34,6 +34,8 @@ import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
+import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest.TransformationInfo
@@ -279,9 +281,34 @@ class PreviewTest {
         assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_ON_FRONT_ONLY)
     }
 
-    @Test(expected = UnsupportedOperationException::class)
-    fun setMirrorMode_throwException() {
-        Preview.Builder().setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY)
+    @Config(minSdk = 33)
+    @Test
+    fun setMirrorMode_OnFrontOnly() {
+        val preview = createPreview()
+        assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_ON_FRONT_ONLY)
+
+        val sessionConfig = preview.sessionConfig
+        assertThat(sessionConfig.outputConfigs[0].mirrorMode).isEqualTo(MIRROR_MODE_ON_FRONT_ONLY)
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun setMirrorMode_On() {
+        val preview = createPreview(mirrorMode = MIRROR_MODE_ON)
+        assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_ON)
+
+        val sessionConfig = preview.sessionConfig
+        assertThat(sessionConfig.outputConfigs[0].mirrorMode).isEqualTo(MIRROR_MODE_ON)
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    fun setMirrorMode_Off() {
+        val preview = createPreview(mirrorMode = MIRROR_MODE_OFF)
+        assertThat(preview.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
+
+        val sessionConfig = preview.sessionConfig
+        assertThat(sessionConfig.outputConfigs[0].mirrorMode).isEqualTo(MIRROR_MODE_OFF)
     }
 
     @Test
@@ -833,9 +860,11 @@ class PreviewTest {
         camera: FakeCamera = backCamera,
         targetRotation: Int = ROTATION_90,
         surfaceProvider: SurfaceProvider = SurfaceProvider {
-        }
+        },
+        mirrorMode: Int = MirrorMode.MIRROR_MODE_UNSPECIFIED
     ): Preview {
         previewToDetach = Preview.Builder()
+            .setMirrorMode(mirrorMode)
             .setTargetRotation(targetRotation)
             .build()
         previewToDetach.effect = effect

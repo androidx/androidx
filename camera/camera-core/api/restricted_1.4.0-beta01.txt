@@ -212,6 +212,9 @@ package androidx.camera.core {
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLensFacing {
   }
 
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalMirrorMode {
+  }
+
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalRetryPolicy {
   }
 
@@ -507,6 +510,7 @@ package androidx.camera.core {
     ctor public Preview.Builder();
     method public androidx.camera.core.Preview build();
     method public androidx.camera.core.Preview.Builder setDynamicRange(androidx.camera.core.DynamicRange);
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalMirrorMode public androidx.camera.core.Preview.Builder setMirrorMode(int);
     method public androidx.camera.core.Preview.Builder setPreviewStabilizationEnabled(boolean);
     method public androidx.camera.core.Preview.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetAspectRatio(int);

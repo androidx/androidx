@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
 import android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR
 import android.media.MediaCodec
@@ -54,6 +55,7 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.MirrorMode
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
@@ -702,6 +704,7 @@ class UseCaseManager @Inject constructor(
                     val deferrableSurface = outputConfig.surface
                     val physicalCameraId =
                         physicalCameraIdForAllStreams ?: outputConfig.physicalCameraId
+                    val mirrorMode = outputConfig.mirrorMode
                     val outputStreamConfig = OutputStream.Config.create(
                         size = deferrableSurface.prescribedSize,
                         format = StreamFormat(deferrableSurface.prescribedStreamFormat),
@@ -709,6 +712,15 @@ class UseCaseManager @Inject constructor(
                             null
                         } else {
                             CameraId.fromCamera2Id(physicalCameraId)
+                        },
+                        // No need to map MIRROR_MODE_ON_FRONT_ONLY to MIRROR_MODE_AUTO
+                        // since its default value in framework
+                        mirrorMode = when (mirrorMode) {
+                            MirrorMode.MIRROR_MODE_OFF -> OutputStream.MirrorMode(
+                                OutputConfiguration.MIRROR_MODE_NONE)
+                            MirrorMode.MIRROR_MODE_ON -> OutputStream.MirrorMode(
+                                OutputConfiguration.MIRROR_MODE_H)
+                            else -> null
                         },
                         streamUseCase = getStreamUseCase(
                             deferrableSurface,

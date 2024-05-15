@@ -200,6 +200,24 @@ public final class OutputConfigurationCompat {
     }
 
     /**
+     * Returns mirror mode of {@link OutputConfiguration}.
+     * @return {@link OutputConfiguration#getMirrorMode()}
+     * @see OutputConfiguration#getMirrorMode()
+     */
+    public int getMirrorMode() {
+        return mImpl.getMirrorMode();
+    }
+
+    /**
+     * Sets mirror mode of {@link OutputConfiguration}.
+     * @param mirrorMode mirror mode to set for {@link OutputConfiguration}.
+     * @see OutputConfiguration#setMirrorMode(int)
+     */
+    public void setMirrorMode(int mirrorMode) {
+        mImpl.setMirrorMode(mirrorMode);
+    }
+
+    /**
      * Retrieve the physical camera ID set by {@link #setPhysicalCameraId(String)}.
      *
      */
@@ -487,6 +505,10 @@ public final class OutputConfigurationCompat {
 
     interface OutputConfigurationCompatImpl {
         void enableSurfaceSharing();
+
+        int getMirrorMode();
+
+        void setMirrorMode(int mirrorMode);
 
         @Nullable
         String getPhysicalCameraId();
