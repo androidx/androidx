@@ -17,12 +17,15 @@
 package androidx.compose.material3
 
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.internal.BasicTooltipDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
@@ -34,6 +37,7 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.IntOffset
@@ -46,6 +50,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
@@ -388,6 +393,73 @@ class TooltipTest {
         rule.mainClock.advanceTimeBy(TooltipFadeOutDuration.toLong() + 100L)
         rule.waitForIdle()
         assertThat(state.isVisible).isFalse()
+    }
+
+    @Test
+    fun plainTooltip_longPress_showsTooltip() {
+        lateinit var state: TooltipState
+        var changedToVisible = false
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(lightColorScheme()) {
+            state = rememberTooltipState()
+            LaunchedEffect(true) {
+                snapshotFlow { state.isVisible }.collectLatest {
+                    if (it) { changedToVisible = true }
+                }
+            }
+            Box(Modifier.testTag("tooltip")) {
+                PlainTooltipTest(
+                    tooltipContent = { Text(text = "Test") },
+                    tooltipState = state
+                )
+            }
+        }
+
+        assertThat(changedToVisible).isFalse()
+
+        rule.onNodeWithTag("tooltip").performTouchInput {
+            longClick()
+        }
+
+        rule.mainClock.advanceTimeBy(
+            TooltipFadeInDuration + TooltipFadeOutDuration + 500L +
+                BasicTooltipDefaults.TooltipDuration
+        )
+
+        assertThat(changedToVisible).isTrue()
+        assertThat(state.isVisible).isFalse()
+    }
+
+    @Test
+    fun plainTooltip_longPress_keepsTooltipVisible() {
+        lateinit var state: TooltipState
+        val startTime = rule.mainClock.currentTime
+        var visibleTime = 0L
+        rule.setMaterialContent(lightColorScheme()) {
+            state = rememberTooltipState()
+            LaunchedEffect(true) {
+                snapshotFlow { state.isVisible }.collectLatest {
+                    if (!it) {
+                        visibleTime = rule.mainClock.currentTime - startTime
+                    }
+                }
+            }
+            Box(Modifier.testTag("tooltip")) {
+                PlainTooltipTest(
+                    tooltipContent = { Text(text = "Test") },
+                    tooltipState = state
+                )
+            }
+        }
+
+        rule.onNodeWithTag("tooltip").performTouchInput {
+            longClick(durationMillis = 10_000)
+        }
+
+        rule.waitForIdle()
+        assertThat(state.isVisible).isFalse()
+
+        assertThat(visibleTime).isGreaterThan(9999)
     }
 
     @Test

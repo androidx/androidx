@@ -41,7 +41,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.CacheDrawScope
@@ -510,7 +509,7 @@ private class TooltipStateImpl(
     override val isVisible: Boolean
         get() = transition.currentState || transition.targetState
 
-            /**
+    /**
      * continuation used to clean up
      */
     private var job: (CancellableContinuation<Unit>)? = null
@@ -544,9 +543,10 @@ private class TooltipStateImpl(
                     }
                 }
             } finally {
-                // timeout or cancellation has occurred
-                // and we close out the current tooltip.
-                dismiss()
+                if (mutatePriority != MutatePriority.PreventUserInput) {
+                    // timeout or cancellation has occurred and we close out the current tooltip.
+                    dismiss()
+                }
             }
         }
     }
