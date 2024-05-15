@@ -103,9 +103,14 @@ class NativeSQLiteStatement(
 
     override fun bindText(index: Int, value: String) {
         throwIfClosed()
+        // The third parameter to sqlite3_bind_text16() should be a pointer to well-formed
+        // UTF16 text. If a non-negative fourth parameter is provided to sqlite3_bind_text16() then
+        // that parameter must be the byte offset where the NUL terminator would occur. Hence due to
+        // value.utf16 returning a C string that is zero-terminated, we use 'valueUtf16.size - 1' as
+        // the fourth parameter.
         val valueUtf16 = value.utf16
         val resultCode = sqlite3_bind_text16(
-            stmtPointer, index, valueUtf16, valueUtf16.size, SQLITE_TRANSIENT
+            stmtPointer, index, valueUtf16, valueUtf16.size - 1, SQLITE_TRANSIENT
         )
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
@@ -124,7 +129,9 @@ class NativeSQLiteStatement(
         throwIfClosed()
         throwIfNoRow()
         throwIfInvalidColumn(index)
-        // Kotlin/Native uses UTF-16 character encoding by default.
+        // Kotlin/Native uses UTF-16 character encoding by default and strings returned by
+        // sqlite3_column_text16(), even empty strings, are always zero-terminated. Thus we use
+        // toKStringFromUtf16() that returns a kotlin.String from a zero-terminated C string.
         val value = sqlite3_column_text16(stmtPointer, index)
         if (sqlite3_errcode(dbPointer) == SQLITE_NOMEM) {
             throw OutOfMemoryError()
