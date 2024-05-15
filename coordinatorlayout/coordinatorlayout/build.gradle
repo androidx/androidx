@@ -42,7 +42,7 @@ android {
                 "src/main/res-public"
         ]
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
     defaultConfig {
