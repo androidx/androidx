@@ -57,7 +57,7 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_USERNAME
  * Gets the Android specific [AutofillHint][android.view.ViewStructure.setAutofillHints]
  * corresponding to the [ContentType].
  */
-internal actual class ContentType private constructor(private val contentHints: Set<String>) {
+internal actual class ContentType private constructor(internal val contentHints: Set<String>) {
     actual constructor(contentHint: String) : this(setOf(contentHint))
 
     internal actual companion object {

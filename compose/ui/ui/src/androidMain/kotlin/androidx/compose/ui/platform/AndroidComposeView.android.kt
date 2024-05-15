@@ -77,6 +77,7 @@ import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.autofill.AndroidAutofill
+import androidx.compose.ui.autofill.AndroidSemanticAutofill
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillCallback
 import androidx.compose.ui.autofill.AutofillTree
@@ -263,6 +264,10 @@ internal class AndroidComposeView(
     )
 
     private val dragAndDropModifierOnDragListener = DragAndDropModifierOnDragListener(::startDrag)
+
+    override fun getImportantForAutofill(): Int {
+        return View.IMPORTANT_FOR_AUTOFILL_YES
+    }
 
     override var coroutineContext: CoroutineContext = coroutineContext
         // In some rare cases, the CoroutineContext is cancelled (because the parent
@@ -460,6 +465,10 @@ internal class AndroidComposeView(
 
     // Used as a CompositionLocal for performing autofill.
     override val autofill: Autofill? get() = _autofill
+
+    // Used as a CompositionLocal for performing semantic autofill.
+    override val semanticAutofill = if (autofillSupported())
+        AndroidSemanticAutofill(this) else null
 
     private var observationClearRequested = false
 
@@ -969,6 +978,13 @@ internal class AndroidComposeView(
     override fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) {
         composeAccessibilityDelegate.SendRecurringAccessibilityEventsIntervalMillis =
             intervalMillis
+
+        if (SDK_INT >= 26) {
+            // TODO(333102566): add a setAutofillEventBatchIntervalMillis instead of using the
+            // accessibility interval here.
+            semanticAutofill?.SendRecurringAutofillEventsIntervalMillis =
+                intervalMillis
+        }
     }
 
     override fun onAttach(node: LayoutNode) {
@@ -1491,11 +1507,21 @@ internal class AndroidComposeView(
     override fun onSemanticsChange() {
         composeAccessibilityDelegate.onSemanticsChange()
         contentCaptureManager.onSemanticsChange()
+        // TODO(b/333102566): Use _semanticAutofill's `onSemanticsChange` after semantic autofill
+        // goes live.
+        if (SDK_INT >= 26 && semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
+            semanticAutofill.onSemanticsChange()
+        }
     }
 
     override fun onLayoutChange(layoutNode: LayoutNode) {
         composeAccessibilityDelegate.onLayoutChange(layoutNode)
         contentCaptureManager.onLayoutChange(layoutNode)
+        // TODO(b/333102566): Use _semanticAutofill's `onLayoutChange` after semantic autofill
+        // goes live.
+        if (SDK_INT >= 26 && semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
+            semanticAutofill.onLayoutChange(layoutNode)
+        }
     }
 
     override fun registerOnLayoutCompletedListener(listener: Owner.OnLayoutCompletedListener) {
@@ -1638,6 +1664,8 @@ internal class AndroidComposeView(
         snapshotObserver.startObserving()
         ifDebug {
             if (autofillSupported()) {
+                // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
+                // system.
                 _autofill?.let { AutofillCallback.register(it) }
             }
         }
@@ -1705,6 +1733,8 @@ internal class AndroidComposeView(
         lifecycle.removeObserver(this)
         ifDebug {
             if (autofillSupported()) {
+                // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
+                // system.
                 _autofill?.let { AutofillCallback.unregister(it) }
             }
         }
@@ -1716,11 +1746,23 @@ internal class AndroidComposeView(
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
-        if (autofillSupported() && structure != null) _autofill?.populateViewStructure(structure)
+        if (autofillSupported() && structure != null) {
+            if (semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
+                semanticAutofill.populateViewStructure(structure)
+            } else {
+                _autofill?.populateViewStructure(structure)
+            }
+        }
     }
 
     override fun autofill(values: SparseArray<AutofillValue>) {
-        if (autofillSupported()) _autofill?.performAutofill(values)
+        if (autofillSupported()) {
+            if (semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
+                semanticAutofill.performAutofill(values)
+            } else {
+                _autofill?.performAutofill(values)
+            }
+        }
     }
 
     @RequiresApi(S)

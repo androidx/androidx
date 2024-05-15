@@ -78,16 +78,16 @@ internal class AndroidAutofill(val view: View, val autofillTree: AutofillTree) :
 internal fun AndroidAutofill.populateViewStructure(root: ViewStructure) {
 
     // Add child nodes. The function returns the index to the first item.
-    var index = AutofillApi23Helper.addChildCount(root, autofillTree.children.count())
+    var index = AutofillApi26Helper.addChildCount(root, autofillTree.children.count())
 
     for ((id, autofillNode) in autofillTree.children) {
-        AutofillApi23Helper.newChild(root, index)?.also { child ->
+        AutofillApi26Helper.newChild(root, index)?.also { child ->
             AutofillApi26Helper.setAutofillId(
                 child,
                 AutofillApi26Helper.getAutofillId(root)!!,
                 id
             )
-            AutofillApi23Helper.setId(child, id, view.context.packageName, null, null)
+            AutofillApi26Helper.setId(child, id, view.context.packageName, null, null)
             AutofillApi26Helper.setAutofillType(child, ContentDataType.Text.dataType)
             AutofillApi26Helper.setAutofillHints(
                 child,
@@ -110,7 +110,7 @@ internal fun AndroidAutofill.populateViewStructure(root: ViewStructure) {
                 val bottom = boundingBox.bottom.fastRoundToInt()
                 val width = right - left
                 val height = bottom - top
-                AutofillApi23Helper.setDimens(child, left, top, 0, 0, width, height)
+                AutofillApi26Helper.setDimens(child, left, top, 0, 0, width, height)
             }
         }
         index++
