@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.input
 import androidx.compose.foundation.text.input.internal.toCharArray
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
+import kotlin.jvm.JvmInline
 
 /**
  * An immutable snapshot of the contents of a [TextFieldState].
