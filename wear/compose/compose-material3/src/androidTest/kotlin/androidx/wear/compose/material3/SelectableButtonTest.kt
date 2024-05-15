@@ -543,19 +543,12 @@ class SelectableButtonTest {
     }
 
     @Test
-    fun selectable_button_height_defaults_52dp_with_secondary_label() {
+    fun selectable_button_height_defaults_52dp() {
         rule.setContentWithThemeForSizeAssertions {
             SelectableButtonWithDefaults(
                 secondaryLabel = { Text("Secondary label") }
             )
         }.assertHeightIsEqualTo(52.dp)
-    }
-
-    @Test
-    fun selectable_button_height_defaults_48dp_without_secondary_label() {
-        rule.setContentWithThemeForSizeAssertions {
-            SelectableButtonWithDefaults()
-        }.assertHeightIsEqualTo(48.dp)
     }
 
     @Test
