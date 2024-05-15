@@ -101,7 +101,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         docsType = project.name.removePrefix("docs-")
-        project.plugins.all { plugin ->
+        project.plugins.configureEach { plugin ->
             when (plugin) {
                 is LibraryPlugin -> {
                     val libraryExtension = project.extensions.getByType<LibraryExtension>()
@@ -112,7 +112,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     // Use a local debug keystore to avoid build server issues.
                     val debugSigningConfig = libraryExtension.signingConfigs.getByName("debug")
                     debugSigningConfig.storeFile = project.getKeystore()
-                    libraryExtension.buildTypes.all { buildType ->
+                    libraryExtension.buildTypes.configureEach { buildType ->
                         // Sign all the builds (including release) with debug key
                         buildType.signingConfig = debugSigningConfig
                     }

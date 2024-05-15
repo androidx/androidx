@@ -42,7 +42,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension =
             project.extensions.create<AndroidXComposeExtension>("androidxCompose", project)
-        project.plugins.all { plugin ->
+        project.plugins.configureEach { plugin ->
             when (plugin) {
                 is AppPlugin, is LibraryPlugin -> {
                     val commonExtension =
@@ -147,7 +147,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             TODO: Consider changing unitTest to androidLocalTest and androidAndroidTest to
             androidDeviceTest when https://github.com/JetBrains/kotlin/pull/2829 rolls in.
             */
-            multiplatformExtension.sourceSets.all {
+            multiplatformExtension.sourceSets.configureEach {
                 // Allow all experimental APIs, since MPP projects are themselves experimental
                 it.languageSettings.apply { optIn("kotlin.ExperimentalMultiplatform") }
             }
