@@ -632,7 +632,7 @@ using `context.driver.requestRepeat(detector, scope)`.
 
 Using Android Studio, there are a few ways to debug custom lint checks:
 
-#### Debug against all lint check tests
+#### Debug against lint running from the command line
 
 1.  Set breakpoint(s) in the desired lint detector sources
 1.  Click the `Gradle` icon on the right menu bar
@@ -649,6 +649,42 @@ Using Android Studio, there are a few ways to debug custom lint checks:
     [`AnnotationRetentionDetectorTest`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:annotation/annotation-experimental-lint/src/test/kotlin/androidx/annotation/experimental/lint/AnnotationRetentionDetectorTest.kt)
 1.  Right-click on a test method and select `Debug`
 1.  Breakpoint will get hit
+
+#### Debug against lint running inside Android Studio
+
+The UAST environment can be different when a lint check is running on the fly
+inside Android Studio, instead of the command line (for example b/191508358). To
+debug issues with a lint check that only occur inside the IDE, you can debug the
+lint check when it runs inside Studio.
+
+1.  Set breakpoint(s) in the desired lint detector sources (make sure that the
+    sources you have match the sources being used in the library version you
+    want to test against)
+2.  Download a separate Studio instance (such as latest canary), and open it.
+3.  With the new Studio instance, go to Help -> Edit Custom VM Options - this
+    will open up studio.vmoptions. Add the following lines:
+
+```
+-Xdebug
+-Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y
+```
+
+1.  Then close Android Studio. This will allow attaching a debugger next time
+    this Studio instance is opened.
+2.  In the original (AndroidX) Studio instance, create a
+    [remote JVM debug configuration](https://www.jetbrains.com/help/idea/tutorial-remote-debug.html#create-run-configurations).
+    The default configuration should be correct, double check that the port
+    specified is the same as the address you specified in studio.vmoptions in
+    the previous step.
+3.  Launch the separate Studio instance: it should wait for a debugger to be
+    attached
+4.  In the AndroidX Studio instance, press debug with the remote configuration -
+    this should attach the debugger, and the separate Studio instance should
+    continue to open normally
+5.  In the separate Studio instance, open / create a sample project that uses
+    the library with the lint check you want to debug, and add some code that
+    should trigger / not trigger an error accordingly.
+6.  Breakpoint will get hit
 
 ## Helpful tips {#tips}
 
