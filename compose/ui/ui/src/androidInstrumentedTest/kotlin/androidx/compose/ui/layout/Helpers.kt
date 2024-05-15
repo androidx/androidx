@@ -21,6 +21,7 @@ package androidx.compose.ui.layout
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
@@ -220,6 +221,8 @@ private class FakeOwner(
     override val autofillTree: AutofillTree
         get() = TODO("Not yet implemented")
     override val autofill: Autofill
+        get() = TODO("Not yet implemented")
+    override val semanticAutofill: SemanticAutofill?
         get() = TODO("Not yet implemented")
 
     override fun createLayer(

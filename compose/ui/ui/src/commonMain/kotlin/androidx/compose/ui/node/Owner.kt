@@ -22,6 +22,7 @@ import androidx.compose.runtime.Applier
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
@@ -127,6 +128,12 @@ internal interface Owner : PositionCalculator {
     @get:ExperimentalComposeUiApi
     @ExperimentalComposeUiApi
     val autofill: Autofill?
+
+    /**
+     * The [SemanticAutofill] class can be used to perform autofill operations. It is used as a
+     * CompositionLocal.
+     */
+    val semanticAutofill: SemanticAutofill?
 
     val density: Density
 

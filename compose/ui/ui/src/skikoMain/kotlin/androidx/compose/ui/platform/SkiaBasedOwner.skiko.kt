@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.PrimaryPressedPointerButtons
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
+import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
@@ -244,6 +245,8 @@ internal class SkiaBasedOwner(
     override val autofillTree = AutofillTree()
 
     override val autofill: Autofill? get() = null
+
+    override val semanticAutofill: SemanticAutofill? get() = null
 
     override val viewConfiguration: ViewConfiguration = DefaultViewConfiguration(density)
 
