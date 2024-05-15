@@ -40,7 +40,9 @@ import androidx.compose.foundation.text.selection.SimpleLayout
 import androidx.compose.foundation.text.selection.TextFieldSelectionHandle
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.foundation.text.selection.isSelectionHandleInVisibleBound
+import androidx.compose.foundation.text.selection.selectionGestureInput
 import androidx.compose.foundation.text.selection.textFieldMagnifier
+import androidx.compose.foundation.text.selection.updateSelectionTouchMode
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.DontMemoize
@@ -68,6 +70,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -394,7 +397,7 @@ internal fun CoreTextField(
     val pointerModifier = Modifier
         .updateSelectionTouchMode { state.isInTouchMode = it }
         .tapPressTextFieldModifier(interactionSource, enabled) { offset ->
-            tapToFocus(state, focusRequester, !readOnly)
+            requestFocusAndShowKeyboardIfNeeded(state, focusRequester, !readOnly)
             if (state.hasFocus) {
                 if (state.handleState != HandleState.Selection) {
                     state.layoutResult?.let { layoutResult ->
