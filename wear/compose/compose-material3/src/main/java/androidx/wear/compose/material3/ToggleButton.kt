@@ -682,6 +682,32 @@ class ToggleButtonColors constructor(
             .takeOrElse { this.disabledUncheckedIconColor },
     )
 
+    /** Copy function for [IconToggleButton] and [TextToggleButton]. */
+    internal fun copy(
+        checkedContainerColor: Color,
+        checkedContentColor: Color,
+        uncheckedContainerColor: Color,
+        uncheckedContentColor: Color,
+        disabledCheckedContainerColor: Color,
+        disabledCheckedContentColor: Color,
+        disabledUncheckedContainerColor: Color,
+        disabledUncheckedContentColor: Color,
+    ): ToggleButtonColors = ToggleButtonColors(
+        checkedContainerColor = checkedContainerColor.takeOrElse { this.checkedContainerColor },
+        checkedContentColor = checkedContentColor.takeOrElse { this.checkedContentColor },
+        uncheckedContainerColor = uncheckedContainerColor
+            .takeOrElse { this.uncheckedContainerColor },
+        uncheckedContentColor = uncheckedContentColor.takeOrElse { this.uncheckedContentColor },
+        disabledCheckedContainerColor = disabledCheckedContainerColor
+            .takeOrElse { this.disabledCheckedContainerColor },
+        disabledCheckedContentColor = disabledCheckedContentColor
+            .takeOrElse { this.disabledCheckedContentColor },
+        disabledUncheckedContainerColor = disabledUncheckedContainerColor
+            .takeOrElse { this.disabledUncheckedContainerColor },
+        disabledUncheckedContentColor = disabledUncheckedContentColor
+            .takeOrElse { this.disabledUncheckedContentColor },
+    )
+
     /**
      * Determines the container color based on whether the toggle button is [enabled]
      * and [checked].

@@ -22,13 +22,13 @@ package androidx.wear.compose.material3.tokens
 internal object IconToggleButtonTokens {
     val CheckedContainerColor = ColorSchemeKeyTokens.Primary
     val CheckedContentColor = ColorSchemeKeyTokens.OnPrimary
-    val DisabledCheckedContainerColor = ColorSchemeKeyTokens.Primary
-    val DisabledCheckedContainerOpacity = 0.38f
-    val DisabledCheckedContentColor = ColorSchemeKeyTokens.OnPrimary
+    val DisabledCheckedContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledCheckedContainerOpacity = 0.12f
+    val DisabledCheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledCheckedContentOpacity = 0.38f
-    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
-    val DisabledUncheckedContainerOpacity = 0.38f
-    val DisabledUncheckedContentColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val DisabledUncheckedContainerColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledUncheckedContainerOpacity = 0.12f
+    val DisabledUncheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledUncheckedContentOpacity = 0.38f
     val UncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UncheckedContentColor = ColorSchemeKeyTokens.OnSurfaceVariant
