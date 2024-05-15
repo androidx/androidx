@@ -242,7 +242,7 @@ class GLRenderer(
      * Note the stop operation will only occur if the GLRenderer was previously started, that is
      * [isRunning] returns true. Otherwise this is a no-op.
      *
-     * @param cancelPending If true all pending requests and cancelled and the backing thread is
+     * @param cancelPending If true, all pending requests are cancelled and the backing thread is
      * torn down immediately. If false, all pending requests are processed first before tearing
      * down the backing thread. Subsequent requests made after this call are ignored.
      * @param onStop Optional callback invoked on the backing thread after it is torn down.
