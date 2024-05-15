@@ -19,7 +19,9 @@ package androidx.compose.ui.platform
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.assertThat
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.isEqualTo
 import androidx.compose.ui.unit.*
 import kotlin.math.PI
@@ -447,7 +449,8 @@ class RenderNodeLayerTest {
 
         layer.resize(IntSize(1, 2))
         layer.updateProperties(
-            clip = true
+            clip = true,
+            size = Size(1f, 2f)
         )
 
         assertFalse(layer.isInLayer(Offset(-1f, -1f)))
@@ -459,7 +462,8 @@ class RenderNodeLayerTest {
         layer.resize(IntSize(100, 200))
         layer.updateProperties(
             clip = true,
-            shape = CircleShape
+            shape = CircleShape,
+            size = Size(100f, 200f)
         )
 
         assertFalse(layer.isInLayer(Offset(5f, 5f)))
@@ -473,9 +477,9 @@ class RenderNodeLayerTest {
 
         var childLayer: RenderNodeLayer? = null
         val parentLayer = TestRenderNodeLayer(
-            drawBlock = {
+            drawBlock = { canvas, parentLayer ->
                 parentDrawCount++
-                childLayer?.drawLayer(it)
+                childLayer?.drawLayer(canvas, parentLayer)
             },
         )
 
@@ -484,34 +488,34 @@ class RenderNodeLayerTest {
 
         assertThat(parentDrawCount).isEqualTo(0)
 
-        parentLayer.drawLayer(canvas)
+        parentLayer.drawLayer(canvas, null)
         assertThat(parentDrawCount).isEqualTo(1)
 
         // shouldn't be drawn again, as it isn't changed
-        parentLayer.drawLayer(canvas)
+        parentLayer.drawLayer(canvas, null)
         assertThat(parentDrawCount).isEqualTo(1)
 
         // https://github.com/JetBrains/compose-multiplatform/issues/4681
         // parent should be drawn again, as we add a child
         childLayer = TestRenderNodeLayer(
             invalidateParentLayer = parentLayer::invalidate,
-            drawBlock = {},
+            drawBlock = { _, _ -> },
         )
         childLayer.invalidate()
-        parentLayer.drawLayer(canvas)
+        parentLayer.drawLayer(canvas, null)
         assertThat(parentDrawCount).isEqualTo(2)
 
-        parentLayer.drawLayer(canvas)
+        parentLayer.drawLayer(canvas, null)
         assertThat(parentDrawCount).isEqualTo(2)
 
         childLayer.invalidate()
-        parentLayer.drawLayer(canvas)
+        parentLayer.drawLayer(canvas, null)
         assertThat(parentDrawCount).isEqualTo(3)
     }
 
     private fun TestRenderNodeLayer(
         invalidateParentLayer: () -> Unit = {},
-        drawBlock: (Canvas) -> Unit = {},
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit = { _, _ -> },
     ) = RenderNodeLayer(
         Density(1f, 1f),
         measureDrawBounds = false,
@@ -547,7 +551,8 @@ class RenderNodeLayerTest {
         shape: Shape = RectangleShape,
         clip: Boolean = false,
         renderEffect: RenderEffect? = null,
-        compositingStrategy: CompositingStrategy = CompositingStrategy.Auto
+        compositingStrategy: CompositingStrategy = CompositingStrategy.Auto,
+        size: Size = Size.Zero
     ) {
         val scope = ReusableGraphicsLayerScope()
         scope.cameraDistance = cameraDistance
@@ -568,6 +573,9 @@ class RenderNodeLayerTest {
         scope.clip = clip
         scope.renderEffect = renderEffect
         scope.compositingStrategy = compositingStrategy
-        updateLayerProperties(scope, LayoutDirection.Ltr, Density(1f))
+        scope.layoutDirection = LayoutDirection.Ltr
+        scope.graphicsDensity = Density(1f)
+        scope.outline = shape.createOutline(size, scope.layoutDirection, scope.graphicsDensity)
+        updateLayerProperties(scope)
     }
 }
