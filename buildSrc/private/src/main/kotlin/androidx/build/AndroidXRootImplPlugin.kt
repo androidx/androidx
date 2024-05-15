@@ -145,7 +145,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                         subproject.name != "camera-testapp-timing" &&
                         subproject.name != "room-testapp"
                 ) {
-                    subproject.configurations.all { configuration ->
+                    subproject.configurations.configureEach { configuration ->
                         configuration.resolutionStrategy.dependencySubstitution.apply {
                             all { dep ->
                                 val requested = dep.requested

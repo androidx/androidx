@@ -81,7 +81,7 @@ fun Project.configureMavenArtifactUpload(
         if (!androidXExtension.shouldPublish()) {
             return@afterEvaluate
         }
-        components.all { component ->
+        components.configureEach { component ->
             if (isValidReleaseComponent(component)) {
                 registerOnFirstPublishableArtifact(component)
             }
@@ -179,7 +179,7 @@ private fun Project.configureComponentPublishing(
                 }
             }
         }
-        publications.withType(MavenPublication::class.java).all { publication ->
+        publications.withType(MavenPublication::class.java).configureEach { publication ->
             val isKmpAnchor = (publication.name == KMP_ANCHOR_PUBLICATION_NAME)
             val pomPlatform = androidxKmpExtension.defaultPlatform
             // b/297355397 If a kmp project has Android as the default platform, there might
@@ -341,7 +341,7 @@ private fun Project.configureMultiplatformPublication(
 ) {
     val multiplatformExtension = extensions.findByType<KotlinMultiplatformExtension>()!!
 
-    multiplatformExtension.targets.all { target ->
+    multiplatformExtension.targets.configureEach { target ->
         if (target is KotlinAndroidTarget) {
             target.publishLibraryVariants(Release.DEFAULT_PUBLISH_CONFIG)
         }

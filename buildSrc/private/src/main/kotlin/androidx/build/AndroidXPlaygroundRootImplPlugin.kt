@@ -69,7 +69,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
 
     private fun configureSubProject(project: Project) {
         project.repositories.addPlaygroundRepositories()
-        project.configurations.all { configuration ->
+        project.configurations.configureEach { configuration ->
             configuration.resolutionStrategy.eachDependency { details ->
                 val requested = details.requested
                 if (requested.version == SNAPSHOT_MARKER) {
