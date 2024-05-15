@@ -222,6 +222,7 @@ internal class BasicTextFieldUndoTest {
         state.assertTextAndSelection("He abc llo", TextRange(7))
     }
 
+    @FlakyTest(bugId = 336870687)
     @Test
     fun variousEditOperations() {
         val state = TextFieldState()
