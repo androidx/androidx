@@ -21,6 +21,7 @@ import groovy.lang.Closure
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaLibraryPlugin
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
@@ -58,26 +59,15 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
                     dropResourcesWithSuffix = ".proto"
                 }
             )
-            task.from(sourceSets.findByName("main")?.output)
-        }
-
-        afterEvaluate {
-            val artifactIdForPublish = relocationExtension.artifactId
-            libraryShadowJar.configure { task ->
-                relocationExtension.getRelocations().forEach {
-                    task.relocate(it.sourcePackage, it.targetPackage)
-                }
+            task.from(sourceSets.named("main").map { it.output })
+            relocationExtension.getRelocations().forEach {
+                task.relocate(it.sourcePackage, it.targetPackage)
             }
-
-            artifactIdForPublish?.let {
-                libraryShadowJar.configure {
-                    it.configurations = listOf(
-                        project.configurations.getByName("repackageClasspath")
-                    )
-                }
+            relocationExtension.artifactId.orNull?.let {
+                task.configurations = listOf(configurations.getByName("repackageClasspath"))
             }
-            addArchiveToVariants(libraryShadowJar)
         }
+        addArchiveToVariants(libraryShadowJar)
     }
 
     private fun Project.createConfigurations() {
@@ -112,18 +102,19 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
      * that creates the shadowed library as that would result in a circular dependency.
      */
     private fun Project.forceJarUsageForAndroid() =
-        configurations.getByName("runtimeElements").outgoing.variants.removeIf {
-            it.name == "classes"
+        configurations.configureEach { configuration ->
+            if (configuration.name == "runtimeElements") {
+                configuration.outgoing.variants.removeIf { it.name == "classes" }
+            }
         }
 
     private fun Project.addArchiveToVariants(task: TaskProvider<ShadowJar>) =
-        listOf("apiElements", "runtimeElements")
-            .forEach { config ->
-                configurations.getByName(config).apply {
-                    outgoing.artifacts.clear()
-                    outgoing.artifact(task)
-                }
+        configurations.configureEach { configuration ->
+            if (configuration.name == "apiElements" || configuration.name == "runtimeElements") {
+                configuration.outgoing.artifacts.clear()
+                configuration.outgoing.artifact(task)
             }
+        }
 
     companion object {
         const val EXTENSION_NAME = "repackage"
@@ -153,5 +144,5 @@ abstract class RelocationExtension(val project: Project) {
     }
 
     /* Optional artifact id if the user wants to publish the dependency in the shadowed config. */
-    var artifactId: String? = null
+    abstract val artifactId: Property<String?>
 }
