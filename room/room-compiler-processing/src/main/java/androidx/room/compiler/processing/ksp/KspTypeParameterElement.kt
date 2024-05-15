@@ -18,12 +18,10 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XMemberContainer
-import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
 import com.google.devtools.ksp.symbol.KSTypeParameter
-import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.javapoet.TypeVariableName
 
 internal class KspTypeParameterElement(
@@ -45,16 +43,7 @@ internal class KspTypeParameterElement(
     }
 
     override val bounds: List<XType> by lazy {
-        declaration.bounds.map {
-            val type = it.resolve().let {
-                if (it.nullability == Nullability.PLATFORM) {
-                    it.withNullability(XNullability.NULLABLE)
-                } else {
-                    it
-                }
-            }
-            env.wrap(it, type)
-        }.toList().ifEmpty {
+        declaration.bounds.map { env.wrap(it, it.resolve()) }.toList().ifEmpty {
             listOf(env.requireType(Any::class).makeNullable())
         }
     }
