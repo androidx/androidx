@@ -139,6 +139,19 @@ abstract class BaseConformanceTest {
     }
 
     @Test
+    fun bindTextInExpression() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (date TEXT)")
+        connection.prepare("INSERT INTO Test (date) VALUES (?)").use {
+            it.bindText(1, "1991-04-18")
+            assertThat(it.step()).isFalse() // SQLITE_DONE
+        }
+        connection.prepare("SELECT * FROM Test WHERE strftime('%Y', date) = ?").use {
+            it.bindText(1, "1991")
+            assertThat(it.step()).isTrue() // SQLITE_ROW
+        }
+    }
+
+    @Test
     fun bindAndReadNull() = testWithConnection { connection ->
         connection.execSQL("CREATE TABLE Test (col)")
         connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
