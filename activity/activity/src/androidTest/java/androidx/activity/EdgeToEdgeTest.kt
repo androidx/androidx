@@ -18,6 +18,7 @@ package androidx.activity
 
 import android.graphics.Color
 import android.os.Build
+import android.view.WindowManager
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -59,6 +60,15 @@ class EdgeToEdgeTest {
                         assertThat(isAppearanceLightStatusBars).isTrue()
                     }
                 }
+                if (Build.VERSION.SDK_INT >= 30) {
+                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    )
+                } else if (Build.VERSION.SDK_INT >= 28) {
+                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                    )
+                }
             }
         }
     }
@@ -94,6 +104,15 @@ class EdgeToEdgeTest {
                         assertThat(isAppearanceLightStatusBars).isTrue()
                     }
                 }
+                if (Build.VERSION.SDK_INT >= 30) {
+                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    )
+                } else if (Build.VERSION.SDK_INT >= 28) {
+                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                    )
+                }
             }
         }
     }
@@ -121,6 +140,15 @@ class EdgeToEdgeTest {
                         assertThat(isAppearanceLightStatusBars).isFalse()
                     }
                 }
+                if (Build.VERSION.SDK_INT >= 30) {
+                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    )
+                } else if (Build.VERSION.SDK_INT >= 28) {
+                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                    )
+                }
             }
         }
     }
@@ -147,6 +175,15 @@ class EdgeToEdgeTest {
                     WindowInsetsControllerCompat(window, view).run {
                         assertThat(isAppearanceLightStatusBars).isTrue()
                     }
+                }
+                if (Build.VERSION.SDK_INT >= 30) {
+                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    )
+                } else if (Build.VERSION.SDK_INT >= 28) {
+                    assertThat(window.attributes.layoutInDisplayCutoutMode).isEqualTo(
+                        WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                    )
                 }
             }
         }

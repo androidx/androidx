@@ -21,7 +21,7 @@ package androidx.datastore.core {
 
   public interface DataStore<T> {
     method public kotlinx.coroutines.flow.Flow<T> getData();
-    method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> transform, kotlin.coroutines.Continuation<? super T>);
+    method public suspend Object? updateData(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> transform, kotlin.coroutines.Continuation<? super T>);
     property public abstract kotlinx.coroutines.flow.Flow<T> data;
   }
 
@@ -34,9 +34,6 @@ package androidx.datastore.core {
     field public static final androidx.datastore.core.DataStoreFactory INSTANCE;
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING, message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface ExperimentalMultiProcessDataStore {
-  }
-
   public final class FileStorage<T> implements androidx.datastore.core.Storage<T> {
     ctor public FileStorage(androidx.datastore.core.Serializer<T> serializer, optional kotlin.jvm.functions.Function1<? super java.io.File,? extends androidx.datastore.core.InterProcessCoordinator> coordinatorProducer, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
     method public androidx.datastore.core.StorageConnection<T> createConnection();
@@ -46,8 +43,8 @@ package androidx.datastore.core {
     method public kotlinx.coroutines.flow.Flow<kotlin.Unit> getUpdateNotifications();
     method public suspend Object? getVersion(kotlin.coroutines.Continuation<? super java.lang.Integer>);
     method public suspend Object? incrementAndGetVersion(kotlin.coroutines.Continuation<? super java.lang.Integer>);
-    method public suspend <T> Object? lock(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
-    method public suspend <T> Object? tryLock(kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T>);
+    method public suspend <T> Object? lock(kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
+    method public suspend <T> Object? tryLock(kotlin.jvm.functions.Function2<? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super T>);
     property public abstract kotlinx.coroutines.flow.Flow<kotlin.Unit> updateNotifications;
   }
 
@@ -60,14 +57,14 @@ package androidx.datastore.core {
   }
 
   public final class MultiProcessDataStoreFactory {
-    method @SuppressCompatibility @androidx.datastore.core.ExperimentalMultiProcessDataStore public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
-    method @SuppressCompatibility @androidx.datastore.core.ExperimentalMultiProcessDataStore public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
-    method @SuppressCompatibility @androidx.datastore.core.ExperimentalMultiProcessDataStore public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
-    method @SuppressCompatibility @androidx.datastore.core.ExperimentalMultiProcessDataStore public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
-    method @SuppressCompatibility @androidx.datastore.core.ExperimentalMultiProcessDataStore public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage);
-    method @SuppressCompatibility @androidx.datastore.core.ExperimentalMultiProcessDataStore public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
-    method @SuppressCompatibility @androidx.datastore.core.ExperimentalMultiProcessDataStore public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations);
-    method @SuppressCompatibility @androidx.datastore.core.ExperimentalMultiProcessDataStore public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Serializer<T> serializer, kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations);
+    method public <T> androidx.datastore.core.DataStore<T> create(androidx.datastore.core.Storage<T> storage, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<T>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
     field public static final androidx.datastore.core.MultiProcessDataStoreFactory INSTANCE;
   }
 
@@ -88,8 +85,8 @@ package androidx.datastore.core {
 
   public interface StorageConnection<T> extends androidx.datastore.core.Closeable {
     method public androidx.datastore.core.InterProcessCoordinator getCoordinator();
-    method public suspend <R> Object? readScope(kotlin.jvm.functions.Function3<? super androidx.datastore.core.ReadScope<T>,? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
-    method public suspend Object? writeScope(kotlin.jvm.functions.Function2<? super androidx.datastore.core.WriteScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend <R> Object? readScope(kotlin.jvm.functions.Function3<? super androidx.datastore.core.ReadScope<T>,? super java.lang.Boolean,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend Object? writeScope(kotlin.jvm.functions.Function2<? super androidx.datastore.core.WriteScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract androidx.datastore.core.InterProcessCoordinator coordinator;
   }
 

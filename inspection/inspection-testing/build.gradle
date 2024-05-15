@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -39,7 +46,6 @@ dependencies {
 androidx {
     name = "Inspection Testing"
     type = LibraryType.INTERNAL_TEST_LIBRARY
-    publish = Publish.NONE
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"
 }

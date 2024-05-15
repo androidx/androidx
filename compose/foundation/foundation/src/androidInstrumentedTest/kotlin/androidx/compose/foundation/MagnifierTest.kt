@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.InspectableModifier
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ValueElement
@@ -96,39 +95,11 @@ class MagnifierTest {
 
     @SdkSuppress(maxSdkVersion = 27)
     @Test
-    fun magnifier_inspectorValue_whenNotSupported() {
-        val sourceCenterLambda: Density.() -> Offset = { Offset(42f, 42f) }
-        val magnifierCenterLambda: Density.() -> Offset = { Offset(42f, 42f) }
-        val modifier = Modifier.magnifier(
-            sourceCenter = sourceCenterLambda,
-            magnifierCenter = magnifierCenterLambda
-        ).findInspectableValue()!!
-        assertThat(modifier.nameFallback).isEqualTo("magnifier (not supported)")
-        assertThat(modifier.valueOverride).isNull()
-        assertThat(modifier.inspectableElements.toList()).containsExactly(
-            ValueElement("sourceCenter", sourceCenterLambda),
-            ValueElement("magnifierCenter", magnifierCenterLambda),
-            ValueElement("zoom", Float.NaN),
-            ValueElement("size", DpSize.Unspecified),
-            ValueElement("cornerRadius", Dp.Unspecified),
-            ValueElement("elevation", Dp.Unspecified),
-            ValueElement("clippingEnabled", true),
-        )
-    }
-
-    @SdkSuppress(maxSdkVersion = 27)
-    @Test
     fun magnifier_returnsEmptyModifier_whenNotSupported() {
         val modifier = Modifier.magnifier(sourceCenter = { Offset.Zero })
         val elements: List<Modifier.Element> =
             modifier.foldIn(emptyList()) { elements, element -> elements + element }
-
-        // Modifier.magnifier doesn't have its own modifier class, so instead of checking for the
-        // absence of the actual modifier we just check that the only modifier returned is the
-        // InspectableValue (which actually has two elements).
-        assertThat(elements).hasSize(2)
-        assertThat(elements.first()).isInstanceOf(InspectableValue::class.java)
-        assertThat(elements.last()).isInstanceOf(InspectableModifier.End::class.java)
+        assertThat(elements).hasSize(0)
     }
 
     @SdkSuppress(minSdkVersion = 28)
@@ -438,6 +409,10 @@ class MagnifierTest {
     fun platformMagnifierModifier_updatesProperties_whenZoomChanged() {
         var zoom by mutableStateOf(1f)
         val platformMagnifier = CountingPlatformMagnifier()
+        val factory = PlatformMagnifierFactory(
+            platformMagnifier,
+            canUpdateZoom = true
+        )
         rule.setContent {
             Box(
                 Modifier.magnifier(
@@ -445,10 +420,7 @@ class MagnifierTest {
                     magnifierCenter = { Offset.Unspecified },
                     zoom = zoom,
                     onSizeChanged = null,
-                    platformMagnifierFactory = PlatformMagnifierFactory(
-                        platformMagnifier,
-                        canUpdateZoom = true
-                    )
+                    platformMagnifierFactory = factory
                 )
             )
         }
@@ -585,7 +557,7 @@ class MagnifierTest {
 
     @SdkSuppress(minSdkVersion = 28)
     @Test
-    fun platformMagnifierModifier_firesOnSizeChanged_initially_whenSourceCenterUnspecified() {
+    fun platformMagnifierModifier_doesNotFireOnSizeChanged_initially_whenSourceCenterUnspecified() {
         val magnifierSize = IntSize(10, 11)
         val sizeEvents = mutableListOf<DpSize>()
         val platformMagnifier = CountingPlatformMagnifier().apply {
@@ -602,6 +574,34 @@ class MagnifierTest {
                 )
             )
         }
+
+        rule.runOnIdle { assertThat(sizeEvents).isEmpty() }
+    }
+
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    fun platformMagnifierModifier_firesOnSizeChanged_afterSourceCenterIsSpecified() {
+        val magnifierSize = IntSize(10, 11)
+        val sizeEvents = mutableListOf<DpSize>()
+        val platformMagnifier = CountingPlatformMagnifier().apply {
+            size = magnifierSize
+        }
+        var sourceCenter by mutableStateOf(Offset.Unspecified)
+        rule.setContent {
+            Box(
+                Modifier.magnifier(
+                    sourceCenter = { sourceCenter },
+                    magnifierCenter = { Offset.Unspecified },
+                    zoom = Float.NaN,
+                    onSizeChanged = { sizeEvents += it },
+                    platformMagnifierFactory = PlatformMagnifierFactory(platformMagnifier)
+                )
+            )
+        }
+
+        rule.runOnIdle { assertThat(sizeEvents).isEmpty() }
+
+        sourceCenter = Offset(1f, 1f)
 
         rule.runOnIdle {
             assertThat(sizeEvents).containsExactly(

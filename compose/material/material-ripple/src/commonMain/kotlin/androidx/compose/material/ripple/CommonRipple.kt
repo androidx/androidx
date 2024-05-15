@@ -16,6 +16,7 @@
 
 package androidx.compose.material.ripple
 
+import androidx.collection.MutableScatterMap
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
@@ -24,10 +25,14 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.isUnspecified
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -37,6 +42,8 @@ import kotlinx.coroutines.launch
  *
  * @see Ripple
  */
+@Suppress("DEPRECATION")
+@Deprecated("Replaced by the new RippleNode implementation")
 @Stable
 internal class CommonRipple(
     bounded: Boolean,
@@ -57,7 +64,59 @@ internal class CommonRipple(
     }
 }
 
-internal class CommonRippleIndicationInstance constructor(
+internal class CommonRippleNode(
+    interactionSource: InteractionSource,
+    bounded: Boolean,
+    radius: Dp,
+    color: ColorProducer,
+    rippleAlpha: () -> RippleAlpha
+) : RippleNode(interactionSource, bounded, radius, color, rippleAlpha) {
+    private val ripples = MutableScatterMap<PressInteraction.Press, RippleAnimation>()
+
+    override fun addRipple(interaction: PressInteraction.Press, size: Size, targetRadius: Float) {
+        // Finish existing ripples
+        ripples.forEach { _, ripple -> ripple.finish() }
+        val origin = if (bounded) interaction.pressPosition else null
+        val rippleAnimation = RippleAnimation(
+            origin = origin,
+            radius = targetRadius,
+            bounded = bounded
+        )
+        ripples[interaction] = rippleAnimation
+        coroutineScope.launch {
+            try {
+                rippleAnimation.animate()
+            } finally {
+                ripples.remove(interaction)
+                invalidateDraw()
+            }
+        }
+        invalidateDraw()
+    }
+
+    override fun removeRipple(interaction: PressInteraction.Press) {
+        ripples[interaction]?.finish()
+    }
+
+    override fun DrawScope.drawRipples() {
+        val alpha = rippleAlpha().pressedAlpha
+        if (alpha != 0f) {
+            ripples.forEach { _, ripple ->
+                with(ripple) {
+                    draw(rippleColor.copy(alpha = alpha))
+                }
+            }
+        }
+    }
+
+    override fun onDetach() {
+        ripples.clear()
+    }
+}
+
+@Suppress("DEPRECATION")
+@Deprecated("Replaced by the new RippleNode implementation")
+private class CommonRippleIndicationInstance(
     private val bounded: Boolean,
     private val radius: Dp,
     private val color: State<Color>,
@@ -65,7 +124,14 @@ internal class CommonRippleIndicationInstance constructor(
 ) : RippleIndicationInstance(bounded, rippleAlpha), RememberObserver {
     private val ripples = mutableStateMapOf<PressInteraction.Press, RippleAnimation>()
 
+    private var targetRadius = Float.NaN
+
     override fun ContentDrawScope.drawIndication() {
+        targetRadius = if (radius.isUnspecified) {
+            getRippleEndRadius(bounded, size)
+        } else {
+            radius.toPx()
+        }
         val color = color.value
         drawContent()
         drawStateLayer(radius, color)
@@ -78,7 +144,7 @@ internal class CommonRippleIndicationInstance constructor(
         val origin = if (bounded) interaction.pressPosition else null
         val rippleAnimation = RippleAnimation(
             origin = origin,
-            radius = radius,
+            radius = targetRadius,
             bounded = bounded
         )
         ripples[interaction] = rippleAnimation

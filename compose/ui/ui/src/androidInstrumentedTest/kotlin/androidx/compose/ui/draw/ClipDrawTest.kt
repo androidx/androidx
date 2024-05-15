@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
@@ -463,6 +464,126 @@ class ClipDrawTest {
 
         drawLatch = CountDownLatch(1)
         rule.runOnUiThreadIR { model.value = invertedTriangleShape }
+
+        takeScreenShot(30).apply {
+            assertInvertedTriangle(Color.Cyan, Color.Green)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun switchBetweenDifferentOutlines_differentPath_observableShape() {
+        var invertedTriangle by mutableStateOf(false)
+        val observableShape = object : Shape {
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ): Outline {
+              return if (invertedTriangle) {
+                  invertedTriangleShape.createOutline(size, layoutDirection, density)
+              } else {
+                  triangleShape.createOutline(size, layoutDirection, density)
+              }
+            }
+        }
+        // to be replaced with a DrawModifier wrapped into remember, so the recomposition
+        // is not causing invalidation as the DrawModifier didn't change
+        val drawCallback: DrawScope.() -> Unit = {
+            drawRect(
+                Color.Cyan,
+                topLeft = Offset(-100f, -100f),
+                size = Size(size.width + 200f, size.height + 200f)
+            )
+        }
+
+        val clip = Modifier.graphicsLayer {
+            shape = observableShape
+            clip = true
+            drawLatch.countDown()
+        }
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(
+                    size = 30,
+                    modifier = Modifier
+                        .background(Color.Green)
+                        .then(clip)
+                        .drawBehind(drawCallback)
+                ) {
+                }
+            }
+        }
+
+        takeScreenShot(30).apply {
+            assertTriangle(Color.Cyan, Color.Green)
+        }
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR { invertedTriangle = true }
+
+        takeScreenShot(30).apply {
+            assertInvertedTriangle(Color.Cyan, Color.Green)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun switchBetweenDifferentOutlines_samePath_observableShape() {
+        var invertedTriangle by mutableStateOf(false)
+        val path = Path()
+        val observableShape = object : Shape {
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ): Outline {
+                val outline = if (invertedTriangle) {
+                    invertedTriangleShape.createOutline(size, layoutDirection, density)
+                } else {
+                    triangleShape.createOutline(size, layoutDirection, density)
+                }
+                path.reset()
+                path.addOutline(outline)
+                return Outline.Generic(path)
+            }
+        }
+        // to be replaced with a DrawModifier wrapped into remember, so the recomposition
+        // is not causing invalidation as the DrawModifier didn't change
+        val drawCallback: DrawScope.() -> Unit = {
+            drawRect(
+                Color.Cyan,
+                topLeft = Offset(-100f, -100f),
+                size = Size(size.width + 200f, size.height + 200f)
+            )
+        }
+
+        val clip = Modifier.graphicsLayer {
+            shape = observableShape
+            clip = true
+            drawLatch.countDown()
+        }
+
+        rule.runOnUiThreadIR {
+            activity.setContent {
+                AtLeastSize(
+                    size = 30,
+                    modifier = Modifier
+                        .background(Color.Green)
+                        .then(clip)
+                        .drawBehind(drawCallback)
+                ) {
+                }
+            }
+        }
+
+        takeScreenShot(30).apply {
+            assertTriangle(Color.Cyan, Color.Green)
+        }
+
+        drawLatch = CountDownLatch(1)
+        rule.runOnUiThreadIR { invertedTriangle = true }
 
         takeScreenShot(30).apply {
             assertInvertedTriangle(Color.Cyan, Color.Green)

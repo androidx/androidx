@@ -69,7 +69,7 @@ public class OnItemVisibilityChangedDelegateImpl implements
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    static OnItemVisibilityChangedDelegate create(
+    public static OnItemVisibilityChangedDelegate create(
             @NonNull OnItemVisibilityChangedListener listener) {
         return new OnItemVisibilityChangedDelegateImpl(listener);
     }

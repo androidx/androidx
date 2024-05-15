@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCaptureSession
@@ -28,6 +26,7 @@ import android.view.Surface
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
 import kotlin.reflect.KClass
@@ -148,7 +147,6 @@ internal interface CameraConstrainedHighSpeedCaptureSessionWrapper : CameraCaptu
     fun createHighSpeedRequestList(request: CaptureRequest): List<CaptureRequest>
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidCaptureSessionStateCallback(
     private val device: CameraDeviceWrapper,
     private val stateCallback: CameraCaptureSessionWrapper.StateCallback,
@@ -258,22 +256,20 @@ internal class AndroidCaptureSessionStateCallback(
     }
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal open class AndroidCameraCaptureSession(
     override val device: CameraDeviceWrapper,
     private val cameraCaptureSession: CameraCaptureSession,
     private val cameraErrorListener: CameraErrorListener,
     private val callbackHandler: Handler
 ) : CameraCaptureSessionWrapper {
-    override fun abortCaptures(): Boolean =
-        catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
-            cameraCaptureSession.abortCaptures()
-        } != null
+    override fun abortCaptures(): Boolean = instrumentAndCatch("abortCaptures") {
+        cameraCaptureSession.abortCaptures()
+    } != null
 
     override fun capture(
         request: CaptureRequest,
         listener: CameraCaptureSession.CaptureCallback
-    ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
+    ): Int? = instrumentAndCatch("capture") {
         cameraCaptureSession.capture(
             request,
             listener,
@@ -284,26 +280,26 @@ internal open class AndroidCameraCaptureSession(
     override fun captureBurst(
         requests: List<CaptureRequest>,
         listener: CameraCaptureSession.CaptureCallback
-    ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
+    ): Int? = instrumentAndCatch("captureBurst") {
         cameraCaptureSession.captureBurst(requests, listener, callbackHandler)
     }
 
     override fun setRepeatingBurst(
         requests: List<CaptureRequest>,
         listener: CameraCaptureSession.CaptureCallback
-    ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
+    ): Int? = instrumentAndCatch("setRepeatingBurst") {
         cameraCaptureSession.setRepeatingBurst(requests, listener, callbackHandler)
     }
 
     override fun setRepeatingRequest(
         request: CaptureRequest,
         listener: CameraCaptureSession.CaptureCallback
-    ): Int? = catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
+    ): Int? = instrumentAndCatch("setRepeatingRequest") {
         cameraCaptureSession.setRepeatingRequest(request, listener, callbackHandler)
     }
 
     override fun stopRepeating(): Boolean =
-        catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
+        instrumentAndCatch("stopRepeating") {
             cameraCaptureSession.stopRepeating()
         } != null
 
@@ -336,7 +332,7 @@ internal open class AndroidCameraCaptureSession(
                 "succeed."
         }
 
-        return catchAndReportCameraExceptions(device.cameraId, cameraErrorListener) {
+        return instrumentAndCatch("finalizeOutputConfigurations") {
             Api26Compat.finalizeOutputConfigurations(
                 cameraCaptureSession,
                 outputConfigs.map { it.unwrapAs(OutputConfiguration::class) })
@@ -353,6 +349,17 @@ internal open class AndroidCameraCaptureSession(
     override fun close() {
         return cameraCaptureSession.close()
     }
+
+    /**
+     * Utility function to trace, measure, and suppress exceptions for expensive method calls.
+     */
+    @Throws(ObjectUnavailableException::class)
+    internal inline fun <T> instrumentAndCatch(
+        fnName: String,
+        crossinline block: () -> T
+    ) = Debug.instrument("CXCP#$fnName-${device.cameraId.value}") {
+        catchAndReportCameraExceptions(device.cameraId, cameraErrorListener, block)
+    }
 }
 
 /**
@@ -364,36 +371,36 @@ internal class AndroidCameraConstrainedHighSpeedCaptureSession
 internal constructor(
     device: CameraDeviceWrapper,
     private val session: CameraConstrainedHighSpeedCaptureSession,
-    private val cameraErrorListener: CameraErrorListener,
-    private val callbackHandler: Handler
+    cameraErrorListener: CameraErrorListener,
+    callbackHandler: Handler
 ) : AndroidCameraCaptureSession(device, session, cameraErrorListener, callbackHandler),
     CameraConstrainedHighSpeedCaptureSessionWrapper {
     @Throws(ObjectUnavailableException::class)
-    override fun createHighSpeedRequestList(request: CaptureRequest): List<CaptureRequest> {
-        return try {
-            // This converts a single CaptureRequest into a list of CaptureRequest(s) that must be
-            // submitted together during high speed recording.
+    override fun createHighSpeedRequestList(request: CaptureRequest): List<CaptureRequest> = try {
+        // This converts a single CaptureRequest into a list of CaptureRequest(s) that must be
+        // submitted together during high speed recording.
+        Debug.trace("CXCP#createHighSpeedRequestList") {
             session.createHighSpeedRequestList(request)
-        } catch (e: IllegalStateException) {
-
-            // b/111749845: If the camera device is closed before calling
-            // createHighSpeedRequestList it may throw an [IllegalStateException]. Since this can
-            // happen during normal operation of the camera, log and rethrow the error as a standard
-            // exception that can be ignored.
-            Log.warn { "Failed to createHighSpeedRequestList. $device may be closed." }
-            throw ObjectUnavailableException(e)
-        } catch (e: IllegalArgumentException) {
-
-            // b/111749845: If the surface (such as the viewfinder) is destroyed before calling
-            // createHighSpeedRequestList it may throw an [IllegalArgumentException]. Since this can
-            // happen during normal operation of the camera, log and rethrow the error as a standard
-            // exception that can be ignored.
-            Log.warn {
-                "Failed to createHighSpeedRequestList from $device because the output surface" +
-                    " was destroyed before calling createHighSpeedRequestList."
-            }
-            throw ObjectUnavailableException(e)
         }
+    } catch (e: IllegalStateException) {
+
+        // b/111749845: If the camera device is closed before calling
+        // createHighSpeedRequestList it may throw an [IllegalStateException]. Since this can
+        // happen during normal operation of the camera, log and rethrow the error as a standard
+        // exception that can be ignored.
+        Log.warn { "Failed to createHighSpeedRequestList. $device may be closed." }
+        throw ObjectUnavailableException(e)
+    } catch (e: IllegalArgumentException) {
+
+        // b/111749845: If the surface (such as the viewfinder) is destroyed before calling
+        // createHighSpeedRequestList it may throw an [IllegalArgumentException]. Since this can
+        // happen during normal operation of the camera, log and rethrow the error as a standard
+        // exception that can be ignored.
+        Log.warn {
+            "Failed to createHighSpeedRequestList from $device because the output surface" +
+                " was destroyed before calling createHighSpeedRequestList."
+        }
+        throw ObjectUnavailableException(e)
     }
 
     @Suppress("UNCHECKED_CAST")

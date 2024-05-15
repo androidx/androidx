@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -26,7 +33,7 @@ plugins {
 dependencies {
 
     api(project(":activity:activity"))
-    api("androidx.core:core-ktx:1.9.0") {
+    api("androidx.core:core-ktx:1.13.0") {
         because "Mirror activity dependency graph for -ktx artifacts"
     }
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") {
@@ -52,7 +59,7 @@ dependencies {
 
 androidx {
     name = "Activity Kotlin Extensions"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2018"
     description = "Kotlin extensions for 'activity' artifact"
     metalavaK2UastEnabled = true

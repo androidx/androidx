@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -94,7 +95,7 @@ internal class DrawCache {
         colorFilter: ColorFilter? = null
     ) {
         val targetImage = mCachedImage
-        check(targetImage != null) {
+        checkPrecondition(targetImage != null) {
             "drawCachedImage must be invoked first before attempting to draw the result " +
                 "into another destination"
         }

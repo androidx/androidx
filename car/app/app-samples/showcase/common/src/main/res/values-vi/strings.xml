@@ -27,7 +27,7 @@
     <string name="cancel_action_title" msgid="1149738685397349236">"Huỷ"</string>
     <string name="stop_action_title" msgid="1187619482795416314">"Dừng"</string>
     <string name="more_action_title" msgid="1039516575011403837">"Thêm"</string>
-    <string name="call_action_title" msgid="6218977436905001611">"Gọi"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"Cuộc gọi"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"Chính"</string>
     <string name="options_action_title" msgid="1168121856107932984">"Tùy chọn"</string>
     <string name="search_action_title" msgid="3483459674263446335">"Tìm kiếm"</string>
@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Không có sẵn"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Các loại giắc cắm EV"</string>
     <string name="example_title" msgid="530257630320010494">"Ví dụ %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"Văn bản này có màu đỏ"</string>
-    <string name="example_2_text" msgid="718820705318661440">"Văn bản này có màu xanh lục"</string>
-    <string name="example_3_text" msgid="977269832109695627">"Văn bản này có màu đỏ xanh lam"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"Văn bản này có màu vàng"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"Văn bản này có màu "<annotation color="red">"đỏ"</annotation></string>
+    <string name="example_2_text" msgid="1359373957397219102">"Văn bản này có màu "<annotation color="green">"xanh lục"</annotation></string>
+    <string name="example_3_text" msgid="2409207170762049673">"Văn bản này có màu "<annotation color="blue">"xanh lam"</annotation></string>
+    <string name="example_4_text" msgid="9055989886645433000">"Văn bản này có màu "<annotation color="yellow">"vàng"</annotation></string>
     <string name="example_5_text" msgid="8828804968749423500">"Văn bản này sử dụng màu chính"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Văn bản này sử dụng màu phụ"</string>
     <string name="color_demo" msgid="1822427636476178993">"Bản demo màu"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Duyệt xem các địa điểm"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Tìm kiếm bản demo mẫu"</string>
     <string name="search_hint" msgid="978495498991026792">"Tìm kiếm ở đây"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Vui lòng đọc các điều khoản dịch vụ của chúng tôi"</string>
+    <string name="additional_text" msgid="5755100726890686184">"Vui lòng đọc "<annotation link="terms_of_service">"các điều khoản dịch vụ"</annotation>" của chúng tôi"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Đăng nhập Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Dùng mã PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"Mã QR"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Lựa chọn cho tuyến đường"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Tránh đường cao tốc"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Tránh phà"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Bản minh hoạ bản đồ"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Bản minh hoạ bản đồ có nội dung"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Bản minh hoạ bản đồ có mẫu thông báo"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Bản minh hoạ bản đồ có mẫu lưới"</string>
 </resources>

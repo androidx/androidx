@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -102,6 +103,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -522,6 +524,90 @@ class ScrollTest(private val config: Config) {
     }
 
     @Test
+    fun scroller_semanticsScrollByOffset_isAnimated() {
+        rule.mainClock.autoAdvance = false
+        val scrollState = ScrollState(initial = 0)
+
+        createScrollableContent(scrollState = scrollState)
+
+        rule.waitForIdle()
+        assertThat(scrollState.value).isEqualTo(0)
+        assertThat(scrollState.maxValue).isGreaterThan(100) // If this fails, just add more items
+
+        val action = rule.onNodeWithTag(scrollerTag)
+            .fetchSemanticsNode().config[SemanticsActions.ScrollByOffset]
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            when (config.orientation) {
+                Vertical -> action(Offset(0f, 100f))
+                Horizontal -> action(Offset(100f, 0f))
+            }
+        }
+
+        // We haven't advanced time yet, make sure it's still zero
+        assertThat(scrollState.value).isEqualTo(0)
+
+        // Advance and make sure we're partway through
+        // Note that we need two frames for the animation to actually happen
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        assertThat(scrollState.value).isGreaterThan(0)
+        assertThat(scrollState.value).isLessThan(100)
+
+        // Finish the scroll, make sure we're at the target
+        rule.mainClock.advanceTimeBy(5000)
+        assertThat(scrollState.value).isEqualTo(100)
+    }
+
+    @Test
+    fun scroller_semanticsScrollByOffset_returnsConsumedScroll() {
+        val scrollState = ScrollState(initial = 0)
+        var consumedScroll = Offset.Unspecified
+
+        createScrollableContent(scrollState = scrollState)
+
+        rule.waitForIdle()
+        assertThat(scrollState.value).isEqualTo(0)
+        assertThat(scrollState.maxValue).isGreaterThan(100) // If this fails, just add more items
+
+        val action = rule.onNodeWithTag(scrollerTag).fetchSemanticsNode()
+            .config[SemanticsActions.ScrollByOffset]
+
+        scope.launch {
+            consumedScroll = when (config.orientation) {
+                Vertical -> action(Offset(0f, 100f))
+                Horizontal -> action(Offset(100f, 0f))
+            }
+        }
+        rule.runOnIdle {
+            assertThat(consumedScroll).isEqualTo(
+                when (config.orientation) {
+                    Vertical -> Offset(0f, 100f)
+                    Horizontal -> Offset(100f, 0f)
+                }
+            )
+        }
+
+        // Try to scroll again, only consume part.
+        val expectedConsumed = scrollState.maxValue - scrollState.value
+        val impossibleScrollRequest = scrollState.maxValue + 10f
+        // b/330698760
+        scope.launch(DisableAnimationMotionDurationScale) {
+            consumedScroll = when (config.orientation) {
+                Vertical -> action(Offset(0f, impossibleScrollRequest))
+                Horizontal -> action(Offset(impossibleScrollRequest, 0f))
+            }
+        }
+        rule.runOnIdle {
+            assertThat(consumedScroll).isEqualTo(
+                when (config.orientation) {
+                    Vertical -> Offset(0f, expectedConsumed.toFloat())
+                    Horizontal -> Offset(expectedConsumed.toFloat(), 0f)
+                }
+            )
+        }
+    }
+
+    @Test
     fun scroller_touchInputEnabled_shouldHaveSemanticsInfo() {
         val scrollState = ScrollState(initial = 0)
         val scrollNode = rule.onNodeWithTag(scrollerTag)
@@ -841,9 +927,11 @@ class ScrollTest(private val config: Config) {
             }
         }
         rule.setContent {
-            Box(Modifier.intrinsicMainAxisSize(IntrinsicSize.Min)
-                .scrollerWithOrientation()
-                .then(layoutModifier)
+            Box(
+                Modifier
+                    .intrinsicMainAxisSize(IntrinsicSize.Min)
+                    .scrollerWithOrientation()
+                    .then(layoutModifier)
             )
         }
         rule.waitForIdle()
@@ -882,9 +970,11 @@ class ScrollTest(private val config: Config) {
             }
         }
         rule.setContent {
-            Box(Modifier.intrinsicCrossAxisSize(IntrinsicSize.Min)
-                .scrollerWithOrientation()
-                .then(layoutModifier)
+            Box(
+                Modifier
+                    .intrinsicCrossAxisSize(IntrinsicSize.Min)
+                    .scrollerWithOrientation()
+                    .then(layoutModifier)
             )
         }
         rule.waitForIdle()
@@ -923,9 +1013,11 @@ class ScrollTest(private val config: Config) {
             }
         }
         rule.setContent {
-            Box(Modifier.intrinsicMainAxisSize(IntrinsicSize.Max)
-                .scrollerWithOrientation()
-                .then(layoutModifier)
+            Box(
+                Modifier
+                    .intrinsicMainAxisSize(IntrinsicSize.Max)
+                    .scrollerWithOrientation()
+                    .then(layoutModifier)
             )
         }
         rule.waitForIdle()
@@ -964,9 +1056,11 @@ class ScrollTest(private val config: Config) {
             }
         }
         rule.setContent {
-            Box(Modifier.intrinsicCrossAxisSize(IntrinsicSize.Max)
-                .scrollerWithOrientation()
-                .then(layoutModifier)
+            Box(
+                Modifier
+                    .intrinsicCrossAxisSize(IntrinsicSize.Max)
+                    .scrollerWithOrientation()
+                    .then(layoutModifier)
             )
         }
         rule.waitForIdle()
@@ -1092,9 +1186,12 @@ class ScrollTest(private val config: Config) {
 
         val content: @Composable () -> Unit = {
             repeat(25) {
-                Box(modifier = Modifier.size(100.dp)
-                    .padding(2.dp)
-                    .background(Color.Red))
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .padding(2.dp)
+                        .background(Color.Red)
+                )
             }
         }
 
@@ -1448,5 +1545,10 @@ class ScrollTest(private val config: Config) {
         override fun onRemeasured(size: IntSize) {
             onRemeasure.invoke()
         }
+    }
+
+    private object DisableAnimationMotionDurationScale : MotionDurationScale {
+        override val scaleFactor: Float
+            get() = 0f
     }
 }

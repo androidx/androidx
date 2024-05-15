@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.DurationNs
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.camera2.pipe.testing.FakeAudioRestrictionController
 import androidx.camera.camera2.pipe.testing.FakeCamera2DeviceCloser
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeThreads
@@ -143,6 +144,7 @@ class RetryingCameraStateOpenerTest {
         }
 
     private val fakeDevicePolicyManager: DevicePolicyManagerWrapper = mock()
+    private val audioRestrictionController = FakeAudioRestrictionController()
 
     private val retryingCameraStateOpener =
         RetryingCameraStateOpener(
@@ -151,6 +153,7 @@ class RetryingCameraStateOpenerTest {
             cameraAvailabilityMonitor,
             fakeTimeSource,
             fakeDevicePolicyManager,
+            audioRestrictionController,
             cameraInteropConfig = null
         )
 
@@ -580,6 +583,7 @@ class RetryingCameraStateOpenerTest {
             cameraId0,
             1,
             Timestamps.now(fakeTimeSource),
+            audioRestrictionController
         )
 
         assertThat(result.errorCode).isEqualTo(ERROR_CAMERA_IN_USE)
@@ -592,6 +596,7 @@ class RetryingCameraStateOpenerTest {
             cameraId0,
             1,
             Timestamps.now(fakeTimeSource),
+            audioRestrictionController
         )
 
         assertThat(result.errorCode).isEqualTo(ERROR_UNKNOWN_EXCEPTION)
@@ -621,6 +626,7 @@ class RetryingCameraStateOpenerTest {
                 cameraId0,
                 1,
                 Timestamps.now(fakeTimeSource),
+                audioRestrictionController
             )
             assertThat(result.errorCode).isEqualTo(ERROR_DO_NOT_DISTURB_ENABLED)
         } catch (throwable: Throwable) {

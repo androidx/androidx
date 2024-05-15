@@ -19,8 +19,8 @@ package androidx.compose.runtime.snapshots
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentList
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentListOf
+import androidx.compose.runtime.requirePrecondition
 import androidx.compose.runtime.synchronized
-import kotlin.jvm.JvmName
 
 /**
  * An implementation of [MutableList] that can be observed and snapshot. This is the result type
@@ -33,7 +33,15 @@ import kotlin.jvm.JvmName
 @Stable
 class SnapshotStateList<T> : StateObject, MutableList<T>, RandomAccess {
     override var firstStateRecord: StateRecord =
-        StateListStateRecord<T>(persistentListOf())
+        persistentListOf<T>().let { list ->
+            StateListStateRecord(list).also {
+                if (Snapshot.isInSnapshot) {
+                    it.next = StateListStateRecord(list).also { next ->
+                        next.snapshotId = Snapshot.PreexistingSnapshotId
+                    }
+                }
+            }
+        }
         private set
 
     override fun prependStateRecord(value: StateRecord) {
@@ -96,10 +104,14 @@ class SnapshotStateList<T> : StateObject, MutableList<T>, RandomAccess {
     override fun listIterator(): MutableListIterator<T> = StateListIterator(this, 0)
     override fun listIterator(index: Int): MutableListIterator<T> = StateListIterator(this, index)
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        require(fromIndex in 0..toIndex && toIndex <= size) {
+        requirePrecondition(fromIndex in 0..toIndex && toIndex <= size) {
             "fromIndex or toIndex are out of bounds"
         }
         return SubList(this, fromIndex, toIndex)
+    }
+    @Suppress("UNCHECKED_CAST")
+    override fun toString(): String = (firstStateRecord as StateListStateRecord<T>).withCurrent {
+        "SnapshotStateList(value=${it.list})@${hashCode()}"
     }
 
     override fun add(element: T) = conditionalUpdate { it.add(element) }
@@ -468,7 +480,7 @@ private class SubList<T>(
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): MutableList<T> {
-        require(fromIndex in 0..toIndex && toIndex <= size) {
+        requirePrecondition(fromIndex in 0..toIndex && toIndex <= size) {
             "fromIndex or toIndex are out of bounds"
         }
         validateModification()

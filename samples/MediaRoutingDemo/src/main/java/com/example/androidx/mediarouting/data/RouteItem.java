@@ -153,8 +153,8 @@ public final class RouteItem {
 
     public enum DeviceType {
         TV(MediaRouter.RouteInfo.DEVICE_TYPE_TV),
-        SPEAKER(MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER),
-        BLUETOOTH(MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH),
+        SPEAKER(MediaRouter.RouteInfo.DEVICE_TYPE_REMOTE_SPEAKER),
+        BLUETOOTH(MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH_A2DP),
         AUDIO_VIDEO_RECEIVER(MediaRouter.RouteInfo.DEVICE_TYPE_AUDIO_VIDEO_RECEIVER),
         TABLET(MediaRouter.RouteInfo.DEVICE_TYPE_TABLET),
         TABLET_DOCKED(MediaRouter.RouteInfo.DEVICE_TYPE_TABLET_DOCKED),

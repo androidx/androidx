@@ -29,7 +29,6 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.tv.material3.tokens.ShapeTokens
 
-@ExperimentalTvMaterial3Api
 internal fun Modifier.tvSurfaceBorder(
     shape: Shape,
     border: Border,
@@ -47,7 +46,6 @@ internal fun Modifier.tvSurfaceBorder(
     )
 }
 
-@ExperimentalTvMaterial3Api
 private class SurfaceBorderElement(
     private val shape: Shape,
     private val border: Border,
@@ -84,7 +82,6 @@ private class SurfaceBorderElement(
     }
 }
 
-@ExperimentalTvMaterial3Api
 private class SurfaceBorderNode(
     private var shape: Shape,
     private var border: Border,

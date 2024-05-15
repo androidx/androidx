@@ -53,18 +53,23 @@ message DeviceParameters {
   // The shape of the device's screen
   ScreenShape screen_shape = 5;
 
-  // The maximum schema version supported by the current renderer.
+  // The maximum schema version supported by the current renderer. When building
+  // a layout that uses features not available on schema version 1.0 , this can
+  // be used to conditionally choose which feature to use.
   androidx.wear.protolayout.expression.proto.VersionInfo renderer_schema_version = 6;
 
-  // Renderer supported capabilities
+  // Renderer supported Capabilities
   Capabilities capabilities = 8;
 }
 
-// Capabilities describing the features that the renderer supports.
+// Capabilities describing the features that the renderer supports. These
+// features are not necessarily tied to a specific schema version. Layout
+// providers can use these information to conditionally generate different
+// layouts based on the presence/value of a feature.
 message Capabilities {
-  // Current minimum freshness limit in milliseconds. This can change based on
-  // various factors. Any freshness request lower than the current limit will be
-  // replaced by that limit. A value of 0 here signifies that the minimum
-  // freshness limit in unknown.
+  // Current minimum freshness limit in milliseconds for a layout. This can
+  // change based on various factors. Any freshness request lower than the
+  // current limit will be replaced by that limit. A value of 0 here signifies
+  // that the minimum freshness limit in unknown.
   uint64 minimum_freshness_limit_millis = 1;
 }

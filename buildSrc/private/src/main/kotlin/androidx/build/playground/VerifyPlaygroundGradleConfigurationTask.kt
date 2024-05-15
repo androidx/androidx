@@ -153,6 +153,9 @@ abstract class VerifyPlaygroundGradleConfigurationTask : DefaultTask() {
                 "org.gradle.daemon",
                 "android.builder.sdkDownload",
                 "android.suppressUnsupportedCompileSdk",
+                // added for paging-playground which needs to disable config cache
+                // due to b/325886853
+                "org.gradle.configuration-cache"
             )
 
         /**

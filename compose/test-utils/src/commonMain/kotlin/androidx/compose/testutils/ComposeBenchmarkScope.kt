@@ -16,9 +16,12 @@
 
 package androidx.compose.testutils
 
+import androidx.annotation.UiThread
+
 /**
  * Test scope accessible from benchmarks. Provides extended set of hooks for compose benchmarking.
  */
+@UiThread
 interface ComposeBenchmarkScope<T> : ComposeExecutionControl {
     /**
      * Instantiates the current [ComposeTestCase] in order to perform benchmarks on it.

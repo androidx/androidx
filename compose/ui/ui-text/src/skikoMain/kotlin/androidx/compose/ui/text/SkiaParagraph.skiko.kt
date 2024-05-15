@@ -143,6 +143,9 @@ internal class SkiaParagraph(
             floor((line.baseline - line.ascent).toFloat())
         } ?: 0f
 
+    override fun getLineBaseline(lineIndex: Int) =
+        lineMetrics.getOrNull(lineIndex)?.baseline?.toFloat() ?: 0f
+
     override fun getLineBottom(lineIndex: Int) =
         lineMetrics.getOrNull(lineIndex)?.let { line ->
             floor((line.baseline + line.descent).toFloat())
@@ -273,6 +276,14 @@ internal class SkiaParagraph(
 
     override fun getOffsetForPosition(position: Offset): Int {
         return para.getGlyphPositionAtCoordinate(position.x, position.y).position
+    }
+
+    override fun getRangeForRect(
+        rect: Rect,
+        granularity: TextGranularity,
+        inclusionStrategy: TextInclusionStrategy
+    ): TextRange {
+        return TextRange.Zero
     }
 
     override fun getBoundingBox(offset: Int): Rect {

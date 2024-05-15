@@ -71,10 +71,10 @@ internal class SourceSet(
         path: String
     ): Source? {
         val file = File(path).canonicalFile
-        if (!file.path.startsWith(root.path)) {
+        if (!file.startsWith(root)) {
             return null
         }
-        val relativePath = path.substringAfter(root.canonicalPath + File.separator).let {
+        val relativePath = file.relativeTo(root).path.let {
             val matcher = BY_ROUNDS_PATH_PATTERN.matcher(it)
             if (matcher.find()) {
                 matcher.group(2)

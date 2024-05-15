@@ -19,4 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Error library Widget Aplikasi Glance"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033">"Periksa error yang tepat menggunakan "<b><tt>"logcat adb"</tt></b>" saat menelusuri "<b><tt>"GlanceAppWidget"</tt></b></string>
+    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"Tidak dapat menampilkan konten"</string>
 </resources>

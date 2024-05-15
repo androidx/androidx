@@ -19,7 +19,6 @@ package androidx.compose.ui.focus
 import androidx.compose.foundation.focusGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -36,7 +35,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
@@ -256,7 +254,7 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
     fun moveFocusExit_cancelExit() {
         // Arrange.
         val (up, down, left, right, parent) = List(5) { mutableStateOf(false) }
-        var (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
+        val (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
 
         val customFocusExit = Modifier
             .focusProperties { exit = { Cancel } }
@@ -306,7 +304,7 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
         val destItem = FocusRequester()
         val (dest, parent) = List(4) { mutableStateOf(false) }
         val (up, down, left, right) = List(4) { mutableStateOf(false) }
-        var (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
+        val (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
 
         val customFocusExit = Modifier
             .focusProperties {
@@ -364,7 +362,7 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
         // Arrange.
         val (grandparent, parent) = List(4) { mutableStateOf(false) }
         val (up, down, left, right) = List(4) { mutableStateOf(false) }
-        var (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
+        val (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
 
         val customFocusExit = Modifier
             .focusProperties { exit = { Cancel } }
@@ -416,7 +414,7 @@ class TwoDimensionalFocusTraversalImplicitExitTest(param: Param) {
         val destItem = FocusRequester()
         val (dest, grandparent, parent) = List(4) { mutableStateOf(false) }
         val (up, down, left, right) = List(4) { mutableStateOf(false) }
-        var (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
+        val (upItem, downItem, leftItem, rightItem) = FocusRequester.createRefs()
 
         val customFocusExit = Modifier
             .focusGroup()

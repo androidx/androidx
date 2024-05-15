@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import androidx.build.LibraryType
-import androidx.build.Publish
 
 plugins {
     id('AndroidXPlugin')
@@ -39,7 +38,6 @@ dependencies {
 androidx {
     name = 'AppSearch Test Util'
     type = LibraryType.INTERNAL_TEST_LIBRARY
-    publish = Publish.NONE
     inceptionYear = '2021'
     description = 'Test Utilities to be used by any test module for AppSearch'
 }

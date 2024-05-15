@@ -68,10 +68,7 @@ fun getApiFileVersion(version: Version): Version {
                 "Did you mean $suggestedVersion?"
         )
     }
-    var extra = ""
-    if (version.patch == 0 && version.extra != null) {
-        extra = version.extra!!
-    }
+    val extra = if (version.patch != 0) "" else version.extra ?: ""
     return Version(version.major, version.minor, 0, extra)
 }
 
@@ -96,6 +93,9 @@ fun getRequiredCompatibilityApiFileFromDir(
     var highestPath: Path? = null
     var highestVersion: Version? = null
 
+    if (!apiDir.exists()) {
+        return null
+    }
     // Find the path with highest version that is lower than the current API version.
     Files.newDirectoryStream(apiDir.toPath()).forEach { path ->
         val pathName = path.name

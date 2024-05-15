@@ -1,5 +1,12 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -8,7 +15,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":wear:protolayout:protolayout-proto"))
+    implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-renderer"))
     implementation(project(":wear:tiles:tiles-tooling-preview"))
@@ -19,20 +26,13 @@ dependencies {
     implementation("androidx.core:core:1.1.0")
 
     testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.guava)
-    // To fix Failed resolution of: Landroidx/wear/tiles/proto/RequestProto$TileRequest;
-    // Caused by:
-    //   java.lang.ClassNotFoundException: androidx.wear.tiles.proto.RequestProto$TileRequest
-    // Caused by:
-    //   java.lang.NoClassDefFoundError: Failed resolution of: Lcom/google/protobuf/GeneratedMessageLite;
-    // Caused by:
-    //   java.lang.ClassNotFoundException: Didn't find class "com.google.protobuf.GeneratedMessageLite"
-    //   on path: DexPathList[ ... ]
-    androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
 }
 
 android {
@@ -46,7 +46,6 @@ android {
 androidx {
     name = "Android Wear Tiles Tooling"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
     description = "A set of tools that are used to preview Tile components in Android Studio"
     metalavaK2UastEnabled = true

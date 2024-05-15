@@ -22,6 +22,8 @@
     <string name="m3c_dropdown_menu_expanded">Expanded</string>
     <!-- Spoken description of collapsed state of a dropdown menu -->
     <string name="m3c_dropdown_menu_collapsed">Collapsed</string>
+    <!-- Describes the toggle action to change expanded/collapsed state of a dropdown menu -->
+    <string name="m3c_dropdown_menu_toggle">Toggle dropdown menu</string>
     <!-- Spoken description of a snackbar dismiss action -->
     <string name="m3c_snackbar_dismiss">Dismiss</string>
     <!-- Spoken description of a search bar -->

@@ -20,6 +20,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.internal.CalendarDate
+import androidx.compose.material3.internal.CalendarModel
+import androidx.compose.material3.internal.DateInputFormat
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -185,7 +190,7 @@ internal fun DateInputTextField(
         isError = errorText.value.isNotBlank(),
         visualTransformation = DateVisualTransformation(dateInputFormat),
         keyboardOptions = KeyboardOptions(
-            autoCorrect = false,
+            autoCorrectEnabled = false,
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done
         ),

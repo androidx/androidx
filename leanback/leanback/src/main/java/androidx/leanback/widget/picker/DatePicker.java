@@ -139,19 +139,8 @@ public class DatePicker extends Picker {
      */
     @VisibleForTesting
     String getBestYearMonthDayPattern(String datePickerFormat) {
-        final String yearPattern;
-        if (PickerUtility.SUPPORTS_BEST_DATE_TIME_PATTERN) {
-            yearPattern = android.text.format.DateFormat.getBestDateTimePattern(mConstant.locale,
-                    datePickerFormat);
-        } else {
-            final java.text.DateFormat dateFormat = android.text.format.DateFormat.getDateFormat(
-                    getContext());
-            if (dateFormat instanceof SimpleDateFormat) {
-                yearPattern = ((SimpleDateFormat) dateFormat).toLocalizedPattern();
-            } else {
-                yearPattern = DATE_FORMAT;
-            }
-        }
+        final String yearPattern = android.text.format.DateFormat.getBestDateTimePattern(
+                mConstant.locale, datePickerFormat);
         return TextUtils.isEmpty(yearPattern) ? DATE_FORMAT : yearPattern;
     }
 

@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -51,12 +50,12 @@ import androidx.compose.ui.semantics.semantics
  * services.
  * @param colors these will be used by the tab when in different states (focused,
  * selected, etc.)
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this tab. You can create and pass in your own `remember`ed instance to observe [Interaction]s
- * and customize the appearance / behavior of this tab in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this tab. You can use this to change the tab's appearance
+ * or preview the tab in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content content of the [Tab]
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun TabRowScope.Tab(
     selected: Boolean,
@@ -65,12 +64,12 @@ fun TabRowScope.Tab(
     onClick: () -> Unit = { },
     enabled: Boolean = true,
     colors: TabColors = TabDefaults.pillIndicatorTabColors(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
-        checked = selected,
-        onCheckedChange = { onClick() },
+        selected = selected,
+        onClick = onClick,
         modifier = modifier
             .onFocusChanged {
                 if (it.isFocused) {
@@ -81,13 +80,13 @@ fun TabRowScope.Tab(
                 this.selected = selected
                 this.role = Role.Tab
             },
-        colors = colors.toToggleableSurfaceColors(
+        colors = colors.toSelectableSurfaceColors(
             doesTabRowHaveFocus = hasFocus,
             enabled = enabled,
         ),
         enabled = enabled,
-        scale = ToggleableSurfaceScale.None,
-        shape = ToggleableSurfaceDefaults.shape(shape = RectangleShape),
+        scale = SelectableSurfaceScale.None,
+        shape = SelectableSurfaceDefaults.shape(shape = RectangleShape),
         interactionSource = interactionSource,
     ) {
         Row(
@@ -106,7 +105,6 @@ fun TabRowScope.Tab(
  * - See [TabDefaults.underlinedIndicatorTabColors] for the default colors used in a [Tab] when
  * using an Underlined indicator
  */
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 class TabColors
 internal constructor(
     internal val contentColor: Color,
@@ -147,7 +145,6 @@ internal constructor(
     }
 }
 
-@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 object TabDefaults {
     /**
      * [Tab]'s content colors to in conjunction with underlined indicator
@@ -163,7 +160,6 @@ object TabDefaults {
      * focused
      * @param disabledSelectedContentColor applied when the current tab is disabled and selected
      */
-    @OptIn(ExperimentalTvMaterial3Api::class)
     @Composable
     fun underlinedIndicatorTabColors(
         contentColor: Color = LocalContentColor.current,
@@ -200,7 +196,6 @@ object TabDefaults {
      * focused
      * @param disabledSelectedContentColor applied when the current tab is disabled and selected
      */
-    @OptIn(ExperimentalTvMaterial3Api::class)
     @Composable
     fun pillIndicatorTabColors(
         contentColor: Color = LocalContentColor.current,
@@ -224,13 +219,12 @@ object TabDefaults {
         )
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
-internal fun TabColors.toToggleableSurfaceColors(
+internal fun TabColors.toSelectableSurfaceColors(
     doesTabRowHaveFocus: Boolean,
     enabled: Boolean,
 ) =
-    ToggleableSurfaceDefaults.colors(
+    SelectableSurfaceDefaults.colors(
         contentColor = if (doesTabRowHaveFocus) contentColor else inactiveContentColor,
         selectedContentColor = if (enabled) selectedContentColor else disabledSelectedContentColor,
         focusedContentColor = focusedContentColor,

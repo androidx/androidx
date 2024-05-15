@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.intellij.util.PathUtil
 import com.intellij.util.SystemProperties
 import com.sun.jdi.AbsentInformationException
 import com.sun.jdi.VirtualMachine
+import com.sun.jdi.connect.AttachingConnector
 import com.sun.jdi.event.BreakpointEvent
 import com.sun.jdi.event.ClassPrepareEvent
 import com.sun.jdi.event.LocatableEvent
@@ -38,7 +39,6 @@ import com.sun.jdi.request.EventRequest.SUSPEND_ALL
 import com.sun.jdi.request.MethodEntryRequest
 import com.sun.jdi.request.MethodExitRequest
 import com.sun.jdi.request.StepRequest
-import com.sun.tools.jdi.SocketAttachingConnector
 import java.io.File
 import java.net.URL
 import java.net.URLClassLoader
@@ -109,7 +109,8 @@ abstract class AbstractDebuggerTest(useFir: Boolean) : AbstractCodegenTest(useFi
         private const val DEBUG_ADDRESS = "127.0.0.1"
 
         private fun attachDebugger(port: Int): VirtualMachine {
-            val connector = SocketAttachingConnector()
+            val c = Class.forName("com.sun.tools.jdi.SocketAttachingConnector")
+            val connector = c.getDeclaredConstructor().newInstance() as AttachingConnector
             return connector.attach(
                 connector.defaultArguments().apply {
                     getValue("port").setValue("$port")

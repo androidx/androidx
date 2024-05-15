@@ -43,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Manages the stack of {@link Screen}s and their respective {@link Lifecycle}s.
@@ -87,6 +88,13 @@ public class ScreenManager implements Manager {
                 Log.d(TAG, "Pushing screens after the DESTROYED state is a no-op");
             }
             return;
+        }
+        if (screen.getLifecycle().getCurrentState().equals(State.DESTROYED)) {
+            throw new IllegalStateException(String.format(Locale.US,
+                    "Failed to push screen (%s), because it has already been destroyed. Please "
+                            + "note that screens are single-use, so a fresh instance is required "
+                            + "every time you call screenManager.push().",
+                    screen));
         }
         pushInternal(requireNonNull(screen));
 

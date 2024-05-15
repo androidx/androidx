@@ -18,25 +18,30 @@
 
 package androidx.build
 
+import androidx.build.gradle.extraPropertyOrNull
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 
 /** AndroidX configuration backed by Gradle properties. */
 abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
-    override val buildToolsVersion: String = "34.0.0"
+    override val buildToolsVersion: String = "35.0.0-rc1"
 
-    override val compileSdk: String by lazy { project.findProperty(COMPILE_SDK_VERSION).toString() }
+    override val compileSdk: Int by lazy {
+        val sdkString = project.extraPropertyOrNull(COMPILE_SDK)?.toString()
+        check(sdkString != null) { "$COMPILE_SDK is unset" }
+        sdkString.toInt()
+    }
 
-    override val minSdk: Int = 19
-    override val ndkVersion: String = "23.1.7779620"
+    override val minSdk: Int = 21
+    override val ndkVersion: String = "25.2.9519653"
 
     override val targetSdk: Int by lazy {
-        project.findProperty(TARGET_SDK_VERSION).toString().toInt()
+        project.providers.gradleProperty(TARGET_SDK_VERSION).get().toInt()
     }
 
     companion object {
-        private const val COMPILE_SDK_VERSION = "androidx.compileSdkVersion"
+        private const val COMPILE_SDK = "androidx.compileSdk"
         private const val TARGET_SDK_VERSION = "androidx.targetSdkVersion"
 
         /**
@@ -45,7 +50,7 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
          */
         val GRADLE_PROPERTIES =
             listOf(
-                COMPILE_SDK_VERSION,
+                COMPILE_SDK,
                 TARGET_SDK_VERSION,
             )
     }
@@ -53,7 +58,7 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
 
 /**
  * Configuration values for various aspects of the AndroidX plugin, including default values for
- * [com.android.build.gradle.BaseExtension].
+ * [com.android.build.api.dsl.CommonExtension].
  */
 interface AndroidConfig {
     /** Build tools version used for AndroidX projects. */
@@ -62,9 +67,9 @@ interface AndroidConfig {
     /**
      * Default compile SDK version used for AndroidX projects.
      *
-     * This may be specified in `gradle.properties` using `androidx.compileSdkVersion`.
+     * This may be specified in `gradle.properties` using `androidx.compileSdk`.
      */
-    val compileSdk: String
+    val compileSdk: Int
 
     /** Default minimum SDK version used for AndroidX projects. */
     val minSdk: Int
@@ -95,12 +100,12 @@ fun Project.getKeystore(): File {
 }
 
 fun Project.getPrebuiltsRoot(): File {
-    return File(project.rootProject.property("prebuiltsRoot").toString())
+    return File(project.extraPropertyOrNull("prebuiltsRoot").toString())
 }
 
 /** @return the project's Android SDK stub JAR as a File. */
 fun Project.getAndroidJar(): FileCollection {
-    val compileSdk = project.defaultAndroidConfig.compileSdk
+    val compileSdk = "android-${project.defaultAndroidConfig.compileSdk}"
     return files(
         arrayOf(
             File(getSdkPath(), "platforms/$compileSdk/android.jar"),

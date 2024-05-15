@@ -25,10 +25,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
 import androidx.glance.ExperimentalGlanceApi
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionSendBroadcast
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.action.actionStartService
@@ -39,7 +42,7 @@ import androidx.glance.testing.unit.getGlanceNodeAssertionFor
 import androidx.glance.testing.unit.hasTestTag
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.ExpectFailure.assertThat
-import org.junit.Assert
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -85,7 +88,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasStartActivityClickAction(expectedIntent)
         }
 
@@ -105,9 +108,7 @@ class UnitTestActionAssertionExtensionsTest {
                     .clickable(
                         actionStartActivity(
                             intent = testActivityIntent(context, TestActivity::class.java),
-                            parameters = actionParametersOf(
-                                TEST_ACTION_PARAM_KEY to -1
-                            )
+                            parameters = TEST_ACTION_PARAMETERS
                         )
                     )
             },
@@ -116,9 +117,7 @@ class UnitTestActionAssertionExtensionsTest {
 
         nodeAssertion.assertHasStartActivityClickAction(
             intent = testActivityIntent(context, TestActivity::class.java),
-            parameters = actionParametersOf(
-                TEST_ACTION_PARAM_KEY to -1
-            )
+            parameters = TEST_ACTION_PARAMETERS
         )
         // no error
     }
@@ -141,7 +140,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("existing-test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasStartActivityClickAction(
                 intent = testIntent,
                 parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to 99)
@@ -205,7 +204,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("existing-test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasStartActivityClickAction(
                 intent = testIntent,
                 parameters = actionParametersOf(
@@ -234,7 +233,11 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        nodeAssertion.assertHasStartServiceClickAction(TestService::class.java)
+        nodeAssertion
+            .assertHasStartServiceClickAction<TestService>()
+            .assertHasStartServiceClickAction(
+                serviceClass = TestService::class.java
+            )
     }
 
     @Test
@@ -247,8 +250,12 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
-            nodeAssertion.assertHasStartServiceClickAction(TestService::class.java)
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion
+                .assertHasStartServiceClickAction<TestService>()
+                .assertHasStartServiceClickAction(
+                    serviceClass = TestService::class.java
+                )
         }
 
         assertThat(assertionError)
@@ -273,10 +280,14 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        nodeAssertion.assertHasStartServiceClickAction(
-            serviceClass = TestService::class.java,
-            isForegroundService = true
-        )
+        nodeAssertion
+            .assertHasStartServiceClickAction<TestService>(
+                isForegroundService = true
+            )
+            .assertHasStartServiceClickAction(
+                serviceClass = TestService::class.java,
+                isForegroundService = true
+            )
     }
 
     @Test
@@ -289,9 +300,8 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
-            nodeAssertion.assertHasStartServiceClickAction(
-                serviceClass = TestService::class.java,
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasStartServiceClickAction<TestService>(
                 isForegroundService = true
             )
         }
@@ -327,7 +337,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasStartServiceClickAction(TEST_COMPONENT_NAME)
         }
 
@@ -349,7 +359,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasStartServiceClickAction(
                 componentName = TEST_COMPONENT_NAME,
                 isForegroundService = true
@@ -402,7 +412,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasStartServiceClickAction(expectedServiceIntent)
         }
 
@@ -424,7 +434,11 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        nodeAssertion.assertHasSendBroadcastClickAction(TestBroadcastReceiver::class.java)
+        nodeAssertion
+            .assertHasSendBroadcastClickAction<TestBroadcastReceiver>()
+            .assertHasSendBroadcastClickAction(
+                receiverClass = TestBroadcastReceiver::class.java
+            )
     }
 
     @Test
@@ -437,8 +451,8 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
-            nodeAssertion.assertHasSendBroadcastClickAction(TestBroadcastReceiver::class.java)
+        val assertionError = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasSendBroadcastClickAction<TestBroadcastReceiver>()
         }
 
         assertThat(assertionError)
@@ -473,7 +487,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasSendBroadcastClickAction(
                 intentAction = "test_action"
             )
@@ -524,7 +538,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasSendBroadcastClickAction(
                 intentAction = "test_action",
                 componentName = TEST_COMPONENT_NAME
@@ -563,7 +577,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasSendBroadcastClickAction(TEST_COMPONENT_NAME)
         }
 
@@ -614,7 +628,7 @@ class UnitTestActionAssertionExtensionsTest {
             onNodeMatcher = hasTestTag("test-tag")
         )
 
-        val assertionError = Assert.assertThrows(AssertionError::class.java) {
+        val assertionError = assertThrows(AssertionError::class.java) {
             nodeAssertion.assertHasSendBroadcastClickAction(expectedTestIntent)
         }
 
@@ -626,11 +640,83 @@ class UnitTestActionAssertionExtensionsTest {
             )
     }
 
+    @Test
+    fun assertHasRunCallbackClickAction_noParameters() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                    .clickable(
+                        actionRunCallback<TestActionRunCallback>()
+                    )
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion
+            .assertHasRunCallbackClickAction(callbackClass = TestActionRunCallback::class.java)
+            .assertHasRunCallbackClickAction<TestActionRunCallback>()
+        // no error
+    }
+
+    @Test
+    fun assertHasRunCallbackClickAction_withParameters() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                    .clickable(
+                        actionRunCallback<TestActionRunCallback>(
+                            parameters = TEST_ACTION_PARAMETERS
+                        )
+                    )
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        nodeAssertion
+            .assertHasRunCallbackClickAction(
+                callbackClass = TestActionRunCallback::class.java,
+                parameters = TEST_ACTION_PARAMETERS
+            )
+            .assertHasRunCallbackClickAction<TestActionRunCallback>(
+                parameters = TEST_ACTION_PARAMETERS
+            )
+        // no error
+    }
+
+    @Test
+    fun assertHasRunCallbackClickAction_withParametersNotMatched() {
+        val nodeAssertion = getGlanceNodeAssertionFor(
+            emittable = EmittableColumn().apply {
+                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                    .clickable(
+                        actionRunCallback<TestActionRunCallback>(
+                            parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to 100)
+                        )
+                    )
+            },
+            onNodeMatcher = hasTestTag("test-tag")
+        )
+
+        val assertionError2 = assertThrows(AssertionError::class.java) {
+            nodeAssertion.assertHasRunCallbackClickAction<TestActionRunCallback>(
+                parameters = actionParametersOf(TEST_ACTION_PARAM_KEY to 99)
+            )
+        }
+
+        assertThat(assertionError2)
+            .hasMessageThat()
+            .contains(
+                "Failed to assert condition: (has run callback click action with " +
+                    "callback class: ${TestActionRunCallback::class.java.name} " +
+                    "and parameters: {Test=99})"
+            )
+    }
+
     companion object {
         private val TEST_ACTION_PARAM_KEY = ActionParameters.Key<Int>("Test")
+        private val TEST_ACTION_PARAMETERS = actionParametersOf(TEST_ACTION_PARAM_KEY to 1)
         private val TEST_ACTIVITY_OPTIONS_BUNDLE =
             Bundle().apply { putString("android:activity.packageName", "test.package") }
-
         private val ANOTHER_TEST_COMPONENT_NAME = ComponentName("test.pkg", "AnotherTest")
         private val TEST_COMPONENT_NAME = ComponentName("test.pkg", "Test")
 
@@ -641,18 +727,28 @@ class UnitTestActionAssertionExtensionsTest {
             override fun onBind(p0: Intent?): IBinder? = null
         }
 
-        class AnotherTestService : Service() {
+        private class AnotherTestService : Service() {
             override fun onBind(p0: Intent?): IBinder? = null
         }
 
-        class TestBroadcastReceiver : BroadcastReceiver() {
+        private class TestBroadcastReceiver : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
                 // Nothing
             }
         }
 
-        class AnotherTestBroadcastReceiver : BroadcastReceiver() {
+        private class AnotherTestBroadcastReceiver : BroadcastReceiver() {
             override fun onReceive(context: Context, intent: Intent) {
+                // Nothing
+            }
+        }
+
+        private class TestActionRunCallback : ActionCallback {
+            override suspend fun onAction(
+                context: Context,
+                glanceId: GlanceId,
+                parameters: ActionParameters
+            ) {
                 // Nothing
             }
         }

@@ -17,6 +17,12 @@
 package androidx.compose.material3
 
 import android.os.Build
+import androidx.compose.material3.internal.CalendarDate
+import androidx.compose.material3.internal.CalendarModel
+import androidx.compose.material3.internal.CalendarModelImpl
+import androidx.compose.material3.internal.DaysInWeek
+import androidx.compose.material3.internal.LegacyCalendarModelImpl
+import androidx.compose.material3.internal.formatWithSkeleton
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat

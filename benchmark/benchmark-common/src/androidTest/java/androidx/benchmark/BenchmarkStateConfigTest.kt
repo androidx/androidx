@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
@@ -33,19 +32,17 @@ class BenchmarkStateConfigTest {
         expectedWarmups: Int?,
         expectedMeasurements: Int,
         expectedIterations: Int?,
-        expectedUsesProfiler: Boolean = false
+        expectedUsesProfiler: Boolean = false,
+        expectedProfilerIterations: Int = 0
     ) {
         val state = BenchmarkState(config)
         var count = 0
         while (state.keepRunning()) {
-            if (Build.VERSION.SDK_INT < 21) {
-                // This spin loop works around an issue where on Mako API 17, nanoTime is only
-                // precise to 30us. A more ideal fix might introduce an automatic divisor to
-                // WarmupManager when the duration values it sees are 0, but this is simple.
-                val start = System.nanoTime()
-                @Suppress("ControlFlowWithEmptyBody")
-                while (System.nanoTime() == start) {}
-            }
+            // This spin loop works around an issue where nanoTime is only precise to 30us on some
+            // devices. This was reproduced on api 17 and emulators api 33. (b/331226761)
+            val start = System.nanoTime()
+            @Suppress("ControlFlowWithEmptyBody")
+            while (System.nanoTime() == start) {}
             count++
         }
 
@@ -58,7 +55,7 @@ class BenchmarkStateConfigTest {
         if (!usesProfiler) {
             assertEquals(calculatedIterations, count)
         } else if (config.profiler!!.requiresSingleMeasurementIteration) {
-            assertEquals(calculatedIterations + 1, count)
+            assertEquals(calculatedIterations + expectedProfilerIterations, count)
         } else {
             throw IllegalStateException("Test doesn't support validating profiler $config.profiler")
         }
@@ -78,6 +75,7 @@ class BenchmarkStateConfigTest {
             startupMode = true,
             simplifiedTimingOnlyMode = true,
             profiler = null,
+            profilerPerfCompareMode = false,
             warmupCount = 100,
             measurementCount = 1000,
             metrics = arrayOf(TimeCapture()),
@@ -94,6 +92,7 @@ class BenchmarkStateConfigTest {
             startupMode = true, // everything after is ignored
             simplifiedTimingOnlyMode = true,
             profiler = null,
+            profilerPerfCompareMode = false,
             warmupCount = 100,
             measurementCount = 1000,
             metrics = arrayOf(TimeCapture()),
@@ -111,6 +110,7 @@ class BenchmarkStateConfigTest {
             startupMode = false,
             simplifiedTimingOnlyMode = false,
             profiler = null,
+            profilerPerfCompareMode = false,
             warmupCount = null,
             measurementCount = null,
             metrics = arrayOf(TimeCapture()),
@@ -127,13 +127,14 @@ class BenchmarkStateConfigTest {
             startupMode = false,
             simplifiedTimingOnlyMode = false,
             profiler = null,
+            profilerPerfCompareMode = false,
             warmupCount = 10,
             measurementCount = 100,
             metrics = arrayOf(TimeCapture()),
         ),
         expectedWarmups = 10,
         expectedMeasurements = 105, // includes allocations
-        expectedIterations = null,
+        expectedIterations = null, // iterations are dynamic
     )
 
     @Test
@@ -143,14 +144,35 @@ class BenchmarkStateConfigTest {
             startupMode = false,
             simplifiedTimingOnlyMode = false,
             profiler = MethodTracing,
+            profilerPerfCompareMode = false,
             warmupCount = 5,
             measurementCount = 10,
             metrics = arrayOf(TimeCapture()),
         ),
         expectedWarmups = 5,
-        expectedMeasurements = 15, // profiler not measured, not accounted for here
-        expectedIterations = null,
+        expectedMeasurements = 15, // 10 timing + 5 allocations
+        expectedIterations = null, // iterations are dynamic
         expectedUsesProfiler = true,
+        expectedProfilerIterations = 1,
+    )
+
+    @Test
+    fun profilerMethodTracing_perfCompareMode() = validateConfig(
+        MicrobenchmarkPhase.Config(
+            dryRunMode = false,
+            startupMode = false,
+            simplifiedTimingOnlyMode = false,
+            profiler = MethodTracing,
+            profilerPerfCompareMode = true,
+            warmupCount = 5,
+            measurementCount = 10,
+            metrics = arrayOf(TimeCapture()),
+        ),
+        expectedWarmups = 5,
+        expectedMeasurements = 15,
+        expectedIterations = 30, // fixed iterations to be consistent between measurement/profiling
+        expectedUsesProfiler = true,
+        expectedProfilerIterations = 10,
     )
 
     @Test
@@ -160,6 +182,7 @@ class BenchmarkStateConfigTest {
             startupMode = false,
             simplifiedTimingOnlyMode = true,
             profiler = MethodTracing,
+            profilerPerfCompareMode = true,
             warmupCount = 100,
             measurementCount = 10,
             metrics = arrayOf(TimeCapture()),

@@ -25,7 +25,13 @@ import androidx.collection.size
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
+import androidx.navigation.serialization.generateRouteWithArgs
 import java.lang.StringBuilder
+import kotlin.reflect.KClass
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.serializer
 
 /**
  * NavGraph is a collection of [NavDestination] nodes fetchable by ID.
@@ -178,6 +184,31 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         return if (!route.isNullOrBlank()) findNode(route, true) else null
     }
 
+    /**
+     * Finds a destination in the collection by route from [KClass]. This will recursively check the
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param T Route from a [KClass] to locate
+     * @return the node with route - the node must have been created with a route from [KClass]
+     */
+    @OptIn(InternalSerializationApi::class)
+    public inline fun <reified T> findNode(): NavDestination? {
+        return findNode(serializer<T>().hashCode())
+    }
+
+    /**
+     * Finds a destination in the collection by route from Object. This will recursively check the
+     * [parent][parent] of this navigation graph if node is not found in this navigation graph.
+     *
+     * @param route Route to locate
+     * @return the node with route - the node must have been created with a route from [KClass]
+     */
+    @OptIn(InternalSerializationApi::class)
+    @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
+    public fun <T> findNode(route: T?): NavDestination? {
+        return if (route != null) findNode(route!!::class.serializer().hashCode()) else null
+    }
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(@IdRes resId: Int, searchParents: Boolean): NavDestination? {
         val destination = nodes[resId]
@@ -189,17 +220,34 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findNode(route: String, searchParents: Boolean): NavDestination? {
-        // first try matching with routePattern
-        val id = createRoute(route).hashCode()
-        val destination = nodes[id] ?: nodes.valueIterator().asSequence().firstOrNull {
+        val destination = nodes.valueIterator().asSequence().firstOrNull {
+            // first try matching with routePattern
             // if not found with routePattern, try matching with route args
-            it.matchDeepLink(route) != null
+            it.route.equals(route) || it.matchDeepLink(route) != null
         }
 
         // Search the parent for the NavDestination if it is not a child of this navigation graph
         // and searchParents is true
         return destination
             ?: if (searchParents && parent != null) parent!!.findNode(route) else null
+    }
+
+    // searches through child nodes, does not search through parents
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun findChildNode(
+        @IdRes resId: Int,
+    ): NavDestination? {
+        // first search through children directly added to graph
+        var destination = nodes[resId]
+        if (destination != null) return destination
+
+        // then search through child graphs
+        destination = nodes.valueIterator().asSequence().firstNotNullOfOrNull { child ->
+            if (child is NavGraph) {
+                child.findChildNode(resId)
+            } else null
+        }
+        return destination
     }
 
     /**
@@ -330,6 +378,58 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     }
 
     /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationId]
+     *
+     * @param T The route of the destination as a [KClass] to be shown when navigating
+     * to this NavGraph.
+     */
+    public inline fun <reified T : Any> setStartDestination() {
+        setStartDestination(serializer<T>()) { startDestination ->
+            startDestination.route!!
+        }
+    }
+
+    /**
+     * Sets the starting destination for this NavGraph.
+     *
+     * This will override any previously set [startDestinationId]
+     *
+     * @param startDestRoute The route of the destination as an object to be shown when navigating
+     * to this NavGraph.
+     */
+    @OptIn(InternalSerializationApi::class)
+    public fun <T : Any> setStartDestination(startDestRoute: T) {
+        setStartDestination(startDestRoute::class.serializer()) { startDestination ->
+            val args = startDestination.arguments.mapValues {
+                it.value.type
+            }
+            generateRouteWithArgs(startDestRoute, args)
+        }
+    }
+
+    // unfortunately needs to be public so reified setStartDestination can access this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @OptIn(ExperimentalSerializationApi::class)
+    public fun <T> setStartDestination(
+        serializer: KSerializer<T>,
+        parseRoute: (NavDestination) -> String,
+    ) {
+        val id = serializer.hashCode()
+        val startDest = findNode(id)
+        checkNotNull(startDest) {
+            "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +
+                "Ensure the starting NavDestination was added with route from KClass."
+        }
+        // when dest id is based on serializer, we expect the dest route to have been generated
+        // and set
+        startDestinationRoute = parseRoute(startDest)
+        // bypass startDestinationId setter so we don't set route back to null
+        this.startDestId = id
+    }
+
+    /**
      * The route for the starting destination for this NavGraph. When navigating to the
      * NavGraph, the destination represented by this route is the one the user will initially see.
      */
@@ -384,7 +484,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         return super.equals(other) &&
             nodes.size == other.nodes.size &&
             startDestinationId == other.startDestinationId &&
-            nodes.valueIterator().asSequence().all { it == nodes.get(it.id) }
+            nodes.valueIterator().asSequence().all { it == other.nodes.get(it.id) }
     }
 
     override fun hashCode(): Int {
@@ -434,11 +534,40 @@ public inline operator fun NavGraph.get(route: String): NavDestination =
     findNode(route)
         ?: throw IllegalArgumentException("No destination for $route was found in $this")
 
+/**
+ * Returns the destination with `route` from [KClass].
+ *
+ * @throws IllegalArgumentException if no destination is found with that route.
+ */
+@Suppress("NOTHING_TO_INLINE")
+
+public inline operator fun <reified T : Any> NavGraph.get(route: KClass<T>): NavDestination =
+    findNode<T>()
+        ?: throw IllegalArgumentException("No destination for $route was found in $this")
+
+/**
+ * Returns the destination with `route` from an Object.
+ *
+ * @throws IllegalArgumentException if no destination is found with that route.
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline operator fun <T : Any> NavGraph.get(route: T): NavDestination =
+    findNode(route)
+        ?: throw IllegalArgumentException("No destination for $route was found in $this")
+
 /** Returns `true` if a destination with `id` is found in this navigation graph. */
 public operator fun NavGraph.contains(@IdRes id: Int): Boolean = findNode(id) != null
 
 /** Returns `true` if a destination with `route` is found in this navigation graph. */
 public operator fun NavGraph.contains(route: String): Boolean = findNode(route) != null
+
+/** Returns `true` if a destination with `route` is found in this navigation graph. */
+@Suppress("UNUSED_PARAMETER")
+public inline operator fun <reified T : Any> NavGraph.contains(route: KClass<T>): Boolean =
+    findNode<T>() != null
+
+/** Returns `true` if a destination with `route` is found in this navigation graph. */
+public operator fun <T : Any> NavGraph.contains(route: T): Boolean = findNode(route) != null
 
 /**
  * Adds a destination to this NavGraph. The destination must have an

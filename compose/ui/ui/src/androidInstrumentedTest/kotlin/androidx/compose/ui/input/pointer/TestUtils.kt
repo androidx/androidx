@@ -417,7 +417,7 @@ internal fun internalPointerEventOf(vararg changes: PointerInputChange): Interna
             down = it.pressed,
             pressure = it.pressure,
             type = it.type,
-            issuesEnterExit = false,
+            activeHover = false,
             historical = emptyList()
         )
     }
@@ -451,7 +451,7 @@ internal fun hoverInternalPointerEvent(
         down = change.pressed,
         pressure = change.pressure,
         type = change.type,
-        issuesEnterExit = true,
+        activeHover = true,
         historical = emptyList()
     )
     val pointerEvent = PointerInputEvent(0L, listOf(pointer), createHoverMotionEvent(action, x, y))

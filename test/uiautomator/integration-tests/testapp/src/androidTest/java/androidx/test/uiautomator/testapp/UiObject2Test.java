@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -34,17 +35,18 @@ import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.NonNull;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.EventCondition;
+import androidx.test.uiautomator.StaleObjectException;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
 import org.junit.Assume;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -389,8 +391,7 @@ public class UiObject2Test extends BaseTest {
     public void testHashCode() {
         launchTestActivity(MainActivity.class);
 
-        // Get the same textView object via different methods.
-        // The same object should have the same hash code.
+        // Same object (found w/ different selectors) should have the same hash code.
         UiObject2 textView1 = mDevice.findObject(By.res(TEST_APP, "example_id"));
         UiObject2 textView2 = mDevice.findObject(By.text("TextView with an id"));
         assertEquals(textView1.hashCode(), textView2.hashCode());
@@ -398,6 +399,15 @@ public class UiObject2Test extends BaseTest {
         // Different objects should have different hash codes.
         UiObject2 linearLayout = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         assertNotEquals(textView1.hashCode(), linearLayout.hashCode());
+
+        // Use cached hash code for stale objects to avoid unnecessary SOEs.
+        int hashCode = textView1.hashCode();
+        mDevice.pressHome();
+        try {
+            assertEquals(hashCode, textView1.hashCode());
+        } catch (StaleObjectException e) {
+            fail("Unexpected StaleObjectException while calculating hash code");
+        }
     }
 
     @Test
@@ -751,7 +761,6 @@ public class UiObject2Test extends BaseTest {
         assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
 
-    @Ignore // b/266617335
     @Test
     public void testFling_direction() {
         launchTestActivity(FlingTestActivity.class);
@@ -767,7 +776,6 @@ public class UiObject2Test extends BaseTest {
         assertTrue(flingRegion.wait(Until.textEquals("fling_left"), TIMEOUT_MS));
     }
 
-    @Ignore // b/281821418
     @Test
     public void testFling_directionAndSpeed() {
         launchTestActivity(FlingTestActivity.class);
@@ -799,67 +807,50 @@ public class UiObject2Test extends BaseTest {
                 () -> flingRegion.fling(Direction.DOWN, speed));
     }
 
-    @Ignore // b/267208902
     @Test
     public void testSetGestureMargin() {
-        launchTestActivity(PinchTestActivity.class);
+        try (ActivityScenario<MarginTestActivity> scenario =
+                     ActivityScenario.launch(MarginTestActivity.class)) {
+            // Button has a constant 100px height and width.
+            UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
 
-        UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
-        UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
+            // Click coordinates adjusted according to gesture margins.
+            button.setGestureMargin(10);
+            button.click(new Point(0, 0));
+            scenario.onActivity(a -> assertEquals(new Point(10, 10), a.getLastTouch()));
+            button.click(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
+            scenario.onActivity(a -> assertEquals(new Point(90, 90), a.getLastTouch()));
 
-        Rect pinchAreaBounds = pinchArea.getVisibleBounds();
-
-        // Set the gesture's margins to a large number (greater than the width or height of the UI
-        // object's visible bounds).
-        // The gesture's bounds cannot form a rectangle and no action can be performed.
-        pinchArea.setGestureMargin(Math.max(pinchAreaBounds.height(), pinchAreaBounds.width()) * 2);
-        pinchArea.pinchClose(1f);
-        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
-        assertEquals(String.format("Expected scale value to be equal to 1f after pinchClose(), "
-                + "but got [%f]", scaleValueAfterPinch), 1f, scaleValueAfterPinch, 0f);
-
-        // Set the gesture's margins to a small number (smaller than the width or height of the UI
-        // object's visible bounds).
-        // The gesture's bounds form a rectangle and action can be performed.
-        pinchArea.setGestureMargin(1);
-        pinchArea.pinchClose(1f);
-        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
-        assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
-                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
+            // Gesture margins can be set independently for each side.
+            button.setGestureMargins(1, 2, 3, 4);
+            button.click(new Point(0, 0));
+            scenario.onActivity(a -> assertEquals(new Point(1, 2), a.getLastTouch()));
+            button.click(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
+            scenario.onActivity(a -> assertEquals(new Point(97, 96), a.getLastTouch()));
+        }
     }
 
-    @Ignore // b/266617335
     @Test
-    public void testSetGestureMargins() {
-        launchTestActivity(PinchTestActivity.class);
+    public void testSetGestureMarginPercentage() {
+        try (ActivityScenario<MarginTestActivity> scenario =
+                     ActivityScenario.launch(MarginTestActivity.class)) {
+            // Button has a constant 100px height and width.
+            UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
 
-        UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
-        UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
+            // Click coordinates adjusted according to gesture margins.
+            button.setGestureMarginPercentage(.1f);
+            button.click(new Point(0, 0));
+            scenario.onActivity(a -> assertEquals(new Point(10, 10), a.getLastTouch()));
+            button.click(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
+            scenario.onActivity(a -> assertEquals(new Point(90, 90), a.getLastTouch()));
 
-        Rect pinchAreaBounds = pinchArea.getVisibleBounds();
-
-        // Set the gesture's margins to large numbers (greater than the width or height of the UI
-        // object's visible bounds).
-        // The gesture's bounds cannot form a rectangle and no action can be performed.
-        pinchArea.setGestureMargins(1, 1, pinchAreaBounds.width() * 2,
-                pinchAreaBounds.height() * 2);
-        pinchArea.pinchClose(1f);
-        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        float scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
-        assertEquals(String.format("Expected scale value to be equal to 1f after pinchClose(), "
-                + "but got [%f]", scaleValueAfterPinch), 1f, scaleValueAfterPinch, 0f);
-
-        // Set the gesture's margins to small numbers (smaller than the width or height of the UI
-        // object's visible bounds).
-        // The gesture's bounds form a rectangle and action can be performed.
-        pinchArea.setGestureMargins(1, 1, 1, 1);
-        pinchArea.pinchClose(1f);
-        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
-        scaleValueAfterPinch = Float.parseFloat(scaleText.getText());
-        assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
-                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
+            // Gesture margins can be set independently for each side.
+            button.setGestureMarginsPercentage(.01f, .02f, .03f, .04f);
+            button.click(new Point(0, 0));
+            scenario.onActivity(a -> assertEquals(new Point(1, 2), a.getLastTouch()));
+            button.click(new Point(Integer.MAX_VALUE, Integer.MAX_VALUE));
+            scenario.onActivity(a -> assertEquals(new Point(97, 96), a.getLastTouch()));
+        }
     }
 
     @Test

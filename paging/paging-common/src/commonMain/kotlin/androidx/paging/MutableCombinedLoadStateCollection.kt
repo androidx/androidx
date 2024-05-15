@@ -39,18 +39,20 @@ internal class MutableCombinedLoadStateCollection {
     private val _stateFlow = MutableStateFlow<CombinedLoadStates?>(null)
     public val stateFlow = _stateFlow.asStateFlow()
 
+    // load states are de-duplicated
     fun set(sourceLoadStates: LoadStates, remoteLoadStates: LoadStates?) =
         dispatchNewState { currState ->
             computeNewState(currState, sourceLoadStates, remoteLoadStates)
         }
 
+    // load states are de-duplicated
     fun set(type: LoadType, remote: Boolean, state: LoadState) =
         dispatchNewState { currState ->
             var source = currState?.source ?: LoadStates.IDLE
-            var mediator = currState?.mediator ?: LoadStates.IDLE
+            var mediator = currState?.mediator
 
             if (remote) {
-                mediator = mediator.modifyState(type, state)
+                mediator = LoadStates.IDLE.modifyState(type, state)
             } else {
                 source = source.modifyState(type, state)
             }

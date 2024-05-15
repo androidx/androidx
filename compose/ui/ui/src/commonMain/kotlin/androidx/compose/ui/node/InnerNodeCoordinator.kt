@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
@@ -36,6 +37,7 @@ internal class TailModifierNode : Modifier.Node() {
         // definition.
         aggregateChildKindSet = 0
     }
+
     // BackwardsCompatNode uses this to determine if it is in a "chain update" or not. If attach
     // has been run on the tail node, then we can assume that it is a chain update. Importantly,
     // this is different than using isAttached.
@@ -67,7 +69,7 @@ internal class InnerNodeCoordinator(
     override var lookaheadDelegate: LookaheadDelegate? =
         if (layoutNode.lookaheadRoot != null) LookaheadDelegateImpl() else null
 
-    private inner class LookaheadDelegateImpl : LookaheadDelegate(this) {
+    private inner class LookaheadDelegateImpl : LookaheadDelegate(this@InnerNodeCoordinator) {
 
         // Lookahead measure
         override fun measure(constraints: Constraints): Placeable =
@@ -98,16 +100,16 @@ internal class InnerNodeCoordinator(
         }
 
         override fun minIntrinsicWidth(height: Int) =
-            layoutNode.intrinsicsPolicy.minLookaheadIntrinsicWidth(height)
+            layoutNode.minLookaheadIntrinsicWidth(height)
 
         override fun minIntrinsicHeight(width: Int) =
-            layoutNode.intrinsicsPolicy.minLookaheadIntrinsicHeight(width)
+            layoutNode.minLookaheadIntrinsicHeight(width)
 
         override fun maxIntrinsicWidth(height: Int) =
-            layoutNode.intrinsicsPolicy.maxLookaheadIntrinsicWidth(height)
+            layoutNode.maxLookaheadIntrinsicWidth(height)
 
         override fun maxIntrinsicHeight(width: Int) =
-            layoutNode.intrinsicsPolicy.maxLookaheadIntrinsicHeight(width)
+            layoutNode.maxLookaheadIntrinsicHeight(width)
     }
 
     override fun ensureLookaheadDelegateCreated() {
@@ -116,38 +118,58 @@ internal class InnerNodeCoordinator(
         }
     }
 
-    override fun measure(constraints: Constraints): Placeable = performingMeasure(constraints) {
-        // before rerunning the user's measure block reset previous measuredByParent for children
-        layoutNode.forEachChild {
-            it.measurePassDelegate.measuredByParent = LayoutNode.UsageByParent.NotUsed
-        }
+    override fun measure(constraints: Constraints): Placeable {
+        @Suppress("NAME_SHADOWING") val constraints =
+            if (forceMeasureWithLookaheadConstraints) {
+                lookaheadDelegate!!.constraints
+            } else {
+                constraints
+            }
+        return performingMeasure(constraints) {
+            // before rerunning the user's measure block reset previous measuredByParent for children
+            layoutNode.forEachChild {
+                it.measurePassDelegate.measuredByParent = LayoutNode.UsageByParent.NotUsed
+            }
 
-        measureResult = with(layoutNode.measurePolicy) {
-            measure(layoutNode.childMeasurables, constraints)
+            measureResult = with(layoutNode.measurePolicy) {
+                measure(layoutNode.childMeasurables, constraints)
+            }
+            onMeasured()
+            this
         }
-        onMeasured()
-        this
     }
 
     override fun minIntrinsicWidth(height: Int) =
-        layoutNode.intrinsicsPolicy.minIntrinsicWidth(height)
+        layoutNode.minIntrinsicWidth(height)
 
     override fun minIntrinsicHeight(width: Int) =
-        layoutNode.intrinsicsPolicy.minIntrinsicHeight(width)
+        layoutNode.minIntrinsicHeight(width)
 
     override fun maxIntrinsicWidth(height: Int) =
-        layoutNode.intrinsicsPolicy.maxIntrinsicWidth(height)
+        layoutNode.maxIntrinsicWidth(height)
 
     override fun maxIntrinsicHeight(width: Int) =
-        layoutNode.intrinsicsPolicy.maxIntrinsicHeight(width)
+        layoutNode.maxIntrinsicHeight(width)
 
     override fun placeAt(
         position: IntOffset,
         zIndex: Float,
-        layerBlock: (GraphicsLayerScope.() -> Unit)?
+        layer: GraphicsLayer
+    ) {
+        super.placeAt(position, zIndex, layer)
+        onAfterPlaceAt()
+    }
+
+    override fun placeAt(
+        position: IntOffset,
+        zIndex: Float,
+        layerBlock: (GraphicsLayerScope.() -> Unit)?,
     ) {
         super.placeAt(position, zIndex, layerBlock)
+        onAfterPlaceAt()
+    }
 
+    private fun onAfterPlaceAt() {
         // The coordinator only runs their placement block to obtain our position, which allows them
         // to calculate the offset of an alignment line we have already provided a position for.
         // No need to place our wrapped as well (we might have actually done this already in
@@ -167,11 +189,11 @@ internal class InnerNodeCoordinator(
             ?: AlignmentLine.Unspecified
     }
 
-    override fun performDraw(canvas: Canvas) {
+    override fun performDraw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
         val owner = layoutNode.requireOwner()
         layoutNode.zSortedChildren.forEach { child ->
             if (child.isPlaced) {
-                child.draw(canvas)
+                child.draw(canvas, graphicsLayer)
             }
         }
         if (owner.showLayoutBounds) {
@@ -218,9 +240,7 @@ internal class InnerNodeCoordinator(
                         val continueHitTest: Boolean
                         if (!wasHit) {
                             continueHitTest = true
-                        } else if (
-                            child.outerCoordinator.shouldSharePointerInputWithSiblings()
-                        ) {
+                        } else if (hitTestResult.shouldSharePointerInputWithSibling) {
                             hitTestResult.acceptHits()
                             continueHitTest = true
                         } else {

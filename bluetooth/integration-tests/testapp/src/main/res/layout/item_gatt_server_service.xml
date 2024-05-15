@@ -14,63 +14,63 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/generic_attribute"
-        android:textColor="@color/black"
-        android:textStyle="bold" />
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/grey_200"
+    app:contentPadding="8dp">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/uuid"
-            android:textAllCaps="true" />
-
-        <TextView
-            android:id="@+id/text_view_uuid"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
+            android:text="@string/service"
             android:textColor="@color/black"
-            tools:text="0x1800" />
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/uuid"
+                android:textAllCaps="true" />
+
+            <TextView
+                android:id="@+id/text_view_uuid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:textColor="@color/black"
+                tools:text="69a81cf6-8092-11ee-b962-0242ac120002" />
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_service_characteristics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="LinearLayoutManager"
+            tools:itemCount="2"
+            tools:listitem="@layout/item_gatt_server_characteristic" />
+
+        <Button
+            android:id="@+id/button_add_characteristic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginTop="4dp"
+            android:text="@string/add_characteristic" />
 
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/primary_service"
-        android:textAllCaps="true" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_service_characteristic"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        app:layoutManager="LinearLayoutManager"
-        tools:itemCount="3"
-        tools:listitem="@layout/item_gatt_server_characteristic" />
-
-    <Button
-        android:id="@+id/button_add_characteristic"
-        style="@style/Widget.MaterialComponents.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="@string/add_characteristic" />
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

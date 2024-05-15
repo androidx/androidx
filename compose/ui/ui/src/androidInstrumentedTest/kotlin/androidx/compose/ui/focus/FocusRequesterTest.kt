@@ -684,7 +684,6 @@ class FocusRequesterTest(private val modifierNodeVersion: Boolean) {
         }
     }
 
-    @ExperimentalComposeUiApi
     @Test
     fun requestFocusForAnyChild_triggersOnFocusChangedInParent() {
         // Arrange.

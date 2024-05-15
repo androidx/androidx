@@ -45,6 +45,10 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
  * @param includeEditorBounds whether to include editor bounds info in the CursorAnchorInfo
  * @param includeLineBounds whether to include line bounds info in the CursorAnchorInfo
  */
+@Deprecated(
+    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
+        "code. A copy of this function in foundation is used by the legacy BasicTextField."
+)
 internal fun CursorAnchorInfo.Builder.build(
     textFieldValue: TextFieldValue,
     offsetMapping: OffsetMapping,

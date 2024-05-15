@@ -16,11 +16,14 @@
 
 package androidx.compose.testutils
 
+import androidx.annotation.UiThread
+
 expect class NativeView
 
 /**
  * Test scope accessible from execution controlled tests to test compose.
  */
+@UiThread
 interface ComposeExecutionControl {
     /**
      * The measured width of the underlying view.
@@ -86,6 +89,17 @@ interface ComposeExecutionControl {
     fun hasPendingChanges(): Boolean
 
     /**
+     * Whether there are pending layout changes.
+     */
+    fun hasPendingMeasureOrLayout(): Boolean
+
+    /**
+     * Whether there are pending draw changes.
+     */
+
+    fun hasPendingDraw(): Boolean = false
+
+    /**
      * Performs recomposition if needed.
      *
      * Note this is also called as part of [doFrame]
@@ -98,6 +112,11 @@ interface ComposeExecutionControl {
      * This API may be removed in the future.
      */
     fun getHostView(): NativeView
+
+    /**
+     * A count on launched jobs in the composition.
+     */
+    fun getCoroutineLaunchedCount(): Int
 }
 
 /**
@@ -222,6 +241,7 @@ fun ComposeExecutionControl.doFramesAssertAllHadChangesExceptLastOne(
  * @param maxAmountOfFrames Max amount of frames to perform before giving up and throwing exception.
  * @throws AssertionError if there are still pending changes after [maxAmountOfFrames] executed.
  */
+@UiThread
 fun ComposeExecutionControl.doFramesUntilNoChangesPending(maxAmountOfFrames: Int = 10): Int {
     var framesDone = 0
     while (framesDone < maxAmountOfFrames) {
@@ -238,4 +258,14 @@ fun ComposeExecutionControl.doFramesUntilNoChangesPending(maxAmountOfFrames: Int
         "Changes are still pending after '$maxAmountOfFrames' " +
             "frames."
     )
+}
+
+@UiThread
+fun ComposeExecutionControl.assertCoroutinesCount(expectedCount: Int) {
+    val actual = getCoroutineLaunchedCount()
+    if (getCoroutineLaunchedCount() != expectedCount) {
+        throw AssertionError(
+            "Coroutines launched is $actual when $expectedCount were expected."
+        )
+    }
 }

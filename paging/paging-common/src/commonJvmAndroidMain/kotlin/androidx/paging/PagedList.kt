@@ -932,7 +932,7 @@ public abstract class PagedList<T : Any> internal constructor(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
-    public fun getNullPaddedList(): NullPaddedList<T> = storage
+    public fun getPlaceholderPaddedList(): PlaceholderPaddedList<T> = storage
 
     internal var refreshRetryCallback: Runnable? = null
 
@@ -1034,7 +1034,7 @@ public abstract class PagedList<T : Any> internal constructor(
      * @see size
      */
     public val loadedCount: Int
-        get() = storage.storageCount
+        get() = storage.dataCount
 
     /**
      * Returns whether the list is immutable.

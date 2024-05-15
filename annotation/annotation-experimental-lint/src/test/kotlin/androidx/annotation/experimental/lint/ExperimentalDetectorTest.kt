@@ -20,6 +20,7 @@ package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles.base64gzip
+import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFiles.xml
 import com.android.tools.lint.checks.infrastructure.TestLintResult
@@ -56,41 +57,71 @@ class ExperimentalDetectorTest {
         val expected = """
 src/sample/experimental/UseJavaExperimentalFromJava.java:25: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
         DateProvider dateProvider = new DateProvider();
+        ~~~~~~~~~~~~
+src/sample/experimental/UseJavaExperimentalFromJava.java:25: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
+        DateProvider dateProvider = new DateProvider();
                                     ~~~~~~~~~~~~~~~~~~
 src/sample/experimental/UseJavaExperimentalFromJava.java:26: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
 src/sample/experimental/UseJavaExperimentalFromJava.java:53: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
         LocationProvider locationProvider = new LocationProvider();
+        ~~~~~~~~~~~~~~~~
+src/sample/experimental/UseJavaExperimentalFromJava.java:53: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
+        LocationProvider locationProvider = new LocationProvider();
                                             ~~~~~~~~~~~~~~~~~~~~~~
 src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
         return dateProvider.getDate() + locationProvider.getLocation();
                                                          ~~~~~~~~~~~
-4 errors, 0 warnings
+6 errors, 0 warnings
         """.trimIndent()
 
         val expectedFix = """
 Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 25: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' annotation to 'getDateUnsafe':
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -24 +25
++     @OptIn(markerClass = ExperimentalDateTime.class)
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 25: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
 @@ -24 +24
-+     @androidx.annotation.OptIn(markerClass = ExperimentalDateTime.class)
++     @ExperimentalDateTime
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 25: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' annotation to 'getDateUnsafe':
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -24 +25
++     @OptIn(markerClass = ExperimentalDateTime.class)
 Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 25: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
 @@ -24 +24
 +     @ExperimentalDateTime
 Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 26: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' annotation to 'getDateUnsafe':
-@@ -24 +24
-+     @androidx.annotation.OptIn(markerClass = ExperimentalDateTime.class)
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -24 +25
++     @OptIn(markerClass = ExperimentalDateTime.class)
 Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 26: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
 @@ -24 +24
 +     @ExperimentalDateTime
 Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 53: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -50 +51
++     @OptIn(markerClass = ExperimentalLocation.class)
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 53: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -50 +50
-+     @androidx.annotation.OptIn(markerClass = ExperimentalLocation.class)
++     @ExperimentalLocation
+Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 53: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -50 +51
++     @OptIn(markerClass = ExperimentalLocation.class)
 Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 53: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -50 +50
 +     @ExperimentalLocation
 Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocation.class)' annotation to 'getDateExperimentalLocationUnsafe':
-@@ -50 +50
-+     @androidx.annotation.OptIn(markerClass = ExperimentalLocation.class)
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -50 +51
++     @OptIn(markerClass = ExperimentalLocation.class)
 Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -50 +50
 +     @ExperimentalLocation
@@ -125,11 +156,14 @@ Fix for src/sample/experimental/UseJavaExperimentalFromJava.java line 54: Add '@
         val expected = """
 src/sample/experimental/UseJavaExperimentalFromJava.java:53: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
         LocationProvider locationProvider = new LocationProvider();
+        ~~~~~~~~~~~~~~~~
+src/sample/experimental/UseJavaExperimentalFromJava.java:53: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
+        LocationProvider locationProvider = new LocationProvider();
                                             ~~~~~~~~~~~~~~~~~~~~~~
 src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
         return dateProvider.getDate() + locationProvider.getLocation();
                                                          ~~~~~~~~~~~
-2 errors, 0 warnings
+3 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -150,41 +184,71 @@ src/sample/experimental/UseJavaExperimentalFromJava.java:54: Error: This declara
         val expected = """
 src/sample/experimental/UseJavaExperimentalFromKt.kt:29: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
         val dateProvider = DateProvider()
+            ~~~~~~~~~~~~
+src/sample/experimental/UseJavaExperimentalFromKt.kt:29: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
+        val dateProvider = DateProvider()
                            ~~~~~~~~~~~~
 src/sample/experimental/UseJavaExperimentalFromKt.kt:30: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
         return dateProvider.date
                             ~~~~
 src/sample/experimental/UseJavaExperimentalFromKt.kt:57: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
         val locationProvider = LocationProvider()
+            ~~~~~~~~~~~~~~~~
+src/sample/experimental/UseJavaExperimentalFromKt.kt:57: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
+        val locationProvider = LocationProvider()
                                ~~~~~~~~~~~~~~~~
 src/sample/experimental/UseJavaExperimentalFromKt.kt:58: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocation or @OptIn(markerClass = sample.experimental.ExperimentalLocation.class) [UnsafeOptInUsageError]
         return dateProvider.date + locationProvider.location
                                                     ~~~~~~~~
-4 errors, 0 warnings
+6 errors, 0 warnings
         """.trimIndent()
 
         val expectedFix = """
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalDateTime::class)' annotation to 'getDateUnsafe':
+@@ -21 +21
++ import androidx.annotation.OptIn
+@@ -28 +29
++     @OptIn(ExperimentalDateTime::class)
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
 @@ -28 +28
-+     @androidx.annotation.OptIn(ExperimentalDateTime::class)
++     @ExperimentalDateTime
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalDateTime::class)' annotation to 'getDateUnsafe':
+@@ -21 +21
++ import androidx.annotation.OptIn
+@@ -28 +29
++     @OptIn(ExperimentalDateTime::class)
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 29: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
 @@ -28 +28
 +     @ExperimentalDateTime
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 30: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalDateTime::class)' annotation to 'getDateUnsafe':
-@@ -28 +28
-+     @androidx.annotation.OptIn(ExperimentalDateTime::class)
+@@ -21 +21
++ import androidx.annotation.OptIn
+@@ -28 +29
++     @OptIn(ExperimentalDateTime::class)
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 30: Add '@sample.experimental.ExperimentalDateTime' annotation to 'getDateUnsafe':
 @@ -28 +28
 +     @ExperimentalDateTime
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalLocation::class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -21 +21
++ import androidx.annotation.OptIn
+@@ -54 +55
++     @OptIn(ExperimentalLocation::class)
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -54 +54
-+     @androidx.annotation.OptIn(ExperimentalLocation::class)
++     @ExperimentalLocation
+Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalLocation::class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -21 +21
++ import androidx.annotation.OptIn
+@@ -54 +55
++     @OptIn(ExperimentalLocation::class)
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 57: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -54 +54
 +     @ExperimentalLocation
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@androidx.annotation.OptIn(sample.experimental.ExperimentalLocation::class)' annotation to 'getDateExperimentalLocationUnsafe':
-@@ -54 +54
-+     @androidx.annotation.OptIn(ExperimentalLocation::class)
+@@ -21 +21
++ import androidx.annotation.OptIn
+@@ -54 +55
++     @OptIn(ExperimentalLocation::class)
 Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@sample.experimental.ExperimentalLocation' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -54 +54
 +     @ExperimentalLocation
@@ -210,10 +274,16 @@ Fix for src/sample/experimental/UseJavaExperimentalFromKt.kt line 58: Add '@samp
         val expected = """
 src/sample/experimental/UseKtExperimentalFromJava.java:25: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTimeKt or @OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class) [UnsafeOptInUsageError]
         sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/sample/experimental/UseKtExperimentalFromJava.java:25: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTimeKt or @OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class) [UnsafeOptInUsageError]
+        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();
                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 src/sample/experimental/UseKtExperimentalFromJava.java:26: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTimeKt or @OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class) [UnsafeOptInUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
+src/sample/experimental/UseKtExperimentalFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocationKt or @OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class) [UnsafeOptInUsageError]
+        LocationProviderKt locationProvider = new LocationProviderKt();
+        ~~~~~~~~~~~~~~~~~~
 src/sample/experimental/UseKtExperimentalFromJava.java:54: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalLocationKt or @OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class) [UnsafeOptInUsageError]
         LocationProviderKt locationProvider = new LocationProviderKt();
                                               ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,55 +302,87 @@ src/sample/experimental/UseKtExperimentalFromJava.java:96: Error: This declarati
 src/sample/experimental/UseKtExperimentalFromJava.java:97: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.ExperimentalDateTime or @OptIn(markerClass = sample.experimental.ExperimentalDateTime.class) [UnsafeOptInUsageError]
         new TimeProviderKt().getTimeJava();
                              ~~~~~~~~~~~
-8 errors, 0 warnings
+10 errors, 0 warnings
         """.trimIndent()
 
         val expectedFix = """
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 25: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'getDateUnsafe':
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -24 +25
++     @OptIn(markerClass = ExperimentalDateTimeKt.class)
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 25: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'getDateUnsafe':
 @@ -24 +24
-+     @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class)
++     @ExperimentalDateTimeKt
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 25: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'getDateUnsafe':
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -24 +25
++     @OptIn(markerClass = ExperimentalDateTimeKt.class)
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 25: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'getDateUnsafe':
 @@ -24 +24
 +     @ExperimentalDateTimeKt
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 26: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'getDateUnsafe':
-@@ -24 +24
-+     @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class)
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -24 +25
++     @OptIn(markerClass = ExperimentalDateTimeKt.class)
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 26: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'getDateUnsafe':
 @@ -24 +24
 +     @ExperimentalDateTimeKt
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 54: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -51 +52
++     @OptIn(markerClass = ExperimentalLocationKt.class)
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 54: Add '@sample.experimental.ExperimentalLocationKt' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -51 +51
-+     @androidx.annotation.OptIn(markerClass = ExperimentalLocationKt.class)
++     @ExperimentalLocationKt
+Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 54: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class)' annotation to 'getDateExperimentalLocationUnsafe':
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -51 +52
++     @OptIn(markerClass = ExperimentalLocationKt.class)
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 54: Add '@sample.experimental.ExperimentalLocationKt' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -51 +51
 +     @ExperimentalLocationKt
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 55: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalLocationKt.class)' annotation to 'getDateExperimentalLocationUnsafe':
-@@ -51 +51
-+     @androidx.annotation.OptIn(markerClass = ExperimentalLocationKt.class)
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -51 +52
++     @OptIn(markerClass = ExperimentalLocationKt.class)
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 55: Add '@sample.experimental.ExperimentalLocationKt' annotation to 'getDateExperimentalLocationUnsafe':
 @@ -51 +51
 +     @ExperimentalLocationKt
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 88: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'regressionTestStaticUsage':
-@@ -87 +87
-+     @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class)
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -87 +88
++     @OptIn(markerClass = ExperimentalDateTimeKt.class)
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 88: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'regressionTestStaticUsage':
 @@ -87 +87
 +     @ExperimentalDateTimeKt
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 89: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'regressionTestStaticUsage':
-@@ -87 +87
-+     @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class)
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -87 +88
++     @OptIn(markerClass = ExperimentalDateTimeKt.class)
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 89: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'regressionTestStaticUsage':
 @@ -87 +87
 +     @ExperimentalDateTimeKt
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 96: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTimeKt.class)' annotation to 'regressionTestInlineUsage':
-@@ -95 +95
-+     @androidx.annotation.OptIn(markerClass = ExperimentalDateTimeKt.class)
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -95 +96
++     @OptIn(markerClass = ExperimentalDateTimeKt.class)
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 96: Add '@sample.experimental.ExperimentalDateTimeKt' annotation to 'regressionTestInlineUsage':
 @@ -95 +95
 +     @ExperimentalDateTimeKt
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@androidx.annotation.OptIn(markerClass = sample.experimental.ExperimentalDateTime.class)' annotation to 'regressionTestInlineUsage':
-@@ -95 +95
-+     @androidx.annotation.OptIn(markerClass = ExperimentalDateTime.class)
+@@ -18 +18
++ import androidx.annotation.OptIn;
+@@ -95 +96
++     @OptIn(markerClass = ExperimentalDateTime.class)
 Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@sample.experimental.ExperimentalDateTime' annotation to 'regressionTestInlineUsage':
 @@ -95 +95
 +     @ExperimentalDateTime
@@ -303,6 +405,9 @@ Fix for src/sample/experimental/UseKtExperimentalFromJava.java line 97: Add '@sa
         val expected = """
 src/sample/experimental/UseJavaPackageFromJava.java:28: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
         Bar bar = new Bar();
+        ~~~
+src/sample/experimental/UseJavaPackageFromJava.java:28: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
+        Bar bar = new Bar();
                   ~~~~~~~~~
 src/sample/experimental/UseJavaPackageFromJava.java:29: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
         bar.baz();
@@ -310,7 +415,7 @@ src/sample/experimental/UseJavaPackageFromJava.java:29: Error: This declaration 
 src/sample/experimental/UseJavaPackageFromJava.java:52: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
         callPackageExperimental();
         ~~~~~~~~~~~~~~~~~~~~~~~
-3 errors, 0 warnings
+4 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -330,6 +435,9 @@ src/sample/experimental/UseJavaPackageFromJava.java:52: Error: This declaration 
         val expected = """
 src/sample/experimental/UseJavaPackageFromKt.kt:31: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
         val bar = Bar()
+            ~~~
+src/sample/experimental/UseJavaPackageFromKt.kt:31: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
+        val bar = Bar()
                   ~~~
 src/sample/experimental/UseJavaPackageFromKt.kt:32: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
         bar.baz()
@@ -337,11 +445,92 @@ src/sample/experimental/UseJavaPackageFromKt.kt:32: Error: This declaration is o
 src/sample/experimental/UseJavaPackageFromKt.kt:55: Error: This declaration is opt-in and its usage should be marked with @sample.experimental.foo.ExperimentalPackage or @OptIn(markerClass = sample.experimental.foo.ExperimentalPackage.class) [UnsafeOptInUsageError]
         callPackageExperimental()
         ~~~~~~~~~~~~~~~~~~~~~~~
-3 errors, 0 warnings
+4 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
+    }
+
+    @Test
+    fun resolveSamWithValueClass() {
+        val input = arrayOf(
+            kotlin(
+                """
+                @JvmInline
+                value class MyValue(val p: Int)
+
+                fun interface FunInterface {
+                  fun sam(): MyValue
+                }
+
+                fun itfConsumer(itf: FunInterface) {
+                  itf.sam().p
+                }
+
+                fun test() {
+                  itfConsumer {
+                    MyValue(42)
+                  }
+                }
+                """.trimIndent()
+            )
+        )
+        check(*input).expectClean()
+    }
+
+    @Test
+    fun resolveSamInJava() {
+        val input = arrayOf(
+            java(
+                """
+                    public interface RunnableDelegate {
+                        boolean show(Runnable positiveCallback, Runnable negativeCallback);
+                    }
+
+                    public interface SomeResponse {}
+                    public interface GetAssertionResponseCallback {
+                        void onSignResponse(int status, SomeResponse response);
+                    }
+
+                    public class SomeRequest {
+                        private GetAssertionResponseCallback mCallback;
+
+                        public void handleGetAssertionRequest(
+                            GetAssertionResponseCallback callback
+                        ) {
+                            mCallback = callback;
+                        }
+
+                        public void onResult(SomeResponse response) {
+                            mCallback.onSignResponse(42, response);
+                        }
+                    }
+
+                    public interface ExtendedCallback extends GetAssertionResponseCallback {}
+
+                    class Test {
+                        private final RunnableDelegate mDelegate;
+                        void test() {
+                            if (mDelegate.show(() -> true, () -> false)) {
+                                return;
+                            }
+
+                            SomeRequest r = SomeRequest();
+                            r.handleGetAssertionRequest(
+                                (status, response) -> onSignResponse(status, response)
+                            );
+
+                            ExtendedCallback e = (status, response) -> {
+                                onSignResponse(status, response);
+                            };
+                        }
+                        void onSignResponse(int status, SomeResponse response) {}
+                    }
+                """.trimIndent()
+            )
+        )
+        check(*input).expectClean()
     }
 
     /* ktlint-disable max-line-length */

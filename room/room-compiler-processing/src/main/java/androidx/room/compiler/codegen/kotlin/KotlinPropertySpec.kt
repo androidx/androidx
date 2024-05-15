@@ -19,6 +19,7 @@ package androidx.room.compiler.codegen.kotlin
 import androidx.room.compiler.codegen.XAnnotationSpec
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XPropertySpec
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.PropertySpec
 
 internal class KotlinPropertySpec(
@@ -39,6 +40,11 @@ internal class KotlinPropertySpec(
         override fun initializer(initExpr: XCodeBlock) = apply {
             require(initExpr is KotlinCodeBlock)
             actual.initializer(initExpr.actual)
+        }
+
+        override fun getter(code: XCodeBlock) = apply {
+            require(code is KotlinCodeBlock)
+            actual.getter(FunSpec.getterBuilder().addCode(code.actual).build())
         }
 
         override fun build(): XPropertySpec {

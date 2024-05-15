@@ -29,7 +29,6 @@ import androidx.collection.ArraySet;
 import androidx.slice.SliceSpec;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import junit.framework.AssertionFailedError;
@@ -45,7 +44,6 @@ import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 19)
 public class CompatPinnedListTest {
 
     private final Context mContext = ApplicationProvider.getApplicationContext();

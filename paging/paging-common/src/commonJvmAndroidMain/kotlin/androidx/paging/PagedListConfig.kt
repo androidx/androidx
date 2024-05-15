@@ -28,7 +28,8 @@ package androidx.paging
  */
 @Suppress(
     "FunctionName",
-    "DEPRECATION"
+    "DEPRECATION",
+    "ReferencesDeprecated"
 )
 @JvmSynthetic
 public fun Config(

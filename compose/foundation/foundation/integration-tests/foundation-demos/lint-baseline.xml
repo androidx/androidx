@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
 
     <issue
         id="NewApi"
@@ -175,7 +175,7 @@
     <issue
         id="PrimitiveInCollection"
         message="variable items with type SnapshotStateList&lt;Integer>: replace with IntList"
-        errorLine1="    val items = remember { mutableStateListOf&lt;Int>().apply {"
+        errorLine1="    val items = remember {"
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>

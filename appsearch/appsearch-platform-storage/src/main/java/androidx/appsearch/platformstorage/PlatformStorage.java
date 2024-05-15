@@ -224,7 +224,7 @@ public final class PlatformStorage {
                     if (result.isSuccess()) {
                         future.set(
                                 new SearchSessionImpl(result.getResultValue(), context.mExecutor,
-                                        new FeaturesImpl()));
+                                        new FeaturesImpl(context.mContext)));
                     } else {
                         // Without the SuppressLint annotation on the method, this line causes a
                         // lint error because getResultCode isn't defined as returning a value from
@@ -254,7 +254,7 @@ public final class PlatformStorage {
                     if (result.isSuccess()) {
                         future.set(new GlobalSearchSessionImpl(
                                 result.getResultValue(), context.mExecutor,
-                                new FeaturesImpl()));
+                                new FeaturesImpl(context.mContext)));
                     } else {
                         // Without the SuppressLint annotation on the method, this line causes a
                         // lint error because getResultCode isn't defined as returning a value from

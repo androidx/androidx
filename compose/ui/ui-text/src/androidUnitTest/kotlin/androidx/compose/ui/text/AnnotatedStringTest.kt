@@ -559,4 +559,10 @@ class AnnotatedStringTest {
             addStyle(ParagraphStyle(), 0, 2)
         }
     }
+
+    @Test
+    fun AnnotatedStringSaver_isAnnotatedStringSaver() {
+        // already covered by existing tests if this is true
+        assertThat(AnnotatedString.Saver).isSameInstanceAs(AnnotatedStringSaver)
+    }
 }

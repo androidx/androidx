@@ -70,23 +70,23 @@ package androidx.recyclerview.widget {
     method public void onRemoved(int, int);
   }
 
-  public final class ConcatAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder> {
-    ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!...);
-    ctor public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>>);
-    ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!...);
-    ctor public ConcatAdapter(java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>>);
-    method public boolean addAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
-    method public boolean addAdapter(int, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
-    method public java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>> getAdapters();
+  public final class ConcatAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder!> {
+    ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!...);
+    ctor public ConcatAdapter(androidx.recyclerview.widget.ConcatAdapter.Config, java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!>);
+    ctor @java.lang.SafeVarargs public ConcatAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!...);
+    ctor public ConcatAdapter(java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!>);
+    method public boolean addAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>);
+    method public boolean addAdapter(int, androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>);
+    method public java.util.List<? extends androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!> getAdapters();
     method public int getItemCount();
-    method public android.util.Pair<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>!,java.lang.Integer!> getWrappedAdapterAndPosition(int);
+    method public android.util.Pair<androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>!,java.lang.Integer!> getWrappedAdapterAndPosition(int);
     method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     method public androidx.recyclerview.widget.RecyclerView.ViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method public boolean onFailedToRecycleView(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public void onViewAttachedToWindow(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public void onViewDetachedFromWindow(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public void onViewRecycled(androidx.recyclerview.widget.RecyclerView.ViewHolder);
-    method public boolean removeAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>);
+    method public boolean removeAdapter(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>);
   }
 
   public static final class ConcatAdapter.Config {
@@ -343,7 +343,7 @@ package androidx.recyclerview.widget {
     method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
   }
 
-  public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
+  public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH!> {
     ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T!>);
     ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
     method public java.util.List<T!> getCurrentList();
@@ -512,7 +512,7 @@ package androidx.recyclerview.widget {
     ctor public RecyclerView.Adapter();
     method public final void bindViewHolder(VH, int);
     method public final VH createViewHolder(android.view.ViewGroup, int);
-    method public int findRelativeAdapterPositionIn(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>, androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
+    method public int findRelativeAdapterPositionIn(androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>, androidx.recyclerview.widget.RecyclerView.ViewHolder, int);
     method public abstract int getItemCount();
     method public long getItemId(int);
     method public int getItemViewType(int);
@@ -940,7 +940,7 @@ package androidx.recyclerview.widget {
     ctor public RecyclerView.ViewHolder(android.view.View);
     method public final int getAbsoluteAdapterPosition();
     method @Deprecated public final int getAdapterPosition();
-    method public final androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>? getBindingAdapter();
+    method public final androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder!>? getBindingAdapter();
     method public final int getBindingAdapterPosition();
     method public final long getItemId();
     method public final int getItemViewType();
@@ -1026,7 +1026,7 @@ package androidx.recyclerview.widget {
     field public static final int INVALID_POSITION = -1; // 0xffffffff
   }
 
-  public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
+  public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2!> {
     ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2!>!);
     method public boolean areContentsTheSame(T2!, T2!);
     method public boolean areItemsTheSame(T2!, T2!);
@@ -1038,7 +1038,7 @@ package androidx.recyclerview.widget {
     method public void onRemoved(int, int);
   }
 
-  public abstract static class SortedList.Callback<T2> implements java.util.Comparator<T2> androidx.recyclerview.widget.ListUpdateCallback {
+  public abstract static class SortedList.Callback<T2> implements java.util.Comparator<T2!> androidx.recyclerview.widget.ListUpdateCallback {
     ctor public SortedList.Callback();
     method public abstract boolean areContentsTheSame(T2!, T2!);
     method public abstract boolean areItemsTheSame(T2!, T2!);
@@ -1048,8 +1048,8 @@ package androidx.recyclerview.widget {
     method public void onChanged(int, int, Object!);
   }
 
-  public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
-    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<?>!);
+  public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2!> {
+    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<? extends java.lang.Object!>!);
     method public void onChanged(int, int);
     method public void onInserted(int, int);
     method public void onMoved(int, int);

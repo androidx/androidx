@@ -826,11 +826,11 @@ public class CustomTabsIntentTest {
         Intent intent = new CustomTabsIntent.Builder().build().intent;
         assertFalse(CustomTabsIntent.isActivitySideSheetMaximizationEnabled(intent));
 
-        intent = new CustomTabsIntent.Builder().setActivitySideSheetEnableMaximization(
+        intent = new CustomTabsIntent.Builder().setActivitySideSheetMaximizationEnabled(
                 true).build().intent;
         assertTrue(CustomTabsIntent.isActivitySideSheetMaximizationEnabled(intent));
 
-        intent = new CustomTabsIntent.Builder().setActivitySideSheetEnableMaximization(
+        intent = new CustomTabsIntent.Builder().setActivitySideSheetMaximizationEnabled(
                 false).build().intent;
         assertFalse(CustomTabsIntent.isActivitySideSheetMaximizationEnabled(intent));
     }

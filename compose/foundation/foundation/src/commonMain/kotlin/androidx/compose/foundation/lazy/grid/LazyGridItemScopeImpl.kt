@@ -17,33 +17,23 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemElement
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.IntOffset
 
-@OptIn(ExperimentalFoundationApi::class)
 internal object LazyGridItemScopeImpl : LazyGridItemScope {
-    @ExperimentalFoundationApi
-    override fun Modifier.animateItemPlacement(animationSpec: FiniteAnimationSpec<IntOffset>) =
-        this then AnimateItemElement(animationSpec)
-}
-
-private data class AnimateItemElement(
-    val placementSpec: FiniteAnimationSpec<IntOffset>
-) : ModifierNodeElement<LazyLayoutAnimationSpecsNode>() {
-
-    override fun create(): LazyLayoutAnimationSpecsNode =
-        LazyLayoutAnimationSpecsNode(null, placementSpec)
-
-    override fun update(node: LazyLayoutAnimationSpecsNode) {
-        node.placementSpec = placementSpec
-    }
-
-    override fun InspectorInfo.inspectableProperties() {
-        name = "animateItemPlacement"
-        value = placementSpec
-    }
+    override fun Modifier.animateItem(
+        fadeInSpec: FiniteAnimationSpec<Float>?,
+        placementSpec: FiniteAnimationSpec<IntOffset>?,
+        fadeOutSpec: FiniteAnimationSpec<Float>?
+    ): Modifier =
+        if (fadeInSpec == null && placementSpec == null && fadeOutSpec == null) {
+            this
+        } else {
+            this then LazyLayoutAnimateItemElement(
+                fadeInSpec,
+                placementSpec,
+                fadeOutSpec
+            )
+        }
 }

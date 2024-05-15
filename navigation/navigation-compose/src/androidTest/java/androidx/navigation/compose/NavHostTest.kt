@@ -43,7 +43,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -54,6 +53,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -1432,6 +1432,46 @@ class NavHostTest {
             backPressedDispatcher?.onBackPressed()
             assertThat(count).isEqualTo(2)
             assertThat(wasCalled).isFalse()
+        }
+    }
+
+    @Test
+    fun nestedNavHostRestore() {
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            val innerNavController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) {
+                    NavHost(innerNavController, "nested1") {
+                        composable("nested1") { }
+                        composable("nested2") { }
+                    }
+                }
+                composable(second) { }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second) {
+                popUpTo(first) {
+                    inclusive = true
+                    saveState = true
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(first) {
+                restoreState = true
+                popUpTo(second) {
+                    inclusive = true
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            assertThat(navController.currentDestination?.route).isEqualTo(first)
         }
     }
 

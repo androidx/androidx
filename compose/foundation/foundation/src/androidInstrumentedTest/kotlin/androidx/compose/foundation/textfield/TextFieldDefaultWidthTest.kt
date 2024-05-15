@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.textfield
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
@@ -177,7 +176,6 @@ class BaseTextFieldDefaultWidthTest {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun DefaultWidthTextField(
     text: String,

@@ -191,6 +191,8 @@ class ComposeViewAdapterTest {
                     ...|LazyColumnPreview.kt:49
                     ...|LazyColumnPreview.kt:50
                     ....|LazyColumnPreview.kt:53
+                    ....|LazyColumnPreview.kt:53
+                    ....|LazyColumnPreview.kt:53
                     .....|LazyColumnPreview.kt:54
                     ....|LazyColumnPreview.kt:53
                     .....|LazyColumnPreview.kt:54

@@ -30,7 +30,6 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.getParentOfType
-import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
 
 /**
  * Lint check for detecting calls to the suspend `repeatOnLifecycle` APIs using `lifecycleOwner`
@@ -73,7 +72,7 @@ class UnsafeRepeatOnLifecycleDetector : Detector(), SourceCodeScanner {
         if (!isCalledInViewLifecycleFunction(node.getParentOfType())) return
 
         // Look at the entire launch scope
-        var launchScope = node.getParentOfType<KotlinUFunctionCallExpression>()?.receiver
+        var launchScope = node.getParentOfType<UCallExpression>()?.receiver
         while (
             launchScope != null && !containsViewLifecycleOwnerCall(launchScope.sourcePsi?.text)
         ) {

@@ -17,6 +17,7 @@
 package androidx.credentials;
 
 import static androidx.credentials.CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
+import static androidx.credentials.CredentialOption.BUNDLE_KEY_TYPE_PRIORITY_VALUE;
 import static androidx.credentials.GetPublicKeyCredentialOption.BUNDLE_KEY_REQUEST_JSON;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -41,6 +42,8 @@ import java.util.Set;
 @SmallTest
 public class GetPublicKeyCredentialOptionJavaTest {
     private static final String TEST_REQUEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+    private static final int EXPECTED_PASSKEY_PRIORITY =
+            CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR;
 
 
     @Test
@@ -74,6 +77,15 @@ public class GetPublicKeyCredentialOptionJavaTest {
     }
 
     @Test
+    public void getter_defaultPriorityHint_success() {
+        GetPublicKeyCredentialOption getPublicKeyCredentialOption = new
+                GetPublicKeyCredentialOption(TEST_REQUEST_JSON);
+
+        assertThat(getPublicKeyCredentialOption.getTypePriorityHint())
+                .isEqualTo(EXPECTED_PASSKEY_PRIORITY);
+    }
+
+    @Test
     public void getter_frameworkProperties_success() {
         Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
                 new ComponentName("pkg", "cls"),
@@ -90,6 +102,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
         expectedData.putByteArray(GetPublicKeyCredentialOption.BUNDLE_KEY_CLIENT_DATA_HASH,
                 clientDataHash);
         expectedData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, expectedIsAutoSelect);
+        expectedData.putInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE, EXPECTED_PASSKEY_PRIORITY);
 
         GetPublicKeyCredentialOption option = new GetPublicKeyCredentialOption(
                 requestJsonExpected, clientDataHash, expectedAllowedProviders);
@@ -100,6 +113,7 @@ public class GetPublicKeyCredentialOptionJavaTest {
         assertThat(option.isSystemProviderRequired()).isFalse();
         assertThat(option.getAllowedProviders())
                 .containsAtLeastElementsIn(expectedAllowedProviders);
+        assertThat(option.getTypePriorityHint()).isEqualTo(EXPECTED_PASSKEY_PRIORITY);
     }
 
     @Test
@@ -136,5 +150,6 @@ public class GetPublicKeyCredentialOptionJavaTest {
                 .isEqualTo(customRequestDataValue);
         assertThat(convertedOption.getCandidateQueryData().getBoolean(customCandidateQueryDataKey))
                 .isEqualTo(customCandidateQueryDataValue);
+        assertThat(option.getTypePriorityHint()).isEqualTo(EXPECTED_PASSKEY_PRIORITY);
     }
 }

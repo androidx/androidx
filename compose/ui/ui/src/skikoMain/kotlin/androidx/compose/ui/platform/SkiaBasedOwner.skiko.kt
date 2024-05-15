@@ -39,8 +39,11 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.graphics.layer.GraphicsContext
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.InputModeManagerImpl
@@ -75,8 +78,8 @@ import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.semantics.EmptySemanticsElement
+import androidx.compose.ui.semantics.EmptySemanticsModifier
 import androidx.compose.ui.semantics.SemanticsOwner
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.platform.FontLoader
@@ -92,7 +95,6 @@ private typealias Command = () -> Unit
 
 @OptIn(
     ExperimentalComposeUiApi::class,
-    ExperimentalTextApi::class,
     InternalCoreApi::class,
     InternalComposeUiApi::class
 )
@@ -100,7 +102,7 @@ internal class SkiaBasedOwner(
     private val platformInputService: PlatformInput,
     private val component: PlatformComponent,
     density: Density = Density(1f, 1f),
-    coroutineContext: CoroutineContext,
+    override val coroutineContext: CoroutineContext,
     val isPopup: Boolean = false,
     val isFocusable: Boolean = true,
     val onDismissRequest: (() -> Unit)? = null,
@@ -124,14 +126,17 @@ internal class SkiaBasedOwner(
 
     override val sharedDrawScope = LayoutNodeDrawScope()
 
-    private val semanticsModifier = EmptySemanticsElement
+    private val rootSemanticsNode = EmptySemanticsModifier()
+    private val semanticsModifier = EmptySemanticsElement(rootSemanticsNode)
 
-    override val focusOwner: FocusOwner = FocusOwnerImpl {
-        registerOnEndApplyChangesListener(it)
-    }.apply {
-        // TODO(demin): support RTL [onRtlPropertiesChanged]
-        layoutDirection = LayoutDirection.Ltr
-    }
+    override val focusOwner: FocusOwner = FocusOwnerImpl(
+        onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
+        onRequestFocusForOwner = { _, _ -> true }, // TODO request focus from framework.
+        onMoveFocusInterop = { _ -> true },
+        onClearFocusForOwner = {}, // TODO clear focus from framework.
+        onFocusRectInterop = { null },
+        onLayoutDirection = { layoutDirection } // TODO(demin): RTL [onRtlPropertiesChanged].
+    )
 
     // TODO: Set the input mode. For now we don't support touch mode, (always in Key mode).
     private val _inputModeManager = InputModeManagerImpl(
@@ -188,8 +193,6 @@ internal class SkiaBasedOwner(
             .onKeyEvent(onKeyEvent)
     }
 
-    override val coroutineContext: CoroutineContext = coroutineContext
-
     override val rootForTest = this
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
@@ -203,9 +206,8 @@ internal class SkiaBasedOwner(
     init {
         snapshotObserver.startObserving()
         root.attach(this)
-        focusOwner.focusTransactionManager.withNewTransaction {
-            focusOwner.takeFocus()
-        }
+        // TODO instead of taking focus here, call this when the owner gets focused.
+        focusOwner.takeFocus(Enter, previouslyFocusedRect = null)
     }
 
     fun dispose() {
@@ -231,10 +233,11 @@ internal class SkiaBasedOwner(
     override val clipboardManager = PlatformClipboardManager()
 
     override val accessibilityManager = DefaultAccessibilityManager()
+    override val graphicsContext: GraphicsContext = GraphicsContext()
 
     override val textToolbar = DefaultTextToolbar()
 
-    override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
+    override val semanticsOwner: SemanticsOwner = SemanticsOwner(root, rootSemanticsNode)
 
     override val dragAndDropManager: DragAndDropManager get() = TODO("Not yet implemented")
 
@@ -368,8 +371,9 @@ internal class SkiaBasedOwner(
     }
 
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
-        invalidateParentLayer: () -> Unit
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
     ) = SkiaLayer(
         density,
         invalidateParentLayer = {
@@ -408,7 +412,7 @@ internal class SkiaBasedOwner(
     override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
 
     fun draw(canvas: org.jetbrains.skia.Canvas) {
-        root.draw(canvas.asComposeCanvas())
+        root.draw(canvas.asComposeCanvas(), null)
     }
 
     private var desiredPointerIcon: PointerIcon? = null

@@ -205,14 +205,17 @@ private object MeasuringIntrinsics {
                 } else {
                     measurable.minIntrinsicWidth(constraints.maxHeight)
                 }
-                return EmptyPlaceable(width, constraints.maxHeight)
+                val height =
+                    if (constraints.hasBoundedHeight) constraints.maxHeight else LargeDimension
+                return EmptyPlaceable(width, height)
             }
             val height = if (minMax == IntrinsicMinMax.Max) {
                 measurable.maxIntrinsicHeight(constraints.maxWidth)
             } else {
                 measurable.minIntrinsicHeight(constraints.maxWidth)
             }
-            return EmptyPlaceable(constraints.maxWidth, height)
+            val width = if (constraints.hasBoundedWidth) constraints.maxWidth else LargeDimension
+            return EmptyPlaceable(width, height)
         }
 
         override fun minIntrinsicWidth(height: Int): Int {

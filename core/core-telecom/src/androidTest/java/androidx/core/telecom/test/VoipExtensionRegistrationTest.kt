@@ -31,6 +31,7 @@ import androidx.core.telecom.extensions.voip.raisedHandParticipants
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -47,6 +48,7 @@ import org.junit.runner.RunWith
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalAppActions::class)
 @RunWith(AndroidJUnit4::class)
 class VoipExtensionRegistrationTest : BaseTelecomTest() {
     private lateinit var extensionRegistrationMap: Map<Int, (CallControlScope) -> Unit>

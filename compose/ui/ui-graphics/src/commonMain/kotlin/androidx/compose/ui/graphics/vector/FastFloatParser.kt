@@ -19,21 +19,15 @@
 
 package androidx.compose.ui.graphics.vector
 
+import androidx.compose.ui.util.doubleFromBits
+import androidx.compose.ui.util.floatFromBits
+
 /**
  * The code below is adapted from:
  *     https://github.com/fastfloat/fast_float
  *     https://github.com/lemire/fast_double_parser/
  * The original C++ implementations are licensed under Apache 2.0
  */
-
-// These two functions are technically identical to Float.fromBits()
-// and Double.fromBits(). However, since they are declared as top-
-// level functions, they do not incur the cost of a static fetch
-// through the Companion class. Using these top-level functions,
-// the generated arm64 code after dex2oat is exactly a single `fmov`
-internal expect fun floatFromBits(bits: Int): Float
-
-internal expect fun doubleFromBits(bits: Long): Double
 
 private const val FloatMinExponent = -10
 private const val FloatMaxExponent = 10

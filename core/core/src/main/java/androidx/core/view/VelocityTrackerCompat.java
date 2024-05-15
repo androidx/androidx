@@ -85,6 +85,7 @@ public final class VelocityTrackerCompat {
      *
      * @deprecated Use {@link VelocityTracker#getXVelocity(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "tracker.getXVelocity(pointerId)")
     @Deprecated
     public static float getXVelocity(VelocityTracker tracker, int pointerId) {
         return tracker.getXVelocity(pointerId);
@@ -97,6 +98,7 @@ public final class VelocityTrackerCompat {
      *
      * @deprecated Use {@link VelocityTracker#getYVelocity(int)} directly.
      */
+    @androidx.annotation.ReplaceWith(expression = "tracker.getYVelocity(pointerId)")
     @Deprecated
     public static float getYVelocity(VelocityTracker tracker, int pointerId) {
         return tracker.getYVelocity(pointerId);

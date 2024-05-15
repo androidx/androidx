@@ -1,4 +1,11 @@
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -7,12 +14,12 @@ plugins {
 
 dependencies { 
     api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.core:core:1.3.0-beta01")
+    implementation("androidx.core:core:1.3.0")
 }
 
 androidx {
     name = "CardView"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2011"
     description = "Android Support CardView"
     failOnDeprecationWarnings = false

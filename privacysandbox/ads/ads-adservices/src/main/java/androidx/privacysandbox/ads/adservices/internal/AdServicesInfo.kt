@@ -22,7 +22,6 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 internal object AdServicesInfo {
-
     fun adServicesVersion(): Int {
         return if (Build.VERSION.SDK_INT >= 33) {
             Extensions30Impl.getAdServicesVersion()
@@ -31,9 +30,17 @@ internal object AdServicesInfo {
         }
     }
 
-    fun extServicesVersion(): Int {
+    fun extServicesVersionS(): Int {
         return if (Build.VERSION.SDK_INT == 31 || Build.VERSION.SDK_INT == 32) {
-            Extensions30ExtImpl.getAdExtServicesVersion()
+            Extensions30ExtImpl.getAdExtServicesVersionS()
+        } else {
+            0
+        }
+    }
+
+    fun extServicesVersionR(): Int {
+        return if (Build.VERSION.SDK_INT == 30) {
+            Extensions30ExtImpl.getAdExtServicesVersionR()
         } else {
             0
         }
@@ -52,7 +59,11 @@ internal object AdServicesInfo {
         // for the build version. Use S for now, but this can be changed to R when we add
         // support for R later.
         @DoNotInline
-        fun getAdExtServicesVersion() =
+        fun getAdExtServicesVersionS() =
             SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S)
+
+        @DoNotInline
+        fun getAdExtServicesVersionR() =
+            SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R)
     }
 }

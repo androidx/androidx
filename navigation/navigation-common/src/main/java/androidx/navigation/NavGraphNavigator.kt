@@ -15,6 +15,7 @@
  */
 package androidx.navigation
 
+import android.os.Bundle
 import kotlinx.coroutines.flow.StateFlow
 
 /**
@@ -65,7 +66,8 @@ public open class NavGraphNavigator(
         navigatorExtras: Extras?
     ) {
         val destination = entry.destination as NavGraph
-        val args = entry.arguments
+        // contains restored args or args passed explicitly as startDestinationArgs
+        var args = entry.arguments
         val startId = destination.startDestinationId
         val startRoute = destination.startDestinationRoute
         check(startId != 0 || startRoute != null) {
@@ -82,11 +84,24 @@ public open class NavGraphNavigator(
                 "navigation destination $dest is not a direct child of this NavGraph"
             )
         }
+        if (startRoute != null) {
+            val matchingArgs = startDestination.matchDeepLink(startRoute)?.matchingArgs
+            if (matchingArgs != null && !matchingArgs.isEmpty) {
+                val bundle = Bundle()
+                // we need to add args from startRoute, but it should not override existing args
+                bundle.putAll(matchingArgs)
+                args?.let { bundle.putAll(args) }
+                args = bundle
+            }
+        }
+
         val navigator = navigatorProvider.getNavigator<Navigator<NavDestination>>(
             startDestination.navigatorName
         )
         val startDestinationEntry = state.createBackStackEntry(
             startDestination,
+            // could contain default args, restored args, args passed during setGraph,
+            // and args from route
             startDestination.addInDefaultArgs(args)
         )
         navigator.navigate(listOf(startDestinationEntry), navOptions, navigatorExtras)

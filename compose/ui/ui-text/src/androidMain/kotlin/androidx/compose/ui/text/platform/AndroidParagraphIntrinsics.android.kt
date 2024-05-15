@@ -18,6 +18,7 @@ package androidx.compose.ui.text.platform
 
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.view.View
 import androidx.compose.runtime.State
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.EmojiSupportMatch
@@ -34,14 +35,12 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.TypefaceResult
-import androidx.compose.ui.text.intl.AndroidLocale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.extensions.applySpanStyle
 import androidx.compose.ui.text.platform.extensions.setTextMotion
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Density
 import androidx.core.text.TextUtilsCompat
-import androidx.core.view.ViewCompat
 import java.util.Locale
 
 @OptIn(InternalPlatformTextApi::class, ExperimentalTextApi::class)
@@ -161,11 +160,11 @@ internal fun resolveTextDirectionHeuristics(
         TextDirection.Rtl -> LayoutCompat.TEXT_DIRECTION_RTL
         TextDirection.Content, TextDirection.Unspecified -> {
             val currentLocale = localeList?.let {
-                (it[0].platformLocale as AndroidLocale).javaLocale
+                it[0].platformLocale
             } ?: Locale.getDefault()
             when (TextUtilsCompat.getLayoutDirectionFromLocale(currentLocale)) {
-                ViewCompat.LAYOUT_DIRECTION_LTR -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
-                ViewCompat.LAYOUT_DIRECTION_RTL -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
+                View.LAYOUT_DIRECTION_LTR -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
+                View.LAYOUT_DIRECTION_RTL -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
                 else -> LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
             }
         }

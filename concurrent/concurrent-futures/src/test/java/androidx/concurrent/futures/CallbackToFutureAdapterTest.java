@@ -82,6 +82,7 @@ public class CallbackToFutureAdapterTest {
         assertThat(t).isEqualTo(t);
     }
 
+    @SuppressWarnings("removal") // runFinalization() usage b/316642623
     @Test
     public void testGcedCallback() throws Exception {
         CountDownLatch wasCalled = new CountDownLatch(1);
@@ -111,7 +112,7 @@ public class CallbackToFutureAdapterTest {
      */
     private static void createUnreachableLatchFinalizer(final CountDownLatch latch) {
         new Object() {
-            @SuppressWarnings("deprecation")
+            @SuppressWarnings({"deprecation", "removal"}) // b/316642623
             @Override
             protected void finalize() {
                 latch.countDown();

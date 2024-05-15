@@ -40,4 +40,36 @@
     <string name="emoji_empty_non_recent_category">No emojis available</string>
     <!-- Shown in emoji keyboard when Recent emoji is empty. -->
     <string name="emoji_empty_recent_category">You haven\'t used any emojis yet</string>
+
+    <!-- The accessibility content description of the emoji bidirectional switcher. [CHAR_LIMIT=100] -->
+    <string name="emoji_bidirectional_switcher_content_desc">emoji bidirectional switcher</string>
+
+    <!-- The accessibility content description after the emoji bidirectional switcher clicked. [CHAR_LIMIT=100] -->
+    <string name="emoji_bidirectional_switcher_clicked_desc">emoji facing direction switched</string>
+
+    <!-- The accessibility content description of the emoji variant selector. [CHAR_LIMIT=100] -->
+    <string name="emoji_variant_selector_content_desc">emoji variant selector</string>
+
+    <!-- The template of accessibility content description of the emoji variant selector.
+    First placeholder for skin tone on the left part of the emoji, second placeholder for skin tone
+    on the right part of the emoji. [CHAR_LIMIT=100] -->
+    <string name="emoji_variant_content_desc_template">%1$s and %2$s</string>
+
+    <!-- The accessibility content description of the shadow part in emoji variant selector. [CHAR_LIMIT=100]-->
+    <string name="emoji_skin_tone_shadow_content_desc">shadow</string>
+
+    <!-- The accessibility content description of the light skintone in emoji variant selector. [CHAR_LIMIT=100]-->
+    <string name="emoji_skin_tone_light_content_desc">light skin tone</string>
+
+    <!-- The accessibility content description of the medium light skintone in emoji variant selector. [CHAR_LIMIT=100]-->
+    <string name="emoji_skin_tone_medium_light_content_desc">medium light skin tone</string>
+
+    <!-- The accessibility content description of the medium skintone in emoji variant selector. [CHAR_LIMIT=100]-->
+    <string name="emoji_skin_tone_medium_content_desc">medium skin tone</string>
+
+    <!-- The accessibility content description of the medium dark skintone in emoji variant selector. [CHAR_LIMIT=100]-->
+    <string name="emoji_skin_tone_medium_dark_content_desc">medium dark skin tone</string>
+
+    <!-- The accessibility content description of the dark skintone in emoji variant selector. [CHAR_LIMIT=100]-->
+    <string name="emoji_skin_tone_dark_content_desc">dark skin tone</string>
 </resources>

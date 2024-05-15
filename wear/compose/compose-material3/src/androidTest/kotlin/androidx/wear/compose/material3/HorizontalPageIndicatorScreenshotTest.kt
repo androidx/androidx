@@ -19,12 +19,13 @@ package androidx.wear.compose.material3
 import android.os.Build
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.LayoutDirection
+import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -34,7 +35,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import androidx.wear.compose.material3.HorizontalPageIndicatorTest.Companion.pageIndicatorState
+import androidx.wear.compose.material3.HorizontalPageIndicatorTest.Companion.PAGE_COUNT
+import androidx.wear.compose.material3.HorizontalPageIndicatorTest.Companion.SELECTED_PAGE_INDEX
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -89,7 +91,9 @@ class HorizontalPageIndicatorScreenshotTest {
         layoutDirection: LayoutDirection
     ) {
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.LayoutDirection(layoutDirection)
+            ) {
                 defaultHorizontalPageIndicator(isRound)
             }
         }
@@ -102,12 +106,14 @@ class HorizontalPageIndicatorScreenshotTest {
 
     private fun between_pages(isRound: Boolean) {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
                 HorizontalPageIndicator(
                     modifier = Modifier
                         .testTag(TEST_TAG)
                         .size(200.dp),
-                    pageIndicatorState = pageIndicatorState(0.5f),
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.5f },
                     selectedColor = Color.Yellow,
                     unselectedColor = Color.Red,
                     indicatorSize = 15.dp
@@ -123,12 +129,14 @@ class HorizontalPageIndicatorScreenshotTest {
 
     @Composable
     private fun defaultHorizontalPageIndicator(isRound: Boolean) {
-        ConfiguredShapeScreen(isRound) {
+        DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
             HorizontalPageIndicator(
                 modifier = Modifier
                     .testTag(TEST_TAG)
                     .size(200.dp),
-                pageIndicatorState = pageIndicatorState(),
+                pageCount = PAGE_COUNT,
+                currentPage = SELECTED_PAGE_INDEX,
+                currentPageOffsetFraction = { 0.0f },
                 selectedColor = Color.Yellow,
                 unselectedColor = Color.Red,
                 indicatorSize = 15.dp

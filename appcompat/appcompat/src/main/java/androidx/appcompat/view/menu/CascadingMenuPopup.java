@@ -50,7 +50,6 @@ import androidx.appcompat.widget.MenuItemHoverListener;
 import androidx.appcompat.widget.MenuPopupWindow;
 import androidx.core.internal.view.SupportMenu;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -313,8 +312,8 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
      */
     @HorizPosition
     private int getInitialMenuPosition() {
-        final int layoutDirection = ViewCompat.getLayoutDirection(mAnchorView);
-        return layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL ? HORIZ_POSITION_LEFT :
+        final int layoutDirection = mAnchorView.getLayoutDirection();
+        return layoutDirection == View.LAYOUT_DIRECTION_RTL ? HORIZ_POSITION_LEFT :
                 HORIZ_POSITION_RIGHT;
     }
 
@@ -741,7 +740,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
         if (mRawDropDownGravity != dropDownGravity) {
             mRawDropDownGravity = dropDownGravity;
             mDropDownGravity = GravityCompat.getAbsoluteGravity(
-                    dropDownGravity, ViewCompat.getLayoutDirection(mAnchorView));
+                    dropDownGravity, mAnchorView.getLayoutDirection());
         }
     }
 
@@ -752,7 +751,7 @@ final class CascadingMenuPopup extends MenuPopup implements MenuPresenter, OnKey
 
             // Gravity resolution may have changed, update from raw gravity.
             mDropDownGravity = GravityCompat.getAbsoluteGravity(
-                    mRawDropDownGravity, ViewCompat.getLayoutDirection(mAnchorView));
+                    mRawDropDownGravity, mAnchorView.getLayoutDirection());
         }
     }
 

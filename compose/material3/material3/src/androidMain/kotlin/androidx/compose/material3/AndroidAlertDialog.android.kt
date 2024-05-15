@@ -18,6 +18,8 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.DialogTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -229,7 +231,7 @@ object AlertDialogDefaults {
     val textContentColor: Color @Composable get() = DialogTokens.SupportingTextColor.value
 
     /** The default tonal elevation for alert dialogs */
-    val TonalElevation: Dp = DialogTokens.ContainerElevation
+    val TonalElevation: Dp = 0.dp
 }
 
 private val ButtonsMainAxisSpacing = 8.dp

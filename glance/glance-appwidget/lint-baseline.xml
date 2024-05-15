@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -44,24 +44,6 @@
         errorLine2="                                        ~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/AppWidgetSession.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        sizes.map { DpSize(it.width.dp, it.height.dp) }"
-        errorLine2="              ~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="    }.minByOrNull { it.second }?.first"
-        errorLine2="      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
     </issue>
 
     <issue
@@ -485,42 +467,6 @@
         errorLine2="                                            ~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/WidgetLayout.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;DpSize> of extractAllSizes: replace with LongList"
-        errorLine1="internal fun Bundle.extractAllSizes(minSize: () -> DpSize): List&lt;DpSize> {"
-        errorLine2="                                                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;DpSize> of estimateSizes: replace with LongList"
-        errorLine1="private fun Bundle.estimateSizes(minSize: () -> DpSize): List&lt;DpSize> {"
-        errorLine2="                                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;DpSize> of extractOrientationSizes: replace with LongList"
-        errorLine1="internal fun Bundle.extractOrientationSizes() ="
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;DpSize> of sortedBySize: replace with LongList"
-        errorLine1="internal fun Collection&lt;DpSize>.sortedBySize() ="
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/AppWidgetUtils.kt"/>
     </issue>
 
     <issue

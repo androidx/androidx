@@ -21,7 +21,6 @@ import java.util.Properties
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileTree
-import org.gradle.api.plugins.ExtraPropertiesExtension
 
 /** Writes the appropriate SDK path to local.properties file in specified location. */
 fun Project.writeSdkPathToLocalPropertiesFile() {
@@ -43,14 +42,14 @@ fun Project.writeSdkPathToLocalPropertiesFile() {
 
 /** Returns a file tree representing the platform SDK suitable for use as a dependency. */
 fun Project.getSdkDependency(): FileTree =
-    fileTree("${getSdkPath()}/platforms/${project.defaultAndroidConfig.compileSdk}/") {
+    fileTree("${getSdkPath()}/platforms/android-${project.defaultAndroidConfig.compileSdk}/") {
         it.include("android.jar")
     }
 
 /** Returns the root project's platform-specific SDK path as a file. */
 fun Project.getSdkPath(): File {
     if (
-        rootProject.plugins.hasPlugin("AndroidXPlaygroundRootPlugin") ||
+        ProjectLayoutType.from(project) == ProjectLayoutType.PLAYGROUND ||
             System.getenv("COMPOSE_DESKTOP_GITHUB_BUILD") != null
     ) {
         // This is not full checkout, use local settings instead.
@@ -81,24 +80,6 @@ fun Project.getSdkPath(): File {
     }
 }
 
-/** @return [File] representing the path stored in [envValue] if it exists, `null` otherwise. */
-private fun getPathFromEnvironmentVariableOrNull(envVar: String): File? {
-    val envValue = System.getenv(envVar)
-    if (envValue != null) {
-        val dir = File(envValue)
-        if (dir.isDirectory) {
-            return dir
-        }
-    }
-
-    return null
-}
-
-private fun fileIfExistsOrNull(parent: File, child: String): File? {
-    val file = File(parent, child)
-    return if (file.exists()) file else null
-}
-
 private fun getSdkPathFromEnvironmentVariable(): File {
     // check for environment variables, in the order AGP checks
     listOf("ANDROID_HOME", "ANDROID_SDK_ROOT").forEach {
@@ -117,7 +98,7 @@ private fun getSdkPathFromEnvironmentVariable(): File {
 
 /** Sets the path to the canonical root project directory, e.g. {@code frameworks/support}. */
 fun Project.setSupportRootFolder(rootDir: File?) {
-    val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
+    val extension = project.extensions.extraProperties
     return extension.set("supportRootFolder", rootDir)
 }
 
@@ -128,14 +109,8 @@ fun Project.setSupportRootFolder(rootDir: File?) {
  * because it is generalized to also work for the "ui" project and playground projects.
  */
 fun Project.getSupportRootFolder(): File {
-    val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
+    val extension = project.extensions.extraProperties
     return extension.get("supportRootFolder") as File
-}
-
-/** Returns whether the path to the canonical root project directory has been set. */
-fun Project.hasSupportRootFolder(): Boolean {
-    val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
-    return extension.has("supportRootFolder")
 }
 
 /**

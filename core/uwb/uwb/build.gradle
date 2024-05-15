@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -31,7 +38,7 @@ dependencies {
     implementation(libs.guavaAndroid)
     implementation('com.google.android.gms:play-services-base:18.0.1')
     implementation(libs.kotlinCoroutinesPlayServices)
-    implementation('com.google.android.gms:play-services-nearby:19.0.0', {
+    implementation('com.google.android.gms:play-services-nearby:19.2.0', {
         exclude group: "androidx.core"
     })
 
@@ -58,7 +65,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         stableAidl {
             version 1
         }

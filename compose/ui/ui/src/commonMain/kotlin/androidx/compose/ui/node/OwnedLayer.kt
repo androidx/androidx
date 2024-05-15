@@ -21,10 +21,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * A layer returned by [Owner.createLayer] to separate drawn content.
@@ -32,13 +31,9 @@ import androidx.compose.ui.unit.LayoutDirection
 internal interface OwnedLayer {
 
     /**
-     * Applies the new layer properties and causing this layer to be redrawn.
+     * Applies the new layer properties, causing this layer to be redrawn.
      */
-    fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    )
+    fun updateLayerProperties(scope: ReusableGraphicsLayerScope)
 
     /**
      * Returns `false` if [position] is outside the clipped region or `true` if clipping
@@ -59,7 +54,7 @@ internal interface OwnedLayer {
     /**
      * Causes the layer to be drawn into [canvas]
      */
-    fun drawLayer(canvas: Canvas)
+    fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?)
 
     /**
      * Updates the drawing on the current canvas.
@@ -102,7 +97,10 @@ internal interface OwnedLayer {
      * [drawBlock] and [invalidateParentLayer] values. The layer will be reinitialized
      * as new after this call.
      */
-    fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit)
+    fun reuseLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    )
 
     /**
      * Calculates the transform from the parent to the local coordinates and multiplies

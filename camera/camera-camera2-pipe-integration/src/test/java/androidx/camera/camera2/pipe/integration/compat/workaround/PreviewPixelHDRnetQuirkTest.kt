@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.StreamSpec
@@ -172,7 +171,7 @@ class PreviewPixelHDRnetQuirkTest(
         configType: Class<out UseCaseConfig<*>?>,
     ): CameraUseCaseAdapter {
         return CameraUseCaseAdapter(
-            LinkedHashSet<CameraInternal>(setOf(FakeCamera(fakeCameraId))),
+            FakeCamera(fakeCameraId),
             FakeCameraCoordinator(),
             FakeCameraDeviceSurfaceManager().apply {
                 setSuggestedStreamSpec(

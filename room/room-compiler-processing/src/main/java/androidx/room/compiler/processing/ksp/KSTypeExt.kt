@@ -90,13 +90,15 @@ private fun KSTypeArgument.replaceTypeAliases(resolver: Resolver): KSTypeArgumen
 private fun KSType.replaceTypeArgs(
     resolver: Resolver,
     typeArgsMap: Map<String, KSTypeArgument>
-): KSType = replace(arguments.map { it.replaceTypeArgs(resolver, typeArgsMap) })
+): KSType = replace(arguments.map { it.replaceTypeArgs(this, resolver, typeArgsMap) })
 
 private fun KSTypeArgument.replaceTypeArgs(
+    enclosingType: KSType,
     resolver: Resolver,
     typeArgsMap: Map<String, KSTypeArgument>
 ): KSTypeArgument {
     val type = type?.resolve() ?: return this
+    if (type == enclosingType) return this
     if (type.isTypeParameter()) {
         val name = (type.declaration as KSTypeParameter).name.asString()
         if (typeArgsMap.containsKey(name)) {

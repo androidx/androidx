@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -47,7 +54,6 @@ androidx {
 android {
     namespace "androidx.core.i18n"
     defaultConfig {
-        minSdkVersion 19
     }
     lintOptions {
         lintConfig = file("lint.xml")

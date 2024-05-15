@@ -27,7 +27,7 @@
     <string name="cancel_action_title" msgid="1149738685397349236">"Cancelar"</string>
     <string name="stop_action_title" msgid="1187619482795416314">"Parar"</string>
     <string name="more_action_title" msgid="1039516575011403837">"Mais"</string>
-    <string name="call_action_title" msgid="6218977436905001611">"Ligar"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"Ligações"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"Principal"</string>
     <string name="options_action_title" msgid="1168121856107932984">"Opções"</string>
     <string name="search_action_title" msgid="3483459674263446335">"Pesquisa"</string>
@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Indisponível"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Tipos de conector VE"</string>
     <string name="example_title" msgid="530257630320010494">"Exemplo %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"Este texto usa a cor vermelha"</string>
-    <string name="example_2_text" msgid="718820705318661440">"Este texto usa a cor verde"</string>
-    <string name="example_3_text" msgid="977269832109695627">"Este texto usa a cor azul"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"Este texto usa a cor amarela"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"Este texto usa a cor "<annotation color="red">"vermelha"</annotation></string>
+    <string name="example_2_text" msgid="1359373957397219102">"Este texto usa a cor "<annotation color="green">"verde"</annotation></string>
+    <string name="example_3_text" msgid="2409207170762049673">"Este texto usa a cor "<annotation color="blue">"azul"</annotation></string>
+    <string name="example_4_text" msgid="9055989886645433000">"Este texto usa a cor "<annotation color="yellow">"amarela"</annotation></string>
     <string name="example_5_text" msgid="8828804968749423500">"Este texto usa a cor primária"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Este texto usa a cor secundária"</string>
     <string name="color_demo" msgid="1822427636476178993">"Demonstração de cor"</string>
@@ -236,10 +236,10 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Procurar lugares"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Demonstração do modelo de pesquisa"</string>
     <string name="search_hint" msgid="978495498991026792">"Pesquise aqui"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Consulte nossos Termos de Serviço"</string>
+    <string name="additional_text" msgid="5755100726890686184">"Consulte nossos "<annotation link="terms_of_service">"Termos de Serviço"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Login do Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Usar PIN"</string>
-    <string name="qr_code" msgid="5487041647280777397">"Código QR"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR code"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Seu host não oferece suporte ao modelo de login"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Host incompatível"</string>
     <string name="email_hint" msgid="7205549445477319606">"E-mail"</string>
@@ -251,7 +251,7 @@
     <string name="password_hint" msgid="2869107073860012864">"senha"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Nome de usuário"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Digite este PIN no smartphone"</string>
-    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Ler o Código QR para fazer login"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Ler o QR code para fazer login"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Fazer login com o Google"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Use este botão para concluir o Login do Google"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Você fez login."</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opções de trajeto"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Evitar rodovias"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Evitar balsas"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Demonstrações de mapas"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapa com demonstrações de conteúdo"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapa com demonstração de modelo de mensagem"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapa com demonstração de modelo de grade"</string>
 </resources>

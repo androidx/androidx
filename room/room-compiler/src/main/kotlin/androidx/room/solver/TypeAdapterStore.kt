@@ -28,7 +28,7 @@ import androidx.room.ext.CollectionTypeNames.INT_SPARSE_ARRAY
 import androidx.room.ext.CollectionTypeNames.LONG_SPARSE_ARRAY
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaTypeNames
-import androidx.room.ext.getValueClassUnderlyingProperty
+import androidx.room.ext.getValueClassUnderlyingElement
 import androidx.room.ext.isByteBuffer
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.isNotByte
@@ -44,6 +44,7 @@ import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.ProcessorErrors
 import androidx.room.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP
+import androidx.room.processor.ProcessorErrors.invalidQueryForSingleColumnArray
 import androidx.room.solver.binderprovider.CoroutineFlowResultBinderProvider
 import androidx.room.solver.binderprovider.CursorQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -380,7 +381,7 @@ class TypeAdapterStore private constructor(
         val typeElement = type.typeElement
         if (typeElement?.isValueClass() == true) {
             // Extract the type value of the Value class element
-            val underlyingProperty = typeElement.getValueClassUnderlyingProperty()
+            val underlyingProperty = typeElement.getValueClassUnderlyingElement()
             val underlyingTypeColumnAdapter = findColumnTypeAdapter(
                 // Find an adapter for the non-null underlying type, nullability will be handled
                 // by the value class adapter.
@@ -507,15 +508,46 @@ class TypeAdapterStore private constructor(
 
         // TODO: (b/192068912) Refactor the following since this if-else cascade has gotten large
         if (typeMirror.isArray() && typeMirror.componentType.isNotByte()) {
+            val componentType = typeMirror.componentType
             checkTypeNullability(
                 typeMirror,
                 extras,
                 "Array",
-                arrayComponentType = typeMirror.componentType
+                arrayComponentType = componentType
             )
-            val rowAdapter =
-                findRowAdapter(typeMirror.componentType, query) ?: return null
-            return ArrayQueryResultAdapter(typeMirror, rowAdapter)
+            val isSingleColumnArray = componentType.asTypeName().isPrimitive ||
+                componentType.isTypeOf(String::class)
+            val queryResultInfo = query.resultInfo
+            if (
+                isSingleColumnArray &&
+                queryResultInfo != null &&
+                queryResultInfo.columns.size > 1
+            ) {
+                context.logger.e(
+                    invalidQueryForSingleColumnArray(
+                        typeMirror.asTypeName().toString(context.codeLanguage)
+                    )
+                )
+                return null
+            }
+
+            // Create a type mirror for a regular List in order to use ListQueryResultAdapter. This
+            // avoids code duplication as an Array can be initialized using a list.
+            val listType = context.processingEnv.getDeclaredType(
+                context.processingEnv.requireTypeElement(List::class),
+                componentType.boxed().makeNonNullable()
+            ).makeNonNullable()
+
+            val listResultAdapter = findQueryResultAdapter(
+                typeMirror = listType,
+                query = query,
+                extras = extras
+            ) ?: return null
+
+            return ArrayQueryResultAdapter(
+                typeMirror,
+                listResultAdapter as ListQueryResultAdapter
+            )
         } else if (typeMirror.typeArguments.isEmpty()) {
             val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
             return SingleItemQueryResultAdapter(rowAdapter)
@@ -568,7 +600,6 @@ class TypeAdapterStore private constructor(
                 typeMirror,
                 extras
             )
-
             val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()
             val rowAdapter = findRowAdapter(typeArg, query) ?: return null
             return ListQueryResultAdapter(

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
@@ -25,13 +24,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class MeasuredPage(
     override val index: Int,
     val size: Int,
     private val placeables: List<Placeable>,
     private val visualOffset: IntOffset,
-    val key: Any,
+    override val key: Any,
     orientation: Orientation,
     private val horizontalAlignment: Alignment.Horizontal?,
     private val verticalAlignment: Alignment.Vertical?,

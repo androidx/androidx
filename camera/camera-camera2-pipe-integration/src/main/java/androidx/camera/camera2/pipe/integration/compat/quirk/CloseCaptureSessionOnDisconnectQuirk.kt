@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 import java.util.Locale
 
@@ -41,6 +38,10 @@ import java.util.Locale
 class CloseCaptureSessionOnDisconnectQuirk : Quirk {
 
     companion object {
+        private val androidTOrNewerSm8150Devices = mapOf(
+            "google" to setOf("pixel 4", "pixel 4 xl"),
+            "samsung" to setOf("sm-g770f"),
+        )
 
         @JvmStatic
         fun isEnabled(): Boolean {
@@ -65,6 +66,16 @@ class CloseCaptureSessionOnDisconnectQuirk : Quirk {
                 // For CPH devices, the shutdown sequence oftentimes triggers ANR for the test app.
                 // As a result, we need to close the capture session to stop the captures, then
                 // release the Surfaces by FinalizeSessionOnCloseQuirk.
+                true
+            } else if ((Build.HARDWARE.equals("qcom", ignoreCase = true) &&
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.S) ||
+                androidTOrNewerSm8150Devices[Build.BRAND.lowercase(Locale.getDefault())]?.contains(
+                    Build.MODEL.lowercase(Locale.getDefault())) == true
+            ) {
+                // On qcom platforms from a certain era, switching capture sessions without closing
+                // the prior session then setting the repeating request immediately, puts the camera
+                // HAL in a bad state where it only produces a few frames before going into an
+                // unrecoverable error. See b/316048171 for context.
                 true
             } else {
                 // For Infinix devices, there is a service that actively kills apps that use

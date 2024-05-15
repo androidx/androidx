@@ -29,12 +29,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 
 @Composable
 fun ThemeFonts() {
-    ScalingLazyColumnWithRSB {
+    ScalingLazyColumn {
         item {
             ThemeFontRow(style = MaterialTheme.typography.display1, description = "display1")
         }
@@ -87,7 +88,7 @@ fun ThemeFontRow(style: TextStyle, description: String) {
 
 @Composable
 fun ThemeColors() {
-    ScalingLazyColumnWithRSB {
+    ScalingLazyColumn {
         item {
             ThemeColorRow(
                 backgroundColor = MaterialTheme.colors.background,

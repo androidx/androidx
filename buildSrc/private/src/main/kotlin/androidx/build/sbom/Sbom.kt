@@ -83,7 +83,11 @@ private val excludeTaskNames =
         "bundleDebugLocalLintAar",
         "bundleReleaseLocalLintAar",
         "bundleDebugAar",
-        "bundleReleaseAar"
+        "bundleReleaseAar",
+        "bundleAndroidMainAar",
+        "bundleAndroidMainLocalLintAar",
+        "repackageAndroidMainAar",
+        "repackageAarWithResourceApiAndroidMain"
     )
 
 /**
@@ -140,7 +144,7 @@ fun Project.listSbomConfigurationNamesForArchive(task: AbstractArchiveTask): Lis
     // its configurations.
     // If a project has multiple shadowJar tasks, we ask the developer to provide
     // this metadata somehow by failing below
-    if (taskName == "shadowJar") {
+    if (taskName == "shadowJar" || taskName == "shadowLibraryJar") {
         // If the task is a ShadowJar task, we can just ask it which configurations it intends to
         // embed
         // We separately validate that this list is correct in

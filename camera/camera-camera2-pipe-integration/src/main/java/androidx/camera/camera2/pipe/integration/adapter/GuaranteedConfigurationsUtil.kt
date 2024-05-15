@@ -25,7 +25,6 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.SurfaceConfig.ConfigType
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 object GuaranteedConfigurationsUtil {
     @JvmStatic
     fun getLegacySupportedCombinationList(): List<SurfaceCombination> {

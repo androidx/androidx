@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -42,7 +41,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
@@ -152,7 +150,7 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
      *                   |________|
      */
     @Test
-    fun moveFocusEnter_blockFocusChange() {
+    fun moveFocus_skipsItemWithCustomEnter() {
         // Arrange.
         val (up, down, left, right, parent) = List(5) { mutableStateOf(false) }
         val child = mutableStateOf(false)
@@ -185,15 +183,95 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(movedFocusSuccessfully).isFalse()
+            assertThat(movedFocusSuccessfully).isTrue()
             assertThat(directionSentToEnter).isEqualTo(focusDirection)
             assertThat(child.value).isFalse()
             assertThat(parent.value).isFalse()
             when (focusDirection) {
-                Left -> assertThat(right.value).isTrue()
-                Right -> assertThat(left.value).isTrue()
-                Up -> assertThat(down.value).isTrue()
-                Down -> assertThat(up.value).isTrue()
+                Left -> assertThat(left.value).isTrue()
+                Right -> assertThat(right.value).isTrue()
+                Up -> assertThat(left.value).isTrue()
+                Down -> assertThat(left.value).isTrue()
+            }
+        }
+    }
+
+    /**
+     *                  _________                   |                    _________
+     *                 |   Up   |                   |                   |   Up   |
+     *                 |________|                   |                   |________|
+     *               ________________               |                 ________________
+     *              |  parent       |               |                |  parent       |
+     *              |   _________   |   __________  |   __________   |   _________   |
+     *              |  | child0 |   |  | focused |  |  | focused |   |  | child0 |   |
+     *              |  |________|   |  |_________|  |  |_________|   |  |________|   |
+     *              |_______________|               |                |_______________|
+     *                  _________                   |                    _________
+     *                 |  Down  |                   |                   |  Down  |
+     *                 |________|                   |                   |________|
+     *                                              |
+     *               moveFocus(Left)                |                moveFocus(Right)
+     *                                              |
+     * ---------------------------------------------|--------------------------------------------
+     *                                              |                   __________
+     *                                              |                  | focused |
+     *                                              |                  |_________|
+     *               ________________               |                ________________
+     *              |  parent       |               |               |  parent       |
+     *   _________  |   _________   |   _________   |   _________   |   _________   |    _________
+     *  |  Left  |  |  | child0 |   |  |  Right |   |  |  Left  |   |  | child0 |   |   |  Right |
+     *  |________|  |  |________|   |  |________|   |  |________|   |  |________|   |   |________|
+     *              |_______________|               |               |_______________|
+     *                  __________                  |
+     *                 | focused |                  |
+     *                 |_________|                  |
+     *                                              |
+     *                moveFocus(Up)                 |                moveFocus(Down)
+     *                                              |
+     */
+    @Test
+    fun moveFocusEnter_blockFocusChange_appropriateOtherItemIsFocused() {
+        // Arrange.
+        val (up, down, left, right, parent) = List(5) { mutableStateOf(false) }
+        val child = mutableStateOf(false)
+        var (upItem, downItem, leftItem, rightItem, childItem) = FocusRequester.createRefs()
+        var directionSentToEnter: FocusDirection? = null
+        val customFocusEnter = Modifier.focusProperties {
+            enter = {
+                directionSentToEnter = it
+                Cancel
+            }
+        }
+        when (focusDirection) {
+            Left -> rightItem = initialFocus
+            Right -> leftItem = initialFocus
+            Up -> downItem = initialFocus
+            Down -> upItem = initialFocus
+        }
+        rule.setContentForTest {
+            if (focusDirection != Up) FocusableBox(up, 30, 0, 10, 10, upItem)
+            if (focusDirection != Left) FocusableBox(left, 0, 30, 10, 10, leftItem)
+            FocusableBox(parent, 20, 20, 30, 30, deactivated = true, modifier = customFocusEnter) {
+                FocusableBox(child, 10, 10, 10, 10, childItem)
+            }
+            if (focusDirection != Right) FocusableBox(right, 60, 30, 10, 10, rightItem)
+            if (focusDirection != Down) FocusableBox(down, 30, 60, 10, 10, downItem)
+        }
+
+        // Act.
+        val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(focusDirection) }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(movedFocusSuccessfully).isTrue()
+            assertThat(directionSentToEnter).isEqualTo(focusDirection)
+            assertThat(child.value).isFalse()
+            assertThat(parent.value).isFalse()
+            when (focusDirection) {
+                Left -> assertThat(up.value).isTrue()
+                Right -> assertThat(up.value).isTrue()
+                Up -> assertThat(left.value).isTrue()
+                Down -> assertThat(left.value).isTrue()
             }
         }
     }
@@ -205,7 +283,7 @@ class TwoDimensionalFocusTraversalImplicitEnterTest(param: Param) {
      *                 ________________
      *                |               |
      *   _________    |     empty     |    _________
-     *  |  Left  |    |   lazylist    |   |  Right |
+     *  |  Left  |    |   lazyList    |   |  Right |
      *  |________|    |               |   |________|
      *                |_______________|
      *                    _________

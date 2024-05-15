@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Pole saadaval"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Elektrisõiduki laadimisliideste tüübid"</string>
     <string name="example_title" msgid="530257630320010494">"Näiteks %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"See tekst on punast värvi"</string>
-    <string name="example_2_text" msgid="718820705318661440">"See tekst on rohelist värvi"</string>
-    <string name="example_3_text" msgid="977269832109695627">"See tekst on sinist värvi"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"See tekst on kollast värvi"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"See tekst on "<annotation color="red">"punast"</annotation>" värvi"</string>
+    <string name="example_2_text" msgid="1359373957397219102">"See tekst on "<annotation color="green">"rohelist"</annotation>" värvi"</string>
+    <string name="example_3_text" msgid="2409207170762049673">"See tekst on "<annotation color="blue">"sinist"</annotation>" värvi"</string>
+    <string name="example_4_text" msgid="9055989886645433000">"See tekst on "<annotation color="yellow">"kollast"</annotation>" värvi"</string>
     <string name="example_5_text" msgid="8828804968749423500">"See tekst kasutab peamist värvi"</string>
     <string name="example_6_text" msgid="7991523168517599600">"See tekst kasutab sekundaarset värvi"</string>
     <string name="color_demo" msgid="1822427636476178993">"Värvi demo"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Sirvige kohti"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Malli demo otsing"</string>
     <string name="search_hint" msgid="978495498991026792">"Sisestage otsing siia"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Vaadake üle meie teenusetingimused"</string>
+    <string name="additional_text" msgid="5755100726890686184">"Vaadake üle meie "<annotation link="terms_of_service">"teenusetingimused"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google\'i sisselogimine"</string>
     <string name="use_pin" msgid="7850893299484337431">"Kasuta PIN-koodi"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR-kood"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Marsruudivalikud"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Väldi kiirteid"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Väldi praami"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Kaardi demod"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kaart sisu demodega"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Kaart sõnumimalli demoga"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Kaart ruudustikumalli demoga"</string>
 </resources>

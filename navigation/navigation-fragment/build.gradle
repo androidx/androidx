@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
@@ -27,6 +35,7 @@ dependencies {
     api(project(":navigation:navigation-runtime"))
     api("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
     api(libs.kotlinStdlib)
+    implementation(libs.kotlinSerializationCore)
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation("androidx.fragment:fragment-testing:1.6.2")
     androidTestImplementation(libs.testExtJunit)
@@ -44,12 +53,15 @@ dependencies {
 
 androidx {
     name = "Navigation Fragment"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Navigation-Fragment"
     metalavaK2UastEnabled = true
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled true
+    }
     namespace "androidx.navigation.fragment"
 }

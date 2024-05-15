@@ -606,6 +606,7 @@ class CameraControllerFragmentTest(
      */
     private fun CameraControllerFragment.assertCanTakePicture(): CaptureResult {
         val imageCallbackSemaphore = Semaphore(0)
+        var error: Exception? = null
         var uri: Uri? = null
         instrumentation.runOnMainSync {
             this.takePicture(object : ImageCapture.OnImageSavedCallback {
@@ -615,11 +616,13 @@ class CameraControllerFragmentTest(
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    throw exception
+                    error = exception
+                    imageCallbackSemaphore.release()
                 }
             })
         }
         assertThat(imageCallbackSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+        assertWithMessage("ImageCapture error: $error").that(error).isNull()
         assertThat(uri).isNotNull()
         val contentResolver: ContentResolver = this.activity!!.contentResolver
 

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -21,7 +28,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("AndroidXPaparazziPlugin")
 }
 
 androidXMultiplatform {
@@ -34,17 +40,18 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api(project(":compose:animation:animation-core"))
+                api("androidx.compose.animation:animation-core:1.6.0")
                 api(project(":compose:foundation:foundation"))
+                api(project(":compose:ui:ui-text"))
                 api(project(":compose:material:material-icons-core"))
                 api(project(":compose:material:material-ripple"))
                 api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-text"))
+                api("androidx.compose.ui:ui:1.6.0")
 
-                implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:foundation:foundation-layout"))
-                implementation(project(":compose:ui:ui-util"))
+                implementation(project(":compose:animation:animation-core"))
+                implementation("androidx.compose.animation:animation:1.6.0")
+                implementation("androidx.compose.foundation:foundation-layout:1.6.0")
+                implementation("androidx.compose.ui:ui-util:1.6.0")
             }
         }
 
@@ -62,13 +69,6 @@ androidXMultiplatform {
         skikoMain {
             dependsOn(commonMain)
             dependencies {
-                api(project(":compose:animation:animation-core"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-text"))
-                implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:foundation:foundation-layout"))
-                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -76,6 +76,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation-experimental:1.4.0")
 
                 // TODO: remove next 3 dependencies when b/202810604 is fixed
                 implementation("androidx.savedstate:savedstate:1.2.1")
@@ -103,6 +104,8 @@ androidXMultiplatform {
             dependencies {
                 implementation(project(":compose:material:material:material-samples"))
                 implementation(project(":compose:test-utils"))
+                implementation("androidx.compose.ui:ui-test:1.6.0")
+                implementation("androidx.compose.ui:ui-test-junit4:1.6.0")
                 implementation(project(":test:screenshot:screenshot"))
 
                 implementation(libs.testRules)
@@ -145,10 +148,12 @@ dependencies {
 
 androidx {
     name = "Compose Material Components"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2018"
     description = "Compose Material Design Components library"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:material:material:material-samples"))
 }
 
 // Screenshot tests related setup

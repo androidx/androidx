@@ -29,4 +29,14 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"ទង់"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"មិនមាន​រូប​អារម្មណ៍ទេ"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"អ្នក​មិនទាន់​បានប្រើរូប​អារម្មណ៍​ណាមួយ​នៅឡើយទេ"</string>
+    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"មុខងារប្ដូរទ្វេទិសនៃរូប​អារម្មណ៍"</string>
+    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"បានប្ដូរទិសដៅបែររបស់រូប​អារម្មណ៍"</string>
+    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"ផ្ទាំងជ្រើសរើសជម្រើសរូប​អារម្មណ៍"</string>
+    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s និង %2$s"</string>
+    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"ស្រមោល"</string>
+    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"សម្បុរស្បែក​ស"</string>
+    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"សម្បុរស្បែក​សល្មម"</string>
+    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"សម្បុរ​ស្បែក​ល្មម"</string>
+    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"សម្បុរ​ស្បែកខ្មៅល្មម"</string>
+    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"សម្បុរ​ស្បែក​ខ្មៅ"</string>
 </resources>

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -25,7 +32,7 @@ plugins {
 dependencies {
     implementation(project(":slice:slice-core"))
     implementation("androidx.appcompat:appcompat:1.4.0")
-    implementation("androidx.recyclerview:recyclerview:1.2.0-beta01")
+    implementation("androidx.recyclerview:recyclerview:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
     api("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 

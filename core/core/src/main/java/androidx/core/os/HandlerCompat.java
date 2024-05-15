@@ -48,9 +48,8 @@ public final class HandlerCompat {
      * Compatibility behavior:
      * <ul>
      * <li>SDK 28 and above, this method matches platform behavior.
-     * <li>SDK 17 through 27, this method attempts to call the platform API via reflection, but
+     * <li>SDK 27 and earlier, this method attempts to call the platform API via reflection, but
      * may fail and return a synchronous handler instance.
-     * <li>Below SDK 17, this method will always return a synchronous handler instance.
      * </ul>
      *
      * @param looper the Looper that the new Handler should be bound to
@@ -64,7 +63,7 @@ public final class HandlerCompat {
 
         if (Build.VERSION.SDK_INT >= 28) {
             return Api28Impl.createAsync(looper);
-        } else if (Build.VERSION.SDK_INT >= 17) {
+        } else {
             try {
                 // This constructor was added as private in JB MR1:
                 // https://android.googlesource.com/platform/frameworks/base/+/refs/heads/jb-mr1-release/core/java/android/os/Handler.java
@@ -107,9 +106,8 @@ public final class HandlerCompat {
      * Compatibility behavior:
      * <ul>
      * <li>SDK 28 and above, this method matches platform behavior.
-     * <li>SDK 17 through 27, this method attempts to call the platform API via reflection, but
+     * <li>SDK 27 and earlier, this method attempts to call the platform API via reflection, but
      * may fail and return a synchronous handler instance.
-     * <li>Below SDK 17, this method will always return a synchronous handler instance.
      * </ul>
      *
      * @param looper the Looper that the new Handler should be bound to
@@ -124,7 +122,7 @@ public final class HandlerCompat {
 
         if (Build.VERSION.SDK_INT >= 28) {
             return Api28Impl.createAsync(looper, callback);
-        } else if (Build.VERSION.SDK_INT >= 17) {
+        } else {
             try {
                 // This constructor was added as private API in JB MR1:
                 // https://android.googlesource.com/platform/frameworks/base/+/refs/heads/jb-mr1-release/core/java/android/os/Handler.java
@@ -197,7 +195,7 @@ public final class HandlerCompat {
      * Compatibility behavior:
      * <ul>
      * <li>SDK 29 and above, this method matches platform behavior.
-     * <li>SDK 16 through 28, this method attempts to call the platform API via reflection, but
+     * <li>SDK 28 and earlier, this method attempts to call the platform API via reflection, but
      * will throw an unchecked exception if the method has been altered from the AOSP
      * implementation and cannot be called. This is unlikely, but there is no safe fallback case
      * for this method and we must throw an exception as a result.
@@ -208,13 +206,12 @@ public final class HandlerCompat {
      * @return {@code true} if the callback is in the message queue
      * @see Handler#hasCallbacks(Runnable)
      */
-    @RequiresApi(16)
     public static boolean hasCallbacks(@NonNull Handler handler, @NonNull Runnable r) {
         Exception wrappedException = null;
 
         if (Build.VERSION.SDK_INT >= 29) {
             return Api29Impl.hasCallbacks(handler, r);
-        } else if (Build.VERSION.SDK_INT >= 16) {
+        } else {
             // The method signature didn't change when it was made public in SDK 29, but use
             // reflection so that we don't cause a verification error or NotFound exception if an
             // OEM changed something.

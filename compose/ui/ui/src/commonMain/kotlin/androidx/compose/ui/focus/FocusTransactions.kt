@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
 import androidx.compose.ui.focus.CustomDestinationResult.RedirectCancelled
@@ -30,6 +29,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.Nodes.FocusTarget
 import androidx.compose.ui.node.nearestAncestor
 import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireOwner
 
 /**
  * Request focus for this node.
@@ -38,13 +38,16 @@ import androidx.compose.ui.node.observeReads
  * children. Calling this function will send a focus request to this
  * [FocusNode][FocusTargetNode]'s parent [FocusNode][FocusTargetNode].
  */
-@OptIn(ExperimentalComposeUiApi::class)
-internal fun FocusTargetNode.requestFocus(): Boolean {
-    return requireTransactionManager().withNewTransaction {
-        when (performCustomRequestFocus(Enter)) {
+internal fun FocusTargetNode.requestFocus(): Boolean = requestFocus(Enter) ?: false
+
+internal fun FocusTargetNode.requestFocus(focusDirection: FocusDirection): Boolean? {
+    return requireTransactionManager().withNewTransaction(
+        onCancelled = { if (node.isAttached) refreshFocusEventNodes() }
+    ) {
+        when (performCustomRequestFocus(focusDirection)) {
             None -> performRequestFocus()
             Redirected -> true
-            Cancelled, RedirectCancelled -> false
+            Cancelled, RedirectCancelled -> null
         }
     }
 }
@@ -191,9 +194,7 @@ private fun FocusTargetNode.clearChildFocus(
  * @param childNode: The node that is requesting focus.
  * @return true if focus was granted, false otherwise.
  */
-private fun FocusTargetNode.requestFocusForChild(
-    childNode: FocusTargetNode
-): Boolean {
+private fun FocusTargetNode.requestFocusForChild(childNode: FocusTargetNode): Boolean {
 
     // Only this node's children can ask for focus.
     if (childNode.nearestAncestor(FocusTarget) != this) {
@@ -218,8 +219,9 @@ private fun FocusTargetNode.requestFocusForChild(
             when {
                 // If this node is the root, request focus from the compose owner.
                 focusParent == null && requestFocusForOwner() -> {
-                    focusState = Active
-                    requestFocusForChild(childNode)
+                    childNode.grantFocus().also { success ->
+                        if (success) focusState = ActiveParent
+                    }
                 }
                 // For non-root nodes, request focus for this node before the child.
                 // We request focus even if this is a deactivated node, as we will end up taking
@@ -244,7 +246,7 @@ private fun FocusTargetNode.requestFocusForChild(
 }
 
 private fun FocusTargetNode.requestFocusForOwner(): Boolean {
-    return coordinator?.layoutNode?.owner?.requestFocus() ?: error("Owner not initialized.")
+    return requireOwner().focusOwner.requestFocusForOwner(null, null)
 }
 
 private fun FocusTargetNode.requireActiveChild(): FocusTargetNode {
@@ -284,7 +286,6 @@ internal fun FocusTargetNode.performCustomClearFocus(
             ?: performCustomExit(focusDirection)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.performCustomEnter(
     focusDirection: FocusDirection
 ): CustomDestinationResult {
@@ -295,7 +296,6 @@ private fun FocusTargetNode.performCustomEnter(
     return None
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.performCustomExit(
     focusDirection: FocusDirection
 ): CustomDestinationResult {

@@ -18,8 +18,13 @@ package androidx.compose.material3
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.tokens.ListTokens
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.ImageBitmap
@@ -27,10 +32,12 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -53,6 +60,9 @@ class ListItemTest {
 
     val icon24x24 by lazy { ImageBitmap(width = 24.dp.toIntPx(), height = 24.dp.toIntPx()) }
     val icon40x40 by lazy { ImageBitmap(width = 40.dp.toIntPx(), height = 40.dp.toIntPx()) }
+    val ListTag = "list"
+    val LeadingTag = "leading"
+    val TrailingTag = "trailing"
 
     @Test
     fun listItem_withEmptyHeadline_doesNotCrash() {
@@ -132,6 +142,98 @@ class ListItemTest {
             }
             .assertHeightIsEqualTo(expectedHeight)
             .assertWidthIsEqualTo(rule.rootWidth())
+    }
+
+    @Test
+    fun listItem_oneLine_intrinsicSize() {
+        testIntrinsicMeasurements(
+            expectedHeight = ListTokens.ListItemOneLineContainerHeight,
+            verticalPadding = ListItemVerticalPadding,
+        ) {
+            Column(Modifier.height(IntrinsicSize.Min)) {
+                ListItem(
+                    modifier = Modifier.fillMaxHeight().testTag(ListTag),
+                    headlineContent = { Text("Primary text") },
+                    leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
+                    trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun listItem_twoLine_intrinsicSize() {
+        testIntrinsicMeasurements(
+            expectedHeight = ListTokens.ListItemTwoLineContainerHeight,
+            verticalPadding = ListItemVerticalPadding,
+        ) {
+            Column(Modifier.height(IntrinsicSize.Min)) {
+                ListItem(
+                    modifier = Modifier.fillMaxHeight().testTag(ListTag),
+                    headlineContent = { Text("Primary text") },
+                    supportingContent = { Text("Secondary text") },
+                    leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
+                    trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun listItem_threeLine_overline_intrinsicSize() {
+        testIntrinsicMeasurements(
+            expectedHeight = ListTokens.ListItemThreeLineContainerHeight,
+            verticalPadding = ListItemThreeLineVerticalPadding,
+        ) {
+            Column(Modifier.height(IntrinsicSize.Min)) {
+                ListItem(
+                    modifier = Modifier.fillMaxHeight().testTag(ListTag),
+                    headlineContent = { Text("Primary text") },
+                    overlineContent = { Text("OVERLINE") },
+                    supportingContent = { Text("Secondary text") },
+                    leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
+                    trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun listItem_threeLine_noOverline_intrinsicSize() {
+        testIntrinsicMeasurements(
+            expectedHeight = ListTokens.ListItemThreeLineContainerHeight,
+            verticalPadding = ListItemThreeLineVerticalPadding,
+        ) {
+            Column(Modifier.height(IntrinsicSize.Min)) {
+                ListItem(
+                    modifier = Modifier.fillMaxHeight().testTag(ListTag),
+                    headlineContent = { Text("Primary text") },
+                    supportingContent = {
+                        Text(
+                            "Very very very very very very long supporting text " +
+                                "which will span at least two lines"
+                        )
+                    },
+                    leadingContent = { Box(Modifier.fillMaxHeight().testTag(LeadingTag)) },
+                    trailingContent = { Box(Modifier.fillMaxHeight().testTag(TrailingTag)) },
+                )
+            }
+        }
+    }
+
+    private fun testIntrinsicMeasurements(
+        expectedHeight: Dp,
+        verticalPadding: Dp,
+        content: @Composable () -> Unit,
+    ) {
+        rule.setMaterialContent(lightColorScheme(), composable = content)
+
+        rule.onNodeWithTag(ListTag, useUnmergedTree = true)
+            .assertHeightIsEqualTo(expectedHeight)
+        rule.onNodeWithTag(LeadingTag, useUnmergedTree = true)
+            .assertHeightIsEqualTo(expectedHeight - verticalPadding * 2)
+        rule.onNodeWithTag(TrailingTag, useUnmergedTree = true)
+            .assertHeightIsEqualTo(expectedHeight - verticalPadding * 2)
     }
 
     @Test
@@ -515,7 +617,8 @@ class ListItemTest {
                     },
                     supportingContent = {
                         Text(
-                            "Very long supporting text which will span two lines",
+                            "Very very very very very very long supporting text " +
+                                "which will span at least two lines",
                             Modifier.saveLayout(secondaryTextPosition, secondaryTextSize)
                         )
                     },

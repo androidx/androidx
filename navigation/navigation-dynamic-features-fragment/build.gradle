@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
@@ -33,6 +41,7 @@ dependencies {
     api(project(":navigation:navigation-dynamic-features-runtime"))
     api(project(":navigation:navigation-fragment"))
     api(libs.kotlinStdlib)
+    implementation(libs.kotlinSerializationCore)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testExtJunit)
@@ -65,7 +74,7 @@ android {
 
 androidx {
     name = "Dynamic Feature Navigation Fragment"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Fragment"
     metalavaK2UastEnabled = true

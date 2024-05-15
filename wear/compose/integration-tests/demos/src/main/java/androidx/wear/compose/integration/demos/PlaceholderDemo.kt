@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Chip
@@ -61,7 +62,7 @@ import kotlinx.coroutines.delay
 fun PlaceholderChips() {
     var resetCount by remember { mutableIntStateOf(0) }
     Box {
-        ScalingLazyColumnWithRSB {
+        ScalingLazyColumn {
             item {
                 ListHeader {
                     Text(text = "Primary Label Center Aligned", textAlign = TextAlign.Center)
@@ -312,7 +313,7 @@ fun PlaceholderCards() {
         }
     }
 
-    ScalingLazyColumnWithRSB {
+    ScalingLazyColumn {
         item {
             ListHeader {
                 Text("Overlaid Placeholders", textAlign = TextAlign.Center)

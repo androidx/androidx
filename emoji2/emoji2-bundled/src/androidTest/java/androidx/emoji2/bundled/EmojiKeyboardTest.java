@@ -30,7 +30,6 @@ import androidx.emoji2.bundled.util.TestString;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.PollingCheck;
@@ -64,7 +63,6 @@ public class EmojiKeyboardTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testAppendWithSoftKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
@@ -82,7 +80,6 @@ public class EmojiKeyboardTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testBackDeleteWithSoftKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
@@ -105,7 +102,6 @@ public class EmojiKeyboardTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testForwardDeleteWithSoftKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
@@ -129,7 +125,6 @@ public class EmojiKeyboardTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testBackDeleteWithHardwareKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);
@@ -159,7 +154,6 @@ public class EmojiKeyboardTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testForwardDeleteWithHardwareKeyboard() throws Exception {
         TestActivity activity = mActivityRule.getActivity();
         final EditText editText = (EditText) activity.findViewById(R.id.editText);

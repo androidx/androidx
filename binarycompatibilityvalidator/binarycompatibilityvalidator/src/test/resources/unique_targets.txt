@@ -1,0 +1,13 @@
+// KLib ABI Dump
+// Targets: [iosX64, linuxX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx:library>
+final fun my.lib/commonFun() // my.lib/commonFun|commonFun(){}[0]
+// Targets: [iosX64]
+final fun my.lib/myIosFun() // my.lib/myIosFun|myIosFun(){}[0]
+// Targets: [linuxX64]
+final fun my.lib/myLinuxFun() // my.lib/myLinuxFun|myLinuxFun(){}[0]

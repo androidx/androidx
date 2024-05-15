@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -38,10 +40,14 @@ class HorizontalPageIndicatorTest {
     @Test
     public fun supports_testtag_circular() {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound = true) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.RoundScreen(isScreenRound = true)
+            ) {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
-                    pageIndicatorState = pageIndicatorState()
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.0f },
                 )
             }
         }
@@ -51,10 +57,14 @@ class HorizontalPageIndicatorTest {
     @Test
     public fun supports_testtag_linear() {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound = false) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.RoundScreen(isScreenRound = false)
+            ) {
                 HorizontalPageIndicator(
                     modifier = Modifier.testTag(TEST_TAG),
-                    pageIndicatorState = pageIndicatorState()
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.0f },
                 )
             }
         }
@@ -83,12 +93,14 @@ class HorizontalPageIndicatorTest {
 
     private fun position_is_selected(isRound: Boolean) {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
                 HorizontalPageIndicator(
                     modifier = Modifier
                         .testTag(TEST_TAG)
                         .size(150.dp),
-                    pageIndicatorState = pageIndicatorState(),
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.0f },
                     selectedColor = selectedColor,
                     unselectedColor = unselectedColor,
                     indicatorSize = 20.dp
@@ -109,13 +121,15 @@ class HorizontalPageIndicatorTest {
 
     private fun in_between_positions(isRound: Boolean) {
         rule.setContentWithTheme {
-            ConfiguredShapeScreen(isRound) {
+            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
                 HorizontalPageIndicator(
                     modifier = Modifier
                         .testTag(TEST_TAG)
                         .size(150.dp)
                         .fillMaxWidth(),
-                    pageIndicatorState = pageIndicatorState(pageOffset = 0.5f),
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.5f },
                     selectedColor = selectedColor,
                     unselectedColor = unselectedColor,
                     indicatorSize = 20.dp
@@ -139,15 +153,7 @@ class HorizontalPageIndicatorTest {
         val selectedColor = Color.Yellow
         val unselectedColor = Color.Red
 
-        fun pageIndicatorState(
-            pageOffset: Float = 0f,
-            selectedPage: Int = 1,
-            pageCount: Int = 4
-        ) = object : PageIndicatorState {
-            override val selectedPageWithOffset: () -> Float
-                get() = { selectedPage + pageOffset }
-            override val pageCount: Int
-                get() = pageCount
-        }
+        const val PAGE_COUNT = 4
+        const val SELECTED_PAGE_INDEX = 1
     }
 }

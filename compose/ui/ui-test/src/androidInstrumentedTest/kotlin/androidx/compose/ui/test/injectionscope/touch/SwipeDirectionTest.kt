@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -132,7 +131,6 @@ class SwipeDirectionTest {
     @Test
     fun swipeUp_withParameters() {
         rule.setContent { Ui(Alignment.TopStart) }
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(tag).performTouchInput { swipeUp(endY = centerY) }
         rule.runOnIdle {
             recorder.run {
@@ -148,7 +146,6 @@ class SwipeDirectionTest {
     @Test
     fun swipeDown_withParameters() {
         rule.setContent { Ui(Alignment.TopEnd) }
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(tag).performTouchInput { swipeDown(endY = centerY) }
         rule.runOnIdle {
             recorder.run {
@@ -164,7 +161,6 @@ class SwipeDirectionTest {
     @Test
     fun swipeLeft_withParameters() {
         rule.setContent { Ui(Alignment.BottomEnd) }
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(tag).performTouchInput { swipeLeft(endX = centerX) }
         rule.runOnIdle {
             recorder.run {
@@ -180,7 +176,6 @@ class SwipeDirectionTest {
     @Test
     fun swipeRight_withParameters() {
         rule.setContent { Ui(Alignment.BottomStart) }
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(tag).performTouchInput { swipeRight(endX = centerX) }
         rule.runOnIdle {
             recorder.run {
@@ -199,7 +194,6 @@ class SwipeDirectionTest {
         expectError<IllegalArgumentException>(
             expectedMessage = "startY=0.0 needs to be greater than or equal to endY=1.0"
         ) {
-            @OptIn(ExperimentalTestApi::class)
             rule.onNodeWithTag(tag).performTouchInput { swipeUp(startY = 0f, endY = 1f) }
         }
     }
@@ -210,7 +204,6 @@ class SwipeDirectionTest {
         expectError<IllegalArgumentException>(
             expectedMessage = "startY=1.0 needs to be less than or equal to endY=0.0"
         ) {
-            @OptIn(ExperimentalTestApi::class)
             rule.onNodeWithTag(tag).performTouchInput { swipeDown(startY = 1f, endY = 0f) }
         }
     }
@@ -221,7 +214,6 @@ class SwipeDirectionTest {
         expectError<IllegalArgumentException>(
             expectedMessage = "startX=0.0 needs to be greater than or equal to endX=1.0"
         ) {
-            @OptIn(ExperimentalTestApi::class)
             rule.onNodeWithTag(tag).performTouchInput { swipeLeft(startX = 0f, endX = 1f) }
         }
     }
@@ -232,7 +224,6 @@ class SwipeDirectionTest {
         expectError<IllegalArgumentException>(
             expectedMessage = "startX=1.0 needs to be less than or equal to endX=0.0"
         ) {
-            @OptIn(ExperimentalTestApi::class)
             rule.onNodeWithTag(tag).performTouchInput { swipeRight(startX = 1f, endX = 0f) }
         }
     }

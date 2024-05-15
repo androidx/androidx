@@ -54,11 +54,12 @@
 
     <!-- Advertiser -->
     <string name="title_advertiser">Advertiser</string>
-    <string name="configure_advertising_packet">Configure Advertising Packet</string>
+    <string name="configure_advertise_params">Configure Advertise Params</string>
     <string name="display_name">Display Name</string>
     <string name="include_device_name">Include Device Name</string>
     <string name="connectable">Connectable</string>
     <string name="discoverable">Discoverable</string>
+    <string name="duration">Duration</string>
     <string name="advertising_data">Advertising Data</string>
     <string name="add_data">Add Data</string>
     <string name="start_advertising">Start Advertising</string>
@@ -69,6 +70,7 @@
     <string name="data_hex">Data (HEX)</string>
     <string name="manufacturer_data">Manufacturer Data</string>
     <string name="sixteen_bit_company_identifier">16-bit Company Identifier</string>
+    <string name="service_solicitation_uuid">Service Solicitation UUID</string>
     <string name="add">Add</string>
     <string name="cancel">Cancel</string>
     <string name="clear_data">Clear Data</string>
@@ -76,8 +78,9 @@
     <!-- GATT Server -->
     <string name="title_gatt_server">Gatt Server</string>
     <string name="add_service">Add Service</string>
+    <string name="service">Service</string>
     <string name="add_characteristic">Add Characteristic</string>
-    <string name="add_descriptor">Add Descriptor</string>
+    <string name="characteristic">Characteristic</string>
     <string name="open_gatt_server">Open Gatt Server</string>
     <string name="stop_gatt_server">Stop Gatt Server</string>
     <string name="invalid_uuid">Invalid UUID</string>

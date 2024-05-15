@@ -11,16 +11,21 @@ inputs:
     description: "password for gradle cache"
   gradle-enterprise-access-key:
     description: "access key for gradle enterprise"
+  gradle-encryption-key:
+    description: "key for gradle configuration cache encryption"
   gradle-flags:
     description: "flags to pass while invoking gradle"
 runs:
   using: "composite"
   steps:
-    - name: "Setup JDK 17"
+    - name: "Setup JDK 17 and 21"
       id: setup-java
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
-        java-version: "17"
+        distribution: "zulu"
+        java-version: |
+          17
+          21
     # TODO b/216535050: Implement task to install the exact AndroidX ndk
     # version in case it is not available.
     - name: "Install Cmake"
@@ -31,7 +36,7 @@ runs:
       run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "ndk;23.1.7779620"
     - name: "Install Android SDK Build-Tools"
       shell: bash
-      run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "build-tools;34.0.0"
+      run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "build-tools;35.0.0-rc1"
     - name: "Set environment variables"
       shell: bash
       run: |
@@ -39,7 +44,7 @@ runs:
         echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
     - name: "Setup Gradle"
-      uses: gradle/gradle-build-action@v2
+      uses: gradle/gradle-build-action@v3-beta
       with:
         # Only save Gradle User Home state for builds on the 'androidx-main' branch.
         # Builds on other branches will only read existing entries from the cache.
@@ -47,6 +52,8 @@ runs:
 
         # Don't reuse cache entries from any other Job.
         gradle-home-cache-strict-match: true
+
+        cache-encryption-key: ${{ inputs.gradle-encryption-key }}
 
         # Limit the size of the cache entry.
         # These directories contain instrumented/transformed dependency jars which can be reconstructed relatively quickly.
@@ -59,6 +66,7 @@ runs:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
+        GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
       run: ./gradlew buildOnServer zipTestConfigsWithApks ${{ inputs.gradle-flags }}
@@ -67,6 +75,7 @@ runs:
         JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         GRADLE_BUILD_CACHE_PASSWORD: ${{ inputs.gradle-cache-password }}
         GRADLE_ENTERPRISE_ACCESS_KEY: ${{ inputs.gradle-enterprise-access-key }}
+        GRADLE_ENCRYPTION_KEY: ${{ inputs.gradle-encryption-key }}
       working-directory: ${{ inputs.project-root }}
       shell: bash
       run: ./gradlew playgroundCIHostTests ${{ inputs.gradle-flags }}

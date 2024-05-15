@@ -20,6 +20,7 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
+import androidx.compose.testutils.benchmark.benchmarkReuseFor
 import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
@@ -57,5 +58,10 @@ class NestedBoxesBenchmark(private val depth: Int, private val children: Int) {
     @Test
     fun first_layout() {
         benchmarkRule.benchmarkFirstLayout(checkboxCaseFactory)
+    }
+
+    @Test
+    fun reuse() {
+        benchmarkRule.benchmarkReuseFor { NestedBoxesTestCase(depth, children).MeasuredContent() }
     }
 }

@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 import androidx.build.RunApiTasks
 
 plugins {
@@ -25,7 +32,7 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.biometric:biometric:1.1.0-alpha02")
+    implementation("androidx.biometric:biometric:1.1.0")
     implementation("co.nstant.in:cbor:0.8")
     implementation("org.bouncycastle:bcprov-jdk15on:1.65")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.56")
@@ -46,7 +53,7 @@ android {
 
 androidx {
     name = "Security"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     mavenVersion = LibraryVersions.SECURITY_IDENTITY_CREDENTIAL
     inceptionYear = "2019"

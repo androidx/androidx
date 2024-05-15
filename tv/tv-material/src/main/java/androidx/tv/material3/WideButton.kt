@@ -48,7 +48,7 @@ import androidx.tv.material3.tokens.Elevation
  * Material Design wide button for TV.
  *
  * Samples:
- * @sample androidx.tv.samples.WideButtonSample
+ * @sample androidx.tv.material3.samples.WideButtonSample
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
@@ -56,9 +56,9 @@ import androidx.tv.material3.tokens.Elevation
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource a hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states.
  * @param background the background to be applied to the [WideButton]
  * @param scale Defines size of the Button relative to its original size.
  * @param glow Shadow to be shown behind the Button.
@@ -71,7 +71,6 @@ import androidx.tv.material3.tokens.Elevation
  * content
  * @param content the content of the button
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun WideButton(
@@ -117,9 +116,9 @@ fun WideButton(
  * Material Design wide button for TV.
  *
  * Samples:
- * @sample androidx.tv.samples.WideButtonWithIcon
- * @sample androidx.tv.samples.WideButtonWithSubtitle
- * @sample androidx.tv.samples.WideButtonWithIconAndSubtitle
+ * @sample androidx.tv.material3.samples.WideButtonWithIcon
+ * @sample androidx.tv.material3.samples.WideButtonWithSubtitle
+ * @sample androidx.tv.material3.samples.WideButtonWithIconAndSubtitle
  *
  * @param onClick called when this button is clicked
  * @param title the title content of the button, typically a [Text]
@@ -130,9 +129,9 @@ fun WideButton(
  * services.
  * @param icon the leading icon content of the button, typically an [Icon]
  * @param subtitle the subtitle content of the button, typically a [Text]
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource a hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states.
  * @param background the background to be applied to the [WideButton]
  * @param scale Defines size of the Button relative to its original size.
  * @param glow Shadow to be shown behind the Button.
@@ -144,7 +143,6 @@ fun WideButton(
  * @param contentPadding the spacing values to apply internally between the container and the
  * content
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun WideButton(
@@ -222,7 +220,6 @@ fun WideButton(
     }
 }
 
-@ExperimentalTvMaterial3Api
 @Composable
 private fun WideButtonImpl(
     onClick: () -> Unit,
@@ -234,7 +231,7 @@ private fun WideButtonImpl(
     tonalElevation: Dp,
     border: ButtonBorder,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     background: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,

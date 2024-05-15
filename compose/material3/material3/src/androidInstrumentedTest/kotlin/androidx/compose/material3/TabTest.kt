@@ -18,6 +18,7 @@ package androidx.compose.material3
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -249,21 +250,19 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
-            val indicator = @Composable { tabPositions: List<TabPosition> ->
-                Box(
-                    Modifier
-                        .tabIndicatorOffset(tabPositions[state])
-                        .fillMaxWidth()
-                        .height(indicatorHeight)
-                        .background(color = Color.Red)
-                        .testTag("indicator")
-                )
-            }
-
             Box(Modifier.testTag("tabRow")) {
                 SecondaryTabRow(
                     selectedTabIndex = state,
-                    indicator = indicator
+                    indicator = {
+                        Box(
+                            Modifier
+                                .tabIndicatorOffset(state)
+                                .fillMaxWidth()
+                                .height(indicatorHeight)
+                                .background(color = Color.Red)
+                                .testTag("indicator")
+                        )
+                    }
                 ) {
                     titles.forEachIndexed { index, title ->
                         Tab(
@@ -294,6 +293,45 @@ class TabTest {
                 expectedLeft = (tabRowBounds.width / 2),
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
+    }
+
+    @Test
+    fun tabRow_indicatorHeight() {
+        val indicatorHeight = 1.dp
+        val titles = listOf("TAB 1", "TAB 2")
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(
+                Modifier
+                    .testTag("tabRow")
+                    .fillMaxSize(),
+                propagateMinConstraints = true
+            ) {
+                PrimaryTabRow(
+                    selectedTabIndex = 1,
+                    indicator = {
+                        Box(
+                            Modifier
+                                .tabIndicatorOffset(1)
+                                .fillMaxWidth()
+                                .height(indicatorHeight)
+                                .background(color = Color.Red)
+                                .testTag("indicator")
+                        )
+                    }
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            selected = index == 1,
+                            onClick = { },
+                            text = { Text(title) }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("indicator", true)
+            .assertHeightIsEqualTo(indicatorHeight)
     }
 
     @Test
@@ -484,10 +522,10 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
-            val indicator = @Composable { tabPositions: List<TabPosition> ->
+            val indicator: @Composable TabIndicatorScope.(index: Int) -> Unit = { index ->
                 Box(
                     Modifier
-                        .tabIndicatorOffset(tabPositions[state])
+                        .tabIndicatorOffset(index)
                         .fillMaxWidth()
                         .height(indicatorHeight)
                         .background(color = Color.Red)
@@ -499,7 +537,7 @@ class TabTest {
                 SecondaryScrollableTabRow(
                     modifier = Modifier.testTag("tabRow"),
                     selectedTabIndex = state,
-                    indicator = indicator
+                    indicator = { indicator(state) }
                 ) {
                     titles.forEachIndexed { index, title ->
                         Tab(
@@ -749,10 +787,10 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
 
-            val indicator = @Composable { tabPositions: List<TabPosition> ->
+            val indicator: @Composable TabIndicatorScope.(index: Int) -> Unit = { index ->
                 TabRowDefaults.SecondaryIndicator(
                     Modifier
-                        .tabIndicatorOffset(tabPositions[state])
+                        .tabIndicatorOffset(index, matchContentSize = false)
                         .testTag("indicator")
                 )
             }
@@ -760,7 +798,7 @@ class TabTest {
             Box {
                 SecondaryScrollableTabRow(
                     selectedTabIndex = state,
-                    indicator = indicator
+                    indicator = { indicator(state) }
                 ) {
                     titles.forEachIndexed { index, title ->
                         Tab(

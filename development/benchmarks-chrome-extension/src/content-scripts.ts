@@ -22,9 +22,85 @@ const buildFragment = (url: string): Node => {
   `;
   const template = document.createElement('template');
   template.innerHTML = fragment;
-  return template.content.querySelector('.additional_info');
+  return template.content.querySelector('.additional_info')!;
 };
 
+if (node) {
+  const callback = () => {
+    const device = document.querySelector("div[data-key='device_name']");
+    // As more tests are selected in the Skia UI, additional nodes are
+    // added to the below NodeList, but only one of them is actually visible.
+    const tests = document.querySelectorAll("div[data-key='test']");
+    let selectedTest: Element | null = null;
+    if (tests) {
+      // Checking if an element is visible triggers a layout. So stop listening for
+      // mutation events temporarily.
+      observer.disconnect();
+      for (let i = 0; i < tests.length; i += 1) {
+        const test = tests[i];
+        const visibility = test.checkVisibility();
+        if (visibility) {
+          selectedTest = test;
+          break;
+        }
+      }
+      // Start observing for new changes.
+      observer.observe(node, {
+        subtree: true,
+        childList: true,
+        attributes: true
+      });
+    }
+    const logEntry = document.querySelector('#logEntry');
+    if (device && selectedTest) {
+      const deviceName = device.getAttribute('data-value');
+      const testName = selectedTest.getAttribute('data-value');
+      DEVICE_NAME = deviceName;
+      TEST_NAME = testName;
+    }
+    if (logEntry) {
+      const content = logEntry.textContent;
+      if (content) {
+        const matches = content.match(/jump-to-build[/](\d+)/);
+        if (matches) {
+          BUILD = matches[1];
+          updateUrl();
+        }
+      }
+    }
+  };
+
+  const updateUrl = () => {
+    observer.disconnect();
+    const url = buildUrl();
+    if (url) {
+      // Populate details
+      const details = document.querySelector('div#details table.clickable_values tbody');
+      if (details) {
+        const existing = details.querySelector('.additional_info');
+        if (existing) {
+          existing.remove();
+        }
+        const row = buildFragment(url);
+        details.appendChild(row);
+      }
+    }
+    observer.observe(node, {
+      subtree: true,
+      childList: true,
+      attributes: true
+    });
+  };
+
+  const observer = new MutationObserver(callback);
+  observer.observe(node, {
+    subtree: true,
+    childList: true,
+    attributes: true
+  });
+}
+
+// Globals
 let DEVICE_NAME: string | null = null;
 let BUILD: string | null = null;
 let TEST_NAME: string | null = null;
@@ -38,54 +114,3 @@ const buildUrl = (): string | null => {
   }
   return null;
 };
-
-const callback = () => {
-  const device = document.querySelector("div[data-key='device_name']");
-  const test = document.querySelector("div[data-key='test']");
-  const logEntry = document.querySelector('#logEntry');
-  if (device && test) {
-    const deviceName = device.getAttribute('data-value');
-    const testName = test.getAttribute('data-value');
-    DEVICE_NAME = deviceName;
-    TEST_NAME = testName;
-  }
-  if (logEntry) {
-    const content = logEntry.textContent;
-    if (content) {
-      const matches = content.match(/jump-to-build[/](\d+)/);
-      if (matches) {
-        BUILD = matches[1];
-        updateUrl();
-      }
-    }
-  }
-};
-
-const updateUrl = () => {
-  observer.disconnect();
-  const url = buildUrl();
-  if (url) {
-    // Populate details
-    const details = document.querySelector('div#details table.clickable_values tbody');
-    if (details) {
-      const existing = details.querySelector('.additional_info');
-      if (existing) {
-        existing.remove();
-      }
-      const row = buildFragment(url);
-      details.appendChild(row);
-    }
-  }
-  observer.observe(node, {
-    subtree: true,
-    childList: true,
-    attributes: true
-  });
-};
-
-const observer = new MutationObserver(callback);
-observer.observe(node, {
-  subtree: true,
-  childList: true,
-  attributes: true
-});

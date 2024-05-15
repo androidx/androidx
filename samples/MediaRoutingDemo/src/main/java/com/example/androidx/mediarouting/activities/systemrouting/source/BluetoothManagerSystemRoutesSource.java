@@ -28,10 +28,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.core.content.IntentCompat;
 
@@ -42,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Implements {@link SystemRoutesSource} using {@link BluetoothManager}. */
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public final class BluetoothManagerSystemRoutesSource extends SystemRoutesSource {
 
     @NonNull
@@ -91,9 +88,7 @@ public final class BluetoothManagerSystemRoutesSource extends SystemRoutesSource
     @NonNull
     @Override
     public SystemRoutesSourceItem getSourceItem() {
-        return new SystemRoutesSourceItem.Builder(
-                SystemRoutesSourceItem.ROUTE_SOURCE_BLUETOOTH_MANAGER)
-                .build();
+        return new SystemRoutesSourceItem(/* name= */ "BluetoothManager");
     }
 
     @NonNull

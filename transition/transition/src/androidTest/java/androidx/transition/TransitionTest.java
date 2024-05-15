@@ -34,6 +34,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.animation.ValueAnimator;
@@ -51,20 +52,27 @@ import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.MediumTest;
+import androidx.testutils.AnimationDurationScaleRule;
 import androidx.transition.test.R;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @MediumTest
 public class TransitionTest extends BaseTest {
 
     private Scene[] mScenes = new Scene[2];
     private View[] mViews = new View[3];
+
+    @Rule
+    public final AnimationDurationScaleRule mAnimationDurationScaleRule =
+            AnimationDurationScaleRule.createForAllTests(1f);
 
     @Before
     public void prepareScenes() {
@@ -514,6 +522,66 @@ public class TransitionTest extends BaseTest {
         });
         assertTrue(latch1.await(1, TimeUnit.SECONDS));
         assertTrue(latch2.await(1, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void reentrantCancel() throws Throwable {
+        showInitialScene();
+
+        final CountDownLatch startLatch = new CountDownLatch(3);
+
+        class CancelingAnimator extends Slide {
+            @Nullable
+            @Override
+            public Animator createAnimator(@NonNull ViewGroup sceneRoot,
+                    @Nullable TransitionValues startValues, @Nullable TransitionValues endValues) {
+                Animator anim = super.createAnimator(sceneRoot, startValues, endValues);
+                if (anim != null) {
+                    anim.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(@NonNull Animator animation) {
+                            startLatch.countDown();
+                        }
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            if (animation.isRunning()) {
+                                animation.end();
+                                cancel();
+                            }
+                        }
+                    });
+                }
+                return anim;
+            }
+        }
+        Slide slide = new CancelingAnimator();
+        slide.setDuration(1000);
+        final AtomicReference<Transition> transitionRef = new AtomicReference<>(null);
+        slide.addListener(new TransitionListenerAdapter() {
+            @Override
+            public void onTransitionStart(@NonNull Transition transition, boolean isReverse) {
+                transitionRef.set(transition);
+            }
+        });
+        rule.runOnUiThread(() -> {
+            ViewGroup root = rule.getActivity().getRoot();
+            TransitionManager.beginDelayedTransition(root, slide);
+            mViews[0].setVisibility(View.INVISIBLE);
+            mViews[1].setVisibility(View.INVISIBLE);
+            mViews[2].setVisibility(View.INVISIBLE);
+        });
+        // Wait for all animations to start
+        assertTrue(startLatch.await(3, TimeUnit.SECONDS));
+        // wait one frame
+        rule.runOnUiThread(() -> {});
+
+        rule.runOnUiThread(() -> {
+            transitionRef.get().cancel();
+        });
+
+        rule.runOnUiThread(() -> {
+            assertEquals(View.VISIBLE, mViews[0].getVisibility());
+        });
     }
 
     private void showInitialScene() throws Throwable {

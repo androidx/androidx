@@ -33,7 +33,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.test.filters.MediumTest
@@ -58,7 +57,6 @@ class DrawPhaseAttributesToggleTest(private val config: Config) {
         override fun toString(): String = "toggling $description"
     }
 
-    @OptIn(ExperimentalTextApi::class)
     companion object {
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic

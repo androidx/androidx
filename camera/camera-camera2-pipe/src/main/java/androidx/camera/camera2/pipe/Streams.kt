@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.OutputConfiguration
@@ -73,7 +71,17 @@ internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
     override fun toString(): String = id.toString()
 
     /** Configuration that may be used to define a [CameraStream] on a [CameraGraph] */
-    class Config internal constructor(val outputs: List<OutputStream.Config>) {
+    class Config internal constructor(
+        val outputs: List<OutputStream.Config>,
+        val imageSourceConfig: ImageSourceConfig? = null
+    ) {
+        init {
+            val firstOutput = outputs.first()
+            check(outputs.all { it.format == firstOutput.format }) {
+                "All outputs must have the same format!"
+            }
+        }
+
         companion object {
             /** Create a simple [CameraStream] to [OutputStream] configuration */
             fun create(
@@ -85,7 +93,9 @@ internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
                 timestampBase: OutputStream.TimestampBase? = null,
                 dynamicRangeProfile: OutputStream.DynamicRangeProfile? = null,
                 streamUseCase: OutputStream.StreamUseCase? = null,
-                streamUseHint: OutputStream.StreamUseHint? = null
+                streamUseHint: OutputStream.StreamUseHint? = null,
+                sensorPixelModes: List<OutputStream.SensorPixelMode> = emptyList(),
+                imageSourceConfig: ImageSourceConfig? = null,
             ): Config =
                 create(
                     OutputStream.Config.create(
@@ -97,22 +107,30 @@ internal constructor(val id: StreamId, val outputs: List<OutputStream>) {
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
-                        streamUseHint
-                    )
+                        streamUseHint,
+                        sensorPixelModes,
+                    ),
+                    imageSourceConfig
                 )
 
             /**
              * Create a simple [CameraStream] using a previously defined [OutputStream.Config]. This
              * allows multiple [CameraStream]s to share the same [OutputConfiguration].
              */
-            fun create(output: OutputStream.Config) = Config(listOf(output))
+            fun create(
+                output: OutputStream.Config,
+                imageSourceConfig: ImageSourceConfig? = null
+            ) = Config(listOf(output), imageSourceConfig)
 
             /**
              * Create a [CameraStream] from multiple [OutputStream.Config]s. This is used to to
              * define a [CameraStream] that may produce one or more of the outputs when used in a
              * request to the camera.
              */
-            fun create(outputs: List<OutputStream.Config>) = Config(outputs)
+            fun create(
+                outputs: List<OutputStream.Config>,
+                imageSourceConfig: ImageSourceConfig? = null
+            ) = Config(outputs, imageSourceConfig)
         }
     }
 }
@@ -162,7 +180,8 @@ interface OutputStream {
         val timestampBase: TimestampBase?,
         val dynamicRangeProfile: DynamicRangeProfile?,
         val streamUseCase: StreamUseCase?,
-        val streamUseHint: StreamUseHint?
+        val streamUseHint: StreamUseHint?,
+        val sensorPixelModes: List<SensorPixelMode>,
     ) {
         companion object {
             fun create(
@@ -174,7 +193,8 @@ interface OutputStream {
                 timestampBase: TimestampBase? = null,
                 dynamicRangeProfile: DynamicRangeProfile? = null,
                 streamUseCase: StreamUseCase? = null,
-                streamUseHint: StreamUseHint? = null
+                streamUseHint: StreamUseHint? = null,
+                sensorPixelModes: List<SensorPixelMode> = emptyList(),
             ): Config =
                 if (outputType == OutputType.SURFACE_TEXTURE ||
                     outputType == OutputType.SURFACE_VIEW
@@ -188,7 +208,8 @@ interface OutputStream {
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
-                        streamUseHint
+                        streamUseHint,
+                        sensorPixelModes,
                     )
                 } else {
                     check(outputType == OutputType.SURFACE)
@@ -200,7 +221,8 @@ interface OutputStream {
                         timestampBase,
                         dynamicRangeProfile,
                         streamUseCase,
-                        streamUseHint
+                        streamUseHint,
+                        sensorPixelModes,
                     )
                 }
 
@@ -211,14 +233,16 @@ interface OutputStream {
                 format: StreamFormat,
                 camera: CameraId? = null,
                 externalOutputConfig: OutputConfiguration,
-                streamUseHint: StreamUseHint?
+                streamUseHint: StreamUseHint?,
+                sensorPixelModes: List<SensorPixelMode> = emptyList(),
             ): Config {
                 return ExternalOutputConfig(
                     size,
                     format,
                     camera,
                     output = externalOutputConfig,
-                    streamUseHint
+                    streamUseHint,
+                    sensorPixelModes,
                 )
             }
         }
@@ -232,7 +256,8 @@ interface OutputStream {
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
             streamUseCase: StreamUseCase?,
-            streamUseHint: StreamUseHint?
+            streamUseHint: StreamUseHint?,
+            sensorPixelModes: List<SensorPixelMode>,
         ) :
             Config(
                 size,
@@ -242,7 +267,8 @@ interface OutputStream {
                 timestampBase,
                 dynamicRangeProfile,
                 streamUseCase,
-                streamUseHint
+                streamUseHint,
+                sensorPixelModes,
             )
 
         /**
@@ -263,7 +289,8 @@ interface OutputStream {
             timestampBase: TimestampBase?,
             dynamicRangeProfile: DynamicRangeProfile?,
             streamUseCase: StreamUseCase?,
-            streamUseHint: StreamUseHint?
+            streamUseHint: StreamUseHint?,
+            sensorPixelModes: List<SensorPixelMode>,
         ) :
             Config(
                 size,
@@ -273,7 +300,8 @@ interface OutputStream {
                 timestampBase,
                 dynamicRangeProfile,
                 streamUseCase,
-                streamUseHint
+                streamUseHint,
+                sensorPixelModes,
             )
 
         /**
@@ -292,7 +320,8 @@ interface OutputStream {
             format: StreamFormat,
             camera: CameraId?,
             val output: OutputConfiguration,
-            streamUseHint: StreamUseHint?
+            streamUseHint: StreamUseHint?,
+            sensorPixelModes: List<SensorPixelMode>,
         ) :
             Config(
                 size,
@@ -302,7 +331,8 @@ interface OutputStream {
                 TimestampBase(Api33Compat.getTimestampBase(output)),
                 DynamicRangeProfile(Api33Compat.getDynamicRangeProfile(output)),
                 StreamUseCase(Api33Compat.getStreamUseCase(output)),
-                streamUseHint
+                streamUseHint,
+                sensorPixelModes,
             )
     }
 
@@ -409,7 +439,49 @@ interface OutputStream {
             val VIDEO_CALL = StreamUseCase(5)
         }
     }
+
+    /**
+     * Used to set the sensor pixel mode the OutputStream will be used in.
+     *
+     * See the documentation on [OutputConfiguration.addSensorPixelModeUsed] for more details.
+     */
+    @JvmInline
+    value class SensorPixelMode(val value: Int) {
+        companion object {
+            val DEFAULT = SensorPixelMode(0)
+            val MAXIMUM_RESOLUTION = SensorPixelMode(1)
+        }
+    }
+
+    /**
+     * If this OutputStream is a valid stream for HIGH_SPEED recording. The requirement is
+     * that the surface must be either video encoder surface or preview surface. The checks below
+     * can be used to ensure that the we are passing along the right intention for any further
+     * checks when actually configuring and using this stream.
+     *
+     * [Camera2 reference] [https://developer.android.com/reference/android/hardware/camera2/CameraDevice#constrained-high-speed-recording]
+     */
+    fun isValidForHighSpeedOperatingMode(): Boolean {
+        return this.streamUseCase == null ||
+            this.streamUseCase == OutputStream.StreamUseCase.DEFAULT ||
+            this.streamUseCase == OutputStream.StreamUseCase.PREVIEW ||
+            this.streamUseCase == OutputStream.StreamUseCase.VIDEO_RECORD ||
+            this.streamUseHint == null ||
+            this.streamUseHint == OutputStream.StreamUseHint.DEFAULT ||
+            this.streamUseHint == OutputStream.StreamUseHint.VIDEO_RECORD
+    }
 }
+
+/**
+ * Configuration for a CameraStream that will be internally configured to produce images.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class ImageSourceConfig(
+    val capacity: Int,
+    val usageFlags: Long? = null,
+    val defaultDataSpace: Int? = null,
+    val defaultHardwareBufferFormat: Int? = null
+)
 
 /** This identifies a single output. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -421,16 +493,22 @@ value class OutputId(val value: Int) {
 /** Configuration for defining the properties of a Camera2 InputStream for reprocessing requests. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface InputStream {
-    val id: InputId
+    val id: InputStreamId
+    val maxImages: Int
     val format: StreamFormat
-    // TODO: This may accept
 
-    class Config(val stream: CameraStream.Config)
+    // TODO: b/330594328 - Remove `format` and make `streamFormat` required.
+    class Config(
+        val stream: CameraStream.Config,
+        val maxImages: Int,
+        var format: Int? = null,
+        var streamFormat: StreamFormat? = null
+    )
 }
 
 /** This identifies a single input. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class InputId(val value: Int) {
+value class InputStreamId(val value: Int) {
     override fun toString(): String = "Input-$value"
 }

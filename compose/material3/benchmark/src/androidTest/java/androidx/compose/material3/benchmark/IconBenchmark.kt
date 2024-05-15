@@ -18,27 +18,57 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
-class IconBenchmark {
+@LargeTest
+@RunWith(Parameterized::class)
+class IconBenchmark(private val type: IconType) {
+    companion object {
+        @Parameterized.Parameters(name = "{0}")
+        @JvmStatic
+        fun parameters() = IconType.values()
+    }
+
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
+    private val iconTestCaseFactory = { IconTestCase(type) }
+
     @Test
-    fun IconFirstPixel() { benchmarkRule.benchmarkToFirstPixel { IconTestCase() } }
+    fun IconFirstPixel() {
+        benchmarkRule.benchmarkToFirstPixel(iconTestCaseFactory)
+    }
 }
 
-private class IconTestCase : LayeredComposeTestCase() {
+private class IconTestCase(
+    private val type: IconType
+) : LayeredComposeTestCase() {
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun MeasuredContent() {
-        Icon(Icons.Filled.Lock, contentDescription = null)
+        when (type) {
+            IconType.FilledIcon ->
+                Icon(Icons.Filled.Lock, contentDescription = null)
+
+            IconType.FilledTintedIcon ->
+                Icon(
+                    rememberVectorPainter(image = Icons.Filled.Lock),
+                    contentDescription = null,
+                    tint = { Color.Blue })
+        }
     }
 
     @Composable
@@ -47,4 +77,8 @@ private class IconTestCase : LayeredComposeTestCase() {
             content()
         }
     }
+}
+
+enum class IconType {
+    FilledIcon, FilledTintedIcon
 }

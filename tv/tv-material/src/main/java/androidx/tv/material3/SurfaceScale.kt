@@ -31,7 +31,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.tv.material3.tokens.SurfaceScaleTokens
 
-@ExperimentalTvMaterial3Api
 @Composable
 internal fun Modifier.tvSurfaceScale(
     scale: Float,

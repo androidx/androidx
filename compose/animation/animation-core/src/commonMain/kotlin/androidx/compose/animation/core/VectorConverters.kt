@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * [TwoWayConverter] class contains the definition on how to convert from an arbitrary type [T]
@@ -124,6 +124,8 @@ val IntOffset.Companion.VectorConverter: TwoWayConverter<IntOffset, AnimationVec
 
 /**
  * A type converter that converts a [IntSize] to a [AnimationVector2D], and vice versa.
+ *
+ * Clamps negative values to zero when converting back to [IntSize].
  */
 val IntSize.Companion.VectorConverter: TwoWayConverter<IntSize, AnimationVector2D>
     get() = IntSizeToVector
@@ -169,16 +171,23 @@ private val OffsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
 private val IntOffsetToVector: TwoWayConverter<IntOffset, AnimationVector2D> =
     TwoWayConverter(
         convertToVector = { AnimationVector2D(it.x.toFloat(), it.y.toFloat()) },
-        convertFromVector = { IntOffset(it.v1.roundToInt(), it.v2.roundToInt()) }
+        convertFromVector = { IntOffset(it.v1.fastRoundToInt(), it.v2.fastRoundToInt()) }
     )
 
 /**
  * A type converter that converts a [IntSize] to a [AnimationVector2D], and vice versa.
+ *
+ * Clamps negative values to zero when converting back to [IntSize].
  */
 private val IntSizeToVector: TwoWayConverter<IntSize, AnimationVector2D> =
     TwoWayConverter(
         { AnimationVector2D(it.width.toFloat(), it.height.toFloat()) },
-        { IntSize(it.v1.roundToInt(), it.v2.roundToInt()) }
+        {
+            IntSize(
+                width = it.v1.fastRoundToInt().coerceAtLeast(0),
+                height = it.v2.fastRoundToInt().coerceAtLeast(0)
+            )
+        }
     )
 
 /**

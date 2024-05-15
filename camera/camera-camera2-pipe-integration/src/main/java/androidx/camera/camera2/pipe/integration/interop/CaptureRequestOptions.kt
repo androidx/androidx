@@ -16,7 +16,6 @@
 package androidx.camera.camera2.pipe.integration.interop
 
 import android.hardware.camera2.CaptureRequest
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.integration.impl.CAPTURE_REQUEST_ID_STEM
 import androidx.camera.camera2.pipe.integration.impl.createCaptureRequestOption
@@ -34,7 +33,6 @@ import androidx.camera.core.impl.ReadableConfig
  * @constructor Creates a CaptureRequestOptions for reading Camera2 capture request options from the
  * given config.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalCamera2Interop
 
 open class CaptureRequestOptions private constructor(
@@ -90,7 +88,6 @@ open class CaptureRequestOptions private constructor(
     /**
      * Builder for creating [CaptureRequestOptions] instance.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class Builder : ExtendableBuilder<CaptureRequestOptions?> {
         private val mutableOptionsBundle = MutableOptionsBundle.create()
 

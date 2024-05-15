@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,7 +32,8 @@ import android.os.Build;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
-import androidx.camera.core.impl.TagBundle;
+import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.MutableTagBundle;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,13 +52,16 @@ public final class CaptureCallbackAdapterTest {
     private CaptureRequest mCaptureRequest;
     private TotalCaptureResult mCaptureResult;
     private CaptureCallbackAdapter mCaptureCallbackAdapter;
+    private static final int CAPTURE_CONFIG_ID = 100;
 
     @Before
     public void setUp() {
         mCameraCaptureCallback = mock(CameraCaptureCallback.class);
         mCameraCaptureSession = mock(CameraCaptureSession.class);
         mCaptureRequest = mock(CaptureRequest.class);
-        when(mCaptureRequest.getTag()).thenReturn(TagBundle.emptyBundle());
+        MutableTagBundle tagBundle = MutableTagBundle.create();
+        tagBundle.putTag(CaptureConfig.CAPTURE_CONFIG_ID_TAG_KEY, CAPTURE_CONFIG_ID);
+        when(mCaptureRequest.getTag()).thenReturn(tagBundle);
         mCaptureResult = mock(TotalCaptureResult.class);
         mCaptureCallbackAdapter = new CaptureCallbackAdapter(mCameraCaptureCallback);
     }
@@ -70,20 +75,23 @@ public final class CaptureCallbackAdapterTest {
     public void onCaptureStarted() {
         mCaptureCallbackAdapter.onCaptureStarted(
                 mCameraCaptureSession, mCaptureRequest, /*timestamp=*/0, /*frameNumber=*/0);
-        verify(mCameraCaptureCallback, times(1)).onCaptureStarted();
+        verify(mCameraCaptureCallback, times(1))
+                .onCaptureStarted(eq(CAPTURE_CONFIG_ID));
     }
 
     @Test
     public void onCaptureCompleted() {
         mCaptureCallbackAdapter.onCaptureCompleted(
                 mCameraCaptureSession, mCaptureRequest, mCaptureResult);
-        verify(mCameraCaptureCallback, times(1)).onCaptureCompleted(any(CameraCaptureResult.class));
+        verify(mCameraCaptureCallback, times(1))
+                .onCaptureCompleted(eq(CAPTURE_CONFIG_ID), any(CameraCaptureResult.class));
     }
 
     @Test
     public void onCaptureFailed() {
         mCaptureCallbackAdapter.onCaptureFailed(mCameraCaptureSession, mCaptureRequest,
                 mock(CaptureFailure.class));
-        verify(mCameraCaptureCallback, times(1)).onCaptureFailed(any(CameraCaptureFailure.class));
+        verify(mCameraCaptureCallback, times(1))
+                .onCaptureFailed(eq(CAPTURE_CONFIG_ID), any(CameraCaptureFailure.class));
     }
 }

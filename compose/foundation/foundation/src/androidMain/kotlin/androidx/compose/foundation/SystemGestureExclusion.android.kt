@@ -84,7 +84,7 @@ private class ExcludeFromSystemGestureElement(
 
     override fun equals(other: Any?): Boolean {
         if (other !is ExcludeFromSystemGestureElement) return false
-        return exclusion == other.exclusion
+        return exclusion === other.exclusion
     }
 
     override fun InspectorInfo.inspectableProperties() {

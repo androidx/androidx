@@ -58,11 +58,20 @@ class CallableUpsertMethodBinder(
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
+        convertAndReturnCompat(parameters, adapters, dbProperty, scope)
+    }
+
+    override fun convertAndReturnCompat(
+        parameters: List<ShortcutQueryParameter>,
+        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        dbProperty: XPropertySpec,
+        scope: CodeGenScope
+    ) {
         val adapterScope = scope.fork()
         val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
             addCode(
                 XCodeBlock.builder(language).apply {
-                    adapter?.createMethodBody(
+                    adapter?.generateMethodBodyCompat(
                         parameters = parameters,
                         adapters = adapters,
                         dbProperty = dbProperty,

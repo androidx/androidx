@@ -17,9 +17,11 @@
 package androidx.glance.appwidget.preview
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
+import androidx.glance.LocalSize
 import androidx.glance.action.Action
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.layout.Alignment
@@ -42,7 +44,9 @@ fun FirstGlancePreview() {
             .padding(16.dp)
     ) {
         Text(
-            text = "First Glance widget",
+            text = "First Glance widget, LocalSize = ${LocalSize.current.let {
+                if (it == DpSize.Unspecified) "Unspecified" else "${it.width} x ${it.height}"
+            }}",
             modifier = GlanceModifier
                 .fillMaxWidth()
                 .padding(bottom = 8.dp),

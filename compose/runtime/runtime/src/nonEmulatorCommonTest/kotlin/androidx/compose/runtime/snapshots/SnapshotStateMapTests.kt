@@ -634,6 +634,28 @@ class SnapshotStateMapTests {
         // Should only get here if the above doesn't deadlock.
     }
 
+    @Test
+    fun toStringOfSnapshotStateMapDoesNotTriggerReadObserver() {
+        val state = mutableStateMapOf(0 to 0)
+        val normalReads = readsOf {
+            state.readable
+        }
+        assertEquals(1, normalReads)
+        val toStringReads = readsOf {
+            state.toString()
+        }
+        assertEquals(0, toStringReads)
+    }
+
+    @Test
+    fun testValueOfStateMapToString() {
+        val state = mutableStateMapOf(0 to 0, 1 to 1)
+        assertEquals(
+            "SnapshotStateMap(value={0=0, 1=1})@${state.hashCode()}",
+            state.toString()
+        )
+    }
+
     private fun validateRead(
         initialMap: MutableMap<Int, Float> = defaultMap(),
         block: (Map<Int, Float>, Map<Int, Float>) -> Unit

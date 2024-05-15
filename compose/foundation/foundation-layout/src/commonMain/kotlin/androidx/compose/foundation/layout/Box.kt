@@ -69,12 +69,41 @@ inline fun Box(
     propagateMinConstraints: Boolean = false,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val measurePolicy = rememberBoxMeasurePolicy(contentAlignment, propagateMinConstraints)
+    val measurePolicy = maybeCachedBoxMeasurePolicy(contentAlignment, propagateMinConstraints)
     Layout(
         content = { BoxScopeInstance.content() },
         measurePolicy = measurePolicy,
         modifier = modifier
     )
+}
+
+private fun cacheFor(
+    propagateMinConstraints: Boolean
+) = HashMap<Alignment, MeasurePolicy>(9).apply {
+    fun putAlignment(it: Alignment) {
+        put(it, BoxMeasurePolicy(it, propagateMinConstraints))
+    }
+    putAlignment(Alignment.TopStart)
+    putAlignment(Alignment.TopCenter)
+    putAlignment(Alignment.TopEnd)
+    putAlignment(Alignment.CenterStart)
+    putAlignment(Alignment.Center)
+    putAlignment(Alignment.CenterEnd)
+    putAlignment(Alignment.BottomStart)
+    putAlignment(Alignment.BottomCenter)
+    putAlignment(Alignment.BottomEnd)
+}
+
+private val cache1 = cacheFor(true)
+private val cache2 = cacheFor(false)
+
+@PublishedApi
+internal fun maybeCachedBoxMeasurePolicy(
+    alignment: Alignment,
+    propagateMinConstraints: Boolean
+): MeasurePolicy {
+    val cache = if (propagateMinConstraints) cache1 else cache2
+    return cache[alignment] ?: BoxMeasurePolicy(alignment, propagateMinConstraints)
 }
 
 @PublishedApi

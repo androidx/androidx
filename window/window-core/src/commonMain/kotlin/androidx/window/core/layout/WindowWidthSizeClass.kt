@@ -80,7 +80,7 @@ class WindowWidthSizeClass private constructor(
          * @throws IllegalArgumentException if the width is negative
          */
         internal fun compute(dpWidth: Float): WindowWidthSizeClass {
-            require(dpWidth > 0) { "Width must be positive, received $dpWidth" }
+            require(dpWidth >= 0) { "Width must be positive, received $dpWidth" }
             return when {
                 dpWidth < 600 -> COMPACT
                 dpWidth < 840 -> MEDIUM

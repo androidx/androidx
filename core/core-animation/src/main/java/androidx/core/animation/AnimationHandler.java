@@ -16,13 +16,7 @@
 
 package androidx.core.animation;
 
-import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
 import android.view.Choreographer;
-
-import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 
@@ -71,11 +65,7 @@ class AnimationHandler {
 
     AnimationHandler(AnimationFrameCallbackProvider provider) {
         if (provider == null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                mProvider = new FrameCallbackProvider16();
-            } else {
-                mProvider = new FrameCallbackProvider14(this);
-            }
+            mProvider = new FrameCallbackProvider16();
         } else {
             mProvider = provider;
         }
@@ -187,7 +177,6 @@ class AnimationHandler {
     /**
      * Default provider of timing pulse that uses Choreographer for frame callbacks.
      */
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     private class FrameCallbackProvider16 implements AnimationFrameCallbackProvider,
             Choreographer.FrameCallback {
 
@@ -215,58 +204,6 @@ class AnimationHandler {
         @Override
         public long getFrameDelay() {
             return android.animation.ValueAnimator.getFrameDelay();
-        }
-    }
-
-    /**
-     * Frame provider for ICS and ICS-MR1 releases. The frame callback is achieved via posting
-     * a Runnable to the main thread Handler with a delay.
-     */
-    private static class FrameCallbackProvider14 implements AnimationFrameCallbackProvider,
-            Runnable {
-
-        private static final ThreadLocal<Handler> sHandler = new ThreadLocal<>();
-        private long mLastFrameTime = -1;
-        private long mFrameDelay = 16;
-        AnimationHandler mAnimationHandler;
-
-        FrameCallbackProvider14(AnimationHandler animationHandler) {
-            mAnimationHandler = animationHandler;
-        }
-
-        Handler getHandler() {
-            if (sHandler.get() == null) {
-                sHandler.set(new Handler(Looper.myLooper()));
-            }
-            return sHandler.get();
-        }
-
-        @Override
-        public void run() {
-            mLastFrameTime = SystemClock.uptimeMillis();
-            mAnimationHandler.onAnimationFrame(mLastFrameTime);
-        }
-
-        @Override
-        public void onNewCallbackAdded(AnimationFrameCallback callback) {}
-
-        @Override
-        public void postFrameCallback() {
-            long delay = mFrameDelay - (SystemClock.uptimeMillis()
-                    - mLastFrameTime);
-            delay = Math.max(delay, 0);
-            getHandler().postDelayed(this, delay);
-        }
-
-        // TODO: consider removing frame delay setter/getter from ValueAnimator
-        @Override
-        public void setFrameDelay(long delay) {
-            mFrameDelay = delay > 0 ? delay : 0;
-        }
-
-        @Override
-        public long getFrameDelay() {
-            return mFrameDelay;
         }
     }
 

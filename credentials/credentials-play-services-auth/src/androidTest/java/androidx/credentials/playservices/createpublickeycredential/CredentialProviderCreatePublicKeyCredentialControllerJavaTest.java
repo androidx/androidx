@@ -28,11 +28,15 @@ import static androidx.credentials.playservices.createkeycredential.CreatePublic
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD;
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD;
 import static androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.createJsonObjectFromPublicKeyCredentialCreationOptions;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeFalse;
+
+import android.content.Context;
 
 import androidx.credentials.CreatePublicKeyCredentialRequest;
 import androidx.credentials.playservices.TestCredentialsActivity;
@@ -42,6 +46,8 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationOptions;
 
 import org.json.JSONException;
@@ -52,6 +58,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
+
     @Test
     public void convertRequestToPlayServices_correctRequiredOnlyRequest_success() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
@@ -110,6 +117,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
+            assumeFalse(deviceHasGMS(getApplicationContext()));
             try {
                 CredentialProviderCreatePublicKeyCredentialController
                         .getInstance(activity)
@@ -132,6 +140,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
 
+            assumeFalse(deviceHasGMS(getApplicationContext()));
             assertThrows("Expected bad required json to throw",
                     JSONException.class,
                     () -> CredentialProviderCreatePublicKeyCredentialController
@@ -147,6 +156,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
 
+            assumeFalse(deviceHasGMS(getApplicationContext()));
             assertThrows("Expected bad required json to throw",
                     JSONException.class,
                     () -> CredentialProviderCreatePublicKeyCredentialController
@@ -163,6 +173,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(activity -> {
 
+            assumeFalse(deviceHasGMS(getApplicationContext()));
             assertThrows("Expected bad required json to throw",
                     JSONException.class,
                     () -> CredentialProviderCreatePublicKeyCredentialController
@@ -199,5 +210,10 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private boolean deviceHasGMS(Context context) {
+        return GoogleApiAvailability.getInstance()
+                .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS;
     }
 }

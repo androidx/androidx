@@ -108,11 +108,11 @@ class DatabaseRegistry {
 
     void notifyReleaseReference(SQLiteDatabase database) {
         synchronized (mLock) {
-            /** Prevent all other methods from releasing a reference if a
-             *  {@link KeepOpenReference} is present */
+            /* Prevent all other methods from releasing a reference if a
+               {@link KeepOpenReference} is present */
             for (KeepOpenReference reference : mKeepOpenReferences.values()) {
                 if (reference.mDatabase == database) {
-                    /** The below will always succeed as {@link mKeepOpenReferences} only
+                    /* The below will always succeed as {@link mKeepOpenReferences} only
                      * contains active references:
                      * - we only insert active references into {@link mKeepOpenReferences}
                      * - {@link KeepOpenReference#releaseAllReferences} is the only place where we

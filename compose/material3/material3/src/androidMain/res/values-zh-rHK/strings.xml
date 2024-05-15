@@ -20,6 +20,7 @@
     <string name="m3c_dialog" msgid="7617233117134790350">"對話框"</string>
     <string name="m3c_dropdown_menu_expanded" msgid="2360841780724299882">"已展開"</string>
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"已收合"</string>
+    <string name="m3c_dropdown_menu_toggle" msgid="8687821690726149911">"切換下拉式選單"</string>
     <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"關閉"</string>
     <string name="m3c_search_bar_search" msgid="6152806324422087846">"搜尋"</string>
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"建議如下"</string>

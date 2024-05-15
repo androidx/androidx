@@ -20,6 +20,7 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SizeTransform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.NavBackStackEntry
@@ -69,6 +70,16 @@ public class ComposeNavigator : Navigator<Destination>() {
     }
 
     /**
+     * Function to prepare the entry for transition.
+     *
+     * This should be called when the entry needs to move the [Lifecycle.State] in preparation for
+     * a transition such as when using predictive back.
+     */
+    public fun prepareForTransition(entry: NavBackStackEntry) {
+        state.prepareForTransition(entry)
+    }
+
+    /**
      * Callback to mark a navigation in transition as complete.
      *
      * This should be called in conjunction with [navigate] and [popBackStack] as those
@@ -112,6 +123,9 @@ public class ComposeNavigator : Navigator<Destination>() {
 
         internal var popExitTransition: (@JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+
+        internal var sizeTransform: (@JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null
     }
 
     internal companion object {

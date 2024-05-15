@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.integration.config
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.StreamId
@@ -29,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelin
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
 import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.CapturePipelineImpl
+import androidx.camera.camera2.pipe.integration.impl.SessionProcessorManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraImpl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControlImpl
@@ -77,12 +75,25 @@ class UseCaseCameraConfig(
     private val sessionConfigAdapter: SessionConfigAdapter,
     private val cameraStateAdapter: CameraStateAdapter,
     private val cameraGraph: CameraGraph,
-    private val streamConfigMap: Map<CameraStream.Config, DeferrableSurface>
+    private val streamConfigMap: Map<CameraStream.Config, DeferrableSurface>,
+    private val sessionProcessorManager: SessionProcessorManager?,
 ) {
     @UseCaseCameraScope
     @Provides
     fun provideUseCaseList(): java.util.ArrayList<UseCase> {
         return java.util.ArrayList(useCases)
+    }
+
+    @UseCaseCameraScope
+    @Provides
+    fun provideSessionConfigAdapter(): SessionConfigAdapter {
+        return sessionConfigAdapter
+    }
+
+    @UseCaseCameraScope
+    @Provides
+    fun provideSessionProcessorManager(): SessionProcessorManager? {
+        return sessionProcessorManager
     }
 
     /**
@@ -110,18 +121,24 @@ class UseCaseCameraConfig(
             "Prepare UseCaseCameraGraphConfig: $cameraGraph "
         }
 
-        if (sessionConfigAdapter.isSessionConfigValid()) {
-            useCaseSurfaceManager.setupAsync(cameraGraph, sessionConfigAdapter, surfaceToStreamMap)
-                .invokeOnCompletion { throwable ->
+        if (!sessionConfigAdapter.isSessionProcessorEnabled) {
+            Log.debug { "Setting up Surfaces with UseCaseSurfaceManager" }
+            if (sessionConfigAdapter.isSessionConfigValid()) {
+                useCaseSurfaceManager.setupAsync(
+                    cameraGraph,
+                    sessionConfigAdapter,
+                    surfaceToStreamMap,
+                ).invokeOnCompletion { throwable ->
                     // Only show logs for error cases, ignore CancellationException since the task
                     // could be cancelled by UseCaseSurfaceManager#stopAsync().
                     if (throwable != null && throwable !is CancellationException) {
                         Log.error(throwable) { "Surface setup error!" }
                     }
                 }
-        } else {
-            Log.error {
-                "Unable to create capture session due to conflicting configurations"
+            } else {
+                Log.error {
+                    "Unable to create capture session due to conflicting configurations"
+                }
             }
         }
 
@@ -163,6 +180,8 @@ data class UseCaseGraphConfig(
 )
 interface UseCaseCameraComponent {
     fun getUseCaseCamera(): UseCaseCamera
+
+    fun getUseCaseGraphConfig(): UseCaseGraphConfig
 
     @Subcomponent.Builder
     interface Builder {

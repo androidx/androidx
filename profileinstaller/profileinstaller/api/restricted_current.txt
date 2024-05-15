@@ -41,10 +41,10 @@ package androidx.profileinstaller {
     method public void onResultReceived(int, Object?);
   }
 
-  public class ProfileInstallerInitializer implements androidx.startup.Initializer<androidx.profileinstaller.ProfileInstallerInitializer.Result> {
+  public class ProfileInstallerInitializer implements androidx.startup.Initializer<androidx.profileinstaller.ProfileInstallerInitializer.Result!> {
     ctor public ProfileInstallerInitializer();
     method public androidx.profileinstaller.ProfileInstallerInitializer.Result create(android.content.Context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>!>!> dependencies();
   }
 
   public static class ProfileInstallerInitializer.Result {
@@ -57,6 +57,7 @@ package androidx.profileinstaller {
   }
 
   public static class ProfileVerifier.CompilationStatus {
+    method public boolean appApkHasEmbeddedProfile();
     method public int getProfileInstallResultCode();
     method public boolean hasProfileEnqueuedForCompilation();
     method public boolean isCompiledWithProfile();
@@ -64,9 +65,11 @@ package androidx.profileinstaller {
     field public static final int RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING = 3; // 0x3
     field public static final int RESULT_CODE_ERROR_CACHE_FILE_EXISTS_BUT_CANNOT_BE_READ = 131072; // 0x20000
     field public static final int RESULT_CODE_ERROR_CANT_WRITE_PROFILE_VERIFICATION_RESULT_CACHE_FILE = 196608; // 0x30000
+    field public static final int RESULT_CODE_ERROR_NO_PROFILE_EMBEDDED = 327680; // 0x50000
     field public static final int RESULT_CODE_ERROR_PACKAGE_NAME_DOES_NOT_EXIST = 65536; // 0x10000
     field public static final int RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION = 262144; // 0x40000
-    field public static final int RESULT_CODE_NO_PROFILE = 0; // 0x0
+    field @Deprecated public static final int RESULT_CODE_NO_PROFILE = 0; // 0x0
+    field public static final int RESULT_CODE_NO_PROFILE_INSTALLED = 0; // 0x0
     field public static final int RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION = 2; // 0x2
   }
 

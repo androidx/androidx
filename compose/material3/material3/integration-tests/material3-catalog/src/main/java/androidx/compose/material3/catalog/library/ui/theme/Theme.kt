@@ -16,10 +16,10 @@
 
 package androidx.compose.material3.catalog.library.ui.theme
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -44,33 +44,28 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.core.view.WindowCompat
 
+@SuppressLint("NewApi")
 @Composable
 fun CatalogTheme(
     theme: Theme,
     content: @Composable () -> Unit
 ) {
-    val colorScheme =
-        if (theme.colorMode == ColorMode.Dynamic &&
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val context = LocalContext.current
-            colorSchemeFromThemeMode(
-                themeMode = theme.themeMode,
-                lightColorScheme = dynamicLightColorScheme(context),
-                darkColorScheme = dynamicDarkColorScheme(context),
-            )
-        } else if (theme.colorMode == ColorMode.Custom) {
-            colorSchemeFromThemeMode(
-                themeMode = theme.themeMode,
-                lightColorScheme = LightCustomColorScheme,
-                darkColorScheme = DarkCustomColorScheme,
-            )
-        } else {
-            colorSchemeFromThemeMode(
-                themeMode = theme.themeMode,
-                lightColorScheme = lightColorScheme(),
-                darkColorScheme = darkColorScheme(),
-            )
-        }
+    val context = LocalContext.current
+    val lightColorScheme = when (theme.colorMode) {
+        ColorMode.Dynamic -> dynamicLightColorScheme(context)
+        ColorMode.Custom -> LightCustomColorScheme
+        ColorMode.Baseline -> lightColorScheme()
+    }
+    val darkColorScheme = when (theme.colorMode) {
+        ColorMode.Dynamic -> dynamicDarkColorScheme(context)
+        ColorMode.Custom -> DarkCustomColorScheme
+        ColorMode.Baseline -> darkColorScheme()
+    }
+    val colorScheme = colorSchemeFromThemeMode(
+        themeMode = theme.themeMode,
+        lightColorScheme = lightColorScheme,
+        darkColorScheme = darkColorScheme
+    )
 
     val layoutDirection = when (theme.textDirection) {
         TextDirection.LTR -> LayoutDirection.Ltr
@@ -79,7 +74,6 @@ fun CatalogTheme(
     }
 
     val view = LocalView.current
-    val context = LocalContext.current
     val darkTheme = isSystemInDarkTheme()
     SideEffect {
         WindowCompat.getInsetsController(context.findActivity().window, view)

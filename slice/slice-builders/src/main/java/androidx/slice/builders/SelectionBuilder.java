@@ -22,7 +22,6 @@ import android.app.PendingIntent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.core.util.Pair;
@@ -43,7 +42,6 @@ import java.util.Set;
  * forward. If you are looking for a framework that handles communication across apps,
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
-@RequiresApi(19)
 @Deprecated
 public class SelectionBuilder {
     private final List<Pair<String, CharSequence>> mOptions;

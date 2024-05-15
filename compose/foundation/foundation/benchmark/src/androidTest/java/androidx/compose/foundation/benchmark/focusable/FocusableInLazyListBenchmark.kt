@@ -89,7 +89,7 @@ class FocusableInLazyListBenchmark {
         runBenchmarkFor({
             LazyListTestCase(itemCount) { state -> content(state) }
         }) {
-            measureRepeated {
+            measureRepeatedOnUiThread {
                 runWithTimingDisabled {
                     doFramesUntilNoChangesPending()
                     getTestCase().toggleState()

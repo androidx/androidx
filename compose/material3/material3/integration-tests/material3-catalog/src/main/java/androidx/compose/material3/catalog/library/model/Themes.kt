@@ -79,12 +79,16 @@ enum class ColorMode(val label: String) {
      *
      * If the dynamic colors are not available, the baseline color scheme will be used as a fallback.
      */
-    Dynamic("Dynamic (Android 12+)"),
+    Dynamic("Dynamic (Android 12+)");
+
+    override fun toString(): String = label
 }
 
 enum class FontScaleMode(val label: String) {
     Custom("Custom"),
-    System("System"),
+    System("System");
+
+    override fun toString(): String = label
 }
 
 enum class ThemeMode {

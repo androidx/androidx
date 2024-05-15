@@ -4,7 +4,7 @@ package androidx.lifecycle {
   public final class ProcessLifecycleInitializer implements androidx.startup.Initializer<androidx.lifecycle.LifecycleOwner> {
     ctor public ProcessLifecycleInitializer();
     method public androidx.lifecycle.LifecycleOwner create(android.content.Context context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>>> dependencies();
   }
 
   public final class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {

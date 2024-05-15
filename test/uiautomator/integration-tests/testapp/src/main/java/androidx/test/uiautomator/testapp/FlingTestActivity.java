@@ -18,43 +18,55 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
+import android.view.ViewConfiguration;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
 public class FlingTestActivity extends Activity {
 
-    private GestureDetector mGestureDetector;
+    private TextView mFlingRegion;
+    private int mMinFlingVelocity;
+    private MotionEvent mStartEvent;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.fling_test_activity);
-
-        TextView flingRegion = findViewById(R.id.fling_region);
-
-        mGestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float vX, float vY) {
-                // Fling has an opposite direction of swipe.
-                boolean horizontal = Math.abs(vX) > Math.abs(vY);
-                if (horizontal) {
-                    flingRegion.setText(vX > 0 ? "fling_left" : "fling_right");
-                } else {
-                    flingRegion.setText(vY > 0 ? "fling_up" : "fling_down");
-                }
-
-                return true;
-            }
-        });
+        mFlingRegion = findViewById(R.id.fling_region);
+        ViewConfiguration viewConfig = ViewConfiguration.get(getApplicationContext());
+        mMinFlingVelocity = viewConfig.getScaledMinimumFlingVelocity();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
+        // On slower devices, injected motion events may have large time gaps (>50ms), especially
+        // for v1 gestures (UiScrollable). If these gaps are too large, velocity trackers may
+        // drop events and report invalid velocities. Instead, this calculates the overall
+        // velocity of the gesture and whether it is fast enough to be considered a fling.
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                // Motion started, record start event.
+                mStartEvent = event;
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                // Motion ended, calculate average velocity (px/s) and whether it is a fling.
+                long durationMs = event.getEventTime() - mStartEvent.getEventTime();
+                float distanceX = event.getX() - mStartEvent.getX();
+                float distanceY = event.getY() - mStartEvent.getY();
+                float vX = 1000 * distanceX / durationMs;
+                float vY = 1000 * distanceY / durationMs;
+                if (Math.abs(vX) >= mMinFlingVelocity || Math.abs(vY) >= mMinFlingVelocity) {
+                    boolean horizontal = Math.abs(vX) > Math.abs(vY);
+                    if (horizontal) {
+                        mFlingRegion.setText(vX > 0 ? "fling_left" : "fling_right");
+                    } else {
+                        mFlingRegion.setText(vY > 0 ? "fling_up" : "fling_down");
+                    }
+                }
+        }
+        return true;
     }
 }

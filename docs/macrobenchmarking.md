@@ -1,4 +1,4 @@
-# Benchmarking in AndroidX
+# MACRObenchmarking in AndroidX
 
 [TOC]
 
@@ -10,7 +10,7 @@
       <td><strong>Benchmark</strong></td>
     </tr>
     <tr>
-        <td>Measure high-level entry points(Activity launch / Scrolling a list)</td>
+        <td>Measure high-level entry points (Activity launch / Scrolling a list)</td>
         <td>Measure individual functions</td>
     </tr>
     <tr>
@@ -22,12 +22,12 @@
         <td>Fast iteration speed (Often less than 10 seconds)</td>
     </tr>
     <tr>
-        <td>Configure compilation with CompilationMode</td>
+        <td>Configure compilation with <a href="https://developer.android.com/reference/androidx/benchmark/macro/CompilationMode">CompilationMode</a></td>
         <td>Always fully AOT (<code>speed</code>) compiled.</td>
     </tr>
     <tr>
         <td>Min API 23</td>
-        <td>Min API 14</td>
+        <td>Min API 19</td>
     </tr>
     <tr>
         <td>Relatively lower stability measurements</td>
@@ -40,7 +40,7 @@ The
 for macrobenchmark explains how to use the library. This page focuses on
 specifics to writing library macrobenchmarks in the AndroidX repo. If you're
 looking for measuring CPU perf of individual functions, see the guide for
-MICRObenchmarks [here](/company/teams/androidx/benchmarking.md).
+MICRObenchmarks [here](/docs/benchmarking.md).
 
 ### Writing the benchmark
 
@@ -122,7 +122,7 @@ Compose Macrobenchmark Examples:
 
 *   [`:compose:integration-tests:macrobenchmark`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/integration-tests/macrobenchmark/)
 
-Note: Compose macrobenchmarks are generally duplicated with View system
+Note: Compose macrobenchmarks are ideally duplicated with View system
 counterparts, defined in `:benchmark:integration-tests:macrobenchmark-target`.
 This is how we compare performance of the two systems.
 

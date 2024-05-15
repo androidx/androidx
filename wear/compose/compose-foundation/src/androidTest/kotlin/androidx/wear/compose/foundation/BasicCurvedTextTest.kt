@@ -16,8 +16,16 @@
 
 package androidx.wear.compose.foundation
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -51,5 +59,27 @@ class BasicCurvedTextTest {
             // TODO(b/219885899): Investigate why we need the extra passes.
             assertEquals(CapturedInfo(2, 3, 1), capturedInfo)
         }
+    }
+
+    @Test
+    fun curved_text_sized_appropriately() {
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, 1f)) {
+                CurvedLayout(modifier = Modifier.size(200.dp)) {
+                    curvedRow(
+                        modifier = CurvedModifier.testTag(TEST_TAG)
+                    ) {
+                        basicCurvedText(
+                            text = "Test text",
+                            style = CurvedTextStyle(fontSize = 24.sp),
+                        )
+                    }
+                }
+            }
+        }
+
+        // This is a pre-calculated value. It was calculated for specific container size,
+        // density and font.
+        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo(93.dp)
     }
 }

@@ -192,7 +192,7 @@ public class DatabaseCallbackTest {
                 context, ProductsDatabase_v2.class, "products.db")
                 .createFromAsset("databases/products_v1.db")
                 .addCallback(callback)
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(false)
                 .build();
 
         assertFalse(callback.mDestructivelyMigrated);

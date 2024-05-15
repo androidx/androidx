@@ -87,6 +87,15 @@ public class ExtensionVersionImpl {
      * @since 1.2
      */
     public boolean isAdvancedExtenderImplemented() {
-        return false;
+        return ExtensionsTestlibControl.getInstance().getImplementationType()
+                == ExtensionsTestlibControl.ImplementationType.TESTLIB_ADVANCED;
+    }
+
+    /**
+     * This method is used to check if test lib is running. If OEM implementation exists, invoking
+     * this method will throw {@link NoSuchMethodError}. This can be used to determine if OEM
+     * implementation is used or not.
+     */
+    public void checkTestlibRunning() {
     }
 }

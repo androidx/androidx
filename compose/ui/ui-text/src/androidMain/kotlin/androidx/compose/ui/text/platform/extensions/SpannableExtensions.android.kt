@@ -461,7 +461,7 @@ internal fun Spannable.setLocaleList(localeList: LocaleList?, start: Int, end: I
                 LocaleListHelperMethods.localeSpan(it)
             } else {
                 val locale = if (it.isEmpty()) Locale.current else it[0]
-                LocaleSpan(locale.toJavaLocale())
+                LocaleSpan(locale.platformLocale)
             },
             start,
             end

@@ -21,12 +21,15 @@ import android.os.Handler
 import android.os.Looper
 import android.view.InputDevice
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_BUTTON_PRESS
+import android.view.MotionEvent.ACTION_BUTTON_RELEASE
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
 import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_OUTSIDE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_INDEX_SHIFT
 import android.view.MotionEvent.ACTION_POINTER_UP
@@ -55,6 +58,7 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OpenComposeView
+import androidx.compose.ui.background
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
@@ -62,6 +66,7 @@ import androidx.compose.ui.findAndroidComposeView
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -79,6 +84,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.waitForFutureFrame
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -86,7 +92,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -100,9 +105,8 @@ import org.mockito.kotlin.verify
 class AndroidPointerInputTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val rule = androidx.test.rule.ActivityTestRule(
-        AndroidPointerInputTestActivity::class.java
-    )
+    val rule =
+        androidx.test.rule.ActivityTestRule(AndroidPointerInputTestActivity::class.java)
 
     private lateinit var container: OpenComposeView
 
@@ -532,13 +536,7 @@ class AndroidPointerInputTest {
         }
     }
 
-    // Currently ignored because it fails when run via command line.  Runs successfully in Android
-    // Studio.
     @Test
-    // TODO(b/158099918): For some reason, this test fails when run from command line but passes
-    //  when run from Android Studio.  This seems to be caused by b/158099918.  Once that is
-    //  fixed, @Ignore can be removed.
-    @Ignore
     fun dispatchTouchEvent_throughLayersOfAndroidAndCompose_hitsChildWithCorrectCoords() {
 
         // Arrange
@@ -1033,13 +1031,14 @@ class AndroidPointerInputTest {
         action: Int,
         layoutCoordinates: LayoutCoordinates,
         offset: Offset = Offset.Zero,
-        scrollDelta: Offset = Offset.Zero
+        scrollDelta: Offset = Offset.Zero,
+        eventTime: Int = 0
     ) {
         rule.runOnUiThread {
             val root = layoutCoordinates.findRootCoordinates()
             val pos = root.localPositionOf(layoutCoordinates, offset)
             val event = MotionEvent(
-                0,
+                eventTime,
                 action,
                 1,
                 0,
@@ -1091,13 +1090,14 @@ class AndroidPointerInputTest {
     private fun dispatchTouchEvent(
         action: Int,
         layoutCoordinates: LayoutCoordinates,
-        offset: Offset = Offset.Zero
+        offset: Offset = Offset.Zero,
+        eventTime: Int = 0
     ) {
         rule.runOnUiThread {
             val root = layoutCoordinates.findRootCoordinates()
             val pos = root.localPositionOf(layoutCoordinates, offset)
             val event = MotionEvent(
-                0,
+                eventTime,
                 action,
                 1,
                 0,
@@ -1178,6 +1178,2534 @@ class AndroidPointerInputTest {
             assertThat(events).hasSize(2)
             assertHoverEvent(events[0], isEnter = true)
             assertHoverEvent(events[1], isExit = true)
+        }
+    }
+
+    /*
+     * Simple test that makes sure a bad ACTION_OUTSIDE MotionEvent doesn't negatively
+     * impact Compose (b/299074463#comment31). (We actually ignore them in Compose.)
+     * The event order of MotionEvents:
+     *   1. Hover enter on box 1
+     *   2. Hover move into box 2
+     *   3. Hover exit on box 2
+     *   4. Outside event on box 3
+     *   5. Down on box 2
+     *   6. Up on box 2
+     */
+    @Test
+    fun hoverAndClickMotionEvent_badOutsideMotionEvent_outsideMotionEventIgnored() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+        var box2LayoutCoordinates: LayoutCoordinates? = null
+        var box3LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+        // One less than total because outside is not sent to Compose.
+        val totalEventLatch = CountDownLatch(5)
+
+        // Events for Box 1
+        var enterBox1 = false
+        var exitBox1 = false
+
+        // Events for Box 2
+        var enterBox2 = false
+        var exitBox2 = false
+        var pressBox2 = false
+        var releaseBox2 = false
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    awaitPointerEvent()
+                                    totalEventLatch.countDown()
+                                }
+                            }
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                enterBox1 = true
+                                            }
+                                            PointerEventType.Exit -> {
+                                                exitBox1 = true
+                                            }
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box2LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                enterBox2 = true
+                                            }
+                                            PointerEventType.Press -> {
+                                                pressBox2 = true
+                                            }
+                                            PointerEventType.Release -> {
+                                                releaseBox2 = true
+                                            }
+                                            PointerEventType.Exit -> {
+                                                exitBox2 = true
+                                            }
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box3LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(enterBox1).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // Hover Move to Box 2
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_HOVER_MOVE, box2LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(exitBox1).isTrue()
+            assertThat(enterBox2).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // Hover Exit on Box 2
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_HOVER_EXIT, box2LayoutCoordinates!!)
+
+        // Hover exit events in Compose are always delayed two frames to ensure Compose does not
+        // trigger them if they are followed by a press in the next frame. This accounts for that.
+        rule.waitForFutureFrame(2)
+
+        rule.runOnUiThread {
+            assertThat(exitBox2).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Outside event with Box 3 coordinates
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_OUTSIDE, box3LayoutCoordinates!!)
+
+        // No Compose event should be triggered (b/299074463#comment31)
+        rule.runOnUiThread {
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertThat(pointerEvent).isNull()
+        }
+
+        // Press on Box 2
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_DOWN, box2LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(pressBox2).isTrue()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertThat(pointerEvent).isNotNull()
+        }
+
+        // Release on Box 2
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_UP, box2LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(releaseBox2).isTrue()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertThat(pointerEvent).isNotNull()
+        }
+
+        assertTrue(totalEventLatch.await(1, TimeUnit.SECONDS))
+    }
+
+    /*
+     * Tests that a bad ACTION_HOVER_EXIT MotionEvent is ignored in Compose when it directly
+     * proceeds an ACTION_SCROLL MotionEvent. This happens in some versions of Android Studio when
+     * mirroring is used (b/314269723).
+     *
+     * The event order of MotionEvents:
+     *   - Hover enter on box 1
+     *   - Hover exit on box 1 (bad event)
+     *   - Scroll on box 1
+     */
+    @Test
+    fun scrollMotionEvent_proceededImmediatelyByHoverExit_shouldNotTriggerHoverExit() {
+        // --> Arrange
+        val scrollDelta = Offset(0.35f, 0.65f)
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+
+        // Events for Box 1
+        var enterBox1 = false
+        var scrollBox1 = false
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                enterBox1 = true
+                                            }
+
+                                            PointerEventType.Exit -> {
+                                                enterBox1 = false
+                                            }
+
+                                            PointerEventType.Scroll -> {
+                                                scrollBox1 = true
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(enterBox1).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // We do not use dispatchMouseEvent() to dispatch the following two events, because the
+        // actions need to be executed in immediate succession
+        rule.runOnUiThread {
+            val root = box1LayoutCoordinates!!.findRootCoordinates()
+            val pos = root.localPositionOf(box1LayoutCoordinates!!, Offset.Zero)
+
+            // Bad hover exit event on Box 1
+            val exitMotionEvent = MotionEvent(
+                0,
+                ACTION_HOVER_EXIT,
+                1,
+                0,
+                arrayOf(PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }),
+                arrayOf(PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y))
+            )
+
+            // Main scroll event on Box 1
+            val scrollMotionEvent = MotionEvent(
+                0,
+                ACTION_SCROLL,
+                1,
+                0,
+                arrayOf(PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }),
+                arrayOf(PointerCoords(pos.x, pos.y, scrollDelta.x, scrollDelta.y))
+            )
+
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+            androidComposeView.dispatchHoverEvent(exitMotionEvent)
+            androidComposeView.dispatchGenericMotionEvent(scrollMotionEvent)
+        }
+
+        rule.runOnUiThread {
+            assertThat(enterBox1).isTrue()
+            assertThat(scrollBox1).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests alternating between hover TOUCH events and touch events across multiple UI elements.
+     * Specifically, to recreate Talkback events.
+     *
+     * Important Note: Usually a hover MotionEvent sent from Android has the tool type set as
+     * [MotionEvent.TOOL_TYPE_MOUSE]. However, Talkback sets the tool type to
+     * [MotionEvent.TOOL_TYPE_FINGER]. We do that in this test by calling the
+     * [dispatchTouchEvent()] instead of [dispatchMouseEvent()].
+     *
+     * Specific events:
+     *  1. UI Element 1: ENTER (hover enter [touch])
+     *  2. UI Element 1: EXIT (hover exit [touch])
+     *  3. UI Element 1: PRESS (touch)
+     *  4. UI Element 1: RELEASE (touch)
+     *  5. UI Element 2: PRESS (touch)
+     *  6. UI Element 2: RELEASE (touch)
+     *
+     * Should NOT trigger any additional events (like an extra press or exit)!
+     */
+    @Test
+    fun alternatingHoverAndTouch_hoverUi1ToTouchUi1ToTouchUi2_shouldNotTriggerAdditionalEvents() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+        var box2LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+
+        var eventTime = 100
+
+        // Events for Box 1
+        var box1HoverEnter = 0
+        var box1HoverExit = 0
+        var box1Down = 0
+        var box1Up = 0
+
+        // Events for Box 2
+        var box2Down = 0
+        var box2Up = 0
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                ++box1HoverEnter
+                                            }
+
+                                            PointerEventType.Press -> {
+                                                ++box1Down
+                                            }
+
+                                            PointerEventType.Release -> {
+                                                ++box1Up
+                                            }
+
+                                            PointerEventType.Exit -> {
+                                                ++box1HoverExit
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box2LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Press -> {
+                                                ++box2Down
+                                            }
+
+                                            PointerEventType.Release -> {
+                                                ++box2Up
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchTouchEvent(
+            action = ACTION_HOVER_ENTER,
+            layoutCoordinates = box1LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(0)
+            assertThat(box1Down).isEqualTo(0)
+            assertThat(box1Up).isEqualTo(0)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(0)
+            assertThat(box2Up).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // Hover Exit on Box 1
+        pointerEvent = null // Reset before each event
+        eventTime += 100
+        dispatchTouchEvent(
+            action = ACTION_HOVER_EXIT,
+            layoutCoordinates = box1LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+
+        rule.waitForFutureFrame(2)
+
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+            assertThat(box1Down).isEqualTo(0)
+            assertThat(box1Up).isEqualTo(0)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(0)
+            assertThat(box2Up).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Press on Box 1
+        pointerEvent = null // Reset before each event
+        eventTime += 100
+        dispatchTouchEvent(
+            action = ACTION_DOWN,
+            layoutCoordinates = box1LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+            assertThat(box1Down).isEqualTo(1)
+            assertThat(box1Up).isEqualTo(0)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(0)
+            assertThat(box2Up).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Release on Box 1
+        pointerEvent = null // Reset before each event
+        eventTime += 100
+        dispatchTouchEvent(
+            action = ACTION_UP,
+            layoutCoordinates = box1LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+            assertThat(box1Down).isEqualTo(1)
+            assertThat(box1Up).isEqualTo(1)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(0)
+            assertThat(box2Up).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Press on Box 2
+        pointerEvent = null // Reset before each event
+        eventTime += 100
+        dispatchTouchEvent(
+            action = ACTION_DOWN,
+            layoutCoordinates = box2LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+            assertThat(box1Down).isEqualTo(1)
+            assertThat(box1Up).isEqualTo(1)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(1)
+            assertThat(box2Up).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Press on Box 2
+        pointerEvent = null // Reset before each event
+        eventTime += 100
+        dispatchTouchEvent(
+            action = ACTION_UP,
+            layoutCoordinates = box2LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+            assertThat(box1Down).isEqualTo(1)
+            assertThat(box1Up).isEqualTo(1)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(1)
+            assertThat(box2Up).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests alternating between hover TOUCH events and regular touch events across multiple
+     * UI elements. Specifically, to recreate Talkback events.
+     *
+     * Important Note: Usually a hover MotionEvent sent from Android has the tool type set as
+     * [MotionEvent.TOOL_TYPE_MOUSE]. However, Talkback sets the tool type to
+     * [MotionEvent.TOOL_TYPE_FINGER]. We do that in this test by calling the
+     * [dispatchTouchEvent()] instead of [dispatchMouseEvent()].
+     *
+     * Specific events:
+     *  1. UI Element 1: ENTER (hover enter [touch])
+     *  2. UI Element 1: EXIT (hover exit [touch])
+     *  5. UI Element 2: PRESS (touch)
+     *  6. UI Element 2: RELEASE (touch)
+     *
+     * Should NOT trigger any additional events (like an extra exit)!
+     */
+    @Test
+    fun alternatingHoverAndTouch_hoverUi1ToTouchUi2_shouldNotTriggerAdditionalEvents() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+        var box2LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+
+        var eventTime = 100
+
+        // Events for Box 1
+        var box1HoverEnter = 0
+        var box1HoverExit = 0
+
+        // Events for Box 2
+        var box2Down = 0
+        var box2Up = 0
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                ++box1HoverEnter
+                                            }
+
+                                            PointerEventType.Exit -> {
+                                                ++box1HoverExit
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box2LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Press -> {
+                                                ++box2Down
+                                            }
+
+                                            PointerEventType.Release -> {
+                                                ++box2Up
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchTouchEvent(
+            action = ACTION_HOVER_ENTER,
+            layoutCoordinates = box1LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(0)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(0)
+            assertThat(box2Up).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // Hover Exit on Box 1
+        pointerEvent = null // Reset before each event
+        eventTime += 100
+        dispatchTouchEvent(
+            action = ACTION_HOVER_EXIT,
+            layoutCoordinates = box1LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+
+        rule.waitForFutureFrame(2)
+
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(0)
+            assertThat(box2Up).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Press on Box 2
+        pointerEvent = null // Reset before each event
+        eventTime += 100
+        dispatchTouchEvent(
+            action = ACTION_DOWN,
+            layoutCoordinates = box2LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(1)
+            assertThat(box2Up).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Press on Box 2
+        pointerEvent = null // Reset before each event
+        eventTime += 100
+        dispatchTouchEvent(
+            action = ACTION_UP,
+            layoutCoordinates = box2LayoutCoordinates!!,
+            eventTime = eventTime
+        )
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+
+            // Verify Box 2 events
+            assertThat(box2Down).isEqualTo(1)
+            assertThat(box2Up).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests alternating hover TOUCH events across multiple UI elements. Specifically, to recreate
+     * Talkback events.
+     *
+     * Important Note: Usually a hover MotionEvent sent from Android has the tool type set as
+     * [MotionEvent.TOOL_TYPE_MOUSE]. However, Talkback sets the tool type to
+     * [MotionEvent.TOOL_TYPE_FINGER]. We do that in this test by calling the
+     * [dispatchTouchEvent()] instead of [dispatchMouseEvent()].
+     *
+     * Specific events:
+     *  1. UI Element 1: ENTER (hover enter [touch])
+     *  2. UI Element 1: EXIT (hover exit [touch])
+     *  5. UI Element 2: ENTER (hover enter [touch])
+     *  6. UI Element 2: EXIT (hover exit [touch])
+     *
+     * Should NOT trigger any additional events (like an extra exit)!
+     */
+    @Test
+    fun hoverEventsBetweenUIElements_hoverUi1ToHoverUi2_shouldNotTriggerAdditionalEvents() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+        var box2LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+
+        // Events for Box 1
+        var box1HoverEnter = 0
+        var box1HoverExit = 0
+
+        // Events for Box 2
+        var box2HoverEnter = 0
+        var box2HoverExit = 0
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                ++box1HoverEnter
+                                            }
+
+                                            PointerEventType.Exit -> {
+                                                ++box1HoverExit
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box2LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                ++box2HoverEnter
+                                            }
+
+                                            PointerEventType.Exit -> {
+                                                ++box2HoverExit
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchTouchEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(0)
+
+            // Verify Box 2 events
+            assertThat(box2HoverEnter).isEqualTo(0)
+            assertThat(box2HoverExit).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        // Hover Exit on Box 1
+        pointerEvent = null // Reset before each event
+        dispatchTouchEvent(ACTION_HOVER_EXIT, box1LayoutCoordinates!!)
+
+        rule.waitForFutureFrame(2)
+
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+            // Verify Box 2 events
+            assertThat(box2HoverEnter).isEqualTo(0)
+            assertThat(box2HoverExit).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Press on Box 2
+        pointerEvent = null // Reset before each event
+        dispatchTouchEvent(ACTION_HOVER_ENTER, box2LayoutCoordinates!!)
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+
+            // Verify Box 2 events
+            assertThat(box2HoverEnter).isEqualTo(1)
+            assertThat(box2HoverExit).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // Press on Box 2
+        pointerEvent = null // Reset before each event
+        dispatchTouchEvent(ACTION_HOVER_EXIT, box2LayoutCoordinates!!)
+
+        rule.waitForFutureFrame(2)
+
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(box1HoverEnter).isEqualTo(1)
+            assertThat(box1HoverExit).isEqualTo(1)
+
+            // Verify Box 2 events
+            assertThat(box2HoverEnter).isEqualTo(1)
+            assertThat(box2HoverExit).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests TOUCH events are triggered correctly when dynamically adding a NON-pointer input
+     * modifier above an existing pointer input modifier.
+     *
+     * Note: The lambda for the existing pointer input modifier is not re-executed after the
+     * dynamic one is added.
+     *
+     * Specific events:
+     *  1. UI Element (modifier 1 only): PRESS (touch)
+     *  2. UI Element (modifier 1 only): MOVE (touch)
+     *  3. UI Element (modifier 1 only): RELEASE (touch)
+     *  4. Dynamically adds NON-pointer input modifier (between input event streams)
+     *  5. UI Element (modifier 1 and 2): PRESS (touch)
+     *  6. UI Element (modifier 1 and 2): MOVE (touch)
+     *  7. UI Element (modifier 1 and 2): RELEASE (touch)
+     */
+    @Test
+    fun dynamicNonInputModifier_addsAboveExistingModifier_shouldTriggerInNewModifier() {
+        // --> Arrange
+        val originalPointerInputModifierKey = "ORIGINAL_POINTER_INPUT_MODIFIER_KEY_123"
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        var enableDynamicPointerInput by mutableStateOf(false)
+
+        // Events for the lower modifier Box 1
+        var originalPointerInputScopeExecutionCount by mutableStateOf(0)
+        var preexistingModifierPress by mutableStateOf(0)
+        var preexistingModifierMove by mutableStateOf(0)
+        var preexistingModifierRelease by mutableStateOf(0)
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger by mutableStateOf(false)
+
+        var pointerEvent: PointerEvent? by mutableStateOf(null)
+
+        // Events for the dynamic upper modifier Box 1
+        var dynamicModifierExecuted by mutableStateOf(false)
+
+        // Non-Pointer Input Modifier that is toggled on/off based on passed value.
+        fun Modifier.dynamicallyToggledModifier(enable: Boolean) = if (enable) {
+            dynamicModifierExecuted = true
+            background(Color.Green)
+        } else this
+
+        // Setup UI
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(200.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .dynamicallyToggledModifier(enableDynamicPointerInput)
+                        .pointerInput(originalPointerInputModifierKey) {
+                            ++originalPointerInputScopeExecutionCount
+                            // Reset pointer events when lambda is ran the first time
+                            preexistingModifierPress = 0
+                            preexistingModifierMove = 0
+                            preexistingModifierRelease = 0
+
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Press -> {
+                                            ++preexistingModifierPress
+                                        }
+                                        PointerEventType.Move -> {
+                                            ++preexistingModifierMove
+                                        }
+                                        PointerEventType.Release -> {
+                                            ++preexistingModifierRelease
+                                        }
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // DOWN (original modifier only)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(false)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original modifier only)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(false)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original modifier only)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(false)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+        enableDynamicPointerInput = true
+        rule.waitForFutureFrame(2)
+
+        // DOWN (original + dynamically added modifiers)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            // There are no pointer input modifiers added above this pointer modifier, so the
+            // same one is used.
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            // The dynamic one has been added, so we execute its thing as well.
+            assertThat(dynamicModifierExecuted).isEqualTo(true)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(true)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicModifierExecuted).isEqualTo(true)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(2)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests TOUCH events are triggered correctly when dynamically adding a pointer input modifier
+     * ABOVE an existing pointer input modifier.
+     *
+     * Note: The lambda for the existing pointer input modifier **IS** re-executed after the
+     * dynamic pointer input modifier is added above it.
+     *
+     * Specific events:
+     *  1. UI Element (modifier 1 only): PRESS (touch)
+     *  2. UI Element (modifier 1 only): MOVE (touch)
+     *  3. UI Element (modifier 1 only): RELEASE (touch)
+     *  4. Dynamically add pointer input modifier above existing one (between input event streams)
+     *  5. UI Element (modifier 1 and 2): PRESS (touch)
+     *  6. UI Element (modifier 1 and 2): MOVE (touch)
+     *  7. UI Element (modifier 1 and 2): RELEASE (touch)
+     */
+    @Test
+    fun dynamicInputModifierWithKey_addsAboveExistingModifier_shouldTriggerInNewModifier() {
+        // --> Arrange
+        val originalPointerInputModifierKey = "ORIGINAL_POINTER_INPUT_MODIFIER_KEY_123"
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        var enableDynamicPointerInput by mutableStateOf(false)
+
+        // Events for the lower modifier Box 1
+        var originalPointerInputScopeExecutionCount by mutableStateOf(0)
+        var preexistingModifierPress by mutableStateOf(0)
+        var preexistingModifierMove by mutableStateOf(0)
+        var preexistingModifierRelease by mutableStateOf(0)
+
+        // Events for the dynamic upper modifier Box 1
+        var dynamicPointerInputScopeExecutionCount by mutableStateOf(0)
+        var dynamicModifierPress by mutableStateOf(0)
+        var dynamicModifierMove by mutableStateOf(0)
+        var dynamicModifierRelease by mutableStateOf(0)
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger by mutableStateOf(false)
+
+        var pointerEvent: PointerEvent? by mutableStateOf(null)
+
+        // Pointer Input Modifier that is toggled on/off based on passed value.
+        fun Modifier.dynamicallyToggledPointerInput(
+            enable: Boolean,
+            pointerEventLambda: (pointerEvent: PointerEvent) -> Unit
+        ) = if (enable) {
+            pointerInput(pointerEventLambda) {
+                ++dynamicPointerInputScopeExecutionCount
+
+                // Reset pointer events when lambda is ran the first time
+                dynamicModifierPress = 0
+                dynamicModifierMove = 0
+                dynamicModifierRelease = 0
+
+                awaitPointerEventScope {
+                    while (true) {
+                        pointerEventLambda(awaitPointerEvent())
+                    }
+                }
+            }
+        } else this
+
+        // Setup UI
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(200.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .dynamicallyToggledPointerInput(enableDynamicPointerInput) {
+                            when (it.type) {
+                                PointerEventType.Press -> {
+                                    ++dynamicModifierPress
+                                }
+                                PointerEventType.Move -> {
+                                    ++dynamicModifierMove
+                                }
+                                PointerEventType.Release -> {
+                                    ++dynamicModifierRelease
+                                }
+                                else -> {
+                                    eventsThatShouldNotTrigger = true
+                                }
+                            }
+                        }
+                        .pointerInput(originalPointerInputModifierKey) {
+                            ++originalPointerInputScopeExecutionCount
+                            // Reset pointer events when lambda is ran the first time
+                            preexistingModifierPress = 0
+                            preexistingModifierMove = 0
+                            preexistingModifierRelease = 0
+
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Press -> {
+                                            ++preexistingModifierPress
+                                        }
+                                        PointerEventType.Move -> {
+                                            ++preexistingModifierMove
+                                        }
+                                        PointerEventType.Release -> {
+                                            ++preexistingModifierRelease
+                                        }
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // DOWN (original modifier only)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original modifier only)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original modifier only)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        enableDynamicPointerInput = true
+        rule.waitForFutureFrame(2)
+
+        // Important Note: Even though we reset all the pointer input blocks, the initial lambda is
+        // lazily executed, meaning it won't reset the values until the first event comes in, so
+        // the previously set values are still the same until an event comes in.
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+        }
+
+        // DOWN (original + dynamically added modifiers)
+        // Now an event comes in, so the lambdas are both executed completely (dynamic one for the
+        // first time and the existing one for a second time [since it was moved]).
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            // While the original pointer input block is being reused after a new one is added, it
+            // is reset (since things have changed with the Modifiers), so the entire block is
+            // executed again to allow devs to reset their gesture detectors for the new Modifier
+            // chain changes.
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            // The dynamic one has been added, so we execute its thing as well.
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests TOUCH events are triggered incorrectly when dynamically adding a pointer input modifier
+     * (which uses Unit for its key [bad]) ABOVE an existing pointer input modifier. This is more
+     * of an "education test" for developers to see how things can go wrong if you use "Unit" for
+     * your key in pointer input and pointer input modifiers are later added dynamically.
+     *
+     * Note: Even though we are dynamically adding a new pointer input modifier above the existing
+     * pointer input modifier, Compose actually reuses the existing pointer input modifier to
+     * contain the new pointer input modifier. It then adds a new pointer input modifier below that
+     * one and copies in the original (non-dynamic) pointer input modifier into that. However, in
+     * this case, because we are using the "Unit" for both keys, Compose thinks they are the same
+     * pointer input modifier, so it never replaces the existing lambda with the dynamic pointer
+     * input modifier node's lambda. This is why you should not use Unit for your key.
+     *
+     * Why can't the lambdas passed into pointer input be compared? We can't memoize them because
+     * they are outside of a Compose scope (defined in a Modifier extension function), so
+     * developers need to pass a unique key(s) as a way to let us know when to update the lambda.
+     * You can do that with a unique key for each pointer input modifier and/or take it a step
+     * further and use captured values in the lambda as keys (ones that change lambda
+     * behavior).
+     *
+     * Specific events:
+     *  1. UI Element (modifier 1 only): PRESS (touch)
+     *  2. UI Element (modifier 1 only): MOVE (touch)
+     *  3. UI Element (modifier 1 only): RELEASE (touch)
+     *  4. Dynamically add pointer input modifier above existing one (between input event streams)
+     *  5. UI Element (modifier 1 and 2): PRESS (touch)
+     *  6. UI Element (modifier 1 and 2): MOVE (touch)
+     *  7. UI Element (modifier 1 and 2): RELEASE (touch)
+     */
+    @Test
+    fun dynamicInputModifierWithUnitKey_addsAboveExistingModifier_failsToTriggerNewModifier() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        var enableDynamicPointerInput by mutableStateOf(false)
+
+        // Events for the lower modifier Box 1
+        var originalPointerInputScopeExecutionCount by mutableStateOf(0)
+        var preexistingModifierPress by mutableStateOf(0)
+        var preexistingModifierMove by mutableStateOf(0)
+        var preexistingModifierRelease by mutableStateOf(0)
+
+        // Events for the dynamic upper modifier Box 1
+        var dynamicPointerInputScopeExecutionCount by mutableStateOf(0)
+        var dynamicModifierPress by mutableStateOf(0)
+        var dynamicModifierMove by mutableStateOf(0)
+        var dynamicModifierRelease by mutableStateOf(0)
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger by mutableStateOf(false)
+
+        var pointerEvent: PointerEvent? by mutableStateOf(null)
+
+        // Pointer Input Modifier that is toggled on/off based on passed value.
+        fun Modifier.dynamicallyToggledPointerInput(
+            enable: Boolean,
+            pointerEventLambda: (pointerEvent: PointerEvent) -> Unit
+        ) = if (enable) {
+            pointerInput(Unit) {
+                ++dynamicPointerInputScopeExecutionCount
+
+                // Reset pointer events when lambda is ran the first time
+                dynamicModifierPress = 0
+                dynamicModifierMove = 0
+                dynamicModifierRelease = 0
+
+                awaitPointerEventScope {
+                    while (true) {
+                        pointerEventLambda(awaitPointerEvent())
+                    }
+                }
+            }
+        } else this
+
+        // Setup UI
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(200.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .dynamicallyToggledPointerInput(enableDynamicPointerInput) {
+                            when (it.type) {
+                                PointerEventType.Press -> {
+                                    ++dynamicModifierPress
+                                }
+                                PointerEventType.Move -> {
+                                    ++dynamicModifierMove
+                                }
+                                PointerEventType.Release -> {
+                                    ++dynamicModifierRelease
+                                }
+                                else -> {
+                                    eventsThatShouldNotTrigger = true
+                                }
+                            }
+                        }
+                        .pointerInput(Unit) {
+                            ++originalPointerInputScopeExecutionCount
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Press -> {
+                                            ++preexistingModifierPress
+                                        }
+                                        PointerEventType.Move -> {
+                                            ++preexistingModifierMove
+                                        }
+                                        PointerEventType.Release -> {
+                                            ++preexistingModifierRelease
+                                        }
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // DOWN (original modifier only)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original modifier only)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original modifier only)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        enableDynamicPointerInput = true
+        rule.waitForFutureFrame(2)
+
+        // Important Note: I'm not resetting the variable counters in this test.
+
+        // DOWN (original + dynamically added modifiers)
+        // Now an event comes in, so the lambdas are both executed completely for the first time.
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            // While the original pointer input block is being reused after a new one is added, it
+            // is reset (since things have changed with the Modifiers), so the entire block is
+            // executed again to allow devs to reset their gesture detectors for the new Modifier
+            // chain changes.
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            // The dynamic one has been added, so we execute its thing as well.
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            // This is 2 because the dynamic modifier added before the existing one, is using Unit
+            // for the key, so the comparison shows that it doesn't need to update the lambda...
+            // Thus, it uses the old lambda (why it is very important you don't use Unit for your
+            // key.
+            assertThat(preexistingModifierPress).isEqualTo(3)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(3)
+            assertThat(preexistingModifierMove).isEqualTo(3)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(3)
+            assertThat(preexistingModifierMove).isEqualTo(3)
+            assertThat(preexistingModifierRelease).isEqualTo(3)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests TOUCH events are triggered correctly when dynamically adding a pointer input
+     * modifier BELOW an existing pointer input modifier.
+     *
+     * Note: The lambda for the existing pointer input modifier is NOT re-executed after the
+     * dynamic one is added below it (since it doesn't impact it).
+     *
+     * Specific events:
+     *  1. UI Element (modifier 1 only): PRESS (touch)
+     *  2. UI Element (modifier 1 only): MOVE (touch)
+     *  3. UI Element (modifier 1 only): RELEASE (touch)
+     *  4. Dynamically add pointer input modifier below existing one (between input event streams)
+     *  5. UI Element (modifier 1 and 2): PRESS (touch)
+     *  6. UI Element (modifier 1 and 2): MOVE (touch)
+     *  7. UI Element (modifier 1 and 2): RELEASE (touch)
+     */
+    @Test
+    fun dynamicInputModifierWithKey_addsBelowExistingModifier_shouldTriggerInNewModifier() {
+        // --> Arrange
+        val originalPointerInputModifierKey = "ORIGINAL_POINTER_INPUT_MODIFIER_KEY_123"
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        var enableDynamicPointerInput by mutableStateOf(false)
+
+        // Events for the lower modifier Box 1
+        var originalPointerInputScopeExecutionCount by mutableStateOf(0)
+        var preexistingModifierPress by mutableStateOf(0)
+        var preexistingModifierMove by mutableStateOf(0)
+        var preexistingModifierRelease by mutableStateOf(0)
+
+        // Events for the dynamic upper modifier Box 1
+        var dynamicPointerInputScopeExecutionCount by mutableStateOf(0)
+        var dynamicModifierPress by mutableStateOf(0)
+        var dynamicModifierMove by mutableStateOf(0)
+        var dynamicModifierRelease by mutableStateOf(0)
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger by mutableStateOf(false)
+
+        var pointerEvent: PointerEvent? by mutableStateOf(null)
+
+        // Pointer Input Modifier that is toggled on/off based on passed value.
+        fun Modifier.dynamicallyToggledPointerInput(
+            enable: Boolean,
+            pointerEventLambda: (pointerEvent: PointerEvent) -> Unit
+        ) = if (enable) {
+            pointerInput(pointerEventLambda) {
+                ++dynamicPointerInputScopeExecutionCount
+
+                // Reset pointer events when lambda is ran the first time
+                dynamicModifierPress = 0
+                dynamicModifierMove = 0
+                dynamicModifierRelease = 0
+
+                awaitPointerEventScope {
+                    while (true) {
+                        pointerEventLambda(awaitPointerEvent())
+                    }
+                }
+            }
+        } else this
+
+        // Setup UI
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(200.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .pointerInput(originalPointerInputModifierKey) {
+                            ++originalPointerInputScopeExecutionCount
+                            // Reset pointer events when lambda is ran the first time
+                            preexistingModifierPress = 0
+                            preexistingModifierMove = 0
+                            preexistingModifierRelease = 0
+
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Press -> {
+                                            ++preexistingModifierPress
+                                        }
+                                        PointerEventType.Move -> {
+                                            ++preexistingModifierMove
+                                        }
+                                        PointerEventType.Release -> {
+                                            ++preexistingModifierRelease
+                                        }
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .dynamicallyToggledPointerInput(enableDynamicPointerInput) {
+                            when (it.type) {
+                                PointerEventType.Press -> {
+                                    ++dynamicModifierPress
+                                }
+                                PointerEventType.Move -> {
+                                    ++dynamicModifierMove
+                                }
+                                PointerEventType.Release -> {
+                                    ++dynamicModifierRelease
+                                }
+                                else -> {
+                                    eventsThatShouldNotTrigger = true
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // DOWN (original modifier only)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(0)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original modifier only)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(0)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original modifier only)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(1)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        enableDynamicPointerInput = true
+        rule.waitForFutureFrame(2)
+
+        // DOWN (original + dynamically added modifiers)
+        dispatchTouchEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            // Because the new pointer input modifier is added below the existing one, the existing
+            // one doesn't change.
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(1)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // MOVE (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_MOVE,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(1)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        // UP (original + dynamically added modifiers)
+        dispatchTouchEvent(
+            ACTION_UP,
+            box1LayoutCoordinates!!,
+            Offset(0f, box1LayoutCoordinates!!.size.height / 2 - 1f)
+        )
+        rule.runOnUiThread {
+            assertThat(originalPointerInputScopeExecutionCount).isEqualTo(1)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
+
+            // Verify Box 1 existing modifier events
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(2)
+
+            // Verify Box 1 dynamically added modifier events
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests a full mouse event cycle from a press and release.
+     *
+     * Important Note: The pointer id should stay the same throughout all these events (part of the
+     * test).
+     *
+     * Specific MotionEvents:
+     *  1. UI Element 1: ENTER (hover enter [mouse])
+     *  2. UI Element 1: EXIT (hover exit [mouse]) - Doesn't trigger Compose PointerEvent
+     *  3. UI Element 1: PRESS (mouse)
+     *  4. UI Element 1: ACTION_BUTTON_PRESS (mouse)
+     *  5. UI Element 1: ACTION_BUTTON_RELEASE (mouse)
+     *  6. UI Element 1: RELEASE (mouse)
+     *  7. UI Element 1: ENTER (hover enter [mouse]) - Doesn't trigger Compose PointerEvent
+     *  8. UI Element 1: EXIT (hover enter [mouse])
+     *
+     * Should NOT trigger any additional events (like an extra press or exit)!
+     */
+    @Test
+    fun mouseEventsAndPointerIds_completeMouseEventCycle_pointerIdsShouldMatchAcrossAllEvents() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(1)
+
+        // Events for Box
+        var hoverEventCount = 0
+        var hoverExitCount = 0
+        var downCount = 0
+        // unknownCount covers both button action press and release from Android system for a
+        // mouse. These events happen between the normal press and release events.
+        var unknownCount = 0
+        var upCount = 0
+
+        // We want to assert that each updated pointer id matches the original pointer id that
+        // starts the sequence of MotionEvents.
+        var originalPointerId = -1L
+        var box1PointerId = -1L
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .onGloballyPositioned {
+                            box1LayoutCoordinates = it
+                            setUpFinishedLatch.countDown()
+                        }
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+
+                                    if (originalPointerId < 0) {
+                                        originalPointerId = pointerEvent!!.changes[0].id.value
+                                    }
+
+                                    box1PointerId = pointerEvent!!.changes[0].id.value
+
+                                    when (pointerEvent!!.type) {
+                                        PointerEventType.Enter -> {
+                                            ++hoverEventCount
+                                        }
+
+                                        PointerEventType.Press -> {
+                                            ++downCount
+                                        }
+
+                                        PointerEventType.Release -> {
+                                            ++upCount
+                                        }
+
+                                        PointerEventType.Exit -> {
+                                            ++hoverExitCount
+                                        }
+
+                                        PointerEventType.Unknown -> {
+                                            ++unknownCount
+                                        }
+
+                                        else -> {
+                                            eventsThatShouldNotTrigger = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                ) { }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            // Verify Box 1 events and pointer id
+            assertThat(originalPointerId).isEqualTo(box1PointerId)
+            assertThat(hoverEventCount).isEqualTo(1)
+            assertThat(hoverExitCount).isEqualTo(0)
+            assertThat(downCount).isEqualTo(0)
+            assertThat(unknownCount).isEqualTo(0)
+            assertThat(upCount).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        pointerEvent = null // Reset before each event
+
+        // This will be interpreted as a synthetic event triggered by an ACTION_DOWN because we
+        // don't wait several frames before triggering the ACTION_DOWN. Thus, no hover exit is
+        // triggered.
+        dispatchMouseEvent(ACTION_HOVER_EXIT, box1LayoutCoordinates!!)
+        dispatchMouseEvent(ACTION_DOWN, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            assertThat(originalPointerId).isEqualTo(box1PointerId)
+            assertThat(hoverEventCount).isEqualTo(1)
+            assertThat(hoverExitCount).isEqualTo(0)
+            assertThat(downCount).isEqualTo(1)
+            assertThat(unknownCount).isEqualTo(0)
+            assertThat(upCount).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_BUTTON_PRESS, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            // Verify Box 1 events
+            assertThat(originalPointerId).isEqualTo(box1PointerId)
+            assertThat(hoverEventCount).isEqualTo(1)
+            assertThat(hoverExitCount).isEqualTo(0)
+            assertThat(downCount).isEqualTo(1)
+            // unknownCount covers both button action press and release from Android system for a
+            // mouse. These events happen between the normal press and release events.
+            assertThat(unknownCount).isEqualTo(1)
+            assertThat(upCount).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_BUTTON_RELEASE, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(originalPointerId).isEqualTo(box1PointerId)
+            assertThat(hoverEventCount).isEqualTo(1)
+            assertThat(hoverExitCount).isEqualTo(0)
+            assertThat(downCount).isEqualTo(1)
+            // unknownCount covers both button action press and release from Android system for a
+            // mouse. These events happen between the normal press and release events.
+            assertThat(unknownCount).isEqualTo(2)
+            assertThat(upCount).isEqualTo(0)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_UP, box1LayoutCoordinates!!)
+        // Compose already considered us as ENTERING the UI Element, so we don't need to trigger
+        // it again. (This is a synthetic hover enter anyway sent from platform with UP.)
+        dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+
+        rule.runOnUiThread {
+            assertThat(originalPointerId).isEqualTo(box1PointerId)
+            assertThat(hoverEventCount).isEqualTo(1)
+            assertThat(hoverExitCount).isEqualTo(0)
+            assertThat(downCount).isEqualTo(1)
+            assertThat(unknownCount).isEqualTo(2)
+            assertThat(upCount).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+
+        pointerEvent = null // Reset before each event
+        dispatchMouseEvent(ACTION_HOVER_EXIT, box1LayoutCoordinates!!)
+
+        // Wait enough time for timeout on hover exit to trigger
+        rule.waitForFutureFrame(2)
+
+        rule.runOnUiThread {
+            assertThat(originalPointerId).isEqualTo(box1PointerId)
+            assertThat(hoverEventCount).isEqualTo(1)
+            assertThat(hoverExitCount).isEqualTo(1)
+            assertThat(downCount).isEqualTo(1)
+            assertThat(unknownCount).isEqualTo(2)
+            assertThat(upCount).isEqualTo(1)
+
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests an ACTION_HOVER_EXIT MotionEvent is ignored in Compose when it proceeds an
+     * ACTION_DOWN MotionEvent (in a measure of milliseconds only).
+     *
+     * The event order of MotionEvents:
+     *   - Hover enter on box 1
+     *   - Loop 10 times:
+     *     - Hover enter on box 1
+     *     - Down on box 1
+     *     - Up on box 1
+     */
+    @Test
+    fun hoverExitBeforeDownMotionEvent_shortDelayBetweenMotionEvents_shouldNotTriggerHoverExit() {
+        // --> Arrange
+        var box1LayoutCoordinates: LayoutCoordinates? = null
+
+        val setUpFinishedLatch = CountDownLatch(4)
+
+        // Events for Box 1
+        var enterBox1 = false
+        var pressBox1 = false
+
+        // All other events that should never be triggered in this test
+        var eventsThatShouldNotTrigger = false
+
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                        }
+                ) {
+                    // Box 1
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                box1LayoutCoordinates = it
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+
+                                        when (pointerEvent!!.type) {
+                                            PointerEventType.Enter -> {
+                                                enterBox1 = true
+                                            }
+
+                                            PointerEventType.Exit -> {
+                                                enterBox1 = false
+                                            }
+
+                                            PointerEventType.Press -> {
+                                                pressBox1 = true
+                                            }
+
+                                            PointerEventType.Release -> {
+                                                pressBox1 = false
+                                            }
+
+                                            else -> {
+                                                eventsThatShouldNotTrigger = true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 2
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+
+                    // Box 3
+                    Box(
+                        Modifier
+                            .size(50.dp)
+                            .onGloballyPositioned {
+                                setUpFinishedLatch.countDown()
+                            }
+                            .pointerInput(Unit) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        pointerEvent = awaitPointerEvent()
+                                        // Should never do anything with this UI element.
+                                        eventsThatShouldNotTrigger = true
+                                    }
+                                }
+                            }
+                    ) { }
+                }
+            }
+        }
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // --> Act + Assert (interwoven)
+        // Hover Enter on Box 1
+        dispatchMouseEvent(ACTION_HOVER_ENTER, box1LayoutCoordinates!!)
+        rule.runOnUiThread {
+            assertThat(enterBox1).isTrue()
+            assertThat(pointerEvent).isNotNull()
+            assertThat(eventsThatShouldNotTrigger).isFalse()
+            assertHoverEvent(pointerEvent!!, isEnter = true)
+        }
+
+        pointerEvent = null // Reset before each event
+
+        for (index in 0 until 10) {
+            // We do not use dispatchMouseEvent() to dispatch the following two events, because the
+            // actions need to be executed in immediate succession.
+            rule.runOnUiThread {
+                val root = box1LayoutCoordinates!!.findRootCoordinates()
+                val pos = root.localPositionOf(box1LayoutCoordinates!!, Offset.Zero)
+
+                // Exit on Box 1 right before action down. This happens normally on devices, so we
+                // are recreating it here. However, Compose ignores the exit if it is right before
+                // a down (right before meaning within a couple milliseconds). We verify that it
+                // did in fact ignore this exit.
+                val exitMotionEvent = MotionEvent(
+                    0,
+                    ACTION_HOVER_EXIT,
+                    1,
+                    0,
+                    arrayOf(
+                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
+                    ),
+                    arrayOf(
+                        PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y)
+                    )
+                )
+
+                // Press on Box 1
+                val downMotionEvent = MotionEvent(
+                    0,
+                    ACTION_DOWN,
+                    1,
+                    0,
+                    arrayOf(
+                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
+                    ),
+                    arrayOf(
+                        PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y)
+                    )
+                )
+
+                val androidComposeView =
+                    findAndroidComposeView(container) as AndroidComposeView
+
+                // Execute events
+                androidComposeView.dispatchHoverEvent(exitMotionEvent)
+                androidComposeView.dispatchTouchEvent(downMotionEvent)
+            }
+
+            // In Compose, a hover exit MotionEvent is ignored if it is quickly followed
+            // by a press.
+            rule.runOnUiThread {
+                assertThat(enterBox1).isTrue()
+                assertThat(pressBox1).isTrue()
+                assertThat(eventsThatShouldNotTrigger).isFalse()
+                assertThat(pointerEvent).isNotNull()
+            }
+
+            // Release on Box 1
+            pointerEvent = null // Reset before each event
+            dispatchTouchEvent(ACTION_UP, box1LayoutCoordinates!!)
+
+            rule.runOnUiThread {
+                assertThat(enterBox1).isTrue()
+                assertThat(pressBox1).isFalse()
+                assertThat(eventsThatShouldNotTrigger).isFalse()
+                assertThat(pointerEvent).isNotNull()
+            }
+        }
+
+        rule.runOnUiThread {
+            assertThat(eventsThatShouldNotTrigger).isFalse()
         }
     }
 
@@ -1804,6 +4332,10 @@ class AndroidPointerInputTest {
         // Exit followed by nothing should just send the exit
         dispatchStylusEvents(coords, Offset.Zero, ACTION_HOVER_ENTER)
         dispatchStylusEvents(coords, Offset.Zero, ACTION_HOVER_EXIT)
+
+        // Hover exit events in Compose are always delayed two frames to ensure Compose does not
+        // trigger them if they are followed by a press in the next frame. This accounts for that.
+        rule.waitForFutureFrame(2)
 
         rule.runOnUiThread {
             assertThat(eventLog).hasSize(2)

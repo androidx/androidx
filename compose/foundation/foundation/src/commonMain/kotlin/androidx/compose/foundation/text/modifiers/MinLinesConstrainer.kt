@@ -23,7 +23,7 @@ import androidx.compose.ui.text.resolveDefaults
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Coerce min and max lines into actual constraints.
@@ -119,8 +119,7 @@ internal class MinLinesConstrainer private constructor(
             lineHeightCache = lineHeight
         }
         val minHeight = if (minLines != 1) {
-            (oneLineHeight + (lineHeight * (minLines - 1)))
-                .roundToInt()
+            (oneLineHeight + (lineHeight * (minLines - 1))).fastRoundToInt()
                 .coerceAtLeast(0)
                 .coerceAtMost(inConstraints.maxHeight)
         } else {

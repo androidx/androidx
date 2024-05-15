@@ -19,13 +19,15 @@ package androidx.bluetooth
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
 import android.bluetooth.BluetoothGattService as FwkService
 import android.bluetooth.BluetoothGattService.SERVICE_TYPE_PRIMARY
+import com.google.common.truth.Truth.assertThat
 import java.util.UUID
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertSame
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+/**
+ * Test cases for [GattService]
+ */
 @RunWith(JUnit4::class)
 class GattServiceTest {
 
@@ -44,10 +46,10 @@ class GattServiceTest {
 
         val gattService = GattService(fwkGattService)
 
-        assertEquals(fwkGattService.uuid, gattService.uuid)
-        assertEquals(2, gattService.characteristics.size)
-        assertEquals(charUuid1, gattService.characteristics[0].uuid)
-        assertEquals(charUuid2, gattService.characteristics[1].uuid)
+        assertThat(gattService.uuid).isEqualTo(fwkGattService.uuid)
+        assertThat(gattService.characteristics.size).isEqualTo(2)
+        assertThat(gattService.characteristics[0].uuid).isEqualTo(charUuid1)
+        assertThat(gattService.characteristics[1].uuid).isEqualTo(charUuid2)
     }
 
     @Test
@@ -66,14 +68,14 @@ class GattServiceTest {
 
         val gattService = GattService(serviceUuid, characteristics)
 
-        assertEquals(serviceUuid, gattService.uuid)
-        assertEquals(2, gattService.characteristics.size)
+        assertThat(gattService.uuid).isEqualTo(serviceUuid)
+        assertThat(gattService.characteristics.size).isEqualTo(2)
 
-        assertSame(char1, gattService.characteristics[0])
-        assertSame(char2, gattService.characteristics[1])
+        assertThat(gattService.characteristics[0]).isSameInstanceAs(char1)
+        assertThat(gattService.characteristics[1]).isSameInstanceAs(char2)
 
         // The characteristics list should be immutable
         characteristics.add(char3)
-        assertEquals(2, gattService.characteristics.size)
+        assertThat(gattService.characteristics.size).isEqualTo(2)
     }
 }

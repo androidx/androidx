@@ -21,7 +21,9 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import androidx.credentials.provider.CreateEntry
+import androidx.credentials.provider.CreateEntry.Companion.fromCreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromSlice
+import androidx.credentials.provider.CreateEntry.Companion.toSlice
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -125,6 +127,21 @@ class CreateEntryTest {
         entry?.let {
             assertEntryWithAllParams(entry)
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 34)
+    fun fromCreateEntry_allParams_success() {
+        val originalEntry = constructEntryWithAllParams()
+        val slice = toSlice(originalEntry)
+        assertNotNull(slice)
+
+        val entry = fromCreateEntry(
+            android.service.credentials.CreateEntry(slice!!)
+        )
+
+        assertNotNull(entry)
+        assertEntryWithAllParams(entry!!)
     }
 
     private fun constructEntryWithRequiredParams(): CreateEntry {

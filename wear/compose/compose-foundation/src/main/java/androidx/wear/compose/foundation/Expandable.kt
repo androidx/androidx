@@ -25,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.Layout
@@ -55,7 +57,12 @@ public fun rememberExpandableState(
     collapseAnimationSpec: AnimationSpec<Float> = ExpandableItemsDefaults.collapseAnimationSpec,
 ): ExpandableState {
     val scope = rememberCoroutineScope()
-    return remember {
+    return rememberSaveable(
+        saver = ExpandableState.saver(
+            expandAnimationSpec = expandAnimationSpec,
+            collapseAnimationSpec = collapseAnimationSpec,
+        )
+    ) {
         ExpandableState(initiallyExpanded, scope, expandAnimationSpec, collapseAnimationSpec)
     }
 }
@@ -258,6 +265,30 @@ public class ExpandableState internal constructor(
                 }
             }
         }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [ExpandableState].
+         */
+        @Composable
+        fun saver(
+            expandAnimationSpec: AnimationSpec<Float>,
+            collapseAnimationSpec: AnimationSpec<Float>,
+        ): Saver<ExpandableState, Boolean> {
+            val coroutineScope = rememberCoroutineScope()
+            return Saver(
+                save = { it.expanded },
+                restore = {
+                    ExpandableState(
+                        initiallyExpanded = it,
+                        expandAnimationSpec = expandAnimationSpec,
+                        collapseAnimationSpec = collapseAnimationSpec,
+                        coroutineScope = coroutineScope
+                    )
+                }
+            )
+        }
+    }
 }
 
 /**

@@ -15,9 +15,15 @@
   -->
 
 <resources>
-    <string name="extensions_app">Extensions App</string>
+    <string name="app_name">Camera Extensions Validation Tool</string>
     <string name="extensions_validator">Camera Extensions Validator</string>
+    <string name="camerax_extensions">CameraX Extensions</string>
     <string name="camerax_extensions_validator">CameraX Extensions Validator</string>
+    <string name="camera2_extensions">Camera2 Extensions</string>
     <string name="camera2_extensions_validator">Camera2 Extensions Validator</string>
     <string name="error_msg_no_camera_support_extension">No camera supports any extension modes!</string>
+    <string name="toggle_video_on">video\non</string>
+    <string name="toggle_video_off">video\noff</string>
+    <string name="button_record_start">record</string>
+    <string name="button_record_stop">stop</string>
 </resources>

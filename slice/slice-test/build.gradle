@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -40,7 +47,6 @@ dependencies {
 androidx {
     name = "Slice Test Extensions"
     type = LibraryType.INTERNAL_TEST_LIBRARY
-    publish = Publish.NONE // Library is deprecated pending removal.
     mavenVersion = LibraryVersions.SLICE
     inceptionYear = "2017"
     description = "A library that holds common code for testing slices"

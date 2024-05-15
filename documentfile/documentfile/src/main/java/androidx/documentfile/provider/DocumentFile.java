@@ -114,11 +114,7 @@ public abstract class DocumentFile {
      */
     @Nullable
     public static DocumentFile fromSingleUri(@NonNull Context context, @NonNull Uri singleUri) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return new SingleDocumentFile(null, context, singleUri);
-        } else {
-            return null;
-        }
+        return new SingleDocumentFile(null, context, singleUri);
     }
 
     /**

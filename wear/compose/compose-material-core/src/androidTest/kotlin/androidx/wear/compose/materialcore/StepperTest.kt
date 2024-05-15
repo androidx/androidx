@@ -392,6 +392,7 @@ public class StepperTest {
         backgroundColor = backgroundColor,
         enabledButtonProviderValues = enabledButtonProviderValues,
         disabledButtonProviderValues = disabledButtonProviderValues,
+        buttonRipple = EmptyIndication,
         content = content,
     )
 

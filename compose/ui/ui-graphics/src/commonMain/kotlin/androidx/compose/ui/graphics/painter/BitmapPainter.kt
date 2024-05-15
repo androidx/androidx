@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * [Painter] implementation used to draw an [ImageBitmap] into the provided canvas
@@ -95,8 +95,8 @@ class BitmapPainter(
             srcOffset,
             srcSize,
             dstSize = IntSize(
-                this@onDraw.size.width.roundToInt(),
-                this@onDraw.size.height.roundToInt()
+                this@onDraw.size.width.fastRoundToInt(),
+                this@onDraw.size.height.fastRoundToInt()
             ),
             alpha = alpha,
             colorFilter = colorFilter,

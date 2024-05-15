@@ -47,7 +47,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.TypedArrayUtils;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.ArrayList;
@@ -599,7 +598,7 @@ public class Preference implements Comparable<Preference> {
         // needed as enabling copying requires the view to be `clickable`, but we only care about
         // long clicks, and not normal clicks.
         if (copyingEnabled && !selectable) {
-            ViewCompat.setBackground(itemView, null);
+            itemView.setBackground(null);
         }
     }
 

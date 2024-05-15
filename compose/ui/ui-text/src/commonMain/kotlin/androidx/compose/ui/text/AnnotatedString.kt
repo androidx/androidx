@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.text.AnnotatedString.Builder
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.intl.LocaleList
@@ -37,7 +38,6 @@ class AnnotatedString internal constructor(
     internal val paragraphStylesOrNull: List<Range<ParagraphStyle>>? = null,
     internal val annotations: List<Range<out Any>>? = null
 ) : CharSequence {
-
     /**
      * All [SpanStyle] that have been applied to a range of this String
      */
@@ -209,11 +209,35 @@ class AnnotatedString internal constructor(
      * list will be returned.
      */
     @ExperimentalTextApi
-    @Suppress("UNCHECKED_CAST")
+    @Suppress("UNCHECKED_CAST", "Deprecation")
+    @Deprecated("Use LinkAnnotation API instead", ReplaceWith("getLinkAnnotations(start, end)"))
     fun getUrlAnnotations(start: Int, end: Int): List<Range<UrlAnnotation>> =
         ((annotations?.fastFilter {
             it.item is UrlAnnotation && intersect(start, end, it.start, it.end)
         } ?: emptyList()) as List<Range<UrlAnnotation>>)
+
+    /**
+     * Query all of the [LinkAnnotation]s attached on this [AnnotatedString].
+     *
+     * @param start the start of the query range, inclusive.
+     * @param end the end of the query range, exclusive.
+     * @return a list of annotations stored in [Range].  Notice that All annotations that intersect
+     * with the range [start, end) will be returned. When [start] is bigger than [end], an empty
+     * list will be returned.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun getLinkAnnotations(start: Int, end: Int): List<Range<LinkAnnotation>> =
+        ((annotations?.fastFilter {
+            it.item is LinkAnnotation && intersect(start, end, it.start, it.end)
+        } ?: emptyList()) as List<Range<LinkAnnotation>>)
+
+    /**
+     * Returns true if [getLinkAnnotations] with the same parameters would return a non-empty list
+     */
+    fun hasLinkAnnotations(start: Int, end: Int): Boolean =
+        annotations?.fastAny {
+            it.item is LinkAnnotation && intersect(start, end, it.start, it.end)
+        } ?: false
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -238,6 +262,20 @@ class AnnotatedString internal constructor(
         // rather than debug string.
         return text
     }
+
+    /**
+     * Compare the annotations between this and another AnnotatedString.
+     *
+     * This may be used for fast partial equality checks.
+     *
+     * Note that this only checks annotations, and [equals] still may be false if any of
+     * [spanStyles], [paragraphStyles], or [text] are different.
+     *
+     * @param other to compare annotations with
+     * @return true if and only if this compares equal on annotations with other
+     */
+    fun hasEqualAnnotations(other: AnnotatedString): Boolean =
+        this.annotations == other.annotations
 
     /**
      * The information attached on the text such as a [SpanStyle].
@@ -505,9 +543,50 @@ class AnnotatedString internal constructor(
          * @sample androidx.compose.ui.text.samples.AnnotatedStringAddStringAnnotationSample
          */
         @ExperimentalTextApi
-        @Suppress("SetterReturnsThis")
+        @Suppress("SetterReturnsThis", "Deprecation")
+        @Deprecated("Use LinkAnnotation API for links instead",
+            ReplaceWith("addLink(, start, end)")
+        )
         fun addUrlAnnotation(urlAnnotation: UrlAnnotation, start: Int, end: Int) {
             annotations.add(MutableRange(urlAnnotation, start, end))
+        }
+
+        /**
+         * Set a [LinkAnnotation.Url] for the given [range].
+         *
+         * When clicking on the text in [range], the corresponding URL from the [url] annotation
+         * will be opened using [androidx.compose.ui.platform.UriHandler].
+         *
+         * URLs may be treated specially by screen readers, including being identified while
+         * reading text with an audio icon or being summarized in a links menu.
+         *
+         * @param url A [LinkAnnotation.Url] object that stores the URL being linked to.
+         * @param start the inclusive starting offset of the range
+         * @param end the exclusive end offset of the range
+         * @see getStringAnnotations
+         */
+        @Suppress("SetterReturnsThis")
+        fun addLink(url: LinkAnnotation.Url, start: Int, end: Int) {
+            annotations.add(MutableRange(url, start, end))
+        }
+
+        /**
+         * Set a [LinkAnnotation.Clickable] for the given [range].
+         *
+         * When clicking on the text in [range], a [LinkInteractionListener] will be triggered
+         * with the [clickable] object.
+         *
+         * Clickable link may be treated specially by screen readers, including being identified
+         * while reading text with an audio icon or being summarized in a links menu.
+         *
+         * @param clickable A [LinkAnnotation.Clickable] object that stores the tag being linked to.
+         * @param start the inclusive starting offset of the range
+         * @param end the exclusive end offset of the range
+         * @see getStringAnnotations
+         */
+        @Suppress("SetterReturnsThis")
+        fun addLink(clickable: LinkAnnotation.Clickable, start: Int, end: Int) {
+            annotations.add(MutableRange(clickable, start, end))
         }
 
         /**
@@ -590,10 +669,31 @@ class AnnotatedString internal constructor(
          * @see getStringAnnotations
          * @see Range
          */
-        @Suppress("BuilderSetStyle")
+        @Suppress("BuilderSetStyle", "Deprecation")
         @ExperimentalTextApi
+        @Deprecated("Use LinkAnnotation API for links instead",
+            ReplaceWith("pushLink(, start, end)")
+        )
         fun pushUrlAnnotation(urlAnnotation: UrlAnnotation): Int {
             MutableRange(item = urlAnnotation, start = text.length).also {
+                styleStack.add(it)
+                annotations.add(it)
+            }
+            return styleStack.size - 1
+        }
+
+        /**
+         * Attach the given [LinkAnnotation] to any appended text until a corresponding [pop]
+         * is called.
+         *
+         * @param link A [LinkAnnotation] object that stores the URL or clickable tag being
+         * linked to.
+         * @see getStringAnnotations
+         * @see Range
+         */
+        @Suppress("BuilderSetStyle")
+        fun pushLink(link: LinkAnnotation): Int {
+            MutableRange(item = link, start = text.length).also {
                 styleStack.add(it)
                 annotations.add(it)
             }
@@ -648,6 +748,17 @@ class AnnotatedString internal constructor(
                     .ifEmpty { null }
             )
         }
+    }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [AnnotatedString].
+         *
+         * Note this Saver doesn't preserve the [LinkInteractionListener] of the links. You should
+         * handle this case manually if required (check
+         * https://issuetracker.google.com/issues/332901550 for an example).
+         */
+        val Saver: Saver<AnnotatedString, *> = AnnotatedStringSaver
     }
 }
 
@@ -1024,11 +1135,41 @@ inline fun <R : Any> Builder.withAnnotation(
  * @see AnnotatedString.Builder.pop
  */
 @ExperimentalTextApi
+@Deprecated("Use LinkAnnotation API for links instead",
+    ReplaceWith("withLink(, block)")
+)
+@Suppress("Deprecation")
 inline fun <R : Any> Builder.withAnnotation(
     urlAnnotation: UrlAnnotation,
     crossinline block: Builder.() -> R
 ): R {
     val index = pushUrlAnnotation(urlAnnotation)
+    return try {
+        block(this)
+    } finally {
+        pop(index)
+    }
+}
+
+/**
+ * Pushes a [LinkAnnotation] to the [AnnotatedString.Builder], executes [block] and then pops the
+ * annotation.
+ *
+ * @param link A [LinkAnnotation] object representing a clickable part of the text
+ * @param block function to be executed
+ *
+ * @return result of the [block]
+ *
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringWithLinkSample
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringWithHoveredLinkStylingSample
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringWithListenerSample
+ *
+ */
+inline fun <R : Any> Builder.withLink(
+    link: LinkAnnotation,
+    block: Builder.() -> R
+): R {
+    val index = pushLink(link)
     return try {
         block(this)
     } finally {

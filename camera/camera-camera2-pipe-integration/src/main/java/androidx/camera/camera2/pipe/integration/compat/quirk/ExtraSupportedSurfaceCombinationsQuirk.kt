@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
@@ -35,7 +34,6 @@ import androidx.camera.core.impl.SurfaceConfig
  * YUV/PREVIEW + YUV/MAXIMUM configurations.
  * Device(s): Some Samsung devices
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
     /**
@@ -51,8 +49,9 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
         if (supportExtraFullConfigurationsSamsungDevice()) {
             return getLimitedDeviceExtraSupportedFullConfigurations(hardwareLevel)
         }
-        return if (supportExtraLevel3ConfigurationsGoogleDevice()) {
-            listOf(LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION)
+        return if (supportExtraLevel3ConfigurationsGoogleDevice() ||
+            supportExtraLevel3ConfigurationsSamsungDevice()) {
+            listOf(LEVEL_3_LEVEL_PRIV_PRIV_YUV_SUBSET_CONFIGURATION)
         } else emptyList()
     }
 
@@ -82,8 +81,8 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
         private const val TAG = "ExtraSupportedSurfaceCombinationsQuirk"
         private val FULL_LEVEL_YUV_PRIV_YUV_CONFIGURATION = createFullYuvPrivYuvConfiguration()
         private val FULL_LEVEL_YUV_YUV_YUV_CONFIGURATION = createFullYuvYuvYuvConfiguration()
-        private val LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION =
-            createLevel3PrivPrivYuvRawConfiguration()
+        private val LEVEL_3_LEVEL_PRIV_PRIV_YUV_SUBSET_CONFIGURATION =
+            createLevel3PrivPrivYuvSubsetConfiguration()
         private val SUPPORT_EXTRA_FULL_CONFIGURATIONS_SAMSUNG_MODELS: Set<String> =
             setOf(
                 "SM-A515F", // Galaxy A51
@@ -242,9 +241,16 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                 "PIXEL 7 PRO"
             )
 
+        private val SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS: Set<String> =
+            setOf(
+                "SM-S926B", // Galaxy S24+
+                "SM-S928U" // Galaxy S24 Ultra
+            )
+
         fun isEnabled(): Boolean {
             return (isSamsungS7 || supportExtraFullConfigurationsSamsungDevice() ||
-                supportExtraLevel3ConfigurationsGoogleDevice())
+                supportExtraLevel3ConfigurationsGoogleDevice() ||
+                supportExtraLevel3ConfigurationsSamsungDevice())
         }
 
         internal val isSamsungS7: Boolean
@@ -269,6 +275,16 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             }
             val capitalModelName = Build.MODEL.uppercase()
             return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_GOOGLE_MODELS.contains(capitalModelName)
+        }
+
+        internal fun supportExtraLevel3ConfigurationsSamsungDevice(): Boolean {
+            if (!"samsung".equals(Build.BRAND, ignoreCase = true)) {
+                return false;
+            }
+
+            val capitalModelName = Build.MODEL.uppercase();
+
+            return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS.contains(capitalModelName);
         }
 
         internal fun createFullYuvPrivYuvConfiguration(): SurfaceCombination {
@@ -319,8 +335,16 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             return surfaceCombination
         }
 
-        internal fun createLevel3PrivPrivYuvRawConfiguration(): SurfaceCombination {
-            // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
+        /**
+         * Creates (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) surface combination.
+         *
+         * This is a subset of LEVEL_3 camera devices'
+         * (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
+         * guaranteed supported configuration. This configuration has been verified to make sure
+         * that the surface combination can work well on the target devices.
+         */
+        internal fun createLevel3PrivPrivYuvSubsetConfiguration(): SurfaceCombination {
+            // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM)
             val surfaceCombination = SurfaceCombination()
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
@@ -337,12 +361,6 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
                     SurfaceConfig.ConfigType.YUV,
-                    SurfaceConfig.ConfigSize.MAXIMUM
-                )
-            )
-            surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.RAW,
                     SurfaceConfig.ConfigSize.MAXIMUM
                 )
             )

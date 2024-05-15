@@ -20,7 +20,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import android.text.Spanned;
 import android.text.TextUtils;
 
-import androidx.annotation.RequiresApi;
 import androidx.emoji2.text.EmojiSpan;
 
 import org.hamcrest.Description;
@@ -31,7 +30,6 @@ import org.mockito.ArgumentMatcher;
 /**
  * Utility class that includes matchers specific to emojis and EmojiSpans.
  */
-@RequiresApi(19)
 public class EmojiMatcher {
 
     public static Matcher<CharSequence> hasEmojiAt(final int id, final int start,

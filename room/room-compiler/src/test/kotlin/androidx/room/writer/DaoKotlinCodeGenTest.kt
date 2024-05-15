@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.util.compileFiles
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.jetbrains.kotlin.config.JvmDefaultMode
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -908,6 +909,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
               @Query("DELETE FROM MyEntity")
               fun deleteEntityReturnInt(): Int
+
+              @Query("DELETE FROM MyEntity WHERE id IN (:ids)")
+              fun deleteEntitiesIn(ids: List<Long>)
             }
 
             @Entity
@@ -1237,6 +1241,38 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun queryResultAdapter_singleColumn() {
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @Query("SELECT count(*) FROM MyEntity")
+              fun count(): Int
+
+              @Query("SELECT 'Tom' FROM MyEntity LIMIT 1")
+              fun text(): String
+
+              @Query("SELECT 'Tom' FROM MyEntity LIMIT 1")
+              fun nullableText(): String?
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
     fun queryResultAdapter_list() {
         val dbSource = Source.kotlin(
             "MyDatabase.kt",
@@ -1304,13 +1340,21 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               @Query("SELECT * FROM MyEntity")
               fun queryOfArray(): Array<MyEntity>
 
+              @Suppress(RoomWarnings.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE)
+              @Query("SELECT * FROM MyEntity")
+              fun queryOfNullableArray(): Array<MyEntity?>
+
               @Query("SELECT pk FROM MyEntity")
               fun queryOfArrayWithLong(): Array<Long>
 
-              @Query("SELECT * FROM MyEntity")
+              @Suppress(RoomWarnings.UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE)
+              @Query("SELECT pk FROM MyEntity")
+              fun queryOfArrayWithNullableLong(): Array<Long?>
+
+              @Query("SELECT pk FROM MyEntity")
               fun queryOfLongArray(): LongArray
 
-              @Query("SELECT * FROM MyEntity")
+              @Query("SELECT pk FROM MyEntity")
               fun queryOfShortArray(): ShortArray
             }
 
@@ -2044,6 +2088,30 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
                 suspend fun getSuspendList(vararg arg: String?): List<MyEntity>
+
+                @Query("SELECT count(*) FROM MyEntity")
+                suspend fun getCount(): Int
+
+                @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                suspend fun insertEntity(pk: Long)
+
+                @Query("INSERT INTO MyEntity (pk) VALUES (:pk)")
+                suspend fun insertEntityReturnLong(pk: Long): Long
+
+                @Query("UPDATE MyEntity SET other = :text")
+                suspend fun updateEntity(text: String)
+
+                @Query("UPDATE MyEntity SET other = :text WHERE pk = :pk")
+                suspend fun updateEntityReturnInt(pk: Long, text: String): Int
+
+                @Query("DELETE FROM MyEntity")
+                suspend fun deleteEntity()
+
+                @Query("DELETE FROM MyEntity")
+                suspend fun deleteEntityReturnInt(): Int
+
+                @Query("DELETE FROM MyEntity WHERE pk IN (:pks)")
+                suspend fun deleteEntitiesIn(pks: List<Long>)
             }
 
             @Entity
@@ -2224,6 +2292,46 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    fun guavaCallable_java() {
+        val daoSrc = Source.java(
+            "MyDao",
+            """
+            import com.google.common.util.concurrent.ListenableFuture;
+            import androidx.room.*;
+
+            @Dao
+            public interface MyDao {
+                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
+                ListenableFuture<MyEntity> getListenableFuture(String... arg);
+            }
+            """.trimIndent()
+        )
+        val entitySrc = Source.kotlin(
+            "MyEntity.kt",
+            """
+            import androidx.room.*
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                daoSrc,
+                entitySrc,
+                databaseSrc,
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.GUAVA_ROOM,
+            ),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
     fun liveDataCallable() {
         val src = Source.kotlin(
             "MyDao.kt",
@@ -2300,6 +2408,66 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
     }
 
     @Test
+    @Ignore("b/339809512")
+    fun shortcutMethods_java() {
+        val daoSrc = Source.java(
+            "MyDao",
+            """
+            import androidx.room.*;
+            import java.util.List;
+
+            @Dao
+            public interface MyDao {
+                @Insert
+                List<Long> insert(MyEntity... entities);
+
+                @Insert
+                long[] insertList(List<MyEntity> entities);
+
+                @Upsert
+                List<Long> upsert(MyEntity... entities);
+
+                @Upsert
+                long[] upsertList(List<MyEntity> entities);
+
+                @Delete
+                void delete(MyEntity entity);
+
+                @Delete
+                int deleteList(List<MyEntity> entity);
+
+                @Update
+                void update(MyEntity entity);
+                
+                @Update
+                int updateList(List<MyEntity> entity);
+            }
+            """.trimIndent()
+        )
+        val entitySrc = Source.kotlin(
+            "MyEntity.kt",
+            """
+            import androidx.room.*
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int,
+                val other: String
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(
+                daoSrc,
+                entitySrc,
+                databaseSrc,
+            ),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
     fun pojoRowAdapter_valueClassConverter() {
         val src = Source.kotlin(
             "MyDao.kt",
@@ -2337,6 +2505,32 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 val nullableLongData: NullableLongValueClass,
                 val doubleNullableLongData: NullableLongValueClass?,
                 val genericData: GenericValueClass<String>
+            )
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
+    fun overridePropertyQuery() {
+        val src = Source.kotlin(
+            "MyDao.kt",
+            """
+            import androidx.room.*
+
+            @Dao
+            interface MyDao {
+              @get:Query("SELECT * FROM MyEntity")
+              val entities: List<MyEntity>
+            }
+
+            @Entity
+            data class MyEntity(
+                @PrimaryKey
+                val pk: Int
             )
             """.trimIndent()
         )

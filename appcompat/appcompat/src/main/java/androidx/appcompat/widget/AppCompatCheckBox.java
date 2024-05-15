@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.view.View;
@@ -32,7 +31,6 @@ import android.widget.TextView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -115,14 +113,6 @@ public class AppCompatCheckBox extends CheckBox implements TintableCompoundButto
     @Override
     public void setButtonDrawable(@DrawableRes int resId) {
         setButtonDrawable(AppCompatResources.getDrawable(getContext(), resId));
-    }
-
-    @Override
-    public int getCompoundPaddingLeft() {
-        final int value = super.getCompoundPaddingLeft();
-        return mCompoundButtonHelper != null
-                ? mCompoundButtonHelper.getCompoundPaddingLeft(value)
-                : value;
     }
 
     /**
@@ -279,7 +269,6 @@ public class AppCompatCheckBox extends CheckBox implements TintableCompoundButto
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void setCompoundDrawablesRelative(@Nullable Drawable start, @Nullable Drawable top,
             @Nullable Drawable end, @Nullable Drawable bottom) {

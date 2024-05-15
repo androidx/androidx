@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
@@ -33,7 +34,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
@@ -72,7 +72,7 @@ import androidx.mediarouter.media.MediaRouterParams;
  *
  * @see MediaRouteActionProvider
  */
-public class MediaRouteButton extends AppCompatImageView {
+public class MediaRouteButton extends View {
     private static final String TAG = "MediaRouteButton";
 
     private static final String CHOOSER_FRAGMENT_TAG =
@@ -109,6 +109,8 @@ public class MediaRouteButton extends AppCompatImageView {
     private int mConnectionState;
 
     private ColorStateList mButtonTint;
+    private int mMinWidth;
+    private int mMinHeight;
 
     private boolean mCheatSheetEnabled;
 
@@ -155,6 +157,10 @@ public class MediaRouteButton extends AppCompatImageView {
                 (isRemote ? selectedRoute.getConnectionState() : CONNECTION_STATE_DISCONNECTED);
 
         mButtonTint = a.getColorStateList(R.styleable.MediaRouteButton_mediaRouteButtonTint);
+        mMinWidth = a.getDimensionPixelSize(
+                R.styleable.MediaRouteButton_android_minWidth, 0);
+        mMinHeight = a.getDimensionPixelSize(
+                R.styleable.MediaRouteButton_android_minHeight, 0);
 
         int remoteIndicatorStaticResId = a.getResourceId(
                 R.styleable.MediaRouteButton_externalRouteEnabledDrawableStatic, 0);
@@ -403,7 +409,7 @@ public class MediaRouteButton extends AppCompatImageView {
 
     @Override
     @NonNull
-    public int[] onCreateDrawableState(int extraSpace) {
+    protected int[] onCreateDrawableState(int extraSpace) {
         final int[] drawableState = super.onCreateDrawableState(extraSpace + 1);
 
         // Technically we should be handling this more completely, but these
@@ -454,7 +460,7 @@ public class MediaRouteButton extends AppCompatImageView {
                     }
                 }
             }
-            setImageDrawable(mRemoteIndicator);
+            invalidate();
         }
         mLastConnectionState = mConnectionState;
     }
@@ -527,6 +533,70 @@ public class MediaRouteButton extends AppCompatImageView {
         }
 
         super.onDetachedFromWindow();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        final int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+
+        final int width = Math.max(mMinWidth, mRemoteIndicator != null ?
+                mRemoteIndicator.getIntrinsicWidth() + getPaddingLeft() + getPaddingRight() : 0);
+        final int height = Math.max(mMinHeight, mRemoteIndicator != null ?
+                mRemoteIndicator.getIntrinsicHeight() + getPaddingTop() + getPaddingBottom() : 0);
+
+        int measuredWidth;
+        switch (widthMode) {
+            case MeasureSpec.EXACTLY:
+                measuredWidth = widthSize;
+                break;
+            case MeasureSpec.AT_MOST:
+                measuredWidth = Math.min(widthSize, width);
+                break;
+            default:
+            case MeasureSpec.UNSPECIFIED:
+                measuredWidth = width;
+                break;
+        }
+
+        int measuredHeight;
+        switch (heightMode) {
+            case MeasureSpec.EXACTLY:
+                measuredHeight = heightSize;
+                break;
+            case MeasureSpec.AT_MOST:
+                measuredHeight = Math.min(heightSize, height);
+                break;
+            default:
+            case MeasureSpec.UNSPECIFIED:
+                measuredHeight = height;
+                break;
+        }
+
+        setMeasuredDimension(measuredWidth, measuredHeight);
+    }
+
+    @Override
+    protected void onDraw(@NonNull Canvas canvas) {
+        super.onDraw(canvas);
+
+        if (mRemoteIndicator != null) {
+            final int left = getPaddingLeft();
+            final int right = getWidth() - getPaddingRight();
+            final int top = getPaddingTop();
+            final int bottom = getHeight() - getPaddingBottom();
+
+            final int drawWidth = mRemoteIndicator.getIntrinsicWidth();
+            final int drawHeight = mRemoteIndicator.getIntrinsicHeight();
+            final int drawLeft = left + (right - left - drawWidth) / 2;
+            final int drawTop = top + (bottom - top - drawHeight) / 2;
+
+            mRemoteIndicator.setBounds(drawLeft, drawTop,
+                    drawLeft + drawWidth, drawTop + drawHeight);
+            mRemoteIndicator.draw(canvas);
+        }
     }
 
     private void loadRemoteIndicatorIfNeeded() {

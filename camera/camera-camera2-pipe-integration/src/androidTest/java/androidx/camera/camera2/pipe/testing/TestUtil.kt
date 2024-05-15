@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
 import androidx.camera.core.CameraControl
@@ -24,12 +23,10 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 fun CameraControl.toCameraControlAdapter(): CameraControlAdapter {
     return ((this as CameraControlInternal).implementation) as CameraControlAdapter
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 fun CameraInfo.toCameraInfoAdapter(): CameraInfoAdapter {
     return ((this as CameraInfoInternal).implementation) as CameraInfoAdapter
 }

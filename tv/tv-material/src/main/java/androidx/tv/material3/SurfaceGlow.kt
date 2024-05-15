@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 
 @Composable
-@ExperimentalTvMaterial3Api
 internal fun Modifier.tvSurfaceGlow(
     shape: Shape,
     glow: Glow,
@@ -58,7 +57,6 @@ internal fun Modifier.tvSurfaceGlow(
     )
 }
 
-@ExperimentalTvMaterial3Api
 private class SurfaceGlowElement(
     private val shape: Shape,
     private val glowBlurRadiusPx: Float,
@@ -100,7 +98,6 @@ private class SurfaceGlowElement(
     }
 }
 
-@ExperimentalTvMaterial3Api
 private class SurfaceGlowNode(
     private var shape: Shape,
     private var glowBlurRadiusPx: Float,

@@ -38,6 +38,7 @@ class SampleActivity : Activity() {
                     Profile installed: ${result.profileInstallResultCode}
                     Has reference profile: ${result.isCompiledWithProfile}
                     Has current profile: ${result.hasProfileEnqueuedForCompilation()}
+                    Has embedded profile: ${result.appApkHasEmbeddedProfile()}
                 """.trimIndent()
             }
         }

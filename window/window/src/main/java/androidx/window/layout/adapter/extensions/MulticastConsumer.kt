@@ -31,28 +31,30 @@ import kotlin.concurrent.withLock
 internal class MulticastConsumer(
     private val context: Context
 ) : Consumer<OEMWindowLayoutInfo>, OEMConsumer<OEMWindowLayoutInfo> {
-    private val multicastConsumerLock = ReentrantLock()
-    @GuardedBy("lock")
+    private val globalLock = ReentrantLock()
+
+    @GuardedBy("globalLock")
     private var lastKnownValue: WindowLayoutInfo? = null
-    @GuardedBy("lock")
+    @GuardedBy("globalLock")
     private val registeredListeners = mutableSetOf<Consumer<WindowLayoutInfo>>()
 
     override fun accept(value: OEMWindowLayoutInfo) {
-        multicastConsumerLock.withLock {
-            lastKnownValue = ExtensionsWindowLayoutInfoAdapter.translate(context, value)
-            registeredListeners.forEach { consumer -> consumer.accept(lastKnownValue) }
+        globalLock.withLock {
+            val newValue = ExtensionsWindowLayoutInfoAdapter.translate(context, value)
+            lastKnownValue = newValue
+            registeredListeners.forEach { consumer -> consumer.accept(newValue) }
         }
     }
 
     fun addListener(listener: Consumer<WindowLayoutInfo>) {
-        multicastConsumerLock.withLock {
+        globalLock.withLock {
             lastKnownValue?.let { value -> listener.accept(value) }
             registeredListeners.add(listener)
         }
     }
 
     fun removeListener(listener: Consumer<WindowLayoutInfo>) {
-        multicastConsumerLock.withLock {
+        globalLock.withLock {
             registeredListeners.remove(listener)
         }
     }

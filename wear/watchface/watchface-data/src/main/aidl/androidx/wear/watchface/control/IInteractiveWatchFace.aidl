@@ -25,6 +25,7 @@ import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
 import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat;
 import androidx.wear.watchface.data.WatchUiState;
+import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -36,12 +37,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 25
+    // Next Id: 29
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 9;
+    const int API_VERSION = 13;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -235,4 +236,39 @@ interface IInteractiveWatchFace {
      */
     IRemoteWatchFaceView createRemoteWatchFaceView(
         in IBinder hostToken, in int width, in int height) = 24;
+
+    /**
+     * Gets the current user style flavors.
+     *
+     * @since API version 10.
+     */
+    UserStyleFlavorsWireFormat getUserStyleFlavors() = 25;
+
+    /**
+     * Send override ComplicationData to be used until clearComplicationDataOverride is called.
+     * While overrides, any calls to updateComplicationData are deferred until
+     * clearComplicationDataOverride is called.
+     *
+     * @since API version 12.
+     */
+    void overrideComplicationData(
+        in List<IdAndComplicationDataWireFormat> complicationData) = 26;
+
+    /**
+     * Clears any complicaton data set by overrideComplicationData, and activates any complications
+     * set by updateComplicationData.
+     *
+     * @since API version 12.
+     */
+    void clearComplicationDataOverride() = 27;
+
+    /**
+     * Like {@link updateWatchfaceInstance} except this is a two way method. Renames this instance
+     * to newInstanceId, sets the current user style ({@link UserStyleWireFormat}) which contains a
+     * map of style setting id to option id, and clears complication data.
+     *
+     * @since API version 13.
+     */
+    void updateWatchfaceInstanceSync(
+            in String newInstanceId, in UserStyleWireFormat userStyle) = 28;
 }

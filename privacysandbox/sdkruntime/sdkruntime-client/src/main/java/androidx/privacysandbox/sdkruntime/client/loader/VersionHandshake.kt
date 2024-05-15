@@ -22,7 +22,13 @@ import androidx.privacysandbox.sdkruntime.core.Versions
  * Performing version handshake.
  *
  */
-internal object VersionHandshake {
+internal class VersionHandshake(
+    /**
+     * Override version by using [overrideApiVersion] as client and sdk version during handshake.
+     */
+    private val overrideApiVersion: Int? = null
+) {
+
     @SuppressLint("BanUncheckedReflection") // calling method on Versions class
     fun perform(classLoader: ClassLoader?): Int {
         val versionsClass = Class.forName(
@@ -31,6 +37,14 @@ internal object VersionHandshake {
             classLoader
         )
         val handShakeMethod = versionsClass.getMethod("handShake", Int::class.javaPrimitiveType)
-        return handShakeMethod.invoke(null, Versions.API_VERSION) as Int
+
+        val clientVersion = overrideApiVersion ?: Versions.API_VERSION
+        val sdkVersion = handShakeMethod.invoke(null, clientVersion) as Int
+
+        return overrideApiVersion ?: sdkVersion
+    }
+
+    companion object {
+        val DEFAULT = VersionHandshake()
     }
 }

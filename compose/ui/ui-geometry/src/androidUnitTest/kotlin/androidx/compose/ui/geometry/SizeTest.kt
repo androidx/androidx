@@ -16,7 +16,10 @@
 
 package androidx.compose.ui.geometry
 
-import org.junit.Assert
+import kotlin.test.assertFails
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,11 +30,11 @@ class SizeTest {
 
     @Test
     fun sizeTimesInt() {
-        Assert.assertEquals(
+        assertEquals(
             Size(10f, 10f),
             Size(2.5f, 2.5f) * 4f
         )
-        Assert.assertEquals(
+        assertEquals(
             Size(10f, 10f),
             4f * Size(2.5f, 2.5f)
         )
@@ -39,7 +42,7 @@ class SizeTest {
 
     @Test
     fun sizeDivInt() {
-        Assert.assertEquals(
+        assertEquals(
             Size(10f, 10f),
             Size(40f, 40f) / 4f
         )
@@ -47,24 +50,24 @@ class SizeTest {
 
     @Test
     fun sizeTimesFloat() {
-        Assert.assertEquals(Size(10f, 10f), Size(4f, 4f) * 2.5f)
-        Assert.assertEquals(Size(10f, 10f), 2.5f * Size(4f, 4f))
+        assertEquals(Size(10f, 10f), Size(4f, 4f) * 2.5f)
+        assertEquals(Size(10f, 10f), 2.5f * Size(4f, 4f))
     }
 
     @Test
     fun sizeDivFloat() {
-        Assert.assertEquals(Size(10f, 10f), Size(40f, 40f) / 4f)
+        assertEquals(Size(10f, 10f), Size(40f, 40f) / 4f)
     }
 
     @Test
     fun sizeTimesDouble() {
-        Assert.assertEquals(Size(10f, 10f), Size(4f, 4f) * 2.5f)
-        Assert.assertEquals(Size(10f, 10f), 2.5f * Size(4f, 4f))
+        assertEquals(Size(10f, 10f), Size(4f, 4f) * 2.5f)
+        assertEquals(Size(10f, 10f), 2.5f * Size(4f, 4f))
     }
 
     @Test
     fun sizeDivDouble() {
-        Assert.assertEquals(
+        assertEquals(
             Size(10f, 10f),
             Size(40f, 40f) / 4.0f
         )
@@ -73,23 +76,23 @@ class SizeTest {
     @Test
     fun testSizeCopy() {
         val size = Size(100f, 200f)
-        Assert.assertEquals(size, size.copy())
+        assertEquals(size, size.copy())
     }
 
     @Test
     fun testSizeCopyOverwriteWidth() {
         val size = Size(100f, 200f)
         val copy = size.copy(width = 50f)
-        Assert.assertEquals(50f, copy.width)
-        Assert.assertEquals(200f, copy.height)
+        assertEquals(50f, copy.width)
+        assertEquals(200f, copy.height)
     }
 
     @Test
     fun testSizeCopyOverwriteHeight() {
         val size = Size(100f, 200f)
         val copy = size.copy(height = 300f)
-        Assert.assertEquals(100f, copy.width)
-        Assert.assertEquals(300f, copy.height)
+        assertEquals(100f, copy.width)
+        assertEquals(300f, copy.height)
     }
 
     @Test
@@ -137,38 +140,61 @@ class SizeTest {
     fun testSizeLerp() {
         val size1 = Size(100f, 200f)
         val size2 = Size(300f, 500f)
-        Assert.assertEquals(Size(200f, 350f), lerp(size1, size2, 0.5f))
+        assertEquals(Size(200f, 350f), lerp(size1, size2, 0.5f))
     }
 
     @Test
     fun testIsSpecified() {
-        Assert.assertFalse(Size.Unspecified.isSpecified)
-        Assert.assertTrue(Size(1f, 1f).isSpecified)
+        assertFalse(Size.Unspecified.isSpecified)
+        assertTrue(Size(1f, 1f).isSpecified)
     }
 
     @Test
     fun testIsUnspecified() {
-        Assert.assertTrue(Size.Unspecified.isUnspecified)
-        Assert.assertFalse(Size(1f, 1f).isUnspecified)
+        assertTrue(Size.Unspecified.isUnspecified)
+        assertFalse(Size(1f, 1f).isUnspecified)
     }
 
     @Test
     fun testTakeOrElseTrue() {
-        Assert.assertTrue(Size(1f, 1f).takeOrElse { Size.Unspecified }.isSpecified)
+        assertTrue(Size(1f, 1f).takeOrElse { Size.Unspecified }.isSpecified)
     }
 
     @Test
     fun testTakeOrElseFalse() {
-        Assert.assertTrue(Size.Unspecified.takeOrElse { Size(1f, 1f) }.isSpecified)
+        assertTrue(Size.Unspecified.takeOrElse { Size(1f, 1f) }.isSpecified)
     }
 
     @Test
     fun testUnspecifiedSizeToString() {
-        Assert.assertEquals("Size.Unspecified", Size.Unspecified.toString())
+        assertEquals("Size.Unspecified", Size.Unspecified.toString())
     }
 
     @Test
     fun testSpecifiedSizeToString() {
-        Assert.assertEquals("Size(10.0, 20.0)", Size(10f, 20f).toString())
+        assertEquals("Size(10.0, 20.0)", Size(10f, 20f).toString())
+    }
+
+    @Test
+    fun testIsEmpty() {
+        assertFalse(Size(10.0f, 20.0f).isEmpty())
+        assertFalse(Size(10.0f, Float.POSITIVE_INFINITY).isEmpty())
+        assertFalse(Size(Float.POSITIVE_INFINITY, 20.0f).isEmpty())
+
+        assertTrue(Size(0.0f, 20.0f).isEmpty())
+        assertTrue(Size(10.0f, 0.0f).isEmpty())
+        assertTrue(Size(0.0f, 0.0f).isEmpty())
+        assertTrue(Size(-10.0f, 20.0f).isEmpty())
+        assertTrue(Size(10.0f, -20.0f).isEmpty())
+        assertTrue(Size(0.0f, Float.POSITIVE_INFINITY).isEmpty())
+        assertTrue(Size(Float.POSITIVE_INFINITY, 0.0f).isEmpty())
+        assertTrue(Size(0.0f, Float.NEGATIVE_INFINITY).isEmpty())
+        assertTrue(Size(Float.NEGATIVE_INFINITY, 0.0f).isEmpty())
+        assertTrue(Size(Float.NEGATIVE_INFINITY, 20.0f).isEmpty())
+        assertTrue(Size(10.0f, Float.NEGATIVE_INFINITY).isEmpty())
+
+        assertFails {
+            Size.Unspecified.isEmpty()
+        }
     }
 }

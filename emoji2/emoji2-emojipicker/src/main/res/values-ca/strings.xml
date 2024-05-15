@@ -21,7 +21,7 @@
     <string name="emoji_category_emotions" msgid="1570830970240985537">"EMOTICONES I EMOCIONS"</string>
     <string name="emoji_category_people" msgid="7968173366822927025">"PERSONES"</string>
     <string name="emoji_category_animals_nature" msgid="4640771324837307541">"ANIMALS I NATURALESA"</string>
-    <string name="emoji_category_food_drink" msgid="1189971856721244395">"MENJAR I BEGUDES"</string>
+    <string name="emoji_category_food_drink" msgid="1189971856721244395">"MENJAR I BEGUDA"</string>
     <string name="emoji_category_travel_places" msgid="8105712773237012672">"VIATGES I LLOCS"</string>
     <string name="emoji_category_activity" msgid="4381135114947330911">"ACTIVITATS I ESDEVENIMENTS"</string>
     <string name="emoji_category_objects" msgid="6106115586332708067">"OBJECTES"</string>
@@ -29,4 +29,14 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"BANDERES"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"No hi ha cap emoji disponible"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Encara no has fet servir cap emoji"</string>
+    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"selector bidireccional d\'emojis"</string>
+    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"s\'ha canviat la direcció de l\'emoji"</string>
+    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"selector de variants d\'emojis"</string>
+    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s i %2$s"</string>
+    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"ombra"</string>
+    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"to de pell clar"</string>
+    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"to de pell mitjà-clar"</string>
+    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"to de pell mitjà"</string>
+    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"to de pell mitjà-fosc"</string>
+    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"to de pell fosc"</string>
 </resources>

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.compose.ui.text.platform
 
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
+import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LocaleSpan
 import android.text.style.RelativeSizeSpan
@@ -34,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.UncachedFontFamilyResolver
 import androidx.compose.ui.text.UrlAnnotation
@@ -51,6 +55,7 @@ import androidx.compose.ui.text.matchers.assertThat
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
@@ -411,14 +416,118 @@ class AndroidAccessibilitySpannableStringTest {
             append("link")
         }
 
-        val spannable1 =
-            string.toAccessibilitySpannableString(density, fontFamilyResolver, urlSpanCache)
-        val spannable2 =
-            string.toAccessibilitySpannableString(density, fontFamilyResolver, urlSpanCache)
+        val spannable1 = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val spannable2 = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
         val urlSpan1 = spannable1.getSpans(0, string.length, URLSpan::class.java).single()
         val urlSpan2 = spannable2.getSpans(0, string.length, URLSpan::class.java).single()
 
         assertThat(spannable1).isNotSameInstanceAs(spannable2)
         assertThat(urlSpan1).isSameInstanceAs(urlSpan2)
+    }
+
+    @Test
+    fun urlSpansSame_forSameAnnotationAndRange() {
+        val link = LinkAnnotation.Url("url")
+
+        val string = buildAnnotatedString {
+            pushLink(link)
+            append("link")
+        }
+
+        val spannable1 = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val spannable2 = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val urlSpan1 = spannable1.getSpans(0, string.length, URLSpan::class.java).single()
+        val urlSpan2 = spannable2.getSpans(0, string.length, URLSpan::class.java).single()
+
+        assertThat(spannable1).isNotSameInstanceAs(spannable2)
+        assertThat(urlSpan1).isSameInstanceAs(urlSpan2)
+    }
+
+    @Test
+    fun clickableSpansSame_forSameAnnotationAndRange_forUrlsWithCallback() {
+        val link = LinkAnnotation.Url("url", linkInteractionListener = {})
+
+        val string = buildAnnotatedString {
+            pushLink(link)
+            append("link")
+        }
+
+        val spannable1 = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val spannable2 = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val span1 = spannable1.getSpans(0, string.length, ClickableSpan::class.java).single()
+        val span2 = spannable2.getSpans(0, string.length, ClickableSpan::class.java).single()
+
+        assertThat(spannable1).isNotSameInstanceAs(spannable2)
+        assertThat(span1).isSameInstanceAs(span2)
+    }
+
+    @Test
+    fun clickableSpansSame_forSameAnnotationAndRange_forClickables() {
+        val link = LinkAnnotation.Clickable("Tag", linkInteractionListener = { })
+
+        val string = buildAnnotatedString {
+            pushLink(link)
+            append("clickable")
+        }
+
+        val spannable1 = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val spannable2 = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val span1 = spannable1.getSpans(0, string.length, ClickableSpan::class.java).single()
+        val span2 = spannable2.getSpans(0, string.length, ClickableSpan::class.java).single()
+
+        assertThat(spannable1).isNotSameInstanceAs(spannable2)
+        assertThat(span1).isSameInstanceAs(span2)
+    }
+
+    @Test
+    fun clickableSpansDifferent_forSameAnnotationButDifferentRange_forUrlsWithCallback() {
+        val link = LinkAnnotation.Url("url", linkInteractionListener = {})
+
+        val string = buildAnnotatedString {
+            withLink(link) { append("link") }
+            withLink(link) { append("link") }
+        }
+
+        val spannable = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val span1 = spannable.getSpans(0, string.length, ClickableSpan::class.java)[0]
+        val span2 = spannable.getSpans(0, string.length, ClickableSpan::class.java)[1]
+
+        assertThat(span1).isNotSameInstanceAs(span2)
+    }
+
+    @Test
+    fun clickableSpansDifferent_forSameAnnotatedStringWithDifferentRange_forClickables() {
+        val link = LinkAnnotation.Clickable("tag", linkInteractionListener = {})
+
+        val string = buildAnnotatedString {
+            withLink(link) { append("link") }
+            withLink(link) { append("link") }
+        }
+
+        val spannable = string.toAccessibilitySpannableString(
+            density, fontFamilyResolver, urlSpanCache
+        )
+        val span1 = spannable.getSpans(0, string.length, ClickableSpan::class.java)[0]
+        val span2 = spannable.getSpans(0, string.length, ClickableSpan::class.java)[1]
+
+        assertThat(span1).isNotSameInstanceAs(span2)
     }
 }

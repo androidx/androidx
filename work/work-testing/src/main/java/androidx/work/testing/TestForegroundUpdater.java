@@ -16,6 +16,8 @@
 
 package androidx.work.testing;
 
+import static androidx.concurrent.futures.CallbackToFutureAdapter.getFuture;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -23,7 +25,6 @@ import androidx.annotation.RestrictTo;
 import androidx.work.ForegroundInfo;
 import androidx.work.ForegroundUpdater;
 import androidx.work.Logger;
-import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -31,7 +32,6 @@ import java.util.UUID;
 
 /**
  * A {@link ForegroundUpdater} which does nothing. Useful in the context of testing.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TestForegroundUpdater implements ForegroundUpdater {
@@ -44,10 +44,10 @@ public class TestForegroundUpdater implements ForegroundUpdater {
             @NonNull Context context,
             @NonNull UUID id,
             @NonNull ForegroundInfo foregroundInfo) {
-
-        Logger.get().info(TAG, "setForegroundAsync for " + id);
-        SettableFuture<Void> future = SettableFuture.create();
-        future.set(null);
-        return future;
+        return getFuture((completer) -> {
+            Logger.get().info(TAG, "setForegroundAsync for " + id);
+            completer.set(null);
+            return "test setForegroundAsync future";
+        });
     }
 }

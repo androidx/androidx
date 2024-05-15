@@ -25,17 +25,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.MotionEventPredictor;
-import androidx.input.motionprediction.utils.PredictionEstimator;
+import androidx.input.motionprediction.common.PredictionEstimator;
 
 /**
  */
 @RestrictTo(LIBRARY)
 public class KalmanMotionEventPredictor implements MotionEventPredictor {
-    private final MultiPointerPredictor mMultiPointerPredictor = new MultiPointerPredictor();
+    private final MultiPointerPredictor mMultiPointerPredictor;
     private final PredictionEstimator mPredictionEstimator;
 
-    public KalmanMotionEventPredictor(@NonNull Context context) {
+    public KalmanMotionEventPredictor(@NonNull Context context, int strategy) {
         mPredictionEstimator = new PredictionEstimator(context);
+        mMultiPointerPredictor = new MultiPointerPredictor(strategy);
     }
 
     @Override

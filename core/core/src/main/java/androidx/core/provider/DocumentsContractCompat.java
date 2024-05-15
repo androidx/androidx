@@ -66,10 +66,7 @@ public final class DocumentsContractCompat {
      * @see DocumentsContract#isDocumentUri(Context, Uri)
      */
     public static boolean isDocumentUri(@NonNull Context context, @Nullable Uri uri) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return DocumentsContractApi19Impl.isDocumentUri(context, uri);
-        }
-        return false;
+        return DocumentsContract.isDocumentUri(context, uri);
     }
 
     /**
@@ -96,10 +93,7 @@ public final class DocumentsContractCompat {
      */
     @Nullable
     public static String getDocumentId(@NonNull Uri documentUri) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return DocumentsContractApi19Impl.getDocumentId(documentUri);
-        }
-        return null;
+        return DocumentsContract.getDocumentId(documentUri);
     }
 
     /**
@@ -124,10 +118,7 @@ public final class DocumentsContractCompat {
      */
     @Nullable
     public static Uri buildDocumentUri(@NonNull String authority, @NonNull String documentId) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return DocumentsContractApi19Impl.buildDocumentUri(authority, documentId);
-        }
-        return null;
+        return DocumentsContract.buildDocumentUri(authority, documentId);
     }
 
     /**
@@ -243,38 +234,8 @@ public final class DocumentsContractCompat {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return DocumentsContractApi24Impl.removeDocument(content, documentUri,
                     parentDocumentUri);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return DocumentsContractApi19Impl.deleteDocument(content, documentUri);
         } else {
-            return false;
-        }
-    }
-
-    @RequiresApi(19)
-    private static class DocumentsContractApi19Impl {
-
-        @DoNotInline
-        public static Uri buildDocumentUri(String authority, String documentId) {
-            return DocumentsContract.buildDocumentUri(authority, documentId);
-        }
-
-        @DoNotInline
-        static boolean isDocumentUri(Context context, @Nullable Uri uri) {
-            return DocumentsContract.isDocumentUri(context, uri);
-        }
-
-        @DoNotInline
-        static String getDocumentId(Uri documentUri) {
-            return DocumentsContract.getDocumentId(documentUri);
-        }
-
-        @DoNotInline
-        static boolean deleteDocument(ContentResolver content, Uri documentUri)
-                throws FileNotFoundException {
             return DocumentsContract.deleteDocument(content, documentUri);
-        }
-
-        private DocumentsContractApi19Impl() {
         }
     }
 

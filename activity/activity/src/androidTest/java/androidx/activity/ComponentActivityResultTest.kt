@@ -76,10 +76,11 @@ class ComponentActivityResultTest {
 
             scenario.withActivity { }
 
-            scenario.withActivity {
-                assertThat(firstLaunchCount).isEqualTo(0)
-                assertThat(secondLaunchCount).isEqualTo(1)
-            }
+            val latch = scenario.withActivity { launchCountDownLatch }
+            val list = scenario.withActivity { launchedList }
+
+            assertThat(latch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(list).containsExactly("second")
         }
     }
 
@@ -179,19 +180,21 @@ class ResultComponentActivity : ComponentActivity() {
 
 class RegisterBeforeOnCreateActivity : ComponentActivity() {
     lateinit var launcher: ActivityResultLauncher<Intent>
-    var firstLaunchCount = 0
-    var secondLaunchCount = 0
+    var launchCountDownLatch = CountDownLatch(1)
+    val launchedList = mutableListOf<String>()
     var recreated = false
 
     init {
         addOnContextAvailableListener {
             launcher = if (!recreated) {
                 registerForActivityResult(StartActivityForResult()) {
-                    firstLaunchCount++
+                    launchedList.add("first")
+                    launchCountDownLatch.countDown()
                 }
             } else {
                 registerForActivityResult(StartActivityForResult()) {
-                    secondLaunchCount++
+                    launchedList.add("second")
+                    launchCountDownLatch.countDown()
                 }
             }
         }

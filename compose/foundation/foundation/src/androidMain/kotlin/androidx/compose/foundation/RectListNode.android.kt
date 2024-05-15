@@ -23,19 +23,17 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.findRootCoordinates
-import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
-import androidx.compose.ui.node.currentValueOf
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.node.requireView
 import kotlin.math.roundToInt
 
 internal abstract class RectListNode(
     open var rect: ((LayoutCoordinates) -> Rect)?
-) : Modifier.Node(), GlobalPositionAwareModifierNode, CompositionLocalConsumerModifierNode {
+) : Modifier.Node(), GlobalPositionAwareModifierNode {
     private var androidRect: android.graphics.Rect? = null
 
     protected val view: View
-        get() = currentValueOf(LocalView)
+        get() = requireView()
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         val newRect = if (rect == null) {

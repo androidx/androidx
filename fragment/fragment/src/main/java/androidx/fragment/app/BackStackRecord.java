@@ -62,35 +62,35 @@ final class BackStackRecord extends FragmentTransaction implements
     public void dump(String prefix, PrintWriter writer, boolean full) {
         if (full) {
             writer.print(prefix); writer.print("mName="); writer.print(mName);
-                    writer.print(" mIndex="); writer.print(mIndex);
-                    writer.print(" mCommitted="); writer.println(mCommitted);
+            writer.print(" mIndex="); writer.print(mIndex);
+            writer.print(" mCommitted="); writer.println(mCommitted);
             if (mTransition != FragmentTransaction.TRANSIT_NONE) {
                 writer.print(prefix); writer.print("mTransition=#");
-                        writer.print(Integer.toHexString(mTransition));
+                writer.print(Integer.toHexString(mTransition));
             }
-            if (mEnterAnim != 0 || mExitAnim !=0) {
+            if (mEnterAnim != 0 || mExitAnim != 0) {
                 writer.print(prefix); writer.print("mEnterAnim=#");
-                        writer.print(Integer.toHexString(mEnterAnim));
-                        writer.print(" mExitAnim=#");
-                        writer.println(Integer.toHexString(mExitAnim));
+                writer.print(Integer.toHexString(mEnterAnim));
+                writer.print(" mExitAnim=#");
+                writer.println(Integer.toHexString(mExitAnim));
             }
-            if (mPopEnterAnim != 0 || mPopExitAnim !=0) {
+            if (mPopEnterAnim != 0 || mPopExitAnim != 0) {
                 writer.print(prefix); writer.print("mPopEnterAnim=#");
-                        writer.print(Integer.toHexString(mPopEnterAnim));
-                        writer.print(" mPopExitAnim=#");
-                        writer.println(Integer.toHexString(mPopExitAnim));
+                writer.print(Integer.toHexString(mPopEnterAnim));
+                writer.print(" mPopExitAnim=#");
+                writer.println(Integer.toHexString(mPopExitAnim));
             }
             if (mBreadCrumbTitleRes != 0 || mBreadCrumbTitleText != null) {
                 writer.print(prefix); writer.print("mBreadCrumbTitleRes=#");
-                        writer.print(Integer.toHexString(mBreadCrumbTitleRes));
-                        writer.print(" mBreadCrumbTitleText=");
-                        writer.println(mBreadCrumbTitleText);
+                writer.print(Integer.toHexString(mBreadCrumbTitleRes));
+                writer.print(" mBreadCrumbTitleText=");
+                writer.println(mBreadCrumbTitleText);
             }
             if (mBreadCrumbShortTitleRes != 0 || mBreadCrumbShortTitleText != null) {
                 writer.print(prefix); writer.print("mBreadCrumbShortTitleRes=#");
-                        writer.print(Integer.toHexString(mBreadCrumbShortTitleRes));
-                        writer.print(" mBreadCrumbShortTitleText=");
-                        writer.println(mBreadCrumbShortTitleText);
+                writer.print(Integer.toHexString(mBreadCrumbShortTitleRes));
+                writer.print(" mBreadCrumbShortTitleText=");
+                writer.println(mBreadCrumbShortTitleText);
             }
         }
 

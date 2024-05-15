@@ -57,7 +57,7 @@ object GradleTransformWorkaround {
     }
 
     private fun Project.applyArtifactTransformWorkaround() {
-        this.configurations.all { c ->
+        this.configurations.configureEach { c ->
             c.resolutionStrategy.dependencySubstitution { selector ->
                 selector
                     .substitute(selector.module("unmatched:unmatched"))

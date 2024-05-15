@@ -20,6 +20,11 @@ import static androidx.wear.protolayout.ColorBuilders.argb;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
+import static androidx.wear.protolayout.DimensionBuilders.weight;
+import static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.ROBOTO_FLEX_FONT;
+import static androidx.wear.protolayout.LayoutElementBuilders.TABULAR_OPTION_TAG;
+import static androidx.wear.protolayout.LayoutElementBuilders.WEIGHT_AXIS_TAG;
+import static androidx.wear.protolayout.LayoutElementBuilders.WIDTH_AXIS_TAG;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -27,6 +32,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.graphics.Color;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.DimensionProto;
@@ -35,9 +41,13 @@ import androidx.wear.protolayout.proto.TypesProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RunWith(AndroidJUnit4.class)
 public class LayoutElementBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final DimensionBuilders.DegreesProp DEGREES_PROP =
@@ -53,10 +63,7 @@ public class LayoutElementBuildersTest {
                     .setDynamicValue(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))
                     .build();
     private static final DimensionBuilders.ExpandedDimensionProp EXPAND_PROP = expand();
-    private static final DimensionBuilders.ExpandedDimensionProp EXPAND_WEIGHT_PROP =
-            new DimensionBuilders.ExpandedDimensionProp.Builder()
-                    .setLayoutWeight(new TypeBuilders.FloatProp.Builder(12).build())
-                    .build();
+    private static final DimensionBuilders.ExpandedDimensionProp EXPAND_WEIGHT_PROP = weight(12);
 
     private static final DimensionBuilders.HorizontalLayoutConstraint HORIZONTAL_LAYOUT_CONSTRAINT =
             new DimensionBuilders.HorizontalLayoutConstraint.Builder(20)
@@ -66,6 +73,8 @@ public class LayoutElementBuildersTest {
             new DimensionBuilders.VerticalLayoutConstraint.Builder(20)
                     .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
                     .build();
+    private static final TypeBuilders.StringProp STATIC_STRING_PROP =
+            new TypeBuilders.StringProp.Builder("string").build();
     private static final TypeBuilders.StringProp STRING_PROP =
             new TypeBuilders.StringProp.Builder("string")
                     .setDynamicValue(
@@ -237,6 +246,18 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
+    public void text_defaultExcludeFontPadding() {
+        String staticValue = "Text";
+        // We don't set anything related to the font padding to test that default value is true.
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(new TypeBuilders.StringProp.Builder(staticValue).build())
+                        .build();
+
+        assertThat(text.toProto().getAndroidTextStyle().getExcludeFontPadding()).isTrue();
+    }
+
+    @Test
     public void testTextSetText() {
         LayoutElementBuilders.Text text =
                 new LayoutElementBuilders.Text.Builder()
@@ -256,6 +277,67 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
+    public void testTextSetOverflow_ellipsize() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(STATIC_STRING_PROP)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                        .build();
+
+        LayoutElementProto.Text textProto = text.toProto();
+
+        assertThat(textProto.getText().getValue()).isEqualTo(STATIC_STRING_PROP.getValue());
+        assertThat(textProto.getOverflow().getValue().getNumber())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE);
+    }
+
+    @Test
+    @SuppressWarnings("deprecation") // Intentionally testing deprecated value.
+    public void testTextSetOverflow_ellipsizeEnd() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(STATIC_STRING_PROP)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
+                        .build();
+
+        LayoutElementProto.Text textProto = text.toProto();
+
+        assertThat(textProto.getText().getValue()).isEqualTo(STATIC_STRING_PROP.getValue());
+        assertThat(textProto.getOverflow().getValue().getNumber())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END);
+    }
+
+    @Test
+    public void testTextSetOverflow_truncate() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(STATIC_STRING_PROP)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE)
+                        .build();
+
+        LayoutElementProto.Text textProto = text.toProto();
+
+        assertThat(textProto.getText().getValue()).isEqualTo(STATIC_STRING_PROP.getValue());
+        assertThat(textProto.getOverflow().getValue().getNumber())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE);
+    }
+
+    @Test
+    public void testTextSetOverflow_marquee() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(STATIC_STRING_PROP)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_MARQUEE)
+                        .build();
+
+        LayoutElementProto.Text textProto = text.toProto();
+
+        assertThat(textProto.getText().getValue()).isEqualTo(STATIC_STRING_PROP.getValue());
+        assertThat(textProto.getOverflow().getValue().getNumber())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_MARQUEE);
+    }
+
+    @Test
     public void testFontStyleSetMultipleSizes() {
         int size1 = 12;
         int size2 = 30;
@@ -263,7 +345,7 @@ public class LayoutElementBuildersTest {
         int[] expectedSizes = {size1, size2, lastSize};
         LayoutElementBuilders.FontStyle fontStyle =
                 new LayoutElementBuilders.FontStyle.Builder()
-                        .setSizes(sp(size1), sp(size2), sp(lastSize))
+                        .setSizes(size1, size2, lastSize)
                         .build();
 
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
@@ -307,7 +389,7 @@ public class LayoutElementBuildersTest {
         LayoutElementBuilders.FontStyle fontStyle =
                 new LayoutElementBuilders.FontStyle.Builder()
                         .setSize(sp(20))
-                        .setSizes(sp(size1), sp(size2))
+                        .setSizes(size1, size2)
                         .build();
 
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
@@ -325,33 +407,42 @@ public class LayoutElementBuildersTest {
 
     @Test
     public void testFontStyleSetSize_tooManySizes_throws() {
-        DimensionBuilders.SpProp[] sizes =
-                new DimensionBuilders.SpProp
-                        [LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
+        int[] sizes =
+                new int[LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new LayoutElementBuilders.FontStyle.Builder().setSizes(sizes).build());
     }
 
     @Test
-    public void testFontStyleSetSize_allNegativeOrZero_throws() {
+    public void testFontStyleSetSize_atLeastOneNegative_throws() {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
                         new LayoutElementBuilders.FontStyle.Builder()
-                                .setSizes(sp(-1), sp(0))
+                                .setSizes(-1, 5, 1)
                                 .build());
     }
 
     @Test
-    public void textSetText_withoutLayoutConstraint_throws() {
+    public void testFontStyleSetSize_atLeastOneZero_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        new LayoutElementBuilders.FontStyle.Builder()
+                                .setSizes(1, 2, 0)
+                                .build());
+    }
+
+    @Test
+    public void textSetText_useDynamicValue_withoutLayoutConstraint_throws() {
         assertThrows(
                 IllegalStateException.class,
                 () -> new LayoutElementBuilders.Text.Builder().setText(STRING_PROP).build());
     }
 
     @Test
-    public void arcLineSetStrokeCap_withShadow() {
+    public void test_arcLineSetStrokeCap_withShadow() {
         float blurRadius = 5f;
         int color = Color.BLUE;
         ModifiersBuilders.Shadow shadow =
@@ -372,5 +463,260 @@ public class LayoutElementBuildersTest {
                 .isEqualTo(shadow.getBlurRadius().getValue());
         assertThat(arcLine.getStrokeCap().getShadow().getColor().getArgb())
                 .isEqualTo(shadow.getColor().getArgb());
+    }
+
+    @Test
+    public void testArcs_withSetDirection_correctlySetsValues() {
+        int arcLineDirection = LayoutElementBuilders.ARC_DIRECTION_COUNTER_CLOCKWISE;
+        int arcTextDirection = LayoutElementBuilders.ARC_DIRECTION_NORMAL;
+        int arcDirection = LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE;
+
+        LayoutElementBuilders.Arc arc = new LayoutElementBuilders.Arc.Builder()
+                .setArcDirection(arcDirection)
+                .addContent(
+                        new LayoutElementBuilders.ArcLine.Builder()
+                                .setArcDirection(arcLineDirection)
+                                .build())
+                .addContent(
+                        new LayoutElementBuilders.ArcText.Builder()
+                                .setArcDirection(arcTextDirection)
+                                .build())
+                .build();
+
+        assertThat(arc.getArcDirection().getValue()).isEqualTo(arcDirection);
+        assertThat(
+                ((LayoutElementBuilders.ArcLine) arc.getContents().get(0))
+                        .getArcDirection().getValue())
+                .isEqualTo(arcLineDirection);
+        assertThat(
+                ((LayoutElementBuilders.ArcText) arc.getContents().get(1))
+                        .getArcDirection().getValue())
+                .isEqualTo(arcTextDirection);
+    }
+
+    @Test
+    public void arcAdapterContent_withTransformation_throws() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText("test")
+                        .setModifiers(
+                                new ModifiersBuilders.Modifiers.Builder()
+                                        .setTransformation(
+                                                new ModifiersBuilders.Transformation.Builder()
+                                                        .build())
+                                        .build())
+                        .build();
+        LayoutElementBuilders.ArcAdapter.Builder arcAdapterBuilder =
+                new LayoutElementBuilders.ArcAdapter.Builder();
+
+        assertThrows(IllegalArgumentException.class, () -> arcAdapterBuilder.setContent(text));
+    }
+
+    @Test
+    public void testFontSettings_sameAxis_secondValueIgnored() {
+        int expectedValue = 100;
+        String repeatedAxis = "tst1";
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder(repeatedAxis, expectedValue)
+                        .build();
+        LayoutElementBuilders.FontSetting setting1Repeated =
+                new LayoutElementBuilders.FontVariationSetting
+                        .Builder(repeatedAxis, expectedValue + 5)
+                        .build();
+        LayoutElementBuilders.FontVariationSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder(
+                        /* axisTag= */ "tst2", /* value= */ 200).build();
+
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(setting1, setting2, setting1Repeated).build();
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        List<LayoutElementProto.FontSetting> settingsList = fontStyleProto.getSettingsList();
+
+        assertThat(settingsList.size()).isEqualTo(2);
+        assertThat(settingsList.get(0)).isEqualTo(setting1.toFontSettingProto());
+        assertThat(settingsList.get(1)).isEqualTo(setting2.toFontSettingProto());
+    }
+
+    @Test
+    public void testFontSettings_secondCall_clearsPrevious() {
+        String expectedAxis = "axs3";
+        int expectedValue = 100;
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 300).build();
+        LayoutElementBuilders.FontSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder(
+                        /* axisTag= */ "axs2", /* value= */ 200).build();
+        LayoutElementBuilders.FontSetting setting3 =
+                new LayoutElementBuilders.FontVariationSetting.Builder(
+                        /* axisTag= */ expectedAxis, expectedValue).build();
+
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(setting1, setting2)
+                        .setSettings(setting3).build();
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        List<LayoutElementProto.FontSetting> settingsList = fontStyleProto.getSettingsList();
+
+        assertThat(settingsList.size()).isEqualTo(1);
+        assertThat(settingsList.get(0)).isEqualTo(setting3.toFontSettingProto());
+    }
+
+    @Test
+    public void testFontSettings_setWeight_setWidth() {
+        int expectedValueWeight = 100;
+        int expectedValueWidth = 120;
+
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(
+                                LayoutElementBuilders.FontSetting.weight(expectedValueWeight),
+                                LayoutElementBuilders.FontSetting.width(expectedValueWidth))
+                        .build();
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        List<LayoutElementProto.FontVariationSetting> settingsList =
+                fontStyleProto.getSettingsList().stream()
+                        .map(LayoutElementProto.FontSetting::getVariation)
+                        .collect(Collectors.toList());
+
+        assertThat(settingsList.size()).isEqualTo(2);
+
+        String actualAxis1Tag =
+                new String(
+                        ByteBuffer.allocate(4)
+                                .putInt(settingsList.get(0).getAxisTag()).array(),
+                        StandardCharsets.US_ASCII);
+        String actualAxis2Tag =
+                new String(
+                        ByteBuffer.allocate(4)
+                                .putInt(settingsList.get(1).getAxisTag()).array(),
+                        StandardCharsets.US_ASCII);
+
+        assertThat(actualAxis1Tag).isEqualTo(WEIGHT_AXIS_TAG);
+        assertThat(settingsList.get(0).getValue()).isEqualTo(expectedValueWeight);
+
+        assertThat(actualAxis2Tag).isEqualTo(WIDTH_AXIS_TAG);
+        assertThat(settingsList.get(1).getValue()).isEqualTo(expectedValueWidth);
+    }
+
+    @Test
+    public void testFontSettings_setTnum() {
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(
+                                LayoutElementBuilders.FontSetting.tabularNum())
+                        .build();
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        List<LayoutElementProto.FontFeatureSetting> settingsList =
+                fontStyleProto.getSettingsList().stream()
+                        .map(LayoutElementProto.FontSetting::getFeature)
+                        .collect(Collectors.toList());
+
+        assertThat(settingsList.size()).isEqualTo(1);
+
+        String actualAxis1Tag =
+                new String(
+                        ByteBuffer.allocate(4)
+                                .putInt(settingsList.get(0).getTag()).array(),
+                        StandardCharsets.US_ASCII);
+
+        assertThat(actualAxis1Tag).isEqualTo(TABULAR_OPTION_TAG);
+    }
+
+    @Test
+    public void testSetting_axisTag() {
+        String expectedTag = "test";
+        int expectedValue = 100;
+
+        LayoutElementBuilders.FontVariationSetting setting =
+                new LayoutElementBuilders.FontVariationSetting.Builder(expectedTag, expectedValue)
+                        .build();
+
+        assertThat(setting.getAxisTag()).isEqualTo(expectedTag);
+        assertThat(setting.getValue()).isEqualTo(expectedValue);
+    }
+
+    @Test
+    public void testSetting_equal() {
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
+                        .build();
+        LayoutElementBuilders.FontSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
+                        .build();
+
+        assertThat(setting1).isEqualTo(setting2);
+        assertThat(setting1.hashCode()).isEqualTo(setting2.hashCode());
+    }
+
+    @Test
+    public void testSetting_notEqualTag() {
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
+                        .build();
+        LayoutElementBuilders.FontSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs2", 100)
+                        .build();
+
+        assertThat(setting1).isNotEqualTo(setting2);
+        assertThat(setting1.hashCode()).isNotEqualTo(setting2.hashCode());
+    }
+
+    @Test
+    public void testSetting_notEqualValue() {
+        LayoutElementBuilders.FontSetting setting1 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
+                        .build();
+        LayoutElementBuilders.FontSetting setting2 =
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs21", 200)
+                        .build();
+
+        assertThat(setting1).isNotEqualTo(setting2);
+        assertThat(setting1.hashCode()).isNotEqualTo(setting2.hashCode());
+    }
+
+    @Test
+    public void testFontSettings_tooManySettings_throws() {
+        LayoutElementBuilders.FontSetting[] sizes =
+                new LayoutElementBuilders.FontSetting[
+                        LayoutElementBuilders.FontStyle.Builder.SETTINGS_LIMIT + 1];
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new LayoutElementBuilders.FontStyle.Builder()
+                        .setSettings(sizes)
+                        .build());
+    }
+
+    @Test
+    public void testFontStyleSetFontFamily_constant() {
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setPreferredFontFamilies(ROBOTO_FLEX_FONT)
+                        .build();
+
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        assertThat(fontStyleProto.getPreferredFontFamiliesList().size()).isEqualTo(1);
+        assertThat(fontStyleProto.getPreferredFontFamilies(0)).isEqualTo(ROBOTO_FLEX_FONT);
+    }
+
+    @Test
+    public void testFontStyleSetFontFamily_customWithFallbacks() {
+        String expectedFontFamily = "font-family-test";
+        String fallbackFontFamily = "font-family-test-fallback";
+        LayoutElementBuilders.FontStyle fontStyle =
+                new LayoutElementBuilders.FontStyle.Builder()
+                        .setPreferredFontFamilies(expectedFontFamily, fallbackFontFamily)
+                        .build();
+
+        LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
+
+        assertThat(fontStyleProto.getPreferredFontFamiliesList().size()).isEqualTo(2);
+        assertThat(fontStyleProto.getPreferredFontFamilies(0)).isEqualTo(expectedFontFamily);
+        assertThat(fontStyleProto.getPreferredFontFamilies(1)).isEqualTo(fallbackFontFamily);
     }
 }

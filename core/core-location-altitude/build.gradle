@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -27,26 +34,16 @@ plugins {
 android {
     namespace "androidx.core.location.altitude"
 
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
 }
-
-BundleInsideHelper.forInsideAar(
-        project,
-        /* from = */ "com.google.protobuf",
-        /* to =   */ "androidx.core.location.altitude.impl.proto",
-        // proto-lite dependency includes .proto files, which are not used and would clash if
-        // users also use proto library directly
-        /* dropResourcesWithSuffix = */ ".proto"
-)
 
 dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.5.0")
 
-    bundleInside(project(":core:core-location-altitude-proto"))
-
+    implementation(project(":core:core-location-altitude-proto"))
     implementation(libs.autoValueAnnotations)
     implementation(project(":core:core"))
     implementation("androidx.room:room-runtime:2.4.3")

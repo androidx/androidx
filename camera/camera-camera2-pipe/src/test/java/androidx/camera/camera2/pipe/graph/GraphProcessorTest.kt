@@ -78,6 +78,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -99,6 +100,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -122,6 +124,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -149,6 +152,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -168,6 +172,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -199,6 +204,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -236,6 +242,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -260,6 +267,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -294,6 +302,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -321,6 +330,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -343,6 +353,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -378,6 +389,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -410,6 +422,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -436,6 +449,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -462,6 +476,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -501,6 +516,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -520,6 +536,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,
@@ -539,6 +556,7 @@ internal class GraphProcessorTest {
         val graphProcessor =
             GraphProcessorImpl(
                 FakeThreads.fromTestScope(this),
+                CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
                 this,

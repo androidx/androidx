@@ -41,4 +41,5 @@
     <string name="buttons_widget_name">Buttons Demo Widget</string>
     <string name="tint_widget">Tint widget</string>
     <string name="title_bar_widget">Title Bar Widget</string>
+    <string name="content_description_widget_name">Content Description Widget</string>
 </resources>

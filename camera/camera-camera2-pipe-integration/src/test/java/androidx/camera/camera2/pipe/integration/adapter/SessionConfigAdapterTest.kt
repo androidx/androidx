@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21)
-
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.futures.Futures
@@ -33,6 +30,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import junit.framework.TestCase
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -150,14 +148,19 @@ class SessionConfigAdapterTest {
 class FakeTestUseCase(
     config: FakeUseCaseConfig,
 ) : FakeUseCase(config) {
+    var cameraControlReady = false
 
     fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
         updateSessionConfig(sessionConfigBuilder.build())
         notifyActive()
     }
+
+    override fun onCameraControlReady() {
+        cameraControlReady = true
+    }
 }
 
-class TestDeferrableSurface : DeferrableSurface() {
+open class TestDeferrableSurface : DeferrableSurface() {
     private val surfaceTexture = SurfaceTexture(0).also {
         it.setDefaultBufferSize(0, 0)
     }
@@ -171,4 +174,14 @@ class TestDeferrableSurface : DeferrableSurface() {
         testSurface.release()
         surfaceTexture.release()
     }
+}
+
+class BlockingTestDeferrableSurface : TestDeferrableSurface() {
+    private val deferred = CompletableDeferred<Surface>()
+
+    override fun provideSurface(): ListenableFuture<Surface> {
+        return deferred.asListenableFuture()
+    }
+
+    fun resume() = deferred.complete(testSurface)
 }

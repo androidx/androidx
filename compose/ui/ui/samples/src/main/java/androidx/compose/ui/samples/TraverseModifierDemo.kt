@@ -41,10 +41,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
@@ -59,7 +57,6 @@ import androidx.compose.ui.node.traverseChildren
 import androidx.compose.ui.node.traverseDescendants
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
 // Default colors for all the TraversableNode(s):
@@ -690,12 +687,6 @@ internal class TraversableBackgroundModifierNode(
     // All the rest of the code in this node is to enable the background color changing, you
     // can ignore it if you are only wanting to learn the traversable APIs.
 
-    // naive cache outline calculation if size is the same
-    private var lastSize: Size? = null
-    private var lastLayoutDirection: LayoutDirection? = null
-    private var lastOutline: Outline? = null
-    private var lastShape: Shape? = null
-
     override fun ContentDrawScope.draw() {
         if (shape === RectangleShape) {
             // shortcut to avoid Outline calculation and allocation
@@ -712,18 +703,9 @@ internal class TraversableBackgroundModifierNode(
     }
 
     private fun ContentDrawScope.drawOutline() {
-        val outline =
-            if (size == lastSize && layoutDirection == lastLayoutDirection && lastShape == shape) {
-                lastOutline!!
-            } else {
-                shape.createOutline(size, layoutDirection, this)
-            }
+        val outline = shape.createOutline(size, layoutDirection, this)
         if (color != Color.Unspecified) drawOutline(outline, color = color)
         brush?.let { drawOutline(outline, brush = it, alpha = alpha) }
-        lastOutline = outline
-        lastSize = size
-        lastLayoutDirection = layoutDirection
-        lastShape = shape
     }
     override fun toString() =
         "CustomTraversableModifierNode of key: $TRAVERSAL_NODE_KEY"

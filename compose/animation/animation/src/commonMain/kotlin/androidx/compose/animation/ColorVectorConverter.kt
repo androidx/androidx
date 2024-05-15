@@ -21,6 +21,7 @@ import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * A lambda that takes a [ColorSpace] and returns a converter that can both convert a [Color] to
@@ -36,10 +37,10 @@ private val ColorToVector: (colorSpace: ColorSpace) -> TwoWayConverter<Color, An
             },
             convertFromVector = { vector ->
                 Color(
-                    vector.v2.coerceIn(0f, 1f), // L (red)
-                    vector.v3.coerceIn(-0.5f, 0.5f), // a (blue)
-                    vector.v4.coerceIn(-0.5f, 0.5f), // b (green)
-                    vector.v1.coerceIn(0f, 1f), // alpha
+                    vector.v2.fastCoerceIn(0f, 1f), // L (red)
+                    vector.v3.fastCoerceIn(-0.5f, 0.5f), // a (blue)
+                    vector.v4.fastCoerceIn(-0.5f, 0.5f), // b (green)
+                    vector.v1.fastCoerceIn(0f, 1f), // alpha
                     ColorSpaces.Oklab
                 ).convert(colorSpace)
             }

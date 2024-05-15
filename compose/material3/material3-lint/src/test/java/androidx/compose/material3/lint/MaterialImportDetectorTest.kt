@@ -41,7 +41,7 @@ class MaterialImportDetectorTest : LintDetectorTest() {
     private val MaterialButtonStub = bytecodeStub(
         filename = "Button.kt",
         filepath = "androidx/compose/material",
-        checksum = 0x94880e7a,
+        checksum = 0x3ab9ae7,
         """
             package androidx.compose.material
 
@@ -49,26 +49,27 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
         TSxJLcpMzBHicCotKcnP8y7hMuNSxalMr6A0J6coNa0otThDiDcAyAmCcID6
-        dLgUcOsryiwoyEkV4ggC00DVvFzMafn5QmwhqcUl3iVKDFoMAB7yTT20AAAA
+        dLgUcOsryiwoyEkV4ggC00DValxSOFUbI7mGl4s5LT9fiC0ktbjEu0SJQYsB
+        AAY211PcAAAA
         """,
         """
         androidx/compose/material/ButtonKt.class:
-        H4sIAAAAAAAA/yVOu07DQBCcPSdOYh5xCC+npIIGJ4iOCpCQLAJIgNKkusQn
-        dMS+Q/Y5SplfoqVAqfkoxB3eYnZ2Zla7P79f3wAuERFOuEoLLdNVPNf5hy5F
-        nHMjCsmz+KYyRqt70wIRwne+5HHG1Vv8NHsXc6t6BL/OELzTswmhN15ok0kV
-        PwjDU274FYHlS88eIwdtByDQwhFmzZV0bGhZOiL0N2s/2KwDFrKBH27WAzYk
-        Z12Q2+rUx84XhtC41akgdMdSiccqn4nilc8yqwQvuirm4k66IXqulJG5mMhS
-        WvdaKW24kVqVGIGhgfqdCE34th/YKUJd9PlvHVp0FmyY4ch9jX0c2z6yassu
-        tqfwEnQSBAm2sJ1gB7sJuginoBI97E3BSjRL9P8AKS93K3cBAAA=
+        H4sIAAAAAAAA/yVOu07DQBCcPScOMY84hJdTUkGDE0RHBUhIFgEkQGlSXeIT
+        usS+Q/Y5SplfoqVAqfkoxB3eYnZ2Zla7P79f3wCuEBFOuUoLLdNVPNP5hy5F
+        nHMjCsmz+LYyRqsH0wIRwjlf8jjj6j1+ns7FzKoewa8zBO/sfEzojhbaZFLF
+        j8LwlBt+TWD50rPHyEHbAQi0cIRZcyUdG1iWDgm9zdoPNuuAhazvh5t1nw3I
+        WZfkttr1sYuFITTudCoInZFU4qnKp6J449PMKsGrroqZuJduiF4qZWQuxrKU
+        1r1RShtupFYlhmBooH4nQhO+7Yd2ilAXff5bRxadBRtmOHZf4wAntg+t2rKL
+        WxN4CdoJggTb2Emwi70EHYQTUIku9idgJZolen+absHWdwEAAA==
         """
     )
 
     private val ExperimentalMaterialApiStub = bytecodeStub(
         filename = "ExperimentalMaterialApi.kt",
         filepath = "androidx/compose/material",
-        checksum = 0x6caaf88f,
+        checksum = 0x4808c29,
         """
             package androidx.compose.material
 
@@ -81,31 +82,31 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
         TSxJLcpMzBHicCotKcnP8y7hMuNSxalMr6A0J6coNa0otThDiDcAyAmCcID6
         dLgUcOsryiwoyEkV4ggC00DValxSOFUbI7mGl4s5LT9fiC0ktbjEu0SJQYsB
-        ANpB3LXcAAAA
+        AAY211PcAAAA
         """,
         """
         androidx/compose/material/ExperimentalMaterialApi.class:
-        H4sIAAAAAAAA/5VSwW4TMRB93pAmpEDTAiVpKDUcyq3bFm6ctgjQSimtEoRU
-        5eQkQ+Nmd52uvVF6y41/4oAijnwUYlY0JBJFiMv4zbxnzxvb3398+QrgJZ4J
-        HKiknxrdn/g9E4+MJT9WjlKtIv/NZMQgpsSp6Pi6GIx0CUKgeqHGyo9Ucu6f
-        dC+o50ooCOwsqipJjFNOm8QPfsMSigKbzaFxkU78Fl1mOiV7MnJh8kqgFJO1
-        6pwEzj4MtJVzIzI4DSXntORHsu28FukhRVfSGdkbcFuSJs2TLsmUYjMmFiXS
-        DUh+ylyW0p7A9rz9ksMWOT6VEbsojlWUsYfnN+gWkyzvWDkK3wetMwHZvHH+
-        Ze3uPySnJtK9q9zG62bQbgusz20ck1N95RRzXjwu8PuJPJTzAAEx5PpE59k+
-        o/6BQH02LVe8mlfxqo3yt89ebTY99PbF0WyaCw4FXjT/+/G5Ozfb+gu7N3QC
-        lbbJ0h691RHfYr2V8VwxfdRWdyNaXKAVaFxzYTL+g91li7jFrVby8VDADkcP
-        TyB5fcd5hblVwh3cxb1fcA1VrKOIjQ4KIe6HeBDiITYZ4lGIGuodCIstNDrw
-        LB5bbOMpH7bKu/lLo2xx+yc4GLrsGQMAAA==
+        H4sIAAAAAAAA/5VSTW8TMRB93pAmTflIC5SkodRwaG/dtnDjtEWAVkpplSCk
+        KicnGRo3u+uw9kbpLTf+EwcUceRHIWZFQyJRhLiM38x79ryx/f3Hl68AXuCZ
+        wKFK+qnR/YnfM/HIWPJj5SjVKvJfT0YMYkqcik6ui8FIlyAEqpdqrPxIJRf+
+        afeSeq6EgsDOoqqSxDjltEn84DcsoSiw2RwaF+nEb9GnTKdkT0cuTF4KlGKy
+        Vl2QwPn7gbZybkQGZ6HknJb8SLad1yI9pOhKOiN7A25L0qR50iWZUmzGxKJE
+        ugHJj5nLUtoX2J63X3LYIsenMmIXxbGKMvawd4NuMcnyjpXj8F3QOheQzRvn
+        X9bu/kNyZiLdu8ptvGoG7bbA+tzGCTnVV04x58XjAr+fyMNqHiAghlyf6Dw7
+        YNQ/FKjPpuWKV/MqXrVR/vbZq82mR96BOJ5Nc8GRwPPmfz8+d+dmW39h94dO
+        oNI2WdqjNzriW6y3Mp4rpg/a6m5Eiwu0Ao1rLkzGf7C7bBG3uNVKPh4K2OHo
+        4Qkkr285rzC3RriNO7j7C95DFesoYqODQoj7IR6EeIhNhngUooZ6B8JiC40O
+        PIvHFtt4yoet8W7+0ihbrP4EIBEHSxkDAAA=
         """
     )
 
     private val Material3ButtonStub = bytecodeStub(
         filename = "Button.kt",
         filepath = "androidx/compose/material3",
-        checksum = 0x8bce80e4,
+        checksum = 0x314468f6,
         """
             package androidx.compose.material3
 
@@ -113,27 +114,27 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
         TSxJLcpMzBHicCotKcnP8y7hMuNSxalMr6A0J6coNa0otThDiDcAyAmCcID6
         dLgUcOsryiwoyEkV4ggC00DValxSOFUbI7mGl4s5LT9fiC0ktbjEu0SJQYsB
-        ANpB3LXcAAAA
+        AAY211PcAAAA
         """,
         """
         androidx/compose/material3/ButtonKt.class:
-        H4sIAAAAAAAA/yVOTU/CQBB9s4UC9YMifpWrF71YUG+e1MSkETVRw4XTQjdm
-        ge6adks48pe8ejCc/VHGXTuHN2/ee5OZn9+vbwBXiAgnXKW5lukqnursQxci
-        zrgRueSLy/i2NEarB9MAEcIZX/J4wdV7/DyZialVPYJfZQje6dmI0BnOtVlI
-        FT8Kw1Nu+DWBZUvPXiMHTQcg0NwRZs2VdKxvWTogdDdrP9isAxaynh9u1j3W
-        J2ddkNtqVcfO54ZQu9OpILSHUomnMpuI/I1PFlYJXnWZT8W9dEP0UiojMzGS
-        hbTujVLacCO1KjAAQw3VOxHq8G0/sFOEqujz3zq06CzYMMOR+xr7OLZ9YNWG
-        XWyO4SVoJQgSbGE7wQ52E7QRjkEFOtgbgxWoF+j+AX2HBh54AQAA
+        H4sIAAAAAAAA/yVOu07DQBCcPScOMY84hJfT0kCDE6CjAiQkiwASoDSpLvEJ
+        HbHvkH2OUuaXaClQaj4KcYe3mJ2dmdXuz+/XN4BLRIRjrtJCy3QZz3T+oUsR
+        59yIQvLsIr6pjNHq3rRAhPCdL3iccfUWP03fxcyqHsGvMwTv5HRM6I7m2mRS
+        xQ/C8JQbfkVg+cKz18hB2wEINHeEWXMpHRtYlg4JvfXKD9argIWs74frVZ8N
+        yFnn5Lba9bGzuSE0bnUqCJ2RVOKxyqeieOXTzCrBi66KmbiTboieK2VkLsay
+        lNa9VkobbqRWJYZgaKB+J0ITvu37dopQF33+WwcWnQUbZjh0X2MPR7YPrdqy
+        ixsTeAnaCYIEm9hKsI2dBB2EE1CJLnYnYCWaJXp/zsaw43gBAAA=
         """
     )
 
     private val RippleStub = bytecodeStub(
         filename = "Ripple.kt",
         filepath = "androidx/compose/material/ripple",
-        checksum = 0x2f218395,
+        checksum = 0x691c7742,
         """
             package androidx.compose.material.ripple
 
@@ -141,26 +142,27 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
         TSxJLcpMzBHicCotKcnP8y7hMuNSxalMr6A0J6coNa0otThDiDcAyAmCcID6
-        dLgUcOsryiwoyEkV4ggC00DVvFzMafn5QmwhqcUl3iVKDFoMAB7yTT20AAAA
+        dLgUcOsryiwoyEkV4ggC00DValxSOFUbI7mGl4s5LT9fiC0ktbjEu0SJQYsB
+        AAY211PcAAAA
         """,
         """
         androidx/compose/material/ripple/RippleKt.class:
-        H4sIAAAAAAAA/yVOTU/CQBB9s+WzKhTxq/wCuVgw3jwZE5NG1AQNF04L3ZiF
-        dpe0C+HIX/LqwXD2Rxl36Rzem5k3k/d+/75/ANwhJPS5SnItk20019lKFyLK
-        uBG55GmUy9UqFdH4QM+mDiIEC77hUcrVZ/Q2W4i53XqEVi4ykc1EXt4SvOv+
-        hNAZLbVJpYpehOEJN/yewLKNZ73JQcMBCLR0DbPiVrpuYLtkSOjudzV/v/NZ
-        wHq1YL/rsQE56ZbcV7M0u1kaQuVRJ9a2PZJKvK5dkg8+c0H8d73O5+JJuiEc
-        r5WRmZjIQlr1QSltuJFaFRiCoYIyTogqapbP7RSiLPo6SBcWnQR7zHDpUuMM
-        V5aHdlu3j40pvBjNGH6MIxzHOEErRhvBFFSgg9MpWIFqge4/mpQXSIYBAAA=
+        H4sIAAAAAAAA/yVOTU/CQBB9s+VDqkIRv8ovkIsF4s2TMTFpRE3QcOG00I1Z
+        aHdJuxCO/CWvHgxnf5Rxl87hvZl5M3nv9+/7B8AdQkKPqyTXMtlGc52tdCGi
+        jBuRS55GuVytUhGND/Rs6iBCsOAbHqVcfUZvs4WY261HaOYiE9lM5OUtwbvp
+        TQjt0VKbVKroRRiecMPvCSzbeNabHDQcgEBL1zArbqXr+rZLBoTOflfz9zuf
+        BaxbC/a7LuuTk4bkvhql2e3SECqPOrG2rZFU4nXtknzwmQviv+t1PhdP0g3h
+        eK2MzMREFtKqD0ppw43UqsAADBWUcUJUUbN8YacQZdHXQbq06CTYY4Yrlxrn
+        uLY8sNu6fTyawovRiOHHOMZJjFM0Y7QQTEEF2jibghWoFuj8AynVobWGAQAA
         """
         )
 
     private val IconsStub = bytecodeStub(
         filename = "Icons.kt",
         filepath = "androidx/compose/material/icons",
-        checksum = 0x1643e419,
+        checksum = 0xe246828f,
         """
             package androidx.compose.material.icons
 
@@ -168,51 +170,53 @@ class MaterialImportDetectorTest : LintDetectorTest() {
         """,
 """
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
         TSxJLcpMzBHicCotKcnP8y7hMuNSxalMr6A0J6coNa0otThDiDcAyAmCcID6
-        dLgUcOsryiwoyEkV4ggC00DVvFzMafn5QmwhqcUl3iVKDFoMAB7yTT20AAAA
+        dLgUcOsryiwoyEkV4ggC00DValxSOFUbI7mGl4s5LT9fiC0ktbjEu0SJQYsB
+        AAY211PcAAAA
         """,
         """
         androidx/compose/material/icons/Icons.class:
-        H4sIAAAAAAAA/42SzW7TQBSFz0wSx3UDDeWnCQUKtIifBW4rdlRIpQLJkjES
-        rSKhrib2qExizyB7EnWZFQ/CG1QsKoGEItjxUIg7JoIFG2zp3nvu3Pk8c+Qf
-        Pz9/BfAEWwz3hM5Ko7LTMDXFe1PJsBBWlkrkoUqNrsLIxTYYQ3ckpiLMhT4J
-        Xw9HMrVtNBi8PaWVfcbQePBw0EELXoAm2gxN+05VDPfj//rCUwZ/L81rVgDu
-        AH6UHB7tJwcvOriAYImaFxk2Y1OehCNph6VQtFlobaywyoESY5NJnhPqUjw2
-        lmDhK2lFJqygHi+mDbo1c8F3AQxsTP1T5dQ2VdkOw9Z8FgS8xwPepWo+879/
-        4L35bJdvs+dtn3/76PEud7O7zBH8+vSPx5Zh/c1EW1XISE9VpYa53P97NrLj
-        wGSSYSVWWiaTYijLI0EzDKuxSUU+EOQI6UUzODSTMpUvlRP9BXjwDxY75Eqz
-        vkrfmUT5FimPcpcyp7dVqw1Sobsw5dajc/hn9fLtxTAIcodi5/cAlghFLmH5
-        z+Y1mnbP8hfwt+fofMLKWd3guFvHm9is/ykynwCrx2hEuBzhSoSruEYl1iL0
-        0D8Gq3Ad67ReIahwo4L3C+qkwQ6QAgAA
+        H4sIAAAAAAAA/42Sz27TQBDGv90kjuMGmhZoEwq00CL+HHBbcaNCKhVIloyR
+        aBWp6mljr9pNbC+yN1GPOfEgvEHFoRKVUAQ3HgoxayI4cGEtzcw3O/vbnZF/
+        /PzyFcBzbDE8FHlSaJWc+7HOPuhS+pkwslAi9VWs89IPrG2CMXSGYiL8VOSn
+        /rvBUMamiRqDs6dyZV4y1B4/6bfRgOOhjiZD3ZypkuFR+F83vGBw9+K0Ynng
+        FuAG0eHRfnTwuo1r8FqUvM6wGeri1B9KMyiEosMiz7URRllQpE00TlNCLYUj
+        bQjmv5VGJMIIyvFsUqOumTUta8DARpQ/V1ZtU5TsMGzNpp7Hu9zjHYpmU/f7
+        R96dTXf5NnvVdPm3Tw7vcFu7yyzBrV7/bGQY1t6Pc6MyGeQTVapBKvf/vo3G
+        caATybAYqlxG42wgiyNBNQzLoY5F2hc0EdLzpHeox0Us3ygrenNw/x8sdmgq
+        9aqVnh0S+XukHPId8py+RqXWSfm2YfKNp5dwL6rtjXkxCHKfbPt3AVqEAlws
+        /Dm8StV2LVyBH1+i/RmLF1WC40Fl72Kz+qdo+ARYPkEtwI0ANwPcwgqFWA3Q
+        Re8ErMRtrNF+Ca/EnRLOL4cbczOQAgAA
         """
         )
 
     private val PullRefreshStub = bytecodeStub(
         filename = "PullRefresh.kt",
         filepath = "androidx/compose/material/pullrefresh",
-        checksum = 0x20bedb6d,
+        checksum = 0xfa59248b,
         """
             package androidx.compose.material.pullrefresh
 
             fun pullRefresh() {}
         """,
-        """
+"""
         META-INF/main.kotlin_module:
-        H4sIAAAAAAAA/2NgYGBmYGBgBGIOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
+        H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgUuWSTMxLKcrPTKnQS87PLcgvTtXL
         TSxJLcpMzBHicCotKcnP8y7hMuNSxalMr6A0J6coNa0otThDiDcAyAmCcID6
-        dLgUcOsryiwoyEkV4ggC00DVvFzMafn5QmwhqcUl3iVKDFoMAB7yTT20AAAA
+        dLgUcOsryiwoyEkV4ggC00DValxSOFUbI7mGl4s5LT9fiC0ktbjEu0SJQYsB
+        AAY211PcAAAA
         """,
         """
         androidx/compose/material/pullrefresh/PullRefreshKt.class:
-        H4sIAAAAAAAA/01OTU/CQBSct+XLolDEr/IL9GJBvXkyJiaN+BE0XDgtdNWF
-        tkvaLeHIX/LqwXD2Rxl35aDvMG/ezLxkvr4/PgFcwCec8zTKlIyWwUQlc5WL
-        IOFaZJLHwbyI40y8ZCJ/Cx4NH2z4ra6CCN6UL3gQ8/Q1eBhPxcSoDqE+/wsS
-        nOOTIaHVnykdyzS4E5pHXPNLAksWjqlAFmoWQKCZJcyYS2lZ17CoR2ivVxV3
-        vXKZxzoVb73qsC5Z64zsV+NftdOZJpSuVSQIzb5MxX2RjEX2zMexUdwnVWQT
-        cSPt4Q+KVMtEDGUujXuVpkpzLVWaoweGEjadfJRRMXvfXD42Q++/1oFBa8GE
-        GQ5tdezhyOyeUavmsTaCE2IrhBuiju0QO2iEaMIbgXK0sDsCy1HO0f4B7wOm
-        OJIBAAA=
+        H4sIAAAAAAAA/01OTU/CQBSct+VDikIRv8ov0IsF9ebJmJg04kfQcOG00FUX
+        2i5pt4Qjf8mrB8PZH2XclYO+w7x5M/OS+fr++ARwAZ9wztMoUzJaBhOVzFUu
+        goRrkUkeB/MijjPxkon8LXg0fLDht7oKInhTvuBBzNPX4GE8FROjOoT6/C9I
+        cI5PhoRWf6Z0LNPgTmgecc0vCSxZOKYCWahZAIFmljBjLqVlXcOiHqG9XlXc
+        9cplHutUvPWqw7pkrTOyX41/1U5nmlC6VpEgNPsyFfdFMhbZMx/HRnGfVJFN
+        xI20hz8oUi0TMZS5NO5VmirNtVRpjh4YSth08lFGxex9c/nYDL3/WgcGrQUT
+        Zji01bGHI7N7Rq2ax60RnBC1EG6IOrZD7KARoglvBMrRwu4ILEc5R/sHIVOo
+        LJIBAAA=
         """
         )
 

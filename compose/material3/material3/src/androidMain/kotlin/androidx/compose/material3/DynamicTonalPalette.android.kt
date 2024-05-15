@@ -165,13 +165,13 @@ internal fun dynamicTonalPalette(context: Context): TonalPalette = TonalPalette(
  */
 @RequiresApi(Build.VERSION_CODES.S)
 fun dynamicLightColorScheme(context: Context): ColorScheme {
-    val tonalPalette = dynamicTonalPalette(context)
     return if (Build.VERSION.SDK_INT >= 34) {
         // SDKs 34 and greater return appropriate Chroma6 values for neutral palette
-        dynamicLightColorScheme34(tonalPalette)
+        dynamicLightColorScheme34(context)
     } else {
         // SDKs 31-33 return Chroma4 values for neutral palette, we instead leverage neutral
         // variant which provides chroma8 for less grey tones.
+        val tonalPalette = dynamicTonalPalette(context)
         dynamicLightColorScheme31(tonalPalette)
     }
 }
@@ -187,13 +187,13 @@ fun dynamicLightColorScheme(context: Context): ColorScheme {
  */
 @RequiresApi(Build.VERSION_CODES.S)
 fun dynamicDarkColorScheme(context: Context): ColorScheme {
-    val tonalPalette = dynamicTonalPalette(context)
     return if (Build.VERSION.SDK_INT >= 34) {
         // SDKs 34 and greater return appropriate Chroma6 values for neutral palette
-        dynamicDarkColorScheme34(tonalPalette)
+        dynamicDarkColorScheme34(context)
     } else {
         // SDKs 31-33 return Chroma4 values for neutral palette, we instead leverage neutral
         // variant which provides chroma8 for less grey tones.
+        val tonalPalette = dynamicTonalPalette(context)
         dynamicDarkColorScheme31(tonalPalette)
     }
 }
@@ -303,39 +303,63 @@ internal fun dynamicLightColorScheme31(tonalPalette: TonalPalette) = lightColorS
 )
 
 @RequiresApi(34)
-internal fun dynamicLightColorScheme34(tonalPalette: TonalPalette) = lightColorScheme(
-    primary = tonalPalette.primary40,
-    onPrimary = tonalPalette.primary100,
-    primaryContainer = tonalPalette.primary90,
-    onPrimaryContainer = tonalPalette.primary10,
-    inversePrimary = tonalPalette.primary80,
-    secondary = tonalPalette.secondary40,
-    onSecondary = tonalPalette.secondary100,
-    secondaryContainer = tonalPalette.secondary90,
-    onSecondaryContainer = tonalPalette.secondary10,
-    tertiary = tonalPalette.tertiary40,
-    onTertiary = tonalPalette.tertiary100,
-    tertiaryContainer = tonalPalette.tertiary90,
-    onTertiaryContainer = tonalPalette.tertiary10,
-    background = tonalPalette.neutral98,
-    onBackground = tonalPalette.neutral10,
-    surface = tonalPalette.neutral98,
-    onSurface = tonalPalette.neutral10,
-    surfaceVariant = tonalPalette.neutralVariant90,
-    onSurfaceVariant = tonalPalette.neutralVariant30,
-    inverseSurface = tonalPalette.neutral20,
-    inverseOnSurface = tonalPalette.neutral95,
-    outline = tonalPalette.neutralVariant50,
-    outlineVariant = tonalPalette.neutralVariant80,
-    scrim = tonalPalette.neutral0,
-    surfaceBright = tonalPalette.neutral98,
-    surfaceDim = tonalPalette.neutral87,
-    surfaceContainer = tonalPalette.neutral94,
-    surfaceContainerHigh = tonalPalette.neutral92,
-    surfaceContainerHighest = tonalPalette.neutral90,
-    surfaceContainerLow = tonalPalette.neutral96,
-    surfaceContainerLowest = tonalPalette.neutral100,
-    surfaceTint = tonalPalette.primary40,
+internal fun dynamicLightColorScheme34(context: Context) = lightColorScheme(
+    primary = ColorResourceHelper.getColor(context, android.R.color.system_primary_light),
+    onPrimary = ColorResourceHelper.getColor(context, android.R.color.system_on_primary_light),
+    primaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_primary_container_light),
+    onPrimaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_primary_container_light),
+    inversePrimary = ColorResourceHelper.getColor(context, android.R.color.system_primary_dark),
+    secondary = ColorResourceHelper.getColor(context, android.R.color.system_secondary_light),
+    onSecondary = ColorResourceHelper.getColor(context, android.R.color.system_on_secondary_light),
+    secondaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_secondary_container_light),
+    onSecondaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_secondary_container_light),
+    tertiary = ColorResourceHelper.getColor(context, android.R.color.system_tertiary_light),
+    onTertiary = ColorResourceHelper.getColor(context, android.R.color.system_on_tertiary_light),
+    tertiaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_tertiary_container_light),
+    onTertiaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_tertiary_container_light),
+    background = ColorResourceHelper.getColor(context, android.R.color.system_background_light),
+    onBackground =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_background_light),
+    surface = ColorResourceHelper.getColor(context, android.R.color.system_surface_light),
+    onSurface = ColorResourceHelper.getColor(context, android.R.color.system_on_surface_light),
+    surfaceVariant =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_variant_light),
+    onSurfaceVariant =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_surface_variant_light),
+    inverseSurface = ColorResourceHelper.getColor(context, android.R.color.system_surface_dark),
+    inverseOnSurface =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_surface_dark),
+    outline = ColorResourceHelper.getColor(context, android.R.color.system_outline_light),
+    outlineVariant =
+        ColorResourceHelper.getColor(context, android.R.color.system_outline_variant_light),
+    // scrim
+    surfaceBright =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_bright_light),
+    surfaceDim =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_dim_light),
+    surfaceContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_container_light),
+    surfaceContainerHigh =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_container_high_light),
+    surfaceContainerHighest =
+        ColorResourceHelper.getColor(
+            context,
+            android.R.color.system_surface_container_highest_light
+        ),
+    surfaceContainerLow =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_container_low_light),
+    surfaceContainerLowest =
+        ColorResourceHelper.getColor(
+            context,
+            android.R.color.system_surface_container_lowest_light
+        ),
+    surfaceTint = ColorResourceHelper.getColor(context, android.R.color.system_primary_light),
 )
 
 @RequiresApi(31)
@@ -375,37 +399,59 @@ internal fun dynamicDarkColorScheme31(tonalPalette: TonalPalette) = darkColorSch
 )
 
 @RequiresApi(34)
-internal fun dynamicDarkColorScheme34(tonalPalette: TonalPalette) = darkColorScheme(
-    primary = tonalPalette.primary80,
-    onPrimary = tonalPalette.primary20,
-    primaryContainer = tonalPalette.primary30,
-    onPrimaryContainer = tonalPalette.primary90,
-    inversePrimary = tonalPalette.primary40,
-    secondary = tonalPalette.secondary80,
-    onSecondary = tonalPalette.secondary20,
-    secondaryContainer = tonalPalette.secondary30,
-    onSecondaryContainer = tonalPalette.secondary90,
-    tertiary = tonalPalette.tertiary80,
-    onTertiary = tonalPalette.tertiary20,
-    tertiaryContainer = tonalPalette.tertiary30,
-    onTertiaryContainer = tonalPalette.tertiary90,
-    background = tonalPalette.neutral6,
-    onBackground = tonalPalette.neutral90,
-    surface = tonalPalette.neutral6,
-    onSurface = tonalPalette.neutral90,
-    surfaceVariant = tonalPalette.neutralVariant30,
-    onSurfaceVariant = tonalPalette.neutralVariant80,
-    inverseSurface = tonalPalette.neutral90,
-    inverseOnSurface = tonalPalette.neutral20,
-    outline = tonalPalette.neutralVariant60,
-    outlineVariant = tonalPalette.neutral30,
-    scrim = tonalPalette.neutral0,
-    surfaceBright = tonalPalette.neutral24,
-    surfaceDim = tonalPalette.neutral6,
-    surfaceContainer = tonalPalette.neutral12,
-    surfaceContainerHigh = tonalPalette.neutral17,
-    surfaceContainerHighest = tonalPalette.neutral22,
-    surfaceContainerLow = tonalPalette.neutral10,
-    surfaceContainerLowest = tonalPalette.neutral4,
-    surfaceTint = tonalPalette.primary80,
+internal fun dynamicDarkColorScheme34(context: Context) = darkColorScheme(
+    primary = ColorResourceHelper.getColor(context, android.R.color.system_primary_dark),
+    onPrimary = ColorResourceHelper.getColor(context, android.R.color.system_on_primary_dark),
+    primaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_primary_container_dark),
+    onPrimaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_primary_container_dark),
+    inversePrimary = ColorResourceHelper.getColor(context, android.R.color.system_primary_light),
+    secondary = ColorResourceHelper.getColor(context, android.R.color.system_secondary_dark),
+    onSecondary = ColorResourceHelper.getColor(context, android.R.color.system_on_secondary_dark),
+    secondaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_secondary_container_dark),
+    onSecondaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_secondary_container_dark),
+    tertiary = ColorResourceHelper.getColor(context, android.R.color.system_tertiary_dark),
+    onTertiary = ColorResourceHelper.getColor(context, android.R.color.system_on_tertiary_dark),
+    tertiaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_tertiary_container_dark),
+    onTertiaryContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_tertiary_container_dark),
+    background = ColorResourceHelper.getColor(context, android.R.color.system_background_dark),
+    onBackground = ColorResourceHelper.getColor(context, android.R.color.system_on_background_dark),
+    surface = ColorResourceHelper.getColor(context, android.R.color.system_surface_dark),
+    onSurface = ColorResourceHelper.getColor(context, android.R.color.system_on_surface_dark),
+    surfaceVariant =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_variant_dark),
+    onSurfaceVariant =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_surface_variant_dark),
+    inverseSurface = ColorResourceHelper.getColor(context, android.R.color.system_surface_light),
+    inverseOnSurface =
+        ColorResourceHelper.getColor(context, android.R.color.system_on_surface_light),
+    outline = ColorResourceHelper.getColor(context, android.R.color.system_outline_dark),
+    outlineVariant =
+        ColorResourceHelper.getColor(context, android.R.color.system_outline_variant_dark),
+    // scrim
+    surfaceBright =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_bright_dark),
+    surfaceDim = ColorResourceHelper.getColor(context, android.R.color.system_surface_dim_dark),
+    surfaceContainer =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_container_dark),
+    surfaceContainerHigh =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_container_high_dark),
+    surfaceContainerHighest =
+        ColorResourceHelper.getColor(
+            context,
+            android.R.color.system_surface_container_highest_dark
+        ),
+    surfaceContainerLow =
+        ColorResourceHelper.getColor(context, android.R.color.system_surface_container_low_dark),
+    surfaceContainerLowest =
+        ColorResourceHelper.getColor(
+            context,
+            android.R.color.system_surface_container_lowest_dark
+        ),
+    surfaceTint = ColorResourceHelper.getColor(context, android.R.color.system_primary_dark),
 )

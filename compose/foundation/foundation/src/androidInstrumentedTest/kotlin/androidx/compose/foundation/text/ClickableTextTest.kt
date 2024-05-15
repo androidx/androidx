@@ -42,6 +42,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
+@Suppress("Deprecation")
 class ClickableTextTest {
     @get:Rule
     val rule = createComposeRule()

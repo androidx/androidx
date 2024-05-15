@@ -16,7 +16,12 @@
 
 package androidx.privacysandbox.ads.adservices.adselection
 
+import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
+import androidx.annotation.RestrictTo
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 
@@ -42,6 +47,7 @@ import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
  * @param trustedScoringSignalsUri URI endpoint of sell-side trusted signal from which creative
  *     specific realtime information can be fetched from.
  */
+@SuppressLint("ClassVerificationFailure")
 class AdSelectionConfig public constructor(
     val seller: AdTechIdentifier,
     val decisionLogicUri: Uri,
@@ -83,5 +89,61 @@ class AdSelectionConfig public constructor(
             "customAudienceBuyers=$customAudienceBuyers, adSelectionSignals=$adSelectionSignals, " +
             "sellerSignals=$sellerSignals, perBuyerSignals=$perBuyerSignals, " +
             "trustedScoringSignalsUri=$trustedScoringSignalsUri"
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
+    internal fun convertToAdServices(): android.adservices.adselection.AdSelectionConfig {
+        return android.adservices.adselection.AdSelectionConfig.Builder()
+            .setAdSelectionSignals(adSelectionSignals.convertToAdServices())
+            .setCustomAudienceBuyers(customAudienceBuyers.convertToAdServices())
+            .setDecisionLogicUri(decisionLogicUri)
+            .setSeller(seller.convertToAdServices())
+            .setPerBuyerSignals(perBuyerSignals.convertToAdServices())
+            .setSellerSignals(sellerSignals.convertToAdServices())
+            .setTrustedScoringSignalsUri(trustedScoringSignalsUri)
+            .build()
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
+    private fun List<AdTechIdentifier>.convertToAdServices():
+        MutableList<android.adservices.common.AdTechIdentifier> {
+            val ids = mutableListOf<android.adservices.common.AdTechIdentifier>()
+            for (buyer in this) {
+                ids.add(buyer.convertToAdServices())
+            }
+            return ids
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
+    private fun Map<AdTechIdentifier, AdSelectionSignals>.convertToAdServices():
+        MutableMap<android.adservices.common.AdTechIdentifier,
+                android.adservices.common.AdSelectionSignals?> {
+            val map = HashMap<android.adservices.common.AdTechIdentifier,
+                android.adservices.common.AdSelectionSignals?>()
+            for (key in this.keys) {
+                val id = key.convertToAdServices()
+                val value = this[key]?.convertToAdServices()
+                map[id] = value
+            }
+            return map
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    internal companion object {
+        val EMPTY = AdSelectionConfig(
+            AdTechIdentifier(""),
+            Uri.EMPTY,
+            emptyList(),
+            AdSelectionSignals(""),
+            AdSelectionSignals(""),
+            emptyMap(),
+            Uri.EMPTY
+        )
     }
 }

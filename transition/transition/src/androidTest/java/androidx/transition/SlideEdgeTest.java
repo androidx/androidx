@@ -46,8 +46,10 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.PollingCheck;
 
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
 public class SlideEdgeTest extends BaseTransitionTest {
@@ -158,7 +160,6 @@ public class SlideEdgeTest extends BaseTransitionTest {
                     spy(new TransitionListenerAdapter());
             slide.addListener(listener);
 
-
             final View redSquare = spy(new View(rule.getActivity()));
             InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
                 @Override
@@ -215,6 +216,52 @@ public class SlideEdgeTest extends BaseTransitionTest {
 
             verifyNoTranslation(redSquare);
             assertEquals(View.VISIBLE, redSquare.getVisibility());
+        }
+    }
+
+    @LargeTest
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public void slideInAnimateToStart() throws Throwable {
+        for (int i = 0, size = SLIDE_EDGES.size(); i < size; i++) {
+            final Pair<Integer, String> pair = SLIDE_EDGES.get(i);
+            int slideEdge = pair.first;
+            final Slide slide = new Slide(slideEdge);
+            final Transition.TransitionListener listener =
+                    spy(new TransitionListenerAdapter());
+            slide.addListener(listener);
+
+            final View redSquare = new View(rule.getActivity());
+
+            AtomicReference<TransitionSeekController> seekControllerRef =
+                    new AtomicReference<>(null);
+            // now slide in
+            rule.runOnUiThread(() -> {
+                seekControllerRef.set(TransitionManager.controlDelayedTransition(mRoot, slide));
+                mRoot.addView(redSquare, 100, 100);
+            });
+
+            rule.runOnUiThread(() -> {
+                seekControllerRef.get().setCurrentFraction(1f);
+            });
+
+            rule.runOnUiThread(() -> {
+                seekControllerRef.get().animateToStart(() -> {
+                    mRoot.removeView(redSquare);
+                });
+            });
+
+            verify(listener, atLeastOnceWithin(1000))
+                    .onTransitionEnd(any(), ArgumentMatchers.eq(true));
+
+            rule.runOnUiThread(() -> {
+                mRoot.addView(redSquare);
+            });
+
+            rule.runOnUiThread(() -> {
+                assertEquals(0f, redSquare.getTranslationX(), 0f);
+                assertEquals(0f, redSquare.getTranslationY(), 0f);
+            });
         }
     }
 

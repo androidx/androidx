@@ -46,9 +46,9 @@ interface SemanticsModifier : Modifier.Element {
     val semanticsConfiguration: SemanticsConfiguration
 }
 
-internal object EmptySemanticsElement :
+internal class EmptySemanticsElement(private val node: EmptySemanticsModifier) :
     ModifierNodeElement<EmptySemanticsModifier>() {
-    override fun create() = EmptySemanticsModifier()
+    override fun create() = node
 
     override fun update(node: EmptySemanticsModifier) {}
 

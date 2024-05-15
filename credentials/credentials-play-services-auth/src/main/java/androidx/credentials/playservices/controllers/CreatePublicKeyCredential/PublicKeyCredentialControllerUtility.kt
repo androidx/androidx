@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
 package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 
+import android.content.Context
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Base64
 import android.util.Log
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.exceptions.CreateCredentialCancellationException
@@ -41,6 +48,8 @@ import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCreden
 import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.fido.common.Transport
 import com.google.android.gms.fido.fido2.api.common.Attachment
 import com.google.android.gms.fido.fido2.api.common.AttestationConveyancePreference
@@ -106,6 +115,8 @@ internal class PublicKeyCredentialControllerUtility {
     internal val JSON_KEY_RK = "rk"
     internal val JSON_KEY_CRED_PROPS = "credProps"
 
+    private const val AUTH_MIN_VERSION_JSON_CREATE: Long = 241217000
+
     /**
      * This function converts a request json to a PublicKeyCredentialCreationOptions, where there
      * should be a direct mapping from the input string to this data type. See
@@ -117,8 +128,33 @@ internal class PublicKeyCredentialControllerUtility {
      * @throws JSONException If required data is not present in the requestJson
      */
     @JvmStatic
-    fun convert(request: CreatePublicKeyCredentialRequest): PublicKeyCredentialCreationOptions {
+    fun convert(
+      request: CreatePublicKeyCredentialRequest,
+      context: Context
+    ): PublicKeyCredentialCreationOptions {
+      if (isDeviceGMSVersionOlderThan(context, AUTH_MIN_VERSION_JSON_CREATE)) {
+        return PublicKeyCredentialCreationOptions(request.requestJson)
+      }
+
       return convertJSON(JSONObject(request.requestJson))
+    }
+
+    private fun isDeviceGMSVersionOlderThan(context: Context, version: Long): Boolean {
+      // Only do the version check if GMS is available, otherwise return false falling back to
+      // previous flow.
+      if (GoogleApiAvailability.getInstance()
+          .isGooglePlayServicesAvailable(context) != ConnectionResult.SUCCESS
+      ) return false;
+
+      val packageManager: PackageManager = context.packageManager
+      val packageName = GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE
+
+      val currentVersion = if (Build.VERSION.SDK_INT >= 28)
+        GetGMSVersion.getVersionLong(packageManager.getPackageInfo(packageName, 0))
+      else
+        @Suppress("deprecation") packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
+
+      return (currentVersion > version)
     }
 
     internal fun convertJSON(json: JSONObject): PublicKeyCredentialCreationOptions {
@@ -160,19 +196,23 @@ internal class PublicKeyCredentialControllerUtility {
             authenticatorResponse.errorMessage
           )
         }
+
         is AuthenticatorAssertionResponse -> {
           try {
             return publicKeyCred.toJson()
           } catch (t: Throwable) {
-            throw GetCredentialUnknownException("The PublicKeyCredential response json had " +
-                "an unexpected exception when parsing: ${t.message}")
+            throw GetCredentialUnknownException(
+              "The PublicKeyCredential response json had " +
+                "an unexpected exception when parsing: ${t.message}"
+            )
           }
         }
+
         else -> {
           Log.e(
             TAG,
             "AuthenticatorResponse expected assertion response but " +
-                "got: ${authenticatorResponse.javaClass.name}"
+              "got: ${authenticatorResponse.javaClass.name}"
           )
         }
       }
@@ -279,7 +319,10 @@ internal class PublicKeyCredentialControllerUtility {
       val exception: GetCredentialException
       if (exceptionError == null) {
         exception =
-          GetPublicKeyCredentialDomException(UnknownError(), "unknown fido gms exception - $msg")
+          GetPublicKeyCredentialDomException(
+            UnknownError(),
+            "unknown fido gms exception - $msg"
+          )
       } else {
         // This fix is quite fragile because it relies on that the fido module
         // does not change its error message, but is the only viable solution
@@ -307,7 +350,8 @@ internal class PublicKeyCredentialControllerUtility {
         if (appIdExtension.isNotEmpty()) {
           extensionBuilder.setFido2Extension(FidoAppIdExtension(appIdExtension))
         }
-        val thirdPartyPaymentExtension = extensions.optBoolean(JSON_KEY_THIRD_PARTY_PAYMENT, false)
+        val thirdPartyPaymentExtension =
+          extensions.optBoolean(JSON_KEY_THIRD_PARTY_PAYMENT, false)
         if (thirdPartyPaymentExtension) {
           extensionBuilder.setGoogleThirdPartyPaymentExtension(
             GoogleThirdPartyPaymentExtension(true)
@@ -315,7 +359,9 @@ internal class PublicKeyCredentialControllerUtility {
         }
         val uvmStatus = extensions.optBoolean("uvm", false)
         if (uvmStatus) {
-          extensionBuilder.setUserVerificationMethodExtension(UserVerificationMethodExtension(true))
+          extensionBuilder.setUserVerificationMethodExtension(
+            UserVerificationMethodExtension(true)
+          )
         }
         builder.setAuthenticationExtensions(extensionBuilder.build())
       }
@@ -328,7 +374,8 @@ internal class PublicKeyCredentialControllerUtility {
       if (json.has(JSON_KEY_AUTH_SELECTION)) {
         val authenticatorSelection = json.getJSONObject(JSON_KEY_AUTH_SELECTION)
         val authSelectionBuilder = AuthenticatorSelectionCriteria.Builder()
-        val requireResidentKey = authenticatorSelection.optBoolean(JSON_KEY_REQUIRE_RES_KEY, false)
+        val requireResidentKey =
+          authenticatorSelection.optBoolean(JSON_KEY_REQUIRE_RES_KEY, false)
         val residentKey = authenticatorSelection.optString(JSON_KEY_RES_KEY, "")
         var residentKeyRequirement: ResidentKeyRequirement? = null
         if (residentKey.isNotEmpty()) {
@@ -340,7 +387,11 @@ internal class PublicKeyCredentialControllerUtility {
         val authenticatorAttachmentString =
           authenticatorSelection.optString(JSON_KEY_AUTH_ATTACHMENT, "")
         if (authenticatorAttachmentString.isNotEmpty()) {
-          authSelectionBuilder.setAttachment(Attachment.fromString(authenticatorAttachmentString))
+          authSelectionBuilder.setAttachment(
+            Attachment.fromString(
+              authenticatorAttachmentString
+            )
+          )
         }
         builder.setAuthenticatorSelection(authSelectionBuilder.build())
       }
@@ -385,7 +436,10 @@ internal class PublicKeyCredentialControllerUtility {
               try {
                 transports.add(Transport.fromString(descriptorTransports.getString(j)))
               } catch (e: Transport.UnsupportedTransportException) {
-                throw CreatePublicKeyCredentialDomException(EncodingError(), e.message)
+                throw CreatePublicKeyCredentialDomException(
+                  EncodingError(),
+                  e.message
+                )
               }
             }
           }
@@ -510,7 +564,8 @@ internal class PublicKeyCredentialControllerUtility {
       try {
         COSEAlgorithmIdentifier.fromCoseValue(alg)
         return true
-      } catch (_: Throwable) {}
+      } catch (_: Throwable) {
+      }
       return false
     }
 
@@ -531,5 +586,12 @@ internal class PublicKeyCredentialControllerUtility {
         ErrorCode.SECURITY_ERR to SecurityError(),
         ErrorCode.TIMEOUT_ERR to TimeoutError()
       )
+  }
+
+  @RequiresApi(28)
+  private object GetGMSVersion {
+    @JvmStatic
+    @DoNotInline
+    fun getVersionLong(info: PackageInfo): Long = info.getLongVersionCode()
   }
 }

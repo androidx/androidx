@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.graphics.vector
 
+import android.app.Activity
 import android.app.Application
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
@@ -23,6 +24,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.os.Build
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -36,6 +38,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -173,6 +176,50 @@ class VectorTest {
         takeScreenShot(450).apply {
             assertEquals(getPixel(430, 430), Color.Cyan.toArgb())
         }
+    }
+
+    @Test
+    fun testVectorSkipsRecompositionOnNoChange() {
+        val state = mutableIntStateOf(0)
+        var composeCount = 0
+        var vectorComposeCount = 0
+
+        val composeVector: @Composable @VectorComposable (Float, Float) -> Unit = {
+                viewportWidth, viewportHeight ->
+
+            vectorComposeCount++
+            Path(
+                fill = SolidColor(Color.Blue),
+                pathData = PathData {
+                    lineTo(viewportWidth, 0f)
+                    lineTo(viewportWidth, viewportHeight)
+                    lineTo(0f, viewportHeight)
+                    close()
+                }
+            )
+        }
+
+        rule.setContent {
+            composeCount++
+            // Arbitrary read to force composition here and verify the subcomposition below skips
+            state.value
+            val vectorPainter = rememberVectorPainter(
+                defaultWidth = 10.dp,
+                defaultHeight = 10.dp,
+                autoMirror = false,
+                content = composeVector
+            )
+            Image(
+                vectorPainter,
+                null,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        state.value = 1
+        rule.waitForIdle()
+        assertEquals(2, composeCount) // Arbitrary state read should compose twice
+        assertEquals(1, vectorComposeCount) // Vector is identical so should compose once
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1109,17 +1156,13 @@ class VectorTest {
         assertTrue("Cache was not cleared after trim memory call", cacheCleared)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun testImageVectorConfigChange() {
-        val tag = "testTag"
-        rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-
-        val latch = CountDownLatch(1)
-
-        rule.activity.application.registerComponentCallbacks(object : ComponentCallbacks2 {
+    private fun Activity.rotate(rotation: Int): Boolean {
+        var rotationCount = 0
+        var rotateSuccess = false
+        var latch: CountDownLatch? = null
+        val callbacks = object : ComponentCallbacks2 {
             override fun onConfigurationChanged(p0: Configuration) {
-                latch.countDown()
+                latch?.countDown()
             }
 
             override fun onLowMemory() {
@@ -1129,10 +1172,31 @@ class VectorTest {
             override fun onTrimMemory(p0: Int) {
                 // NO-OP
             }
-        })
-
+        }
+        application.registerComponentCallbacks(callbacks)
         try {
-            latch.await(1500, TimeUnit.MILLISECONDS)
+            while (rotationCount < 3 && !rotateSuccess) {
+                latch = CountDownLatch(1)
+                this.requestedOrientation = rotation
+                rotateSuccess = latch.await(3000, TimeUnit.MILLISECONDS) &&
+                    this.requestedOrientation == rotation
+                rotationCount++
+            }
+        } finally {
+            application.unregisterComponentCallbacks(callbacks)
+        }
+        return rotateSuccess
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testImageVectorConfigChange() {
+        if (!rule.activity.rotate(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)) {
+            Log.w(TAG, "device rotation unsuccessful")
+            return
+        }
+        val tag = "testTag"
+        try {
             rule.setContent {
                 Image(
                     painterResource(R.drawable.ic_triangle_config),
@@ -1146,7 +1210,7 @@ class VectorTest {
         } catch (e: InterruptedException) {
             fail("Unable to verify vector asset in landscape orientation")
         } finally {
-            rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            rule.activity.rotate(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         }
     }
 
@@ -1413,4 +1477,6 @@ class VectorTest {
         Assert.assertEquals(height, bitmap.height)
         return bitmap
     }
+
+    private val TAG = "VectorTest"
 }

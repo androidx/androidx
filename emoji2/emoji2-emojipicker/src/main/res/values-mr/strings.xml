@@ -29,4 +29,14 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"ध्वज"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"कोणतेही इमोजी उपलब्ध नाहीत"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"तुम्ही अद्याप कोणतेही इमोजी वापरलेले नाहीत"</string>
+    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"इमोजीचा द्विदिश स्विचर"</string>
+    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"दिशा दाखवणारा इमोजी स्विच केला"</string>
+    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"इमोजी व्हेरीयंट सिलेक्टर"</string>
+    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s आणि %2$s"</string>
+    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"शॅडो"</string>
+    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"उजळ रंगाची त्वचा"</string>
+    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"मध्यम उजळ रंगाची त्वचा"</string>
+    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"मध्यम रंगाची त्वचा"</string>
+    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"मध्यम गडद रंगाची त्वचा"</string>
+    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"गडद रंगाची त्वचा"</string>
 </resources>

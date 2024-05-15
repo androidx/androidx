@@ -16,6 +16,10 @@
 
 package androidx.compose.material3
 
+import androidx.compose.material3.internal.MillisecondsIn24Hours
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.createCalendarModel
+import androidx.compose.material3.internal.getString
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasClickAction

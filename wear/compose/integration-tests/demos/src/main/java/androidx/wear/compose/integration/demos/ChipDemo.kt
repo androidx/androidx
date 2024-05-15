@@ -69,7 +69,7 @@ fun StandardChips() {
     var enabled by remember { mutableStateOf(true) }
     var chipStyle by remember { mutableStateOf(ChipStyle.Primary) }
 
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {

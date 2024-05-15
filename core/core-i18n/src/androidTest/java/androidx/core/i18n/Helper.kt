@@ -20,7 +20,7 @@ object Helper {
      * This method changes all instances of U+202F to U+0020.
      *
      * Android U takes ICU 71.1, which uses NNBSP (NARROW NO-BREAK SPACE, U+202F)
-     * betwee time and day cycle (for example 9:42\u202FPM)
+     * between time and day cycle (for example 9:42\u202FPM)
      *
      * The Android `java.text.DateFormat` was patched to not use nnbsp (U+202F)
      * in Android U, but ICU still returns times with U+202F.

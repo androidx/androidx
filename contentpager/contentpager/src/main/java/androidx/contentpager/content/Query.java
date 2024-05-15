@@ -120,34 +120,22 @@ public final class Query {
                     mCancellationSignal);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (DEBUG) Log.d(TAG, "Falling back to pre-O query method.");
-            return resolver.query(
-                    mUri,
-                    mProjection,
-                    null,
-                    null,
-                    null,
-                    mCancellationSignal);
-        }
-
-        if (DEBUG) Log.d(TAG, "Falling back to pre-jellybean query method.");
+        if (DEBUG) Log.d(TAG, "Falling back to pre-O query method.");
         return resolver.query(
                 mUri,
                 mProjection,
                 null,
                 null,
-                null);
+                null,
+                mCancellationSignal);
     }
 
     void cancel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (mCancellationSignal != null && !mCancellationSignal.isCanceled()) {
-                if (DEBUG) {
-                    Log.d(TAG, "Attemping to cancel query provider processings: " + this);
-                }
-                mCancellationSignal.cancel();
+        if (mCancellationSignal != null && !mCancellationSignal.isCanceled()) {
+            if (DEBUG) {
+                Log.d(TAG, "Attemping to cancel query provider processings: " + this);
             }
+            mCancellationSignal.cancel();
         }
     }
 

@@ -24,6 +24,10 @@ class ControlFlowTransformTestsNoSource(
 ) : AbstractControlFlowTransformTests(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, false)
+        put(
+            ComposeConfiguration.FEATURE_FLAGS,
+            listOf(FeatureFlag.OptimizeNonSkippingGroups.featureName)
+        )
         put(ComposeConfiguration.TRACE_MARKERS_ENABLED_KEY, false)
     }
 

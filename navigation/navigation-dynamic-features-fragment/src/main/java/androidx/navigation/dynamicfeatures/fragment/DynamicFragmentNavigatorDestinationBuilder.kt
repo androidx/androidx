@@ -20,10 +20,13 @@ import androidx.annotation.IdRes
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
+import androidx.navigation.NavType
 import androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.fragment
 import androidx.navigation.get
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * Construct a new [DynamicFragmentNavigator.Destination]
@@ -85,6 +88,7 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
 /**
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param route Destination route.
+ * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
     route: String,
@@ -95,6 +99,7 @@ public inline fun <reified F : Fragment> DynamicNavGraphBuilder.fragment(
  * Construct a new [DynamicFragmentNavigator.Destination]
  * @param route Destination route.
  * @param fragmentClassName Fully qualified class name of destination Fragment.
+ * @param builder the builder used to construct the fragment destination
  */
 public inline fun DynamicNavGraphBuilder.fragment(
     route: String,
@@ -104,6 +109,52 @@ public inline fun DynamicNavGraphBuilder.fragment(
     DynamicFragmentNavigatorDestinationBuilder(
         provider[DynamicFragmentNavigator::class],
         route,
+        fragmentClassName
+    ).apply(builder)
+)
+
+/**
+ * Construct a new [DynamicFragmentNavigator.Destination]
+ *
+ * @param T the destination's unique route from a [KClass]
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
+ */
+public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder.fragment(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    ): Unit = fragment<F, T>(typeMap) {}
+
+/**
+ * Construct a new [DynamicFragmentNavigator.Destination]
+ *
+ * @param T the destination's unique route from a [KClass]
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
+ * @param builder the builder used to construct the fragment destination
+ */
+public inline fun <reified F : Fragment, reified T : Any> DynamicNavGraphBuilder.fragment(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+): Unit = fragment<T>(F::class.java.name, typeMap, builder)
+
+/**
+ * Construct a new [DynamicFragmentNavigator.Destination]
+ *
+ * @param T the destination's unique route from a [KClass]
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
+ * @param fragmentClassName Fully qualified class name of destination Fragment.
+ * @param builder the builder used to construct the fragment destination
+ */
+public inline fun <reified T : Any> DynamicNavGraphBuilder.fragment(
+    fragmentClassName: String,
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: DynamicFragmentNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    DynamicFragmentNavigatorDestinationBuilder(
+        provider[DynamicFragmentNavigator::class],
+        T::class,
+        typeMap,
         fragmentClassName
     ).apply(builder)
 )
@@ -138,6 +189,24 @@ public class DynamicFragmentNavigatorDestinationBuilder :
         route: String,
         fragmentClassName: String
     ) : super(navigator, route) {
+        this.fragmentClassName = fragmentClassName
+    }
+
+    /**
+     * DSL for constructing a new [DynamicFragmentNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the route from a [KClass] of the destination
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     * @param fragmentClassName Fully qualified class name of destination Fragment.
+     */
+    public constructor(
+        navigator: DynamicFragmentNavigator,
+        route: KClass<*>,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+        fragmentClassName: String
+    ) : super(navigator, route, typeMap) {
         this.fragmentClassName = fragmentClassName
     }
 

@@ -47,7 +47,7 @@ public class MetricResult(
     init {
         val values = data.sorted()
         val size = values.size
-        require(size >= 1) { "At least one result is necessary." }
+        require(size >= 1) { "At least one result is necessary, $size found for $name." }
 
         val mean: Double = data.average()
         min = values.first()

@@ -17,16 +17,16 @@
 package androidx.car.app.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_MULTI_HEADER;
 
 import static java.util.Objects.requireNonNull;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.navigation.model.MapWithContentTemplate;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -130,12 +130,17 @@ public final class Header {
         /**
          * Adds an {@link Action} that will be displayed at the end of a header.
          *
-         * <p>By default, a template will not have end header actions.
-         *
-         * <h4>Requirements</h4>
-         *
-         * Up to 2 actions (which are {@link Action#APP_ICON}, {@link Action#BACK}
-         * or {@link Action#TYPE_CUSTOM} with an icon) at the end of the header.
+         * <p>Note: End header action will show up differently inside and outside of map-based
+         * templates.</p>
+         * <ul>
+         *  <li>In a Non-map screen (eg. {@link MessageTemplate}), actions appear as is, just as the
+         *      app provides. A background color is allowed on the primary action.
+         *  <li>In a Map-based screen (eg. Setting Header in the ContentTemplate in a
+         *      {@link MapWithContentTemplate}) only actions with custom icons or standard actions
+         *      will appear in the Header. The label will be stripped off each action if an app
+         *      still provides that. Any tint on the icon will be disabled and default to neutral
+         *      token. The background color on the primary action would also be removed.
+         * </ul>
          */
         @NonNull
         public Builder addEndHeaderAction(@NonNull Action headerAction) {
@@ -210,8 +215,6 @@ public final class Header {
          */
         @NonNull
         public Header build() {
-            ACTIONS_CONSTRAINTS_MULTI_HEADER.validateOrThrow(mEndHeaderActions);
-
             if (CarText.isNullOrEmpty(mTitle) && mStartHeaderAction == null) {
                 throw new IllegalStateException("Either the title or start header action must be "
                         + "set");

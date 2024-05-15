@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation
 
 import androidx.compose.animation.core.Animatable
@@ -29,6 +27,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.FixedMotionDurationScale.scaleFactor
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
+import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeIterations
+import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeRepeatDelayMillis
+import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeSpacing
+import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeVelocity
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -70,29 +72,36 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-// From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=736;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
-val DefaultMarqueeIterations: Int = 3
+/**
+ * Namespace for constants representing the default values for various [basicMarquee] parameters.
+ */
+object MarqueeDefaults {
+    /**
+     * Default value for the `iterations` parameter to [basicMarquee].
+     */
+    // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=736;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
+    @Suppress("MayBeConstant")
+    val DefaultMarqueeIterations: Int = 3
 
-// From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13979;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
-val DefaultMarqueeDelayMillis: Int = 1_200
+    /**
+     * Default value for the `repeatDelayMillis` parameter to [basicMarquee].
+     */
+    // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13979;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
+    @Suppress("MayBeConstant")
+    val DefaultMarqueeRepeatDelayMillis: Int = 1_200
 
-// From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=14088;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
-val DefaultMarqueeSpacing: MarqueeSpacing = MarqueeSpacing.fractionOfContainer(1f / 3f)
+    /**
+     * Default value for the `spacing` parameter to [basicMarquee].
+     */
+    // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=14088;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
+    val DefaultMarqueeSpacing: MarqueeSpacing = MarqueeSpacing.fractionOfContainer(1f / 3f)
 
-// From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13980;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalFoundationApi
-@get:ExperimentalFoundationApi
-val DefaultMarqueeVelocity: Dp = 30.dp
+    /**
+     * Default value for the `velocity` parameter to [basicMarquee].
+     */
+    // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13980;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
+    val DefaultMarqueeVelocity: Dp = 30.dp
+}
 
 /**
  * Applies an animated marquee effect to the modified content if it's too wide to fit in the
@@ -108,15 +117,13 @@ val DefaultMarqueeVelocity: Dp = 30.dp
  * the marquee, and may not match its drawn position on screen. This modifier also does not
  * currently support content that accepts position-based input such as pointer events.
  *
- * @sample androidx.compose.foundation.samples.BasicMarqueeSample
- *
  * To only animate when the composable is focused, specify [animationMode] and make the composable
- * focusable.
- * @sample androidx.compose.foundation.samples.BasicFocusableMarqueeSample
+ * focusable. This modifier does not add any visual effects aside from scrolling, but you can add
+ * your own by placing modifiers before this one.
  *
- * This modifier does not add any visual effects aside from scrolling, but you can add your own by
- * placing modifiers before this one.
+ * @sample androidx.compose.foundation.samples.BasicMarqueeSample
  * @sample androidx.compose.foundation.samples.BasicMarqueeWithFadedEdgesSample
+ * @sample androidx.compose.foundation.samples.BasicFocusableMarqueeSample
  *
  * @param iterations The number of times to repeat the animation. `Int.MAX_VALUE` will repeat
  * forever, and 0 will disable animation.
@@ -125,31 +132,27 @@ val DefaultMarqueeVelocity: Dp = 30.dp
  * [focusable]. Note that the [initialDelayMillis] is part of the animation, so this parameter
  * determines when that initial delay starts counting down, not when the content starts to actually
  * scroll.
- * @param delayMillis The duration to wait before starting each subsequent iteration, in millis.
+ * @param repeatDelayMillis The duration to wait before starting each subsequent iteration, in millis.
  * @param initialDelayMillis The duration to wait before starting the first iteration of the
  * animation, in millis. By default, there will be no initial delay if [animationMode] is
- * [WhileFocused], otherwise the initial delay will be [delayMillis].
+ * [WhileFocused], otherwise the initial delay will be [repeatDelayMillis].
  * @param spacing A [MarqueeSpacing] that specifies how much space to leave at the end of the
  * content before showing the beginning again.
  * @param velocity The speed of the animation in dps / second.
- *
- * Note: this modifier and corresponding APIs are experimental pending some refinements in the API
- * surface, mostly related to customisation params.
  */
 @Stable
-@ExperimentalFoundationApi
 fun Modifier.basicMarquee(
     iterations: Int = DefaultMarqueeIterations,
     animationMode: MarqueeAnimationMode = Immediately,
     // TODO(aosp/2339066) Consider taking an AnimationSpec instead of specific configuration params.
-    delayMillis: Int = DefaultMarqueeDelayMillis,
-    initialDelayMillis: Int = if (animationMode == Immediately) delayMillis else 0,
+    repeatDelayMillis: Int = DefaultMarqueeRepeatDelayMillis,
+    initialDelayMillis: Int = if (animationMode == Immediately) repeatDelayMillis else 0,
     spacing: MarqueeSpacing = DefaultMarqueeSpacing,
     velocity: Dp = DefaultMarqueeVelocity
 ): Modifier = this then MarqueeModifierElement(
     iterations = iterations,
     animationMode = animationMode,
-    delayMillis = delayMillis,
+    delayMillis = repeatDelayMillis,
     initialDelayMillis = initialDelayMillis,
     spacing = spacing,
     velocity = velocity,
@@ -433,7 +436,6 @@ private fun velocityBasedTween(
 }
 
 /** Specifies when the [basicMarquee] animation runs. */
-@ExperimentalFoundationApi
 @JvmInline
 value class MarqueeAnimationMode private constructor(private val value: Int) {
 
@@ -448,17 +450,11 @@ value class MarqueeAnimationMode private constructor(private val value: Int) {
          * Starts animating immediately (accounting for any initial delay), irrespective of focus
          * state.
          */
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @ExperimentalFoundationApi
-        @get:ExperimentalFoundationApi
         val Immediately = MarqueeAnimationMode(0)
 
         /**
          * Only animates while the marquee has focus or a node in the marquee's content has focus.
          */
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @ExperimentalFoundationApi
-        @get:ExperimentalFoundationApi
         val WhileFocused = MarqueeAnimationMode(1)
     }
 }
@@ -466,14 +462,12 @@ value class MarqueeAnimationMode private constructor(private val value: Int) {
 /**
  * A [MarqueeSpacing] with a fixed size.
  */
-@ExperimentalFoundationApi
 fun MarqueeSpacing(spacing: Dp): MarqueeSpacing = MarqueeSpacing { _, _ -> spacing.roundToPx() }
 
 /**
  * Defines a [calculateSpacing] method that determines the space after the end of [basicMarquee]
  * content before drawing the content again.
  */
-@ExperimentalFoundationApi
 @Stable
 fun interface MarqueeSpacing {
     /**
@@ -490,7 +484,6 @@ fun interface MarqueeSpacing {
      * @return The space in pixels between the end of the content and the beginning of the content
      * when wrapping.
      */
-    @ExperimentalFoundationApi
     fun Density.calculateSpacing(
         contentWidth: Int,
         containerWidth: Int
@@ -500,7 +493,6 @@ fun interface MarqueeSpacing {
         /**
          * A [MarqueeSpacing] that is a fraction of the container's width.
          */
-        @ExperimentalFoundationApi
         fun fractionOfContainer(fraction: Float): MarqueeSpacing = MarqueeSpacing { _, width ->
             (fraction * width).roundToInt()
         }

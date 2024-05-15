@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -104,16 +111,16 @@ androidXMultiplatform {
 }
 
 dependencies {
-    samples(projectOrArtifact(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
     lintPublish(project(":compose:runtime:runtime-saveable-lint"))
 }
 
 androidx {
     name = "Compose Saveable"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose components that allow saving and restoring the local ui state"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
 }
 
 android {

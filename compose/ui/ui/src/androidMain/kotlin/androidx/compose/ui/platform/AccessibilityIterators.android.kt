@@ -21,9 +21,9 @@ import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.util.fastRoundToInt
 import java.text.BreakIterator
 import java.util.Locale
-import kotlin.math.roundToInt
 
 /**
  * This class contains the implementation of text segment iterators
@@ -457,7 +457,7 @@ internal class AccessibilityIterators {
             }
             val pageHeight: Int
             try {
-                pageHeight = node.boundsInRoot.height.roundToInt()
+                pageHeight = node.boundsInRoot.height.fastRoundToInt()
                 // TODO(b/153198816): check whether we still get this exception when R is in.
             } catch (e: IllegalStateException) {
                 return null
@@ -491,7 +491,7 @@ internal class AccessibilityIterators {
             }
             val pageHeight: Int
             try {
-                pageHeight = node.boundsInRoot.height.roundToInt()
+                pageHeight = node.boundsInRoot.height.fastRoundToInt()
                 // TODO(b/153198816): check whether we still get this exception when R is in.
             } catch (e: IllegalStateException) {
                 return null

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -33,11 +40,11 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                api("androidx.annotation:annotation:1.1.0")
                 api(project(":compose:ui:ui-geometry"))
-
+                implementation("androidx.collection:collection:1.4.0")
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
-                api("androidx.annotation:annotation:1.1.0")
             }
         }
 
@@ -59,6 +66,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation-experimental:1.4.0")
                 implementation('androidx.collection:collection-ktx:1.2.0')
             }
         }
@@ -66,7 +74,6 @@ androidXMultiplatform {
         desktopMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(project(":compose:runtime:runtime"))
             }
         }
 
@@ -101,16 +108,13 @@ androidXMultiplatform {
     }
 }
 
-dependencies {
-    samples(projectOrArtifact(":compose:ui:ui-unit:ui-unit-samples"))
-}
-
 androidx {
     name = "Compose Unit"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose classes for simple units"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-unit:ui-unit-samples"))
 }
 
 android {

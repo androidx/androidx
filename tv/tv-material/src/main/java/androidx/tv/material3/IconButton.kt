@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -42,7 +41,7 @@ import androidx.compose.ui.semantics.semantics
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
- * @sample androidx.tv.samples.IconButtonSample
+ * @sample androidx.tv.material3.samples.IconButtonSample
  *
  * @param onClick called when this button is clicked.
  * @param modifier the [Modifier] to be applied to this button.
@@ -55,12 +54,12 @@ import androidx.compose.ui.semantics.semantics
  * @param shape Defines the Button's shape.
  * @param colors Color to be used for background and content of the Button
  * @param border Defines a border around the Button.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content the content of the button, typically an [Icon]
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun IconButton(
@@ -73,7 +72,7 @@ fun IconButton(
     shape: ButtonShape = IconButtonDefaults.shape(),
     colors: ButtonColors = IconButtonDefaults.colors(),
     border: ButtonBorder = IconButtonDefaults.border(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     Surface(
@@ -111,7 +110,7 @@ fun IconButton(
  *
  * The default text style for internal [Text] components will be set to [Typography.labelLarge].
  *
- * @sample androidx.tv.samples.OutlinedIconButtonSample
+ * @sample androidx.tv.material3.samples.OutlinedIconButtonSample
  *
  * @param onClick called when this button is clicked.
  * @param modifier the [Modifier] to be applied to this button.
@@ -124,12 +123,12 @@ fun IconButton(
  * @param shape Defines the Button's shape.
  * @param colors Color to be used for background and content of the Button
  * @param border Defines a border around the Button.
- * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
- * for this button. You can create and pass in your own `remember`ed instance to observe
- * [Interaction]s and customize the appearance / behavior of this button in different states.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this button. You can use this to change the button's appearance
+ * or preview the button in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param content the content of the button, typically an [Icon]
  */
-@ExperimentalTvMaterial3Api
 @NonRestartableComposable
 @Composable
 fun OutlinedIconButton(
@@ -142,7 +141,7 @@ fun OutlinedIconButton(
     shape: ButtonShape = OutlinedIconButtonDefaults.shape(),
     colors: ButtonColors = OutlinedIconButtonDefaults.colors(),
     border: ButtonBorder = OutlinedIconButtonDefaults.border(),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
     Surface(

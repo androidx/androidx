@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import androidx.compose.material3.catalog.library.model.MinFontScale
 import androidx.compose.material3.catalog.library.model.TextDirection
 import androidx.compose.material3.catalog.library.model.Theme
 import androidx.compose.material3.catalog.library.model.ThemeMode
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -51,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -80,26 +83,25 @@ fun ThemePicker(
             val themeModes = ThemeMode.values()
             Column(
                 modifier = Modifier.padding(ThemePickerPadding),
-                verticalArrangement = Arrangement.spacedBy(ThemePickerPadding)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)) {
-                    ThemeModeItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        themeMode = themeModes[0],
+                        option = themeModes[0],
                         selected = themeModes[0] == theme.themeMode,
                         onClick = { onThemeChange(theme.copy(themeMode = it)) }
                     )
-                    ThemeModeItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        themeMode = themeModes[1],
+                        option = themeModes[1],
                         selected = themeModes[1] == theme.themeMode,
                         onClick = { onThemeChange(theme.copy(themeMode = it)) }
                     )
                 }
                 Row {
-                    ThemeModeItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        themeMode = themeModes[2],
+                        option = themeModes[2],
                         selected = themeModes[2] == theme.themeMode,
                         onClick = { onThemeChange(theme.copy(themeMode = it)) }
                     )
@@ -117,27 +119,27 @@ fun ThemePicker(
             val colorModes = ColorMode.values()
             Column(
                 modifier = Modifier.padding(ThemePickerPadding),
-                verticalArrangement = Arrangement.spacedBy(ThemePickerPadding)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)) {
-                    ColorModeItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        colorMode = colorModes[0],
+                        option = colorModes[0],
                         selected = colorModes[0] == theme.colorMode,
                         onClick = { onThemeChange(theme.copy(colorMode = it)) }
                     )
-                    ColorModeItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        colorMode = colorModes[1],
+                        option = colorModes[1],
                         selected = colorModes[1] == theme.colorMode,
                         onClick = { onThemeChange(theme.copy(colorMode = it)) }
                     )
                 }
                 Row {
-                    ColorModeItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        colorMode = colorModes[2],
+                        option = colorModes[2],
                         selected = colorModes[2] == theme.colorMode,
+                        enabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
                         onClick = { onThemeChange(theme.copy(colorMode = it)) }
                     )
                 }
@@ -154,26 +156,25 @@ fun ThemePicker(
             val textDirections = TextDirection.values()
             Column(
                 modifier = Modifier.padding(ThemePickerPadding),
-                verticalArrangement = Arrangement.spacedBy(ThemePickerPadding)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)) {
-                    TextDirectionItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        textDirection = textDirections[0],
+                        option = textDirections[0],
                         selected = textDirections[0] == theme.textDirection,
                         onClick = { onThemeChange(theme.copy(textDirection = it)) }
                     )
-                    TextDirectionItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        textDirection = textDirections[1],
+                        option = textDirections[1],
                         selected = textDirections[1] == theme.textDirection,
                         onClick = { onThemeChange(theme.copy(textDirection = it)) }
                     )
                 }
                 Row {
-                    TextDirectionItem(
+                    RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        textDirection = textDirections[2],
+                        option = textDirections[2],
                         selected = textDirections[2] == theme.textDirection,
                         onClick = { onThemeChange(theme.copy(textDirection = it)) }
                     )
@@ -187,44 +188,27 @@ fun ThemePicker(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(horizontal = ThemePickerPadding)
             )
-            Column {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
-                ) {
-                    RadioButton(
-                        selected = theme.fontScaleMode == FontScaleMode.System,
-                        onClick = {
-                            onThemeChange(theme.copy(fontScaleMode = FontScaleMode.System))
-                        },
-                    )
-                    Text(
-                        text = FontScaleMode.System.label,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+            Column(
+                modifier = Modifier.padding(ThemePickerPadding),
+            ) {
+                RadioButtonOption(
+                    option = FontScaleMode.System,
+                    selected = theme.fontScaleMode == FontScaleMode.System,
+                    onClick = {
+                        onThemeChange(theme.copy(fontScaleMode = FontScaleMode.System))
+                    }
+                )
+                RadioButtonOption(
+                    option = FontScaleMode.Custom,
+                    selected = theme.fontScaleMode == FontScaleMode.Custom,
+                    onClick = {
+                        onThemeChange(theme.copy(fontScaleMode = FontScaleMode.Custom))
+                    }
+                )
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
-                ) {
-                    RadioButton(
-                        selected = theme.fontScaleMode == FontScaleMode.Custom,
-                        onClick = {
-                            onThemeChange(theme.copy(fontScaleMode = FontScaleMode.Custom))
-                        },
-                    )
-                    Text(
-                        text = FontScaleMode.Custom.label,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-
-                var fontScale by remember { mutableFloatStateOf(theme.fontScale) }
-                FontScaleItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = ThemePickerPadding),
+                var fontScale by remember(theme.fontScale) { mutableFloatStateOf(theme.fontScale) }
+                CustomFontScaleSlider(
+                    modifier = Modifier.fillMaxWidth(),
                     enabled = theme.fontScaleMode == FontScaleMode.Custom,
                     fontScale = fontScale,
                     onValueChange = { fontScale = it },
@@ -248,81 +232,39 @@ fun ThemePicker(
 }
 
 @Composable
-private fun ThemeModeItem(
-    modifier: Modifier = Modifier,
-    themeMode: ThemeMode,
+private fun <T> RadioButtonOption(
+    option: T,
     selected: Boolean,
-    onClick: (ThemeMode) -> Unit
+    onClick: (T) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
 ) {
     Row(
-        modifier = modifier,
+        modifier = modifier
+            .selectable(
+                selected = selected,
+                enabled = enabled,
+                onClick = { onClick(option) },
+                role = Role.RadioButton,
+            )
+            .minimumInteractiveComponentSize(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
     ) {
-        RadioButton(
-            selected = selected,
-            onClick = { onClick(themeMode) },
-        )
-        Text(
-            text = themeMode.toString(),
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
-private fun ColorModeItem(
-    modifier: Modifier = Modifier,
-    colorMode: ColorMode,
-    selected: Boolean,
-    onClick: (ColorMode) -> Unit
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
-    ) {
-        val enabled = when {
-            colorMode == ColorMode.Dynamic && Build.VERSION.SDK_INT < Build.VERSION_CODES.S -> false
-            else -> true
-        }
         RadioButton(
             selected = selected,
             enabled = enabled,
-            onClick = { onClick(colorMode) },
+            onClick = null,
         )
         Text(
-            text = colorMode.label,
+            text = option.toString(),
             style = MaterialTheme.typography.bodyMedium
         )
     }
 }
 
 @Composable
-private fun TextDirectionItem(
-    modifier: Modifier = Modifier,
-    textDirection: TextDirection,
-    selected: Boolean,
-    onClick: (TextDirection) -> Unit
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)
-    ) {
-        RadioButton(
-            selected = selected,
-            onClick = { onClick(textDirection) },
-        )
-        Text(
-            text = textDirection.toString(),
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
-private fun FontScaleItem(
+private fun CustomFontScaleSlider(
     modifier: Modifier = Modifier,
     enabled: Boolean,
     fontScale: Float,

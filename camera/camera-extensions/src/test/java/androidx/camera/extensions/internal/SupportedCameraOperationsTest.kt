@@ -26,9 +26,7 @@ import android.os.Build
 import android.util.Pair
 import android.util.Range
 import android.util.Size
-import androidx.camera.camera2.internal.Camera2CameraInfoImpl
-import androidx.camera.camera2.internal.compat.CameraManagerCompat
-import androidx.camera.core.impl.RestrictedCameraControl
+import androidx.camera.core.impl.RestrictedCameraInfo
 import androidx.camera.extensions.impl.CaptureStageImpl
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl
@@ -37,6 +35,7 @@ import androidx.camera.extensions.impl.advanced.OutputSurfaceConfigurationImpl
 import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl
 import androidx.camera.extensions.impl.advanced.RequestProcessorImpl
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue
@@ -112,7 +111,7 @@ class SupportedCameraOperationsTest(
 
     private fun testSupportedCameraOperation(
         supportedCaptureRequestKeys: List<CaptureRequest.Key<out Any>>,
-        @RestrictedCameraControl.CameraOperation expectSupportedOperations: Set<Int>
+        @RestrictedCameraInfo.CameraOperation expectSupportedOperations: Set<Int>
     ) {
         var vendorExtender: VendorExtender? = null
         if (extenderType == "basic") {
@@ -127,7 +126,7 @@ class SupportedCameraOperationsTest(
             vendorExtender = AdvancedVendorExtender(fakeAdvancedExtenderImpl)
         }
 
-        val cameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val cameraInfo = FakeCameraInfoInternal("0", context)
         vendorExtender!!.init(cameraInfo)
         val sessionProcessor = vendorExtender.createSessionProcessor(context)!!
         assertThat(sessionProcessor.supportedCameraOperations)
@@ -142,7 +141,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.CONTROL_ZOOM_RATIO
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.ZOOM
+                RestrictedCameraInfo.CAMERA_OPERATION_ZOOM
             )
         )
     }
@@ -155,7 +154,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.SCALER_CROP_REGION
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.ZOOM
+                RestrictedCameraInfo.CAMERA_OPERATION_ZOOM
             )
         )
     }
@@ -168,7 +167,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.SCALER_CROP_REGION
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.ZOOM
+                RestrictedCameraInfo.CAMERA_OPERATION_ZOOM
             )
         )
     }
@@ -181,7 +180,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.CONTROL_AF_TRIGGER
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.AUTO_FOCUS
+                RestrictedCameraInfo.CAMERA_OPERATION_AUTO_FOCUS
             )
         )
     }
@@ -193,7 +192,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.CONTROL_AF_REGIONS,
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.AF_REGION
+                RestrictedCameraInfo.CAMERA_OPERATION_AF_REGION
             )
         )
     }
@@ -205,7 +204,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.CONTROL_AE_REGIONS,
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.AE_REGION
+                RestrictedCameraInfo.CAMERA_OPERATION_AE_REGION
             )
         )
     }
@@ -217,7 +216,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.CONTROL_AWB_REGIONS,
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.AWB_REGION
+                RestrictedCameraInfo.CAMERA_OPERATION_AWB_REGION
             )
         )
     }
@@ -230,7 +229,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.FLASH_MODE
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.TORCH
+                RestrictedCameraInfo.CAMERA_OPERATION_TORCH
             )
         )
     }
@@ -243,7 +242,7 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.FLASH
+                RestrictedCameraInfo.CAMERA_OPERATION_FLASH
             )
         )
     }
@@ -255,7 +254,20 @@ class SupportedCameraOperationsTest(
                 CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,
             ),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.EXPOSURE_COMPENSATION
+                RestrictedCameraInfo.CAMERA_OPERATION_EXPOSURE_COMPENSATION
+            )
+        )
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun supportedCameraOperations_extensionStrengthIsEnabled() {
+        testSupportedCameraOperation(
+            supportedCaptureRequestKeys = listOf(
+                CaptureRequest.EXTENSION_STRENGTH,
+            ),
+            expectSupportedOperations = setOf(
+                RestrictedCameraInfo.CAMERA_OPERATION_EXTENSION_STRENGTH
             )
         )
     }
@@ -269,14 +281,14 @@ class SupportedCameraOperationsTest(
         testSupportedCameraOperation(
             supportedCaptureRequestKeys = emptyList(),
             expectSupportedOperations = setOf(
-                RestrictedCameraControl.ZOOM,
-                RestrictedCameraControl.AUTO_FOCUS,
-                RestrictedCameraControl.TORCH,
-                RestrictedCameraControl.AF_REGION,
-                RestrictedCameraControl.AE_REGION,
-                RestrictedCameraControl.AWB_REGION,
-                RestrictedCameraControl.EXPOSURE_COMPENSATION,
-                RestrictedCameraControl.FLASH,
+                RestrictedCameraInfo.CAMERA_OPERATION_ZOOM,
+                RestrictedCameraInfo.CAMERA_OPERATION_AUTO_FOCUS,
+                RestrictedCameraInfo.CAMERA_OPERATION_TORCH,
+                RestrictedCameraInfo.CAMERA_OPERATION_AF_REGION,
+                RestrictedCameraInfo.CAMERA_OPERATION_AE_REGION,
+                RestrictedCameraInfo.CAMERA_OPERATION_AWB_REGION,
+                RestrictedCameraInfo.CAMERA_OPERATION_EXPOSURE_COMPENSATION,
+                RestrictedCameraInfo.CAMERA_OPERATION_FLASH
             )
         )
     }

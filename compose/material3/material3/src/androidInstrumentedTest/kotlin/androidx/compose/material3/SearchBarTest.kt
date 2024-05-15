@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -64,19 +65,31 @@ class SearchBarTest {
     private val BackTestTag = "Back"
 
     @Test
-    fun searchBar_becomesActiveAndFocusedOnClick_andInactiveAndUnfocusedOnBack() {
+    fun searchBar_becomesExpandedAndFocusedOnClick_andNotExpandedAndUnfocusedOnBack() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.fillMaxSize()) {
                 val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-                var active by remember { mutableStateOf(false) }
+                var expanded by remember { mutableStateOf(false) }
+
+                // Extra item for initial focus.
+                Box(
+                    Modifier
+                        .size(10.dp)
+                        .focusable())
 
                 SearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
-                    query = "Query",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = active,
-                    onActiveChange = { active = it },
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "Query",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                        )
+                    },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
                 ) {
                     Button(
                         onClick = { dispatcher.onBackPressed() },
@@ -107,17 +120,25 @@ class SearchBarTest {
             Column(Modifier.fillMaxSize()) {
                 SearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
-                    query = "Query",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = false,
-                    onActiveChange = {},
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "Query",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = false,
+                            onExpandedChange = {},
+                        )
+                    },
+                    expanded = false,
+                    onExpandedChange = {},
                     content = {},
                 )
                 TextField(
                     value = "",
                     onValueChange = {},
-                    modifier = Modifier.testTag("SIBLING").focusRequester(focusRequester)
+                    modifier = Modifier
+                        .testTag("SIBLING")
+                        .focusRequester(focusRequester)
                 )
             }
         }
@@ -138,14 +159,20 @@ class SearchBarTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.fillMaxSize()) {
-                var active by remember { mutableStateOf(true) }
+                var expanded by remember { mutableStateOf(true) }
 
                 SearchBar(
-                    query = "Query",
-                    onQueryChange = {},
-                    onSearch = { capturedSearchQuery = it },
-                    active = active,
-                    onActiveChange = { active = it },
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "Query",
+                            onQueryChange = {},
+                            onSearch = { capturedSearchQuery = it },
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                        )
+                    },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
                     content = { Text("Content") },
                 )
             }
@@ -156,15 +183,21 @@ class SearchBarTest {
     }
 
     @Test
-    fun searchBar_inactiveSize() {
+    fun searchBar_notExpandedSize() {
         rule.setMaterialContentForSizeAssertions {
             SearchBar(
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = false,
+                        onExpandedChange = {},
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = false,
+                onExpandedChange = {},
                 content = {},
             )
         }
@@ -173,7 +206,7 @@ class SearchBarTest {
     }
 
     @Test
-    fun searchBar_activeSize() {
+    fun searchBar_expandedSize() {
         val totalHeight = 500.dp
         val totalWidth = 325.dp
         val searchBarSize = Ref<IntSize>()
@@ -184,12 +217,18 @@ class SearchBarTest {
                     modifier = Modifier.onGloballyPositioned {
                         searchBarSize.value = it.size
                     },
-                    query = "",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = true,
-                    onActiveChange = {},
-                    placeholder = { Text("Hint") },
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = true,
+                            onExpandedChange = {},
+                            placeholder = { Text("Hint") },
+                        )
+                    },
+                    expanded = true,
+                    onExpandedChange = {},
                     content = { Text("Content") },
                 )
             }
@@ -207,23 +246,29 @@ class SearchBarTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.fillMaxSize()) {
-                var active by remember { mutableStateOf(false) }
+                var expanded by remember { mutableStateOf(false) }
 
                 SearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
-                    query = "Query",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = active,
-                    onActiveChange = { active = it },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = { iconClicked = true },
-                            modifier = Modifier.testTag(IconTestTag)
-                        ) {
-                            Icon(Icons.Default.MoreVert, null)
-                        }
-                    }
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "Query",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = { iconClicked = true },
+                                    modifier = Modifier.testTag(IconTestTag)
+                                ) {
+                                    Icon(Icons.Default.MoreVert, null)
+                                }
+                            }
+                        )
+                    },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
                 ) {
                     Text("Content")
                 }
@@ -243,19 +288,31 @@ class SearchBarTest {
     }
 
     @Test
-    fun dockedSearchBar_becomesActiveAndFocusedOnClick_andInactiveAndUnfocusedOnBack() {
+    fun dockedSearchBar_becomesExpandedAndFocusedOnClick_andNotExpandedAndUnfocusedOnBack() {
         rule.setMaterialContent(lightColorScheme()) {
             Column(Modifier.fillMaxSize()) {
                 val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-                var active by remember { mutableStateOf(false) }
+                var expanded by remember { mutableStateOf(false) }
+
+                // Extra item for initial focus.
+                Box(
+                    Modifier
+                        .size(10.dp)
+                        .focusable())
 
                 DockedSearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
-                    query = "Query",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = active,
-                    onActiveChange = { active = it },
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "Query",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                        )
+                    },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
                 ) {
                     Button(
                         onClick = { dispatcher.onBackPressed() },
@@ -286,17 +343,25 @@ class SearchBarTest {
             Column(Modifier.fillMaxSize()) {
                 DockedSearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
-                    query = "Query",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = false,
-                    onActiveChange = {},
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "Query",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = false,
+                            onExpandedChange = {},
+                        )
+                    },
+                    expanded = false,
+                    onExpandedChange = {},
                     content = {},
                 )
                 TextField(
                     value = "",
                     onValueChange = {},
-                    modifier = Modifier.testTag("SIBLING").focusRequester(focusRequester)
+                    modifier = Modifier
+                        .testTag("SIBLING")
+                        .focusRequester(focusRequester)
                 )
             }
         }
@@ -317,14 +382,20 @@ class SearchBarTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.fillMaxSize()) {
-                var active by remember { mutableStateOf(true) }
+                var expanded by remember { mutableStateOf(true) }
 
                 DockedSearchBar(
-                    query = "Query",
-                    onQueryChange = {},
-                    onSearch = { capturedSearchQuery = it },
-                    active = active,
-                    onActiveChange = { active = it },
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "Query",
+                            onQueryChange = {},
+                            onSearch = { capturedSearchQuery = it },
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                        )
+                    },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
                     content = { Text("Content") },
                 )
             }
@@ -335,15 +406,21 @@ class SearchBarTest {
     }
 
     @Test
-    fun dockedSearchBar_inactiveSize() {
+    fun dockedSearchBar_notExpandedSize() {
         rule.setMaterialContentForSizeAssertions {
             DockedSearchBar(
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = false,
-                onActiveChange = {},
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = false,
+                        onExpandedChange = {},
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = false,
+                onExpandedChange = {},
                 content = {},
             )
         }
@@ -352,20 +429,27 @@ class SearchBarTest {
     }
 
     @Test
-    fun dockedSearchBar_activeSize() {
+    fun dockedSearchBar_expandedSize() {
         rule.setMaterialContentForSizeAssertions {
             DockedSearchBar(
-                query = "",
-                onQueryChange = {},
-                onSearch = {},
-                active = true,
-                onActiveChange = {},
-                placeholder = { Text("Hint") },
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = "",
+                        onQueryChange = {},
+                        onSearch = {},
+                        expanded = true,
+                        onExpandedChange = {},
+                        placeholder = { Text("Hint") },
+                    )
+                },
+                expanded = true,
+                onExpandedChange = {},
                 content = { Text("Content") },
             )
         }
             .assertWidthIsEqualTo(SearchBarMinWidth)
-            .assertHeightIsEqualTo(SearchBarDefaults.InputFieldHeight + DockedActiveTableMinHeight)
+            .assertHeightIsEqualTo(
+                SearchBarDefaults.InputFieldHeight + DockedExpandedTableMinHeight)
     }
 
     @Test
@@ -374,23 +458,29 @@ class SearchBarTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.fillMaxSize()) {
-                var active by remember { mutableStateOf(false) }
+                var expanded by remember { mutableStateOf(false) }
 
                 DockedSearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
-                    query = "Query",
-                    onQueryChange = {},
-                    onSearch = {},
-                    active = active,
-                    onActiveChange = { active = it },
-                    trailingIcon = {
-                        IconButton(
-                            onClick = { iconClicked = true },
-                            modifier = Modifier.testTag(IconTestTag)
-                        ) {
-                            Icon(Icons.Default.MoreVert, null)
-                        }
-                    }
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "Query",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = expanded,
+                            onExpandedChange = { expanded = it },
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = { iconClicked = true },
+                                    modifier = Modifier.testTag(IconTestTag)
+                                ) {
+                                    Icon(Icons.Default.MoreVert, null)
+                                }
+                            }
+                        )
+                    },
+                    expanded = expanded,
+                    onExpandedChange = { expanded = it },
                 ) {
                     Text("Content")
                 }

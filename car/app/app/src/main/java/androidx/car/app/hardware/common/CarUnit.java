@@ -59,8 +59,8 @@ public final class CarUnit {
     @CarDistanceUnit
     public static final int METER = 2;
 
-    @CarDistanceUnit
     /** Kilometer unit. */
+    @CarDistanceUnit
     public static final int KILOMETER = 3;
 
     /** Miles unit. */

@@ -53,7 +53,7 @@ interface PressGestureScope : Density {
     /**
      * Waits for the press to be released before returning. If the press was released,
      * `true` is returned, or if the gesture was canceled by motion being consumed by
-     * another gesture, `false` is returned .
+     * another gesture, `false` is returned.
      */
     suspend fun tryAwaitRelease(): Boolean
 }
@@ -327,7 +327,7 @@ suspend fun AwaitPointerEventScope.waitForUpOrCancellation(
 /**
  * [detectTapGestures]'s implementation of [PressGestureScope].
  */
-private class PressGestureScopeImpl(
+internal class PressGestureScopeImpl(
     density: Density
 ) : PressGestureScope, Density by density {
     private var isReleased = false

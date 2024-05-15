@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -28,7 +35,8 @@ android {
     defaultConfig {
         externalNativeBuild {
             cmake {
-                arguments "-DCMAKE_POLICY_DEFAULT_CMP0064=NEW", "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                arguments "-DCMAKE_POLICY_DEFAULT_CMP0064=NEW",
+                                "-DCMAKE_VERBOSE_MAKEFILE=ON"
                 // Build only the static library target
                 targets "yuv"
             }

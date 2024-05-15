@@ -44,6 +44,7 @@ import androidx.compose.runtime.mock.revalidate
 import androidx.compose.runtime.mock.skip
 import androidx.compose.runtime.mock.validate
 import androidx.compose.runtime.snapshots.Snapshot
+import java.lang.Integer.min
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.reflect.KProperty
@@ -62,9 +63,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
@@ -253,6 +256,41 @@ class CompositionTests {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    fun testConditionalNode() = compositionTest {
+        val condition = mutableStateOf(false)
+
+        compose {
+            InlineLinear {
+                Text("A")
+                Wrap {
+                    if (condition.value) {
+                        InlineLinear {
+                            Text("B")
+                        }
+                    }
+                }
+            }
+        }
+
+        validate {
+            Linear {
+                Text("A")
+                if (condition.value) {
+                    Linear {
+                        Text("B")
+                    }
+                }
+            }
+        }
+
+        repeat(10) {
+            condition.value = !condition.value
+            advance()
+            revalidate()
         }
     }
 
@@ -1981,6 +2019,322 @@ class CompositionTests {
     }
 
     @Test
+    fun testRemember_RememberForgetOrder_NonRestartable() = compositionTest {
+        var order = 0
+        val objects = mutableListOf<Any>()
+        val newRememberObject = { name: String ->
+            object :
+                RememberObserver,
+                Counted,
+                Ordered,
+                Named {
+                override var name = name
+                override var count = 0
+                override var rememberOrder = -1
+                override var forgetOrder = -1
+                override fun onRemembered() {
+                    assertEquals(-1, rememberOrder, "Only one call to onRemembered expected")
+                    rememberOrder = order++
+                    count++
+                }
+
+                override fun onForgotten() {
+                    assertEquals(-1, forgetOrder, "Only one call to onForgotten expected")
+                    forgetOrder = order++
+                    count--
+                }
+
+                override fun onAbandoned() {
+                    assertEquals(0, count, "onAbandoned called after onRemembered")
+                }
+
+                override fun toString(): String =
+                    "$name: count($count), remember($rememberOrder), forgotten($forgetOrder)"
+            }.also { objects.add(it) }
+        }
+
+        @Composable
+        @NonRestartableComposable
+        fun RememberUser(name: String) {
+            remember(name) { newRememberObject(name) }
+        }
+
+        /*
+        A
+        |- B
+        |  |- C
+        |  |- D
+        |- E
+        |- F
+        |  |- G
+        |  |- H
+        |     |-I
+        |  |- J
+        |- K
+
+        Should enter as: A, B, C, D, E, F, G, H, I, J, K
+        Should leave as: K, J, I, H, G, F, E, D, C, B, A
+        */
+
+        @Composable
+        fun Tree() {
+            Linear {
+                RememberUser("A")
+                Linear {
+                    RememberUser("B")
+                    Linear {
+                        RememberUser("C")
+                        RememberUser("D")
+                    }
+                    RememberUser("E")
+                    RememberUser("F")
+                    Linear {
+                        RememberUser("G")
+                        RememberUser("H")
+                        Linear {
+                            RememberUser("I")
+                        }
+                        RememberUser("J")
+                    }
+                    RememberUser("K")
+                }
+            }
+        }
+
+        @Composable
+        fun Composition(includeTree: Boolean) {
+            Linear {
+                if (includeTree) Tree()
+            }
+        }
+
+        var value by mutableStateOf(true)
+
+        compose {
+            Composition(value)
+        }
+
+        assertTrue(
+            objects.mapNotNull { it as? Counted }.map { it.count == 1 }.all { it },
+            "All object should have entered"
+        )
+
+        value = false
+        expectChanges()
+
+        assertTrue(
+            objects.mapNotNull { it as? Counted }.map { it.count == 0 }.all { it },
+            "All object should have left"
+        )
+
+        val namesInRememberOrder = objects.mapNotNull {
+            it as? Ordered
+        }.sortedBy {
+            it.rememberOrder
+        }.map {
+            (it as Named).name
+        }.toTypedArray()
+
+        val namesInForgetOrder = objects.mapNotNull {
+            it as? Ordered
+        }.sortedBy {
+            it.forgetOrder
+        }.map {
+            (it as Named).name
+        }.toTypedArray()
+
+        assertArrayEquals(
+            "Expected enter order",
+            arrayOf("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"),
+            namesInRememberOrder
+        )
+
+        assertArrayEquals(
+            "Expected leave order",
+            arrayOf("K", "J", "I", "H", "G", "F", "E", "D", "C", "B", "A"),
+            namesInForgetOrder
+        )
+    }
+
+    @Test
+    fun testRememberObserver_RememberForgetOrder_ReplaceOnRecompose() = compositionTest {
+        var order = 0
+        val objects = mutableListOf<Any>()
+        val newRememberObject = { name: String, data: Int ->
+            object :
+                RememberObserver,
+                Counted,
+                Ordered,
+                Named,
+                WithData {
+                override var name = name
+                override var data = data
+                override var count = 0
+                override var rememberOrder = -1
+                override var forgetOrder = -1
+                override fun onRemembered() {
+                    assertEquals(-1, rememberOrder, "Only one call to onRemembered expected")
+                    rememberOrder = order++
+                    count++
+                }
+
+                override fun onForgotten() {
+                    assertEquals(-1, forgetOrder, "Only one call to onForgotten expected")
+                    forgetOrder = order++
+                    count--
+                }
+
+                override fun onAbandoned() {
+                    assertEquals(0, count, "onAbandoned called after onRemembered")
+                }
+
+                override fun toString(): String =
+                    "$name: count($count), remember($rememberOrder), forgotten($forgetOrder)"
+            }.also { objects.add(it) }
+        }
+
+        var changing by mutableStateOf(0)
+        val fixed = 10
+
+        @Composable
+        @NonRestartableComposable
+        fun RememberUser(name: String, data: Int) {
+            remember(name, data) { newRememberObject(name, data) }
+        }
+
+        @Composable
+        fun Tree() {
+            Linear {
+                RememberUser("A", changing)
+                RememberUser("B", fixed)
+            }
+        }
+
+        @Composable
+        fun Composition(includeTree: Boolean) {
+            Linear {
+                if (includeTree) Tree()
+            }
+        }
+
+        var includeTree by mutableStateOf(true)
+
+        compose {
+            Composition(includeTree)
+        }
+
+        changing++
+        advance()
+
+        includeTree = false
+        advance()
+
+        val nameAndDataInForgetOrder = objects.mapNotNull {
+            it as? Ordered
+        }.sortedBy {
+            it.forgetOrder
+        }.map {
+            val named = it as Named
+            val withData = it as WithData
+            "${named.name}:${withData.data}"
+        }.joinToString()
+
+        assertEquals("A:0, B:10, A:1", nameAndDataInForgetOrder)
+    }
+
+    @Test
+    fun testRememberObserver_RememberForgetOrder_RelativeOrder() = compositionTest {
+        var order = 0
+        val objects = mutableListOf<Any>()
+        val newRememberObject = { name: String, data: Int ->
+            object :
+                RememberObserver,
+                Counted,
+                Ordered,
+                Named,
+                WithData {
+                override var name = name
+                override var data = data
+                override var count = 0
+                override var rememberOrder = -1
+                override var forgetOrder = -1
+                override fun onRemembered() {
+                    assertEquals(-1, rememberOrder, "Only one call to onRemembered expected")
+                    rememberOrder = order++
+                    count++
+                }
+
+                override fun onForgotten() {
+                    assertEquals(-1, forgetOrder, "Only one call to onForgotten expected")
+                    forgetOrder = order++
+                    count--
+                }
+
+                override fun onAbandoned() {
+                    assertEquals(0, count, "onAbandoned called after onRemembered")
+                }
+
+                override fun toString(): String =
+                    "$name: count($count), remember($rememberOrder), forgotten($forgetOrder)"
+            }.also { objects.add(it) }
+        }
+
+        var changing by mutableStateOf(0)
+        var includeChildren by mutableStateOf(true)
+        val fixed = 10
+
+        @Composable
+        @NonRestartableComposable
+        fun RememberUser(name: String, data: Int) {
+            remember(name, data) { newRememberObject(name, data) }
+        }
+
+        @Composable
+        @NonRestartableComposable
+        fun Children() {
+            RememberUser("A2", fixed)
+            RememberUser("B2", fixed)
+        }
+
+        @Composable
+        @NonRestartableComposable
+        fun NoChildren() {}
+
+        @Composable
+        fun Composition() {
+            InlineLinear {
+                RememberUser("A1", changing)
+                if (includeChildren) {
+                    Children()
+                } else {
+                    NoChildren()
+                }
+                RememberUser("B1", changing)
+            }
+        }
+
+        compose {
+            Composition()
+        }
+
+        changing++
+        includeChildren = false
+        advance()
+
+        val nameAndDataInForgetOrder = objects.mapNotNull { item ->
+            (item as? Ordered)?.takeIf { it.forgetOrder >= 0 }
+        }.sortedBy {
+            it.forgetOrder
+        }.joinToString {
+            val named = it as Named
+            val withData = it as WithData
+            "${named.name}:${withData.data}"
+        }
+
+        assertEquals("B1:0, B2:10, A2:10, A1:0", nameAndDataInForgetOrder)
+    }
+
+    @Test
     fun testRememberObserver_Abandon_Simple() = compositionTest {
         val abandonedObjects = mutableListOf<RememberObserver>()
         val observed = object : RememberObserver {
@@ -2919,7 +3273,8 @@ class CompositionTests {
                 assertEquals(listOf(false), composedResults)
                 rootState = true
                 Snapshot.sendApplyNotifications()
-                testScheduler.advanceUntilIdle()
+                // expect lambda to invalidate on the same frame (regression test for b/320385076)
+                testScheduler.advanceTimeByFrame(coroutineContext)
                 assertEquals(listOf(false, true), composedResults)
             } finally {
                 composition.dispose()
@@ -3107,7 +3462,7 @@ class CompositionTests {
             }
         }
 
-        val effectiveHash = compositeHash xor (parentHash rol 3)
+        val effectiveHash = compositeHash xor (parentHash rol 6)
         assertEquals(0, effectiveHash)
     }
 
@@ -3122,8 +3477,8 @@ class CompositionTests {
             }
         }
 
-        val effectiveHash = compositeHash xor (parentHash rol 3)
-        assertEquals(1, effectiveHash)
+        val effectiveHash = compositeHash xor (parentHash rol 6)
+        assertEquals(8, effectiveHash)
     }
 
     @Test // regression test for b/188015757
@@ -3537,6 +3892,7 @@ class CompositionTests {
         repeat(4) {
             condition = !condition
             expectChanges()
+            verifyConsistent()
             revalidate()
         }
     }
@@ -3706,6 +4062,7 @@ class CompositionTests {
             content(SomeUnstableClass())
         }
         advance()
+        verifyConsistent()
 
         assertEquals(1, i1)
         assertEquals(2, i2)
@@ -3714,6 +4071,7 @@ class CompositionTests {
 
         scope!!.invalidate()
         advance()
+        verifyConsistent()
 
         assertEquals(2, recomposeCounter)
         assertEquals(1, i1)
@@ -3722,11 +4080,44 @@ class CompositionTests {
 
         scope!!.invalidate()
         advance()
+        verifyConsistent()
 
         assertEquals(3, recomposeCounter)
         assertEquals(1, i1)
         assertEquals(2, i2)
         assertEquals(3, i3)
+    }
+
+    @Test
+    fun testRememberAddedAndRemovedInALoop() = compositionTest {
+        val iterations = 100
+        val counter = mutableStateOf(0)
+        var seen = emptyList<Any?>()
+
+        fun seen(list: List<Any>) {
+            for (i in 0 until min(list.size, seen.size)) {
+                assertEquals(list[i], seen[i])
+            }
+            seen = list
+        }
+
+        compose {
+            val list = mutableListOf<Any>()
+            for (i in 0 until counter.value) {
+                list.add(remember { Any() })
+            }
+        }
+
+        while (counter.value < iterations) {
+            counter.value++
+            advance()
+        }
+
+        while (counter.value > 0) {
+            counter.value--
+            advance()
+        }
+        assertEquals(emptyList(), seen)
     }
 
     @Test
@@ -3947,6 +4338,74 @@ class CompositionTests {
         expectChanges()
     }
 
+    data class Foo(var i: Int = 0)
+    class UnstableCompConsumer(var invokeCount: Int = 0) {
+        @Composable fun UnstableComp(foo: Foo) {
+            use(foo)
+            invokeCount++
+        }
+    }
+    @Test
+    fun composableWithUnstableParameters_skipped() = compositionTest {
+        val consumer = UnstableCompConsumer()
+        var recomposeTrigger by mutableStateOf(0)
+        val data = Foo()
+        compose {
+            Linear {
+                use(recomposeTrigger)
+                consumer.UnstableComp(foo = data)
+            }
+        }
+
+        assertEquals(1, consumer.invokeCount)
+
+        recomposeTrigger = 1
+        data.i++
+        advance()
+
+        assertEquals(1, consumer.invokeCount)
+    }
+
+    // regression test from b/232007227 with forEach
+    @Test
+    fun slotsAreUsedCorrectly_forEach() = compositionTest {
+        class Car(val model: String)
+        class Person(val name: String, val car: MutableStateFlow<Car>)
+
+        val people = mutableListOf<MutableStateFlow<Person?>>(
+            MutableStateFlow(Person("Ford", MutableStateFlow(Car("Model T")))),
+            MutableStateFlow(Person("Musk", MutableStateFlow(Car("Model 3"))))
+        )
+        compose {
+            people.forEach {
+                val person = it.collectAsState().value
+                Text(person?.name ?: "No person")
+                if (person != null) {
+                    val car = person.car.collectAsState().value
+                    Text("    ${car.model}")
+                }
+            }
+        }
+
+        validate {
+            people.forEach {
+                val person = it.value
+                Text(person?.name ?: "No person")
+                if (person != null) {
+                    val car = person.car.value
+                    Text("    ${car.model}")
+                }
+            }
+        }
+
+        advanceTimeBy(16_000L)
+        people[0].value = null
+        advanceTimeBy(16_000L)
+
+        expectChanges()
+        revalidate()
+    }
+
     @Test
     fun readingDerivedState_invalidatesWhenValueNotChanged() = compositionTest {
         var state by mutableStateOf(0)
@@ -3965,6 +4424,215 @@ class CompositionTests {
 
         state++
         expectChanges()
+        revalidate()
+    }
+
+    @Composable
+    fun goBoom(): Boolean {
+
+        return true
+    }
+
+    @Test
+    fun earlyReturnFromInlined() = compositionTest {
+        compose {
+            run {
+                if (true) {
+                    return@run
+                } else {
+                    Text("")
+                    return@run
+                }
+            }
+        }
+
+        validate { }
+    }
+
+    @Composable private fun key() = "key"
+
+    @Test
+    fun remember_withComposableParam() = compositionTest {
+        compose {
+            val text = remember(key()) { "" }
+            Text(text)
+        }
+
+        validate {
+            Text("")
+        }
+    }
+
+    private val LocalNumber = compositionLocalOf { 0 }
+    @Composable fun Test(number: Int = LocalNumber.current) {
+        val remembered = remember(number) { number + 1 }
+        assertEquals(remembered, number + 1)
+    }
+
+    @Test
+    fun remember_defaultParamInRestartableFunction() = compositionTest {
+        var state by mutableIntStateOf(0)
+        compose {
+            CompositionLocalProvider(LocalNumber provides state) {
+                Test()
+            }
+        }
+
+        validate {}
+
+        state++
+        advance()
+        revalidate()
+    }
+
+    @Test
+    fun rememberAfterLoop() = compositionTest {
+        // Removing the group around remember requires that updates to slots can be performed to
+        // the parent even after we have moved off the parent to one of the children. Here this
+        // inserts content as the child of the main composition. This moves the write to just after
+        // the insert and then the `remember` call needs to update the `compose` group's slots.
+        var count by mutableStateOf(1)
+        compose {
+            repeat(count) {
+                Text("Some text")
+            }
+            val someRemember = remember(count) { count + 1 }
+            Text("$someRemember")
+        }
+
+        count++
+        advance()
+    }
+
+    @Test
+    fun appendingRememberAfterLoop() = compositionTest {
+        var count by mutableStateOf(1)
+        compose {
+            repeat(count) {
+                Text("Some text")
+            }
+            repeat(count) {
+                unused(remember { it })
+            }
+        }
+
+        validate {
+            repeat(count) {
+                Text("Some text")
+            }
+        }
+
+        count++
+        advance()
+        revalidate()
+
+        count++
+        advance()
+        revalidate()
+
+        count = 1
+        advance()
+        revalidate()
+    }
+
+    @Test
+    fun composerCleanup() = compositionTest {
+        var state by mutableStateOf(0)
+
+        compose {
+            Text("State = $state")
+        }
+
+        val stackSizes = (composition as CompositionImpl).composerStacksSizes()
+        repeat(100) {
+            state++
+            advance()
+        }
+        assertEquals(stackSizes, (composition as CompositionImpl).composerStacksSizes())
+    }
+
+    @Test
+    fun movableContentNoopInDeactivatedComposition() = compositionTest {
+        val state = mutableStateOf(false)
+        val movableContent = movableContentOf {
+            Text("Test")
+        }
+
+        var composition: Composition? = null
+        var context: CompositionContext? = null
+        compose {
+            context = rememberCompositionContext()
+
+            // read state to force recomposition
+            state.value
+            SideEffect {
+                if (state.value) (composition as CompositionImpl).deactivate()
+            }
+        }
+
+        composition = CompositionImpl(context!!, ViewApplier(root)).apply {
+            setContent {
+                if (state.value) {
+                    movableContent()
+                }
+            }
+        }
+
+        state.value = true
+        advance()
+    }
+
+    @Test // regression test for 339618126
+    fun removeGroupAtEndOfGroup() = compositionTest {
+        // Ensure the runtime handles aberrant code generation
+        val state = mutableStateOf(true)
+        compose {
+            InlineLinear {
+                InlineLinear {
+                    explicitStartReplaceGroup(-0x7e52e5de) {
+                        Text("Before")
+                    }
+                    explicitStartReplaceGroup(0x9222f9c, insertGroup = state.value) { }
+                    explicitStartReplaceGroup(0x22d2581c) {
+                        Text("After")
+                    }
+                }
+                InlineLinear {
+                    Text("State is ${state.value}")
+                }
+                if (state.value) {
+                    Text("State is on")
+                }
+                if (!state.value) {
+                    Text("State is off")
+                }
+            }
+        }
+
+        validate {
+            Linear {
+                Linear {
+                    Text("Before")
+                    Text("After")
+                }
+                Linear {
+                    Text("State is ${state.value}")
+                }
+                if (state.value) {
+                    Text("State is on")
+                }
+                if (!state.value) {
+                    Text("State is off")
+                }
+            }
+        }
+
+        state.value = false
+        advance()
+        revalidate()
+
+        state.value = true
+        advance()
         revalidate()
     }
 
@@ -4112,7 +4780,7 @@ fun testDeferredSubcomposition(block: @Composable () -> Unit): () -> Unit {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal suspend fun <R> localRecomposerTest(
+internal suspend fun <R> TestScope.localRecomposerTest(
     block: CoroutineScope.(Recomposer) -> R
 ) = coroutineScope {
     withContext(TestMonotonicFrameClock(this)) {
@@ -4120,6 +4788,8 @@ internal suspend fun <R> localRecomposerTest(
         launch {
             recomposer.runRecomposeAndApplyChanges()
         }
+        // ensure recomposition runner has started
+        testScheduler.advanceUntilIdle()
         block(recomposer)
         // This call doesn't need to be in a finally; everything it does will be torn down
         // in exceptional cases by the coroutineScope failure
@@ -4197,6 +4867,10 @@ private interface Ordered {
 
 private interface Named {
     val name: String
+}
+
+private interface WithData {
+    val data: Int
 }
 
 private fun Int.isOdd() = this % 2 == 1
@@ -4293,3 +4967,18 @@ fun ListContentItem(
 }
 
 data class ListViewItem(val id: Int)
+
+private fun <T> unused(@Suppress("UNUSED_PARAMETER") value: T) { }
+
+// Part of regression test for 339618126
+@Composable
+@ExplicitGroupsComposable
+inline fun explicitStartReplaceGroup(
+    key: Int,
+    insertGroup: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    if (insertGroup) currentComposer.startReplaceGroup(key)
+    content()
+    if (insertGroup) currentComposer.endReplaceGroup()
+}

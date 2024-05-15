@@ -14,9 +14,11 @@ public object InnerSdkValueConverter {
                 myUiInterface = MyUiInterfaceClientProxy(parcelable.myUiInterface.binder,
                         parcelable.myUiInterface.coreLibInfo),
                 numbers = parcelable.numbers.toList(),
+                bundle = parcelable.bundle,
                 maybeNumber = parcelable.maybeNumber.firstOrNull(),
                 maybeInterface = parcelable.maybeInterface?.let { notNullValue ->
-                        MyInterfaceClientProxy(notNullValue) })
+                        MyInterfaceClientProxy(notNullValue) },
+                maybeBundle = parcelable.maybeBundle)
         return annotatedValue
     }
 
@@ -34,10 +36,12 @@ public object InnerSdkValueConverter {
                 IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((annotatedValue.myUiInterface
                 as MyUiInterfaceClientProxy).coreLibInfo, annotatedValue.myUiInterface.remote)
         parcelable.numbers = annotatedValue.numbers.toIntArray()
+        parcelable.bundle = annotatedValue.bundle
         parcelable.maybeNumber = if (annotatedValue.maybeNumber == null) intArrayOf() else
                 intArrayOf(annotatedValue.maybeNumber)
         parcelable.maybeInterface = annotatedValue.maybeInterface?.let { notNullValue ->
                 (notNullValue as MyInterfaceClientProxy).remote }
+        parcelable.maybeBundle = annotatedValue.maybeBundle
         return parcelable
     }
 }

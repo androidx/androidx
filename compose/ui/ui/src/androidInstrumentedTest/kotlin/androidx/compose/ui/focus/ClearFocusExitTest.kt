@@ -17,7 +17,6 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
 import androidx.compose.ui.focus.FocusRequester.Companion.Default
@@ -30,20 +29,19 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalComposeUiApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ClearFocusExitTest {
     @get:Rule
     val rule = createComposeRule()
 
-    val focusRequester = FocusRequester()
-    var clearTriggered = false
-    lateinit var focusState: FocusState
-    lateinit var focusManager: FocusManager
+    private val focusRequester = FocusRequester()
+    private var clearTriggered = false
+    private lateinit var focusState: FocusState
+    private lateinit var focusManager: FocusManager
 
     @Test
-    fun clearFocus_doesNotTriggersExit() {
+    fun clearFocus_doesNotTriggerExit() {
         // Arrange.
         rule.setFocusableContent {
             focusManager = LocalFocusManager.current

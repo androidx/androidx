@@ -40,9 +40,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@Composable private fun Recompose(body: @Composable (recompose: () -> Unit) -> Unit) {
-    val scope = currentRecomposeScope
-    body { scope.invalidate() }
+@Composable private fun Wrapper(body: @Composable () -> Unit) {
+    body()
 }
 
 @MediumTest
@@ -68,13 +67,14 @@ class WrapperTest {
         activityScenario.onActivity {
             it.setContent {
                 SideEffect { composeWrapperCount++ }
-                Recompose { recompose ->
+                Wrapper {
+                    val scope = currentRecomposeScope
                     SideEffect {
                         innerCount++
                         commitLatch.countDown()
                     }
                     DisposableEffect(Unit) {
-                        recompose()
+                        scope.invalidate()
                         onDispose { }
                     }
                 }

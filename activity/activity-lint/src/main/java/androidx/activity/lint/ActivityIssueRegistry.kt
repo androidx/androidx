@@ -29,7 +29,8 @@ class ActivityIssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
     override val issues get() = listOf(
-        ActivityResultFragmentVersionDetector.ISSUE
+        ActivityResultFragmentVersionDetector.ISSUE,
+        OnBackPressedDetector.ISSUE
     )
     override val vendor = Vendor(
         feedbackUrl = "https://issuetracker.google.com/issues/new?component=527362",

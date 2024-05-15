@@ -18,15 +18,20 @@ package androidx.compose.ui.text.input
 
 import android.os.Build
 import android.os.Bundle
+import android.os.CancellationSignal
 import android.os.Handler
 import android.view.KeyEvent
 import android.view.inputmethod.CompletionInfo
 import android.view.inputmethod.CorrectionInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
+import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.annotation.RequiresApi
+import java.util.concurrent.Executor
+import java.util.function.IntConsumer
 
 /**
  * Creates a [NullableInputConnectionWrapper] – see the kdoc on that interface for more info.
@@ -41,6 +46,11 @@ internal fun NullableInputConnectionWrapper(
     delegate: InputConnection,
     onConnectionClosed: () -> Unit
 ): NullableInputConnectionWrapper = when {
+    Build.VERSION.SDK_INT >= 34 -> NullableInputConnectionWrapperApi34(
+        delegate,
+        onConnectionClosed
+    )
+
     Build.VERSION.SDK_INT >= 25 -> NullableInputConnectionWrapperApi25(
         delegate,
         onConnectionClosed
@@ -200,4 +210,24 @@ private open class NullableInputConnectionWrapperApi25(
 
     final override fun commitContent(p0: InputContentInfo, p1: Int, p2: Bundle?): Boolean =
         delegate?.commitContent(p0, p1, p2) ?: false
+}
+
+@RequiresApi(34)
+private open class NullableInputConnectionWrapperApi34(
+    delegate: InputConnection,
+    onConnectionClosed: () -> Unit
+) : NullableInputConnectionWrapperApi25(delegate, onConnectionClosed) {
+    final override fun performHandwritingGesture(
+        gesture: HandwritingGesture,
+        executor: Executor?,
+        consumer: IntConsumer?
+    ) {
+        delegate?.performHandwritingGesture(gesture, executor, consumer)
+    }
+
+    final override fun previewHandwritingGesture(
+        gesture: PreviewableHandwritingGesture,
+        cancellationSignal: CancellationSignal?
+    ): Boolean =
+        delegate?.previewHandwritingGesture(gesture, cancellationSignal) ?: false
 }

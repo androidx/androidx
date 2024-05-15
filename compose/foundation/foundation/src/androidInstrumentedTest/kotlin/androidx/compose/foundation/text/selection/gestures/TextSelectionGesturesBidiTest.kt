@@ -80,10 +80,10 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
     fun whenTouch_withLongPressThenDragLeftAndBack_selectsWordsThenChars() {
         touchLongPressThenDragForwardsAndBackTest(
             forwardOffset = characterPosition(22, isRtl = true),
-            forwardSelection = 24 to 22,
+            forwardSelection = 29 to 18,
             forwardEndDirection = ResolvedTextDirection.Rtl,
             backwardOffset = characterPosition(19, isRtl = true),
-            backwardSelection = 24 to 19,
+            backwardSelection = 29 to 18,
             backwardEndDirection = ResolvedTextDirection.Rtl,
         )
     }
@@ -92,10 +92,10 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
     fun whenTouch_withLongPressThenDragUpAndBack_ltrToRtl_selectsWordsThenChars() {
         touchLongPressThenDragForwardsAndBackTest(
             forwardOffset = characterPosition(3, isRtl = false),
-            forwardSelection = 24 to 0,
+            forwardSelection = 29 to 0,
             forwardEndDirection = ResolvedTextDirection.Ltr,
             backwardOffset = characterPosition(8, isRtl = true),
-            backwardSelection = 24 to 8,
+            backwardSelection = 29 to 6,
             backwardEndDirection = ResolvedTextDirection.Rtl,
         )
     }
@@ -104,10 +104,10 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
     fun whenTouch_withLongPressThenDragUpAndBack_rtlToLtr_selectsWordsThenChars() {
         touchLongPressThenDragForwardsAndBackTest(
             forwardOffset = characterPosition(8, isRtl = true),
-            forwardSelection = 24 to 6,
+            forwardSelection = 29 to 6,
             forwardEndDirection = ResolvedTextDirection.Rtl,
             backwardOffset = characterPosition(13, isRtl = false),
-            backwardSelection = 24 to 13,
+            backwardSelection = 29 to 12,
             backwardEndDirection = ResolvedTextDirection.Ltr,
         )
     }
@@ -116,11 +116,11 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
     fun whenTouch_withLongPressThenDragRightAndBack_selectsWordsThenChars() {
         touchLongPressThenDragForwardsAndBackTest(
             forwardOffset = characterPosition(31, isRtl = true),
-            forwardSelection = 24 to 31,
-            forwardEndDirection = ResolvedTextDirection.Rtl,
+            forwardSelection = 24 to 35,
+            forwardEndDirection = ResolvedTextDirection.Ltr,
             backwardOffset = characterPosition(34, isRtl = true),
-            backwardSelection = 24 to 34,
-            backwardEndDirection = ResolvedTextDirection.Rtl,
+            backwardSelection = 24 to 35,
+            backwardEndDirection = ResolvedTextDirection.Ltr,
         )
     }
 
@@ -131,8 +131,8 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
             forwardSelection = 24 to 53,
             forwardEndDirection = ResolvedTextDirection.Ltr,
             backwardOffset = characterPosition(44, isRtl = true),
-            backwardSelection = 24 to 44,
-            backwardEndDirection = ResolvedTextDirection.Rtl,
+            backwardSelection = 24 to 47,
+            backwardEndDirection = ResolvedTextDirection.Ltr,
         )
     }
 
@@ -143,7 +143,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
             forwardSelection = 24 to 47,
             forwardEndDirection = ResolvedTextDirection.Ltr,
             backwardOffset = characterPosition(38, isRtl = false),
-            backwardSelection = 24 to 38,
+            backwardSelection = 24 to 41,
             backwardEndDirection = ResolvedTextDirection.Ltr,
         )
     }
@@ -180,7 +180,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
         asserter.applyAndAssert {
             selection = backwardSelection
             endLayoutDirection = backwardEndDirection
-            hapticsCount++
+            if (forwardSelection != backwardSelection) hapticsCount++
         }
 
         performTouchGesture {

@@ -192,21 +192,10 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             magnifierShown = true
         }
 
-        // take a stop in the middle of the word, otherwise we may not shrink selection at all,
-        // and then word adjustment will be used once we move pointer to the end of the line.
-        touchDragTo(characterPosition(4))
-
-        asserter.applyAndAssert {
-            selection = 7 to 4
-            hapticsCount++
-        }
-
         touchDragTo(topEnd)
 
         asserter.applyAndAssert {
-            selection = 7 to 5
             magnifierShown = false // pointer is too far from text to show magnifier
-            hapticsCount++
         }
 
         touchDragTo(centerEnd)
@@ -243,41 +232,6 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
     }
 
     @Test
-    fun whenTouch_withLongPressThenDragLeftOutOfBounds_keepsFirstCharSelected() {
-        performTouchGesture {
-            longPress(characterPosition(9))
-        }
-
-        asserter.applyAndAssert {
-            selection = 6 to 11
-            selectionHandlesShown = true
-            magnifierShown = true
-            hapticsCount++
-        }
-
-        touchDragTo(centerStart)
-        // drag to just inside the left bound, one char should remain selected
-        asserter.applyAndAssert {
-            selection = 6 to 7
-            hapticsCount++
-        }
-
-        touchDragTo(centerStart.nudge(START))
-        // drag just outside of the left bound, should be no change.
-        // Regression: we want to ensure the selection doesn't travel to a line above the cursor
-        asserter.assert()
-
-        performTouchGesture {
-            up()
-        }
-
-        asserter.applyAndAssert {
-            textToolbarShown = true
-            magnifierShown = false
-        }
-    }
-
-    @Test
     fun whenTouch_withLongPressThenDragLeftOutOfBoundsUpAndDown_selectsLines() {
         performTouchGesture {
             longPress(characterPosition(9))
@@ -293,15 +247,12 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
         // beginning of middle line
         touchDragTo(characterPosition(6) + Offset(-2f, 0f))
-        asserter.applyAndAssert {
-            selection = 6 to 7
-            hapticsCount++
-        }
+        asserter.assert()
 
         // beginning of top line
         touchDragTo(characterPosition(0) + Offset(-2f, 0f))
         asserter.applyAndAssert {
-            selection = 6 to 0
+            selection = 11 to 0
             hapticsCount++
         }
 
@@ -313,36 +264,6 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragTo(bottomStart.nudge(START, DOWN))
         asserter.applyAndAssert {
             selection = 6 to 29
-            hapticsCount++
-        }
-    }
-
-    @Test
-    fun whenTouch_verifyOneCharStaysSelected_withinLine() {
-        performTouchGesture {
-            longPress(characterPosition(14))
-        }
-
-        asserter.applyAndAssert {
-            selection = 12 to 17
-            selectionHandlesShown = true
-            magnifierShown = true
-            hapticsCount++
-        }
-
-        touchDragTo(characterPosition(13))
-        asserter.applyAndAssert {
-            selection = 12 to 13
-            hapticsCount++
-        }
-
-        touchDragTo(characterPosition(12))
-        // shouldn't allow collapsed selection, but keeps previous single char selection
-        asserter.assert()
-
-        touchDragTo(characterPosition(11))
-        asserter.applyAndAssert {
-            selection = 12 to 11
             hapticsCount++
         }
     }
@@ -388,9 +309,8 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
     fun whenTouch_withLongPressThenDragLeftAndBack_selectsWordsThenChars() {
         touchLongPressThenDragForwardsAndBackTest(
             forwardOffset = characterPosition(8),
-            forwardSelection = 12 to 6,
             backwardOffset = characterPosition(9),
-            backwardSelection = 12 to 9,
+            expectedSelection = 17 to 6,
         )
     }
 
@@ -398,9 +318,8 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
     fun whenTouch_withLongPressThenDragUpAndBack_selectsWordsThenChars() {
         touchLongPressThenDragForwardsAndBackTest(
             forwardOffset = characterPosition(0),
-            forwardSelection = 12 to 0,
             backwardOffset = characterPosition(3),
-            backwardSelection = 12 to 3,
+            expectedSelection = 17 to 0,
         )
     }
 
@@ -408,9 +327,8 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
     fun whenTouch_withLongPressThenDragRightAndBack_selectsWordsThenChars() {
         touchLongPressThenDragForwardsAndBackTest(
             forwardOffset = characterPosition(22),
-            forwardSelection = 12 to 23,
             backwardOffset = characterPosition(19),
-            backwardSelection = 12 to 19,
+            expectedSelection = 12 to 23,
         )
     }
 
@@ -421,17 +339,15 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         // it will be selecting by character because it will be backwards selecting at that point.
         touchLongPressThenDragForwardsAndBackTest(
             forwardOffset = characterPosition(27),
-            forwardSelection = 12 to 27,
             backwardOffset = characterPosition(26),
-            backwardSelection = 12 to 26,
+            expectedSelection = 12 to 29,
         )
     }
 
     private fun touchLongPressThenDragForwardsAndBackTest(
         forwardOffset: Offset,
-        forwardSelection: TextRange?,
         backwardOffset: Offset,
-        backwardSelection: TextRange?,
+        expectedSelection: TextRange?,
     ) {
         performTouchGesture {
             longPress(characterPosition(13))
@@ -447,16 +363,13 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragTo(forwardOffset)
 
         asserter.applyAndAssert {
-            selection = forwardSelection
+            selection = expectedSelection
             hapticsCount++
         }
 
         touchDragTo(backwardOffset)
 
-        asserter.applyAndAssert {
-            selection = backwardSelection
-            hapticsCount++
-        }
+        asserter.assert()
 
         performTouchGesture {
             up()
@@ -472,7 +385,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
     fun whenTouch_withLongPressThenDragToUpperEndPaddingAndBack_selectsWordsThenChars() {
         touchLongPressThenDragToEndPaddingTest(
             endOffset = topEnd,
-            endSelection = 12 to 0,
+            endSelection = 17 to 0,
         )
     }
 
@@ -565,7 +478,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragTo(topEnd)
 
         asserter.applyAndAssert {
-            selection = 18 to 0
+            selection = 23 to 0
             hapticsCount++
         }
 
@@ -581,7 +494,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragTo(topEnd)
 
         asserter.applyAndAssert {
-            selection = 18 to 0
+            selection = 23 to 0
             hapticsCount++
         }
 
@@ -681,7 +594,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragTo(centerEnd)
 
         asserter.applyAndAssert {
-            selection = 24 to 18
+            selection = 29 to 18
             hapticsCount++
         }
 
@@ -697,7 +610,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragTo(centerEnd)
 
         asserter.applyAndAssert {
-            selection = 24 to 18
+            selection = 29 to 18
             hapticsCount++
         }
 
@@ -1126,46 +1039,6 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
         asserter.applyAndAssert {
             selection = 6 to 23
-        }
-    }
-
-    // Regression test for when a word spanning multiple lines
-    // could not shrink selection within a line.
-    @Test
-    fun whenTouch_withWordSpanningMultipleLines_selectionCanShrinkWithinLine() {
-        val content = word.repeat(100)
-        textContent.value = content
-        asserter.textContent = content
-        rule.waitForIdle()
-
-        performTouchGesture {
-            longPress(characterPosition(content.lastIndex))
-        }
-
-        asserter.applyAndAssert {
-            textContent = content
-            selection = 0 to content.length
-            selectionHandlesShown = true
-            magnifierShown = true
-            hapticsCount++
-        }
-
-        // two drags to ensure we get some movement on the same line
-        touchDragTo(characterPosition(10))
-        touchDragTo(characterPosition(5))
-
-        asserter.applyAndAssert {
-            selection = 0 to 5
-            hapticsCount++
-        }
-
-        performTouchGesture {
-            up()
-        }
-
-        asserter.applyAndAssert {
-            magnifierShown = false
-            textToolbarShown = true
         }
     }
 }

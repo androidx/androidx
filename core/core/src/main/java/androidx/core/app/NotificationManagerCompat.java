@@ -367,7 +367,7 @@ public final class NotificationManagerCompat {
     public boolean areNotificationsEnabled() {
         if (Build.VERSION.SDK_INT >= 24) {
             return Api24Impl.areNotificationsEnabled(mNotificationManager);
-        } else if (Build.VERSION.SDK_INT >= 19) {
+        } else {
             AppOpsManager appOps =
                     (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
             ApplicationInfo appInfo = mContext.getApplicationInfo();
@@ -385,8 +385,6 @@ public final class NotificationManagerCompat {
                     | InvocationTargetException | IllegalAccessException | RuntimeException e) {
                 return true;
             }
-        } else {
-            return true;
         }
     }
 

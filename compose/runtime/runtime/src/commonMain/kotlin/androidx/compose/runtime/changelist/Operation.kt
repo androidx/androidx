@@ -35,7 +35,6 @@ import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.TestOnly
-import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.deactivateCurrentGroup
 import androidx.compose.runtime.internal.IntRef
@@ -43,6 +42,7 @@ import androidx.compose.runtime.movableContentKey
 import androidx.compose.runtime.removeCurrentGroup
 import androidx.compose.runtime.runtimeCheck
 import androidx.compose.runtime.snapshots.fastForEachIndexed
+import androidx.compose.runtime.withAfterAnchorInfo
 
 internal sealed class Operation(
     val ints: Int = 0,
@@ -165,6 +165,60 @@ internal sealed class Operation(
         }
     }
 
+    object AppendValue : Operation(objects = 2) {
+        inline val Anchor get() = ObjectParameter<Anchor>(0)
+        inline val Value get() = ObjectParameter<Any?>(1)
+
+        override fun objectParamName(parameter: ObjectParameter<*>): String = when (parameter) {
+            Anchor -> "anchor"
+            Value -> "value"
+            else -> super.objectParamName(parameter)
+        }
+
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            val anchor = getObject(Anchor)
+            val value = getObject(Value)
+            if (value is RememberObserverHolder) {
+                rememberManager.remembering(value.wrapped)
+            }
+            slots.appendSlot(anchor, value)
+        }
+    }
+
+    object TrimParentValues : Operation(ints = 1) {
+        inline val Count get() = IntParameter(0)
+
+        override fun intParamName(parameter: IntParameter): String = when (parameter) {
+            Count -> "count"
+            else -> super.intParamName(parameter)
+        }
+
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            val count = getInt(Count)
+            val slotsSize = slots.slotsSize
+            slots.forEachTailSlot(slots.parent, count) { slotIndex, value ->
+                when (value) {
+                    is RememberObserverHolder -> {
+                        // Values are always updated in the composition order (not slot table order)
+                        // so there is no need to reorder these.
+                        val endRelativeOrder = slotsSize - slotIndex
+                        rememberManager.forgetting(value.wrapped, endRelativeOrder, -1, -1)
+                    }
+                    is RecomposeScopeImpl -> value.release()
+                }
+            }
+            slots.trimTailSlots(count)
+        }
+    }
+
     object UpdateValue : Operation(ints = 1, objects = 1) {
         inline val Value get() = ObjectParameter<Any?>(0)
         inline val GroupSlotIndex get() = IntParameter(0)
@@ -190,8 +244,61 @@ internal sealed class Operation(
                 rememberManager.remembering(value.wrapped)
             }
             when (val previous = slots.set(groupSlotIndex, value)) {
-                is RememberObserverHolder ->
-                    rememberManager.forgetting(previous.wrapped)
+                is RememberObserverHolder -> {
+                    val endRelativeOrder = slots.slotsSize - slots.slotIndexOfGroupSlotIndex(
+                        slots.currentGroup,
+                        groupSlotIndex
+                    )
+                    // Values are always updated in the composition order (not slot table order)
+                    // so there is no need to reorder these.
+                    rememberManager.forgetting(previous.wrapped, endRelativeOrder, -1, -1)
+                }
+                is RecomposeScopeImpl -> previous.release()
+            }
+        }
+    }
+
+    object UpdateAnchoredValue : Operation(objects = 2, ints = 1) {
+        inline val Value get() = ObjectParameter<Any?>(0)
+        inline val Anchor get() = ObjectParameter<Anchor>(1)
+        inline val GroupSlotIndex get() = IntParameter(0)
+
+        override fun intParamName(parameter: IntParameter) = when (parameter) {
+            UpdateAnchoredValue.GroupSlotIndex -> "groupSlotIndex"
+            else -> super.intParamName(parameter)
+        }
+
+        override fun objectParamName(parameter: ObjectParameter<*>) = when (parameter) {
+            UpdateAnchoredValue.Value -> "value"
+            UpdateAnchoredValue.Anchor -> "anchor"
+            else -> super.objectParamName(parameter)
+        }
+
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            val value = getObject(UpdateAnchoredValue.Value)
+            val anchor = getObject(UpdateAnchoredValue.Anchor)
+            val groupSlotIndex = getInt(UpdateAnchoredValue.GroupSlotIndex)
+            if (value is RememberObserverHolder) {
+                rememberManager.remembering(value.wrapped)
+            }
+            val groupIndex = slots.anchorIndex(anchor)
+            when (val previous = slots.set(groupIndex, groupSlotIndex, value)) {
+                is RememberObserverHolder -> {
+                    val endRelativeSlotOrder = slots.slotsSize -
+                        slots.slotIndexOfGroupSlotIndex(groupIndex, groupSlotIndex)
+                    slots.withAfterAnchorInfo(previous.after) { priority, endRelativeAfter ->
+                        rememberManager.forgetting(
+                            previous.wrapped,
+                            endRelativeSlotOrder,
+                            priority,
+                            endRelativeAfter
+                        )
+                    }
+                }
                 is RecomposeScopeImpl -> previous.release()
             }
         }
@@ -789,8 +896,8 @@ private fun positionToInsert(
 }
 
 /**
- * Release the reference the movable group stored in [slots] to the recomposer for to be used
- * to insert to insert to other locations.
+ * Release the movable group stored in [slots] to the recomposer to be used to insert in another
+ * location if needed.
  */
 @OptIn(InternalComposeApi::class)
 private fun releaseMovableGroupAtCurrent(
@@ -800,6 +907,12 @@ private fun releaseMovableGroupAtCurrent(
     slots: SlotWriter
 ) {
     val slotTable = SlotTable()
+    if (slots.collectingSourceInformation) {
+        slotTable.collectSourceInformation()
+    }
+    if (slots.collectingCalledInformation) {
+        slotTable.collectCalledByInformation()
+    }
 
     // Write a table that as if it was written by a calling
     // invokeMovableContentLambda because this might be removed from the
@@ -844,9 +957,7 @@ private fun releaseMovableGroupAtCurrent(
                 // If the original owner ignores this then we need to record it in the
                 // reference
                 if (result == InvalidationResult.IGNORED) {
-                    reference.invalidations += scope to instance?.let {
-                        IdentityArraySet<Any>().also { it.add(it) }
-                    }
+                    reference.invalidations += scope to instance
                     return InvalidationResult.SCHEDULED
                 }
                 return result

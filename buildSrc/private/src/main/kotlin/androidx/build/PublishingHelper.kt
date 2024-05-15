@@ -20,15 +20,12 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.component.AdhocComponentWithVariants
 
-internal fun Project.registerAsComponentForPublishing(gradleVariant: Configuration) {
-    // Android Library project 'release' component
-    val release = components.findByName("release")
-    if (release is AdhocComponentWithVariants) {
-        release.addVariantsFromConfiguration(gradleVariant) {}
+internal fun Project.registerAsComponentForPublishing(gradleVariant: Configuration) =
+    components.configureEach {
+        // Android Library project 'release' component
+        // Java Library project 'java' component
+        if (it.name == "release" || it.name == "java") {
+            it as AdhocComponentWithVariants
+            it.addVariantsFromConfiguration(gradleVariant) {}
+        }
     }
-    // Java Library project 'java' component
-    val javaComponent = components.findByName("java")
-    if (javaComponent is AdhocComponentWithVariants) {
-        javaComponent.addVariantsFromConfiguration(gradleVariant) {}
-    }
-}

@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.ads.adservices.adid
 
+import android.adservices.common.AdServicesOutcomeReceiver
 import android.content.Context
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions
@@ -28,6 +29,7 @@ import androidx.test.filters.SmallTest
 import com.android.dx.mockito.inline.extended.ExtendedMockito
 import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -35,13 +37,13 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
+import org.mockito.kotlin.any
 
 @SmallTest
 @SuppressWarnings("NewApi")
@@ -50,18 +52,19 @@ import org.mockito.invocation.InvocationOnMock
 class AdIdManagerTest {
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExtVersion = AdServicesInfo.adServicesVersion() >= 4
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
+    private val mValidAdExtServicesSdkExtVersionS = AdServicesInfo.extServicesVersionS() >= 9
+    private val mValidAdExtServicesSdkExtVersionR = AdServicesInfo.extServicesVersionR() >= 11
 
     @Before
     fun setUp() {
         mContext = spy(ApplicationProvider.getApplicationContext<Context>())
 
-        if (mValidAdExtServicesSdkExtVersion) {
+        if (mValidAdExtServicesSdkExtVersionS || mValidAdExtServicesSdkExtVersionR) {
             // setup a mockitoSession to return the mocked manager
             // when the static method .get() is called
             mSession = ExtendedMockito.mockitoSession()
                 .mockStatic(android.adservices.adid.AdIdManager::class.java)
-                .startMocking();
+                .startMocking()
         }
     }
 
@@ -74,17 +77,34 @@ class AdIdManagerTest {
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testAdIdOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExtVersion)
-        Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(AdIdManager.obtain(mContext)).isEqualTo(null)
+        Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersionS)
+        Assume.assumeTrue("maxSdkVersion = API 30 ext 10", !mValidAdExtServicesSdkExtVersionR)
+        assertThat(AdIdManager.obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testAdIdManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9 or API 30 ext 11",
+            mValidAdExtServicesSdkExtVersionS || mValidAdExtServicesSdkExtVersionR)
+
+        `when`(android.adservices.adid.AdIdManager.get(any())).thenThrow(NoClassDefFoundError())
+        assertThat(AdIdManager.obtain(mContext)).isNull()
     }
 
     @Test
     fun testAdIdAsync() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-            mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion)
+        val validExtServicesVersion =
+            mValidAdExtServicesSdkExtVersionS || mValidAdExtServicesSdkExtVersionR
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9 or API 30 ext 11",
+            mValidAdServicesSdkExtVersion || validExtServicesVersion)
 
-        val adIdManager = mockAdIdManager(mContext, mValidAdExtServicesSdkExtVersion)
-        setupResponse(adIdManager)
+        val adIdManager = mockAdIdManager(mContext, validExtServicesVersion)
+
+        when (mValidAdExtServicesSdkExtVersionR) {
+            true -> setupResponseR(adIdManager)
+            false -> setupResponseSPlus(adIdManager)
+        }
+
         val managerCompat = AdIdManager.obtain(mContext)
 
         // Actually invoke the compat code.
@@ -93,7 +113,10 @@ class AdIdManagerTest {
         }
 
         // Verify that the compat code was invoked correctly.
-        verify(adIdManager).getAdId(any(), any())
+        when (mValidAdExtServicesSdkExtVersionR) {
+            true -> verifyOnR(adIdManager)
+            false -> verifyOnSPlus(adIdManager)
+        }
 
         // Verify that the result of the compat call is correct.
         verifyResponse(result)
@@ -120,7 +143,7 @@ class AdIdManagerTest {
             return adIdManager
         }
 
-        private fun setupResponse(adIdManager: android.adservices.adid.AdIdManager) {
+        private fun setupResponseSPlus(adIdManager: android.adservices.adid.AdIdManager) {
             // Set up the response that AdIdManager will return when the compat code calls it.
             val adId = android.adservices.adid.AdId("1234", false)
             val answer = { args: InvocationOnMock ->
@@ -131,9 +154,38 @@ class AdIdManagerTest {
             }
             doAnswer(answer)
                 .`when`(adIdManager).getAdId(
-                    any(),
-                    any()
+                    any<Executor>(),
+                    any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>()
                 )
+        }
+
+        private fun setupResponseR(adIdManager: android.adservices.adid.AdIdManager) {
+            // Set up the response that AdIdManager will return when the compat code calls it.
+            val adId = android.adservices.adid.AdId("1234", false)
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<
+                    AdServicesOutcomeReceiver<android.adservices.adid.AdId, Exception>>(1)
+                receiver.onResult(adId)
+                null
+            }
+            doAnswer(answer).`when`(adIdManager).getAdId(
+                    any<Executor>(),
+                    any<AdServicesOutcomeReceiver<android.adservices.adid.AdId, Exception>>()
+                )
+        }
+
+        private fun verifyOnR(adIdManager: android.adservices.adid.AdIdManager) {
+            verify(adIdManager).getAdId(
+                any<Executor>(),
+                any<AdServicesOutcomeReceiver<android.adservices.adid.AdId, Exception>>()
+            )
+        }
+
+        private fun verifyOnSPlus(adIdManager: android.adservices.adid.AdIdManager) {
+            verify(adIdManager).getAdId(
+                any<Executor>(),
+                any<OutcomeReceiver<android.adservices.adid.AdId, Exception>>()
+            )
         }
 
         private fun verifyResponse(adId: AdId) {

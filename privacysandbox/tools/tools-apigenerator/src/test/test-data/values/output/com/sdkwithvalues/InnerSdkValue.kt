@@ -1,5 +1,7 @@
 package com.sdkwithvalues
 
+import android.os.Bundle
+
 public data class InnerSdkValue(
     public val id: Int,
     public val bigLong: Long,
@@ -11,6 +13,8 @@ public data class InnerSdkValue(
     public val myInterface: MyInterface,
     public val myUiInterface: MyUiInterface,
     public val numbers: List<Int>,
+    public val bundle: Bundle,
     public val maybeNumber: Int?,
     public val maybeInterface: MyInterface?,
+    public val maybeBundle: Bundle?,
 )

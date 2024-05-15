@@ -114,21 +114,13 @@ class MeasureClientTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
-    fun unregisterCallbackSynchronously_throwsIllegalArgumentException() = runTest {
-        var isExceptionCaught = false
-
+    fun unregisterCallbackSynchronously_callbackNotRegistered_success() = runTest {
         val deferred = async {
-            try {
-                client.unregisterMeasureCallback(DataType.HEART_RATE_BPM, callback)
-            } catch (e: IllegalArgumentException) {
-                isExceptionCaught = true
-            }
+            client.unregisterMeasureCallback(DataType.HEART_RATE_BPM, callback)
         }
         advanceMainLooperIdle()
-        deferred.await()
-        cleanup = false // Not registered
 
-        Truth.assertThat(isExceptionCaught).isTrue()
+        Truth.assertThat(deferred.await()).isNull()
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)

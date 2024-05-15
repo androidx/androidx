@@ -243,6 +243,7 @@ class ModifierLocalSameLayoutNodeTest {
         val provider2value = "Provider2"
         var useFirstProvider by mutableStateOf(true)
         val receivedValues = mutableListOf<String>()
+
         rule.setContent {
             Box(
                 Modifier
@@ -263,7 +264,7 @@ class ModifierLocalSameLayoutNodeTest {
         // Assert.
         rule.runOnIdle {
             assertThat(receivedValues)
-                .containsExactly(provider1value, defaultValue, provider2value, provider2value)
+                .containsExactly(provider1value, provider2value)
                 .inOrder()
         }
     }

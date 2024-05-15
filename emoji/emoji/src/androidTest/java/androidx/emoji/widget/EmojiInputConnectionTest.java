@@ -54,7 +54,6 @@ import org.junit.runner.RunWith;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 19)
 public class EmojiInputConnectionTest {
 
     private InputConnection mInputConnection;

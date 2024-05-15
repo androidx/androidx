@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -22,12 +29,12 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.2.0")
 
     implementation project(":appsearch:appsearch")
     implementation('androidx.collection:collection:1.2.0')
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.core:core:1.0.2")
+    implementation("androidx.core:core:1.1.0")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
@@ -37,7 +44,7 @@ dependencies {
 
 androidx {
     name = "AppSearch Platform Storage"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description =
         "An implementation of AppSearchSession which uses the AppSearch service on Android S+"

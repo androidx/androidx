@@ -20,7 +20,6 @@ import android.app.Activity
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
-import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_2
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
@@ -50,7 +49,7 @@ class EmbeddingCompatTest {
         }
         embeddingCompat.setEmbeddingCallback(callback)
 
-        if (vendorApiLevel < VENDOR_API_LEVEL_2) {
+        if (vendorApiLevel < 2) {
             verify(component).setSplitInfoCallback(any<JavaConsumer<List<OEMSplitInfo>>>())
         } else {
             verify(component).setSplitInfoCallback(any<Consumer<List<OEMSplitInfo>>>())

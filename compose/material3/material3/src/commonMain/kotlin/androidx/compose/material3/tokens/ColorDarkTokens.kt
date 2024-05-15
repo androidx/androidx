@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_162
+// VERSION: v0_210
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 internal object ColorDarkTokens {
-    val Background = PaletteTokens.Neutral10
+    val Background = PaletteTokens.Neutral6
     val Error = PaletteTokens.Error80
     val ErrorContainer = PaletteTokens.Error30
     val InverseOnSurface = PaletteTokens.Neutral20
@@ -53,7 +53,7 @@ internal object ColorDarkTokens {
     val SecondaryContainer = PaletteTokens.Secondary30
     val SecondaryFixed = PaletteTokens.Secondary90
     val SecondaryFixedDim = PaletteTokens.Secondary80
-    val Surface = PaletteTokens.Neutral10
+    val Surface = PaletteTokens.Neutral6
     val SurfaceBright = PaletteTokens.Neutral24
     val SurfaceContainer = PaletteTokens.Neutral12
     val SurfaceContainerHigh = PaletteTokens.Neutral17

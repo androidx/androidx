@@ -23,7 +23,6 @@ import android.widget.TextView;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
 
@@ -36,7 +35,6 @@ import androidx.emoji2.text.EmojiCompat;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(19)
 final class EmojiInputConnection extends InputConnectionWrapper {
     private final TextView mTextView;
     private final EmojiCompatDeleteHelper mEmojiCompatDeleteHelper;

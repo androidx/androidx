@@ -157,6 +157,10 @@ internal class ConsumerAdapter(
                     consumer.hashCode()
                 }
                 method.isToString(parameters) -> {
+                    // MulticastConsumer#accept must not be obfuscated by proguard if kotlin-reflect
+                    // is included. Otherwise, invocation of consumer#toString (e.g. by the library
+                    // or by the on-device implementation) will crash due to kotlin-reflect not
+                    // finding MulticastConsumer#accept.
                     consumer.toString()
                 }
                 else -> {

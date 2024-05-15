@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -52,7 +51,6 @@ public class InitCallbackTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testRegisterInitCallback_callsFailCallback() {
         final EmojiCompat.InitCallback initCallback1 = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.InitCallback initCallback2 = mock(EmojiCompat.InitCallback.class);
@@ -72,7 +70,6 @@ public class InitCallbackTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testRegisterInitCallback_callsFailCallback_whenOnFailCalledByLoader() {
         final EmojiCompat.InitCallback initCallback = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.MetadataRepoLoader loader = new EmojiCompat.MetadataRepoLoader() {
@@ -91,7 +88,6 @@ public class InitCallbackTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testRegisterInitCallback_callsFailCallback_whenMetadataRepoIsNull() {
         final EmojiCompat.InitCallback initCallback = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.MetadataRepoLoader loader = new EmojiCompat.MetadataRepoLoader() {
@@ -110,7 +106,6 @@ public class InitCallbackTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testUnregisterInitCallback_doesNotInteractWithCallback()
             throws InterruptedException {
         // will be registered

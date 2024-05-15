@@ -26,6 +26,6 @@ import androidx.compose.ui.focus.FocusManager
  * key presses, to move the focus between TextField and other focusable items on the screen.
  */
 internal expect fun Modifier.interceptDPadAndMoveFocus(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusManager: FocusManager
 ): Modifier

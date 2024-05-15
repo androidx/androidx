@@ -43,6 +43,7 @@ import androidx.wear.watchface.complications.ComplicationDataSourceInfo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
 import androidx.wear.watchface.complications.SystemDataSources
+import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.LongTextComplicationData
@@ -61,6 +62,7 @@ import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
+import org.mockito.Mockito.verify
 
 private const val TIMEOUT_MS = 500L
 
@@ -311,5 +313,22 @@ public class EditorSessionGuavaTest {
             .isEqualTo(classicStyleOption.id.value)
 
         EditorService.globalEditorService.unregisterObserver(observerId)
+    }
+
+    @Test
+    public fun setOverrideComplications() {
+        val scenario =
+            createOnWatchFaceEditingTestActivity(
+                listOf(colorStyleSetting, watchHandStyleSetting),
+                emptyList()
+            )
+
+        scenario.onActivity { activity ->
+            val map = emptyMap<Int, ComplicationData>()
+
+            activity.listenableEditorSession.setOverrideComplications(map)
+
+            verify(editorDelegate).setOverrideComplications(map)
+        }
     }
 }

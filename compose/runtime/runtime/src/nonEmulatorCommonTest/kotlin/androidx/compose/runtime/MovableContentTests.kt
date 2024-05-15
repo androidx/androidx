@@ -1592,6 +1592,85 @@ class MovableContentTests {
 
         revalidate()
     }
+
+    @Test
+    fun movableContent_rememberOrdering() = compositionTest {
+        val movableContent1 = movableContentOf {
+            repeat(100) {
+                Text("Some content")
+            }
+        }
+        var includeContent by mutableStateOf(true)
+        var rememberKey by mutableStateOf(0)
+
+        compose {
+            if (includeContent) {
+                movableContent1()
+            }
+            val a = remember(rememberKey) {
+                SimpleRememberedObject("Key $rememberKey")
+            }
+            Text(a.name)
+        }
+
+        rememberKey++
+        expectChanges()
+
+        includeContent = false
+        rememberKey++
+        expectChanges()
+    }
+
+    @Test
+    fun movableContent_nestedMovableContent() = compositionTest {
+        var data = 0
+
+        var condition by mutableStateOf(true)
+
+        val nestedContent = movableContentOf {
+            val state = remember {
+                data++
+            }
+            Text("Generated state: $state")
+        }
+
+        val contentHost = movableContentOf {
+            Text("Host")
+            if (condition) {
+                nestedContent()
+            }
+        }
+
+        compose {
+            if (condition) {
+                contentHost()
+            }
+            Text("Outer")
+            if (!condition) {
+                contentHost()
+                nestedContent()
+            }
+        }
+
+        validate {
+            if (condition) {
+                Text("Host")
+                Text("Generated state: 0")
+            }
+            Text("Outer")
+            if (!condition) {
+                Text("Host")
+                Text("Generated state: 0")
+            }
+        }
+
+        condition = false
+        expectChanges()
+        revalidate()
+        condition = true
+        expectChanges()
+        revalidate()
+    }
 }
 
 @Composable
@@ -1754,5 +1833,16 @@ class RememberedObject : RememberObserver {
         abandonedCount++
         count--
         if (count == 0) died = true
+    }
+}
+
+class SimpleRememberedObject(val name: String) : RememberObserver {
+    override fun onRemembered() {
+    }
+
+    override fun onForgotten() {
+    }
+
+    override fun onAbandoned() {
     }
 }

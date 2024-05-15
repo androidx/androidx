@@ -1,0 +1,170 @@
+// Signature format: 4.0
+package androidx.compose.material3.adaptive.layout {
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public sealed interface AdaptStrategy {
+    method public String adapt();
+    field public static final androidx.compose.material3.adaptive.layout.AdaptStrategy.Companion Companion;
+  }
+
+  public static final class AdaptStrategy.Companion {
+    method public androidx.compose.material3.adaptive.layout.AdaptStrategy getHide();
+    property public final androidx.compose.material3.adaptive.layout.AdaptStrategy Hide;
+  }
+
+  public sealed interface AnimatedPaneScope extends androidx.compose.animation.AnimatedVisibilityScope {
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class HingePolicy {
+    field public static final androidx.compose.material3.adaptive.layout.HingePolicy.Companion Companion;
+  }
+
+  public static final class HingePolicy.Companion {
+    method public int getAlwaysAvoid();
+    method public int getAvoidOccluding();
+    method public int getAvoidSeparating();
+    method public int getNeverAvoid();
+    property public final int AlwaysAvoid;
+    property public final int AvoidOccluding;
+    property public final int AvoidSeparating;
+    property public final int NeverAvoid;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ListDetailPaneScaffoldDefaults {
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies(optional androidx.compose.material3.adaptive.layout.AdaptStrategy detailPaneAdaptStrategy, optional androidx.compose.material3.adaptive.layout.AdaptStrategy listPaneAdaptStrategy, optional androidx.compose.material3.adaptive.layout.AdaptStrategy extraPaneAdaptStrategy);
+    field public static final androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldDefaults INSTANCE;
+  }
+
+  public final class ListDetailPaneScaffoldKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void ListDetailPaneScaffold(androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue value, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit> listPane, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit> detailPane, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit>? extraPane);
+  }
+
+  public final class ListDetailPaneScaffoldRole {
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getDetail();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getExtra();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getList();
+    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Detail;
+    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Extra;
+    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole List;
+    field public static final androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @kotlin.jvm.JvmInline public final value class PaneAdaptedValue {
+    field public static final androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion Companion;
+  }
+
+  public static final class PaneAdaptedValue.Companion {
+    method public String getExpanded();
+    method public String getHidden();
+    property public final String Expanded;
+    property public final String Hidden;
+  }
+
+  public final class PaneKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void AnimatedPane(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope, optional androidx.compose.ui.Modifier modifier, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.AnimatedPaneScope,kotlin.Unit> content);
+  }
+
+  @androidx.compose.runtime.Immutable public final class PaneScaffoldDirective {
+    ctor public PaneScaffoldDirective(int maxHorizontalPartitions, float horizontalPartitionSpacerSize, int maxVerticalPartitions, float verticalPartitionSpacerSize, float defaultPanePreferredWidth, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    method public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective copy(optional int maxHorizontalPartitions, optional float horizontalPartitionSpacerSize, optional int maxVerticalPartitions, optional float verticalPartitionSpacerSize, optional float defaultPanePreferredWidth, optional java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    method public float getDefaultPanePreferredWidth();
+    method public java.util.List<androidx.compose.ui.geometry.Rect> getExcludedBounds();
+    method public float getHorizontalPartitionSpacerSize();
+    method public int getMaxHorizontalPartitions();
+    method public int getMaxVerticalPartitions();
+    method public float getVerticalPartitionSpacerSize();
+    property public final float defaultPanePreferredWidth;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds;
+    property public final float horizontalPartitionSpacerSize;
+    property public final int maxHorizontalPartitions;
+    property public final int maxVerticalPartitions;
+    property public final float verticalPartitionSpacerSize;
+    field public static final androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.Companion Companion;
+  }
+
+  public static final class PaneScaffoldDirective.Companion {
+    method public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective getDefault();
+    property public final androidx.compose.material3.adaptive.layout.PaneScaffoldDirective Default;
+  }
+
+  public final class PaneScaffoldDirectiveKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirective(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.PaneScaffoldDirective calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(androidx.compose.material3.adaptive.WindowAdaptiveInfo windowAdaptiveInfo, optional int verticalHingePolicy);
+  }
+
+  public sealed interface PaneScaffoldScope {
+    method public androidx.compose.ui.Modifier preferredWidth(androidx.compose.ui.Modifier, float width);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class SupportingPaneScaffoldDefaults {
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies(optional androidx.compose.material3.adaptive.layout.AdaptStrategy mainPaneAdaptStrategy, optional androidx.compose.material3.adaptive.layout.AdaptStrategy supportingPaneAdaptStrategy, optional androidx.compose.material3.adaptive.layout.AdaptStrategy extraPaneAdaptStrategy);
+    field public static final androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldDefaults INSTANCE;
+  }
+
+  public final class SupportingPaneScaffoldKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Composable public static void SupportingPaneScaffold(androidx.compose.material3.adaptive.layout.PaneScaffoldDirective directive, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue value, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit> mainPane, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit> supportingPane, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope,kotlin.Unit>? extraPane);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class SupportingPaneScaffoldRole {
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getExtra();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getMain();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getSupporting();
+    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Extra;
+    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Main;
+    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Supporting;
+    field public static final androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldAdaptStrategies {
+    ctor public ThreePaneScaffoldAdaptStrategies(androidx.compose.material3.adaptive.layout.AdaptStrategy primaryPaneAdaptStrategy, androidx.compose.material3.adaptive.layout.AdaptStrategy secondaryPaneAdaptStrategy, androidx.compose.material3.adaptive.layout.AdaptStrategy tertiaryPaneAdaptStrategy);
+    method public operator androidx.compose.material3.adaptive.layout.AdaptStrategy get(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole role);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldDestinationItem<T> {
+    ctor public ThreePaneScaffoldDestinationItem(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane, optional T? content);
+    method public T? getContent();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getPane();
+    property public final T? content;
+    property public final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane;
+  }
+
+  public enum ThreePaneScaffoldRole {
+    enum_constant public static final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Primary;
+    enum_constant public static final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Secondary;
+    enum_constant public static final androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole Tertiary;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface ThreePaneScaffoldScope extends androidx.compose.material3.adaptive.layout.PaneScaffoldScope androidx.compose.ui.layout.LookaheadScope {
+    method public androidx.compose.animation.EnterTransition getEnterTransition();
+    method public androidx.compose.animation.ExitTransition getExitTransition();
+    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> getPositionAnimationSpec();
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole getRole();
+    method public androidx.compose.animation.core.Transition<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> getScaffoldStateTransition();
+    method public float getScaffoldStateTransitionFraction();
+    method public androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> getSizeAnimationSpec();
+    property public abstract androidx.compose.animation.EnterTransition enterTransition;
+    property public abstract androidx.compose.animation.ExitTransition exitTransition;
+    property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> positionAnimationSpec;
+    property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole role;
+    property public abstract androidx.compose.animation.core.Transition<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> scaffoldStateTransition;
+    property public abstract float scaffoldStateTransitionFraction;
+    property public abstract androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntSize> sizeAnimationSpec;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class ThreePaneScaffoldValue {
+    ctor public ThreePaneScaffoldValue(String primary, String secondary, String tertiary);
+    method public operator String get(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole role);
+    method public String getPrimary();
+    method public String getSecondary();
+    method public String getTertiary();
+    property public final String primary;
+    property public final String secondary;
+    property public final String tertiary;
+  }
+
+  public final class ThreePaneScaffoldValueKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<? extends java.lang.Object!>? currentDestination);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public static androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue calculateThreePaneScaffoldValue(int maxHorizontalPartitions, androidx.compose.material3.adaptive.layout.ThreePaneScaffoldAdaptStrategies adaptStrategies, java.util.List<? extends androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<? extends java.lang.Object!>> destinationHistory);
+  }
+
+}
+

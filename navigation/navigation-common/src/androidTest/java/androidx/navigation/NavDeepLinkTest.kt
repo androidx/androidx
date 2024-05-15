@@ -17,8 +17,11 @@
 package androidx.navigation
 
 import android.net.Uri
+import androidx.navigation.test.booleanArgument
 import androidx.navigation.test.intArgument
+import androidx.navigation.test.intArgumentUnknownDefault
 import androidx.navigation.test.nullableStringArgument
+import androidx.navigation.test.nullableStringArgumentUnknownDefault
 import androidx.navigation.test.stringArgument
 import androidx.navigation.test.stringArrayArgument
 import androidx.test.filters.SmallTest
@@ -26,6 +29,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.UnsupportedEncodingException
 import kotlin.test.assertFailsWith
+import kotlinx.serialization.Serializable
 import org.junit.Test
 
 @SmallTest
@@ -380,7 +384,7 @@ class NavDeepLinkTest {
 
     // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
     @Test
-    fun deepLinkQueryParamNullableArgumentMatchParamsInBraces() {
+    fun deepLinkQueryParamNullableStringArgumentMatchParamsInBraces() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
         val deepLink = NavDeepLink(deepLinkArgument)
 
@@ -391,6 +395,30 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
+        // We allow {argName} values for String types
+        assertWithMessage("Args should contain the argument")
+            .that(matchArgs?.getString("myarg"))
+            .isEqualTo("{myarg}")
+    }
+
+    // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
+    @Test
+    fun deepLinkQueryParamNullableNonStringArgumentMatchParamsInBraces() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+        val intArrayArg = NavArgument.Builder().setType(NavType.IntArrayType)
+            .setIsNullable(true)
+            .setDefaultValue(null)
+            .build()
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkArgument),
+            mapOf("myarg" to intArrayArg)
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+        // For non-strings, {argName} values are invalid and considered lack of argument value
         assertWithMessage("Args should not contain the argument")
             .that(matchArgs?.containsKey("myarg"))
             .isFalse()
@@ -412,7 +440,7 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should contain the argument and it should be null")
+        assertWithMessage("Args should contain the argument and it should not be null")
             .that(matchArgs?.getString("myarg"))
             .isEqualTo("myarg")
     }
@@ -448,7 +476,6 @@ class NavDeepLinkTest {
         val deepLink = NavDeepLink(deepLinkArgument)
 
         val id = 2
-        val optional = "test"
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(
                 "$DEEP_LINK_EXACT_HTTPS/users?optional={optional}&id={id}"
@@ -456,7 +483,7 @@ class NavDeepLinkTest {
             ),
             mapOf(
                 "id" to intArgument(),
-                "optional" to stringArgument(optional)
+                "optional" to stringArrayArgument(arrayOf("theArg"))
             )
         )
         assertWithMessage("Args should not be null")
@@ -465,9 +492,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should contain the id")
             .that(matchArgs?.getInt("id"))
             .isEqualTo(id)
-        assertWithMessage("Args should contain optional")
-            .that(matchArgs?.containsKey("optional"))
-            .isFalse()
+        assertWithMessage("Args should not contain optional")
+            .that(matchArgs?.getStringArray("optional"))
+            .isEqualTo(arrayOf("{optional}"))
     }
 
     @Test
@@ -860,9 +887,9 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args should not contain the argument")
-            .that(matchArgs?.containsKey("myarg"))
-            .isFalse()
+        assertWithMessage("Args should contain the argument")
+            .that(matchArgs?.getString("myarg"))
+            .isEqualTo("{myarg}")
     }
 
     // Handle the case were the input is wild card and separator with no argument
@@ -1240,14 +1267,15 @@ class NavDeepLinkTest {
 
         val matchArgs = deepLink.getMatchingArguments(
             Uri.parse(deepLinkString),
-            mapOf("myarg" to nullableStringArgument())
+            mapOf("myarg" to stringArrayArgument(arrayOf("theArg")))
         )
         assertWithMessage("Args should not be null")
             .that(matchArgs)
             .isNotNull()
-        assertWithMessage("Args bundle should be empty")
-            .that(matchArgs?.isEmpty)
-            .isTrue()
+        // We allow {argName} values for String types
+        assertWithMessage("Args bundle should contain arg value")
+            .that(matchArgs?.getStringArray("myarg"))
+            .isEqualTo(arrayOf("{myarg}"))
     }
 
     @Test
@@ -1284,6 +1312,32 @@ class NavDeepLinkTest {
         assertWithMessage("Args should contain the value without additional decoding")
             .that(matchArgs?.getString("myarg"))
             .isEqualTo(value)
+    }
+
+    @Test
+    fun deepLinkMissingRequiredArgumentUnknownDefault() {
+        val deepLink = NavDeepLink("$DEEP_LINK_EXACT_HTTPS?myarg={myarg}")
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(DEEP_LINK_EXACT_HTTPS),
+            // NavArgument with unknown default value
+            mapOf("myarg" to intArgumentUnknownDefault())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
+    }
+
+    @Test
+    fun deepLinkMissingNullableArgumentUnknownDefault() {
+        val deepLink = NavDeepLink("$DEEP_LINK_EXACT_HTTPS?myarg={myarg}")
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(DEEP_LINK_EXACT_HTTPS),
+            // NavArgument with unknown default value
+            mapOf("myarg" to nullableStringArgumentUnknownDefault())
+        )
+        assertWithMessage("Args should not be null")
+            .that(matchArgs)
+            .isNotNull()
     }
 
     @Test
@@ -1398,5 +1452,228 @@ class NavDeepLinkTest {
                 "argument and the pattern provided in your URI will be used to " +
                 "parse each query parameter instance."
         )
+    }
+
+    @Test
+    fun deepLinkExactMatchFromKClassNoScheme() {
+        @Serializable
+        class TestClass
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse("http://$uri")))
+            .isTrue()
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse("https://$uri")))
+            .isTrue()
+    }
+
+    @Test
+    fun deepLinkExactMatchFromKClassPathArgNoScheme() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val expected = "http://$uri/{arg}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse(expected)))
+            .isTrue()
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse(expected)))
+            .isTrue()
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(expected.replace("{arg}", "1")),
+            mapOf("arg" to intArgument())
+        )
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.getInt("arg")).isEqualTo(1)
+    }
+
+    @Test
+    fun deepLinkExactMatchFromKClassQueryArgNoScheme() {
+        @Serializable
+        class TestClass(val arg: Int = 1)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val expected = "http://$uri?arg={arg}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse(expected)))
+            .isTrue()
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse(expected)))
+            .isTrue()
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(expected.replace("{arg}", "2")),
+            mapOf("arg" to intArgumentUnknownDefault())
+        )
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.getInt("arg")).isEqualTo(2)
+    }
+
+    @Test
+    fun deepLinkExactMatchFromKClassPathQueryArgNoScheme() {
+        @Serializable
+        class TestClass(val arg: Int = 0, val arg2: Boolean)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val expected = "http://$uri/{arg2}?arg={arg}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse(expected)))
+            .isTrue()
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse(expected)))
+            .isTrue()
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(
+                expected
+                    .replace("{arg}", "1")
+                    .replace("{arg2}", "false")
+            ),
+            mapOf("arg" to intArgumentUnknownDefault(), "arg2" to booleanArgument())
+        )
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.getInt("arg")).isEqualTo(1)
+        assertThat(matchArgs.getBoolean("arg2")).isEqualTo(false)
+    }
+
+    @Test
+    fun deepLinkFromKClassMissingRequiredArgNoDefault() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val matchArgs = deepLink.getMatchingArguments(
+            // missing required arg in deeplink
+            Uri.parse("http://$uri"),
+            mapOf("arg" to intArgument())
+        )
+        // should not match since missing default value
+        assertThat(matchArgs).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassMissingRequiredArgWithDefault() {
+        @Serializable
+        class TestClass(val arg: Int = 1)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val matchArgs = deepLink.getMatchingArguments(
+            // missing required arg with default value
+            Uri.parse("http://$uri"),
+            mapOf("arg" to intArgumentUnknownDefault())
+        )
+        // should still match successfully since the string arg has default value
+        assertThat(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassMissingNullableArgNoDefault() {
+        @Serializable
+        class TestClass(val arg: String?)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("http://$uri"),
+            mapOf("arg" to nullableStringArgument())
+        )
+        // should not match since missing nullable arg with no default value
+        assertThat(matchArgs).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassMissingNullableArgWithDefault() {
+        @Serializable
+        class TestClass(val arg: String? = null)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse("http://$uri"),
+            mapOf("arg" to nullableStringArgumentUnknownDefault())
+        )
+        assertThat(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkMatchFromKClassPartialMissingRequiredArgNoDefault() {
+        @Serializable
+        class TestClass(val arg: Int, val arg2: Boolean)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val expected = "http://$uri/{arg}/{arg2}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse(expected)))
+            .isTrue()
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(expected.replace("{arg2}", "false")),
+            mapOf("arg" to intArgument(), "arg2" to booleanArgument())
+        )
+        assertThat(matchArgs).isNull()
+    }
+
+    @Test
+    fun deepLinkMatchFromKClassPartialMissingRequiredArgWithDefault() {
+        @Serializable
+        class TestClass(val arg: String? = "ffds", val arg2: Boolean)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder
+            .fromUriPattern<TestClass>(uri)
+            .build()
+
+        val expected = "http://$uri/{arg2}?arg={arg}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(Uri.parse(expected)))
+            .isTrue()
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(expected.replace("{arg2}", "false")),
+            mapOf("arg" to nullableStringArgumentUnknownDefault(), "arg2" to booleanArgument())
+        )
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.getBoolean("arg2")).isEqualTo(false)
     }
 }

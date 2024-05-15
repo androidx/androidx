@@ -17,14 +17,15 @@
 package androidx.health.platform.client.request
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
 /**
  * Internal parcelable for IPC calls.
  *
- * @suppress
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class ReadDataRequest(override val proto: RequestProto.ReadDataRequest) :
     ProtoParcelable<RequestProto.ReadDataRequest>() {
 

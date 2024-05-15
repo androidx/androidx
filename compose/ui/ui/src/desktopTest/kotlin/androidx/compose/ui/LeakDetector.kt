@@ -28,11 +28,13 @@ class LeakDetector {
 
     fun noLeak(): Boolean {
         System.gc()
+        @Suppress("deprecation") // b/316643753
         System.runFinalization()
         for (weakReference in weakReferences) {
             var count = 0
             while (weakReference.get() != null && count < 5) {
                 System.gc()
+                @Suppress("deprecation") // b/316643753
                 System.runFinalization()
                 Thread.sleep(1000)
                 count++

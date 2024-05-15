@@ -23,10 +23,17 @@ import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.text.TextLayoutResult
 
+@Deprecated(
+    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
+        "code. A copy of this class in foundation is used by the legacy BasicTextField."
+)
 internal class CursorAnchorInfoController(
     private val rootPositionCalculator: PositionCalculator,
+    @Suppress("DEPRECATION")
     private val inputMethodManager: InputMethodManager
 ) {
+    private val lock = Any()
+
     private var monitorEnabled = false
     private var hasPendingImmediateRequest = false
 
@@ -70,7 +77,7 @@ internal class CursorAnchorInfoController(
         includeCharacterBounds: Boolean,
         includeEditorBounds: Boolean,
         includeLineBounds: Boolean
-    ) {
+    ) = synchronized(lock) {
         this.includeInsertionMarker = includeInsertionMarker
         this.includeCharacterBounds = includeCharacterBounds
         this.includeEditorBounds = includeEditorBounds
@@ -105,7 +112,7 @@ internal class CursorAnchorInfoController(
         textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
-    ) {
+    ) = synchronized(lock) {
         this.textFieldValue = textFieldValue
         this.offsetMapping = offsetMapping
         this.textLayoutResult = textLayoutResult
@@ -125,7 +132,7 @@ internal class CursorAnchorInfoController(
      * position data is no longer valid. [CursorAnchorInfo] updates will not be sent until new
      * layout and position data is received.
      */
-    fun invalidate() {
+    fun invalidate() = synchronized(lock) {
         textFieldValue = null
         offsetMapping = null
         textLayoutResult = null
@@ -143,6 +150,7 @@ internal class CursorAnchorInfoController(
         rootPositionCalculator.localToScreen(matrix)
         androidMatrix.setFrom(matrix)
 
+        @Suppress("DEPRECATION")
         inputMethodManager.updateCursorAnchorInfo(
             builder.build(
                 textFieldValue!!,

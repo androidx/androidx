@@ -21,6 +21,7 @@ import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
+import androidx.room.ext.RoomTypeNames.STATEMENT_UTIL
 import androidx.room.ext.capitalize
 import androidx.room.ext.stripNonJava
 import androidx.room.parser.ParsedQuery
@@ -70,13 +71,18 @@ class PojoIndexAdapter(
                 } else {
                     "getColumnIndexOrThrow"
                 }
+                val packageMember = if (scope.useDriverApi) {
+                    STATEMENT_UTIL.packageMember(indexMethod)
+                } else {
+                    CURSOR_UTIL.packageMember(indexMethod)
+                }
                 scope.builder.addLocalVariable(
                     name = indexVar,
                     typeName = XTypeName.PRIMITIVE_INT,
                     assignExpr = XCodeBlock.of(
                         scope.language,
                         "%M(%L, %S)",
-                        CURSOR_UTIL.packageMember(indexMethod),
+                        packageMember,
                         cursorVarName,
                         it.columnName
 

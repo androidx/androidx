@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.preferencesOf
+import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
@@ -205,7 +206,7 @@ class GlanceAppWidgetUnitTestEnvironmentTest {
                     Text("text-row")
                 }
                 Spacer()
-                Text("text-in-column")
+                Button("text-in-column", onClick = {})
             }
         }
 

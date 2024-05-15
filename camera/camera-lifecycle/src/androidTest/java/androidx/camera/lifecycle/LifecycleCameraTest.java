@@ -37,7 +37,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Collections;
-import java.util.LinkedHashSet;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -56,7 +55,7 @@ public class LifecycleCameraTest {
         mFakeCamera = new FakeCamera();
         mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
-                new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mFakeCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
@@ -127,12 +126,12 @@ public class LifecycleCameraTest {
         FakeLifecycleOwner lifecycle2 = new FakeLifecycleOwner();
 
         CameraUseCaseAdapter adapter1 = new CameraUseCaseAdapter(
-                new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mFakeCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
         CameraUseCaseAdapter adapter2 = new CameraUseCaseAdapter(
-                new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mFakeCamera,
                 mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());

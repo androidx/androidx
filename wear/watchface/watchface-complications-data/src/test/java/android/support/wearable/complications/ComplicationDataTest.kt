@@ -1105,21 +1105,44 @@ public class ComplicationDataTest {
                 .setContentDescription(ComplicationText(DynamicString.constant("Description")))
                 .build()
         ),
+        PLACEHOLDER(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setPlaceholder(
+                    ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setRangedDynamicValue(DynamicFloat.constant(1f))
+                        .build()
+                )
+                .build()
+        ),
     }
 
     @Test
-    fun hasDynamicValue_withDynamicValue_returnsTrue() {
+    fun hasDynamicValues_withDynamicValue_returnsTrue() {
         for (scenario in HasDynamicValuesWithDynamicValueScenario.values()) {
             expect.withMessage(scenario.name).that(scenario.data.hasDynamicValues()).isTrue()
         }
     }
 
-    @Test
-    fun hasDynamicValue_withoutDynamicValue_returnsFalse() {
-        val data =
-            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA).setRangedValue(10f).build()
+    enum class HasDynamicValuesWithoutDynamicValueScenario(val data: ComplicationData) {
+        NO_DATA(
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setRangedValue(10f)
+                .setPlaceholder(
+                    ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                        .setRangedValue(10f)
+                        .build()
+                )
+                .build()
+        ),
+        // Important to test because it doesn't allow any getters.
+        EMPTY(ComplicationData.Builder(ComplicationData.TYPE_EMPTY).build()),
+    }
 
-        assertThat(data.hasDynamicValues()).isFalse()
+    @Test
+    fun hasDynamicValues_withoutDynamicValue_returnsFalse() {
+        for (scenario in HasDynamicValuesWithoutDynamicValueScenario.values()) {
+            expect.withMessage(scenario.name).that(scenario.data.hasDynamicValues()).isFalse()
+        }
     }
 
     private companion object {

@@ -19,6 +19,8 @@ package androidx.room.compiler.processing
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.JArrayTypeName
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.createTypeReference
 import androidx.room.compiler.processing.util.Source
@@ -31,6 +33,7 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
+import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
 import org.junit.Test
 
 class XArrayTypeTest {
@@ -53,20 +56,21 @@ class XArrayTypeTest {
                 .getField("param")
                 .type
             assertThat(type.isArray()).isTrue()
-            assertThat(type.asTypeName().java).isEqualTo(
-                JArrayTypeName.of(String::class.java)
+            val arrComponentTypeName = if (
+                invocation.isKsp &&
+                (invocation.processingEnv as KspProcessingEnv).isKsp2
+            ) {
+                XTypeName.getProducerExtendsName(String::class.asClassName())
+            } else {
+                String::class.asClassName()
+            }.copy(nullable = true)
+            assertThat(type.asTypeName()).isEqualTo(
+                XTypeName.getArrayName(arrComponentTypeName).copy(nullable = true)
             )
-            if (invocation.isKsp) {
-                assertThat(type.asTypeName().kotlin).isEqualTo(
-                    com.squareup.kotlinpoet.ARRAY.parameterizedBy(String::class.asKTypeName())
-                )
-            }
             check(type.isArray())
             type.componentType.let { component ->
-                assertThat(component.asTypeName().java).isEqualTo(String::class.asJTypeName())
-                if (invocation.isKsp) {
-                    assertThat(component.asTypeName().kotlin).isEqualTo(String::class.asKTypeName())
-                }
+                assertThat(component.asTypeName())
+                    .isEqualTo(String::class.asClassName().copy(nullable = true))
                 assertThat(component.nullability).isEqualTo(XNullability.UNKNOWN)
             }
         }
@@ -338,6 +342,52 @@ class XArrayTypeTest {
                 assertThat(it.asTypeName().kotlin).isEqualTo(
                     com.squareup.kotlinpoet.ARRAY.parameterizedBy(
                         com.squareup.kotlinpoet.INT.copy(nullable = true)
+                    )
+                )
+            }
+
+            // Out variance
+            val numberType = invocation.processingEnv.requireType("kotlin.Number")
+            val outNumberType = invocation.processingEnv.getWildcardType(
+                    producerExtends = numberType)
+            invocation.processingEnv.getArrayType(outNumberType).let {
+                assertThat(it.isArray()).isTrue()
+                assertThat(it.componentType).isEqualTo(outNumberType)
+                assertThat(it.asTypeName().java).isEqualTo(
+                    JArrayTypeName.of(numberType.asTypeName().java)
+                )
+                assertThat(it.asTypeName().kotlin).isEqualTo(
+                    com.squareup.kotlinpoet.ARRAY.parameterizedBy(
+                        KWildcardTypeName.producerOf(numberType.asTypeName().kotlin)
+                    )
+                )
+            }
+            // In variance
+            val inNumberType = invocation.processingEnv.getWildcardType(consumerSuper = numberType)
+            invocation.processingEnv.getArrayType(inNumberType).let {
+                assertThat(it.isArray()).isTrue()
+                assertThat(it.componentType).isEqualTo(inNumberType)
+                assertThat(it.asTypeName().java).isEqualTo(
+                    JArrayTypeName.of(JTypeName.OBJECT)
+                )
+                assertThat(it.asTypeName().kotlin).isEqualTo(
+                    com.squareup.kotlinpoet.ARRAY.parameterizedBy(
+                        KWildcardTypeName.consumerOf(numberType.asTypeName().kotlin)
+                    )
+                )
+            }
+            // Star variance
+            val starType = invocation.processingEnv.getWildcardType()
+            invocation.processingEnv.getArrayType(starType).let {
+                assertThat(it.isArray()).isTrue()
+                assertThat(it.componentType).isEqualTo(starType)
+                assertThat(it.asTypeName().java).isEqualTo(
+                    JArrayTypeName.of(JTypeName.OBJECT)
+                )
+                assertThat(it.asTypeName().kotlin).isEqualTo(
+                    com.squareup.kotlinpoet.ARRAY.parameterizedBy(
+                        KWildcardTypeName.producerOf(
+                            Any::class.asKTypeName().copy(nullable = true))
                     )
                 )
             }

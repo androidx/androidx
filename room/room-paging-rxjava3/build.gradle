@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import androidx.build.LibraryType
-import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -39,9 +45,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(project(":internal-testutils-common"))
-    kspAndroidTest(
-            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
-    )
+    kspAndroidTest(project(":room:room-compiler"))
 }
 
 androidx {
@@ -49,7 +53,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "RxJava3 integration in Room Paging"
-    publish = Publish.SNAPSHOT_AND_RELEASE
     metalavaK2UastEnabled = true
 }
 

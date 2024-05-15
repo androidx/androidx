@@ -16,8 +16,6 @@
 
 package androidx.core.content.res;
 
-import static android.os.Build.VERSION.SDK_INT;
-
 import android.content.res.Configuration;
 import android.content.res.Resources;
 
@@ -38,10 +36,6 @@ public final class ConfigurationHelper {
      * is computed and returned.</p>
      */
     public static int getDensityDpi(@NonNull Resources resources) {
-        if (SDK_INT >= 17) {
-            return resources.getConfiguration().densityDpi;
-        } else {
-            return resources.getDisplayMetrics().densityDpi;
-        }
+        return resources.getConfiguration().densityDpi;
     }
 }

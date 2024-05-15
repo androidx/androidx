@@ -17,11 +17,13 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime.internal
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeCompilerApi
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.updateChangedFlags
 import kotlin.jvm.functions.FunctionN
 
@@ -162,6 +164,18 @@ fun composableLambdaN(
     result.update(block)
     composer.endReplaceableGroup()
     return result
+}
+
+@Suppress
+@ComposeCompilerApi
+@Composable
+fun rememberComposableLambdaN(
+    key: Int,
+    tracked: Boolean,
+    arity: Int,
+    block: Any
+): ComposableLambdaN = remember { ComposableLambdaNImpl(key, tracked, arity) }.also {
+    it.update(block)
 }
 
 @Suppress("unused")

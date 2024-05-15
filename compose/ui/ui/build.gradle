@@ -14,7 +14,15 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
@@ -37,16 +45,16 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.6.0")
-                implementation(project(":collection:collection"))
+                implementation("androidx.collection:collection:1.4.0")
                 // when updating the runtime version please also update the runtime-saveable version
                 implementation(project(":compose:runtime:runtime"))
                 api(project(":compose:runtime:runtime-saveable"))
 
-                api project(":compose:ui:ui-geometry")
-                api project(":compose:ui:ui-graphics")
-                api project(":compose:ui:ui-text")
-                api project(":compose:ui:ui-unit")
-                api project(":compose:ui:ui-util")
+                api(project(":compose:ui:ui-geometry"))
+                api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui-text"))
+                api(project(":compose:ui:ui-unit"))
+                api(project(":compose:ui:ui-util"))
             }
         }
 
@@ -66,7 +74,6 @@ androidXMultiplatform {
         skikoMain {
             dependsOn(commonMain)
             dependencies {
-                api(project(":compose:ui:ui-graphics"))
                 api(libs.skikoCommon)
             }
         }
@@ -75,6 +82,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
+                api("androidx.annotation:annotation-experimental:1.4.0")
                 // This has stub APIs for access to legacy Android APIs, so we don't want
                 // any dependency on this module.
                 compileOnly(project(":compose:ui:ui-android-stubs"))
@@ -86,11 +94,23 @@ androidXMultiplatform {
                 implementation('androidx.collection:collection:1.0.0')
                 implementation("androidx.customview:customview-poolingcontainer:1.0.0")
                 implementation("androidx.savedstate:savedstate-ktx:1.2.1")
-                implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
+                api("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
                 implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
                 implementation("androidx.emoji2:emoji2:1.2.0")
 
-                implementation("androidx.profileinstaller:profileinstaller:1.3.0")
+                implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+
+                // `compose-ui` has a transitive dependency on `lifecycle-livedata-core`, and
+                // converting `lifecycle-runtime-compose` to KMP triggered a Gradle bug. Adding
+                // the `livedata` dependency directly works around the issue.
+                // See https://github.com/gradle/gradle/issues/14220 for details.
+                compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.8.0")
+
+                // `compose-ui` has a transitive dependency on `lifecycle-viewmodel-savedstate`, and
+                // converting `lifecycle-runtime-compose` to KMP triggered a Gradle bug. Adding
+                // the `lifecycle-viewmodel-savedstate` dependency directly works around the issue.
+                // See https://github.com/gradle/gradle/issues/14220 for details.
+                compileOnly("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.0")
             }
         }
 
@@ -99,7 +119,6 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinStdlibJdk8)
                 api(libs.kotlinCoroutinesSwing)
             }
         }
@@ -139,9 +158,10 @@ androidXMultiplatform {
                 implementation(project(":internal-testutils-runtime"))
                 implementation(project(":test:screenshot:screenshot"))
                 implementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
-                implementation("androidx.recyclerview:recyclerview:1.3.0-alpha02")
+                implementation("androidx.recyclerview:recyclerview:1.3.0")
                 implementation("androidx.core:core-ktx:1.2.0")
                 implementation("androidx.activity:activity-compose:1.7.0")
+                implementation("androidx.fragment:fragment-testing:1.4.1")
             }
         }
 
@@ -157,6 +177,7 @@ androidXMultiplatform {
                 implementation(libs.robolectric)
                 implementation(libs.mockitoCore4)
                 implementation(libs.mockitoKotlin4)
+                implementation(libs.byteBuddy)
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":internal-testutils-fonts"))
                 implementation(project(":compose:test-utils"))
@@ -205,19 +226,24 @@ dependencies {
 
 androidx {
     name = "Compose UI"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Compose UI primitives. This library contains the primitives that form the Compose UI Toolkit, such as drawing, measurement and layout."
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui:ui-samples"))
 }
 
-tasks.findByName("desktopTest").configure {
-    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+if (KmpPlatformsKt.enableDesktop(project)) {
+    tasks.withType(Test).configureEach {
+        if (name.equals("desktopTest")) {
+            systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+        }
+    }
 }
 
 android {
     testOptions.unitTests.includeAndroidResources = true
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
 }

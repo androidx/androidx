@@ -192,7 +192,6 @@ public abstract class SliceProvider extends ContentProvider implements
      *
      * @return true if the provider was successfully loaded, false otherwise
      */
-    @RequiresApi(19)
     public abstract boolean onCreateSliceProvider();
 
     /**
@@ -200,7 +199,6 @@ public abstract class SliceProvider extends ContentProvider implements
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
-    @RequiresApi(19)
     public Object getWrapper() {
         if (Build.VERSION.SDK_INT >= 28) {
             return new SliceProviderWrapperContainer.SliceProviderWrapper(this,
@@ -211,12 +209,10 @@ public abstract class SliceProvider extends ContentProvider implements
 
     @Override
     public final boolean onCreate() {
-        if (Build.VERSION.SDK_INT < 19) return false;
         return onCreateSliceProvider();
     }
 
     @NonNull
-    @RequiresApi(19)
     private SliceProviderCompat getSliceProviderCompat() {
         synchronized (mCompatLock) {
             if (mCompat == null) {
@@ -233,7 +229,6 @@ public abstract class SliceProvider extends ContentProvider implements
     @NonNull
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(19)
     protected CompatPermissionManager onCreatePermissionManager(
             @NonNull String[] autoGrantPermissions) {
         return new CompatPermissionManager(getContext(), PERMS_PREFIX + getClass().getName(),
@@ -243,7 +238,6 @@ public abstract class SliceProvider extends ContentProvider implements
     @Nullable
     @Override
     public final String getType(@NonNull Uri uri) {
-        if (Build.VERSION.SDK_INT < 19) return null;
         if (DEBUG) Log.d(TAG, "getFormat " + uri);
         return SLICE_TYPE;
     }
@@ -272,7 +266,7 @@ public abstract class SliceProvider extends ContentProvider implements
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT >= 28) return null;
+        if (Build.VERSION.SDK_INT >= 28) return null;
         if (extras == null) return null;
         return getSliceProviderCompat().call(method, arg, extras);
     }
@@ -332,7 +326,6 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(19)
     public Slice createPermissionSlice(@NonNull Uri sliceUri,
             @NonNull String callingPackage) {
         Context context = getContext();
@@ -366,7 +359,6 @@ public abstract class SliceProvider extends ContentProvider implements
     /**
      * Create a PendingIntent pointing at the permission dialog.
      */
-    @RequiresApi(19)
     private static PendingIntent createPermissionIntent(Context context, Uri sliceUri,
             String callingPackage) {
         Intent intent = new Intent();
@@ -385,7 +377,6 @@ public abstract class SliceProvider extends ContentProvider implements
     /**
      * Get string describing permission request.
      */
-    @RequiresApi(19)
     @SuppressWarnings("deprecation")
     private static CharSequence getPermissionString(Context context, String callingPackage) {
         PackageManager pm = context.getPackageManager();
@@ -414,7 +405,6 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     // TODO: Provide alternate notifyChange that takes in the slice (i.e. notifyChange(Uri, Slice)).
     @Nullable
-    @RequiresApi(19)
     public abstract Slice onBindSlice(@NonNull Uri sliceUri);
 
     /**
@@ -435,7 +425,6 @@ public abstract class SliceProvider extends ContentProvider implements
      * @param sliceUri The uri of the slice being unpinned.
      * @see #onSliceUnpinned(Uri)
      */
-    @RequiresApi(19)
     public void onSlicePinned(@NonNull Uri sliceUri) {}
 
     /**
@@ -446,13 +435,11 @@ public abstract class SliceProvider extends ContentProvider implements
      * or jobs related to this slice should be cancelled.
      * @see #onSlicePinned(Uri)
      */
-    @RequiresApi(19)
     public void onSliceUnpinned(@NonNull Uri sliceUri) {}
 
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(19)
     public void handleSlicePinned(@NonNull Uri sliceUri) {
         List<Uri> pinnedSlices = getPinnedSlices();
         if (!pinnedSlices.contains(sliceUri)) {
@@ -463,7 +450,6 @@ public abstract class SliceProvider extends ContentProvider implements
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(19)
     public void handleSliceUnpinned(@NonNull Uri sliceUri) {
         List<Uri> pinnedSlices = getPinnedSlices();
         if (pinnedSlices.contains(sliceUri)) {
@@ -480,7 +466,6 @@ public abstract class SliceProvider extends ContentProvider implements
      * @see android.app.slice.Slice
      */
     @NonNull
-    @RequiresApi(19)
     public Uri onMapIntentToUri(@NonNull Intent intent) {
         throw new UnsupportedOperationException(
                 "This provider has not implemented intent to uri mapping");
@@ -497,7 +482,6 @@ public abstract class SliceProvider extends ContentProvider implements
      * @see androidx.slice.SliceViewManager#getSliceDescendants(Uri)
      */
     @NonNull
-    @RequiresApi(19)
     public Collection<Uri> onGetSliceDescendants(@NonNull Uri uri) {
         return Collections.emptyList();
     }
@@ -508,7 +492,6 @@ public abstract class SliceProvider extends ContentProvider implements
      * @return All pinned slices.
      */
     @NonNull
-    @RequiresApi(19)
     public List<Uri> getPinnedSlices() {
         synchronized (mPinnedSliceUrisLock) {
             if (mPinnedSliceUris == null) {
@@ -564,7 +547,6 @@ public abstract class SliceProvider extends ContentProvider implements
 
     @Nullable
     @Override
-    @RequiresApi(16)
     public final Cursor query(@NonNull Uri uri, @Nullable String[] projection,
             @Nullable String selection, @Nullable String[] selectionArgs,
             @Nullable String sortOrder, @Nullable CancellationSignal cancellationSignal) {
@@ -596,7 +578,6 @@ public abstract class SliceProvider extends ContentProvider implements
 
     @Nullable
     @Override
-    @RequiresApi(19)
     public final Uri canonicalize(@NonNull Uri url) {
         return null;
     }
@@ -604,7 +585,6 @@ public abstract class SliceProvider extends ContentProvider implements
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(19)
     public static void setSpecs(@Nullable Set<SliceSpec> specs) {
         sSpecs = specs;
     }
@@ -613,7 +593,6 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @RequiresApi(19)
     public static Set<SliceSpec> getCurrentSpecs() {
         return sSpecs;
     }
@@ -621,7 +600,6 @@ public abstract class SliceProvider extends ContentProvider implements
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(19)
     public static void setClock(@Nullable Clock clock) {
         sClock = clock;
     }
@@ -630,7 +608,6 @@ public abstract class SliceProvider extends ContentProvider implements
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(19)
     public static Clock getClock() {
         return sClock;
     }

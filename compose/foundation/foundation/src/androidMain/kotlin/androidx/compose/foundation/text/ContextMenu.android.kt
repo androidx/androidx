@@ -16,24 +16,88 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.contextmenu.ContextMenuScope
+import androidx.compose.foundation.contextmenu.ContextMenuState
+import androidx.compose.foundation.contextmenu.close
+import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
+import androidx.compose.foundation.text.input.internal.selection.contextMenuBuilder
 import androidx.compose.foundation.text.selection.SelectionManager
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
+import androidx.compose.foundation.text.selection.contextMenuBuilder
 import androidx.compose.runtime.Composable
-
-// TODO (b/269341173) remove inline once these composables are non-trivial
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
 
 @Composable
-internal actual inline fun ContextMenuArea(
+internal actual fun ContextMenuArea(
     manager: TextFieldSelectionManager,
     content: @Composable () -> Unit
 ) {
-    content()
+    val state = remember { ContextMenuState() }
+    androidx.compose.foundation.contextmenu.ContextMenuArea(
+        state = state,
+        onDismiss = { state.close() },
+        contextMenuBuilderBlock = manager.contextMenuBuilder(state),
+        enabled = manager.enabled,
+        content = content,
+    )
 }
 
 @Composable
-internal actual inline fun ContextMenuArea(
+internal actual fun ContextMenuArea(
+    selectionState: TextFieldSelectionState,
+    enabled: Boolean,
+    content: @Composable () -> Unit
+) {
+    val state = remember { ContextMenuState() }
+    androidx.compose.foundation.contextmenu.ContextMenuArea(
+        state = state,
+        onDismiss = { state.close() },
+        contextMenuBuilderBlock = selectionState.contextMenuBuilder(state),
+        enabled = enabled,
+        content = content,
+    )
+}
+
+@Composable
+internal actual fun ContextMenuArea(
     manager: SelectionManager,
     content: @Composable () -> Unit
 ) {
-    content()
+    val state = remember { ContextMenuState() }
+    androidx.compose.foundation.contextmenu.ContextMenuArea(
+        state = state,
+        onDismiss = { state.close() },
+        contextMenuBuilderBlock = manager.contextMenuBuilder(state),
+        content = content,
+    )
+}
+
+/**
+ * The default text context menu items.
+ *
+ * @param stringId The android [android.R.string] id for the label of this item
+ */
+internal enum class TextContextMenuItems(private val stringId: Int) {
+    Cut(android.R.string.cut),
+    Copy(android.R.string.copy),
+    Paste(android.R.string.paste),
+    SelectAll(android.R.string.selectAll);
+
+    @ReadOnlyComposable
+    @Composable
+    fun resolvedString(): String = stringResource(stringId)
+}
+
+internal inline fun ContextMenuScope.TextItem(
+    state: ContextMenuState,
+    label: TextContextMenuItems,
+    enabled: Boolean,
+    crossinline operation: () -> Unit
+) {
+    item(label = { label.resolvedString() }, enabled = enabled) {
+        operation()
+        state.close()
+    }
 }

@@ -23,7 +23,6 @@ import android.view.ViewOutlineProvider
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -34,13 +33,12 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
@@ -50,13 +48,13 @@ import java.lang.reflect.Method
 internal class ViewLayer(
     val ownerView: AndroidComposeView,
     val container: DrawChildContainer,
-    drawBlock: (Canvas) -> Unit,
+    drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
     invalidateParentLayer: () -> Unit
 ) : View(ownerView.context), OwnedLayer, GraphicLayerInfo {
-    private var drawBlock: ((Canvas) -> Unit)? = drawBlock
+    private var drawBlock: ((canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit)? = drawBlock
     private var invalidateParentLayer: (() -> Unit)? = invalidateParentLayer
 
-    private val outlineResolver = OutlineResolver(ownerView.density)
+    private val outlineResolver = OutlineResolver()
     // Value of the layerModifier's clipToBounds property
     private var clipToBounds = false
     private var clipBoundsCache: android.graphics.Rect? = null
@@ -126,11 +124,7 @@ internal class ViewLayer(
 
     private var mutatedFields: Int = 0
 
-    override fun updateLayerProperties(
-        scope: ReusableGraphicsLayerScope,
-        layoutDirection: LayoutDirection,
-        density: Density,
-    ) {
+    override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
         val maybeChangedFields = scope.mutatedFields or mutatedFields
         if (maybeChangedFields and Fields.TransformOrigin != 0) {
             this.mTransformOrigin = scope.transformOrigin
@@ -175,12 +169,11 @@ internal class ViewLayer(
             this.clipToOutline = clipToOutline
         }
         val shapeChanged = outlineResolver.update(
-            scope.shape,
+            scope.outline,
             scope.alpha,
             clipToOutline,
             scope.shadowElevation,
-            layoutDirection,
-            density
+            scope.size
         )
         if (outlineResolver.cacheIsDirty) {
             updateOutlineResolver()
@@ -255,7 +248,7 @@ internal class ViewLayer(
     }
 
     private fun updateOutlineResolver() {
-        this.outlineProvider = if (outlineResolver.outline != null) {
+        this.outlineProvider = if (outlineResolver.androidOutline != null) {
             OutlineProvider
         } else {
             null
@@ -281,7 +274,6 @@ internal class ViewLayer(
         if (width != this.width || height != this.height) {
             pivotX = mTransformOrigin.pivotFractionX * width
             pivotY = mTransformOrigin.pivotFractionY * height
-            outlineResolver.update(Size(width.toFloat(), height.toFloat()))
             updateOutlineResolver()
             layout(left, top, left + width, top + height)
             resetClipBounds()
@@ -303,7 +295,7 @@ internal class ViewLayer(
         }
     }
 
-    override fun drawLayer(canvas: Canvas) {
+    override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
         drawnWithZ = elevation > 0f
         if (drawnWithZ) {
             canvas.enableZ()
@@ -323,7 +315,7 @@ internal class ViewLayer(
                 save()
                 outlineResolver.clipToOutline(this)
             }
-            drawBlock?.invoke(this)
+            drawBlock?.invoke(this, null)
             if (didClip) {
                 restore()
             }
@@ -347,11 +339,6 @@ internal class ViewLayer(
         ownerView.requestClearInvalidObservations()
         drawBlock = null
         invalidateParentLayer = null
-
-        // L throws during RenderThread when reusing the Views. The stack trace
-        // wasn't easy to decode, so this work-around keeps up to 10 Views active
-        // only for L. On other versions, it uses the WeakHashMap to retain as many
-        // as are convenient.
 
         val recycle = ownerView.recycle(this@ViewLayer)
 
@@ -395,7 +382,10 @@ internal class ViewLayer(
         }
     }
 
-    override fun reuseLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit) {
+    override fun reuseLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M || shouldUseDispatchDraw) {
             container.addView(this)
         } else {
@@ -428,7 +418,7 @@ internal class ViewLayer(
         val OutlineProvider = object : ViewOutlineProvider() {
             override fun getOutline(view: View, outline: android.graphics.Outline) {
                 view as ViewLayer
-                outline.set(view.outlineResolver.outline!!)
+                outline.set(view.outlineResolver.androidOutline!!)
             }
         }
         private var updateDisplayListIfDirtyMethod: Method? = null

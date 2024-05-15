@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -23,6 +30,8 @@ dependencies {
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:material:material"))
     implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation project(':compose:material3:material3')
+    implementation project(":navigation:navigation-compose")
     debugImplementation(project(":compose:ui:ui-tooling"))
 }
 

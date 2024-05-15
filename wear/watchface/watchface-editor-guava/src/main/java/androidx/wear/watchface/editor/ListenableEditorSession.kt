@@ -156,6 +156,10 @@ public class ListenableEditorSession(private val wrappedEditorSession: EditorSes
             slotIdToComplicationData
         )
 
+    override fun setOverrideComplications(slotIdToComplicationData: Map<Int, ComplicationData>) {
+        wrappedEditorSession.setOverrideComplications(slotIdToComplicationData)
+    }
+
     /** [ListenableFuture] wrapper around [EditorSession.openComplicationDataSourceChooser]. */
     public fun listenableOpenComplicationDataSourceChooser(
         complicationSlotId: Int

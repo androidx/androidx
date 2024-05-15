@@ -17,7 +17,6 @@
 package androidx.slice.widget;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -29,7 +28,6 @@ import androidx.slice.SliceItem;
 import androidx.slice.view.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -40,7 +38,6 @@ import org.xmlpull.v1.XmlPullParser;
 /** Tests for {@link SliceView}. */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 19)
 public class SliceStyleTest {
 
     private final Context mContext = ApplicationProvider.getApplicationContext();

@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraContext
@@ -35,7 +34,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 /**
  * The FakeCameraBackend implements [CameraBackend] and creates [CameraControllerSimulator]s.
  */
-@RequiresApi(21)
 class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) : CameraBackend {
     private val lock = Any()
     private val fakeCameraIds = fakeCameras.keys.toList()
@@ -84,6 +82,25 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
             _cameraControllers.add(cameraController)
         }
         return cameraController
+    }
+
+    override fun prewarm(cameraId: CameraId) {
+        _cameraControllers.find { it.cameraId == cameraId }?.simulateCameraStarted()
+    }
+
+    override fun disconnect(cameraId: CameraId) {
+        _cameraControllers.find { it.cameraId == cameraId }?.simulateCameraStopped()
+    }
+
+    override fun disconnectAsync(cameraId: CameraId): Deferred<Unit> {
+        _cameraControllers.find { it.cameraId == cameraId }?.simulateCameraStopped()
+        return CompletableDeferred(Unit)
+    }
+
+    override fun disconnectAll() {
+        _cameraControllers.forEach {
+            it.simulateCameraStopped()
+        }
     }
 
     companion object {

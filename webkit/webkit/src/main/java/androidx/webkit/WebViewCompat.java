@@ -160,6 +160,7 @@ public class WebViewCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#VISUAL_STATE_CALLBACK}.
      *
+     * @param webview The WebView to post to.
      * @param requestId An id that will be returned in the callback to allow callers to match
      *                  requests with callbacks.
      * @param callback  The callback to be invoked.
@@ -497,6 +498,7 @@ public class WebViewCompat {
      * }
      * </pre
      *
+     * @param webview The WebView to post to.
      * @param message the WebMessage
      * @param targetOrigin the target origin.
      */
@@ -760,6 +762,7 @@ public class WebViewCompat {
      * This method should only be called if {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#WEB_MESSAGE_LISTENER}.
      *
+     * @param webview The WebView object to remove from.
      * @param jsObjectName The JavaScript object's name that was previously passed to {@link
      *         #addWebMessageListener(WebView, String, Set, WebMessageListener)}.
      *
@@ -1129,6 +1132,41 @@ public class WebViewCompat {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
+
+    /**
+     * Returns whether this WebView is muted.
+     *
+     * @param webView the WebView for which to check mute status.
+     * @return true if the WebView is muted, false otherwise.
+     */
+    @RequiresFeature(name = WebViewFeature.MUTE_AUDIO,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static boolean isAudioMuted(@NonNull WebView webView) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MUTE_AUDIO;
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webView).isAudioMuted();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Mute or unmute this WebView.
+     *
+     * @param webView the WebView for which to control muting.
+     * @param mute true to mute the WebView; false to unmute the WebView.
+     */
+    @RequiresFeature(name = WebViewFeature.MUTE_AUDIO,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setAudioMuted(@NonNull WebView webView, boolean mute) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MUTE_AUDIO;
+        if (feature.isSupportedByWebView()) {
+            getProvider(webView).setAudioMuted(mute);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
 
     private static WebViewProviderFactory getFactory() {
         return WebViewGlueCommunicator.getFactory();

@@ -43,7 +43,6 @@ internal object BaseWideButtonDefaults {
     val VerticalContentGap = 4.dp
 }
 
-@ExperimentalTvMaterial3Api
 object WideButtonDefaults {
     private val HorizontalPadding = 16.dp
     private val VerticalPadding = 10.dp

@@ -95,15 +95,7 @@ public:
 template<typename T, typename = details::enable_if_arithmetic_t<T>>
 using vec2 = details::TVec2<T>;
 
-using double2 = vec2<double>;
 using float2 = vec2<float>;
-using int2 = vec2<int32_t>;
-using uint2 = vec2<uint32_t>;
-using short2 = vec2<int16_t>;
-using ushort2 = vec2<uint16_t>;
-using byte2 = vec2<int8_t>;
-using ubyte2 = vec2<uint8_t>;
-using bool2 = vec2<bool>;
 
 // ----------------------------------------------------------------------------------------
 }  // namespace math

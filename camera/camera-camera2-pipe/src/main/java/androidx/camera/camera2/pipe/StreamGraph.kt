@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe
 
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 
 /**
@@ -25,11 +24,10 @@ import androidx.annotation.RestrictTo
  * [CameraStream]s can be used to build [Request]s that are sent to a [CameraGraph].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface StreamGraph {
     val streams: List<CameraStream>
     val streamIds: Set<StreamId>
-    val input: InputStream?
+    val inputs: List<InputStream>
     val outputs: List<OutputStream>
 
     operator fun get(config: CameraStream.Config): CameraStream?

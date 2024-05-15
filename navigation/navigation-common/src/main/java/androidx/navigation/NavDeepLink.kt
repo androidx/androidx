@@ -18,8 +18,13 @@ package androidx.navigation
 import android.net.Uri
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.navigation.serialization.generateRoutePattern
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
 /**
  * NavDeepLink encapsulates the parsing and matching of a navigation deep link.
@@ -163,6 +168,16 @@ public class NavDeepLink internal constructor(
 
     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS", "NullableCollection")
     /** Pattern.compile has no nullability for the regex parameter
+     *
+     * May return null if any of the following:
+     * 1. missing required arguments that don't have default values
+     * 2. wrong value type (i.e. null for non-nullable arg)
+     * 3. other exceptions from parsing an argument value
+     *
+     * May return empty bundle if any of the following:
+     * 1. deeplink has no arguments
+     * 2. deeplink contains arguments with unknown default values (i.e. deeplink from safe args
+     * with unknown default values)
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun getMatchingArguments(
@@ -226,10 +241,9 @@ public class NavDeepLink internal constructor(
             val value = Uri.decode(matcher.group(index + 1))
             val argument = arguments[argumentName]
             try {
-                if (parseArgument(bundle, argumentName, value, argument)) {
-                    return
-                }
+                parseArgument(bundle, argumentName, value, argument)
             } catch (e: IllegalArgumentException) {
+                // parse failed, quick return
                 return
             }
         }
@@ -244,9 +258,7 @@ public class NavDeepLink internal constructor(
             val value = Uri.decode(matcher.group(index + 1))
             val argument = arguments[argumentName]
             try {
-                if (parseArgument(bundle, argumentName, value, argument)) {
-                    return false
-                }
+                parseArgument(bundle, argumentName, value, argument)
             } catch (e: IllegalArgumentException) {
                 // Failed to parse means this isn't a valid deep link
                 // for the given URI - i.e., the URI contains a non-integer
@@ -254,6 +266,7 @@ public class NavDeepLink internal constructor(
                 return false
             }
         }
+        // parse success
         return true
     }
 
@@ -276,9 +289,11 @@ public class NavDeepLink internal constructor(
                 }
             }
             if (!parseInputParams(inputParams, storedParam, bundle, arguments)) {
+                // failed to parse input parameters
                 return false
             }
         }
+        // parse success
         return true
     }
 
@@ -305,13 +320,9 @@ public class NavDeepLink internal constructor(
                     val argument = arguments[argName]
                     if (parseArgumentForRepeatedParam(bundle, argName, value, argument)) {
                         // Passing in a value the exact same as the placeholder will be treated the
-                        // as if no value was passed, being replaced if it is optional or throwing an
-                        // error if it is required.
-                        if (value != "{$argName}" &&
-                            parseArgument(queryParamBundle, argName, value, argument)
-                        ) {
-                            return false
-                        }
+                        // as if no value was passed (unless value is based on String),
+                        // being replaced if it is optional or throwing an error if it is required.
+                        parseArgument(queryParamBundle, argName, value, argument)
                     }
                 }
                 bundle.putAll(queryParamBundle)
@@ -321,6 +332,7 @@ public class NavDeepLink internal constructor(
                 // that particular parameter from the argument bundle.
             }
         }
+        // parse success
         return true
     }
 
@@ -334,19 +346,22 @@ public class NavDeepLink internal constructor(
         return matches.size
     }
 
+    /**
+     * Parses [value] based on the NavArgument's NavType and stores the result
+     * inside the [bundle]. Throws if parse fails.
+     */
     private fun parseArgument(
         bundle: Bundle,
         name: String,
         value: String,
         argument: NavArgument?
-    ): Boolean {
+    ) {
         if (argument != null) {
             val type = argument.type
             type.parseAndPut(bundle, name, value)
         } else {
             bundle.putString(name, value)
         }
-        return false
     }
 
     private fun parseArgumentForRepeatedParam(
@@ -451,6 +466,75 @@ public class NavDeepLink internal constructor(
         }
 
         /**
+         * Set the uri pattern for the [NavDeepLink].
+         *
+         * Arguments extracted from destination [T] will be automatically appended to the base path
+         * provided in [basePath].
+         *
+         * Arguments are appended based on property name and in the same order as their declaration
+         * order in [T]. They are appended as query parameters if the argument has either:
+         *
+         * 1. a default value
+         * 2. a [NavType] of [CollectionNavType]
+         *
+         * Otherwise, the argument will be appended as path parameters. The final uriPattern
+         * is generated by concatenating `uriPattern + path parameters + query parameters`.
+         *
+         *
+         * For example, the `name` property in this class does not meet either conditions and will
+         * be appended as a path param.
+         * ```
+         * @Serializable
+         * class MyClass(val name: String)
+         * ```
+         * Given a uriPattern of "www.example.com", the generated final uriPattern
+         * will be `www.example.com/{name}`.
+         *
+         *
+         * The `name` property in this class has a default value and will be appended as a query.
+         * ```
+         * @Serializable
+         * class MyClass(val name: String = "default")
+         * ```
+         * Given a uriPattern of "www.example.com", the final generated uriPattern
+         * will be `www.example.com?name={name}`
+         *
+         *
+         * The append order is based on their declaration order in [T]
+         * ```
+         * @Serializable
+         * class MyClass(val name: String = "default", val id: Int, val code: Int)
+         * ```
+         * Given a uriPattern of "www.example.com", the final generated uriPattern
+         * will be `www.example.com/{id}/{code}?name={name}`. In this example, `name` is appended
+         * first as a query param, then `id` and `code` respectively as path params. The final
+         * pattern is then concatenated with `uriPattern + path + query`.
+         *
+         *
+         * @param T The destination's route from KClass
+         * @param basePath The base uri path to append arguments onto
+         * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+         * [NavType]. May be empty if [T] does not use custom NavTypes.
+         *
+         * @return This builder.
+         */
+        public inline fun <reified T : Any> setUriPattern(
+            basePath: String,
+            typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+        ): Builder = setUriPattern(basePath, T::class, typeMap)
+
+        @OptIn(InternalSerializationApi::class)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // need to be public for reified delegation
+        public fun <T : Any> setUriPattern(
+            basePath: String,
+            route: KClass<T>,
+            typeMap: Map<KType, NavType<*>> = emptyMap(),
+        ): Builder {
+            this.uriPattern = route.serializer().generateRoutePattern(typeMap, basePath)
+            return this
+        }
+
+        /**
          * Set the action for the [NavDeepLink].
          *
          * @throws IllegalArgumentException if the action is empty.
@@ -498,6 +582,28 @@ public class NavDeepLink internal constructor(
             fun fromUriPattern(uriPattern: String): Builder {
                 val builder = Builder()
                 builder.setUriPattern(uriPattern)
+                return builder
+            }
+
+            /**
+             * Creates a [NavDeepLink.Builder] with a set uri pattern.
+             *
+             * Arguments extracted from destination [T] will be automatically appended to the
+             * base path provided in [basePath]
+             *
+             * @param T The destination's route from KClass
+             * @param basePath The base uri path to append arguments onto
+             * @param typeMap map of destination arguments' kotlin type [KType] to its
+             * respective custom [NavType]. May be empty if [T] does not use custom NavTypes.
+             * @return a [Builder] instance
+             */
+            @JvmStatic
+            inline fun <reified T : Any> fromUriPattern(
+                basePath: String,
+                typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+            ): Builder {
+                val builder = Builder()
+                builder.setUriPattern(basePath, T::class, typeMap)
                 return builder
             }
 

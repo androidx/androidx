@@ -1,0 +1,298 @@
+// Signature format: 4.0
+package androidx.wear.tiles.material {
+
+  @Deprecated public class Button implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.Button? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.ButtonColors getButtonColors();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
+    method @Deprecated public CharSequence? getContentDescription();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getCustomContent();
+    method @Deprecated public String? getIconContent();
+    method @Deprecated public String? getImageContent();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension getSize();
+    method @Deprecated public String? getTextContent();
+  }
+
+  @Deprecated public static final class Button.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public Button.Builder(android.content.Context, androidx.wear.tiles.ModifiersBuilders.Clickable);
+    method @Deprecated public androidx.wear.tiles.material.Button build();
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setButtonColors(androidx.wear.tiles.material.ButtonColors);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setContentDescription(CharSequence);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setCustomContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setIconContent(String);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setIconContent(String, androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setImageContent(String);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setSize(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setSize(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setTextContent(String);
+    method @Deprecated public androidx.wear.tiles.material.Button.Builder setTextContent(String, int);
+  }
+
+  @Deprecated public class ButtonColors {
+    ctor @Deprecated public ButtonColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor @Deprecated public ButtonColors(@ColorInt int, @ColorInt int);
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
+    method @Deprecated public static androidx.wear.tiles.material.ButtonColors primaryButtonColors(androidx.wear.tiles.material.Colors);
+    method @Deprecated public static androidx.wear.tiles.material.ButtonColors secondaryButtonColors(androidx.wear.tiles.material.Colors);
+  }
+
+  @Deprecated public class ButtonDefaults {
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.DpProp recommendedIconSize(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public static androidx.wear.tiles.DimensionBuilders.DpProp recommendedIconSize(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+    field @Deprecated public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_SIZE;
+    field @Deprecated public static final androidx.wear.tiles.DimensionBuilders.DpProp EXTRA_LARGE_SIZE;
+    field @Deprecated public static final androidx.wear.tiles.DimensionBuilders.DpProp LARGE_SIZE;
+    field @Deprecated public static final androidx.wear.tiles.material.ButtonColors PRIMARY_COLORS;
+    field @Deprecated public static final androidx.wear.tiles.material.ButtonColors SECONDARY_COLORS;
+  }
+
+  @Deprecated public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.Chip? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.ChipColors getChipColors();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
+    method @Deprecated public CharSequence? getContentDescription();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getCustomContent();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
+    method @Deprecated public int getHorizontalAlignment();
+    method @Deprecated public String? getIconContent();
+    method @Deprecated public String? getPrimaryLabelContent();
+    method @Deprecated public String? getSecondaryLabelContent();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
+  }
+
+  @Deprecated public static final class Chip.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public Chip.Builder(android.content.Context, androidx.wear.tiles.ModifiersBuilders.Clickable, androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.material.Chip build();
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setContentDescription(CharSequence);
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setCustomContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setHorizontalAlignment(int);
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setIconContent(String);
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setPrimaryLabelContent(String);
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setSecondaryLabelContent(String);
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method @Deprecated public androidx.wear.tiles.material.Chip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  }
+
+  @Deprecated public class ChipColors {
+    ctor @Deprecated public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor @Deprecated public ChipColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor @Deprecated public ChipColors(@ColorInt int, @ColorInt int);
+    ctor @Deprecated public ChipColors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor();
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getContentColor();
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getIconColor();
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getSecondaryContentColor();
+    method @Deprecated public static androidx.wear.tiles.material.ChipColors primaryChipColors(androidx.wear.tiles.material.Colors);
+    method @Deprecated public static androidx.wear.tiles.material.ChipColors secondaryChipColors(androidx.wear.tiles.material.Colors);
+  }
+
+  @Deprecated public class ChipDefaults {
+    field @Deprecated public static final androidx.wear.tiles.material.ChipColors COMPACT_PRIMARY_COLORS;
+    field @Deprecated public static final androidx.wear.tiles.material.ChipColors COMPACT_SECONDARY_COLORS;
+    field @Deprecated public static final androidx.wear.tiles.material.ChipColors PRIMARY_COLORS;
+    field @Deprecated public static final androidx.wear.tiles.material.ChipColors SECONDARY_COLORS;
+    field @Deprecated public static final androidx.wear.tiles.material.ChipColors TITLE_PRIMARY_COLORS;
+    field @Deprecated public static final androidx.wear.tiles.material.ChipColors TITLE_SECONDARY_COLORS;
+  }
+
+  @Deprecated public class CircularProgressIndicator implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.CircularProgressIndicator? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.ProgressIndicatorColors getCircularProgressIndicatorColors();
+    method @Deprecated public CharSequence? getContentDescription();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DegreesProp getEndAngle();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DegreesProp getProgress();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DegreesProp getStartAngle();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.DpProp getStrokeWidth();
+  }
+
+  @Deprecated public static final class CircularProgressIndicator.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public CircularProgressIndicator.Builder();
+    method @Deprecated public androidx.wear.tiles.material.CircularProgressIndicator build();
+    method @Deprecated public androidx.wear.tiles.material.CircularProgressIndicator.Builder setCircularProgressIndicatorColors(androidx.wear.tiles.material.ProgressIndicatorColors);
+    method @Deprecated public androidx.wear.tiles.material.CircularProgressIndicator.Builder setContentDescription(CharSequence);
+    method @Deprecated public androidx.wear.tiles.material.CircularProgressIndicator.Builder setEndAngle(float);
+    method @Deprecated public androidx.wear.tiles.material.CircularProgressIndicator.Builder setProgress(@FloatRange(from=0, to=1) float);
+    method @Deprecated public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStartAngle(float);
+    method @Deprecated public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStrokeWidth(androidx.wear.tiles.DimensionBuilders.DpProp);
+    method @Deprecated public androidx.wear.tiles.material.CircularProgressIndicator.Builder setStrokeWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  }
+
+  @Deprecated public class Colors {
+    ctor @Deprecated public Colors(@ColorInt int, @ColorInt int, @ColorInt int, @ColorInt int);
+    method @Deprecated @ColorInt public int getOnPrimary();
+    method @Deprecated @ColorInt public int getOnSurface();
+    method @Deprecated @ColorInt public int getPrimary();
+    method @Deprecated @ColorInt public int getSurface();
+    field @Deprecated public static final androidx.wear.tiles.material.Colors DEFAULT;
+  }
+
+  @Deprecated public class CompactChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.CompactChip? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.ChipColors getChipColors();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
+    method @Deprecated public String getText();
+  }
+
+  @Deprecated public static final class CompactChip.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public CompactChip.Builder(android.content.Context, String, androidx.wear.tiles.ModifiersBuilders.Clickable, androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.material.CompactChip build();
+    method @Deprecated public androidx.wear.tiles.material.CompactChip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
+  }
+
+  @Deprecated public class ProgressIndicatorColors {
+    ctor @Deprecated public ProgressIndicatorColors(androidx.wear.tiles.ColorBuilders.ColorProp, androidx.wear.tiles.ColorBuilders.ColorProp);
+    ctor @Deprecated public ProgressIndicatorColors(@ColorInt int, @ColorInt int);
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getIndicatorColor();
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getTrackColor();
+    method @Deprecated public static androidx.wear.tiles.material.ProgressIndicatorColors progressIndicatorColors(androidx.wear.tiles.material.Colors);
+  }
+
+  @Deprecated public class ProgressIndicatorDefaults {
+    field @Deprecated public static final androidx.wear.tiles.material.ProgressIndicatorColors DEFAULT_COLORS;
+    field @Deprecated public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_STROKE_WIDTH;
+    field @Deprecated public static final float GAP_END_ANGLE = 156.1f;
+    field @Deprecated public static final float GAP_START_ANGLE = -156.1f;
+  }
+
+  @Deprecated public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.Text? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.ColorBuilders.ColorProp getColor();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.FontStyle getFontStyle();
+    method @Deprecated public float getLineHeight();
+    method @Deprecated public int getMaxLines();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Modifiers getModifiers();
+    method @Deprecated public int getMultilineAlignment();
+    method @Deprecated public int getOverflow();
+    method @Deprecated public String getText();
+    method @Deprecated public int getWeight();
+    method @Deprecated public boolean isItalic();
+    method @Deprecated public boolean isUnderline();
+  }
+
+  @Deprecated public static final class Text.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public Text.Builder(android.content.Context, String);
+    method @Deprecated public androidx.wear.tiles.material.Text build();
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setColor(androidx.wear.tiles.ColorBuilders.ColorProp);
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setItalic(boolean);
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setMaxLines(@IntRange(from=1) int);
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setModifiers(androidx.wear.tiles.ModifiersBuilders.Modifiers);
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setMultilineAlignment(int);
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setOverflow(int);
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setTypography(int);
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setUnderline(boolean);
+    method @Deprecated public androidx.wear.tiles.material.Text.Builder setWeight(int);
+  }
+
+  @Deprecated public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.TitleChip? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.ChipColors getChipColors();
+    method @Deprecated public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable();
+    method @Deprecated public int getHorizontalAlignment();
+    method @Deprecated public String getText();
+    method @Deprecated public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
+  }
+
+  @Deprecated public static final class TitleChip.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public TitleChip.Builder(android.content.Context, String, androidx.wear.tiles.ModifiersBuilders.Clickable, androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.material.TitleChip build();
+    method @Deprecated public androidx.wear.tiles.material.TitleChip.Builder setChipColors(androidx.wear.tiles.material.ChipColors);
+    method @Deprecated public androidx.wear.tiles.material.TitleChip.Builder setHorizontalAlignment(int);
+    method @Deprecated public androidx.wear.tiles.material.TitleChip.Builder setWidth(androidx.wear.tiles.DimensionBuilders.ContainerDimension);
+    method @Deprecated public androidx.wear.tiles.material.TitleChip.Builder setWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  }
+
+  @Deprecated public class Typography {
+    field @Deprecated public static final int TYPOGRAPHY_BODY1 = 7; // 0x7
+    field @Deprecated public static final int TYPOGRAPHY_BODY2 = 8; // 0x8
+    field @Deprecated public static final int TYPOGRAPHY_BUTTON = 9; // 0x9
+    field @Deprecated public static final int TYPOGRAPHY_CAPTION1 = 10; // 0xa
+    field @Deprecated public static final int TYPOGRAPHY_CAPTION2 = 11; // 0xb
+    field @Deprecated public static final int TYPOGRAPHY_CAPTION3 = 12; // 0xc
+    field @Deprecated public static final int TYPOGRAPHY_DISPLAY1 = 1; // 0x1
+    field @Deprecated public static final int TYPOGRAPHY_DISPLAY2 = 2; // 0x2
+    field @Deprecated public static final int TYPOGRAPHY_DISPLAY3 = 3; // 0x3
+    field @Deprecated public static final int TYPOGRAPHY_TITLE1 = 4; // 0x4
+    field @Deprecated public static final int TYPOGRAPHY_TITLE2 = 5; // 0x5
+    field @Deprecated public static final int TYPOGRAPHY_TITLE3 = 6; // 0x6
+  }
+
+}
+
+package androidx.wear.tiles.material.layouts {
+
+  @Deprecated public class EdgeContentLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.layouts.EdgeContentLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getEdgeContent();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
+  }
+
+  @Deprecated public static final class EdgeContentLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public EdgeContentLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.material.layouts.EdgeContentLayout build();
+    method @Deprecated public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setEdgeContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+  }
+
+  @Deprecated public class LayoutDefaults {
+    field @Deprecated public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_VERTICAL_SPACER_HEIGHT;
+    field @Deprecated public static final float EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
+    field @Deprecated public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
+    field @Deprecated public static final int MULTI_BUTTON_MAX_NUMBER = 7; // 0x7
+    field @Deprecated public static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
+  }
+
+  @Deprecated public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.layouts.MultiButtonLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getButtonContents();
+    method @Deprecated public int getFiveButtonDistribution();
+    field @Deprecated public static final int FIVE_BUTTON_DISTRIBUTION_BOTTOM_HEAVY = 2; // 0x2
+    field @Deprecated public static final int FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY = 1; // 0x1
+  }
+
+  @Deprecated public static final class MultiButtonLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public MultiButtonLayout.Builder();
+    method @Deprecated public androidx.wear.tiles.material.layouts.MultiButtonLayout.Builder addButtonContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.MultiButtonLayout build();
+    method @Deprecated public androidx.wear.tiles.material.layouts.MultiButtonLayout.Builder setFiveButtonDistribution(int);
+  }
+
+  @Deprecated public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.layouts.MultiSlotLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated @Dimension(unit=androidx.annotation.Dimension.DP) public float getHorizontalSpacerWidth();
+    method @Deprecated public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getSlotContents();
+  }
+
+  @Deprecated public static final class MultiSlotLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public MultiSlotLayout.Builder();
+    method @Deprecated public androidx.wear.tiles.material.layouts.MultiSlotLayout.Builder addSlotContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.MultiSlotLayout build();
+    method @Deprecated public androidx.wear.tiles.material.layouts.MultiSlotLayout.Builder setHorizontalSpacerWidth(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  }
+
+  @Deprecated public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method @Deprecated public static androidx.wear.tiles.material.layouts.PrimaryLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryChipContent();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
+    method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
+    method @Deprecated @Dimension(unit=androidx.annotation.Dimension.DP) public float getVerticalSpacerHeight();
+  }
+
+  @Deprecated public static final class PrimaryLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor @Deprecated public PrimaryLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method @Deprecated public androidx.wear.tiles.material.layouts.PrimaryLayout build();
+    method @Deprecated public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setPrimaryChipContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method @Deprecated public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setVerticalSpacerHeight(@Dimension(unit=androidx.annotation.Dimension.DP) float);
+  }
+
+}
+

@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExcludedSupportedSizesQuirk
@@ -34,7 +33,6 @@ import javax.inject.Inject
  * 2. ExcludedSupportedSizesContainer
  */
 @CameraScope
-@RequiresApi(21)
 class OutputSizesCorrector @Inject constructor(
     private val cameraMetadata: CameraMetadata?,
     private val streamConfigurationMap: StreamConfigurationMap?

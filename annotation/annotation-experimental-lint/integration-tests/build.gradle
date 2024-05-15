@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -33,7 +40,7 @@ android {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    implementation(project(":annotation:annotation-experimental"))
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
 }
 
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
@@ -41,7 +48,10 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         // Ensure that compilation passes in CLI despite opt-in violations in integration tests.
         if (!isIdeBuild()) {
-            freeCompilerArgs += [ "-opt-in=sample.optin.ExperimentalKotlinAnnotation" ]
+            freeCompilerArgs += [
+                    "-opt-in=sample.optin.ExperimentalKotlinAnnotation",
+                    "-opt-in=sample.kotlin.ExperimentalJavaAnnotation"
+            ]
         }
     }
 }

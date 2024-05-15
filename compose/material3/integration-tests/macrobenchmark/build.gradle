@@ -1,0 +1,33 @@
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.test")
+    id("kotlin-android")
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 23
+    }
+    testOptions {
+        animationsDisabled = false
+    }
+    namespace 'androidx.compose.material3.integration.macrobenchmark'
+    targetProjectPath = ":compose:material3:integration-tests:macrobenchmark-target"
+    experimentalProperties["android.experimental.self-instrumenting"] = true
+}
+
+// Create a release build type and make sure it's the only one enabled.
+// This is needed because we benchmark the release build type only.
+android.buildTypes { release {} }
+androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
+
+dependencies {
+    implementation(project(":benchmark:benchmark-junit4"))
+    implementation(project(":benchmark:benchmark-macro-junit4"))
+    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(libs.testRules)
+    implementation(libs.testExtJunit)
+    implementation(libs.testCore)
+    implementation(libs.testRunner)
+    implementation(libs.testUiautomator)
+}

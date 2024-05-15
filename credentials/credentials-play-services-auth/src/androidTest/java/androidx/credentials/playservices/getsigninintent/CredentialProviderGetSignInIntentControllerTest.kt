@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
 package androidx.credentials.playservices.getsigninintent
 
 import android.os.Build
@@ -35,7 +36,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@Suppress("deprecation")
 @RequiresApi(api = Build.VERSION_CODES.O)
 class CredentialProviderGetSignInIntentControllerTest {
 

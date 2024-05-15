@@ -29,8 +29,11 @@ import android.telecom.PhoneAccountHandle
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.internal.CallCompat
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
 import kotlinx.coroutines.TimeoutCancellationException
@@ -271,6 +274,7 @@ object TestUtils {
         Log.i(LOG_TAG, "defaultDialer=[${getDefaultDialer()}]")
     }
 
+    @OptIn(ExperimentalAppActions::class)
     @Suppress("deprecation")
     suspend fun waitOnInCallServiceToReachXCalls(targetCallCount: Int): Call? {
         var targetCall: Call?
@@ -278,12 +282,12 @@ object TestUtils {
             withTimeout(WAIT_ON_IN_CALL_SERVICE_CALL_COUNT_TIMEOUT) {
                 Log.i(LOG_TAG, "waitOnInCallServiceToReachXCalls: starting call check")
                 while (isActive &&
-                    (MockInCallService.getCallCount() < targetCallCount)
+                    (MockInCallServiceDelegate.getCallCount() < targetCallCount)
                 ) {
                     yield() // ensure the coroutine is not canceled
                     delay(1) // sleep x millisecond(s) instead of spamming check
                 }
-                targetCall = MockInCallService.getLastCall()
+                targetCall = MockInCallServiceDelegate.getLastCall()?.toCall()
                 Log.i(
                     LOG_TAG, "waitOnInCallServiceToReachXCalls: " +
                         "found targetCall=[$targetCall]"
@@ -292,10 +296,10 @@ object TestUtils {
         } catch (e: TimeoutCancellationException) {
             Log.i(LOG_TAG, "waitOnInCallServiceToReachXCalls: timeout reached")
             dumpTelecom()
-            MockInCallService.destroyAllCalls()
+            MockInCallServiceDelegate.destroyAllCalls()
             throw AssertionError(
                 "Expected call count to be <$targetCallCount>" +
-                    " but the Actual call count was <${MockInCallService.getCallCount()}>"
+                    " but the Actual call count was <${MockInCallServiceDelegate.getCallCount()}>"
             )
         }
         return targetCall
@@ -315,7 +319,7 @@ object TestUtils {
         } catch (e: TimeoutCancellationException) {
             Log.i(LOG_TAG, "waitOnCallState: timeout reached")
             dumpTelecom()
-            MockInCallService.destroyAllCalls()
+            MockInCallServiceDelegate.destroyAllCalls()
             throw AssertionError(
                 "Expected call state to be <$targetState>" +
                     " but the Actual call state was <${call.state}>"
@@ -323,11 +327,12 @@ object TestUtils {
         }
     }
 
+    @OptIn(ExperimentalAppActions::class)
     internal suspend fun waitOnInCallServiceToReachXCallCompats(targetCallCompatCount: Int):
         CallCompat? {
         var targetCallCompat: CallCompat? = null
         try {
-            val callCompatList = MockInCallService.getService()?.mCallCompats
+            val callCompatList = MockInCallServiceDelegate.getServiceWithExtensions()?.mCallCompats
             if (callCompatList != null) {
                 withTimeout(WAIT_ON_IN_CALL_SERVICE_CALL_COMPAT_COUNT_TIMEOUT) {
                     while (isActive && callCompatList.size < targetCallCompatCount) {
@@ -339,10 +344,11 @@ object TestUtils {
         } catch (e: TimeoutCancellationException) {
             Log.i(LOG_TAG, "waitOnInCallServiceToReachXCallCompats: timeout reached")
             dumpTelecom()
-            MockInCallService.destroyAllCalls()
+            MockInCallServiceDelegate.destroyAllCalls()
             throw AssertionError(
                 "Expected call count to be <$targetCallCompatCount> but the actual" +
-                    " call count was <${MockInCallService.getService()?.mCallCompats?.size}>"
+                    " call count was <${MockInCallServiceDelegate.getServiceWithExtensions()
+                        ?.mCallCompats?.size}>"
             )
         }
         return targetCallCompat
@@ -362,7 +368,7 @@ object TestUtils {
         } catch (e: TimeoutCancellationException) {
             Log.i(LOG_TAG, "waitOnCallExtras: timeout reached")
             dumpTelecom()
-            MockInCallService.destroyAllCalls()
+            MockInCallServiceDelegate.destroyAllCalls()
             throw AssertionError("Expected call detail extras to be non-null.")
         }
     }
@@ -389,5 +395,29 @@ object TestUtils {
      */
     fun buildIsAtLeastU(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+    }
+
+    @ExperimentalAppActions
+    fun getDefaultParticipant(): Participant {
+        val p = Participant()
+        p.id = 123
+        p.name = "Gemini"
+        p.speakerIconUri = null
+        return p
+    }
+
+    fun getDefaultParticipantSupportedActions(): IntArray {
+        return intArrayOf(
+            CallsManager.RAISE_HAND_ACTION,
+            CallsManager.KICK_PARTICIPANT_ACTION
+        )
+    }
+
+    @ExperimentalAppActions
+    fun printParticipants(participants: Set<Participant>, tag: String) {
+        Log.i(LOG_TAG, tag + ": printParticipants: set size=${participants.size}")
+        for (v in participants) {
+            Log.i(LOG_TAG, "id=${v.id} name=${v.name}, uri=${v.speakerIconUri}")
+        }
     }
 }

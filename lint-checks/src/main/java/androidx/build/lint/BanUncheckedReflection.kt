@@ -71,7 +71,8 @@ class BanUncheckedReflection : Detector(), SourceCodeScanner {
             val incident = Incident(context)
                 .issue(ISSUE)
                 .location(context.getLocation(node))
-                .message("Calling `Method.invoke` without an SDK check")
+                .message("Method.invoke requires both an upper and lower SDK bounds checks to be" +
+                    " safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API.")
                 .scope(node)
             context.report(incident)
         }

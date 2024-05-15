@@ -311,7 +311,7 @@ public class AlertDialogLayout extends LinearLayoutCompat {
                 if (layoutGravity < 0) {
                     layoutGravity = minorGravity;
                 }
-                final int layoutDirection = ViewCompat.getLayoutDirection(this);
+                final int layoutDirection = getLayoutDirection();
                 final int absoluteGravity = GravityCompat.getAbsoluteGravity(
                         layoutGravity, layoutDirection);
 

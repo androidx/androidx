@@ -30,7 +30,7 @@ class QueryVisitor(
     private val original: String,
     private val syntaxErrors: List<String>,
     statement: ParseTree
-) : SQLiteBaseVisitor<Void?>() {
+) : SQLiteParserBaseVisitor<Void?>() {
     private val bindingExpressions = arrayListOf<BindParameterNode>()
     // table name alias mappings
     private val tableNames = mutableSetOf<Table>()

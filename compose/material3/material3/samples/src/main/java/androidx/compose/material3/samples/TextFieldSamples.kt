@@ -20,7 +20,8 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
@@ -58,7 +60,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -157,11 +158,11 @@ fun TextFieldWithErrorState() {
         singleLine = true,
         label = { Text(if (isError) "Username*" else "Username") },
         supportingText = {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "Limit: ${text.length}/$charLimit",
-                textAlign = TextAlign.End,
-            )
+            Row {
+                Text(if (isError) errorMessage else "", Modifier.clearAndSetSemantics {})
+                Spacer(Modifier.weight(1f))
+                Text("Limit: ${text.length}/$charLimit")
+            }
         },
         isError = isError,
         keyboardActions = KeyboardActions { validate(text) },
@@ -462,7 +463,7 @@ fun CustomOutlinedTextFieldBasedOnDecorationBox() {
                 colors = colors,
                 // update border thickness and shape
                 container = {
-                    OutlinedTextFieldDefaults.ContainerBox(
+                    OutlinedTextFieldDefaults.Container(
                         enabled = enabled,
                         isError = false,
                         colors = colors,

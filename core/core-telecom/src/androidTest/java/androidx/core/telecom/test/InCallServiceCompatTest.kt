@@ -28,8 +28,10 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
-import androidx.core.telecom.test.utils.MockInCallService
+import androidx.core.telecom.test.utils.InCallServiceType
+import androidx.core.telecom.test.utils.MockInCallServiceDelegate
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -48,13 +50,13 @@ import org.junit.runner.RunWith
  *
  * Note: [Call] is package-private so we still need to leverage Telecom to create calls on our
  * behalf for testing. The call properties and extras fields aren't mutable so we need to ensure
- * that we wait for them to become available before accessing them.
+ * that we wait for them to become av.ailable before accessing them.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalAppActions::class)
 @RunWith(AndroidJUnit4::class)
 class InCallServiceCompatTest : BaseTelecomTest() {
-    private lateinit var inCallServiceCompat: InCallServiceCompat
 
     /**
      * Grant READ_PHONE_NUMBERS permission as part of testing
@@ -74,7 +76,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
     @Before
     fun setUp() {
         Utils.resetUtils()
-        inCallServiceCompat = InCallServiceCompat()
+        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS)
     }
 
     @After
@@ -201,7 +203,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
                         Log.i(TAG, "Service bounded invoking resolveCallExtensionsType")
 
                         // Assert call extension type.
-                        val ics = MockInCallService.getService()
+                        val ics = MockInCallServiceDelegate.getServiceWithExtensions()
                         Assert.assertEquals(expectedType, ics?.resolveCallExtensionsType(call))
                     } finally {
                         // Always send disconnect signal if possible.
@@ -217,7 +219,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
     private fun configureCapabilityExchangeTypeTest(): Pair<String, Boolean>? {
         if (TestUtils.buildIsAtLeastU()) {
             Log.w(CallCompatTest.TAG, "Setting up v2 tests for U+ device")
-            setUpV2Test()
+            setUpV2TestWithExtensions()
         } else {
             Log.w(CallCompatTest.TAG, "Setting up backwards compatibility tests for pre-U device")
             setUpBackwardsCompatTest()

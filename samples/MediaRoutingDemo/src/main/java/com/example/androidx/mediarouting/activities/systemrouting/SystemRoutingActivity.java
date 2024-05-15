@@ -152,9 +152,7 @@ public final class SystemRoutingActivity extends AppCompatActivity {
     private void initializeSystemRoutesSources() {
         mSystemRoutesSources.clear();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mSystemRoutesSources.add(MediaRouterSystemRoutesSource.create(/* context= */ this));
-        }
+        mSystemRoutesSources.add(MediaRouterSystemRoutesSource.create(/* context= */ this));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             mSystemRoutesSources.add(MediaRouter2SystemRoutesSource.create(/* context= */ this));
@@ -162,8 +160,7 @@ public final class SystemRoutingActivity extends AppCompatActivity {
 
         mSystemRoutesSources.add(AndroidXMediaRouterSystemRoutesSource.create(/* context= */ this));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2
-                && hasBluetoothPermission()) {
+        if (hasBluetoothPermission()) {
             mSystemRoutesSources.add(
                     BluetoothManagerSystemRoutesSource.create(/* context= */ this));
         }

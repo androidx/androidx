@@ -16,9 +16,9 @@
 
 package androidx.room.processor
 
+import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isArray
 import androidx.room.vo.ShortcutQueryParameter
 
@@ -28,7 +28,7 @@ import androidx.room.vo.ShortcutQueryParameter
 class ShortcutParameterProcessor(
     baseContext: Context,
     val containing: XType,
-    val element: XVariableElement
+    val element: XExecutableParameterElement
 ) {
     val context = baseContext.fork(element)
     fun process(): ShortcutQueryParameter {
@@ -60,9 +60,18 @@ class ShortcutParameterProcessor(
     }
 
     private fun isParamNullable(paramType: XType): Boolean {
-        if (paramType.nullability == XNullability.NULLABLE) return true
-        if (paramType.isArray() && paramType.componentType.nullability == XNullability.NULLABLE)
+        if (element.isVarArgs()) {
+            // Special case vararg params, they are never nullable in Kotlin and even though they
+            // are nullable in Java a user can't make them non-null so we accept them as-is and
+            // generate null-safe code.
+            return false
+        }
+        if (paramType.nullability == XNullability.NULLABLE) {
             return true
+        }
+        if (paramType.isArray() && paramType.componentType.nullability == XNullability.NULLABLE) {
+            return true
+        }
         return paramType.typeArguments.any { it.nullability == XNullability.NULLABLE }
     }
 

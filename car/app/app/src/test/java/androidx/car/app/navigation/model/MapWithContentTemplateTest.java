@@ -24,6 +24,7 @@ import androidx.car.app.TestUtils;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.GridTemplate;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.MessageTemplate;
@@ -51,14 +52,14 @@ public class MapWithContentTemplateTest {
 
     private static MessageTemplate createMessageTemplate() {
         return new MessageTemplate.Builder("foo")
-                .setTitle("bar")
+                .setHeader(new Header.Builder().setTitle("bar").build())
                 .build();
     }
 
     private static GridTemplate createGridTemplate() {
         ItemList list = TestUtils.getGridItemList(2);
         return new GridTemplate.Builder()
-                .setTitle("Title")
+                .setHeader(new Header.Builder().setTitle("Title").build())
                 .setSingleList(list)
                 .build();
     }
@@ -66,7 +67,10 @@ public class MapWithContentTemplateTest {
     private static ListTemplate createListTemplate() {
         Row row1 = new Row.Builder().setTitle("Bananas").build();
         return new ListTemplate.Builder()
-                .setTitle("Title")
+                .setHeader(
+                        new Header.Builder()
+                                .setTitle("Title")
+                                .build())
                 .setSingleList(new ItemList.Builder().addItem(row1).build())
                 .build();
     }
@@ -76,8 +80,11 @@ public class MapWithContentTemplateTest {
         return new PaneTemplate.Builder(new Pane.Builder()
                 .addRow(row1)
                 .build())
-                .setTitle("Title")
-                .setHeaderAction(Action.BACK)
+                .setHeader(
+                        new Header.Builder()
+                                .setTitle("Title")
+                                .setStartHeaderAction(Action.BACK)
+                                .build())
                 .build();
     }
 
@@ -90,26 +97,9 @@ public class MapWithContentTemplateTest {
     }
 
     @Test
-    public void createInstance_noContentTemplate_notLoading_throws() {
-        assertThrows(IllegalStateException.class, () -> new MapWithContentTemplate.Builder()
+    public void createInstance_noContentTemplate_throws() {
+        assertThrows(IllegalArgumentException.class, () -> new MapWithContentTemplate.Builder()
                 .build());
-    }
-
-    @Test
-    public void createInstance_isLoading_hasContentTemplate_Throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new MapWithContentTemplate.Builder()
-                        .setLoading(true)
-                        .setContentTemplate(createListTemplate())
-                        .build());
-    }
-
-    @Test
-    public void createInstance_noContentTemplate_loading_doesNotThrow() {
-        new MapWithContentTemplate.Builder()
-                .setLoading(true)
-                .build();
     }
 
     @Test

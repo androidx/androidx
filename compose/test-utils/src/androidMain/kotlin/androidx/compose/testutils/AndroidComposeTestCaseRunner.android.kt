@@ -35,8 +35,12 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.TestMonotonicFrameClock
 import androidx.compose.ui.test.frameDelayMillis
+import androidx.compose.ui.test.internal.DelayPropagatingContinuationInterceptorWrapper
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -66,6 +70,7 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
 
     internal var view: View? = null
         private set
+
     override fun getHostView(): View = view!!
 
     override var didLastRecomposeHaveChanges = false
@@ -92,9 +97,12 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         CoroutineScope(testCoroutineDispatcher + testCoroutineDispatcher.scheduler)
     )
 
+    private val continuationCountInterceptor =
+        ContinuationCountInterceptor(frameClock.continuationInterceptor)
+
     @OptIn(ExperimentalTestApi::class)
     private val recomposerApplyCoroutineScope = CoroutineScope(
-        frameClock + frameClock.continuationInterceptor + Job()
+        continuationCountInterceptor + frameClock + Job()
     )
     private val recomposer: Recomposer = Recomposer(recomposerApplyCoroutineScope.coroutineContext)
         .also { recomposerApplyCoroutineScope.launch { it.runRecomposeAndApplyChanges() } }
@@ -102,6 +110,9 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     private var simulationState: SimulationState = SimulationState.Initialized
 
     private var testCase: T? = null
+
+    private val owner: ViewRootForTest?
+        get() = findViewRootForTest(activity)
 
     init {
         val displayMetrics = DisplayMetrics()
@@ -127,8 +138,9 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
             "Need to call onPreEmitContent before emitContent!"
         }
 
+        continuationCountInterceptor.reset()
         activity.setContent(recomposer) { testCase!!.Content() }
-        view = findViewRootForTest(activity)!!.view
+        view = owner!!.view
         Snapshot.notifyObjectsInitialized()
         simulationState = SimulationState.EmitContentDone
     }
@@ -140,6 +152,14 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
         }
 
         return recomposer.hasPendingWork
+    }
+
+    override fun hasPendingMeasureOrLayout(): Boolean {
+        return owner?.hasPendingMeasureOrLayout ?: false
+    }
+
+    override fun hasPendingDraw(): Boolean {
+        return view?.isDirty ?: false
     }
 
     /**
@@ -290,6 +310,10 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
     override fun getTestCase(): T {
         return testCase!!
     }
+
+    override fun getCoroutineLaunchedCount(): Int {
+        return continuationCountInterceptor.continuationCount - InternallyLaunchedCoroutines
+    }
 }
 
 private enum class SimulationState {
@@ -392,3 +416,25 @@ private object BitmapHelper {
         return Bitmap.createBitmap(picture)
     }
 }
+
+@OptIn(InternalTestApi::class)
+private class ContinuationCountInterceptor(private val parentInterceptor: ContinuationInterceptor) :
+    DelayPropagatingContinuationInterceptorWrapper(parentInterceptor) {
+    var continuationCount = 0
+        private set
+
+    override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> {
+        continuationCount++
+        return parentInterceptor.interceptContinuation(continuation)
+    }
+
+    override fun releaseInterceptedContinuation(continuation: Continuation<*>) {
+        parentInterceptor.releaseInterceptedContinuation(continuation)
+    }
+
+    fun reset() {
+        continuationCount = 0
+    }
+}
+
+private const val InternallyLaunchedCoroutines = 4

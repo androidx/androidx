@@ -77,7 +77,7 @@ internal fun AndroidTextPaint.applySpanStyle(
             } else {
                 style.localeList[0]
             }
-            textLocale = locale.toJavaLocale()
+            textLocale = locale.platformLocale
         }
     }
 

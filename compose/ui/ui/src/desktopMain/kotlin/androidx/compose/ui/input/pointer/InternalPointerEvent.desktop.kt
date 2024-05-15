@@ -42,5 +42,5 @@ internal actual class InternalPointerEvent constructor(
     actual var suppressMovementConsumption: Boolean = false
 
     // Assume that all changes are from mouse events for now
-    actual fun issuesEnterExitEvent(pointerId: PointerId): Boolean = true
+    actual fun activeHoverEvent(pointerId: PointerId): Boolean = true
 }

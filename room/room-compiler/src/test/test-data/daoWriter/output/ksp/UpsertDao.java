@@ -1,11 +1,12 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
-import androidx.room.EntityDeletionOrUpdateAdapter;
-import androidx.room.EntityInsertionAdapter;
-import androidx.room.EntityUpsertionAdapter;
+import androidx.room.EntityDeleteOrUpdateAdapter;
+import androidx.room.EntityInsertAdapter;
+import androidx.room.EntityUpsertAdapter;
 import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteStatement;
+import androidx.room.util.DBUtil;
+import androidx.sqlite.SQLiteStatement;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
@@ -15,169 +16,149 @@ import java.util.List;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.room.RoomProcessor")
-@SuppressWarnings({"unchecked", "deprecation"})
+@SuppressWarnings({"unchecked", "deprecation", "removal"})
 public final class UpsertDao_Impl implements UpsertDao {
-    private final RoomDatabase __db;
+  private final RoomDatabase __db;
 
-    private final EntityUpsertionAdapter<User> __upsertionAdapterOfUser;
+  private final EntityUpsertAdapter<User> __upsertAdapterOfUser;
 
-    private final EntityUpsertionAdapter<Book> __upsertionAdapterOfBook;
+  private final EntityUpsertAdapter<Book> __upsertAdapterOfBook;
 
-    public UpsertDao_Impl(@NonNull final RoomDatabase __db) {
-        this.__db = __db;
-        this.__upsertionAdapterOfUser = new EntityUpsertionAdapter<User>(new EntityInsertionAdapter<User>(__db) {
-            @Override
-            @NonNull
-            protected String createQuery() {
-                return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
-            }
+  public UpsertDao_Impl(@NonNull final RoomDatabase __db) {
+    this.__db = __db;
+    this.__upsertAdapterOfUser = new EntityUpsertAdapter<User>(new EntityInsertAdapter<User>() {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
+      }
 
-            @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final User entity) {
-                statement.bindLong(1, entity.uid);
-                statement.bindString(2, entity.name);
-                statement.bindString(3, entity.getLastName());
-                statement.bindLong(4, entity.age);
-            }
-        }, new EntityDeletionOrUpdateAdapter<User>(__db) {
-            @Override
-            @NonNull
-            protected String createQuery() {
-                return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
-            }
-
-            @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final User entity) {
-                statement.bindLong(1, entity.uid);
-                statement.bindString(2, entity.name);
-                statement.bindString(3, entity.getLastName());
-                statement.bindLong(4, entity.age);
-                statement.bindLong(5, entity.uid);
-            }
-        });
-        this.__upsertionAdapterOfBook = new EntityUpsertionAdapter<Book>(new EntityInsertionAdapter<Book>(__db) {
-            @Override
-            @NonNull
-            protected String createQuery() {
-                return "INSERT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
-            }
-
-            @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final Book entity) {
-                statement.bindLong(1, entity.bookId);
-                statement.bindLong(2, entity.uid);
-            }
-        }, new EntityDeletionOrUpdateAdapter<Book>(__db) {
-            @Override
-            @NonNull
-            protected String createQuery() {
-                return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
-            }
-
-            @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final Book entity) {
-                statement.bindLong(1, entity.bookId);
-                statement.bindLong(2, entity.uid);
-                statement.bindLong(3, entity.bookId);
-            }
-        });
-    }
-
-    @Override
-    public void upsertUser(final User user) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __upsertionAdapterOfUser.upsert(user);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+      @Override
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+        statement.bindLong(1, entity.uid);
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
         }
-    }
-
-    @Override
-    public void upsertUsers(final User user1, final List<User> others) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __upsertionAdapterOfUser.upsert(user1);
-            __upsertionAdapterOfUser.upsert(others);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
         }
-    }
+        statement.bindLong(4, entity.age);
+      }
+    }, new EntityDeleteOrUpdateAdapter<User>() {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
+      }
 
-    @Override
-    public void upsertUsers(final User[] users) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __upsertionAdapterOfUser.upsert(users);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+      @Override
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+        statement.bindLong(1, entity.uid);
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
         }
-    }
-
-    @Override
-    public void upsertTwoUsers(final User userOne, final User userTwo) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __upsertionAdapterOfUser.upsert(userOne);
-            __upsertionAdapterOfUser.upsert(userTwo);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
         }
-    }
+        statement.bindLong(4, entity.age);
+        statement.bindLong(5, entity.uid);
+      }
+    });
+    this.__upsertAdapterOfBook = new EntityUpsertAdapter<Book>(new EntityInsertAdapter<Book>() {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
+      }
 
-    @Override
-    public void upsertUserAndBook(final User user, final Book book) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __upsertionAdapterOfUser.upsert(user);
-            __upsertionAdapterOfBook.upsert(book);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
-        }
-    }
+      @Override
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Book entity) {
+        statement.bindLong(1, entity.bookId);
+        statement.bindLong(2, entity.uid);
+      }
+    }, new EntityDeleteOrUpdateAdapter<Book>() {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "UPDATE `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
+      }
 
-    @Override
-    public long upsertAndReturnId(final User user) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            final long _result = __upsertionAdapterOfUser.upsertAndReturnId(user);
-            __db.setTransactionSuccessful();
-            return _result;
-        } finally {
-            __db.endTransaction();
-        }
-    }
+      @Override
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Book entity) {
+        statement.bindLong(1, entity.bookId);
+        statement.bindLong(2, entity.uid);
+        statement.bindLong(3, entity.bookId);
+      }
+    });
+  }
 
-    @Override
-    public long[] upsertAndReturnIdsArray(final User[] users) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            final long[] _result = __upsertionAdapterOfUser.upsertAndReturnIdsArray(users);
-            __db.setTransactionSuccessful();
-            return _result;
-        } finally {
-            __db.endTransaction();
-        }
-    }
+  @Override
+  public void upsertUser(final User user) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __upsertAdapterOfUser.upsert(_connection, user);
+      return null;
+    });
+  }
 
-    @NonNull
-    public static List<Class<?>> getRequiredConverters() {
-        return Collections.emptyList();
-    }
+  @Override
+  public void upsertUsers(final User user1, final List<User> others) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __upsertAdapterOfUser.upsert(_connection, user1);
+      __upsertAdapterOfUser.upsert(_connection, others);
+      return null;
+    });
+  }
+
+  @Override
+  public void upsertUsers(final User[] users) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __upsertAdapterOfUser.upsert(_connection, users);
+      return null;
+    });
+  }
+
+  @Override
+  public void upsertTwoUsers(final User userOne, final User userTwo) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __upsertAdapterOfUser.upsert(_connection, userOne);
+      __upsertAdapterOfUser.upsert(_connection, userTwo);
+      return null;
+    });
+  }
+
+  @Override
+  public void upsertUserAndBook(final User user, final Book book) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __upsertAdapterOfUser.upsert(_connection, user);
+      __upsertAdapterOfBook.upsert(_connection, book);
+      return null;
+    });
+  }
+
+  @Override
+  public long upsertAndReturnId(final User user) {
+    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      return __upsertAdapterOfUser.upsertAndReturnId(_connection, user);
+    });
+  }
+
+  @Override
+  public long[] upsertAndReturnIdsArray(final User[] users) {
+    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      return __upsertAdapterOfUser.upsertAndReturnIdsArray(_connection, users);
+    });
+  }
+
+  @NonNull
+  public static List<Class<?>> getRequiredConverters() {
+    return Collections.emptyList();
+  }
 }

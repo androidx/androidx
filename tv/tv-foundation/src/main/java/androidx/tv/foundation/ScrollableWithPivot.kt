@@ -53,6 +53,7 @@ import kotlin.math.abs
 
 @OptIn(ExperimentalFoundationApi::class)
 @ExperimentalTvFoundationApi
+@Suppress("DEPRECATION")
 fun Modifier.scrollableWithPivot(
     state: ScrollableState,
     orientation: Orientation,

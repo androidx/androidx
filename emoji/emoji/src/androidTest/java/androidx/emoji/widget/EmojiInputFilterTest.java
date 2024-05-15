@@ -134,7 +134,6 @@ public class EmojiInputFilterTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void initCallback_doesntCrashWhenNotAttached() {
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
         EditText editText = new EditText(context);

@@ -24,47 +24,86 @@ class KmpPlatformsTest {
     @Test
     fun withAnEmptyFlag_itReturnsTheDefaultValue() {
         assertThat(parseTargetPlatformsFlag("")).isEqualTo(
-            setOf(PlatformGroup.JVM, PlatformGroup.DESKTOP)
+            setOf(
+                PlatformGroup.JVM,
+                PlatformGroup.MAC,
+                PlatformGroup.LINUX,
+                PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE
+            )
         )
     }
 
     @Test
     fun withANullFlag_itReturnsTheDefaultValue() {
         assertThat(parseTargetPlatformsFlag(null)).isEqualTo(
-            setOf(PlatformGroup.JVM, PlatformGroup.DESKTOP)
+            setOf(
+                PlatformGroup.JVM,
+                PlatformGroup.MAC,
+                PlatformGroup.LINUX,
+                PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE,
+            )
         )
     }
 
     @Test
     fun withASingleDefaultPlatform_itParsesTheFlagCorrectly() {
         assertThat(parseTargetPlatformsFlag("+jvm")).isEqualTo(
-            setOf(PlatformGroup.JVM, PlatformGroup.DESKTOP)
+            setOf(
+                PlatformGroup.JVM,
+                PlatformGroup.MAC,
+                PlatformGroup.LINUX,
+                PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE,
+            )
         )
     }
 
     @Test
     fun withNoPlatforms_itParsesTheFlagCorrectly() {
-        assertThat(parseTargetPlatformsFlag("-jvm,-desktop")).isEqualTo(emptySet<PlatformGroup>())
+        assertThat(parseTargetPlatformsFlag("-jvm,-desktop,-native")).isEqualTo(
+            emptySet<PlatformGroup>()
+        )
     }
 
     @Test
     fun withASingleNonDefaultPlatform_itParsesTheFlagCorrectly() {
         assertThat(parseTargetPlatformsFlag("+js")).isEqualTo(
-            setOf(PlatformGroup.JVM, PlatformGroup.JS, PlatformGroup.DESKTOP)
+            setOf(
+                PlatformGroup.JVM,
+                PlatformGroup.JS,
+                PlatformGroup.MAC,
+                PlatformGroup.LINUX,
+                PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE,
+            )
         )
     }
 
     @Test
     fun withAMultiplePlatforms_itParsesTheFlagCorrectly() {
         assertThat(parseTargetPlatformsFlag("+js,+mac")).isEqualTo(
-            setOf(PlatformGroup.JVM, PlatformGroup.JS, PlatformGroup.MAC, PlatformGroup.DESKTOP)
+            setOf(
+                PlatformGroup.JVM,
+                PlatformGroup.JS,
+                PlatformGroup.MAC,
+                PlatformGroup.LINUX,
+                PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE,
+            )
         )
     }
 
     @Test
     fun withNegativeFlags_itParsesTheFlagCorrectly() {
         assertThat(parseTargetPlatformsFlag("-jvm,+mac")).isEqualTo(
-            setOf(PlatformGroup.MAC, PlatformGroup.DESKTOP)
+            setOf(
+                PlatformGroup.MAC,
+                PlatformGroup.LINUX,
+                PlatformGroup.DESKTOP,
+                PlatformGroup.ANDROID_NATIVE,
+            )
         )
     }
 

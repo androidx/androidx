@@ -16,9 +16,6 @@
 
 package androidx.wear.protolayout.expression;
 
-import static androidx.wear.protolayout.expression.DynamicBuilders.PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE;
-import static androidx.wear.protolayout.expression.DynamicBuilders.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT;
-
 import android.Manifest;
 
 import androidx.annotation.IntDef;
@@ -28,7 +25,6 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.RestrictTo;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
-import androidx.wear.protolayout.expression.DynamicBuilders.PlatformInt32Source;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 
@@ -51,14 +47,19 @@ public class PlatformHealthSources {
 
     /** Heart rate accuracy is unknown. */
     public static final int HEART_RATE_ACCURACY_UNKNOWN = 0;
+
     /** Heart rate cannot be acquired because the sensor is not properly contacting skin. */
     public static final int HEART_RATE_ACCURACY_NO_CONTACT = 1;
+
     /** Heart rate data is currently too unreliable to be used. */
     public static final int HEART_RATE_ACCURACY_UNRELIABLE = 2;
+
     /** Heart rate data is available but the accuracy is low. */
     public static final int HEART_RATE_ACCURACY_LOW = 3;
+
     /** Heart rate data is available and the accuracy is medium. */
     public static final int HEART_RATE_ACCURACY_MEDIUM = 4;
+
     /** Heart rate data is available with high accuracy. */
     public static final int HEART_RATE_ACCURACY_HIGH = 5;
 
@@ -80,6 +81,7 @@ public class PlatformHealthSources {
         @RequiresPermission(Manifest.permission.BODY_SENSORS)
         public static final PlatformDataKey<DynamicHeartRateAccuracy> HEART_RATE_ACCURACY =
                 new PlatformDataKey<>("HeartRate Accuracy");
+
         /**
          * The data source key for daily step count data from platform health sources. This is the
          * total step count over a day and it resets when 00:00 is reached (in whatever is the
@@ -104,10 +106,10 @@ public class PlatformHealthSources {
 
         /**
          * The data source key for daily calories (kcal) data from platform health sources. This is
-         * the total number of kilocalories over a day (including both BMR and active calories)
-         * and it resets when 00:00 is reached (in whatever is the timezone set at that time).
-         * This can result in the DAILY period being greater than or less than 24 hours when the
-         * timezone of the device is changed.
+         * the total number of kilocalories over a day (including both BMR and active calories) and
+         * it resets when 00:00 is reached (in whatever is the timezone set at that time). This can
+         * result in the DAILY period being greater than or less than 24 hours when the timezone of
+         * the device is changed.
          */
         @NonNull
         @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
@@ -136,11 +138,9 @@ public class PlatformHealthSources {
      */
     @RequiresPermission(Manifest.permission.BODY_SENSORS)
     @NonNull
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static DynamicFloat heartRateBpm() {
-        return new PlatformInt32Source.Builder()
-                .setSourceType(PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE)
-                .build()
-                .asFloat();
+        return DynamicFloat.from(Keys.HEART_RATE_BPM);
     }
 
     /**
@@ -151,6 +151,7 @@ public class PlatformHealthSources {
      */
     @RequiresPermission(Manifest.permission.BODY_SENSORS)
     @NonNull
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static DynamicHeartRateAccuracy heartRateAccuracy() {
         return new DynamicHeartRateAccuracy(
                 new DynamicBuilders.StateInt32Source.Builder()
@@ -170,10 +171,9 @@ public class PlatformHealthSources {
      */
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     @NonNull
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static DynamicInt32 dailySteps() {
-        return new PlatformInt32Source.Builder()
-                .setSourceType(PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT)
-                .build();
+        return DynamicInt32.from(Keys.DAILY_STEPS);
     }
 
     /**
@@ -184,6 +184,7 @@ public class PlatformHealthSources {
      */
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     @NonNull
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static DynamicFloat dailyFloors() {
         return DynamicFloat.from(Keys.DAILY_FLOORS);
     }
@@ -197,6 +198,7 @@ public class PlatformHealthSources {
      */
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     @NonNull
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static DynamicFloat dailyCalories() {
         return DynamicFloat.from(Keys.DAILY_CALORIES);
     }
@@ -209,6 +211,7 @@ public class PlatformHealthSources {
      */
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     @NonNull
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public static DynamicFloat dailyDistanceMeters() {
         return DynamicFloat.from(Keys.DAILY_DISTANCE_METERS);
     }
@@ -223,6 +226,7 @@ public class PlatformHealthSources {
 
         /** Creates a constant-valued {@link DynamicHeartRateAccuracy}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public static DynamicHeartRateAccuracy constant(@HeartRateAccuracy int val) {
             return new DynamicHeartRateAccuracy(DynamicInt32.constant(val));
         }
@@ -230,6 +234,7 @@ public class PlatformHealthSources {
         /** Creates a value to be provided from a {@code PlatformDataProvider}. */
         @NonNull
         @SuppressWarnings("unchecked") // DynamicHeartRateAccuracy acts like DynamicInt32.
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public static DynamicDataValue<DynamicHeartRateAccuracy> dynamicDataValueOf(
                 @HeartRateAccuracy int val) {
             return (DynamicDataValue<DynamicHeartRateAccuracy>)
@@ -241,6 +246,13 @@ public class PlatformHealthSources {
         @Override
         public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
             return mImpl.toDynamicInt32Proto();
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public DynamicProto.DynamicInt32 toDynamicInt32Proto(boolean withFingerprint) {
+            return mImpl.toDynamicInt32Proto(withFingerprint);
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -30,7 +30,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.StateSet;
@@ -396,9 +395,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawableCompat
             @SuppressLint("ObjectAnimatorBinding")
             final ObjectAnimator anim =
                     ObjectAnimator.ofInt(ad, "currentIndex", fromFrame, toFrame);
-            if (SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                Compatibility.Api18Impl.setAutoCancel(anim, true);
-            }
+            anim.setAutoCancel(true);
             anim.setDuration(interp.getTotalDuration());
             anim.setInterpolator(interp);
             mHasReversibleFlag = hasReversibleFlag;

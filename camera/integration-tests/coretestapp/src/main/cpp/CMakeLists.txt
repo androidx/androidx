@@ -14,7 +14,7 @@
 # the License.
 #
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(camera_test_app_jni)
 
@@ -32,3 +32,8 @@ find_library(egl-lib EGL)
 
 
 target_link_libraries(opengl_renderer_jni ${log-lib} ${android-lib} ${opengl-lib} ${egl-lib})
+target_link_options(
+  opengl_renderer_jni
+  PRIVATE
+  "-Wl,-z,max-page-size=16384"
+)

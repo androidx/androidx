@@ -29,9 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.ModifierLocalNestedScroll
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.modifier.modifierLocalProvider
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -136,9 +134,11 @@ class NestedScrollInteropConnectionTest {
     @Test
     fun swipeNoOpComposeScrollable_insideNestedScrollingParentView_shouldNotScrollView() {
         // arrange
+
         createViewComposeActivity {
             TestListWithNestedScroll(
-                items, Modifier.modifierLocalProvider(ModifierLocalNestedScroll) { null })
+                items, Modifier
+            )
         }
 
         // act: scroll compose side
@@ -148,8 +148,6 @@ class NestedScrollInteropConnectionTest {
 
         // assert: compose list is scrolled
         rule.onNodeWithTag(topItemTag).assertDoesNotExist()
-        // assert: toolbar  not collapsed
-        onView(withId(R.id.fab)).check(matches(isDisplayed()))
     }
 
     @Test

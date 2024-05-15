@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.test.injectionscope.key
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.injectionscope.key.Common.assertTyped
 import androidx.compose.ui.test.injectionscope.key.Common.performKeyInput
@@ -41,7 +39,6 @@ import org.junit.Test
  * Tests if the lock key methods in [KeyInjectionScope] like [KeyInjectionScope.isCapsLockOn] work.
  */
 @MediumTest
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
 class LockKeysTest {
 
     @get:Rule
@@ -150,6 +147,31 @@ class LockKeysTest {
             assertFalse(isScrollLockOn)
             withKeyToggled(Key.ScrollLock) { assertTrue(isScrollLockOn) }
             assertFalse(isScrollLockOn)
+        }
+    }
+
+    @Test
+    fun withKeyToggled_keyIsOff_afterThrow() {
+        rule.performKeyInput {
+            try {
+                // When an exception is thrown during withKeyToggled
+                withKeyToggled(Key.CapsLock) { error("") }
+            } catch (e: Exception) { /* ignore */ }
+            // The key was restored to turned off
+            assertFalse(isCapsLockOn)
+        }
+    }
+
+    @Test
+    fun withKeysToggled_keysAreOff_afterThrow() {
+        rule.performKeyInput {
+            try {
+                // When an exception is thrown during withKeyToggled
+                withKeysToggled(listOf(Key.CapsLock, Key.NumLock)) { error("") }
+            } catch (e: Exception) { /* ignore */ }
+            // The keys were restored to turned off
+            assertFalse(isCapsLockOn)
+            assertFalse(isNumLockOn)
         }
     }
 

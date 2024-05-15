@@ -16,10 +16,19 @@
 
 package androidx.kruth
 
-open class IntegerSubject internal constructor(
+/**
+ * Propositions for [Int] subjects.
+ *
+ * @constructor Constructor for use by subclasses. If you want to create an instance of this class
+ * itself, call [check(...)][Subject.check].[that(actual)][StandardSubjectBuilder.that].
+ */
+open class IntegerSubject protected constructor(
+    metadata: FailureMetadata,
     actual: Int?,
-    metadata: FailureMetadata = FailureMetadata(),
-) : ComparableSubject<Int>(actual = actual, metadata = metadata) {
+) : ComparableSubject<Int>(metadata, actual) {
+
+    internal constructor(actual: Int?, metadata: FailureMetadata) : this(metadata, actual)
+
     @Deprecated(
         "Use .isEqualTo instead. Long comparison is consistent with equality.",
         ReplaceWith("this.isEqualTo(other)")

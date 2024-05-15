@@ -49,8 +49,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 // Scrollable
 internal fun Modifier.textFieldScrollable(
@@ -162,7 +162,7 @@ private data class VerticalScrollLayoutModifier(
             )
 
             val offset = -scrollerPosition.offset
-            placeable.placeRelative(0, offset.roundToInt())
+            placeable.placeRelative(0, offset.fastRoundToInt())
         }
     }
 }
@@ -206,7 +206,7 @@ private data class HorizontalScrollLayoutModifier(
             )
 
             val offset = -scrollerPosition.offset
-            placeable.placeRelative(offset.roundToInt(), 0)
+            placeable.placeRelative(offset.fastRoundToInt(), 0)
         }
     }
 }

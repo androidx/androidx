@@ -19,4 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance अ‍ॅप विजेट एरर"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033"><b><tt>"GlanceAppWidget"</tt></b>" शोधून, "<b><tt>"adb logcat"</tt></b>" वापरून नेमकी एरर तपासा"</string>
+    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"आशय दाखवू शकत नाही"</string>
 </resources>

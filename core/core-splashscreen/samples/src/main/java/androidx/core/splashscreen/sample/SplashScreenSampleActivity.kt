@@ -26,7 +26,6 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.LinearLayout
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -35,7 +34,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.postDelayed
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 
-@RequiresApi(21)
 class SplashScreenSampleActivity : AppCompatActivity() {
 
     private var appReady = false

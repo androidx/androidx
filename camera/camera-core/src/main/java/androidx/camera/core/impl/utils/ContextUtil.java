@@ -32,36 +32,46 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ContextUtil {
     /**
-     * Gets the application context and preserves the attribution tag.
+     * Gets the application context and preserves the attribution tag and device id.
      */
     @NonNull
     public static Context getApplicationContext(@NonNull Context context) {
-        Context applicationContext = context.getApplicationContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            String attributeTag = Api30Impl.getAttributionTag(context);
-
-            if (attributeTag != null) {
-                return Api30Impl.createAttributionContext(applicationContext, attributeTag);
+        Context resultContext  = context.getApplicationContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            int deviceId = Api34Impl.getDeviceId(context);
+            if (deviceId != Context.DEVICE_ID_DEFAULT) {
+                resultContext = Api34Impl.createDeviceContext(resultContext, deviceId);
             }
         }
-        return applicationContext;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            String attributeTag = Api30Impl.getAttributionTag(context);
+            if (attributeTag != null) {
+                resultContext = Api30Impl.createAttributionContext(resultContext, attributeTag);
+            }
+        }
+        return resultContext;
     }
 
+
     /**
-     * Gets the base context and preserves the attribution tag.
+     * Gets the base context and preserves the attribution tag and device id.
      */
     @NonNull
     public static Context getBaseContext(@NonNull ContextWrapper context) {
-        Context baseContext = context.getBaseContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            String attributeTag = Api30Impl.getAttributionTag(context);
-
-            if (attributeTag != null) {
-                return Api30Impl.createAttributionContext(baseContext, attributeTag);
+        Context resultContext  = context.getBaseContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            int deviceId = Api34Impl.getDeviceId(context);
+            if (deviceId != Context.DEVICE_ID_DEFAULT) {
+                resultContext = Api34Impl.createDeviceContext(resultContext, deviceId);
             }
         }
-
-        return baseContext;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            String attributeTag = Api30Impl.getAttributionTag(context);
+            if (attributeTag != null) {
+                resultContext = Api30Impl.createAttributionContext(resultContext, attributeTag);
+            }
+        }
+        return resultContext;
     }
 
     /**
@@ -110,6 +120,23 @@ public final class ContextUtil {
         @Nullable
         static String getAttributionTag(@NonNull Context context) {
             return context.getAttributionTag();
+        }
+    }
+
+    @RequiresApi(34)
+    private static class Api34Impl {
+        private Api34Impl() {
+        }
+
+        @DoNotInline
+        @NonNull
+        static Context createDeviceContext(@NonNull Context context, int deviceId) {
+            return context.createDeviceContext(deviceId);
+        }
+
+        @DoNotInline
+        static int getDeviceId(@NonNull Context context) {
+            return context.getDeviceId();
         }
     }
 }

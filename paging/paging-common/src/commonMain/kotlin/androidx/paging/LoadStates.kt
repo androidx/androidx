@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.annotation.RestrictTo
 import androidx.paging.LoadState.NotLoading
+import kotlin.jvm.JvmName
 
 /**
  * Collection of pagination [LoadState]s - refresh, prepend, and append.
@@ -56,6 +57,20 @@ public data class LoadStates(
         LoadType.APPEND -> append
         LoadType.PREPEND -> prepend
     }
+
+    /**
+     * Returns true if either one of [refresh], [append], or [prepend] is in [Error] state.
+     */
+    @get:JvmName("hasError")
+    public val hasError = refresh is LoadState.Error || append is LoadState.Error ||
+        prepend is LoadState.Error
+
+    /**
+     * Returns true if all three LoadState [refresh], [append], and [prepend] are
+     * in [NotLoading] state.
+     */
+    public val isIdle = refresh is NotLoading && append is NotLoading &&
+        prepend is NotLoading
 
     internal companion object {
         val IDLE = LoadStates(

@@ -36,6 +36,8 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
@@ -94,10 +96,10 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase
-import kotlin.IllegalStateException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -351,7 +353,7 @@ class BottomSheetScaffoldTest {
     }
 
     @Test
-    fun backdropScaffold_revealAndConceal_manually(): Unit = runBlocking(AutoTestFrameClock()) {
+    fun bottomSheetScaffold_revealAndConceal_manually(): Unit = runBlocking(AutoTestFrameClock()) {
         lateinit var bottomSheetState: SheetState
         rule.setContent {
             bottomSheetState = rememberStandardBottomSheetState(
@@ -618,7 +620,9 @@ class BottomSheetScaffoldTest {
         }
     }
 
+    // TODO(330937081): Update test logic to instead change virtual screen size.
     @Test
+    @Ignore
     fun bottomSheetScaffold_landscape_sheetRespectsMaxWidthAndIsCentered() {
         rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val latch = CountDownLatch(1)
@@ -673,7 +677,9 @@ class BottomSheetScaffoldTest {
         }
     }
 
+    // TODO(330937081): Update test logic to instead change virtual screen size.
     @Test
+    @Ignore
     fun bottomSheetScaffold_landscape_filledWidth_sheetFillsEntireWidth() {
         rule.activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         val latch = CountDownLatch(1)
@@ -816,6 +822,73 @@ class BottomSheetScaffoldTest {
     }
 
     @Test
+    fun bottomSheetScaffold_gesturesDisabled_doesNotParticipateInNestedScroll() {
+        lateinit var sheetState: SheetState
+        lateinit var sheetContentScrollState: ScrollState
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            sheetState = rememberStandardBottomSheetState()
+            scope = rememberCoroutineScope()
+            BottomSheetScaffold(
+                scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState),
+                sheetSwipeEnabled = false,
+                sheetContent = {
+                    sheetContentScrollState = rememberScrollState()
+                    Column(
+                        Modifier
+                            .verticalScroll(sheetContentScrollState)
+                            .testTag(sheetTag)
+                    ) {
+                        repeat(100) {
+                            Text(it.toString(), Modifier.requiredHeight(50.dp))
+                        }
+                    }
+                },
+                sheetPeekHeight = peekHeight,
+            ) {
+                Box(Modifier.fillMaxSize()) {
+                    Text("Content")
+                }
+            }
+        }
+
+        // Initial scrollState is at 0 and sheetState is partially expanded
+        assertThat(sheetContentScrollState.value).isEqualTo(0)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+
+        // Scrolling up within the sheet causes content to scroll without changing sheet state
+        // because swipe gestures are disabled.
+        rule.onNodeWithTag(sheetTag)
+            .performTouchInput {
+                swipeUp()
+            }
+        rule.waitForIdle()
+        assertThat(sheetContentScrollState.value).isGreaterThan(0)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+
+        scope.launch {
+            sheetState.snapTo(SheetValue.Expanded)
+            sheetContentScrollState.scrollTo(10)
+        }
+        rule.waitForIdle()
+
+        // Initial scrollState is > 0 and sheetState is fully expanded
+        assertThat(sheetContentScrollState.value).isEqualTo(10)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+
+        // Scrolling down within the sheet causes content to scroll without changing sheet state
+        // because swipe gestures are disabled.
+        rule.onNodeWithTag(sheetTag)
+            .performTouchInput {
+                swipeDown()
+            }
+        rule.waitForIdle()
+        assertThat(sheetContentScrollState.value).isEqualTo(0)
+        assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+    }
+
+    @Test
     fun bottomSheetScaffold_sheetMaxWidth_sizeChanges_snapsToNewTarget() {
         lateinit var sheetMaxWidth: MutableState<Dp>
         var screenWidth by mutableStateOf(0.dp)
@@ -864,7 +937,6 @@ class BottomSheetScaffoldTest {
         rule.setContent {
             dragHandleContentDescription = getString(Strings.BottomSheetDragHandleDescription)
             dragHandleColor = SheetBottomTokens.DockedDragHandleColor.value
-                .copy(SheetBottomTokens.DockedDragHandleOpacity)
             surface = MaterialTheme.colorScheme.surface
             density = LocalDensity.current
             BottomSheetScaffold(

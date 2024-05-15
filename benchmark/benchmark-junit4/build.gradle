@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -26,6 +33,9 @@ plugins {
 android {
     defaultConfig {
         testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
+    }
+    buildTypes.configureEach {
+        consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.benchmark.junit4"
 }
@@ -44,11 +54,12 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.kotlinTest)
 }
 
 androidx {
     name = "Benchmark - JUnit4"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Android Benchmark - JUnit4"
     metalavaK2UastEnabled = true

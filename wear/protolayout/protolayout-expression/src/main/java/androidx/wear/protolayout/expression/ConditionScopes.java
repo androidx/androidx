@@ -48,12 +48,14 @@ public class ConditionScopes {
         }
 
         /** Sets the value to use as the value when true in a conditional expression. */
-        public @NonNull IfTrueScope<T, RawT> use(T valueWhenTrue) {
+        @NonNull
+        public IfTrueScope<T, RawT> use(T valueWhenTrue) {
             return new IfTrueScope<>(valueWhenTrue, conditionBuilder, rawTypeMapper);
         }
 
         /** Sets the value to use as the value when true in a conditional expression. */
-        public @NonNull IfTrueScope<T, RawT> use(RawT valueWhenTrue) {
+        @NonNull
+        public IfTrueScope<T, RawT> use(RawT valueWhenTrue) {
             return use(rawTypeMapper.apply(valueWhenTrue));
         }
     }

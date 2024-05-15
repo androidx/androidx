@@ -33,7 +33,11 @@ public abstract class WorkManagerTest {
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
             JobScheduler jobScheduler = (JobScheduler) ApplicationProvider.getApplicationContext()
                     .getSystemService(Context.JOB_SCHEDULER_SERVICE);
-            jobScheduler.cancelAll();
+            if (Build.VERSION.SDK_INT < 34) {
+                jobScheduler.cancelAll();
+            } else {
+                jobScheduler.cancelInAllNamespaces();
+            }
         }
     }
 }

@@ -22,7 +22,10 @@ import androidx.room.compiler.codegen.java.NULLABLE_ANNOTATION
 import androidx.room.compiler.codegen.java.toJavaVisibilityModifier
 import androidx.room.compiler.codegen.kotlin.KotlinPropertySpec
 import androidx.room.compiler.codegen.kotlin.toKotlinVisibilityModifier
+import androidx.room.compiler.processing.PropertySpecHelper
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.FieldSpec
 import com.squareup.kotlinpoet.PropertySpec
 import javax.lang.model.element.Modifier
@@ -34,7 +37,26 @@ interface XPropertySpec : TargetLanguage {
     interface Builder : TargetLanguage {
         fun addAnnotation(annotation: XAnnotationSpec): Builder
         fun initializer(initExpr: XCodeBlock): Builder
+        fun getter(code: XCodeBlock): Builder
         fun build(): XPropertySpec
+
+        companion object {
+            fun Builder.apply(
+                javaFieldBuilder: com.squareup.javapoet.FieldSpec.Builder.() -> Unit,
+                kotlinPropertyBuilder: com.squareup.kotlinpoet.PropertySpec.Builder.() -> Unit,
+            ): Builder = apply {
+                when (language) {
+                    CodeLanguage.JAVA -> {
+                        check(this is JavaPropertySpec.Builder)
+                        this.actual.javaFieldBuilder()
+                    }
+                    CodeLanguage.KOTLIN -> {
+                        check(this is KotlinPropertySpec.Builder)
+                        this.actual.kotlinPropertyBuilder()
+                    }
+                }
+            }
+        }
     }
 
     companion object {
@@ -74,19 +96,20 @@ interface XPropertySpec : TargetLanguage {
             }
         }
 
-        fun XPropertySpec.Builder.apply(
-            javaFieldBuilder: com.squareup.javapoet.FieldSpec.Builder.() -> Unit,
-            kotlinPropertyBuilder: com.squareup.kotlinpoet.PropertySpec.Builder.() -> Unit,
-        ): XPropertySpec.Builder = apply {
-            when (language) {
-                CodeLanguage.JAVA -> {
-                    check(this is JavaPropertySpec.Builder)
-                    this.actual.javaFieldBuilder()
-                }
-                CodeLanguage.KOTLIN -> {
-                    check(this is KotlinPropertySpec.Builder)
-                    this.actual.kotlinPropertyBuilder()
-                }
+        fun overridingBuilder(
+            language: CodeLanguage,
+            element: XMethodElement,
+            owner: XType
+        ): Builder {
+            require(element.isKotlinPropertyMethod())
+            return when (language) {
+                CodeLanguage.JAVA -> error(
+                    "Overriding a property is not supported when code language is Java."
+                )
+                CodeLanguage.KOTLIN -> KotlinPropertySpec.Builder(
+                    name = element.name,
+                    actual = PropertySpecHelper.overriding(element, owner)
+                )
             }
         }
     }

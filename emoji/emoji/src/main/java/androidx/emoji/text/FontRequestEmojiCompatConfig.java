@@ -29,7 +29,6 @@ import android.os.SystemClock;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.TypefaceCompatUtil;
 import androidx.core.provider.FontRequest;
@@ -202,7 +201,6 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         @Override
-        @RequiresApi(19)
         public void load(@NonNull final EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "LoaderCallback cannot be null");
             synchronized (mLock) {
@@ -240,7 +238,6 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         // Must be called on the mHandler.
-        @RequiresApi(19)
         private void scheduleRetry(Uri uri, long waitMs) {
             synchronized (mLock) {
                 if (mObserver == null) {
@@ -282,7 +279,6 @@ public class FontRequestEmojiCompatConfig extends EmojiCompat.Config {
         }
 
         // Must be called on the mHandler.
-        @RequiresApi(19)
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         void createMetadata() {
             if (mCallback == null) {

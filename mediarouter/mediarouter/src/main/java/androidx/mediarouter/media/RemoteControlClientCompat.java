@@ -15,13 +15,12 @@
  */
 package androidx.mediarouter.media;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioManager;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.lang.ref.WeakReference;
 
@@ -43,10 +42,7 @@ abstract class RemoteControlClientCompat {
 
     public static RemoteControlClientCompat obtain(
             Context context, android.media.RemoteControlClient rcc) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return new JellybeanImpl(context, rcc);
-        }
-        return new LegacyImpl(context, rcc);
+        return new JellybeanImpl(context, rcc);
     }
 
     public android.media.RemoteControlClient getRemoteControlClient() {
@@ -108,16 +104,6 @@ abstract class RemoteControlClientCompat {
     }
 
     /**
-     * Legacy implementation for platform versions prior to Jellybean.
-     * Does nothing.
-     */
-    static class LegacyImpl extends RemoteControlClientCompat {
-        LegacyImpl(Context context, android.media.RemoteControlClient rcc) {
-            super(context, rcc);
-        }
-    }
-
-    /**
      * Implementation for Jellybean.
      *
      * The basic idea of this implementation is to attach the RCC to a UserRouteInfo
@@ -125,7 +111,6 @@ abstract class RemoteControlClientCompat {
      * other API available to do so in this platform version.  The UserRouteInfo itself
      * is not attached to the MediaRouter so it is transparent to the user.
      */
-    @RequiresApi(16)
     static class JellybeanImpl extends RemoteControlClientCompat {
         private final android.media.MediaRouter mRouter;
         private final android.media.MediaRouter.RouteCategory mUserRouteCategory;
@@ -135,30 +120,33 @@ abstract class RemoteControlClientCompat {
         JellybeanImpl(Context context, android.media.RemoteControlClient rcc) {
             super(context, rcc);
 
-            mRouter = MediaRouterApi16Impl.getMediaRouter(context);
-            mUserRouteCategory = MediaRouterApi16Impl.createRouteCategory(mRouter, "", false);
-            mUserRoute = MediaRouterApi16Impl.createUserRoute(mRouter, mUserRouteCategory);
+            mRouter =
+                    (android.media.MediaRouter)
+                            context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+            mUserRouteCategory =
+                    mRouter.createRouteCategory(/* name= */ "", /* isGroupable= */ false);
+            mUserRoute = mRouter.createUserRoute(mUserRouteCategory);
         }
 
+        @SuppressLint("WrongConstant") // False positive. See b/310913043.
         @Override
         public void setPlaybackInfo(PlaybackInfo info) {
-            MediaRouterApi16Impl.UserRouteInfo.setVolume(mUserRoute, info.volume);
-            MediaRouterApi16Impl.UserRouteInfo.setVolumeMax(mUserRoute, info.volumeMax);
-            MediaRouterApi16Impl.UserRouteInfo.setVolumeHandling(mUserRoute, info.volumeHandling);
-            MediaRouterApi16Impl.UserRouteInfo.setPlaybackStream(mUserRoute, info.playbackStream);
-            MediaRouterApi16Impl.UserRouteInfo.setPlaybackType(mUserRoute, info.playbackType);
+            mUserRoute.setVolume(info.volume);
+            mUserRoute.setVolumeMax(info.volumeMax);
+            mUserRoute.setVolumeHandling(info.volumeHandling);
+            mUserRoute.setPlaybackStream(info.playbackStream);
+            mUserRoute.setPlaybackType(info.playbackType);
 
             if (!mRegistered) {
                 mRegistered = true;
-                MediaRouterApi16Impl.UserRouteInfo.setVolumeCallback(
-                        mUserRoute,
-                        MediaRouterApi16Impl.createVolumeCallback(new VolumeCallbackWrapper(this)));
-                MediaRouterApi16Impl.UserRouteInfo.setRemoteControlClient(mUserRoute, mRcc);
+                mUserRoute.setVolumeCallback(
+                        MediaRouterUtils.createVolumeCallback(new VolumeCallbackWrapper(this)));
+                mUserRoute.setRemoteControlClient(mRcc);
             }
         }
 
         private static final class VolumeCallbackWrapper
-                implements MediaRouterApi16Impl.VolumeCallback {
+                implements MediaRouterUtils.VolumeCallback {
             // Unfortunately, the framework never unregisters its volume observer from
             // the audio service so the UserRouteInfo object may leak along with
             // any callbacks that we attach to it.  Use a weak reference to prevent

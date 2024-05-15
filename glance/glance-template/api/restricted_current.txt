@@ -85,9 +85,9 @@ package androidx.glance.template {
   public abstract class GlanceTemplateAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
     ctor public GlanceTemplateAppWidget();
     method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void TemplateContent();
-    method public final suspend Object? provideGlance(android.content.Context context, androidx.glance.GlanceId id, kotlin.coroutines.Continuation<?>);
+    method public final suspend Object? provideGlance(android.content.Context context, androidx.glance.GlanceId id, kotlin.coroutines.Continuation<? extends java.lang.Object!>);
     property public androidx.glance.appwidget.SizeMode sizeMode;
-    property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
+    property public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object!>? stateDefinition;
     field public static final androidx.glance.template.GlanceTemplateAppWidget.Companion Companion;
   }
 
@@ -202,8 +202,6 @@ package androidx.glance.template {
   }
 
   public enum TemplateMode {
-    method public static androidx.glance.template.TemplateMode valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.glance.template.TemplateMode[] values();
     enum_constant public static final androidx.glance.template.TemplateMode Collapsed;
     enum_constant public static final androidx.glance.template.TemplateMode Horizontal;
     enum_constant public static final androidx.glance.template.TemplateMode Vertical;

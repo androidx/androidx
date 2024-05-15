@@ -117,9 +117,9 @@ internal class FileStorageConnection<T>(
                 FileWriteScope(scratchFile, serializer).use {
                     block(it)
                 }
-                if (scratchFile.exists() && !scratchFile.renameTo(file)) {
+                if (scratchFile.exists() && !scratchFile.atomicMoveTo(file)) {
                     throw IOException(
-                        "Unable to rename $scratchFile. " +
+                        "Unable to rename $scratchFile to $file. " +
                         "This likely means that there are multiple instances of DataStore " +
                         "for this file. Ensure that you are only creating a single instance of " +
                         "datastore for this file."
@@ -164,27 +164,30 @@ internal open class FileReadScope<T>(
 
     override suspend fun readData(): T {
         checkNotClosed()
-        return try {
-            FileInputStream(file).use { stream ->
-                serializer.readFrom(stream)
-            }
-        } catch (ex: FileNotFoundException) {
-            if (file.exists()) {
-                // Re-read to prevent throwing from a race condition where the file is created by
-                // another process after the initial read attempt but before `file.exists()` is
-                // called. Otherwise file exists but we can't read it; throw FileNotFoundException
-                // because something is wrong.
-                return FileInputStream(file).use { stream ->
+        return runFileDiagnosticsIfNotCorruption(file) {
+            try {
+                FileInputStream(file).use { stream ->
                     serializer.readFrom(stream)
                 }
+            } catch (ex: FileNotFoundException) {
+                if (file.exists()) {
+                    // Re-read to prevent throwing from a race condition where the file is created
+                    // by another process after the initial read attempt but before `file.exists()`
+                    // is called. Otherwise file exists but we can't read it; throw
+                    // FileNotFoundException because something is wrong.
+                    FileInputStream(file).use { stream ->
+                        serializer.readFrom(stream)
+                    }
+                }
+                serializer.defaultValue
             }
-            return serializer.defaultValue
         }
     }
 
     override fun close() {
         closed.set(true)
     }
+
     protected fun checkNotClosed() {
         check(!closed.get()) { "This scope has already been closed." }
     }
@@ -195,12 +198,25 @@ internal class FileWriteScope<T>(file: File, serializer: Serializer<T>) :
 
     override suspend fun writeData(value: T) {
         checkNotClosed()
-        val fos = FileOutputStream(file)
-        fos.use { stream ->
-            serializer.writeTo(value, UncloseableOutputStream(stream))
-            stream.fd.sync()
-            // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
-            //  result in reverting to a previous state.
+        runFileDiagnosticsIfNotCorruption(file) {
+            val fos = FileOutputStream(file)
+            fos.use { stream ->
+                serializer.writeTo(value, UncloseableOutputStream(stream))
+                stream.fd.sync()
+                // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
+                //  result in reverting to a previous state.
+            }
         }
+    }
+}
+
+private suspend fun <T> runFileDiagnosticsIfNotCorruption(file: File, block: suspend () -> T): T {
+    try {
+        return block()
+    } catch (ex: IOException) {
+        if (ex is CorruptionException) {
+            throw ex
+        }
+        throw FileDiagnostics.attachFileDebugInfo(file, ex)
     }
 }

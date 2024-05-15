@@ -6,6 +6,11 @@ package android.view {
     method public void drawRenderNode(android.view.RenderNode);
   }
 
+  public abstract class HardwareCanvas extends android.graphics.Canvas {
+    ctor public HardwareCanvas();
+    method public abstract int drawRenderNode(android.view.RenderNode, android.graphics.Rect, int);
+  }
+
   public class RenderNode {
     method public static android.view.RenderNode create(String?, android.view.View?);
     method public void destroy();

@@ -14,7 +14,7 @@ package androidx.work.testing {
 
   public class TestListenableWorkerBuilder<W extends androidx.work.ListenableWorker> {
     method public W build();
-    method public static androidx.work.testing.TestListenableWorkerBuilder<? extends androidx.work.ListenableWorker> from(android.content.Context, androidx.work.WorkRequest);
+    method public static androidx.work.testing.TestListenableWorkerBuilder<? extends androidx.work.ListenableWorker!> from(android.content.Context, androidx.work.WorkRequest);
     method public static <W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W!> from(android.content.Context, Class<W!>);
     method public androidx.work.testing.TestListenableWorkerBuilder<W!> setForegroundUpdater(androidx.work.ForegroundUpdater);
     method public androidx.work.testing.TestListenableWorkerBuilder<W!> setId(java.util.UUID);
@@ -32,8 +32,8 @@ package androidx.work.testing {
     method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, optional androidx.work.Data inputData, optional java.util.List<java.lang.String> tags, optional int runAttemptCount, optional java.util.List<? extends android.net.Uri> triggeredContentUris, optional java.util.List<java.lang.String> triggeredContentAuthorities);
   }
 
-  public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {
-    method public static androidx.work.testing.TestWorkerBuilder<? extends androidx.work.Worker> from(android.content.Context, androidx.work.WorkRequest, java.util.concurrent.Executor);
+  public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W!> {
+    method public static androidx.work.testing.TestWorkerBuilder<? extends androidx.work.Worker!> from(android.content.Context, androidx.work.WorkRequest, java.util.concurrent.Executor);
     method public static <W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W!> from(android.content.Context, Class<W!>, java.util.concurrent.Executor);
   }
 

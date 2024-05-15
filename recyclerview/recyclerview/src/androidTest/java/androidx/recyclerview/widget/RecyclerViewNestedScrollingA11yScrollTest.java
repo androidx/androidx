@@ -188,7 +188,7 @@ public class RecyclerViewNestedScrollingA11yScrollTest {
                     }
                 });
 
-                ViewCompat.performAccessibilityAction(mRecyclerView, action, null);
+                mRecyclerView.performAccessibilityAction(action, null);
             }
         });
         assertThat(countDownLatch.await(2, TimeUnit.SECONDS), is(true));

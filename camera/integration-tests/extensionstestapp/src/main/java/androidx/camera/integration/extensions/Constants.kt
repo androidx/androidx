@@ -22,6 +22,11 @@ package androidx.camera.integration.extensions
 const val INVALID_EXTENSION_MODE = -1
 
 /**
+ * Extension is not enabled. Uses a non camera extension session (eg. camera2 or cameraX)
+ */
+const val EXTENSION_MODE_NONE = -1
+
+/**
  * Invalid lens facing
  */
 const val INVALID_LENS_FACING = -1

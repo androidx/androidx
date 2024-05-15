@@ -19,7 +19,6 @@ package androidx.camera.integration.view;
 import static java.lang.Math.abs;
 import static java.lang.Math.round;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.Bitmap;
@@ -73,7 +72,6 @@ import java.util.concurrent.Executors;
 /**
  * A fragment that demos transform utilities.
  */
-@SuppressLint("RestrictedAPI")
 @OptIn(markerClass = TransformExperimental.class)
 public final class TransformFragment extends Fragment {
 
@@ -114,7 +112,6 @@ public final class TransformFragment extends Fragment {
 
         @Override
         @OptIn(markerClass = TransformExperimental.class)
-        @SuppressWarnings("RestrictedApi")
         public void analyze(@NonNull ImageProxy imageProxy) {
             // Find the brightest tile to highlight.
             mBrightestTile = findBrightestTile(imageProxy);

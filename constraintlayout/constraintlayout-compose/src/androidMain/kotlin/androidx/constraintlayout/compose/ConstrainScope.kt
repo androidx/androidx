@@ -192,13 +192,9 @@ class ConstrainScope internal constructor(
      * position of the widget relative to the space within the constraints, where `0f` is the
      * left-most position and `1f` is the right-most position.
      *
-     * &nbsp;
-     *
      * When layout direction is RTL, the value of the bias is effectively inverted.
      *
      * E.g.: For `horizontalBias = 0.3f`, `0.7f` is used for RTL.
-     *
-     * &nbsp;
      *
      * Note that the bias may also be applied with calls such as [linkTo].
      */

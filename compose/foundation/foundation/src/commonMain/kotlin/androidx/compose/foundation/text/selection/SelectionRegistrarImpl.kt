@@ -16,6 +16,9 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.collection.LongObjectMap
+import androidx.collection.emptyLongObjectMap
+import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.AtomicLong
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,12 +56,12 @@ internal class SelectionRegistrarImpl private constructor(
     internal val selectables: List<Selectable>
         get() = _selectables
 
-    private val _selectableMap = mutableMapOf<Long, Selectable>()
+    private val _selectableMap = mutableLongObjectMapOf<Selectable>()
 
     /**
      * A map from selectable keys to subscribed selectables.
      */
-    internal val selectableMap: Map<Long, Selectable>
+    internal val selectableMap: LongObjectMap<Selectable>
         get() = _selectableMap
 
     /**
@@ -109,7 +112,7 @@ internal class SelectionRegistrarImpl private constructor(
      */
     internal var afterSelectableUnsubscribe: ((Long) -> Unit)? = null
 
-    override var subselections: Map<Long, Selection> by mutableStateOf(emptyMap())
+    override var subselections: LongObjectMap<Selection> by mutableStateOf(emptyLongObjectMap())
 
     override fun subscribe(selectable: Selectable): Selectable {
         require(selectable.selectableId != SelectionRegistrar.InvalidSelectableId) {

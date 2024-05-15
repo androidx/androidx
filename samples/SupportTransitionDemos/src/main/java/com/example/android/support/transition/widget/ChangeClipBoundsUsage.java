@@ -23,7 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import androidx.core.view.ViewCompat;
 import androidx.transition.ChangeClipBounds;
 import androidx.transition.TransitionManager;
 
@@ -60,10 +59,10 @@ public class ChangeClipBoundsUsage extends TransitionUsageBase {
 
     void toggle() {
         TransitionManager.beginDelayedTransition(mRoot, mChangeClipBounds);
-        if (BOUNDS.equals(ViewCompat.getClipBounds(mPhoto))) {
-            ViewCompat.setClipBounds(mPhoto, null);
+        if (BOUNDS.equals(mPhoto.getClipBounds())) {
+            mPhoto.setClipBounds(null);
         } else {
-            ViewCompat.setClipBounds(mPhoto, BOUNDS);
+            mPhoto.setClipBounds(BOUNDS);
         }
     }
 

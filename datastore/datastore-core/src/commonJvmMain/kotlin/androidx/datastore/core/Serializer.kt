@@ -22,7 +22,7 @@ import java.io.OutputStream
 /**
  * The serializer determines the on-disk format and API for accessing it.
  *
- * The type T MUST be immutable. Mutable types will result in broken DataStore functionality.
+ * The type [T] MUST be immutable. Mutable types will result in broken DataStore functionality.
  *
  * TODO(b/151635324): consider changing InputStream to File.
  */
@@ -37,6 +37,11 @@ public interface Serializer<T> {
      * Unmarshal object from stream.
      *
      * @param input the InputStream with the data to deserialize
+     *
+     * @throws androidx.datastore.core.CorruptionException if the data from [input] is corrupted
+     *   and/or unparseable, e.g. [InvalidProtocolBufferException] when the type [T] is a
+     *   protobuf message and it is corrupted. Other unrecoverable [IOException] from the file
+     *   system should not be thrown as [CorruptionException].
      */
     public suspend fun readFrom(input: InputStream): T
 
@@ -44,7 +49,7 @@ public interface Serializer<T> {
      *  Marshal object to a stream. Closing the provided OutputStream is a no-op.
      *
      *  @param t the data to write to output
-     *  @output the OutputStream to serialize data to
+     *  @param output the OutputStream to serialize data to
      */
     public suspend fun writeTo(t: T, output: OutputStream)
 }

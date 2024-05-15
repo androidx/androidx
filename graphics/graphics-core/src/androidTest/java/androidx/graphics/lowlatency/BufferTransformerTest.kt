@@ -47,8 +47,8 @@ internal class BufferTransformerTest {
         val transform = BufferTransformer().apply {
             computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
-        assertEquals(transform.glWidth, WIDTH)
-        assertEquals(transform.glHeight, HEIGHT)
+        assertEquals(transform.bufferWidth, WIDTH)
+        assertEquals(transform.bufferHeight, HEIGHT)
         val expected = createMatrix()
         assertEquals(transform.transform.size, SIZE)
         assertIsEqual(transform.transform, expected)
@@ -60,8 +60,8 @@ internal class BufferTransformerTest {
         val transform = BufferTransformer().apply {
             computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_90)
         }
-        assertEquals(transform.glWidth, HEIGHT)
-        assertEquals(transform.glHeight, WIDTH)
+        assertEquals(transform.bufferWidth, HEIGHT)
+        assertEquals(transform.bufferHeight, WIDTH)
         val expected = computeResult(
             createMatrix(),
             createMatrix {
@@ -78,8 +78,8 @@ internal class BufferTransformerTest {
         val transform = BufferTransformer().apply {
             computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_180)
         }
-        assertEquals(transform.glWidth, WIDTH)
-        assertEquals(transform.glHeight, HEIGHT)
+        assertEquals(transform.bufferWidth, WIDTH)
+        assertEquals(transform.bufferHeight, HEIGHT)
         val expected = computeResult(
             createMatrix(),
             createMatrix {
@@ -96,8 +96,8 @@ internal class BufferTransformerTest {
         val transform = BufferTransformer().apply {
             computeTransform(WIDTH, HEIGHT, BUFFER_TRANSFORM_ROTATE_270)
         }
-        assertEquals(transform.glWidth, HEIGHT)
-        assertEquals(transform.glHeight, WIDTH)
+        assertEquals(transform.bufferWidth, HEIGHT)
+        assertEquals(transform.bufferHeight, WIDTH)
         val expected = computeResult(
             createMatrix(),
             createMatrix {
@@ -114,8 +114,8 @@ internal class BufferTransformerTest {
         val transform = BufferTransformer().apply {
             computeTransform(WIDTH, HEIGHT, 42)
         }
-        assertEquals(transform.glWidth, WIDTH)
-        assertEquals(transform.glHeight, HEIGHT)
+        assertEquals(transform.bufferWidth, WIDTH)
+        assertEquals(transform.bufferHeight, HEIGHT)
         val expected = createMatrix()
         assertEquals(transform.transform.size, SIZE)
         assertIsEqual(transform.transform, expected)

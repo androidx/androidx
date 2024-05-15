@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
@@ -39,8 +40,9 @@ public class FinishAppScreen extends Screen {
     @Override
     public Template onGetTemplate() {
         return new MessageTemplate.Builder(getCarContext().getString(R.string.finish_app_msg))
-                .setTitle(getCarContext().getString(R.string.finish_app_title))
-                .setHeaderAction(BACK)
+                .setHeader(new Header.Builder().setTitle(getCarContext()
+                                .getString(R.string.finish_app_title))
+                        .setStartHeaderAction(BACK).build())
                 .addAction(
                         new Action.Builder()
                                 .setOnClickListener(

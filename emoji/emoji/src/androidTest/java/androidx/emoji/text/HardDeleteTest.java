@@ -41,7 +41,6 @@ import android.view.KeyEvent;
 
 import androidx.emoji.util.TestString;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -51,7 +50,6 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 19)
 public class HardDeleteTest {
 
     private TestString mTestString;

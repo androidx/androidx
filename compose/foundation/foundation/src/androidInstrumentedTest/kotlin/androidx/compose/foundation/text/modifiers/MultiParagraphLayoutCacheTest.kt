@@ -69,6 +69,34 @@ class MultiParagraphLayoutCacheTest {
     }
 
     @Test
+    fun intrinsicHeight_invalidates() {
+        val fontSize = 20.sp
+        val text = "Hello"
+        val spanStyle = SpanStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val annotatedString = AnnotatedString(text, spanStyle)
+        val textDelegate = MultiParagraphLayoutCache(
+            text = annotatedString,
+            style = TextStyle.Default,
+            fontFamilyResolver = fontFamilyResolver,
+        ).also {
+            it.density = density
+        }
+
+        val original = textDelegate.intrinsicHeight(20, LayoutDirection.Ltr)
+        textDelegate.update(AnnotatedString("Longer\ntext\ngoes\nhere\n\n\n."),
+            TextStyle.Default,
+            fontFamilyResolver,
+            TextOverflow.Visible,
+            true,
+            Int.MAX_VALUE,
+            -1,
+            null
+        )
+        val after = textDelegate.intrinsicHeight(20, LayoutDirection.Ltr)
+        assertThat(original).isLessThan(after)
+    }
+
+    @Test
     fun maxIntrinsicWidth_getter() {
         with(density) {
             val fontSize = 20.sp

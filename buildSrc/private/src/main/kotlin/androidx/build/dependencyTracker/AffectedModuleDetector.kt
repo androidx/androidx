@@ -110,9 +110,8 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
             val instance = AffectedModuleDetectorWrapper()
             rootProject.extensions.add(ROOT_PROP_NAME, instance)
 
-            val enabled =
-                rootProject.hasProperty(ENABLE_ARG) &&
-                    rootProject.findProperty(ENABLE_ARG) != "false"
+            val enabledProvider = rootProject.providers.gradleProperty(ENABLE_ARG)
+            val enabled = enabledProvider.isPresent() && enabledProvider.get() != "false"
 
             val distDir = rootProject.getDistributionDirectory()
             val outputFile = distDir.resolve(LOG_FILE_NAME)
@@ -134,10 +133,9 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
                 instance.wrapped = provider
                 return
             }
-            val baseCommitOverride: String? = rootProject.findProperty(BASE_COMMIT_ARG) as String?
-            if (baseCommitOverride != null) {
-                logger.info("using base commit override $baseCommitOverride")
-            }
+            val baseCommitOverride: Provider<String> =
+                rootProject.providers.gradleProperty(BASE_COMMIT_ARG)
+
             gradle.taskGraph.whenReady {
                 logger.lifecycle("projects evaluated")
                 val projectGraph = ProjectGraph(rootProject)
@@ -257,7 +255,7 @@ abstract class AffectedModuleDetectorLoader :
         var cobuiltTestPaths: Set<Set<String>>?
         var alwaysBuildIfExists: Set<String>?
         var ignoredPaths: Set<String>?
-        var baseCommitOverride: String?
+        var baseCommitOverride: Provider<String>?
         var gitChangedFilesProvider: Provider<List<String>>
     }
 
@@ -266,10 +264,6 @@ abstract class AffectedModuleDetectorLoader :
         if (parameters.acceptAll) {
             AcceptAll(null)
         } else {
-            if (parameters.baseCommitOverride != null) {
-                logger.info("using base commit override ${parameters.baseCommitOverride}")
-            }
-
             AffectedModuleDetectorImpl(
                 projectGraph = parameters.projectGraph,
                 dependencyTracker = parameters.dependencyTracker,
@@ -521,20 +515,12 @@ class AffectedModuleDetectorImpl(
                     // Making a change in :media:version-compat-tests makes
                     // mediaGenerateTestConfiguration run (an unfortunate but low priority bug). To
                     // prevent failures from missing apks, we make sure to build the
-                    // version-compat-tests projects in that case. Same with media2-session below.
+                    // version-compat-tests projects in that case.
                     ":media:version-compat-tests",
                     ":media:version-compat-tests:client",
                     ":media:version-compat-tests:service",
                     ":media:version-compat-tests:client-previous",
                     ":media:version-compat-tests:service-previous"
-                ),
-                setOf(
-                    ":media2:media2-session",
-                    ":media2:media2-session:version-compat-tests",
-                    ":media2:media2-session:version-compat-tests:client",
-                    ":media2:media2-session:version-compat-tests:service",
-                    ":media2:media2-session:version-compat-tests:client-previous",
-                    ":media2:media2-session:version-compat-tests:service-previous"
                 ), // Link material and material-ripple
                 setOf(":compose:material:material-ripple", ":compose:material:material"),
                 setOf(

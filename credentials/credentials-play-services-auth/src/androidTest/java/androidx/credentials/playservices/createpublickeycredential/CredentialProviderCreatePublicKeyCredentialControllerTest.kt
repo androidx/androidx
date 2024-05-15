@@ -16,6 +16,7 @@
 
 package androidx.credentials.playservices.createpublickeycredential
 
+import android.content.Context
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.playservices.TestCredentialsActivity
 import androidx.credentials.playservices.TestUtils.Companion.isSubsetJson
@@ -32,12 +33,16 @@ import androidx.credentials.playservices.createkeycredential.CreatePublicKeyCred
 import androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.Companion.OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD
 import androidx.credentials.playservices.createkeycredential.CreatePublicKeyCredentialControllerTestUtils.Companion.createJsonObjectFromPublicKeyCredentialCreationOptions
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.common.truth.Truth.assertThat
 import org.json.JSONException
 import org.json.JSONObject
 import org.junit.Assert
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.function.ThrowingRunnable
 import org.junit.runner.RunWith
@@ -103,6 +108,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
         )
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
 
+            assumeFalse(deviceHasGMS(getApplicationContext()))
             Assert.assertThrows("Expected bad required json to throw",
                 JSONException::class.java,
                 ThrowingRunnable {
@@ -122,6 +128,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
         )
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
 
+            assumeFalse(deviceHasGMS(getApplicationContext()))
             Assert.assertThrows("Expected bad required json to throw",
                 JSONException::class.java,
                 ThrowingRunnable { getInstance(activity!!
@@ -129,6 +136,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                     MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY)) })
         }
     }
+
     @Test
     fun convertRequestToPlayServices_missingOptionalRequired_throws() {
         val activityScenario = ActivityScenario.launch(
@@ -136,6 +144,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
         )
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
 
+            assumeFalse(deviceHasGMS(getApplicationContext()))
             Assert.assertThrows("Expected bad required json to throw",
                 JSONException::class.java,
                 ThrowingRunnable {
@@ -154,6 +163,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
         )
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
 
+            assumeFalse(deviceHasGMS(getApplicationContext()))
             Assert.assertThrows("Expected bad required json to throw",
                 JSONException::class.java,
                 ThrowingRunnable { getInstance(activity!!).convertRequestToPlayServices(
@@ -188,4 +198,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
             }
         }
     }
+
+    private fun deviceHasGMS(context: Context): Boolean = GoogleApiAvailability.getInstance()
+            .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
 }

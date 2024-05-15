@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraExtensionCharacteristics
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.Metadata
 
 object CameraPipeKeys {
@@ -29,6 +26,21 @@ object CameraPipeKeys {
      */
     val camera2ExtensionMode = Metadata.Key.create<Int>(
         "androidx.camera.camera2.pipe.ExtensionMode"
+    )
+
+    /**
+     * Key for configuring the tag for a Camera2 CaptureRequest.
+     */
+    val camera2CaptureRequestTag = Metadata.Key.create<Any>(
+        "androidx.camera.camera2.pipe.CaptureRequestTag"
+    )
+
+    /**
+     * Key for defaultParameters and requiredParameters that allows the users to ignore the required
+     * 3A parameters stipulated by the 3A controller in CameraPipe.
+     */
+    val ignore3ARequiredParameters = Metadata.Key.create<Boolean>(
+        "androidx.camera.camera2.pipe.Ignore3ARequiredParameters"
     )
 
     /**

@@ -22,6 +22,7 @@ import androidx.room.RoomProcessor
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.processor.Context
 import androidx.testutils.generateAllEnumerations
 import loadTestSource
 import org.junit.Test
@@ -141,6 +142,7 @@ private fun singleDb(
     ) + inputs
     runProcessorTest(
         sources = sources,
+        options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         javacProcessors = listOf(RoomProcessor()),
         symbolProcessorProviders = listOf(RoomKspProcessor.Provider()),
         onCompilationResult = onCompilationResult

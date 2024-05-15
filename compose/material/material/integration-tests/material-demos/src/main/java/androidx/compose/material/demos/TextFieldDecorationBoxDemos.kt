@@ -23,7 +23,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -131,10 +130,6 @@ private fun DenseTextField() {
         onValueChange = { text = it },
         modifier = Modifier
             .indicatorLine(enabled, false, interactionSource, TextFieldDefaults.textFieldColors())
-            .background(
-                TextFieldDefaults.textFieldColors().backgroundColor(enabled).value,
-                TextFieldDefaults.TextFieldShape
-            )
             .width(TextFieldDefaults.MinWidth),
         singleLine = singleLine,
         interactionSource = interactionSource
@@ -174,9 +169,7 @@ private fun IndicatorLineTextField(type: IndicatorType) {
     BasicTextField(
         value = text,
         onValueChange = { text = it },
-        modifier = indicator
-            .background(colors.backgroundColor(enabled).value, TextFieldDefaults.TextFieldShape)
-            .width(TextFieldDefaults.MinWidth),
+        modifier = indicator.width(TextFieldDefaults.MinWidth),
         singleLine = singleLine,
         interactionSource = interactionSource,
         enabled = enabled

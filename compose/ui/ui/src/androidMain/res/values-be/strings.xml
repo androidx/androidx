@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"Выбрана часткова"</string>
-    <string name="on" msgid="8655164131929253426">"Уключана"</string>
-    <string name="off" msgid="875452955155264703">"Выключана"</string>
+    <string name="state_on" msgid="1490883874751719580">"Уключана"</string>
+    <string name="state_off" msgid="5834637030682409883">"Выключана"</string>
     <string name="switch_role" msgid="2561197295334830845">"Пераключальнік"</string>
     <string name="selected" msgid="6043586758067023">"Выбрана"</string>
     <string name="not_selected" msgid="6610465462668679431">"Не выбрана"</string>
@@ -31,6 +31,7 @@
     <string name="close_drawer" msgid="406453423630273620">"Закрыць меню навігацыі"</string>
     <string name="close_sheet" msgid="7573152094250666567">"Закрыць аркуш"</string>
     <string name="default_error_message" msgid="8038256446254964252">"Памылка ўводу"</string>
+    <string name="state_empty" msgid="4139871816613051306">"Змесціва няма"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"Усплывальнае акно"</string>
     <string name="range_start" msgid="7097486360902471446">"Пачатак пераліку"</string>
     <string name="range_end" msgid="5941395253238309765">"Канец пераліку"</string>

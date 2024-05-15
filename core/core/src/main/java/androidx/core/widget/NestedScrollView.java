@@ -885,7 +885,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 mActivePointerId = INVALID_POINTER;
                 recycleVelocityTracker();
                 if (mScroller.springBack(getScrollX(), getScrollY(), 0, 0, 0, getScrollRange())) {
-                    ViewCompat.postInvalidateOnAnimation(this);
+                    postInvalidateOnAnimation();
                 }
                 stopNestedScroll(ViewCompat.TYPE_TOUCH);
                 break;
@@ -993,7 +993,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     }
                 } else if (mScroller.springBack(getScrollX(), getScrollY(), 0, 0, 0,
                         getScrollRange())) {
-                    ViewCompat.postInvalidateOnAnimation(this);
+                    postInvalidateOnAnimation();
                 }
                 endTouchDrag();
                 break;
@@ -1003,7 +1003,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 if (mIsBeingDragged && getChildCount() > 0) {
                     if (mScroller.springBack(getScrollX(), getScrollY(), 0, 0, 0,
                             getScrollRange())) {
-                        ViewCompat.postInvalidateOnAnimation(this);
+                        postInvalidateOnAnimation();
                     }
                 }
                 endTouchDrag();
@@ -1171,7 +1171,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
 
         if (!mEdgeGlowTop.isFinished() || !mEdgeGlowBottom.isFinished()) {
-            ViewCompat.postInvalidateOnAnimation(this);
+            postInvalidateOnAnimation();
             hitScrollBarrier = false;
         }
 
@@ -1994,7 +1994,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
         }
 
         if (!mScroller.isFinished()) {
-            ViewCompat.postInvalidateOnAnimation(this);
+            postInvalidateOnAnimation();
         } else {
             stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
         }
@@ -2041,7 +2041,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
         }
         mLastScrollerY = getScrollY();
-        ViewCompat.postInvalidateOnAnimation(this);
+        postInvalidateOnAnimation();
     }
 
     private void abortAnimatedScroll() {
@@ -2366,7 +2366,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             canvas.translate(xTranslation, yTranslation);
             mEdgeGlowTop.setSize(width, height);
             if (mEdgeGlowTop.draw(canvas)) {
-                ViewCompat.postInvalidateOnAnimation(this);
+                postInvalidateOnAnimation();
             }
             canvas.restoreToCount(restoreCount);
         }
@@ -2390,7 +2390,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             canvas.rotate(180, width, 0);
             mEdgeGlowBottom.setSize(width, height);
             if (mEdgeGlowBottom.draw(canvas)) {
-                ViewCompat.postInvalidateOnAnimation(this);
+                postInvalidateOnAnimation();
             }
             canvas.restoreToCount(restoreCount);
         }

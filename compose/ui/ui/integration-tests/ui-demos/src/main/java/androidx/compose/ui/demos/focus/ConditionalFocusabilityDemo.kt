@@ -44,7 +44,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ConditionalFocusabilityDemo() {
     val localInputModeManager = LocalInputModeManager.current
@@ -109,6 +108,7 @@ fun ConditionalFocusabilityDemo() {
                 .focusRequester(item4)
                 .pointerInput(item4) {
                     detectTapGestures {
+                        @OptIn(ExperimentalComposeUiApi::class)
                         if (localInputModeManager.requestInputMode(Keyboard)) {
                             item4.requestFocus()
                         }

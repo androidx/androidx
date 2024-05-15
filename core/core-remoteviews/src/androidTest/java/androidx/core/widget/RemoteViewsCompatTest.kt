@@ -411,8 +411,9 @@ public class RemoteViewsCompatTest {
 
     @Suppress("UNCHECKED_CAST")
     private fun <V : View> getListChildAt(position: Int): V {
-        return if (mUsingBackport) {
-            // When using RemoteViewsAdapter, an extra wrapper FrameLayout is added.
+        return if (mUsingBackport || mListView.getChildAt(position) is AppWidgetHostView) {
+            // When using RemoteViewsAdapter or RemoteCollectionItemsAdapter, an extra wrapper
+            // FrameLayout is added.
             (mListView.getChildAt(position) as ViewGroup).getChildAt(0) as V
         } else {
             mListView.getChildAt(position) as V

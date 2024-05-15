@@ -33,7 +33,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,17 +42,13 @@ import java.util.List;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class PojoTest {
-    private UserDao mUserDao;
-
-    @Before
-    public void createDb() {
-        Context context = ApplicationProvider.getApplicationContext();
-        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
-        mUserDao = db.getUserDao();
-    }
 
     @Test
     public void weightsByAge() {
+        Context context = ApplicationProvider.getApplicationContext();
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
+        UserDao userDao = db.getUserDao();
+
         User[] users = TestUtil.createUsersArray(3, 5, 7, 10);
         users[0].setAge(10);
         users[0].setWeight(20);
@@ -67,8 +62,8 @@ public class PojoTest {
         users[3].setAge(35);
         users[3].setWeight(55);
 
-        mUserDao.insertAll(users);
-        assertThat(mUserDao.weightByAge(), is(
+        userDao.insertAll(users);
+        assertThat(userDao.weightByAge(), is(
                 Arrays.asList(
                         new AvgWeightByAge(35, 55),
                         new AvgWeightByAge(10, 25),

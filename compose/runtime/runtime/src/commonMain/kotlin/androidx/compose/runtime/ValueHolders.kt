@@ -16,17 +16,67 @@
 
 package androidx.compose.runtime
 
+internal interface ValueHolder<T> {
+    fun readValue(map: PersistentCompositionLocalMap): T
+    fun toProvided(local: CompositionLocal<T>): ProvidedValue<T>
+}
+
 /**
  * A StaticValueHolder holds a value that will never change.
  */
-internal data class StaticValueHolder<T>(override val value: T) : State<T>
+internal data class StaticValueHolder<T>(val value: T) : ValueHolder<T> {
+    override fun readValue(map: PersistentCompositionLocalMap): T = value
+    override fun toProvided(local: CompositionLocal<T>): ProvidedValue<T> =
+        ProvidedValue(
+            compositionLocal = local,
+            value = value,
+            explicitNull = value === null,
+            mutationPolicy = null,
+            state = null,
+            compute = null,
+            isDynamic = false
+        )
+}
 
 /**
  * A lazy value holder is static value holder for which the value is produced by the valueProducer
  * parameter which is called once and the result is remembered for the life of LazyValueHolder.
  */
-internal class LazyValueHolder<T>(valueProducer: () -> T) : State<T> {
+internal class LazyValueHolder<T>(valueProducer: () -> T) : ValueHolder<T> {
     private val current by lazy(valueProducer)
 
-    override val value: T get() = current
+    override fun readValue(map: PersistentCompositionLocalMap): T = current
+    override fun toProvided(local: CompositionLocal<T>): ProvidedValue<T> =
+        composeRuntimeError("Cannot produce a provider from a lazy value holder")
+}
+
+internal data class ComputedValueHolder<T>(
+    val compute: CompositionLocalAccessorScope.() -> T
+) : ValueHolder<T> {
+    override fun readValue(map: PersistentCompositionLocalMap): T =
+        map.compute()
+    override fun toProvided(local: CompositionLocal<T>): ProvidedValue<T> =
+        ProvidedValue(
+            compositionLocal = local,
+            value = null,
+            explicitNull = false,
+            mutationPolicy = null,
+            state = null,
+            compute = compute,
+            isDynamic = false
+        )
+}
+
+internal data class DynamicValueHolder<T>(val state: MutableState<T>) : ValueHolder<T> {
+    override fun readValue(map: PersistentCompositionLocalMap): T = state.value
+    override fun toProvided(local: CompositionLocal<T>): ProvidedValue<T> =
+        ProvidedValue(
+            compositionLocal = local,
+            value = null,
+            explicitNull = false,
+            mutationPolicy = null,
+            state = state,
+            compute = null,
+            isDynamic = true
+        )
 }

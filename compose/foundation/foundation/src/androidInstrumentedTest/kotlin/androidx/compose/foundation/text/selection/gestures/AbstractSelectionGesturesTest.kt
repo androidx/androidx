@@ -21,14 +21,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.FocusedWindowTest
+import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.selection.HandlePressedScope
 import androidx.compose.foundation.text.selection.gestures.util.FakeHapticFeedback
+import androidx.compose.foundation.text.selection.gestures.util.mouseDragNodeBy
+import androidx.compose.foundation.text.selection.gestures.util.mouseDragNodeTo
+import androidx.compose.foundation.text.selection.gestures.util.touchDragNodeBy
+import androidx.compose.foundation.text.selection.gestures.util.touchDragNodeTo
+import androidx.compose.foundation.text.selection.withHandlePressed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -49,11 +55,10 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.util.lerp
-import kotlin.math.max
-import kotlin.math.roundToInt
 import org.junit.Before
 import org.junit.Rule
+
+const val RtlChar = "\u05D1"
 
 @OptIn(ExperimentalTestApi::class)
 internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
@@ -86,7 +91,7 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
                 LocalDensity provides density,
                 LocalViewConfiguration provides TestViewConfiguration(
                     minimumTouchTargetSize = DpSize.Zero,
-                    touchSlop = Float.MIN_VALUE,
+                    touchSlop = 0.1f, // less than 1, not too close to 0
                 ),
                 LocalHapticFeedback provides hapticFeedback,
             ) {
@@ -180,6 +185,13 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
 
     protected fun performMouseGesture(block: MouseInjectionScope.() -> Unit) {
         rule.onNodeWithTag(pointerAreaTag).performMouseInput(block)
+    }
+
+    protected fun withHandlePressed(
+        handle: Handle,
+        block: HandlePressedScope.() -> Unit
+    ) {
+        rule.withHandlePressed(handle, block)
         rule.waitForIdle()
     }
 
@@ -187,86 +199,31 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
         position: Offset,
         durationMillis: Long = 200L,
     ) {
-        require(durationMillis > 0) { "Duration cannot be <= 0" }
-
-        var startVar: Offset? = null
-        var dragEventPeriodMillisVar: Long? = null
-        performTouchGesture {
-            startVar = requireNotNull(currentPosition()) { "No pointer is down to animate." }
-            dragEventPeriodMillisVar = this.eventPeriodMillis
-        }
-
-        val start = startVar!!
-        val dragEventPeriodMillis = dragEventPeriodMillisVar!!
-
-        // How many steps will we take in durationMillis?
-        // At least 1, and a number that will bring as as close to eventPeriod as possible
-        val steps = max(1, (durationMillis / dragEventPeriodMillis.toFloat()).roundToInt())
-
-        var previousTime = 0L
-        for (step in 1..steps) {
-            val progress = step / steps.toFloat()
-            val nextTime = lerp(0, stop = durationMillis, fraction = progress)
-            val nextPosition = lerp(start, position, nextTime / durationMillis.toFloat())
-            performTouchGesture {
-                moveTo(nextPosition, delayMillis = nextTime - previousTime)
-            }
-            previousTime = nextTime
-        }
+        rule.onNodeWithTag(pointerAreaTag).touchDragNodeTo(position, durationMillis)
+        rule.waitForIdle()
     }
 
     protected fun touchDragBy(
         delta: Offset,
         durationMillis: Long = 100L
     ) {
-        var startVar: Offset? = null
-        performTouchGesture {
-            startVar = requireNotNull(currentPosition()) { "No pointer is down to animate." }
-        }
-        val start = startVar!!
-        touchDragTo(start + delta, durationMillis)
+        rule.onNodeWithTag(pointerAreaTag).touchDragNodeBy(delta, durationMillis)
+        rule.waitForIdle()
     }
 
     protected fun mouseDragTo(
         position: Offset,
         durationMillis: Long = 200L,
     ) {
-        require(durationMillis > 0) { "Duration cannot be <= 0" }
-
-        var startVar: Offset? = null
-        var dragEventPeriodMillisVar: Long? = null
-        performMouseGesture {
-            startVar = currentPosition
-            dragEventPeriodMillisVar = this.eventPeriodMillis
-        }
-        val start = startVar!!
-        val dragEventPeriodMillis = dragEventPeriodMillisVar!!
-
-        // How many steps will we take in durationMillis?
-        // At least 1, and a number that will bring as as close to eventPeriod as possible
-        val steps = max(1, (durationMillis / dragEventPeriodMillis.toFloat()).roundToInt())
-
-        var previousTime = 0L
-        for (step in 1..steps) {
-            val progress = step / steps.toFloat()
-            val nextTime = lerp(0, stop = durationMillis, fraction = progress)
-            val nextPosition = lerp(start, position, nextTime / durationMillis.toFloat())
-            performMouseGesture {
-                moveTo(nextPosition, delayMillis = nextTime - previousTime)
-            }
-            previousTime = nextTime
-        }
+        rule.onNodeWithTag(pointerAreaTag).mouseDragNodeTo(position, durationMillis)
+        rule.waitForIdle()
     }
 
     protected fun mouseDragBy(
         delta: Offset,
         durationMillis: Long = 100L
     ) {
-        var startVar: Offset? = null
-        performMouseGesture {
-            startVar = currentPosition
-        }
-        val start = startVar!!
-        touchDragTo(start + delta, durationMillis)
+        rule.onNodeWithTag(pointerAreaTag).mouseDragNodeBy(delta, durationMillis)
+        rule.waitForIdle()
     }
 }

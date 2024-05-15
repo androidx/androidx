@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -27,7 +34,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation(libs.robolectric)
-    implementation("androidx.annotation:annotation-experimental:1.3.1")
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
 
     testImplementation(project(":car:app:app-projected"))
     testImplementation(libs.junit)

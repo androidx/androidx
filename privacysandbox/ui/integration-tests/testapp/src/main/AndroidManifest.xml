@@ -38,6 +38,9 @@
         <uses-sdk-library android:name="androidx.privacysandbox.ui.integration.testsdkprovider"
             android:versionMajor="1"
             android:certDigest="EE:B9:3D:E4:98:2F:A1:2E:AD:5B:C1:16:7A:6E:10:BD:23:49:B4:04:65:C4:3A:01:CC:54:06:4D:E5:2A:38:04" />
+        <uses-sdk-library android:name="androidx.privacysandbox.ui.integration.mediateesdkprovider"
+            android:versionMajor="1"
+            android:certDigest="EE:B9:3D:E4:98:2F:A1:2E:AD:5B:C1:16:7A:6E:10:BD:23:49:B4:04:65:C4:3A:01:CC:54:06:4D:E5:2A:38:04" />
     </application>
 
 </manifest>

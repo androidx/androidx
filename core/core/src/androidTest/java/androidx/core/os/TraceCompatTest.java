@@ -38,7 +38,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -49,6 +48,7 @@ import java.util.regex.Pattern;
 
 @LargeTest
 @SdkSuppress(minSdkVersion = 21) // Required for UiAutomation#executeShellCommand()
+@SuppressWarnings("deprecation") // TraceCompat is now deprecated
 public final class TraceCompatTest {
 
     private static final int TRACE_BUFFER_SIZE = 8192;
@@ -111,6 +111,7 @@ public final class TraceCompatTest {
     }
 
     @Test
+    @SdkSuppress(excludedSdks = { 30, 33 }) // Excluded due to flakes (b/328063273)
     public void beginAndEndSection() throws IOException {
         startTrace();
         TraceCompat.beginSection("beginAndEndSection");
@@ -122,6 +123,7 @@ public final class TraceCompatTest {
     }
 
     @Test
+    @SdkSuppress(excludedSdks = { 30, 33 }) // Excluded due to flakes (b/295944187)
     public void beginAndEndSectionAsync() throws IOException {
         startTrace();
         TraceCompat.beginAsyncSection("beginAndEndSectionAsync", /*cookie=*/5099);
@@ -133,6 +135,7 @@ public final class TraceCompatTest {
     }
 
     @Test
+    @SdkSuppress(excludedSdks = { 30, 33 }) // Excluded due to flakes (b/329119528)
     public void setCounter() throws IOException {
         startTrace();
         TraceCompat.setCounter("counterName", 42);
@@ -154,9 +157,9 @@ public final class TraceCompatTest {
         assertThat(enabled).isTrue();
     }
 
-    @Ignore("b/308151557")
     @SmallTest
     @Test
+    @SdkSuppress(excludedSdks = { 30, 33 }) // Excluded due to flakes (b/308151557)
     public void isNotEnabledWhenNotTracing() {
         assertThat(TraceCompat.isEnabled()).isFalse();
     }

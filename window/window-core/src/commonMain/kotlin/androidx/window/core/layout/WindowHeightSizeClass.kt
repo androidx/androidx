@@ -83,7 +83,7 @@ class WindowHeightSizeClass private constructor(
          * @throws IllegalArgumentException if the height is negative
          */
         internal fun compute(dpHeight: Float): WindowHeightSizeClass {
-            require(dpHeight > 0) { "Height must be positive, received $dpHeight" }
+            require(dpHeight >= 0) { "Height must be positive, received $dpHeight" }
             return when {
                 dpHeight < 480 -> COMPACT
                 dpHeight < 900 -> MEDIUM

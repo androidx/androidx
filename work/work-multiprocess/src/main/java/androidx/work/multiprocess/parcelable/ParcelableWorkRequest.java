@@ -97,6 +97,8 @@ public class ParcelableWorkRequest implements Parcelable {
         workSpec.expedited = readBooleanValue(in);
         // fallback
         workSpec.outOfQuotaPolicy = intToOutOfQuotaPolicy(in.readInt());
+        // traceTag
+        workSpec.setTraceTag(in.readString());
         mWorkRequest = new WorkRequestHolder(UUID.fromString(id), workSpec, tagsSet);
     }
 
@@ -161,6 +163,8 @@ public class ParcelableWorkRequest implements Parcelable {
         writeBooleanValue(parcel, workSpec.expedited);
         // fallback
         parcel.writeInt(outOfQuotaPolicyToInt(workSpec.outOfQuotaPolicy));
+        // traceTag
+        parcel.writeString(workSpec.getTraceTag());
     }
 
     @NonNull

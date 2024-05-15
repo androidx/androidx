@@ -36,6 +36,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +67,7 @@ public class FlingTests {
     /**
      * Test that custom properties are supported.
      */
+    @Ignore // b/325549946
     @Test
     public void testCustomProperties() {
         final Object animObj = new Object();

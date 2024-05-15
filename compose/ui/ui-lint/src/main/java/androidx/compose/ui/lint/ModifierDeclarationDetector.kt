@@ -20,7 +20,6 @@ package androidx.compose.ui.lint
 
 import androidx.compose.lint.Names
 import androidx.compose.lint.inheritsFrom
-import androidx.compose.lint.toKmFunction
 import androidx.compose.ui.lint.ModifierDeclarationDetector.Companion.ModifierFactoryReturnType
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
@@ -34,9 +33,12 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiType
-import com.intellij.psi.impl.compiled.ClsMethodImpl
 import java.util.EnumSet
-import kotlinx.metadata.KmClassifier
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.calls.KtCall
+import org.jetbrains.kotlin.analysis.api.calls.KtCallableMemberCall
+import org.jetbrains.kotlin.analysis.api.calls.singleCallOrNull
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFunction
@@ -48,9 +50,6 @@ import org.jetbrains.kotlin.psi.psiUtil.containingClassOrObject
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UThisExpression
-import org.jetbrains.uast.UTypeReferenceExpression
-import org.jetbrains.uast.getContainingUClass
-import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
@@ -237,33 +236,17 @@ private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
         override fun visitCallExpression(node: UCallExpression): Boolean {
             // We account for a receiver of `this` in `visitThisExpression`
             if (node.receiver == null) {
-                val declaration = node.resolveToUElement()
-                // If the declaration is a member of `Modifier` (such as `then`)
-                if (declaration?.getContainingUClass()
-                    ?.qualifiedName == Names.Ui.Modifier.javaFqn
-                ) {
-                    isReceiverReferenced = true
-                    // Otherwise if the declaration is an extension of `Modifier`
-                } else {
-                    // Whether the declaration itself has a Modifier receiver - UAST might think the
-                    // receiver on the node is different if it is inside another scope.
-                    val hasModifierReceiver = when (val source = declaration?.sourcePsi) {
-                        // Parsing a method defined in a class file
-                        is ClsMethodImpl -> {
-                            val receiverClassifier = source.toKmFunction()
-                                ?.receiverParameterType?.classifier
-                            receiverClassifier == KmClassifier.Class(Names.Ui.Modifier.kmClassName)
-                        }
-                        // Parsing a method defined in Kotlin source
-                        is KtFunction -> {
-                            val receiver = source.receiverTypeReference
-                            (receiver.toUElement() as? UTypeReferenceExpression)
-                                ?.getQualifiedName() == Names.Ui.Modifier.javaFqn
-                        }
-                        else -> false
-                    }
-                    if (hasModifierReceiver) {
+                val ktCallExpression = node.sourcePsi as? KtCallExpression
+                    ?: return isReceiverReferenced
+                analyze(ktCallExpression) {
+                    val ktCall = ktCallExpression.resolveCall()?.singleCallOrNull<KtCall>()
+                    val callee = (ktCall as? KtCallableMemberCall<*, *>)?.partiallyAppliedSymbol
+                    val receiver = callee?.extensionReceiver ?: callee?.dispatchReceiver
+                    val receiverClass = receiver?.type?.expandedClassSymbol?.classIdIfNonLocal
+                    if (receiverClass?.asFqNameString() == Names.Ui.Modifier.javaFqn) {
                         isReceiverReferenced = true
+                        // no further tree traversal, since we found receiver usage.
+                        return true
                     }
                 }
             }
@@ -277,7 +260,8 @@ private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
          */
         override fun visitThisExpression(node: UThisExpression): Boolean {
             isReceiverReferenced = true
-            return isReceiverReferenced
+            // no further tree traversal, since we found receiver usage.
+            return true
         }
     })
     if (!isReceiverReferenced) {

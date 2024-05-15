@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.core
 
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -34,7 +33,6 @@ import kotlinx.coroutines.launch
  *    OR acquire will return a token and the close method will not execute until after the token is
  *    released.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class WakeLock(
     private val scope: CoroutineScope,
     private val timeout: Long = 0,
@@ -59,9 +57,12 @@ internal class WakeLock(
     }
 
     private inner class WakeLockToken : Token {
-        private val closed = atomic(false)
+        private val _released = atomic(false)
+        override val released: Boolean
+            get() = _released.value
+
         override fun release(): Boolean {
-            if (closed.compareAndSet(expect = false, update = true)) {
+            if (_released.compareAndSet(expect = false, update = true)) {
                 releaseToken()
                 return true
             }

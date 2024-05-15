@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -50,7 +51,6 @@ import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 
 import java.util.Collections;
 import java.util.List;
@@ -77,10 +77,38 @@ import java.util.Objects;
  * </ul>
  *
  * <p>In order to use this template your car app <b>MUST</b> declare that it uses the {@code
- * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.
+ * androidx.car.app.NAVIGATION_TEMPLATES} permission in the manifest.</p>
+ *
+ *  <br>For instance, using the deprecated {@link PlaceListNavigationTemplate}, if the template was:
+ *
+ *  <pre>
+ *  <code>PlaceListNavigationTemplate template = new PlaceListNavigationTemplate.Builder()
+ *          .setItemList(itemListBuilder.build())
+ *          .setHeader(header)
+ *          .setActionStrip(actionStrip)
+ *          .setMapActionStrip(mapActionStrip)
+ *          .build();
+ * </code>
+ * </pre>
+ * Using the new {@link MapWithContentTemplate}, the template would be:
+ *  <pre>
+ *  <code>MapWithContentTemplate template = new MapWithContentTemplate.Builder()
+ *            .setContentTemplate(new ListTemplate.Builder()
+ *                   .setSingleList(itemListBuilder.build())
+ *                   .setHeader(header)
+ *                   .build())
+ *            .setActionStrip(actionStrip)
+ *            .setMapController(new MapController.Builder()
+ *                  .setMapActionStrip(mapActionStrip)
+ *                  .build())
+ *            .build();
+ * </code>
+ * </pre>
+ * @deprecated with API 7. Use the {@link MapWithContentTemplate} API instead.
  */
 @CarProtocol
 @KeepFields
+@Deprecated
 public final class PlaceListNavigationTemplate implements Template {
     private final boolean mIsLoading;
     /**

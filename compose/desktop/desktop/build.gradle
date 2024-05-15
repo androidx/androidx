@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.AndroidXConfig
 import androidx.build.BuildOnServerKt
 import androidx.build.LibraryType
@@ -84,17 +91,17 @@ File getGoldenPath(Project project) {
 }
 
 // Set golden images path based on whether this is the GitHub or AndroidX repo.
-tasks.findByName("jvmTest").configure {
+tasks.withType(Test).configureEach {
     systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
 }
 
 androidx {
     name = "Compose Desktop"
-    type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     legacyDisableKotlinStrictApiMode = true
     runApiTasks = new RunApiTasks.No("Not supported yet, see b/163110180")
+    // samples(project(":compose:desktop:desktop:desktop-samples")) // doesn't publish source jars
 
     // Project parser does not support dynamic configuration of `publish`.
     runProjectParser = false

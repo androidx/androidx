@@ -59,10 +59,11 @@ import androidx.lifecycle.ViewModelProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** Activity which runs the camera preview with opengl processing */
@@ -136,7 +137,7 @@ public class OpenGLActivity extends AppCompatActivity {
             display = Api30Impl.getDisplay(this);
         }
         OpenGLRenderer renderer = mRenderer = new OpenGLRenderer(
-                getHdrEncodingsSupportedByDisplay(display));
+                getHighDynamicRangesSupportedByDisplay(display));
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         View viewFinder = OpenGLActivity.chooseViewFinder(getIntent().getExtras(), viewFinderStub,
                 renderer);
@@ -267,20 +268,20 @@ public class OpenGLActivity extends AppCompatActivity {
     }
 
     /**
-     * Returns a list of HDR encodings supported by the display.
+     * Returns a list of HDR dynamic ranges supported by the display.
      *
-     * <p>The returned HDR encodings are the encodings from the {@link DynamicRange} class, such
-     * as {@link DynamicRange#ENCODING_HLG}. The returned list will never contain
-     * {@link DynamicRange#ENCODING_SDR}.
+     * <p>The returned HDR dynamic ranges are constants defined by the {@code DynamicRange} class.
+     * The returned list will never contain {@link DynamicRange#SDR}.
      *
      * <p>The list may be empty if the display does not support HDR, such as on pre-API 24 devices.
      */
     @NonNull
-    public static List<Integer> getHdrEncodingsSupportedByDisplay(@Nullable Display display) {
+    public static Set<DynamicRange> getHighDynamicRangesSupportedByDisplay(
+            @Nullable Display display) {
         if (display != null && Build.VERSION.SDK_INT >= 24) {
-            return Api24Impl.getHdrEncodingsSupportedByDisplay(display);
+            return Api24Impl.getHighDynamicRangesSupportedByDisplay(display);
         } else {
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
     }
 
@@ -334,17 +335,19 @@ public class OpenGLActivity extends AppCompatActivity {
 
     @RequiresApi(24)
     static class Api24Impl {
-        private static final Map<Integer, Integer> DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING =
+        private static final Map<Integer, Set<DynamicRange>> DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE =
                 new HashMap<>();
 
         static {
-            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING.put(HDR_TYPE_HLG, DynamicRange.ENCODING_HLG);
-            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING.put(HDR_TYPE_HDR10,
-                    DynamicRange.ENCODING_HDR10);
-            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING.put(HDR_TYPE_HDR10_PLUS,
-                    DynamicRange.ENCODING_HDR10_PLUS);
-            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING.put(HDR_TYPE_DOLBY_VISION,
-                    DynamicRange.ENCODING_DOLBY_VISION);
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE.put(HDR_TYPE_HLG,
+                    Collections.singleton(DynamicRange.HLG_10_BIT));
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE.put(HDR_TYPE_HDR10,
+                    Collections.singleton(DynamicRange.HDR10_10_BIT));
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE.put(HDR_TYPE_HDR10_PLUS,
+                    Collections.singleton(DynamicRange.HDR10_PLUS_10_BIT));
+            DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE.put(HDR_TYPE_DOLBY_VISION,
+                    new HashSet<>(Arrays.asList(
+                            DynamicRange.DOLBY_VISION_8_BIT, DynamicRange.DOLBY_VISION_10_BIT)));
         }
 
         private Api24Impl() {
@@ -352,12 +355,14 @@ public class OpenGLActivity extends AppCompatActivity {
         }
 
         @DoNotInline
-        static List<Integer> getHdrEncodingsSupportedByDisplay(@NonNull Display display) {
+        static Set<DynamicRange> getHighDynamicRangesSupportedByDisplay(
+                @NonNull Display display) {
             return Arrays.stream(display.getHdrCapabilities().getSupportedHdrTypes())
                     .boxed()
-                    .map(DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE_ENCODING::get)
+                    .map(DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE::get)
+                    .flatMap(set -> Objects.requireNonNull(set).stream())
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toSet());
         }
 
     }

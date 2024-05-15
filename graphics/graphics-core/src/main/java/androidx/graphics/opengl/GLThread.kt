@@ -51,7 +51,11 @@ internal class GLThread(
 
     override fun start() {
         super.start()
-        mHandler = Handler(looper)
+        mHandler = Handler(looper).apply {
+            // Create an EGLContext right after starting in order to have one ready on a call to
+            // GLRenderer#execute
+            post { obtainEGLManager() }
+        }
     }
 
     /**

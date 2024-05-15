@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
@@ -40,7 +39,6 @@ import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
  * actively submit requests. This mirrors the underlying behavior of an actual Camera, which may
  * take time to configure and become ready.
  */
-@RequiresApi(21)
 class CameraControllerSimulator(
     private val cameraContext: CameraContext,
     private val graphConfig: CameraGraph.Config,

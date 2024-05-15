@@ -21,14 +21,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.media.Rating;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -329,27 +326,28 @@ public final class RatingCompat implements Parcelable {
      * @param ratingObj A {@link android.media.Rating} object, or null if none.
      * @return An equivalent {@link RatingCompat} object, or null if none.
      */
+    @SuppressLint("WrongConstant")
     public static RatingCompat fromRating(Object ratingObj) {
-        if (ratingObj != null && Build.VERSION.SDK_INT >= 19) {
-            final int ratingStyle = Api19Impl.getRatingStyle((Rating) ratingObj);
+        if (ratingObj != null) {
+            final int ratingStyle = ((Rating) ratingObj).getRatingStyle();
             final RatingCompat rating;
-            if (Api19Impl.isRated((Rating) ratingObj)) {
+            if (((Rating) ratingObj).isRated()) {
                 switch (ratingStyle) {
                     case RATING_HEART:
-                        rating = newHeartRating(Api19Impl.hasHeart((Rating) ratingObj));
+                        rating = newHeartRating(((Rating) ratingObj).hasHeart());
                         break;
                     case RATING_THUMB_UP_DOWN:
-                        rating = newThumbRating(Api19Impl.isThumbUp((Rating) ratingObj));
+                        rating = newThumbRating(((Rating) ratingObj).isThumbUp());
                         break;
                     case RATING_3_STARS:
                     case RATING_4_STARS:
                     case RATING_5_STARS:
                         rating = newStarRating(ratingStyle,
-                                Api19Impl.getStarRating((Rating) ratingObj));
+                                ((Rating) ratingObj).getStarRating());
                         break;
                     case RATING_PERCENTAGE:
                         rating = newPercentageRating(
-                                Api19Impl.getPercentRating((Rating) ratingObj));
+                                ((Rating) ratingObj).getPercentRating());
                         break;
                     default:
                         return null;
@@ -373,91 +371,30 @@ public final class RatingCompat implements Parcelable {
      * @return An equivalent {@link android.media.Rating} object, or null if none.
      */
     public Object getRating() {
-        if (mRatingObj == null && Build.VERSION.SDK_INT >= 19) {
+        if (mRatingObj == null) {
             if (isRated()) {
                 switch (mRatingStyle) {
                     case RATING_HEART:
-                        mRatingObj = Api19Impl.newHeartRating(hasHeart());
+                        mRatingObj = Rating.newHeartRating(hasHeart());
                         break;
                     case RATING_THUMB_UP_DOWN:
-                        mRatingObj = Api19Impl.newThumbRating(isThumbUp());
+                        mRatingObj = Rating.newThumbRating(isThumbUp());
                         break;
                     case RATING_3_STARS:
                     case RATING_4_STARS:
                     case RATING_5_STARS:
-                        mRatingObj = Api19Impl.newStarRating(mRatingStyle,
-                                getStarRating());
+                        mRatingObj = Rating.newStarRating(mRatingStyle, getStarRating());
                         break;
                     case RATING_PERCENTAGE:
-                        mRatingObj = Api19Impl.newPercentageRating(getPercentRating());
+                        mRatingObj = Rating.newPercentageRating(getPercentRating());
                         break;
                     default:
                         return null;
                 }
             } else {
-                mRatingObj = Api19Impl.newUnratedRating(mRatingStyle);
+                mRatingObj = Rating.newUnratedRating(mRatingStyle);
             }
         }
         return mRatingObj;
-    }
-
-    @RequiresApi(19)
-    private static class Api19Impl {
-        private Api19Impl() {}
-
-        @DoNotInline
-        static int getRatingStyle(Rating rating) {
-            return rating.getRatingStyle();
-        }
-
-        @DoNotInline
-        static boolean isRated(Rating rating) {
-            return rating.isRated();
-        }
-
-        @DoNotInline
-        static boolean hasHeart(Rating rating) {
-            return rating.hasHeart();
-        }
-
-        @DoNotInline
-        static boolean isThumbUp(Rating rating) {
-            return rating.isThumbUp();
-        }
-
-        @DoNotInline
-        static float getStarRating(Rating rating) {
-            return rating.getStarRating();
-        }
-
-        @DoNotInline
-        static float getPercentRating(Rating rating) {
-            return rating.getPercentRating();
-        }
-
-        @DoNotInline
-        static Rating newHeartRating(boolean hasHeart) {
-            return Rating.newHeartRating(hasHeart);
-        }
-
-        @DoNotInline
-        static Rating newThumbRating(boolean thumbIsUp) {
-            return Rating.newThumbRating(thumbIsUp);
-        }
-
-        @DoNotInline
-        static Rating newStarRating(int starRatingStyle, float starRating) {
-            return Rating.newStarRating(starRatingStyle, starRating);
-        }
-
-        @DoNotInline
-        static Rating newPercentageRating(float percent) {
-            return Rating.newPercentageRating(percent);
-        }
-
-        @DoNotInline
-        static Rating newUnratedRating(int ratingStyle) {
-            return Rating.newUnratedRating(ratingStyle);
-        }
     }
 }
