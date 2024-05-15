@@ -42,7 +42,7 @@ interface IInteractiveWatchFace {
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 11;
+    const int API_VERSION = 12;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -249,16 +249,16 @@ interface IInteractiveWatchFace {
      * While overrides, any calls to updateComplicationData are deferred until
      * clearComplicationDataOverride is called.
      *
-     * @since API version 11.
+     * @since API version 12.
      */
-    oneway void overrideComplicationData(
+    void overrideComplicationData(
         in List<IdAndComplicationDataWireFormat> complicationData) = 26;
 
     /**
      * Clears any complicaton data set by overrideComplicationData, and activates any complications
      * set by updateComplicationData.
      *
-     * @since API version 11.
+     * @since API version 12.
      */
-    oneway void clearComplicationDataOverride() = 27;
+    void clearComplicationDataOverride() = 27;
 }
