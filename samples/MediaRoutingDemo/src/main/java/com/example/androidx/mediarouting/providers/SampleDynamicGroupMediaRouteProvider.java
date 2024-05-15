@@ -304,7 +304,16 @@ public final class SampleDynamicGroupMediaRouteProvider extends SampleMediaRoute
             for (String memberRouteId : mMemberRouteIds) {
                 groupDescriptorBuilder.addGroupMemberId(memberRouteId);
             }
-
+            if (!mMemberRouteIds.isEmpty()) {
+                DynamicRouteDescriptor firstDynamicRouteDescriptor =
+                        mDynamicRouteDescriptors.get(mMemberRouteIds.get(0));
+                if (firstDynamicRouteDescriptor != null) {
+                    String name = firstDynamicRouteDescriptor.getRouteDescriptor().getName();
+                    int sizeMinusOne = mMemberRouteIds.size() - 1;
+                    String nameSuffix = sizeMinusOne == 0 ? "" : (" + " + sizeMinusOne);
+                    groupDescriptorBuilder.setName(name + nameSuffix);
+                }
+            }
             mGroupDescriptor = groupDescriptorBuilder.build();
         }
 
