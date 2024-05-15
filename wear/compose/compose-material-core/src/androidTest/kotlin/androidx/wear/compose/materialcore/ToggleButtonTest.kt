@@ -1123,6 +1123,8 @@ private fun ToggleButtonWithDefaults(
     toggleControlWidth = selectionControlWidth,
     toggleControlHeight = selectionControlHeight,
     labelSpacerSize = 0.dp,
+    toggleControlSpacing = 6.dp,
+    iconSpacing = 6.dp,
     ripple = EmptyIndication,
 )
 

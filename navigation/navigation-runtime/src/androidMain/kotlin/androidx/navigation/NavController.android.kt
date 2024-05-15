@@ -1295,6 +1295,8 @@ public actual open class NavController(
      * The graph can be retrieved later via [graph].
      *
      * @param graph graph to set
+     * @param startDestinationArgs arguments to send to the start destination of the graph
+     *
      * @see NavController.setGraph
      * @see NavController.graph
      */

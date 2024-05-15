@@ -18,8 +18,13 @@
 
 package androidx.navigation
 
+import androidx.annotation.RestrictTo
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.serialization.decodeArguments
+import androidx.navigation.serialization.generateNavArguments
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 
 /**
@@ -28,8 +33,25 @@ import kotlinx.serialization.serializer
  * Extrapolates arguments from [SavedStateHandle] and recreates object [T]
  *
  * @param [T] the entry's [NavDestination.route] as a [KClass]
+ * @param typeMap A mapping of KType to custom NavType<*> in [T]. May be empty if
+ * [T] does not use custom NavTypes.
  *
  * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
  */
-public inline fun <reified T> SavedStateHandle.toRoute(): T =
-    serializer<T>().decodeArguments(this)
+public inline fun <reified T : Any> SavedStateHandle.toRoute(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap()
+): T = internalToRoute(T::class, typeMap)
+
+@OptIn(InternalSerializationApi::class)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun <T : Any> SavedStateHandle.internalToRoute(
+    route: KClass<T>,
+    typeMap: Map<KType, NavType<*>>
+): T {
+    val map: MutableMap<String, NavType<*>> = mutableMapOf()
+    val serializer = route.serializer()
+    serializer.generateNavArguments(typeMap).onEach {
+        map[it.name] = it.argument.type
+    }
+    return serializer.decodeArguments(this, map)
+}

@@ -205,6 +205,11 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
             val info = keyToItemInfoMap[key]!!
             val newIndex = keyIndexMap.getIndex(key)
 
+            // it is possible that we are being remeasured with smaller laneCount. make sure
+            // `lane` and `span` we remembered are not larger than the new max values.
+            info.span = minOf(laneCount, info.span)
+            info.lane = minOf(laneCount - info.span, info.lane)
+
             if (newIndex == -1) {
                 var isProgress = false
                 info.animations.forEachIndexed { index, animation ->

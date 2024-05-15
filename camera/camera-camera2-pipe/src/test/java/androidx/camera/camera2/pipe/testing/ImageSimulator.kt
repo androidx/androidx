@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraStream
@@ -27,7 +25,6 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.media.ImageSource
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class ImageSimulator(
     streamConfigs: List<CameraStream.Config>,
     imageStreams: Set<CameraStream.Config>? = null,

@@ -23,14 +23,12 @@
  */
 import androidx.build.LibraryType
 
-import static org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.*
-
 plugins {
     id("AndroidXPlugin")
 }
 
 androidXMultiplatform {
-    jvm {}
+    jvm()
     mac()
     linux()
     ios()

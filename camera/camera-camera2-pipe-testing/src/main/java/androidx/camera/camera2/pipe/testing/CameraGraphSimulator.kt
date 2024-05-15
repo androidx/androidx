@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
 import android.hardware.camera2.CaptureResult
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -55,7 +54,6 @@ import kotlinx.coroutines.withTimeout
  * lifecycle of a [CameraGraph]. Tests using CameraGraphSimulators should also close them after
  * they've completed their use of the simulator.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraGraphSimulator private constructor(
     val context: Context,
     val cameraMetadata: CameraMetadata,

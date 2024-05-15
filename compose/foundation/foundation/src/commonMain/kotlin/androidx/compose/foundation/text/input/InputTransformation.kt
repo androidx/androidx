@@ -100,10 +100,10 @@ fun InputTransformation.then(next: InputTransformation): InputTransformation =
     FilterChain(this, next)
 
 /**
- * Creates an [InputTransformation] from a function that accepts both the old and proposed
+ * Creates an [InputTransformation] from a function that accepts both the current and proposed
  * [TextFieldCharSequence] and returns the [TextFieldCharSequence] to use for the field.
  *
- * [transformation] can return either `old`, `proposed`, or a completely different value.
+ * [transformation] can return either `current`, `proposed`, or a completely different value.
  *
  * The selection or cursor will be updated automatically. For more control of selection
  * implement [InputTransformation] directly.
@@ -186,7 +186,7 @@ private class FilterChain(
 
 private data class InputTransformationByValue(
     val transformation: (
-        old: CharSequence,
+        current: CharSequence,
         proposed: CharSequence
     ) -> CharSequence
 ) : InputTransformation {

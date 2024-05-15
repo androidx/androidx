@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
 import androidx.build.LibraryType
 
 plugins {
@@ -34,6 +33,8 @@ dependencies {
     api(project(":wear:protolayout:protolayout"))
     api(project(":wear:protolayout:protolayout-expression"))
     api(libs.guavaListenableFuture)
+
+    compileOnly files("../../wear_sdk/wear-sdk.jar")
 
     implementation("androidx.annotation:annotation-experimental:1.4.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
@@ -67,7 +68,6 @@ android {
 androidx {
     name = "Android Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Wear Tiles"
     metalavaK2UastEnabled = true

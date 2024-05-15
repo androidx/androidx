@@ -17,7 +17,7 @@
 package androidx.pdf.select;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.SelectionBoundary;
+import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.Observables;
 import androidx.pdf.util.Observables.ExposedValue;

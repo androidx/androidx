@@ -18,6 +18,7 @@ package androidx.privacysandbox.ads.adservices.common
 
 import android.os.Build
 import android.os.ext.SdkExtensions
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 
@@ -73,8 +74,19 @@ class FrequencyCapFilters @JvmOverloads public constructor(
             "keyedFrequencyCapsForClickEvents=$keyedFrequencyCapsForClickEvents"
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(
+        Companion.AD_EVENT_TYPE_WIN,
+        Companion.AD_EVENT_TYPE_VIEW,
+        Companion.AD_EVENT_TYPE_CLICK,
+        Companion.AD_EVENT_TYPE_IMPRESSION)
+    annotation class AdEventType
+
     companion object {
         /**
+         * Represents the Win event for ads that were selected as winners in ad selection.
+         *
          * The WIN ad event type is automatically populated within the Protected Audience service
          * for any winning ad which is returned from Protected Audience ad selection.
          *
@@ -82,10 +94,23 @@ class FrequencyCapFilters @JvmOverloads public constructor(
          */
         public const val AD_EVENT_TYPE_WIN: Int =
             android.adservices.common.FrequencyCapFilters.AD_EVENT_TYPE_WIN
+
+        /**
+         * Represents the Impression event type which correlate to an impression as interpreted by
+         * an adtech.
+         */
         public const val AD_EVENT_TYPE_IMPRESSION: Int =
             android.adservices.common.FrequencyCapFilters.AD_EVENT_TYPE_IMPRESSION
+
+        /**
+         * Represents the View event type which correlate to a view as interpreted by an adtech.
+         */
         public const val AD_EVENT_TYPE_VIEW: Int =
             android.adservices.common.FrequencyCapFilters.AD_EVENT_TYPE_VIEW
+
+        /**
+         * Represents the Click event type which correlate to a click as interpreted by an adtech.
+         */
         public const val AD_EVENT_TYPE_CLICK: Int =
             android.adservices.common.FrequencyCapFilters.AD_EVENT_TYPE_CLICK
     }

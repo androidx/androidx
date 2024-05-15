@@ -62,6 +62,7 @@ public class RemotePlaybackClient {
     /**
      * Creates a remote playback client for a route.
      *
+     * @param context The {@link Context}.
      * @param route The media route.
      */
     public RemotePlaybackClient(@NonNull Context context, @NonNull MediaRouter.RouteInfo route) {

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
 package androidx.credentials.playservices.controllers.BeginSignIn
 
 import android.content.Context
@@ -52,7 +53,6 @@ import java.util.concurrent.Executor
 /**
  * A controller to handle the BeginSignIn flow with play services.
  */
-@Suppress("deprecation")
 internal class CredentialProviderBeginSignInController(private val context: Context) :
     CredentialProviderController<
         GetCredentialRequest,

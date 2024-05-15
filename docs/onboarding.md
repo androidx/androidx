@@ -64,9 +64,10 @@ Finally, you will need to either start a new terminal session or run `source
 > fatal: error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (\_ssl.c:997)
 > ```
 >
-> Run the `Install Certificates.command` in the Python folder of Application.
-> For more information about SSL/TLS certificate validation, you can read the
-> "Important Information" displayed during Python installation.
+> Run the `Install Certificates.command` in the Python folder of Application
+> (e.g. `/Applications/Python\ 3.11/Install\ Certificates.command`). For more
+> information about SSL/TLS certificate validation, you can read the "Important
+> Information" displayed during Python installation.
 
 ### Windows {#setup-win}
 

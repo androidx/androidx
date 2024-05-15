@@ -56,6 +56,7 @@ fun <T> StateFlow<T>.collectAsState(
  *
  * @sample androidx.compose.runtime.samples.FlowWithInitialSample
  *
+ * @param initial the value of the state will have until the first flow value is emitted.
  * @param context [CoroutineContext] to use for collecting.
  */
 @Composable

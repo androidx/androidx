@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
@@ -27,7 +25,6 @@ import androidx.camera.camera2.pipe.media.ImageSource
 import javax.inject.Inject
 
 @CameraGraphScope
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class ImageSourceMap @Inject constructor(
     graphConfig: CameraGraph.Config,
     streamGraph: StreamGraph,

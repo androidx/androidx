@@ -58,6 +58,7 @@ internal fun CallCompat.addParticipantsSupport(
 }
 
 // Allows the InCallService implementer to inspect state and perform requests to update state
+@ExperimentalAppActions
 internal interface ParticipantClientActions {
     val negotiatedActions: Set<Int>
     val isParticipantExtensionSupported: Boolean

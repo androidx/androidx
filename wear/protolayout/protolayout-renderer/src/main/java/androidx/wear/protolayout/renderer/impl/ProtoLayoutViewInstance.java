@@ -20,6 +20,13 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.FrameLayout.LayoutParams.UNSPECIFIED_GRAVITY;
 
 import static androidx.core.util.Preconditions.checkNotNull;
+import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.IGNORED_FAILURE_ANIMATION_QUOTA_EXCEEDED;
+import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.IGNORED_FAILURE_APPLY_MUTATION_EXCEPTION;
+import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.INFLATION_FAILURE_REASON_EXPRESSION_NODE_COUNT_EXCEEDED;
+import static androidx.wear.protolayout.renderer.common.ProviderStatsLogger.INFLATION_FAILURE_REASON_LAYOUT_DEPTH_EXCEEDED;
+
+import static com.google.common.util.concurrent.Futures.immediateCancelledFuture;
+import static com.google.common.util.concurrent.Futures.immediateFuture;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -41,6 +48,7 @@ import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
+import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement;
 import androidx.wear.protolayout.proto.LayoutElementProto.ArcLayoutElement.InnerCase;
@@ -52,7 +60,11 @@ import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
 import androidx.wear.protolayout.renderer.ProtoLayoutVisibilityState;
 import androidx.wear.protolayout.renderer.common.LoggingUtils;
+import androidx.wear.protolayout.renderer.common.NoOpProviderStatsLogger;
 import androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer;
+import androidx.wear.protolayout.renderer.common.ProviderStatsLogger;
+import androidx.wear.protolayout.renderer.common.ProviderStatsLogger.InflaterStatsLogger;
+import androidx.wear.protolayout.renderer.common.RenderingArtifact;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.InflateResult;
@@ -114,6 +126,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @NonNull private final ListeningExecutorService mUiExecutorService;
     @NonNull private final ListeningExecutorService mBgExecutorService;
     @NonNull private final String mClickableIdExtra;
+    @NonNull private final ProviderStatsLogger mProviderStatsLogger;
     @Nullable private final LoggingUtils mLoggingUtils;
 
     @Nullable private final ProtoLayoutExtensionViewProvider mExtensionViewProvider;
@@ -219,10 +232,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
          */
         @UiThread
         @NonNull
-        ListenableFuture<Void> postInflate(
+        ListenableFuture<RenderingArtifact> postInflate(
                 @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
-                boolean isReattaching);
+                boolean isReattaching,
+                InflaterStatsLogger inflaterStatsLogger);
     }
 
     /** Result of a {@link #renderOrComputeMutations} call when no changes are required. */
@@ -234,11 +248,12 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         @NonNull
         @Override
-        public ListenableFuture<Void> postInflate(
+        public ListenableFuture<RenderingArtifact> postInflate(
                 @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
-                boolean isReattaching) {
-            return Futures.immediateVoidFuture();
+                boolean isReattaching,
+                InflaterStatsLogger inflaterStatsLogger) {
+            return immediateFuture(RenderingArtifact.create(inflaterStatsLogger));
         }
     }
 
@@ -251,11 +266,12 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         @NonNull
         @Override
-        public ListenableFuture<Void> postInflate(
+        public ListenableFuture<RenderingArtifact> postInflate(
                 @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
-                boolean isReattaching) {
-            return Futures.immediateVoidFuture();
+                boolean isReattaching,
+                InflaterStatsLogger inflaterStatsLogger) {
+            return immediateFuture(RenderingArtifact.failed());
         }
     }
 
@@ -278,10 +294,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull
         @Override
         @UiThread
-        public ListenableFuture<Void> postInflate(
+        public ListenableFuture<RenderingArtifact> postInflate(
                 @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
-                boolean isReattaching) {
+                boolean isReattaching,
+                InflaterStatsLogger inflaterStatsLogger) {
             InflateResult inflateResult =
                     checkNotNull(
                             mNewInflateParentData.mInflateResult,
@@ -292,7 +309,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             attachParent.addView(
                     inflateResult.inflateParent, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
             inflateResult.updateDynamicDataPipeline(isReattaching);
-            return Futures.immediateVoidFuture();
+            return immediateFuture(RenderingArtifact.create(inflaterStatsLogger));
         }
     }
 
@@ -318,10 +335,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull
         @Override
         @UiThread
-        public ListenableFuture<Void> postInflate(
+        public ListenableFuture<RenderingArtifact> postInflate(
                 @NonNull ViewGroup attachParent,
                 @Nullable ViewGroup prevInflateParent,
-                boolean isReattaching) {
+                boolean isReattaching,
+                InflaterStatsLogger inflaterStatsLogger) {
             return mInflater.applyMutation(checkNotNull(prevInflateParent), mMutation);
         }
     }
@@ -345,6 +363,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         @NonNull private final String mClickableIdExtra;
 
         @Nullable private final LoggingUtils mLoggingUtils;
+        @NonNull private final ProviderStatsLogger mProviderStatsLogger;
         private final boolean mAnimationEnabled;
         private final int mRunningAnimationsLimit;
 
@@ -366,6 +385,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 @Nullable ProtoLayoutExtensionViewProvider extensionViewProvider,
                 @NonNull String clickableIdExtra,
                 @Nullable LoggingUtils loggingUtils,
+                @NonNull ProviderStatsLogger providerStatsLogger,
                 boolean animationEnabled,
                 int runningAnimationsLimit,
                 boolean updatesEnabled,
@@ -384,6 +404,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             this.mExtensionViewProvider = extensionViewProvider;
             this.mClickableIdExtra = clickableIdExtra;
             this.mLoggingUtils = loggingUtils;
+            this.mProviderStatsLogger = providerStatsLogger;
             this.mAnimationEnabled = animationEnabled;
             this.mRunningAnimationsLimit = runningAnimationsLimit;
             this.mUpdatesEnabled = updatesEnabled;
@@ -468,6 +489,13 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             return mLoggingUtils;
         }
 
+        /** Returns the provider stats logger used for telemetry. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public ProviderStatsLogger getProviderStatsLogger() {
+            return mProviderStatsLogger;
+        }
+
         /** Returns whether animations are enabled. */
         @RestrictTo(Scope.LIBRARY)
         public boolean getAnimationEnabled() {
@@ -529,6 +557,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @Nullable private ProtoLayoutExtensionViewProvider mExtensionViewProvider;
             @NonNull private final String mClickableIdExtra;
             @Nullable private LoggingUtils mLoggingUtils;
+            @Nullable private ProviderStatsLogger mProviderStatsLogger;
             private boolean mAnimationEnabled = true;
             private int mRunningAnimationsLimit = DEFAULT_MAX_CONCURRENT_RUNNING_ANIMATIONS;
 
@@ -632,6 +661,15 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 return this;
             }
 
+            /** Sets the provider stats logger used for telemetry. */
+            @RestrictTo(Scope.LIBRARY_GROUP)
+            @NonNull
+            public Builder setProviderStatsLogger(
+                    @NonNull ProviderStatsLogger providerStatsLogger) {
+                this.mProviderStatsLogger = providerStatsLogger;
+                return this;
+            }
+
             /**
              * Sets whether animation are enabled. If disabled, none of the animation will be
              * played.
@@ -715,6 +753,12 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                 if (mRendererResources == null) {
                     this.mRendererResources = mUiContext.getResources();
                 }
+
+                if (mProviderStatsLogger == null) {
+                    mProviderStatsLogger =
+                            new NoOpProviderStatsLogger(
+                                    "ProviderStatsLogger not provided to " + TAG);
+                }
                 return new Config(
                         mUiContext,
                         mRendererResources,
@@ -728,6 +772,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         mExtensionViewProvider,
                         mClickableIdExtra,
                         mLoggingUtils,
+                        mProviderStatsLogger,
                         mAnimationEnabled,
                         mRunningAnimationsLimit,
                         mUpdatesEnabled,
@@ -754,24 +799,51 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         this.mWasFullyVisibleBefore = false;
         this.mAllowLayoutChangingBindsWithoutDefault =
                 config.getAllowLayoutChangingBindsWithoutDefault();
+        this.mProviderStatsLogger = config.getProviderStatsLogger();
 
         StateStore stateStore = config.getStateStore();
-        if (stateStore != null) {
-            mDataPipeline =
-                    config.getAnimationEnabled()
-                            ? new ProtoLayoutDynamicDataPipeline(
-                                    config.getPlatformDataProviders(),
-                                    stateStore,
-                                    new FixedQuotaManagerImpl(
-                                            config.getRunningAnimationsLimit(), "animations"),
-                                    new FixedQuotaManagerImpl(
-                                            DYNAMIC_NODES_MAX_COUNT, "dynamic nodes"))
-                            : new ProtoLayoutDynamicDataPipeline(
-                                    config.getPlatformDataProviders(), stateStore);
-            mDataPipeline.setFullyVisible(config.getIsViewFullyVisible());
-        } else {
+        if (stateStore == null) {
             mDataPipeline = null;
+            return;
         }
+
+        if (config.getAnimationEnabled()) {
+            QuotaManager nodeQuotaManager =
+                    new FixedQuotaManagerImpl(DYNAMIC_NODES_MAX_COUNT, "dynamic nodes") {
+                        @Override
+                        public boolean tryAcquireQuota(int quota) {
+                            boolean success = super.tryAcquireQuota(quota);
+                            if (!success) {
+                                mProviderStatsLogger.logInflationFailed(
+                                        INFLATION_FAILURE_REASON_EXPRESSION_NODE_COUNT_EXCEEDED);
+                            }
+                            return success;
+                        }
+                    };
+            mDataPipeline =
+                    new ProtoLayoutDynamicDataPipeline(
+                            config.getPlatformDataProviders(),
+                            stateStore,
+                            new FixedQuotaManagerImpl(
+                                    config.getRunningAnimationsLimit(), "animations") {
+                                @Override
+                                public boolean tryAcquireQuota(int quota) {
+                                    boolean success = super.tryAcquireQuota(quota);
+                                    if (!success) {
+                                        mProviderStatsLogger.logIgnoredFailure(
+                                                IGNORED_FAILURE_ANIMATION_QUOTA_EXCEEDED);
+                                    }
+                                    return success;
+                                }
+                            },
+                            nodeQuotaManager);
+        } else {
+            mDataPipeline =
+                    new ProtoLayoutDynamicDataPipeline(
+                            config.getPlatformDataProviders(), stateStore);
+        }
+
+        mDataPipeline.setFullyVisible(config.getIsViewFullyVisible());
     }
 
     @WorkerThread
@@ -780,7 +852,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @NonNull Layout layout,
             @NonNull ResourceProto.Resources resources,
             @Nullable RenderedMetadata prevRenderedMetadata,
-            @NonNull ViewProperties parentViewProp) {
+            @NonNull ViewProperties parentViewProp,
+            @NonNull InflaterStatsLogger inflaterStatsLogger) {
         ResourceResolvers resolvers =
                 mResourceResolversProvider.getResourceResolvers(
                         mUiContext, resources, mUiExecutorService, mAnimationEnabled);
@@ -797,10 +870,10 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         if (sameFingerprint) {
             if (mPrevLayoutAlreadyFailingDepthCheck) {
-                throwExceptionForLayoutDepthCheckFailure();
+                handleLayoutDepthCheckFailure(inflaterStatsLogger);
             }
         } else {
-            checkLayoutDepth(layout.getRoot(), MAX_LAYOUT_ELEMENT_DEPTH);
+            checkLayoutDepth(layout.getRoot(), MAX_LAYOUT_ELEMENT_DEPTH, inflaterStatsLogger);
         }
 
         mPrevLayoutAlreadyFailingDepthCheck = false;
@@ -815,6 +888,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                         .setClickableIdExtra(mClickableIdExtra)
                         .setAllowLayoutChangingBindsWithoutDefault(
                                 mAllowLayoutChangingBindsWithoutDefault)
+                        .setInflaterStatsLogger(inflaterStatsLogger)
                         .setApplyFontVariantBodyAsDefault(true);
         if (mDataPipeline != null) {
             inflaterConfigBuilder.setDynamicDataPipeline(mDataPipeline);
@@ -886,6 +960,18 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
         return new InflateParentData(result);
     }
 
+    @UiThread
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public ListenableFuture<RenderingArtifact> renderLayoutAndAttach(
+            @NonNull Layout layout,
+            @NonNull ResourceProto.Resources resources,
+            @NonNull ViewGroup attachParent) {
+
+        return renderAndAttach(
+                layout, resources, attachParent, mProviderStatsLogger.createInflaterStatsLogger());
+    }
+
     /**
      * Render the layout for this layout and attach this layout instance to a {@code attachParent}
      * container. Note that this method may clear all of {@code attachParent}'s children before
@@ -911,6 +997,47 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             @NonNull Layout layout,
             @NonNull ResourceProto.Resources resources,
             @NonNull ViewGroup attachParent) {
+        SettableFuture<Void> result = SettableFuture.create();
+        ListenableFuture<RenderingArtifact> future =
+                renderLayoutAndAttach(layout, resources, attachParent);
+        if (future.isDone()) {
+            if (future.isCancelled()) {
+                return immediateCancelledFuture();
+            }
+            return immediateFuture(null);
+        } else {
+            future.addListener(
+                    () -> {
+                        if (future.isCancelled()) {
+                            result.cancel(/* mayInterruptIfRunning= */ false);
+                        } else {
+                            try {
+                                RenderingArtifact ignored = future.get();
+                                result.set(null);
+                            } catch (ExecutionException
+                                    | InterruptedException
+                                    | CancellationException e) {
+                                Log.e(TAG, "Failed to render layout", e);
+                                result.setException(e);
+                            }
+                        }
+                    },
+                    mUiExecutorService);
+        }
+        return result;
+    }
+
+    @UiThread
+    @SuppressWarnings({
+        "ReferenceEquality",
+        "ExecutorTaskName",
+    }) // layout == prevLayout is intentional (and enough in this case)
+    @NonNull
+    private ListenableFuture<RenderingArtifact> renderAndAttach(
+            @NonNull Layout layout,
+            @NonNull ResourceProto.Resources resources,
+            @NonNull ViewGroup attachParent,
+            @NonNull InflaterStatsLogger inflaterStatsLogger) {
         if (mLoggingUtils != null && mLoggingUtils.canLogD(TAG)) {
             mLoggingUtils.logD(TAG, "Layout received in #renderAndAttach:\n %s", layout.toString());
             mLoggingUtils.logD(
@@ -930,7 +1057,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
 
         if (layout == mPrevLayout && mInflateParent != null) {
             // Nothing to do.
-            return Futures.immediateVoidFuture();
+            return Futures.immediateFuture(RenderingArtifact.skipped());
         }
 
         boolean isReattaching = false;
@@ -1000,10 +1127,11 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                                             layout,
                                             resources,
                                             prevRenderedMetadata,
-                                            parentViewProp));
+                                            parentViewProp,
+                                            inflaterStatsLogger));
             mCanReattachWithoutRendering = false;
         }
-        SettableFuture<Void> result = SettableFuture.create();
+        SettableFuture<RenderingArtifact> result = SettableFuture.create();
         if (!checkNotNull(mRenderFuture).isDone()) {
             ListenableFuture<RenderResult> rendererFuture = mRenderFuture;
             mRenderFuture.addListener(
@@ -1023,7 +1151,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                                                 checkNotNull(rendererFuture).get(),
                                                 /* isReattaching= */ false,
                                                 layout,
-                                                resources));
+                                                resources,
+                                                inflaterStatsLogger));
                             } catch (ExecutionException
                                     | InterruptedException
                                     | CancellationException e) {
@@ -1048,7 +1177,8 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                                 mRenderFuture.get(),
                                 isReattaching,
                                 layout,
-                                resources));
+                                resources,
+                                inflaterStatsLogger));
             } catch (ExecutionException | InterruptedException | CancellationException e) {
                 Log.e(TAG, "Failed to render layout", e);
                 result.setException(e);
@@ -1064,6 +1194,12 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
      */
     public void invalidateCache() {
         mPrevResourcesVersion = null;
+        // Cancel any ongoing rendering which might have a reference to older app resources.
+        if (mRenderFuture != null && !mRenderFuture.isDone()) {
+            mRenderFuture.cancel(/* mayInterruptIfRunning= */ false);
+            mRenderFuture = null;
+            Log.w(TAG, "Cancelled ongoing rendering due to cache invalidation.");
+        }
     }
 
     @Nullable
@@ -1080,13 +1216,14 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @UiThread
     @SuppressWarnings("ExecutorTaskName")
     @NonNull
-    private ListenableFuture<Void> postInflate(
+    private ListenableFuture<RenderingArtifact> postInflate(
             @NonNull ViewGroup attachParent,
             @Nullable ViewGroup prevInflateParent,
             @NonNull RenderResult renderResult,
             boolean isReattaching,
             @NonNull Layout layout,
-            @NonNull ResourceProto.Resources resources) {
+            @NonNull ResourceProto.Resources resources,
+            InflaterStatsLogger inflaterStatsLogger) {
         mCanReattachWithoutRendering = renderResult.canReattachWithoutRendering();
 
         if (renderResult instanceof InflatedIntoNewParentRenderResult) {
@@ -1101,9 +1238,10 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                             .inflateParent;
         }
 
-        ListenableFuture<Void> postInflateFuture =
-                renderResult.postInflate(attachParent, prevInflateParent, isReattaching);
-        SettableFuture<Void> result = SettableFuture.create();
+        ListenableFuture<RenderingArtifact> postInflateFuture =
+                renderResult.postInflate(
+                        attachParent, prevInflateParent, isReattaching, inflaterStatsLogger);
+        SettableFuture<RenderingArtifact> result = SettableFuture.create();
         if (!postInflateFuture.isDone()) {
             postInflateFuture.addListener(
                     () -> {
@@ -1114,20 +1252,24 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
                                 | CancellationException e) {
                             result.setFuture(
                                     handlePostInflateFailure(
-                                            e, layout, resources, prevInflateParent, attachParent));
+                                            e,
+                                            layout,
+                                            resources,
+                                            prevInflateParent,
+                                            attachParent,
+                                            inflaterStatsLogger));
                         }
                     },
                     mUiExecutorService);
         } else {
             try {
-                postInflateFuture.get();
-                return Futures.immediateVoidFuture();
+                return immediateFuture(postInflateFuture.get());
             } catch (ExecutionException
                     | InterruptedException
                     | CancellationException
                     | ViewMutationException e) {
                 return handlePostInflateFailure(
-                        e, layout, resources, prevInflateParent, attachParent);
+                        e, layout, resources, prevInflateParent, attachParent, inflaterStatsLogger);
             }
         }
         return result;
@@ -1136,22 +1278,24 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     @UiThread
     @SuppressWarnings("ReferenceEquality") // layout == prevLayout is intentional
     @NonNull
-    private ListenableFuture<Void> handlePostInflateFailure(
+    private ListenableFuture<RenderingArtifact> handlePostInflateFailure(
             @NonNull Throwable error,
             @NonNull Layout layout,
             @NonNull ResourceProto.Resources resources,
             @Nullable ViewGroup prevInflateParent,
-            @NonNull ViewGroup parent) {
+            @NonNull ViewGroup parent,
+            InflaterStatsLogger inflaterStatsLogger) {
         // If a RuntimeError is thrown, it'll be wrapped in an UncheckedExecutionException
         Throwable e = error.getCause();
         if (e instanceof ViewMutationException) {
+            inflaterStatsLogger.logIgnoredFailure(IGNORED_FAILURE_APPLY_MUTATION_EXCEPTION);
             Log.w(TAG, "applyMutation failed." + e.getMessage());
             if (mPrevLayout == layout && parent == mAttachParent) {
                 Log.w(TAG, "Retrying full inflation.");
                 // Clear rendering metadata and prevLayout to force a full reinflation.
                 ProtoLayoutInflater.clearRenderedMetadata(checkNotNull(prevInflateParent));
                 mPrevLayout = null;
-                return renderAndAttach(layout, resources, parent);
+                return renderAndAttach(layout, resources, parent, inflaterStatsLogger);
             }
         } else {
             Log.e(TAG, "postInflate failed.", error);
@@ -1176,6 +1320,7 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     private void detachInternal() {
         if (mRenderFuture != null && !mRenderFuture.isDone()) {
             mRenderFuture.cancel(/* mayInterruptIfRunning= */ false);
+            mRenderFuture = null;
         }
         setLayoutVisibility(ProtoLayoutVisibilityState.VISIBILITY_STATE_INVISIBLE);
 
@@ -1227,9 +1372,12 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
     }
 
     /** Returns true if the layout element depth doesn't exceed the given {@code allowedDepth}. */
-    private void checkLayoutDepth(LayoutElement layoutElement, int allowedDepth) {
+    private void checkLayoutDepth(
+            LayoutElement layoutElement,
+            int allowedDepth,
+            InflaterStatsLogger inflaterStatsLogger) {
         if (allowedDepth <= 0) {
-            throwExceptionForLayoutDepthCheckFailure();
+            handleLayoutDepthCheckFailure(inflaterStatsLogger);
         }
         List<LayoutElement> children = ImmutableList.of();
         switch (layoutElement.getInnerCase()) {
@@ -1245,28 +1393,32 @@ public class ProtoLayoutViewInstance implements AutoCloseable {
             case ARC:
                 List<ArcLayoutElement> arcElements = layoutElement.getArc().getContentsList();
                 if (!arcElements.isEmpty() && allowedDepth == 1) {
-                    throwExceptionForLayoutDepthCheckFailure();
+                    handleLayoutDepthCheckFailure(inflaterStatsLogger);
                 }
                 for (ArcLayoutElement element : arcElements) {
                     if (element.getInnerCase() == InnerCase.ADAPTER) {
-                        checkLayoutDepth(element.getAdapter().getContent(), allowedDepth - 1);
+                        checkLayoutDepth(
+                                element.getAdapter().getContent(),
+                                allowedDepth - 1,
+                                inflaterStatsLogger);
                     }
                 }
                 break;
             case SPANNABLE:
                 if (layoutElement.getSpannable().getSpansCount() > 0 && allowedDepth == 1) {
-                    throwExceptionForLayoutDepthCheckFailure();
+                    handleLayoutDepthCheckFailure(inflaterStatsLogger);
                 }
                 break;
             default:
                 // Other LayoutElements have depth of one.
         }
         for (LayoutElement child : children) {
-            checkLayoutDepth(child, allowedDepth - 1);
+            checkLayoutDepth(child, allowedDepth - 1, inflaterStatsLogger);
         }
     }
 
-    private void throwExceptionForLayoutDepthCheckFailure() {
+    private void handleLayoutDepthCheckFailure(InflaterStatsLogger inflaterStatsLogger) {
+        inflaterStatsLogger.logInflationFailed(INFLATION_FAILURE_REASON_LAYOUT_DEPTH_EXCEEDED);
         mPrevLayoutAlreadyFailingDepthCheck = true;
         throw new IllegalStateException(
                 "Layout depth exceeds maximum allowed depth: " + MAX_LAYOUT_ELEMENT_DEPTH);

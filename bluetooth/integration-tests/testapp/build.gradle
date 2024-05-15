@@ -27,7 +27,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
@@ -61,7 +61,5 @@ dependencies {
     implementation(libs.material)
 
     implementation(libs.hiltAndroid)
-    kapt(libs.hiltCompiler)
-
-    kaptAndroidTest(libs.hiltCompiler)
+    ksp(libs.hiltCompiler)
 }

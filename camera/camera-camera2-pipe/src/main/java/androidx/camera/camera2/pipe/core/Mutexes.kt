@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.core
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlin.coroutines.intrinsics.intercepted
 import kotlin.coroutines.intrinsics.startCoroutineUninterceptedOrReturn
@@ -96,7 +94,6 @@ fun CoroutineMutex.withLockLaunch(
 /**
  * Acquire a lock on the provided mutex, suspending if the lock could not be immediately acquired.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal suspend inline fun Mutex.acquireToken(): Token {
     lock()
     return MutexToken(this)
@@ -106,7 +103,6 @@ internal suspend inline fun Mutex.acquireToken(): Token {
  * Acquire a lock on the provided mutex and suspend. This can be used with coroutines that are
  * are started as `UNDISPATCHED` to ensure they are dispatched onto the correct context.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal suspend inline fun Mutex.acquireTokenAndSuspend(): Token {
     lockAndSuspend()
     return MutexToken(this)
@@ -116,7 +112,6 @@ internal suspend inline fun Mutex.acquireTokenAndSuspend(): Token {
  * Acquire a lock on the provided mutex without suspending. Returns null if the lock could not be
  * immediately acquired.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal fun Mutex.tryAcquireToken(): Token? {
     if (tryLock()) {
         return MutexToken(this)
@@ -124,7 +119,6 @@ internal fun Mutex.tryAcquireToken(): Token? {
     return null
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class MutexToken(private val mutex: Mutex) : Token {
     private val _released = atomic(false)
     override val released: Boolean

@@ -21,7 +21,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraMetadata.LENS_FACING_FRONT
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.impl.isExternalFlashAeModeSupported
 import androidx.camera.core.impl.Quirk
@@ -40,7 +39,6 @@ import androidx.camera.core.impl.Quirk
  * - Device(s): Pixel 6A, 6 PRO, 7, 7A, 7 PRO, 8, 8 PRO.
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO: b/270421716 - enable when kotlin is supported.
-@RequiresApi(21) // TODO: b/200306659 - Remove and replace with annotation on package-info.java
 class TorchFlashRequiredFor3aUpdateQuirk(private val cameraMetadata: CameraMetadata) : Quirk {
     /**
      * Returns whether [CaptureRequest.FLASH_MODE_TORCH] is required to be set.

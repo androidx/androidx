@@ -28,7 +28,6 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedBool;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedDuration;
@@ -51,7 +50,7 @@ public final class DynamicDataBuilders {
 
     /** Interface defining a dynamic data value. */
     @RequiresSchemaVersion(major = 1, minor = 200)
-    public interface DynamicDataValue<T extends DynamicType> {
+    public interface DynamicDataValue<T extends DynamicBuilders.DynamicType> {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -310,7 +309,7 @@ public final class DynamicDataBuilders {
 
         /** Builder to create {@link DynamicDataValue} objects. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        interface Builder<T extends DynamicType> {
+        interface Builder<T extends DynamicBuilders.DynamicType> {
 
             /** Builds an instance with values accumulated in this Builder. */
             @NonNull

@@ -23,6 +23,7 @@ import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_CALL_STREAMING
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
 import android.telecom.PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING
 import android.telecom.PhoneAccount.CAPABILITY_VIDEO_CALLING
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
@@ -41,7 +42,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -51,6 +51,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CallsManagerTest : BaseTelecomTest() {
     private val mTestClassName = "androidx.core.telecom.test"
+
+    companion object {
+        val TAG = CallsManagerTest::class.java.simpleName
+    }
 
     @SmallTest
     @Test
@@ -161,7 +165,6 @@ class CallsManagerTest : BaseTelecomTest() {
      * earpiece route are switched to the speaker phone audio route. This test creates VoIP calls
      * using the APIs introduced in Android U.
      */
-    @Ignore // b/329357697  TODO:: re-enable when cache_call_audio_callbacks is enabled in builds
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SmallTest
     @Test
@@ -177,7 +180,6 @@ class CallsManagerTest : BaseTelecomTest() {
      * earpiece route are switched to the speaker phone audio route. This test creates VoIP calls
      * using the legacy ConnectionService method.
      */
-    @Ignore // b/329357697  TODO:: re-enable when cache_call_audio_callbacks is enabled in builds
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @SmallTest
     @Test
@@ -203,11 +205,14 @@ class CallsManagerTest : BaseTelecomTest() {
                     }
 
                     speakerFlow.collect {
+                        Log.i(TAG, "speakerFlow.collect=[$it]")
                         waitUntilSpeakerEndpointJob.complete(it)
                     }
                 }
 
+                Log.i(TAG, "before await")
                 waitUntilSpeakerEndpointJob.await()
+                Log.i(TAG, "after await")
 
                 // at this point, the CallEndpoint has been found
                 val speakerEndpoint = waitUntilSpeakerEndpointJob.getCompleted()
@@ -218,6 +223,7 @@ class CallsManagerTest : BaseTelecomTest() {
                 disconnect(DisconnectCause(DisconnectCause.LOCAL))
                 // stop collecting flows so the test can end
                 flowsJob.cancel()
+                Log.i(TAG, " flowsJob.cancel()")
             }
         }
     }

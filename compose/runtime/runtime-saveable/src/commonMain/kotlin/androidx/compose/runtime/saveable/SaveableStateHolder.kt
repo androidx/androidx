@@ -42,6 +42,7 @@ interface SaveableStateHolder {
      *
      * @param key to be used for saving and restoring the states for the subtree. Note that on
      * Android you can only use types which can be stored inside the Bundle.
+     * @param content the content for which [key] is associated.
      */
     @Composable
     fun SaveableStateProvider(key: Any, content: @Composable () -> Unit)

@@ -21,13 +21,13 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
@@ -46,7 +46,7 @@ dependencies {
     implementation(project(":camera:camera-camera2-pipe"))
     implementation(project(":concurrent:concurrent-futures-ktx"))
 
-    kapt(libs.daggerCompiler)
+    ksp(libs.daggerCompiler)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -99,16 +99,14 @@ tasks.withType(Test).configureEach { test ->
     test.maxParallelForks(2)
 }
 
-kapt {
-    javacOptions {
-        option("-Adagger.fastInit=enabled")
-        option("-Adagger.fullBindingGraphValidation=ERROR")
-    }
+ksp {
+    arg("dagger.fastInit", "enabled")
+    arg("dagger.fullBindingGraphValidation", "ERROR")
 }
 
 androidx {
     name = "Camera2 Pipe Integration"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "A Camera2 Pipe implementation of CameraX, a library providing a consistent " +
             "and reliable camera foundation that enables great camera driven experiences across " +

@@ -1281,6 +1281,30 @@ class FunctionBodySkippingTransformTests(
             fun Text(value: String) {}
         """
     )
+
+    @Test // regression test for 336571300
+    fun test_groupAroundIfComposeCallInIfConditionWithShortCircuit() =
+        verifyGoldenComposeIrTransform(
+            source = """
+                import androidx.compose.runtime.*
+
+                @Composable
+                fun Test() {
+                    ReceiveValue(if (state && getCondition()) 0 else 1)
+                }
+            """,
+            """
+                import androidx.compose.runtime.*
+
+                val state by mutableStateOf(true)
+
+                @Composable
+                fun getCondition() = remember { mutableStateOf(false) }.value
+
+                @Composable
+                fun ReceiveValue(value: Int) { }
+            """
+        )
 }
 
 class FunctionBodySkippingTransformTestsNoSource(
@@ -1407,6 +1431,29 @@ class FunctionBodySkippingTransformTestsNoSource(
 
             @Target(AnnotationTarget.TYPE)
             annotation class Type
+        """
+    )
+
+    @Test
+    fun testInlineCallInsideComposableInlineFunction() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+            import androidx.compose.foundation.layout.*
+
+            @Composable
+            fun Test(count: Int) {
+                Row {
+                    repeat(count) {
+                        Text("A")
+                    }
+                }
+            }
+        """,
+        extra = """
+            import androidx.compose.runtime.*
+
+            @Composable
+            fun Text(value: String) {}
         """
     )
 }

@@ -18,8 +18,8 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
 
@@ -28,7 +28,7 @@ import androidx.compose.ui.text.withLink
 fun AnnotatedStringWithLinks() {
     Text(buildAnnotatedString {
         append("Build better apps faster with ")
-        withLink(TextDefaults.Url(url = "https://developer.android.com/jetpack/compose")) {
+        withLink(LinkAnnotation.Url(url = "https://developer.android.com/jetpack/compose")) {
             append("Jetpack Compose")
         }
     })

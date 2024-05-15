@@ -12,7 +12,7 @@ package androidx.recyclerview.selection {
   }
 
   public static final class BandPredicate.NonDraggableArea extends androidx.recyclerview.selection.BandPredicate {
-    ctor public BandPredicate.NonDraggableArea(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup<?>);
+    ctor public BandPredicate.NonDraggableArea(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup<? extends java.lang.Object!>);
     method public boolean canInitiate(android.view.MotionEvent);
   }
 

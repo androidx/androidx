@@ -136,7 +136,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     private var previousHeight = -1
     private var currentClippingBounds = Rect()
     internal val stateListenerManager: StateListenerManager = StateListenerManager()
-    private var poolingContainerChild: View? = null
+    private var viewContainingPoolingContainerListener: View? = null
     private var poolingContainerListener = PoolingContainerListener {}
 
     /**
@@ -316,6 +316,9 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         requestedWidth = -1
         requestedHeight = -1
         setMeasuredDimension(newWidth, newHeight)
+        if (childCount > 0) {
+            measureChild(getChildAt(0), widthMeasureSpec, heightMeasureSpec)
+        }
     }
 
     override fun isTransitionGroup(): Boolean = !isTransitionGroupSet || super.isTransitionGroup()
@@ -355,10 +358,11 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     private fun attachPoolingContainerListener() {
-        val listener = PoolingContainerListener {
+        val newPoolingContainerListener = PoolingContainerListener {
             closeClient()
-            poolingContainerChild
+            viewContainingPoolingContainerListener
                 ?.removePoolingContainerListener(poolingContainerListener)
+            viewContainingPoolingContainerListener = null
         }
 
         var currentView = this as View
@@ -369,23 +373,25 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
             parentView = currentView.parent
         }
 
-        if (currentView == poolingContainerChild) {
+        if (currentView == viewContainingPoolingContainerListener) {
             return
         }
 
-        poolingContainerChild
+        viewContainingPoolingContainerListener
             ?.removePoolingContainerListener(poolingContainerListener)
-        currentView.addPoolingContainerListener(listener)
-        poolingContainerChild = currentView
-        poolingContainerListener = listener
+        currentView.addPoolingContainerListener(newPoolingContainerListener)
+        viewContainingPoolingContainerListener = currentView
+        poolingContainerListener = newPoolingContainerListener
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (this.isWithinPoolingContainer) {
-            attachPoolingContainerListener()
+        if (client == null || viewContainingPoolingContainerListener == null) {
+            if (this.isWithinPoolingContainer) {
+                attachPoolingContainerListener()
+            }
+            CompatImpl.deriveInputTokenAndOpenSession(context, this)
         }
-        CompatImpl.deriveInputTokenAndOpenSession(context, this)
     }
 
     override fun onDetachedFromWindow() {

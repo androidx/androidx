@@ -83,7 +83,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
@@ -203,6 +202,8 @@ import androidx.wear.protolayout.proto.TypesProto.Int32Prop;
 import androidx.wear.protolayout.proto.TypesProto.StringProp;
 import androidx.wear.protolayout.protobuf.ByteString;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
+import androidx.wear.protolayout.renderer.common.RenderingArtifact;
+import androidx.wear.protolayout.renderer.common.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.renderer.dynamicdata.ProtoLayoutDynamicDataPipeline;
 import androidx.wear.protolayout.renderer.helper.TestFingerprinter;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.InflateResult;
@@ -222,6 +223,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
+import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowChoreographer;
 import org.robolectric.shadows.ShadowLooper;
 import org.robolectric.shadows.ShadowPackageManager;
@@ -543,37 +545,41 @@ public class ProtoLayoutInflaterTest {
         int width = 10;
         int height = 12;
         byte[] payload = "Hello World".getBytes(UTF_8);
+        LayoutElement extension =
+                LayoutElement.newBuilder()
+                        .setExtension(
+                                ExtensionLayoutElement.newBuilder()
+                                        .setExtensionId("foo")
+                                        .setPayload(ByteString.copyFrom(payload))
+                                        .setWidth(
+                                                ExtensionDimension.newBuilder()
+                                                        .setLinearDimension(dp(width))
+                                                        .build())
+                                        .setHeight(
+                                                ExtensionDimension.newBuilder()
+                                                        .setLinearDimension(dp(height))
+                                                        .build()))
+                        .build();
         LayoutElement root =
                 LayoutElement.newBuilder()
-                    .setBox(
-                        Box.newBuilder()
-                            // Outer box's width and height left at default value of "wrap"
-                            .addContents(
-                                LayoutElement.newBuilder()
-                                    .setExtension(
-                                        ExtensionLayoutElement.newBuilder()
-                                            .setExtensionId("foo")
-                                            .setPayload(ByteString.copyFrom(payload))
-                                            .setWidth(
-                                                ExtensionDimension.newBuilder()
-                                                    .setLinearDimension(dp(width))
-                                                    .build())
-                                            .setHeight(
-                                                ExtensionDimension.newBuilder()
-                                                    .setLinearDimension(dp(height))
-                                                    .build()))))
+                        .setBox(
+                                Box.newBuilder()
+                                        // Outer box's width and height left at default value of
+                                        // "wrap"
+                                        .addContents(extension))
                         .build();
 
         FrameLayout rootLayout =
                 renderer(
-                    newRendererConfigBuilder(fingerprintedLayout(root))
-                        .setExtensionViewProvider(
-                            (extensionPayload, id) -> {
-                                TextView returnedView = new TextView(getApplicationContext());
-                                returnedView.setText("testing");
+                                newRendererConfigBuilder(fingerprintedLayout(root))
+                                        .setExtensionViewProvider(
+                                                (extensionPayload, id) -> {
+                                                    TextView returnedView =
+                                                            new TextView(getApplicationContext());
+                                                    returnedView.setText("testing");
 
-                                return returnedView;
-                            }))
+                                                    return returnedView;
+                                                }))
                         .inflate();
 
         // Check that the outer box is displayed and it has a child.
@@ -976,6 +982,23 @@ public class ProtoLayoutInflaterTest {
 
         // A column with a row (Spacer + Spacer) and Spacer, everything has weighted expand
         // dimension.
+
+        Row rowWithSpacers =
+                Row.newBuilder()
+                        .setWidth(expand())
+                        .setHeight(
+                                ContainerDimension.newBuilder()
+                                        .setExpandedDimension(expandWithWeight(heightWeight1))
+                                        .build())
+                        .addContents(
+                                LayoutElement.newBuilder()
+                                        .setSpacer(
+                                                buildExpandedSpacer(widthWeight1, DEFAULT_WEIGHT)))
+                        .addContents(
+                                LayoutElement.newBuilder()
+                                        .setSpacer(
+                                                buildExpandedSpacer(widthWeight2, DEFAULT_WEIGHT)))
+                        .build();
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setColumn(
@@ -983,26 +1006,13 @@ public class ProtoLayoutInflaterTest {
                                         .setWidth(expand())
                                         .setHeight(expand())
                                         .addContents(
-                                                LayoutElement.newBuilder()
-                                                        .setRow(
-                                                                Row.newBuilder()
-                                                                        .setWidth(expand())
-                                                                        .setHeight(
-                                                                                ContainerDimension.newBuilder()
-                                                                                        .setExpandedDimension(expandWithWeight(heightWeight1))
-                                                                                        .build())
-                                                                        .addContents(
-                                                                                LayoutElement.newBuilder()
-                                                                                        .setSpacer(
-                                                                                                buildExpandedSpacer(widthWeight1, DEFAULT_WEIGHT)))
-                                                                        .addContents(
-                                                                                LayoutElement.newBuilder()
-                                                                                        .setSpacer(
-                                                                                                buildExpandedSpacer(
-                                                                                                        widthWeight2, DEFAULT_WEIGHT)))))
+                                                LayoutElement.newBuilder().setRow(rowWithSpacers))
                                         .addContents(
                                                 LayoutElement.newBuilder()
-                                                        .setSpacer(buildExpandedSpacer(DEFAULT_WEIGHT, heightWeight2)))
+                                                        .setSpacer(
+                                                                buildExpandedSpacer(
+                                                                        DEFAULT_WEIGHT,
+                                                                        heightWeight2)))
                                         .build())
                         .build();
 
@@ -1034,9 +1044,9 @@ public class ProtoLayoutInflaterTest {
                                                         .setExpandedDimension(
                                                                 ExpandedDimensionProp
                                                                         .getDefaultInstance()))
-                                        .setWidth(SpacerDimension
-                                                .newBuilder()
-                                                .setLinearDimension(dp(width))))
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(dp(width))))
                         .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
@@ -1543,17 +1553,17 @@ public class ProtoLayoutInflaterTest {
                 ContainerDimension.newBuilder().setLinearDimension(dp(childSize)).build();
 
         LayoutElement childBox =
-                LayoutElement.newBuilder().setBox(
-                        Box.newBuilder()
-                                .setWidth(childBoxSize)
-                                .setHeight(childBoxSize)
-                                .setModifiers(
-                                        Modifiers.newBuilder()
-                                                .setClickable(
-                                                        Clickable.newBuilder()
-                                                                .setId("foo")
-                                                                .setOnClick(
-                                                                        action))))
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(childBoxSize)
+                                        .setHeight(childBoxSize)
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setId("foo")
+                                                                        .setOnClick(action))))
                         .build();
 
         LayoutElement root =
@@ -1563,13 +1573,14 @@ public class ProtoLayoutInflaterTest {
                                         .setWidth(parentBoxSize)
                                         .setHeight(parentBoxSize)
                                         .addContents(childBox))
-                                        .build();
+                        .build();
 
         State.Builder receivedState = State.newBuilder();
         FrameLayout rootLayout =
                 renderer(
-                        newRendererConfigBuilder(fingerprintedLayout(root), resourceResolvers())
-                                .setLoadActionListener(receivedState::mergeFrom))
+                                newRendererConfigBuilder(
+                                                fingerprintedLayout(root), resourceResolvers())
+                                        .setLoadActionListener(receivedState::mergeFrom))
                         .inflate();
         shadowOf(Looper.getMainLooper()).idle();
 
@@ -1627,8 +1638,7 @@ public class ProtoLayoutInflaterTest {
                                         .setWidth(
                                                 SpacerDimension.newBuilder()
                                                         .setLinearDimension(dp(spacerSize))
-                                                        .build()
-                                        ));
+                                                        .build()));
 
         //           |--clickable area child box 1 (5 - 35)--|
         //                                          |---clickable area child box 2 (30-60)--|
@@ -1647,8 +1657,7 @@ public class ProtoLayoutInflaterTest {
                                                                                 dp(clickTargetSize))
                                                                         .setMinimumClickableHeight(
                                                                                 dp(clickTargetSize))
-                                                                        .setOnClick(
-                                                                                action)
+                                                                        .setOnClick(action)
                                                                         .setId("foo1"))))
                         .build();
 
@@ -1666,8 +1675,7 @@ public class ProtoLayoutInflaterTest {
                                                                                 dp(clickTargetSize))
                                                                         .setMinimumClickableHeight(
                                                                                 dp(clickTargetSize))
-                                                                        .setOnClick(
-                                                                                action)
+                                                                        .setOnClick(action)
                                                                         .setId("foo2"))))
                         .build();
 
@@ -1692,8 +1700,9 @@ public class ProtoLayoutInflaterTest {
         State.Builder receivedState = State.newBuilder();
         FrameLayout rootLayout =
                 renderer(
-                        newRendererConfigBuilder(fingerprintedLayout(root), resourceResolvers())
-                                .setLoadActionListener(receivedState::mergeFrom))
+                                newRendererConfigBuilder(
+                                                fingerprintedLayout(root), resourceResolvers())
+                                        .setLoadActionListener(receivedState::mergeFrom))
                         .inflate();
 
         ShadowLooper.runUiThreadTasks();
@@ -1812,8 +1821,8 @@ public class ProtoLayoutInflaterTest {
 
         // Compute the mutation
         ViewGroupMutation mutation =
-                renderer.computeMutation(getRenderedMetadata(rootLayout),
-                        fingerprintedLayout(root2));
+                renderer.computeMutation(
+                        getRenderedMetadata(rootLayout), fingerprintedLayout(root2));
         assertThat(mutation).isNotNull();
         assertThat(mutation.isNoOp()).isFalse();
 
@@ -1848,8 +1857,9 @@ public class ProtoLayoutInflaterTest {
                         .setSpacer(
                                 Spacer.newBuilder()
                                         .setWidth(
-                                                SpacerDimension.newBuilder().setLinearDimension(
-                                                        dp(spacerSize)).build()));
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(dp(spacerSize))
+                                                        .build()));
 
         int parentHeight = 45;
         int parentWidth = 125;
@@ -1916,13 +1926,13 @@ public class ProtoLayoutInflaterTest {
 
         // Compute the mutation
         ViewGroupMutation mutation =
-                renderer.computeMutation(getRenderedMetadata(rootLayout),
-                        fingerprintedLayout(root2));
+                renderer.computeMutation(
+                        getRenderedMetadata(rootLayout), fingerprintedLayout(root2));
         assertThat(mutation).isNotNull();
         assertThat(mutation.isNoOp()).isFalse();
 
         // Apply the mutation
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(rootLayout, mutation);
         shadowOf(getMainLooper()).idle();
         try {
@@ -1955,6 +1965,108 @@ public class ProtoLayoutInflaterTest {
         receivedState.clearLastClickableId();
         dispatchTouchEvent(parent, parentWidth - 1, parentHeight - 1);
         expect.that(receivedState.getLastClickableId()).isEqualTo("mmm");
+    }
+
+    @Test
+    @Config(minSdk = VERSION_CODES.Q)
+    public void inflateThenMutate_withClickableSizeChange_clickableModifier_extendClickTargetSize()
+    {
+        Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
+        int parentSize = 50;
+        ContainerDimension parentBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(parentSize)).build();
+        ContainerDimension childBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(parentSize / 2f)).build();
+
+        Modifiers testModifiers1 =
+                Modifiers.newBuilder()
+                        .setClickable(Clickable.newBuilder().setOnClick(action).setId("foo1"))
+                        .build();
+
+        // Child box has a size smaller than the minimum clickable size, touch delegation is
+        // required.
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(parentBoxSize)
+                                        .setHeight(parentBoxSize)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setBox(
+                                                                Box.newBuilder()
+                                                                        .setWidth(childBoxSize)
+                                                                        .setHeight(childBoxSize)
+                                                                        .setModifiers(
+                                                                                testModifiers1))))
+                        .build();
+
+        State.Builder receivedState = State.newBuilder();
+        Renderer renderer =
+                renderer(
+                        newRendererConfigBuilder(fingerprintedLayout(root), resourceResolvers())
+                                .setLoadActionListener(receivedState::mergeFrom));
+        FrameLayout rootLayout = renderer.inflate();
+        ViewGroup parent = (ViewGroup) rootLayout.getChildAt(0);
+        // Confirm the touch delegation has happened.
+        assertThat(parent.getTouchDelegate()).isNotNull();
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, 5, 5);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo1");
+
+        // Produce a new layout with child box specifies its minimum clickable size, NO touch
+        // delegation is required.
+        Modifiers testModifiers2 =
+                Modifiers.newBuilder()
+                        .setClickable(
+                                Clickable.newBuilder()
+                                        .setOnClick(action)
+                                        .setId("foo2")
+                                        .setMinimumClickableWidth(dp(parentSize / 2f))
+                                        .setMinimumClickableHeight(dp(parentSize / 2f)))
+                        .build();
+        LayoutElement root2 =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(parentBoxSize)
+                                        .setHeight(parentBoxSize)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setBox(
+                                                                Box.newBuilder()
+                                                                        .setWidth(childBoxSize)
+                                                                        .setHeight(childBoxSize)
+                                                                        .setModifiers(
+                                                                                testModifiers2))))
+                        .build();
+
+        // Compute the mutation
+        ViewGroupMutation mutation =
+                renderer.computeMutation(getRenderedMetadata(rootLayout),
+                        fingerprintedLayout(root2));
+        assertThat(mutation).isNotNull();
+        assertThat(mutation.isNoOp()).isFalse();
+
+        // Apply the mutation
+        boolean mutationResult = renderer.applyMutation(rootLayout, mutation);
+        assertThat(mutationResult).isTrue();
+
+        // Verify that the parent removed the touch delegation.
+        // Keep an empty touch delegate composite will lead to failure when calling
+        // {@link TouchDelegateComposite#getTouchDelegateInfo}
+        assertThat(parent.getTouchDelegate()).isNull();
+
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should no longer trigger the LoadAction.
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, 5, 5);
+        expect.that(receivedState.getLastClickableId()).isEmpty();
+        View box = parent.getChildAt(0);
+        dispatchTouchEvent(box, 1, 1);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo2");
     }
 
     @Test
@@ -1993,15 +2105,15 @@ public class ProtoLayoutInflaterTest {
 
         FrameLayout rootLayout =
                 renderer(
-                        fingerprintedLayout(
-                                LayoutElement.newBuilder()
-                                        .setColumn(
-                                                Column.newBuilder()
-                                                        .addContents(textElementWithRipple)
-                                                        .addContents(
-                                                                textElementWithoutRipple)
-                                                        .build())
-                                        .build()))
+                                fingerprintedLayout(
+                                        LayoutElement.newBuilder()
+                                                .setColumn(
+                                                        Column.newBuilder()
+                                                                .addContents(textElementWithRipple)
+                                                                .addContents(
+                                                                        textElementWithoutRipple)
+                                                                .build())
+                                                .build()))
                         .inflate();
 
         // Column
@@ -2022,6 +2134,49 @@ public class ProtoLayoutInflaterTest {
         // Ripple drawable gets set as foreground for the view.
         assertThat(tvWithRipple.getForeground()).isNotNull();
         assertThat(tvWithoutRipple.getForeground()).isNull();
+    }
+
+    @Test
+    public void inflate_hiddenModifier_inhibitsClicks() {
+        final String textContents = "I am a clickable";
+
+        Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
+
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setText(
+                                                                createTextWithVisibility(
+                                                                        textContents,
+                                                                        "back",
+                                                                        action,
+                                                                        true)))
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setText(
+                                                                createTextWithVisibility(
+                                                                        textContents,
+                                                                        "front",
+                                                                        action,
+                                                                        false))))
+                        .build();
+
+        State.Builder receivedState = State.newBuilder();
+        FrameLayout rootLayout =
+                renderer(
+                                newRendererConfigBuilder(
+                                                fingerprintedLayout(root), resourceResolvers())
+                                        .setLoadActionListener(receivedState::mergeFrom))
+                        .inflate();
+
+        // Try to tap the stacked clickables.
+        dispatchTouchEvent(rootLayout, 5f, 5f);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        expect.that(receivedState.getLastClickableId()).isEqualTo("back");
     }
 
     @Test
@@ -2151,8 +2306,8 @@ public class ProtoLayoutInflaterTest {
     @Test
     public void inflate_arc_withText_autoSize_notSet() {
         int lastSize = 12;
-        FontStyle.Builder style = FontStyle.newBuilder()
-                .addAllSize(buildSizesList(new int[]{10, 20, lastSize}));
+        FontStyle.Builder style =
+                FontStyle.newBuilder().addAllSize(buildSizesList(new int[] {10, 20, lastSize}));
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setArc(
@@ -2889,12 +3044,13 @@ public class ProtoLayoutInflaterTest {
                         .setFontStyle(FontStyle.newBuilder().addSize(sp(16)))
                         .setMaxLines(Int32Prop.newBuilder().setValue(6))
                         .setOverflow(
-                                TextOverflowProp.newBuilder().setValue(
-                                        TextOverflow.TEXT_OVERFLOW_ELLIPSIZE));
+                                TextOverflowProp.newBuilder()
+                                        .setValue(TextOverflow.TEXT_OVERFLOW_ELLIPSIZE));
         Layout layout1 =
                 fingerprintedLayout(
                         LayoutElement.newBuilder()
-                                .setBox(buildFixedSizeBoxWIthText(text1)).build());
+                                .setBox(buildFixedSizeBoxWIthText(text1))
+                                .build());
 
         Text.Builder text2 =
                 Text.newBuilder()
@@ -2904,18 +3060,19 @@ public class ProtoLayoutInflaterTest {
                         .setFontStyle(FontStyle.newBuilder().addSize(sp(4)))
                         .setMaxLines(Int32Prop.newBuilder().setValue(6))
                         .setOverflow(
-                                TextOverflowProp.newBuilder().setValue(
-                                        TextOverflow.TEXT_OVERFLOW_ELLIPSIZE));
+                                TextOverflowProp.newBuilder()
+                                        .setValue(TextOverflow.TEXT_OVERFLOW_ELLIPSIZE));
         Layout layout2 =
                 fingerprintedLayout(
                         LayoutElement.newBuilder()
-                                .setBox(buildFixedSizeBoxWIthText(text2)).build());
+                                .setBox(buildFixedSizeBoxWIthText(text2))
+                                .build());
 
         // Initial layout.
         Renderer renderer = renderer(layout1);
         ViewGroup inflatedViewParent = renderer.inflate();
-        TextView textView1 = (TextView) ((ViewGroup) inflatedViewParent
-                .getChildAt(0)).getChildAt(0);
+        TextView textView1 =
+                (TextView) ((ViewGroup) inflatedViewParent.getChildAt(0)).getChildAt(0);
 
         // Apply the mutation.
         ViewGroupMutation mutation =
@@ -2926,8 +3083,8 @@ public class ProtoLayoutInflaterTest {
         assertThat(mutationResult).isTrue();
 
         // This contains layout after the mutation.
-        TextView textView2 = (TextView) ((ViewGroup) inflatedViewParent
-                .getChildAt(0)).getChildAt(0);
+        TextView textView2 =
+                (TextView) ((ViewGroup) inflatedViewParent.getChildAt(0)).getChildAt(0);
 
         expect.that(textView1.getEllipsize()).isEqualTo(TruncateAt.END);
         expect.that(textView1.getMaxLines()).isEqualTo(2);
@@ -3028,7 +3185,7 @@ public class ProtoLayoutInflaterTest {
     @Test
     public void inflate_textView_autosize_set() {
         String text = "Test text";
-        int[] presetSizes = new int[]{12, 20, 10};
+        int[] presetSizes = new int[] {12, 20, 10};
         List<DimensionProto.SpProp> sizes = buildSizesList(presetSizes);
 
         LayoutElement textElement =
@@ -3036,16 +3193,16 @@ public class ProtoLayoutInflaterTest {
                         .setText(
                                 Text.newBuilder()
                                         .setText(string(text))
-                                        .setFontStyle(
-                                                FontStyle.newBuilder()
-                                                        .addAllSize(sizes)))
+                                        .setFontStyle(FontStyle.newBuilder().addAllSize(sizes)))
                         .build();
         LayoutElement root =
-                LayoutElement.newBuilder().setBox(
-                        Box.newBuilder()
-                                .setWidth(expand())
-                                .setHeight(expand())
-                                .addContents(textElement)).build();
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .addContents(textElement))
+                        .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
         ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
@@ -3076,16 +3233,16 @@ public class ProtoLayoutInflaterTest {
                                 Text.newBuilder()
                                         .setText(string(text))
                                         .setMaxLines(Int32Prop.newBuilder().setValue(4))
-                                        .setFontStyle(
-                                                FontStyle.newBuilder()
-                                                        .addAllSize(sizes)))
+                                        .setFontStyle(FontStyle.newBuilder().addAllSize(sizes)))
                         .build();
         LayoutElement root =
-                LayoutElement.newBuilder().setBox(
-                        Box.newBuilder()
-                                .setWidth(expand())
-                                .setHeight(expand())
-                                .addContents(textElement)).build();
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .addContents(textElement))
+                        .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
         ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
@@ -3099,23 +3256,23 @@ public class ProtoLayoutInflaterTest {
     public void inflate_textView_autosize_notSet() {
         String text = "Test text";
         int size = 24;
-        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{size});
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[] {size});
 
         LayoutElement textElement =
                 LayoutElement.newBuilder()
                         .setText(
                                 Text.newBuilder()
                                         .setText(string(text))
-                                        .setFontStyle(
-                                                FontStyle.newBuilder()
-                                                        .addAllSize(sizes)))
+                                        .setFontStyle(FontStyle.newBuilder().addAllSize(sizes)))
                         .build();
         LayoutElement root =
-                LayoutElement.newBuilder().setBox(
-                        Box.newBuilder()
-                                .setWidth(expand())
-                                .setHeight(expand())
-                                .addContents(textElement)).build();
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .addContents(textElement))
+                        .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
         ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
@@ -3129,23 +3286,23 @@ public class ProtoLayoutInflaterTest {
     public void inflate_textView_autosize_setDynamic_noop() {
         String text = "Test text";
         int lastSize = 24;
-        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{10, 30, lastSize});
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[] {10, 30, lastSize});
 
         LayoutElement textElement =
                 LayoutElement.newBuilder()
                         .setText(
                                 Text.newBuilder()
                                         .setText(dynamicString(text))
-                                        .setFontStyle(
-                                                FontStyle.newBuilder()
-                                                        .addAllSize(sizes)))
+                                        .setFontStyle(FontStyle.newBuilder().addAllSize(sizes)))
                         .build();
         LayoutElement root =
-                LayoutElement.newBuilder().setBox(
-                        Box.newBuilder()
-                                .setWidth(expand())
-                                .setHeight(expand())
-                                .addContents(textElement)).build();
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .addContents(textElement))
+                        .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
         ArrayList<View> textChildren = new ArrayList<>();
@@ -3159,23 +3316,23 @@ public class ProtoLayoutInflaterTest {
     @Test
     public void inflate_textView_autosize_wrongSizes_noop() {
         String text = "Test text";
-        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{0, -2, 0});
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[] {0, -2, 0});
 
         LayoutElement textElement =
                 LayoutElement.newBuilder()
                         .setText(
                                 Text.newBuilder()
                                         .setText(string(text))
-                                        .setFontStyle(
-                                                FontStyle.newBuilder()
-                                                        .addAllSize(sizes)))
+                                        .setFontStyle(FontStyle.newBuilder().addAllSize(sizes)))
                         .build();
         LayoutElement root =
-                LayoutElement.newBuilder().setBox(
-                        Box.newBuilder()
-                                .setWidth(expand())
-                                .setHeight(expand())
-                                .addContents(textElement)).build();
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .addContents(textElement))
+                        .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
         ArrayList<View> textChildren = new ArrayList<>();
@@ -3219,8 +3376,8 @@ public class ProtoLayoutInflaterTest {
     public void inflate_spantext_ignoresMultipleSizes() {
         String text = "Test text";
         int firstSize = 12;
-        FontStyle.Builder style = FontStyle.newBuilder()
-                .addAllSize(buildSizesList(new int[]{firstSize, 10, 20}));
+        FontStyle.Builder style =
+                FontStyle.newBuilder().addAllSize(buildSizesList(new int[] {firstSize, 10, 20}));
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setSpannable(
@@ -4780,7 +4937,7 @@ public class ProtoLayoutInflaterTest {
 
         boolean applyMutation(ViewGroup parent, ViewGroupMutation mutation) {
             try {
-                ListenableFuture<Void> applyMutationFuture =
+                ListenableFuture<RenderingArtifact> applyMutationFuture =
                         mRenderer.applyMutation(parent, mutation);
                 shadowOf(Looper.getMainLooper()).idle();
                 applyMutationFuture.get();
@@ -5000,33 +5157,25 @@ public class ProtoLayoutInflaterTest {
 
         LayoutElement image = buildImage(protoResId, 30, 30);
 
-
-        BoolProp.Builder stateBoolPropBuilder = BoolProp
-                .newBuilder()
-                .setValue(
-                        true)
-                .setDynamicValue(
-                        DynamicBool
-                                .newBuilder()
-                                .setStateSource(
-                                        StateBoolSource
-                                                .newBuilder()
-                                                .setSourceKey(
-                                                        boolKey)));
-        LayoutElement.Builder boxBuilder = LayoutElement.newBuilder()
-                .setBox(
-                        Box.newBuilder()
-                                .addContents(image)
-                                .setModifiers(
-                                        Modifiers
-                                                .newBuilder()
-                                                .setHidden(stateBoolPropBuilder)));
+        BoolProp.Builder stateBoolPropBuilder =
+                BoolProp.newBuilder()
+                        .setValue(true)
+                        .setDynamicValue(
+                                DynamicBool.newBuilder()
+                                        .setStateSource(
+                                                StateBoolSource.newBuilder()
+                                                        .setSourceKey(boolKey)));
+        LayoutElement.Builder boxBuilder =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .addContents(image)
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setHidden(stateBoolPropBuilder)));
         LayoutElement root =
                 LayoutElement.newBuilder()
-                        .setRow(
-                                Row.newBuilder()
-                                        .addContents(boxBuilder)
-                                        .addContents(image))
+                        .setRow(Row.newBuilder().addContents(boxBuilder).addContents(image))
                         .build();
 
         FrameLayout layout = renderer(fingerprintedLayout(root)).inflate();
@@ -5059,7 +5208,8 @@ public class ProtoLayoutInflaterTest {
         assertThat(secondImage.getLeft()).isEqualTo(secondImageLeft);
     }
 
-    @Test   public void inflate_box_withVisibleModifier() {
+    @Test
+    public void inflate_box_withVisibleModifier() {
         final String protoResId = "android";
         final String boolKey = "bool-key";
 
@@ -5226,20 +5376,18 @@ public class ProtoLayoutInflaterTest {
                 ContainerDimension.newBuilder().setLinearDimension(dp(100.f).build()).build();
         ContainerDimension innerBoxSize =
                 ContainerDimension.newBuilder().setLinearDimension(dp(60.f).build()).build();
-        Box.Builder boxBuilder = Box.newBuilder()
-                .setWidth(expand())
-                .setHeight(wrap())
-                .setModifiers(
-                        Modifiers.newBuilder()
-                                .setTransformation(
-                                        transformation)
-                                .build())
-                .addContents(
-                        LayoutElement.newBuilder()
-                                .setBox(
-                                        Box.newBuilder()
-                                                .setWidth(innerBoxSize)
-                                                .setHeight(innerBoxSize)));
+        Box.Builder boxBuilder =
+                Box.newBuilder()
+                        .setWidth(expand())
+                        .setHeight(wrap())
+                        .setModifiers(
+                                Modifiers.newBuilder().setTransformation(transformation).build())
+                        .addContents(
+                                LayoutElement.newBuilder()
+                                        .setBox(
+                                                Box.newBuilder()
+                                                        .setWidth(innerBoxSize)
+                                                        .setHeight(innerBoxSize)));
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setBox(
@@ -5657,7 +5805,7 @@ public class ProtoLayoutInflaterTest {
                 renderer.computeMutation(
                         getRenderedMetadata(inflatedViewParent),
                         fingerprintedLayout(textFadeIn("World")));
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
 
         // Idle for running code for starting animations.
@@ -5689,7 +5837,7 @@ public class ProtoLayoutInflaterTest {
                         getRenderedMetadata(inflatedViewParent),
                         fingerprintedLayout(
                                 getTextElementWithExitAnimation("World", /* iterations= */ 0)));
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
 
         assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(0);
@@ -5715,7 +5863,7 @@ public class ProtoLayoutInflaterTest {
                         getRenderedMetadata(inflatedViewParent),
                         fingerprintedLayout(
                                 getTextElementWithExitAnimation("World", /* iterations= */ 1)));
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
 
         assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(0);
@@ -5738,7 +5886,7 @@ public class ProtoLayoutInflaterTest {
                         getRenderedMetadata(inflatedViewParent),
                         fingerprintedLayout(
                                 getTextElementWithExitAnimation("World", /* iterations= */ 1)));
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
 
         assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(0);
@@ -5764,7 +5912,7 @@ public class ProtoLayoutInflaterTest {
                         getRenderedMetadata(inflatedViewParent),
                         fingerprintedLayout(
                                 getTextElementWithExitAnimation("World", /* iterations= */ 10)));
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
 
         shadowOf(getMainLooper()).idleFor(Duration.ofMillis(100));
@@ -5792,7 +5940,7 @@ public class ProtoLayoutInflaterTest {
                         getRenderedMetadata(inflatedViewParent),
                         fingerprintedLayout(
                                 getTextElementWithExitAnimation("World", /* iterations= */ 10)));
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
         shadowOf(getMainLooper()).idle();
 
@@ -5821,7 +5969,7 @@ public class ProtoLayoutInflaterTest {
                         fingerprintedLayout(
                                 getMultipleTextElementWithExitAnimation(
                                         Arrays.asList("Hello"), /* iterations= */ 10)));
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
 
         shadowOf(getMainLooper()).idleFor(Duration.ofMillis(100));
@@ -5850,7 +5998,7 @@ public class ProtoLayoutInflaterTest {
                         getRenderedMetadata(inflatedViewParent),
                         fingerprintedLayout(
                                 getTextElementWithExitAnimation("World", /* iterations= */ 10)));
-        ListenableFuture<Void> applyMutationFuture =
+        ListenableFuture<RenderingArtifact> applyMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
 
         shadowOf(getMainLooper()).idleFor(Duration.ofMillis(100));
@@ -5863,7 +6011,7 @@ public class ProtoLayoutInflaterTest {
                                 getTextElementWithExitAnimation(
                                         "Second mutation", /* iterations= */ 10)));
 
-        ListenableFuture<Void> applySecondMutationFuture =
+        ListenableFuture<RenderingArtifact> applySecondMutationFuture =
                 renderer.mRenderer.applyMutation(inflatedViewParent, secondMutation);
 
         // the previous mutation should be finished
@@ -6222,9 +6370,12 @@ public class ProtoLayoutInflaterTest {
 
     private static Spacer.Builder buildExpandedSpacer(int widthWeight, int heightWeight) {
         return Spacer.newBuilder()
-                .setWidth(SpacerDimension.newBuilder().setExpandedDimension(expandWithWeight(widthWeight)))
+                .setWidth(
+                        SpacerDimension.newBuilder()
+                                .setExpandedDimension(expandWithWeight(widthWeight)))
                 .setHeight(
-                        SpacerDimension.newBuilder().setExpandedDimension(expandWithWeight(heightWeight)));
+                        SpacerDimension.newBuilder()
+                                .setExpandedDimension(expandWithWeight(heightWeight)));
     }
 
     private static ExpandedDimensionProp expandWithWeight(int weight) {
@@ -6254,5 +6405,16 @@ public class ProtoLayoutInflaterTest {
                                 Box.newBuilder()
                                         .addContents(LayoutElement.newBuilder().setSpacer(spacer)))
                         .build());
+    }
+
+    private static Text createTextWithVisibility(
+            String text, String id, Action action, boolean visibility) {
+        return Text.newBuilder()
+                .setText(string(text))
+                .setModifiers(
+                        Modifiers.newBuilder()
+                                .setVisible(BoolProp.newBuilder().setValue(visibility))
+                                .setClickable(Clickable.newBuilder().setId(id).setOnClick(action)))
+                .build();
     }
 }

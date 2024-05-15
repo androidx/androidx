@@ -25,7 +25,10 @@ import androidx.glance.GlanceModifier
  *
  * There can be only one view with this modifier in a given App Widget.
  *
- * See the documentation on
+ *  This modifier does not automatically set corner radius. To have these set for you, use the
+ *  [androidx.glance.appwidget.components.Scaffold] component.
+ *
+ *  For more information about widget backgrounds, See the documentation on
  * [Enable smoother transitions](https://developer.android.com/guide/topics/appwidgets/enhance#enable-smoother-transitions)
  * and
  * [Implement rounded corners](https://developer.android.com/guide/topics/appwidgets#rounded-corner)

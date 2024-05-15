@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraCaptureSession
@@ -23,7 +21,6 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -201,7 +198,8 @@ class Request(
          * This is an artificial callback that will be invoked if a specific request was pending or
          * had already been submitted to when an abort was requested. The behavior of the request is
          * undefined if this method is invoked and images or metadata may or may not be produced for
-         * this request. Repeating requests will not receive onAborted.
+         * this request. Repeating requests will not receive onAborted. Failed reprocessing
+         * requests will be aborted and removed from the queue.
          *
          * @param request information about this specific request.
          */

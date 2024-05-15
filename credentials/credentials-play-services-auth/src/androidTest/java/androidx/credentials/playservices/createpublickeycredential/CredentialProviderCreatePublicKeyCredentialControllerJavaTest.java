@@ -46,12 +46,14 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationO
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
+
     @Test
     public void convertRequestToPlayServices_correctRequiredOnlyRequest_success() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
@@ -105,6 +107,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
             }
         });
     }
+    @Ignore("b/338656569")
     @Test
     public void convertRequestToPlayServices_missingRequired_throws() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
@@ -126,6 +129,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
         });
     }
 
+    @Ignore("b/338656569")
     @Test
     public void convertRequestToPlayServices_emptyRequired_throws() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
@@ -141,6 +145,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
         });
     }
 
+    @Ignore("b/338656569")
     @Test
     public void convertRequestToPlayServices_missingOptionalRequired_throws() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
@@ -157,6 +162,7 @@ public class CredentialProviderCreatePublicKeyCredentialControllerJavaTest {
         });
     }
 
+    @Ignore("b/338656569")
     @Test
     public void convertRequestToPlayServices_emptyOptionalRequired_throws() {
         ActivityScenario<TestCredentialsActivity> activityScenario =

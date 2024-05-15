@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameCapture
@@ -54,7 +52,6 @@ import androidx.camera.camera2.pipe.media.OutputImage
  * The remaining callbacks are used to distribute specific error and failure conditions to frames
  * that were previously started.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class FrameDistributor(
     imageSources: Map<StreamId, ImageSource>,
     private val frameCaptureQueue: FrameCaptureQueue,

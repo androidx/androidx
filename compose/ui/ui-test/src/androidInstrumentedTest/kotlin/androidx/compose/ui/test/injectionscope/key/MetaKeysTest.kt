@@ -134,6 +134,31 @@ class MetaKeysTest {
         }
     }
 
+    @Test
+    fun withKeyDown_keyIsUp_afterThrow() {
+        rule.performKeyInput {
+            try {
+                // When an exception is thrown during withKeyDown
+                withKeyDown(Key.ShiftLeft) { error("") }
+            } catch (e: Exception) { /* ignore */ }
+            // The key was restored to up
+            assertFalse(isShiftDown)
+        }
+    }
+
+    @Test
+    fun withKeysDown_keysAreUp_afterThrow() {
+        rule.performKeyInput {
+            try {
+                // When an exception is thrown during withKeysDown
+                withKeysDown(listOf(Key.ShiftLeft, Key.AltRight)) { error("") }
+            } catch (e: Exception) { /* ignore */ }
+            // The keys were restored to up
+            assertFalse(isShiftDown)
+            assertFalse(isAltDown)
+        }
+    }
+
     private fun pressAllMetaKeysDown() {
         rule.performKeyInput {
             keyDown(Key.Function)

@@ -22,8 +22,6 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
-import androidx.build.Publish
-import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -66,7 +64,6 @@ android {
 androidx {
     name = "Privacy Sandbox for Ad Services"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "This library enables integration with Privacy Preserving APIs, which are part of Privacy Sandbox on Android."
     metalavaK2UastEnabled = true

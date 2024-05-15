@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.compat
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.GraphState
@@ -78,7 +75,6 @@ internal object NoOpGraphListener : GraphListener {
 private const val requestQueueDepth = 64
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class VirtualCameraManager
 @Inject

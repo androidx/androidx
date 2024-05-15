@@ -258,47 +258,41 @@ value class DpOffset internal constructor(@PublishedApi internal val packedValue
      * The horizontal aspect of the offset in [Dp]
      */
     @Stable
-    val x: Dp
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of DpOffset.Unspecified
-            checkPrecondition(this.packedValue != UnspecifiedPackedFloats) {
-                "DpOffset is unspecified"
-            }
-            return unpackFloat1(packedValue).dp
-        }
+    val x: Dp get() = unpackFloat1(packedValue).dp
 
     /**
      * The vertical aspect of the offset in [Dp]
      */
     @Stable
-    val y: Dp
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of DpOffset.Unspecified
-            checkPrecondition(this.packedValue != UnspecifiedPackedFloats) {
-                "DpOffset is unspecified"
-            }
-            return unpackFloat2(packedValue).dp
-        }
+    val y: Dp get() = unpackFloat2(packedValue).dp
 
     /**
      * Returns a copy of this [DpOffset] instance optionally overriding the
      * x or y parameter
      */
-    fun copy(x: Dp = this.x, y: Dp = this.y): DpOffset = DpOffset(x, y)
+    fun copy(x: Dp = this.x, y: Dp = this.y): DpOffset = DpOffset(packFloats(x.value, y.value))
 
     /**
      * Subtract a [DpOffset] from another one.
      */
     @Stable
-    inline operator fun minus(other: DpOffset) =
-        DpOffset(x - other.x, y - other.y)
+    operator fun minus(other: DpOffset) = DpOffset(
+        packFloats(
+            (x - other.x).value,
+            (y - other.y).value
+        )
+    )
 
     /**
      * Add a [DpOffset] to another one.
      */
     @Stable
-    inline operator fun plus(other: DpOffset) =
-        DpOffset(x + other.x, y + other.y)
+    operator fun plus(other: DpOffset) = DpOffset(
+        packFloats(
+            (x + other.x).value,
+            (y + other.y).value
+        )
+    )
 
     @Stable
     override fun toString(): String =
@@ -312,14 +306,14 @@ value class DpOffset internal constructor(@PublishedApi internal val packedValue
         /**
          * A [DpOffset] with 0 DP [x] and 0 DP [y] values.
          */
-        val Zero = DpOffset(0.dp, 0.dp)
+        val Zero = DpOffset(0x0L)
 
         /**
          * Represents an offset whose [x] and [y] are unspecified. This is usually a replacement for
          * `null` when a primitive value is desired.
          * Access to [x] or [y] on an unspecified offset is not allowed.
          */
-        val Unspecified = DpOffset(Dp.Unspecified, Dp.Unspecified)
+        val Unspecified = DpOffset(0x7fc00000_7fc00000L)
     }
 }
 
@@ -357,7 +351,12 @@ inline fun DpOffset.takeOrElse(block: () -> DpOffset): DpOffset =
  */
 @Stable
 fun lerp(start: DpOffset, stop: DpOffset, fraction: Float): DpOffset =
-    DpOffset(lerp(start.x, stop.x, fraction), lerp(start.y, stop.y, fraction))
+    DpOffset(
+        packFloats(
+            lerp(start.x.value, stop.x.value, fraction),
+            lerp(start.y.value, stop.y.value, fraction)
+        )
+    )
 
 /**
  * Constructs a [DpSize] from [width] and [height] [Dp] values.
@@ -375,47 +374,45 @@ value class DpSize internal constructor(@PublishedApi internal val packedValue: 
      * The horizontal aspect of the Size in [Dp]
      */
     @Stable
-    val width: Dp
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of DpSize.Unspecified
-            checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-                "DpSize is unspecified"
-            }
-            return unpackFloat1(packedValue).dp
-        }
+    val width: Dp get() = unpackFloat1(packedValue).dp
 
     /**
      * The vertical aspect of the Size in [Dp]
      */
     @Stable
-    val height: Dp
-        get() {
-            // Explicitly compare against packed values to avoid auto-boxing of DpSize.Unspecified
-            checkPrecondition(packedValue != UnspecifiedPackedFloats) {
-                "DpSize is unspecified"
-            }
-            return unpackFloat2(packedValue).dp
-        }
+    val height: Dp get() = unpackFloat2(packedValue).dp
 
     /**
      * Returns a copy of this [DpSize] instance optionally overriding the
      * width or height parameter
      */
-    fun copy(width: Dp = this.width, height: Dp = this.height): DpSize = DpSize(width, height)
+    fun copy(width: Dp = this.width, height: Dp = this.height): DpSize = DpSize(
+        packFloats(width.value, height.value)
+    )
 
     /**
      * Subtract a [DpSize] from another one.
      */
     @Stable
-    inline operator fun minus(other: DpSize) =
-        DpSize(width - other.width, height - other.height)
+    operator fun minus(other: DpSize) =
+        DpSize(
+            packFloats(
+                (width - other.width).value,
+                (height - other.height).value
+            )
+        )
 
     /**
      * Add a [DpSize] to another one.
      */
     @Stable
-    inline operator fun plus(other: DpSize) =
-        DpSize(width + other.width, height + other.height)
+    operator fun plus(other: DpSize) =
+        DpSize(
+            packFloats(
+                (width + other.width).value,
+                (height + other.height).value
+            )
+        )
 
     @Stable
     inline operator fun component1(): Dp = width
@@ -424,16 +421,36 @@ value class DpSize internal constructor(@PublishedApi internal val packedValue: 
     inline operator fun component2(): Dp = height
 
     @Stable
-    operator fun times(other: Int): DpSize = DpSize(width * other, height * other)
+    operator fun times(other: Int): DpSize = DpSize(
+        packFloats(
+            (width * other).value,
+            (height * other).value
+        )
+    )
 
     @Stable
-    operator fun times(other: Float): DpSize = DpSize(width * other, height * other)
+    operator fun times(other: Float): DpSize = DpSize(
+        packFloats(
+            (width * other).value,
+            (height * other).value
+        )
+    )
 
     @Stable
-    operator fun div(other: Int): DpSize = DpSize(width / other, height / other)
+    operator fun div(other: Int): DpSize = DpSize(
+        packFloats(
+            (width / other).value,
+            (height / other).value
+        )
+    )
 
     @Stable
-    operator fun div(other: Float): DpSize = DpSize(width / other, height / other)
+    operator fun div(other: Float): DpSize = DpSize(
+        packFloats(
+            (width / other).value,
+            (height / other).value
+        )
+    )
 
     @Stable
     override fun toString(): String =
@@ -447,14 +464,14 @@ value class DpSize internal constructor(@PublishedApi internal val packedValue: 
         /**
          * A [DpSize] with 0 DP [width] and 0 DP [height] values.
          */
-        val Zero = DpSize(0.dp, 0.dp)
+        val Zero = DpSize(0x0L)
 
         /**
          * A size whose [width] and [height] are unspecified. This is usually a replacement for
          * `null` when a primitive value is desired.
          * Access to [width] or [height] on an unspecified size is not allowed.
          */
-        val Unspecified = DpSize(Dp.Unspecified, Dp.Unspecified)
+        val Unspecified = DpSize(0x7fc00000_7fc00000L)
     }
 }
 
@@ -485,7 +502,12 @@ inline fun DpSize.takeOrElse(block: () -> DpSize): DpSize =
  */
 @Stable
 val DpSize.center: DpOffset
-    get() = DpOffset(width / 2f, height / 2f)
+    get() = DpOffset(
+        packFloats(
+            (width / 2f).value,
+            (height / 2f).value
+        )
+    )
 
 @Stable
 inline operator fun Int.times(size: DpSize) = size * this
@@ -505,7 +527,12 @@ inline operator fun Float.times(size: DpSize) = size * this
  */
 @Stable
 fun lerp(start: DpSize, stop: DpSize, fraction: Float): DpSize =
-    DpSize(lerp(start.width, stop.width, fraction), lerp(start.height, stop.height, fraction))
+    DpSize(
+        packFloats(
+            lerp(start.width, stop.width, fraction).value,
+            lerp(start.height, stop.height, fraction).value
+        )
+    )
 
 /**
  * A four dimensional bounds using [Dp] for units

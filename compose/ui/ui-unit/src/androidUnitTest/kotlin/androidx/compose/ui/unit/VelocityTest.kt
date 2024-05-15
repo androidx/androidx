@@ -24,7 +24,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class VelocityTest {
-
     private val velocity1 = Velocity(3f, -7f)
     private val velocity2 = Velocity(5f, 13f)
 

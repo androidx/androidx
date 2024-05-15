@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.config
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
@@ -51,7 +50,6 @@ import javax.inject.Scope
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Module(subcomponents = [Camera2ControllerComponent::class])
 internal abstract class Camera2Module {
     @Binds
@@ -95,7 +93,6 @@ internal abstract class Camera2Module {
 @Scope
 internal annotation class Camera2ControllerScope
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Camera2ControllerScope
 @Subcomponent(
     modules =

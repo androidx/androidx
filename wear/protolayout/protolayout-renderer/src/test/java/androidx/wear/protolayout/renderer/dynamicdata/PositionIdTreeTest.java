@@ -161,7 +161,7 @@ public class PositionIdTreeTest {
     }
 
     @Test
-    public void findAncestor_onlySearchesNodesAboveTheNode() {
+    public void findAncestorValues_onlySearchesNodesAboveTheNode() {
         List<TreeNode> nodesOfInterest = Arrays.asList(mNodeRoot, mNode2, mNode2Child1, mNode1);
 
         assertThat(mTree.findAncestorsFor(NODE_2_1, nodesOfInterest::contains))
@@ -169,7 +169,15 @@ public class PositionIdTreeTest {
     }
 
     @Test
-    public void findAncestor_disjointTree_searchesAllAboveNodes() {
+    public void findAncestorIds_onlySearchesNodesAboveTheNode() {
+        List<TreeNode> nodesOfInterest = Arrays.asList(mNodeRoot, mNode2, mNode2Child1, mNode1);
+
+        assertThat(mTree.findAncestorsNodesFor(NODE_2_1, nodesOfInterest::contains))
+                .containsExactly(NODE_2, NODE_ROOT);
+    }
+
+    @Test
+    public void findAncestorValues_disjointTree_searchesAllAboveNodes() {
         // Missing NODE_3_1
         mTree.addOrReplace(NODE_3_1_1, mNode3Child1Child1);
         mTree.addOrReplace(NODE_3_1_1_1, mNode3Child1Child1Child1);
@@ -181,7 +189,19 @@ public class PositionIdTreeTest {
     }
 
     @Test
-    public void findAncestor_emptyTree_returnsNothing() {
+    public void findAncestorIds_disjointTree_searchesAllAboveNodes() {
+        // Missing NODE_3_1
+        mTree.addOrReplace(NODE_3_1_1, mNode3Child1Child1);
+        mTree.addOrReplace(NODE_3_1_1_1, mNode3Child1Child1Child1);
+        List<TreeNode> nodesOfInterest =
+                Arrays.asList(mNodeRoot, mNode1, mNode3Child1Child1, mNode3);
+
+        assertThat(mTree.findAncestorsNodesFor(NODE_3_1_1_1, nodesOfInterest::contains))
+                .containsExactly(ROOT_NODE_ID, NODE_3_1_1, NODE_3);
+    }
+
+    @Test
+    public void findAncestorValues_emptyTree_returnsNothing() {
         mTree.clear();
         List<TreeNode> nodesOfInterest = Arrays.asList(mNodeRoot, mNode2, mNode2Child1, mNode1);
 
@@ -189,8 +209,21 @@ public class PositionIdTreeTest {
     }
 
     @Test
-    public void findAncestor_noMatch_returnsNothing() {
+    public void findAncestorIds_emptyTree_returnsNothing() {
+        mTree.clear();
+        List<TreeNode> nodesOfInterest = Arrays.asList(mNodeRoot, mNode2, mNode2Child1, mNode1);
+
+        assertThat(mTree.findAncestorsNodesFor(NODE_2_1, nodesOfInterest::contains)).isEmpty();
+    }
+
+    @Test
+    public void findAncestorValues_noMatch_returnsNothing() {
         assertThat(mTree.findAncestorsFor(NODE_2_1, treeNode -> false)).isEmpty();
+    }
+
+    @Test
+    public void findAncestorIds_noMatch_returnsNothing() {
+        assertThat(mTree.findAncestorsNodesFor(NODE_2_1, treeNode -> false)).isEmpty();
     }
 
     @Test

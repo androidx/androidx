@@ -92,6 +92,7 @@ value class ColorMatrix(
      * is represented as a 4 x 5 matrix
      * @param column Column index to query the ColorMatrix value. Range is from 0 to 4 as
      * [ColorMatrix] is represented as a 4 x 5 matrix
+     * @param v value to update at the given [row] and [column]
      */
     inline operator fun set(row: Int, column: Int, v: Float) {
         values[(row * 5) + column] = v

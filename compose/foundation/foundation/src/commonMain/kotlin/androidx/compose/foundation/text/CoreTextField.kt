@@ -27,9 +27,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.text.handwriting.stylusHandwriting
 import androidx.compose.foundation.text.input.internal.legacyPlatformTextInputServiceAdapter
-import androidx.compose.foundation.text.handwriting.detectStylusHandwriting
-import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.input.internal.legacyTextInputAdapter
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.OffsetProvider
@@ -423,34 +422,6 @@ internal fun CoreTextField(
             textDragObserver = manager.touchSelectionObserver,
         )
         .pointerHoverIcon(textPointerIcon)
-        .then(
-            if (isStylusHandwritingSupported && writeable) {
-                Modifier.pointerInput(Unit) {
-                    detectStylusHandwriting {
-                        if (!state.hasFocus) {
-                            focusRequester.requestFocus()
-                        }
-                        // If this is a password field, we can't trigger handwriting.
-                        // The expected behavior is 1) request focus 2) show software keyboard.
-                        // Note: TextField will show software keyboard automatically when it
-                        // gain focus. 3) show a toast message telling that handwriting is not
-                        // supported for password fields. TODO(b/335294152)
-                        if (imeOptions.keyboardType != KeyboardType.Password) {
-                            // TextInputService is calling LegacyTextInputServiceAdapter under the
-                            // hood.  And because it's a public API, startStylusHandwriting is added
-                            // to legacyTextInputServiceAdapter instead.
-                            // startStylusHandwriting may be called before the actual input
-                            // session starts when the editor is not focused, this is handled
-                            // internally by the LegacyTextInputServiceAdapter.
-                            legacyTextInputServiceAdapter.startStylusHandwriting()
-                        }
-                        true
-                    }
-                }
-            } else {
-                Modifier
-            }
-        )
 
     val drawModifier = Modifier.drawBehind {
         state.layoutResult?.let { layoutResult ->
@@ -675,12 +646,34 @@ internal fun CoreTextField(
             imeAction = imeOptions.imeAction,
         )
 
+    val stylusHandwritingModifier = Modifier.stylusHandwriting(writeable) {
+        if (!state.hasFocus) {
+            focusRequester.requestFocus()
+        }
+        // If this is a password field, we can't trigger handwriting.
+        // The expected behavior is 1) request focus 2) show software keyboard.
+        // Note: TextField will show software keyboard automatically when it
+        // gain focus. 3) show a toast message telling that handwriting is not
+        // supported for password fields. TODO(b/335294152)
+        if (imeOptions.keyboardType != KeyboardType.Password) {
+            // TextInputService is calling LegacyTextInputServiceAdapter under the
+            // hood.  And because it's a public API, startStylusHandwriting is added
+            // to legacyTextInputServiceAdapter instead.
+            // startStylusHandwriting may be called before the actual input
+            // session starts when the editor is not focused, this is handled
+            // internally by the LegacyTextInputServiceAdapter.
+            legacyTextInputServiceAdapter.startStylusHandwriting()
+        }
+        true
+    }
+
     val overscrollEffect = rememberTextFieldOverscrollEffect()
 
     // Modifiers that should be applied to the outer text field container. Usually those include
     // gesture and semantics modifiers.
     val decorationBoxModifier = modifier
         .legacyTextInputAdapter(legacyTextInputServiceAdapter, state, manager)
+        .then(stylusHandwritingModifier)
         .then(focusModifier)
         .interceptDPadAndMoveFocus(state, focusManager)
         .previewKeyEventToDeselectOnBack(state, manager)

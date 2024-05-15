@@ -12,7 +12,7 @@ package androidx.paging.testing {
   }
 
   public final class PagerFlowSnapshotKt {
-    method @VisibleForTesting public static suspend <Value> Object? asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, optional androidx.paging.testing.LoadErrorHandler onError, optional kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<kotlin.Unit>,?> loadOperations, kotlin.coroutines.Continuation<java.util.List<Value>>);
+    method @VisibleForTesting public static suspend <Value> Object? asSnapshot(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<Value>>, optional androidx.paging.testing.LoadErrorHandler onError, optional kotlin.jvm.functions.Function2<? super androidx.paging.testing.SnapshotLoader<Value>,? super kotlin.coroutines.Continuation<kotlin.Unit>,? extends java.lang.Object?> loadOperations, kotlin.coroutines.Continuation<java.util.List<Value>>);
   }
 
   @VisibleForTesting public final class SnapshotLoader<Value> {

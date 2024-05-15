@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
 package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 
 import android.content.Context
@@ -47,6 +48,7 @@ import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCreden
 import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInCredential
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.fido.common.Transport
 import com.google.android.gms.fido.fido2.api.common.Attachment
@@ -138,13 +140,19 @@ internal class PublicKeyCredentialControllerUtility {
     }
 
     private fun isDeviceGMSVersionOlderThan(context: Context, version: Long): Boolean {
+      // Only do the version check if GMS is available, otherwise return false falling back to
+      // previous flow.
+      if (GoogleApiAvailability.getInstance()
+          .isGooglePlayServicesAvailable(context) != ConnectionResult.SUCCESS
+      ) return false;
+
       val packageManager: PackageManager = context.packageManager
       val packageName = GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE
 
       val currentVersion = if (Build.VERSION.SDK_INT >= 28)
         GetGMSVersion.getVersionLong(packageManager.getPackageInfo(packageName, 0))
       else
-        @Suppress("DEPRECATION") packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
+        @Suppress("deprecation") packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
 
       return (currentVersion > version)
     }

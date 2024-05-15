@@ -1559,7 +1559,7 @@ class DatabaseProcessorTest {
     }
 
     @Test
-    fun disallowPropertyDao() {
+    fun allowPropertyDao() {
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -1593,7 +1593,7 @@ class DatabaseProcessorTest {
                 element = element
             ).process()
             invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
+                hasNoWarnings()
             }
         }
     }

@@ -12,7 +12,6 @@ import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.core.util.Preconditions
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
     private val is10BitSupported: Boolean
     private val dynamicRangesInfo: DynamicRangeProfilesCompat

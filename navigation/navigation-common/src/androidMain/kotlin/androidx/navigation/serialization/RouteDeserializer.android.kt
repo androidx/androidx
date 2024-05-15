@@ -32,5 +32,6 @@ public fun <T> KSerializer<T>.decodeArguments(
 // public due to reified toRoute()
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun <T> KSerializer<T>.decodeArguments(
-    handle: SavedStateHandle
-): T = RouteDecoder(handle).decodeSerializableValue(this)
+    handle: SavedStateHandle,
+    typeMap: Map<String, NavType<*>>
+): T = RouteDecoder(handle, typeMap).decodeSerializableValue(this)

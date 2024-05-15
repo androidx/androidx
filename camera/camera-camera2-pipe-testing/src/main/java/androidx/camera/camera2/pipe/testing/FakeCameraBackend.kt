@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraContext
@@ -35,7 +34,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 /**
  * The FakeCameraBackend implements [CameraBackend] and creates [CameraControllerSimulator]s.
  */
-@RequiresApi(21)
 class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) : CameraBackend {
     private val lock = Any()
     private val fakeCameraIds = fakeCameras.keys.toList()

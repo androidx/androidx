@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.compat
 
 import android.annotation.SuppressLint
@@ -89,9 +87,6 @@ internal object Camera2CaptureSessionsModule {
             return androidMProvider.get()
         }
 
-        check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            "CameraPipe is not supported below Android L"
-        }
         check(graphConfig.input == null) { "Reprocessing is not supported on Android L" }
 
         return androidLProvider.get()

@@ -49,6 +49,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -213,6 +214,7 @@ class TextFieldAccessibilityBenchmark(
         )
     }
 
+    @FlakyTest(bugId = 338433949)
     @Test
     fun sendEvents_changeNumberOfTextFields() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
@@ -239,6 +241,7 @@ class TextFieldAccessibilityBenchmark(
         )
     }
 
+    @FlakyTest(bugId = 338433949)
     @Test
     fun sendEvents_changeTextInSingleTextField() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
@@ -261,6 +264,7 @@ class TextFieldAccessibilityBenchmark(
         )
     }
 
+    @FlakyTest(bugId = 338433949)
     @Test
     fun sendEvents_changeTextInMultipleTextFields() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
@@ -293,6 +297,7 @@ class TextFieldAccessibilityBenchmark(
         )
     }
 
+    @FlakyTest(bugId = 338433949)
     @Test
     fun sendEvents_changeTextInOneOfMultipleTextFields() {
         benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(

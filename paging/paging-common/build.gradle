@@ -22,9 +22,9 @@
  * modifying its settings.
  */
 
+import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import androidx.build.Publish
 import org.jetbrains.kotlin.konan.target.Family
 
 
@@ -47,7 +47,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api(project(":annotation:annotation"))
+                api("androidx.annotation:annotation:1.8.0")
             }
         }
 
@@ -140,7 +140,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Paging-Common"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Paging-Common"
     samples(project(":paging:paging-samples"))

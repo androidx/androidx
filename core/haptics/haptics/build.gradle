@@ -33,7 +33,7 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    implementation(projectOrArtifact(":annotation:annotation"))
+    implementation("androidx.annotation:annotation:1.8.0")
     implementation(projectOrArtifact(":core:core"))
     implementation(projectOrArtifact(":media:media"))
 

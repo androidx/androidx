@@ -389,19 +389,28 @@ internal class GraphicsViewLayer(
         block: DrawScope.() -> Unit
     ) {
         viewLayer.setDrawParams(density, layoutDirection, layer, block)
-        recordDrawingOperations()
-        picture?.let { p ->
-            val pictureCanvas = p.beginRecording(size.width, size.height)
-            pictureCanvasHolder?.drawInto(pictureCanvas) {
-                pictureDrawScope?.draw(
-                    density,
-                    layoutDirection,
-                    this,
-                    size.toSize(),
-                    block
-                )
+        // According to View#canHaveDisplaylist, a View can only have a displaylist
+        // if it is attached and there is a valid ThreadedRenderer instance on the corresponding
+        // AttachInfo instance
+        if (viewLayer.isAttachedToWindow) {
+            // Force a call to View#cleanupDraw by toggling the visibility of the View
+            // so that requests to record the displaylist will not be skipped
+            viewLayer.visibility = View.INVISIBLE
+            viewLayer.visibility = View.VISIBLE
+            recordDrawingOperations()
+            picture?.let { p ->
+                val pictureCanvas = p.beginRecording(size.width, size.height)
+                pictureCanvasHolder?.drawInto(pictureCanvas) {
+                    pictureDrawScope?.draw(
+                        density,
+                        layoutDirection,
+                        this,
+                        size.toSize(),
+                        block
+                    )
+                }
+                p.endRecording()
             }
-            p.endRecording()
         }
     }
 

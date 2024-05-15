@@ -1349,7 +1349,27 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
 
+        if (node.unmergedConfig.contains(SemanticsActions.SetText)) {
+            stateDescription = createStateDescriptionForTextField(node)
+        }
+
         return stateDescription
+    }
+
+    /**
+     * Empty text field should not be ignored by the TB so we set a state description.
+     * When there is a speakable child, like a label or a placeholder text, setting this state
+     * description is redundant
+     */
+    private fun createStateDescriptionForTextField(node: SemanticsNode): String? {
+        val mergedConfig = node.copyWithMergingEnabled().config
+        val mergedNodeIsUnspeakable =
+            mergedConfig.getOrNull(SemanticsProperties.ContentDescription).isNullOrEmpty() &&
+                mergedConfig.getOrNull(SemanticsProperties.Text).isNullOrEmpty() &&
+                mergedConfig.getOrNull(SemanticsProperties.EditableText).isNullOrEmpty()
+        return if (mergedNodeIsUnspeakable) {
+            view.context.resources.getString(R.string.state_empty)
+        } else null
     }
 
     private fun setStateDescription(

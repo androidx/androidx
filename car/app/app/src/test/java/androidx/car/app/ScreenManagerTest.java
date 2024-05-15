@@ -341,6 +341,16 @@ public final class ScreenManagerTest {
     }
 
     @Test
+    public void push_sameScreenMultipleTimes_fails() {
+        mScreenManager.push(mScreen1);
+        mScreenManager.push(mScreen2);
+        mScreenManager.pop(); // Screen 2 moves to DESTROYED state
+
+        // Pushing DESTROYED screen should fail.
+        assertThrows(IllegalStateException.class, () -> mScreenManager.push(mScreen2));
+    }
+
+    @Test
     public void pushScreen_afterDestroyed_noop() {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
         mScreenManager.push(mScreen1);

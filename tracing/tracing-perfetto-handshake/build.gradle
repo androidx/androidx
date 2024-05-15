@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BuildServerConfigurationKt
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -41,7 +41,7 @@ tasks.withType(Jar) {
 
 androidx {
     name = "Tracing Perfetto Handshake"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto Handshake"
     metalavaK2UastEnabled = true

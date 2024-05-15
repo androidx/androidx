@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraContext
@@ -37,7 +36,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 
 /** This is the default [CameraBackend] implementation for CameraPipe based on Camera2. */
-@RequiresApi(21)
 internal class Camera2Backend
 @Inject constructor(
     private val threads: Threads,

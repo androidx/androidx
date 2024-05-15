@@ -82,6 +82,9 @@ fun Modifier.shadow(
  * Use a [androidx.compose.ui.zIndex] modifier if you want to draw the elements with larger
  * [elevation] after all the elements with a smaller one.
  *
+ * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
+ * this property always returns [Color.Black] and setting new values is ignored.
+ *
  * Usage of this API renders this composable into a separate graphics layer
  * @see graphicsLayer
  *
@@ -92,6 +95,8 @@ fun Modifier.shadow(
  * @param elevation The elevation for the shadow in pixels
  * @param shape Defines a shape of the physical object
  * @param clip When active, the content drawing clips to the shape.
+ * @param ambientColor Color of the ambient shadow drawn when [elevation] > 0f
+ * @param spotColor Color of the spot shadow that is drawn when [elevation] > 0f
  */
 @Stable
 fun Modifier.shadow(

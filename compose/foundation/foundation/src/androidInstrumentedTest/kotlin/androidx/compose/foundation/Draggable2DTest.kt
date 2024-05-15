@@ -58,6 +58,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.lang.Float.NaN
 import kotlin.test.Ignore
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -850,6 +851,7 @@ class Draggable2DTest {
         val enabled = mutableStateOf(true)
         lateinit var runningJob: Job
         rule.setContent {
+            val scope = rememberCoroutineScope()
             Box(
                 modifier = Modifier
                     .testTag(draggable2DBoxTag)
@@ -858,7 +860,7 @@ class Draggable2DTest {
                         enabled = enabled.value,
                         state = rememberDraggable2DState { },
                         onDragStopped = { _ ->
-                            runningJob = launch { delay(10_000L) } // long running operation
+                            runningJob = scope.launch { delay(10_000L) } // long running operation
                         }
                     )
             )
@@ -876,6 +878,50 @@ class Draggable2DTest {
 
         rule.runOnIdle {
             assertTrue { runningJob.isActive } // check if scope is still active
+        }
+    }
+
+    @Test
+    fun onDragStarted_startDragImmediatelyFalse_offsetShouldBePostSlopPosition() {
+        var onDragStartedOffset = Offset.Unspecified
+        var downEventPosition = Offset.Unspecified
+        var touchSlop = 0f
+        rule.setContent {
+            touchSlop = LocalViewConfiguration.current.touchSlop
+
+            Box(
+                modifier = Modifier
+                    .testTag(draggable2DBoxTag)
+                    .size(100.dp)
+                    .draggable2D(
+                        enabled = true,
+                        state = rememberDraggable2DState { },
+                        onDragStarted = { offset ->
+                            onDragStartedOffset = offset
+                        },
+                        startDragImmediately = false
+                    )
+            )
+        }
+
+        val moveOffset = Offset(100f, 100f)
+        rule.onNodeWithTag(draggable2DBoxTag).performTouchInput {
+            downEventPosition = center
+            down(center)
+            moveBy(moveOffset)
+            up()
+        }
+        val moveAngle = Math.atan(moveOffset.x / moveOffset.y.toDouble())
+
+        rule.runOnIdle {
+            assertEquals(
+                downEventPosition.x + touchSlop * Math.cos(moveAngle).toFloat(),
+                onDragStartedOffset.x
+            )
+            assertEquals(
+                downEventPosition.y + touchSlop * Math.sin(moveAngle).toFloat(),
+                onDragStartedOffset.y
+            )
         }
     }
 

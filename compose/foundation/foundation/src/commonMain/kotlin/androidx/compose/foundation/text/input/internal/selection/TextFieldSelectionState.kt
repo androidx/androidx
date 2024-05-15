@@ -114,7 +114,6 @@ internal class TextFieldSelectionState(
      * Whether user is interacting with the UI in touch mode.
      */
     var isInTouchMode: Boolean by mutableStateOf(true)
-        private set
 
     /**
      * Reduced [ReceiveContentConfiguration] from the attached modifier node hierarchy. This value
@@ -770,6 +769,14 @@ internal class TextFieldSelectionState(
                     allowPreviousSelectionCollapsed = false,
                 )
 
+                // When drag starts from the end padding, we eventually need to update the start
+                // point once a selection is initiated. Otherwise, startOffset is always calculated
+                // from dragBeginPosition which can refer to different positions on text if
+                // TextField starts scrolling.
+                if (dragBeginOffsetInText == -1 && !newSelection.collapsed) {
+                    dragBeginOffsetInText = newSelection.start
+                }
+
                 // Although we support reversed selection, reversing the selection after it's
                 // initiated via long press has a visual glitch that's hard to get rid of. When
                 // handles (start/end) switch places after the selection reverts, draw happens a
@@ -777,14 +784,6 @@ internal class TextFieldSelectionState(
                 // not allow reversed selection during long press drag.
                 if (newSelection.reversed) {
                     newSelection = newSelection.reverse()
-                }
-
-                // When drag starts from the end padding, we eventually need to update the start
-                // point once a selection is initiated. Otherwise, startOffset is always calculated
-                // from dragBeginPosition which can refer to different positions on text if
-                // TextField starts scrolling.
-                if (dragBeginOffsetInText == -1 && !newSelection.collapsed) {
-                    dragBeginOffsetInText = newSelection.start
                 }
 
                 // if the new selection is not equal to previous selection, consider updating the

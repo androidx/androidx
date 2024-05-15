@@ -22,8 +22,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Rect;
 
-import androidx.pdf.aidl.MatchRects;
 import androidx.pdf.find.MatchCount;
+import androidx.pdf.models.MatchRects;
 import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.test.filters.SmallTest;
 

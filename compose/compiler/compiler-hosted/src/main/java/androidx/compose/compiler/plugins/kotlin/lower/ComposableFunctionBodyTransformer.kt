@@ -18,6 +18,8 @@ package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeCallableIds
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.FeatureFlag
+import androidx.compose.compiler.plugins.kotlin.FeatureFlags
 import androidx.compose.compiler.plugins.kotlin.FunctionMetrics
 import androidx.compose.compiler.plugins.kotlin.KtxNameConventions
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
@@ -28,6 +30,7 @@ import androidx.compose.compiler.plugins.kotlin.analysis.isUncertain
 import androidx.compose.compiler.plugins.kotlin.analysis.knownStable
 import androidx.compose.compiler.plugins.kotlin.analysis.knownUnstable
 import androidx.compose.compiler.plugins.kotlin.irTrace
+import androidx.compose.compiler.plugins.kotlin.lower.ComposerParamTransformer.ComposeDefaultValueStubOrigin
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.DecoyFqNames
 import kotlin.math.abs
 import kotlin.math.absoluteValue
@@ -459,11 +462,9 @@ class ComposableFunctionBodyTransformer(
     stabilityInferencer: StabilityInferencer,
     private val collectSourceInformation: Boolean,
     private val traceMarkersEnabled: Boolean,
-    private val intrinsicRememberEnabled: Boolean,
-    private val nonSkippingGroupOptimizationEnabled: Boolean,
-    private val strongSkippingEnabled: Boolean
+    featureFlags: FeatureFlags,
 ) :
-    AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer),
+    AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer, featureFlags),
     FileLoweringPass,
     ModuleLoweringPass {
 
@@ -613,7 +614,7 @@ class ComposableFunctionBodyTransformer(
         // Uses `rememberComposableLambda` as a indication that the runtime supports
         // generating remember after call as it was added at the same time as the slot table was
         // modified to support remember after call.
-        nonSkippingGroupOptimizationEnabled && rememberComposableLambdaFunction != null
+        FeatureFlag.OptimizeNonSkippingGroups.enabled && rememberComposableLambdaFunction != null
     }
 
     private val IrType.arguments: List<IrTypeArgument>
@@ -698,6 +699,12 @@ class ComposableFunctionBodyTransformer(
         val scope = currentFunctionScope
         // if the function isn't composable, there's nothing to do
         if (!scope.isComposable) return super.visitFunction(declaration)
+        if (declaration.origin == ComposeDefaultValueStubOrigin) {
+            // this is a synthetic function stub, don't touch the body, only remove the stub origin
+            declaration.origin = IrDeclarationOrigin.DEFINED
+            return declaration
+        }
+
         val restartable = declaration.shouldBeRestartable()
         val isLambda = declaration.isLambda()
 
@@ -986,6 +993,12 @@ class ComposableFunctionBodyTransformer(
         val transformed = nonReturningBody.apply {
             transformChildrenVoid()
         }.let {
+            // Ensure that all group children of composable inline lambda are realized, since the inline
+            // lambda doesn't require a group on its own.
+            if (scope.isInlinedLambda && scope.isComposable) {
+                scope.realizeAllDirectChildren()
+            }
+
             if (isInlineLambda) {
                 it.asSourceOrEarlyExitGroup(scope)
             } else it
@@ -1229,7 +1242,10 @@ class ComposableFunctionBodyTransformer(
             // if there are unstable params, then we fence the whole expression with a check to
             // see if any of the unstable params were the ones that were provided to the
             // function. If they were, then we short-circuit and always execute
-            if (!strongSkippingEnabled && hasAnyUnstableParams && defaultParam != null) {
+            if (
+                !FeatureFlag.StrongSkipping.enabled &&
+                hasAnyUnstableParams && defaultParam != null
+            ) {
                 shouldExecute = irOrOr(
                     defaultParam.irHasAnyProvidedAndUnstable(unstableMask),
                     shouldExecute
@@ -1443,7 +1459,12 @@ class ComposableFunctionBodyTransformer(
                 used = isUsed
             )
 
-            if (!strongSkippingEnabled && isUsed && isUnstable && isRequired) {
+            if (
+                !FeatureFlag.StrongSkipping.enabled &&
+                isUsed &&
+                isUnstable &&
+                isRequired
+            ) {
                 // if it is a used + unstable parameter with no default expression and we are
                 // not in strong skipping mode, the fn will _never_ skip
                 mightSkip = false
@@ -1471,7 +1492,7 @@ class ComposableFunctionBodyTransformer(
                     // this will only ever be true when mightSkip is false, but we put this
                     // branch here so that `dirty` gets smart cast in later branches
                 }
-                !strongSkippingEnabled && isUnstable && defaultParam != null &&
+                !FeatureFlag.StrongSkipping.enabled && isUnstable && defaultParam != null &&
                     defaultValue != null -> {
                     // if it has a default parameter then the function can still potentially skip
                     skipPreamble.statements.add(
@@ -1484,7 +1505,7 @@ class ComposableFunctionBodyTransformer(
                         )
                     )
                 }
-                strongSkippingEnabled || !isUnstable -> {
+                FeatureFlag.StrongSkipping.enabled || !isUnstable -> {
                     val defaultValueIsStatic = defaultExprIsStatic[slotIndex]
                     val callChanged = irCallChanged(stability, changedParam, slotIndex, param)
 
@@ -1506,7 +1527,7 @@ class ComposableFunctionBodyTransformer(
                         )
                     )
 
-                    val skipCondition = if (strongSkippingEnabled)
+                    val skipCondition = if (FeatureFlag.StrongSkipping.enabled)
                         irIsUncertain(changedParam, slotIndex)
                     else
                         irIsUncertainAndStable(changedParam, slotIndex)
@@ -1665,7 +1686,7 @@ class ComposableFunctionBodyTransformer(
         changedParam: IrChangedBitMaskValue,
         slotIndex: Int,
         param: IrValueDeclaration
-    ) = if (strongSkippingEnabled && stability.isUncertain()) {
+    ) = if (FeatureFlag.StrongSkipping.enabled && stability.isUncertain()) {
         irIfThenElse(
             type = context.irBuiltIns.booleanType,
             condition = irIsStable(changedParam, slotIndex),
@@ -2191,7 +2212,7 @@ class ComposableFunctionBodyTransformer(
     private fun irChanged(
         value: IrExpression,
         compareInstanceForFunctionTypes: Boolean,
-        compareInstanceForUnstableValues: Boolean = strongSkippingEnabled
+        compareInstanceForUnstableValues: Boolean = FeatureFlag.StrongSkipping.enabled
     ): IrExpression = irChanged(
         irCurrentComposer(),
         value,
@@ -2484,12 +2505,6 @@ class ComposableFunctionBodyTransformer(
                 before = listOf(makeStart()),
                 after = listOf(makeEnd()),
             )
-        }
-
-        // Ensure that all group children of composable inline lambda are realized, since the inline
-        // lambda doesn't require a group on its own.
-        if (scope.isInlinedLambda && scope.isComposable) {
-            scope.realizeAllDirectChildren()
         }
 
         scope.realizeGroup(makeEnd)
@@ -2946,7 +2961,7 @@ class ComposableFunctionBodyTransformer(
     private fun visitComposableCall(expression: IrCall): IrExpression {
         return when (expression.symbol.owner.kotlinFqName) {
             ComposeFqNames.remember -> {
-                if (intrinsicRememberEnabled) {
+                if (FeatureFlag.IntrinsicRemember.enabled) {
                     visitRememberCall(expression)
                 } else {
                     visitNormalComposableCall(expression)
@@ -3532,7 +3547,7 @@ class ComposableFunctionBodyTransformer(
         arguments.fastForEachIndexed { slot, argInfo ->
             val stability = argInfo.stability
             when {
-                !strongSkippingEnabled && stability.knownUnstable() -> {
+                !FeatureFlag.StrongSkipping.enabled && stability.knownUnstable() -> {
                     bitMaskConstant = bitMaskConstant or StabilityBits.UNSTABLE.bitsForSlot(slot)
                     // If it is known to be unstable, there's no purpose in propagating any
                     // additional metadata _for this parameter_, but we still want to propagate
@@ -3877,12 +3892,19 @@ class ComposableFunctionBodyTransformer(
         }
 
         forEachWith(transformed.branches, condScopes, resultScopes) { it, condScope, resultScope ->
-            // If the conditional block doesn't have a composable call in it, we don't need
-            // to generate a group around it because we will be generating one around the entire
-            // if statement
-            if (needsWrappingGroup && condScope.hasComposableCalls) {
-                it.condition = it.condition.asReplaceGroup(condScope)
+            if (condScope.hasComposableCalls) {
+                if (needsWrappingGroup) {
+                    // Generate a group around the conditional block when it has a composable call
+                    // in it and we are generating a group around when block.
+                    it.condition = it.condition.asReplaceGroup(condScope)
+                } else {
+                    // Ensure that the inner structure of condition is correct if the wrapping group
+                    // is not required by realizing groups in condition scope.
+                    condScope.realizeAllDirectChildren()
+                    condScope.realizeCoalescableGroup()
+                }
             }
+
             if (
                 // if no wrapping group but more than one result have calls, we have to have every
                 // result be a group so that we have a consistent number of groups during execution
@@ -4561,7 +4583,7 @@ class ComposableFunctionBodyTransformer(
                 // we _only_ use this pattern for the slots where the body of the function
                 // actually uses that parameter, otherwise we pass in 0b000 which will transfer
                 // none of the bits to the rhs
-                val lhsMask = if (strongSkippingEnabled) 0b001 else 0b101
+                val lhsMask = if (FeatureFlag.StrongSkipping.enabled) 0b001 else 0b101
                 val lhs = (start until end).fold(0) { mask, slot ->
                     if (usedParams[slot]) mask or bitsForSlot(lhsMask, slot) else mask
                 }

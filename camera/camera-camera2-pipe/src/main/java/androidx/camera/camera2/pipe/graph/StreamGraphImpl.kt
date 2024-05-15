@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
@@ -26,7 +24,6 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -156,12 +153,12 @@ constructor(
                 outputConfigMap[cameraOutputConfig]!!.streamBuilder.add(stream)
             }
         }
-
         inputs = graphConfig.input?.map {
+            val streamFormat = it.streamFormat ?: StreamFormat(checkNotNull(it.format))
             InputStreamImpl(
                 nextInputId(),
-                it.format,
-                it.maxImages
+                it.maxImages,
+                streamFormat,
             )
         } ?: emptyList()
 
@@ -219,8 +216,8 @@ constructor(
 
     private class InputStreamImpl(
         override val id: InputStreamId,
-        override val format: Int,
-        override val maxImages: Int
+        override val maxImages: Int,
+        override val format: StreamFormat
     ) : InputStream
 
     interface SurfaceListener {

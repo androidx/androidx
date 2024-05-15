@@ -435,8 +435,8 @@ class ViewfinderSurfaceRequest internal constructor(
          *
          * **Possible values:**
          *
-         *  * [PERFORMANCE][ImplementationMode.PERFORMANCE]
-         *  * [COMPATIBLE][ImplementationMode.COMPATIBLE]
+         *  * [PERFORMANCE][ImplementationMode.EXTERNAL]
+         *  * [COMPATIBLE][ImplementationMode.EMBEDDED]
          *
          * @param implementationMode The [ImplementationMode].
          * @return This builder.

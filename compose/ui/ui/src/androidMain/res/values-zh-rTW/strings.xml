@@ -31,6 +31,7 @@
     <string name="close_drawer" msgid="406453423630273620">"關閉導覽選單"</string>
     <string name="close_sheet" msgid="7573152094250666567">"關閉功能表"</string>
     <string name="default_error_message" msgid="8038256446254964252">"輸入內容無效"</string>
+    <string name="state_empty" msgid="4139871816613051306">"空白"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"彈出式視窗"</string>
     <string name="range_start" msgid="7097486360902471446">"範圍起點"</string>
     <string name="range_end" msgid="5941395253238309765">"範圍終點"</string>

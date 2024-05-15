@@ -23,7 +23,9 @@ import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.ExpectedText.EITHER
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.ExpectedText.FIRST
+import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.ExpectedText.FIRST_REVERSED
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.ExpectedText.SECOND
+import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.ExpectedText.SECOND_REVERSED
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.TestHorizontal.CENTER
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.TestHorizontal.LEFT
 import androidx.compose.foundation.text.selection.gestures.MultiTextMinTouchBoundsSelectionGesturesTest.TestHorizontal.RIGHT
@@ -114,10 +116,12 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
         BELOW(y = 66f, coercedY = 59f);
     }
 
-    enum class ExpectedText(val selectableId: Long?) {
-        FIRST(1L),
-        SECOND(2L),
-        EITHER(null),
+    enum class ExpectedText(val selectableId: Long?, val crossed: Boolean) {
+        FIRST(1L, crossed = false),
+        SECOND(2L, crossed = false),
+        FIRST_REVERSED(1L, crossed = true),
+        SECOND_REVERSED(2L, crossed = true),
+        EITHER(null, crossed = false),
     }
 
     override val pointerAreaTag = "selectionContainer"
@@ -148,31 +152,31 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
         @JvmStatic
         @Parameterized.Parameters(name = "horizontal={0}, vertical={1} expectedId={2}")
         fun data(): Collection<Array<Any>> = listOf(
-            arrayOf(LEFT, ABOVE, FIRST),
-            arrayOf(LEFT, ON_FIRST, FIRST),
+            arrayOf(LEFT, ABOVE, FIRST_REVERSED),
+            arrayOf(LEFT, ON_FIRST, FIRST_REVERSED),
             arrayOf(LEFT, NO_OVERLAP_BELONGS_TO_FIRST, FIRST),
             arrayOf(LEFT, OVERLAP_BELONGS_TO_FIRST, FIRST),
             arrayOf(LEFT, OVERLAP_EQUIDISTANT, EITHER),
-            arrayOf(LEFT, OVERLAP_BELONGS_TO_SECOND, SECOND),
-            arrayOf(LEFT, NO_OVERLAP_BELONGS_TO_SECOND, SECOND),
-            arrayOf(LEFT, ON_SECOND, SECOND),
+            arrayOf(LEFT, OVERLAP_BELONGS_TO_SECOND, SECOND_REVERSED),
+            arrayOf(LEFT, NO_OVERLAP_BELONGS_TO_SECOND, SECOND_REVERSED),
+            arrayOf(LEFT, ON_SECOND, SECOND_REVERSED),
             arrayOf(LEFT, BELOW, SECOND),
-            arrayOf(CENTER, ABOVE, FIRST),
+            arrayOf(CENTER, ABOVE, FIRST_REVERSED),
             arrayOf(CENTER, ON_FIRST, FIRST),
             arrayOf(CENTER, NO_OVERLAP_BELONGS_TO_FIRST, FIRST),
             arrayOf(CENTER, OVERLAP_BELONGS_TO_FIRST, FIRST),
             arrayOf(CENTER, OVERLAP_EQUIDISTANT, EITHER),
-            arrayOf(CENTER, OVERLAP_BELONGS_TO_SECOND, SECOND),
-            arrayOf(CENTER, NO_OVERLAP_BELONGS_TO_SECOND, SECOND),
+            arrayOf(CENTER, OVERLAP_BELONGS_TO_SECOND, SECOND_REVERSED),
+            arrayOf(CENTER, NO_OVERLAP_BELONGS_TO_SECOND, SECOND_REVERSED),
             arrayOf(CENTER, ON_SECOND, SECOND),
             arrayOf(CENTER, BELOW, SECOND),
-            arrayOf(RIGHT, ABOVE, FIRST),
+            arrayOf(RIGHT, ABOVE, FIRST_REVERSED),
             arrayOf(RIGHT, ON_FIRST, FIRST),
             arrayOf(RIGHT, NO_OVERLAP_BELONGS_TO_FIRST, FIRST),
             arrayOf(RIGHT, OVERLAP_BELONGS_TO_FIRST, FIRST),
             arrayOf(RIGHT, OVERLAP_EQUIDISTANT, EITHER),
-            arrayOf(RIGHT, OVERLAP_BELONGS_TO_SECOND, SECOND),
-            arrayOf(RIGHT, NO_OVERLAP_BELONGS_TO_SECOND, SECOND),
+            arrayOf(RIGHT, OVERLAP_BELONGS_TO_SECOND, SECOND_REVERSED),
+            arrayOf(RIGHT, NO_OVERLAP_BELONGS_TO_SECOND, SECOND_REVERSED),
             arrayOf(RIGHT, ON_SECOND, SECOND),
             arrayOf(RIGHT, BELOW, SECOND),
         )
@@ -185,7 +189,7 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
 
     // Regression test for b/325307463
     @Test
-    fun dragIntoMinTouchTargetSelectionGestureTest() = runTest {
+    fun dragIntoMinTouchTargetSelectionGestureTest() = runTest(expectedText.crossed) {
         performTouchGesture {
             longPress(Offset(horizontal.coercedX, vertical.coercedY))
             // The crash involved a quick drag from on the text to off the text
@@ -195,7 +199,7 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
         }
     }
 
-    private fun runTest(block: () -> Unit) {
+    private fun runTest(crossed: Boolean = false, block: () -> Unit) {
         block()
 
         val expectedSelectableId = expectedText.selectableId
@@ -203,15 +207,17 @@ internal class MultiTextMinTouchBoundsSelectionGesturesTest(
             // verify something is selected
             assertThat(selection).isNotNull()
         } else {
-            assertSelectedSelectableIs(expectedSelectableId)
+            assertSelectedSelectableIs(expectedSelectableId, crossed)
         }
     }
 
-    private fun assertSelectedSelectableIs(selectableId: Long) {
+    private fun assertSelectedSelectableIs(selectableId: Long, crossed: Boolean) {
+        val startOffset = if (crossed) 1 else 0
+        val endOffset = if (crossed) 0 else 1
         val expectedSelection = Selection(
-            start = Selection.AnchorInfo(ResolvedTextDirection.Ltr, 0, selectableId),
-            end = Selection.AnchorInfo(ResolvedTextDirection.Ltr, 1, selectableId),
-            handlesCrossed = false,
+            start = Selection.AnchorInfo(ResolvedTextDirection.Ltr, startOffset, selectableId),
+            end = Selection.AnchorInfo(ResolvedTextDirection.Ltr, endOffset, selectableId),
+            handlesCrossed = crossed,
         )
         assertThat(selection.value).isEqualTo(expectedSelection)
     }

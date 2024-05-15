@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -40,11 +39,8 @@ import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 
-internal class SharedElement(val key: Any, val scope: SharedTransitionScope) {
+internal class SharedElement(val key: Any, val scope: SharedTransitionScopeImpl) {
     fun isAnimating(): Boolean = states.fastAny { it.boundsAnimation.isRunning } && foundMatch
-
-    // observation is stopped when no states are in the list, started when new state is added
-    private val observer = SnapshotStateObserver { it() }
 
     private var _targetBounds: Rect? by mutableStateOf(null)
 
@@ -76,7 +72,7 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScope) {
             foundMatch = false
         }
         if (states.isNotEmpty()) {
-            observer.observeReads(this, updateMatch, observingVisibilityChange)
+            SharedTransitionObserver.observeReads(this, updateMatch, observingVisibilityChange)
         }
     }
 
@@ -155,21 +151,17 @@ internal class SharedElement(val key: Any, val scope: SharedTransitionScope) {
     }
 
     fun addState(sharedElementState: SharedElementInternalState) {
-        val wasEmpty = states.isEmpty()
         states.add(sharedElementState)
-        if (wasEmpty) {
-            observer.start()
-        }
-        observer.observeReads(this, updateMatch, observingVisibilityChange)
+        SharedTransitionObserver.observeReads(this, updateMatch, observingVisibilityChange)
     }
 
     fun removeState(sharedElementState: SharedElementInternalState) {
         states.remove(sharedElementState)
         if (states.isEmpty()) {
             updateMatch()
-            observer.stop()
+            SharedTransitionObserver.clear(this)
         } else {
-            observer.observeReads(this, updateMatch, observingVisibilityChange)
+            SharedTransitionObserver.observeReads(this, updateMatch, observingVisibilityChange)
         }
     }
 }

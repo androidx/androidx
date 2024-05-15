@@ -119,7 +119,10 @@ fun ToggleButton(
         },
         selectionControl = null,
         modifier = modifier
-            .defaultMinSize(minHeight = MIN_HEIGHT)
+            .defaultMinSize(
+                minHeight = if (secondaryLabel == null) MIN_HEIGHT_WITHOUT_SECONDARY_LABEL
+                else MIN_HEIGHT
+            )
             .height(IntrinsicSize.Min),
         icon = provideNullableScopeContent(
             contentColor = colors.iconColor(enabled = enabled, checked),
@@ -143,6 +146,8 @@ fun ToggleButton(
         toggleControlWidth = TOGGLE_CONTROL_WIDTH,
         toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
         labelSpacerSize = ToggleButtonDefaults.LabelSpacerSize,
+        toggleControlSpacing = TOGGLE_CONTROL_SPACING,
+        iconSpacing = ICON_SPACING,
         ripple = rippleOrFallbackImplementation()
     )
 
@@ -429,7 +434,7 @@ object ToggleButtonDefaults {
 
     internal val LabelSpacerSize = 2.dp
     private val HorizontalPadding = 14.dp
-    private val VerticalPadding = 6.dp
+    private val VerticalPadding = 8.dp
 
     /**
      * The default content padding used by [ToggleButton]
@@ -457,7 +462,7 @@ object ToggleButtonDefaults {
                 uncheckedIconColor = fromToken(ToggleButtonTokens.UncheckedIconColor),
                 disabledCheckedContainerColor =
                 fromToken(ToggleButtonTokens.DisabledCheckedContainerColor).toDisabledColor(
-                    disabledAlpha = ToggleButtonTokens.DisabledOpacity
+                    disabledAlpha = ToggleButtonTokens.DisabledCheckedContainerOpacity
                 ),
                 disabledCheckedContentColor =
                 fromToken(ToggleButtonTokens.DisabledCheckedContentColor).toDisabledColor(
@@ -465,13 +470,14 @@ object ToggleButtonDefaults {
                 ),
                 disabledCheckedSecondaryContentColor =
                 fromToken(ToggleButtonTokens.DisabledCheckedSecondaryLabelColor)
-                    .copy(alpha = ToggleButtonTokens.DisabledCheckedSecondaryLabelOpacity)
                     .toDisabledColor(disabledAlpha = ToggleButtonTokens.DisabledOpacity),
                 disabledCheckedIconColor = fromToken(ToggleButtonTokens.DisabledCheckedIconColor)
                     .toDisabledColor(disabledAlpha = ToggleButtonTokens.DisabledOpacity),
                 disabledUncheckedContainerColor =
                 fromToken(ToggleButtonTokens.DisabledUncheckedContainerColor)
-                    .toDisabledColor(disabledAlpha = ToggleButtonTokens.DisabledOpacity),
+                    .toDisabledColor(
+                        disabledAlpha = ToggleButtonTokens.DisabledUncheckedContainerOpacity
+                    ),
                 disabledUncheckedContentColor =
                 fromToken(ToggleButtonTokens.DisabledUncheckedContentColor)
                     .toDisabledColor(disabledAlpha = ToggleButtonTokens.DisabledOpacity),
@@ -1053,7 +1059,10 @@ class ToggleControlScope(
 
 private val TOGGLE_CONTROL_WIDTH = 32.dp
 private val TOGGLE_CONTROL_HEIGHT = 24.dp
+private val TOGGLE_CONTROL_SPACING = 6.dp
+private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
+private val MIN_HEIGHT_WITHOUT_SECONDARY_LABEL = 48.dp
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
     tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)

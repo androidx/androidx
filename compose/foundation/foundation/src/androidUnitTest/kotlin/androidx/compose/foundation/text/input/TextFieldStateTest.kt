@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.internal.setComposingText
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
@@ -681,6 +682,34 @@ class TextFieldStateTest {
         }
 
         assertThat(isRead).isEqualTo(false)
+    }
+
+    @Test
+    fun onlyHighlightChange_doesNotTriggerInputTransformation() {
+        val state = TextFieldState("abc def ghi")
+        var transformationCalled = 0
+        val inputTransformation = InputTransformation {
+            transformationCalled++
+        }
+        state.editAsUser(inputTransformation) {
+            setHighlight(TextHighlightType.HandwritingSelectPreview, 0, 3)
+        }
+        state.editAsUser(inputTransformation) {
+            setHighlight(TextHighlightType.HandwritingDeletePreview, 4, 7)
+        }
+        assertThat(transformationCalled).isEqualTo(0)
+    }
+
+    @Test
+    fun inputTransformationRejectsChanges_removesComposition() {
+        val state = TextFieldState()
+        val inputTransformation = InputTransformation { revertAllChanges() }
+        state.editAsUser(inputTransformation) {
+            setComposingText("hello", 1)
+        }
+        assertThat(state.text).isEqualTo("")
+        assertThat(state.selection).isEqualTo(TextRange.Zero)
+        assertThat(state.composition).isNull()
     }
 
     private fun runTestWithSnapshotsThenCancelChildren(testBody: suspend TestScope.() -> Unit) {

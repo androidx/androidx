@@ -129,8 +129,9 @@ internal fun rememberPagerMeasurePolicy(
             )
         }
 
-        val pageAvailableSize =
-            with(pageSize) { calculateMainAxisPageSize(mainAxisAvailableSize, spaceBetweenPages) }
+        val pageAvailableSize = with(pageSize) {
+            calculateMainAxisPageSize(mainAxisAvailableSize, spaceBetweenPages).coerceAtLeast(0)
+        }
 
         state.premeasureConstraints = Constraints(
             maxWidth = if (orientation == Orientation.Vertical) {

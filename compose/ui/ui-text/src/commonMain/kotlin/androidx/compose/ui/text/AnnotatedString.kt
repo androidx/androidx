@@ -273,9 +273,9 @@ class AnnotatedString internal constructor(
      * [spanStyles], [paragraphStyles], or [text] are different.
      *
      * @param other to compare annotations with
-     * @return true iff this compares equal on annotations with other
+     * @return true if and only if this compares equal on annotations with other
      */
-    fun hasEqualsAnnotations(other: AnnotatedString): Boolean =
+    fun hasEqualAnnotations(other: AnnotatedString): Boolean =
         this.annotations == other.annotations
 
     /**
@@ -588,6 +588,18 @@ class AnnotatedString internal constructor(
         @Suppress("SetterReturnsThis")
         fun addLink(clickable: LinkAnnotation.Clickable, start: Int, end: Int) {
             annotations.add(MutableRange(clickable, start, end))
+        }
+
+        /**
+         * Replaces the LinkAnnotation with a [new] LinkAnnotation at the same range.
+         * If the original annotation range is not found (including if the range matches but the
+         * attached annotation is different and visa versa), this method will be a no-op.
+         */
+        fun replace(old: Range<LinkAnnotation>, new: LinkAnnotation) {
+            val removed = annotations.remove(MutableRange(old.item, old.start, old.end))
+            if (removed) {
+                annotations.add(MutableRange(new, old.start, old.end))
+            }
         }
 
         /**

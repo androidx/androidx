@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.params.OutputConfiguration
@@ -496,14 +494,15 @@ value class OutputId(val value: Int) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface InputStream {
     val id: InputStreamId
-    val format: Int
     val maxImages: Int
-    // TODO: This may accept
+    val format: StreamFormat
 
+    // TODO: b/330594328 - Remove `format` and make `streamFormat` required.
     class Config(
         val stream: CameraStream.Config,
-        val format: Int,
-        val maxImages: Int
+        val maxImages: Int,
+        var format: Int? = null,
+        var streamFormat: StreamFormat? = null
     )
 }
 

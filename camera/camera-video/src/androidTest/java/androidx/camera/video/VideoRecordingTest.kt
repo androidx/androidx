@@ -40,6 +40,8 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCase
+import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_3_4
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3
@@ -53,6 +55,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.StreamSharingForceEnabledEffect
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -62,6 +65,7 @@ import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.core.util.Consumer
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -69,6 +73,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.util.concurrent.ListenableFuture
 import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -91,7 +96,8 @@ private const val STATUS_TIMEOUT = 15000L
 class VideoRecordingTest(
     private val implName: String,
     private var cameraSelector: CameraSelector,
-    private val cameraConfig: CameraXConfig
+    private val cameraConfig: CameraXConfig,
+    private val forceEnableStreamSharing: Boolean,
 ) {
 
     @get:Rule
@@ -126,22 +132,38 @@ class VideoRecordingTest(
                 arrayOf(
                     "back+" + Camera2Config::class.simpleName,
                     CameraSelector.DEFAULT_BACK_CAMERA,
-                    Camera2Config.defaultConfig()
+                    Camera2Config.defaultConfig(),
+                    /*forceEnableStreamSharing=*/false,
                 ),
                 arrayOf(
                     "front+" + Camera2Config::class.simpleName,
                     CameraSelector.DEFAULT_FRONT_CAMERA,
-                    Camera2Config.defaultConfig()
+                    Camera2Config.defaultConfig(),
+                    /*forceEnableStreamSharing=*/false,
+                ),
+                arrayOf(
+                    "back+" + Camera2Config::class.simpleName + "+streamSharing",
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    Camera2Config.defaultConfig(),
+                    /*forceEnableStreamSharing=*/true,
                 ),
                 arrayOf(
                     "back+" + CameraPipeConfig::class.simpleName,
                     CameraSelector.DEFAULT_BACK_CAMERA,
-                    CameraPipeConfig.defaultConfig()
+                    CameraPipeConfig.defaultConfig(),
+                    /*forceEnableStreamSharing=*/false,
                 ),
                 arrayOf(
                     "front+" + CameraPipeConfig::class.simpleName,
                     CameraSelector.DEFAULT_FRONT_CAMERA,
-                    CameraPipeConfig.defaultConfig()
+                    CameraPipeConfig.defaultConfig(),
+                    /*forceEnableStreamSharing=*/false,
+                ),
+                arrayOf(
+                    "back+" + CameraPipeConfig::class.simpleName + "+streamSharing",
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    CameraPipeConfig.defaultConfig(),
+                    /*forceEnableStreamSharing=*/true,
                 ),
             )
         }
@@ -151,7 +173,7 @@ class VideoRecordingTest(
     private val context: Context = ApplicationProvider.getApplicationContext()
     // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
     private val dynamicRange = DynamicRange.SDR
-    private lateinit var cameraProvider: ProcessCameraProvider
+    private lateinit var cameraProvider: ProcessCameraProviderWrapper
     private lateinit var lifecycleOwner: FakeLifecycleOwner
     private lateinit var preview: Preview
     private lateinit var cameraInfo: CameraInfo
@@ -202,7 +224,8 @@ class VideoRecordingTest(
         skipVideoRecordingTestIfNotSupportedByEmulator()
 
         ProcessCameraProvider.configureInstance(cameraConfig)
-        cameraProvider = ProcessCameraProvider.getInstance(context).get()
+        cameraProvider =
+            ProcessCameraProviderWrapper(ProcessCameraProvider.getInstance(context).get())
         lifecycleOwner = FakeLifecycleOwner()
         lifecycleOwner.startAndResume()
 
@@ -1225,6 +1248,36 @@ class VideoRecordingTest(
 
     private fun assumeExtraCroppingQuirk() {
         assumeExtraCroppingQuirk(implName)
+    }
+
+    private inner class ProcessCameraProviderWrapper(val cameraProvider: ProcessCameraProvider) {
+
+        fun bindToLifecycle(
+            lifecycleOwner: LifecycleOwner,
+            cameraSelector: CameraSelector,
+            vararg useCases: UseCase
+        ): Camera {
+            if (useCases.isEmpty()) {
+                return cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, *useCases)
+            }
+            val useCaseGroup = UseCaseGroup.Builder().apply {
+                useCases.forEach { useCase -> addUseCase(useCase) }
+                if (forceEnableStreamSharing) {
+                    addEffect(StreamSharingForceEnabledEffect())
+                }
+            }.build()
+            return cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup)
+        }
+
+        fun unbind(vararg useCases: UseCase) {
+            cameraProvider.unbind(*useCases)
+        }
+
+        fun unbindAll() {
+            cameraProvider.unbindAll()
+        }
+
+        fun shutdownAsync(): ListenableFuture<Void> = cameraProvider.shutdownAsync()
     }
 
     private class ImageSavedCallback :

@@ -25,14 +25,14 @@ package androidx.wear.protolayout.expression.pipeline {
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getAnimationQuotaManager();
     method @VisibleForTesting public java.util.function.Supplier<java.time.Instant!>? getClock();
     method public androidx.wear.protolayout.expression.pipeline.QuotaManager? getDynamicTypesQuotaManager();
-    method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<?>!,androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!> getPlatformDataProviders();
+    method public java.util.Map<androidx.wear.protolayout.expression.PlatformDataKey<? extends java.lang.Object!>!,androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!> getPlatformDataProviders();
     method public androidx.wear.protolayout.expression.pipeline.PlatformTimeUpdateNotifier? getPlatformTimeUpdateNotifier();
     method public androidx.wear.protolayout.expression.pipeline.StateStore? getStateStore();
   }
 
   public static final class DynamicTypeEvaluator.Config.Builder {
     ctor public DynamicTypeEvaluator.Config.Builder();
-    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>);
+    method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder addPlatformDataProvider(androidx.wear.protolayout.expression.pipeline.PlatformDataProvider, java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<? extends java.lang.Object!>!>);
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config build();
     method public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setAnimationQuotaManager(androidx.wear.protolayout.expression.pipeline.QuotaManager);
     method @VisibleForTesting public androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.Config.Builder setClock(java.util.function.Supplier<java.time.Instant!>);
@@ -57,7 +57,7 @@ package androidx.wear.protolayout.expression.pipeline {
 
   public interface PlatformDataReceiver {
     method public void onData(androidx.wear.protolayout.expression.PlatformDataValues);
-    method public void onInvalidated(java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<?>!>);
+    method public void onInvalidated(java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<? extends java.lang.Object!>!>);
   }
 
   public interface PlatformTimeUpdateNotifier {
@@ -71,9 +71,9 @@ package androidx.wear.protolayout.expression.pipeline {
   }
 
   public final class StateStore {
-    method public static androidx.wear.protolayout.expression.pipeline.StateStore create(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!>);
+    method public static androidx.wear.protolayout.expression.pipeline.StateStore create(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<? extends java.lang.Object!>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends java.lang.Object!>!>);
     method public static int getMaxStateEntryCount();
-    method @UiThread public void setAppStateEntryValues(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<?>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?>!>);
+    method @UiThread public void setAppStateEntryValues(java.util.Map<androidx.wear.protolayout.expression.AppDataKey<? extends java.lang.Object!>!,androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<? extends java.lang.Object!>!>);
   }
 
 }

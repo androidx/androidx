@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.*
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -101,7 +101,6 @@ gradlePlugin {
 
 androidx {
     name = "Baseline Profile Gradle Plugin"
-    publish = Publish.SNAPSHOT_AND_RELEASE
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Android Baseline Profile Gradle Plugin"

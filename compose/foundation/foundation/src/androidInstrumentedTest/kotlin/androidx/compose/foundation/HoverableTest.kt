@@ -22,7 +22,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -237,6 +239,126 @@ class HoverableTest {
         // Dispose hoverable, Interaction should be gone
         rule.runOnIdle {
             emitHoverable = false
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).hasSize(2)
+            Truth.assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+            Truth.assertThat(interactions[1])
+                .isInstanceOf(HoverInteraction.Exit::class.java)
+            Truth.assertThat((interactions[1] as HoverInteraction.Exit).enter)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun hoverableTest_interactionSource_resetWhenReused() {
+        val interactionSource = MutableInteractionSource()
+        var key by mutableStateOf(true)
+
+        var scope: CoroutineScope? = null
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box {
+                ReusableContent(key) {
+                    Box(
+                        modifier = Modifier
+                            .size(128.dp)
+                            .testTag(hoverTag)
+                            .hoverable(interactionSource = interactionSource)
+                    )
+                }
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope!!.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag(hoverTag).performMouseInput {
+            enter(Offset(64.dp.toPx(), 64.dp.toPx()))
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).hasSize(1)
+            Truth.assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+        }
+
+        // Change the key to trigger reuse
+        rule.runOnIdle {
+            key = false
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).hasSize(2)
+            Truth.assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+            Truth.assertThat(interactions[1])
+                .isInstanceOf(HoverInteraction.Exit::class.java)
+            Truth.assertThat((interactions[1] as HoverInteraction.Exit).enter)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun hoverableTest_interactionSource_resetWhenMoved() {
+        val interactionSource = MutableInteractionSource()
+        var moveContent by mutableStateOf(false)
+
+        var scope: CoroutineScope? = null
+
+        val content = movableContentOf {
+            Box(
+                modifier = Modifier
+                    .size(128.dp)
+                    .testTag(hoverTag)
+                    .hoverable(interactionSource = interactionSource)
+            )
+        }
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            if (moveContent) {
+                Box {
+                    content()
+                }
+            } else {
+                Box {
+                    content()
+                }
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope!!.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag(hoverTag).performMouseInput {
+            enter(Offset(64.dp.toPx(), 64.dp.toPx()))
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(interactions).hasSize(1)
+            Truth.assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+        }
+
+        // Move the content
+        rule.runOnIdle {
+            moveContent = true
         }
 
         rule.runOnIdle {

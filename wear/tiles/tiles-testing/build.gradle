@@ -54,6 +54,7 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
+    testImplementation(files("../../wear_sdk/wear-sdk.jar"))
 }
 
 android {
@@ -69,7 +70,6 @@ android {
 androidx {
     name = "Android Wear Tiles Testing Utilities"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
     metalavaK2UastEnabled = true

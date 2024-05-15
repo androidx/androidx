@@ -53,6 +53,7 @@ import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
  * @param colors A complete definition of the Wear Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of shapes to be used by the components in this hierarchy
+ * @param content Slot for composable content displayed with this theme
  */
 @Composable
 public fun MaterialTheme(

@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraBackends
@@ -30,7 +29,6 @@ import javax.inject.Singleton
 import kotlinx.coroutines.Deferred
 
 /** Provides utilities for querying cameras and accessing metadata about those cameras. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
 internal class CameraDevicesImpl @Inject constructor(private val cameraBackends: CameraBackends) :
     CameraDevices {

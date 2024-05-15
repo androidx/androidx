@@ -19,11 +19,12 @@ package androidx.compose.foundation.demos.text
 import androidx.compose.foundation.demos.text2.BasicSecureTextFieldDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldCustomPinFieldDemo
 import androidx.compose.foundation.demos.text2.BasicTextFieldDemos
-import androidx.compose.foundation.demos.text2.BasicTextFieldFilterDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldInScrollableDemo
+import androidx.compose.foundation.demos.text2.BasicTextFieldInputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldLongTextDemo
 import androidx.compose.foundation.demos.text2.BasicTextFieldOutputTransformationDemos
 import androidx.compose.foundation.demos.text2.BasicTextFieldValueCallbackDemo
+import androidx.compose.foundation.demos.text2.BasicTextFieldsInDialogDemo
 import androidx.compose.foundation.demos.text2.DecorationBoxDemos
 import androidx.compose.foundation.demos.text2.KeyboardActionsDemos
 import androidx.compose.foundation.demos.text2.KeyboardOptionsDemos
@@ -168,15 +169,18 @@ val TextDemos = DemoCategory(
                     ComposableDemo("Rtl") { ScrollableDemosRtl() },
                 )),
                 ComposableDemo("Inside Scrollable") { BasicTextFieldInScrollableDemo() },
-                ComposableDemo("Filters") { BasicTextFieldFilterDemos() },
+                ComposableDemo("Input Transformation") {
+                    BasicTextFieldInputTransformationDemos()
+                },
                 DemoCategory("Receive Content", listOf(
                     ComposableDemo("Basic") { TextFieldReceiveContentDemo() },
                     ComposableDemo("Nested") { NestedReceiveContentDemo() },
                 )),
-                ComposableDemo("Output transformation") {
+                ComposableDemo("Output Transformation") {
                     BasicTextFieldOutputTransformationDemos()
                 },
                 ComposableDemo("Secure Field") { BasicSecureTextFieldDemos() },
+                ComposableDemo("Inside Dialog") { BasicTextFieldsInDialogDemo() },
                 ComposableDemo("Swap the field but reuse the state") { SwapFieldSameStateDemo() },
                 ComposableDemo("Custom PIN field") { BasicTextFieldCustomPinFieldDemo() },
                 ComposableDemo("Undo/Redo") { BasicTextFieldUndoSample() },

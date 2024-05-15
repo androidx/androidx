@@ -82,14 +82,13 @@ class BroadcastFrameClock(
     override suspend fun <R> withFrameNanos(
         onFrame: (Long) -> R
     ): R = suspendCancellableCoroutine { co ->
-        lateinit var awaiter: FrameAwaiter<R>
+        val awaiter = FrameAwaiter(onFrame, co)
         val hasNewAwaiters = synchronized(lock) {
             val cause = failureCause
             if (cause != null) {
                 co.resumeWithException(cause)
                 return@suspendCancellableCoroutine
             }
-            awaiter = FrameAwaiter(onFrame, co)
             val hadAwaiters = awaiters.isNotEmpty()
             awaiters.add(awaiter)
             if (!hadAwaiters) hasAwaitersUnlocked.set(1)

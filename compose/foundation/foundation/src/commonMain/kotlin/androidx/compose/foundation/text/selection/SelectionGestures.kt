@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.selection
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
 import androidx.compose.foundation.gestures.drag
+import androidx.compose.foundation.gestures.pointerSlop
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
@@ -127,7 +128,7 @@ private suspend fun AwaitPointerEventScope.touchSelection(
     try {
         val firstDown = down.changes.first()
         val drag = awaitLongPressOrCancellation(firstDown.id)
-        if (drag != null && distanceIsTolerable(firstDown.position, drag.position)) {
+        if (drag != null && distanceIsTolerable(viewConfiguration, firstDown, drag)) {
             observer.onStart(drag.position)
             if (
                 drag(drag.id) {
@@ -203,8 +204,7 @@ private suspend fun AwaitPointerEventScope.mouseSelection(
 }
 
 internal class ClicksCounter(
-    private val viewConfiguration: ViewConfiguration,
-    private val clicksSlop: Float // Distance in pixels between consecutive click positions to be considered them as clicks sequence
+    private val viewConfiguration: ViewConfiguration
 ) {
     var clicks = 0
     private var prevClick: PointerInputChange? = null
@@ -227,7 +227,7 @@ internal class ClicksCounter(
         newClick.uptimeMillis - prevClick.uptimeMillis < viewConfiguration.doubleTapTimeoutMillis
 
     fun positionIsTolerable(prevClick: PointerInputChange, newClick: PointerInputChange): Boolean =
-        (newClick.position - prevClick.position).getDistance() < clicksSlop
+        distanceIsTolerable(viewConfiguration, prevClick, newClick)
 }
 
 private suspend fun AwaitPointerEventScope.awaitDown(): PointerEvent {
@@ -238,8 +238,14 @@ private suspend fun AwaitPointerEventScope.awaitDown(): PointerEvent {
     return event
 }
 
-private fun AwaitPointerEventScope.distanceIsTolerable(offset1: Offset, offset2: Offset): Boolean =
-    (offset1 - offset2).getDistance() < viewConfiguration.touchSlop
+private fun distanceIsTolerable(
+    viewConfiguration: ViewConfiguration,
+    change1: PointerInputChange,
+    change2: PointerInputChange,
+): Boolean {
+    val slop = viewConfiguration.pointerSlop(change1.type)
+    return (change1.position - change2.position).getDistance() < slop
+}
 
 // TODO(b/281585410) this does not support touch pads as they have a pointer type of Touch
 //             Supporting that will require public api changes

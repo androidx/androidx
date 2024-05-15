@@ -131,7 +131,7 @@ private class DefaultPagerState(
             save = {
                 listOf(
                     it.currentPage,
-                    it.currentPageOffsetFraction,
+                    (it.currentPageOffsetFraction).coerceIn(MinPageOffset, MaxPageOffset),
                     it.pageCount
                 )
             },

@@ -21,7 +21,6 @@ import android.graphics.PixelFormat
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.Logger
@@ -35,7 +34,6 @@ import javax.inject.Inject
  * @param outputSizesCorrector [OutputSizesCorrector] class to perform correction on sizes.
  */
 @CameraScope
-@RequiresApi(21)
 class StreamConfigurationMapCompat @Inject constructor(
     map: StreamConfigurationMap?,
     private val outputSizesCorrector: OutputSizesCorrector

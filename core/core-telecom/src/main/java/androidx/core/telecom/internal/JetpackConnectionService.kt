@@ -33,11 +33,13 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.CallsManager.Companion.CALL_CREATION_FAILURE_MSG
 import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.Utils
+import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 
+@OptIn(ExperimentalAppActions::class)
 @RequiresApi(api = Build.VERSION_CODES.O)
 internal class JetpackConnectionService : ConnectionService() {
     private val TAG = JetpackConnectionService::class.java.simpleName
@@ -45,6 +47,7 @@ internal class JetpackConnectionService : ConnectionService() {
     /**
      * Wrap all the objects that are associated with a new CallSession request into a class
      */
+    @ExperimentalAppActions
     data class PendingConnectionRequest(
         /**
          * requestIdMatcher - is important for matching requests sent to the platform via
@@ -217,6 +220,7 @@ internal class JetpackConnectionService : ConnectionService() {
 
         val jetpackConnection = CallSessionLegacy(
             ParcelUuid.fromString(UUID.randomUUID().toString()),
+            targetRequest.callAttributes,
             targetRequest.callChannel,
             targetRequest.coroutineContext,
             targetRequest.onAnswer,

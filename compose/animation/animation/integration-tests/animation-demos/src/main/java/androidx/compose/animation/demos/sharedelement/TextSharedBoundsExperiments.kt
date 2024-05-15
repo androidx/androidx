@@ -52,8 +52,7 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Experimenting with sharedBounds default transition for texts of different sizes, colors and
- * font styles, using the default scaleInSharedContentToBounds + fadeIn and
- * scaleOutSharedContentToBounds + fadeOut transition.
+ * font styles, using the default scaleToBounds resize mode and fadeIn/Out
  * // TODO: A demo to compare different contentScale (i.e. Fill, Crop) for texts
  * // TODO: Play with scale in sharedElement
  */

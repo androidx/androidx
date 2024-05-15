@@ -17,8 +17,8 @@
 package androidx.pdf.viewer;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.aidl.MatchRects;
-import androidx.pdf.aidl.PageSelection;
+import androidx.pdf.models.MatchRects;
+import androidx.pdf.models.PageSelection;
 import androidx.pdf.util.HighlightOverlay;
 import androidx.pdf.util.HighlightPaint;
 import androidx.pdf.util.RectDrawSpec;

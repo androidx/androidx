@@ -961,10 +961,6 @@ private fun LazyStaggeredGridMeasureContext.calculateVisibleItems(
         val mainAxisOffset = itemScrollOffsets.maxInRange(spanRange)
         val crossAxisOffset = resolvedSlots.positions[laneIndex]
 
-        if (item.placeablesCount == 0) {
-            // nothing to place, ignore spacings
-            continue
-        }
         item.position(
             mainAxis = mainAxisOffset,
             crossAxis = crossAxisOffset,

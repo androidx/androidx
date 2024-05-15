@@ -22,8 +22,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
-import androidx.pdf.aidl.PageSelection;
-import androidx.pdf.aidl.SelectionBoundary;
+import androidx.pdf.models.PageSelection;
+import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.select.SelectionModel;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.widget.ZoomView;

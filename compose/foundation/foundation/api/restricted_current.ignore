@@ -1,37 +1,3 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridItemScope#animateItem(androidx.compose.ui.Modifier, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>, androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>):
-    Added method androidx.compose.foundation.lazy.grid.LazyGridItemScope.animateItem(androidx.compose.ui.Modifier,androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>,androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>,androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>)
-AddedAbstractMethod: androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridItemScope#animateItem(androidx.compose.ui.Modifier, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>, androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>, androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>):
-    Added method androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridItemScope.animateItem(androidx.compose.ui.Modifier,androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>,androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset>,androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>)
-AddedAbstractMethod: androidx.compose.foundation.pager.PageInfo#getKey():
-    Added method androidx.compose.foundation.pager.PageInfo.getKey()
-AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getBeyondViewportPageCount():
-    Added method androidx.compose.foundation.pager.PagerLayoutInfo.getBeyondViewportPageCount()
-AddedAbstractMethod: androidx.compose.foundation.pager.PagerLayoutInfo#getSnapPosition():
-    Added method androidx.compose.foundation.pager.PagerLayoutInfo.getSnapPosition()
-
-
-ChangedType: androidx.compose.foundation.gestures.snapping.SnapFlingBehaviorKt#rememberSnapFlingBehavior(androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider):
-    Method androidx.compose.foundation.gestures.snapping.SnapFlingBehaviorKt.rememberSnapFlingBehavior has changed return type from androidx.compose.foundation.gestures.snapping.SnapFlingBehavior to androidx.compose.foundation.gestures.TargetedFlingBehavior
-
-
-ParameterNameChange: androidx.compose.foundation.gestures.snapping.SnapFlingBehavior#performFling(androidx.compose.foundation.gestures.ScrollScope, float, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit>, kotlin.coroutines.Continuation<? super java.lang.Float>) parameter #2:
-    Attempted to change parameter name from onSettlingDistanceUpdated to onRemainingDistanceUpdated in method androidx.compose.foundation.gestures.snapping.SnapFlingBehavior.performFling
-
-
-RemovedClass: androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt:
-    Removed class androidx.compose.foundation.lazy.layout.LazyLayoutItemProviderKt
-RemovedClass: androidx.compose.foundation.relocation.BringIntoViewResponderKt:
-    Removed class androidx.compose.foundation.relocation.BringIntoViewResponderKt
-
-
-RemovedDeprecatedMethod: androidx.compose.foundation.gestures.TapGestureDetectorKt#awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope, boolean):
-    Removed deprecated method androidx.compose.foundation.gestures.TapGestureDetectorKt.awaitFirstDown(androidx.compose.ui.input.pointer.AwaitPointerEventScope,boolean)
-RemovedDeprecatedMethod: androidx.compose.foundation.gestures.TapGestureDetectorKt#waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope):
-    Removed deprecated method androidx.compose.foundation.gestures.TapGestureDetectorKt.waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope)
-
-
-RemovedPackage: androidx.compose.foundation.text2:
-    Removed package androidx.compose.foundation.text2
-RemovedPackage: androidx.compose.foundation.text2.input:
-    Removed package androidx.compose.foundation.text2.input
+AddedMethod: androidx.compose.foundation.text.KeyboardOptions#getShouldShowKeyboardOnFocus():
+    Added method androidx.compose.foundation.text.KeyboardOptions.getShouldShowKeyboardOnFocus()

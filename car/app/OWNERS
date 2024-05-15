@@ -9,10 +9,10 @@ per-file app-projected/api/*=file:/car/app/API_OWNERS
 per-file app-testing/api/*=file:/car/app/API_OWNERS
 
 # Feature owners
-per-file app/**=kodlee@google.com
-per-file app-automotive/**=kodlee@google.com
-per-file app-projected/**=kodlee@google.com
-per-file app-testing/**=kodlee@google.com
+per-file app/**=file:/car/app/LIBRARY_OWNERS
+per-file app-automotive/**=file:/car/app/LIBRARY_OWNERS
+per-file app-projected/**=file:/car/app/LIBRARY_OWNERS
+per-file app-testing/**=file:/car/app/LIBRARY_OWNERS
 per-file app-samples/**=nitishah@google.com
 per-file app/app/src/main/java/androidx/car/app/mediaextensions/**=igorr@google.com
 per-file app/app/src/main/java/androidx/car/app/mediaextensions/**=arnaudberry@google.com

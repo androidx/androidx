@@ -339,6 +339,60 @@ class FocusableTest {
     }
 
     @Test
+    fun focusable_interactionSource_resetWhenDisabled() {
+        val interactionSource = MutableInteractionSource()
+        val focusRequester = FocusRequester()
+        var enabled by mutableStateOf(true)
+
+        lateinit var scope: CoroutineScope
+
+        rule.setFocusableContent {
+            scope = rememberCoroutineScope()
+            Box {
+                BasicText(
+                    "focusableText",
+                    modifier = Modifier
+                        .testTag(focusTag)
+                        .focusRequester(focusRequester)
+                        .focusable(enabled = enabled, interactionSource)
+                )
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+
+        // Make focusable disabled, Interaction should be gone
+        rule.runOnIdle {
+            enabled = false
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
+            assertThat((interactions[1] as FocusInteraction.Unfocus).focus)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @Test
     fun focusable_interactionSource_resetWhenDisposed() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -695,7 +749,7 @@ class FocusableTest {
     }
 
     @Test
-    fun movableContent_movedContentRemainsFocused() {
+    fun movableContent_movedContentBecomesUnfocused() {
         var moveContent by mutableStateOf(false)
         val focusRequester = FocusRequester()
         val interactionSource = MutableInteractionSource()
@@ -752,15 +806,23 @@ class FocusableTest {
             moveContent = true // moving content
         }
 
-        // Assert that focus is kept during movable content change.
+        // Assert that focus is reset
         rule.runOnIdle {
-            assertThat(state.isFocused).isTrue()
+            assertThat(state.isFocused).isFalse()
         }
         rule.onNodeWithTag(focusTag)
-            .assertIsFocused()
+            .assertIsNotFocused()
 
-        // Checks if we still received the correct Focus/Unfocus events. When moving contents, the
-        // focus event node will send a sequence of Focus/Unfocus/Focus events.
+        rule.runOnIdle {
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+            assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)
+        }
+
+        rule.runOnIdle {
+            focusRequester.requestFocus() // request focus again
+            assertThat(state.isFocused).isTrue()
+        }
+
         rule.runOnIdle {
             assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
             assertThat(interactions[1]).isInstanceOf(FocusInteraction.Unfocus::class.java)

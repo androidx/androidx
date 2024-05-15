@@ -22,7 +22,6 @@ import android.content.pm.ApplicationInfo.FLAG_SYSTEM
 import android.content.pm.ApplicationInfo.FLAG_UPDATED_SYSTEM_APP
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.ConfigurationError
@@ -38,15 +37,9 @@ import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
-import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
-import androidx.benchmark.perfetto.PerfettoTrace
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
-import androidx.benchmark.perfetto.UiState
-import androidx.benchmark.perfetto.appendUiState
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.tracing.trace
-import java.io.File
 
 /**
  * Get package ApplicationInfo, throw if not found.
@@ -230,10 +223,6 @@ private fun macrobenchmark(
     // Capture if the app being benchmarked is a system app.
     scope.isSystemApp = applicationInfo.isSystemApp()
 
-    if (requestMethodTracing) {
-        scope.startMethodTracing()
-    }
-
     // Ensure the device is awake
     scope.device.wakeUp()
 
@@ -254,166 +243,110 @@ private fun macrobenchmark(
 
     // package name for macrobench process, so it's captured as well
     val macrobenchPackageName = InstrumentationRegistry.getInstrumentation().context.packageName
+    val outputs = mutableListOf<PhaseResult>()
 
-    // Perfetto collector is separate from metrics, so we can control file
-    // output, and give it different (test-wide) lifecycle
-    val perfettoCollector = PerfettoCaptureWrapper()
-    val tracePaths = mutableListOf<String>()
-    val methodTracingResultFiles = mutableListOf<Profiler.ResultFile>()
-    try {
-        metrics.forEach {
-            it.configure(packageName)
-        }
-        val measurements = PerfettoTraceProcessor.runServer {
-            val runIterations = if (Arguments.dryRunMode) 1 else iterations
-            List(runIterations) { iteration ->
-                // Wake the device to ensure it stays awake with large iteration count
-                inMemoryTrace("wake device") {
-                    scope.device.wakeUp()
-                }
-
-                scope.iteration = iteration
-
-                inMemoryTrace("setupBlock") {
-                    setupBlock(scope)
-                }
-
-                val iterString = iteration.toString().padStart(3, '0')
-                scope.fileLabel = "${uniqueName}_iter$iterString"
-                val tracePath = perfettoCollector.record(
-                    fileLabel = scope.fileLabel,
-                    config = perfettoConfig ?: PerfettoConfig.Benchmark(
-                        /**
-                         * Prior to API 24, every package name was joined into a single setprop
-                         * which can overflow, and disable *ALL* app level tracing.
-                         *
-                         * For safety here, we only trace the macrobench package on newer platforms,
-                         * and use reflection in the macrobench test process to trace important
-                         * sections
-                         *
-                         * @see androidx.benchmark.macro.perfetto.ForceTracing
-                         */
-                        appTagPackages = if (Build.VERSION.SDK_INT >= 24) {
-                            listOf(packageName, macrobenchPackageName)
-                        } else {
-                            listOf(packageName)
-                        },
-                        useStackSamplingConfig = true
-                    ),
-                    perfettoSdkConfig = perfettoSdkConfig,
-                    inMemoryTracingLabel = "Macrobenchmark"
-                ) {
-                    try {
-                        trace("start metrics") {
-                            metrics.forEach {
-                                it.start()
-                            }
-                        }
-                        scope.startMethodTracing()
-                        trace("measureBlock") {
-                            measureBlock(scope)
-                        }
-                    } finally {
-                        trace("stop metrics") {
-                            metrics.forEach {
-                                it.stop()
-                            }
-                            methodTracingResultFiles += scope.stopMethodTracing()
-                        }
-                    }
-                }!!
-
-                tracePaths.add(tracePath)
-
-                val measurementList = loadTrace(PerfettoTrace(tracePath)) {
-                    // Extracts the metrics using the perfetto trace processor
-                    inMemoryTrace("extract metrics") {
-                        metrics
-                            // capture list of Measurements
-                            .map {
-                                it.getMeasurements(
-                                    Metric.CaptureInfo(
-                                        targetPackageName = packageName,
-                                        testPackageName = macrobenchPackageName,
-                                        startupMode = startupModeMetricHint,
-                                        apiLevel = Build.VERSION.SDK_INT
-                                    ),
-                                    this
-                                )
-                            }
-                            // merge together
-                            .reduce { sum, element -> sum.merge(element) }
-                    }
-                }
-
-                // append UI state to trace, so tools opening trace will highlight relevant part in UI
-                val uiState = UiState(
-                    highlightPackage = packageName
-                )
-                File(tracePath).apply {
-                    appendUiState(uiState)
-                }
-                Log.d(TAG, "Iteration $iteration captured $uiState")
-                // report just the metrics
-                measurementList
-            }.mergeMultiIterResults()
-        }
-
-        require(measurements.isNotEmpty()) {
-            """
-                Unable to read any metrics during benchmark (metric list: $metrics).
-                Check that you're performing the operations to be measured. For example, if
-                using StartupTimingMetric, are you starting an activity for the specified package
-                in the measure block?
-            """.trimIndent()
-        }
-
-        InstrumentationResults.instrumentationReport {
-            reportSummaryToIde(
-                warningMessage = warningMessage,
-                testName = uniqueName,
-                measurements = measurements,
-                iterationTracePaths = tracePaths,
-                profilerResults = methodTracingResultFiles
-            )
-
-            warningMessage = "" // warning only printed once
-            measurements.singleMetrics.forEach {
-                it.putInBundle(bundle, suppressionState?.prefix ?: "")
-            }
-            measurements.sampledMetrics.forEach {
-                it.putPercentilesInBundle(bundle, suppressionState?.prefix ?: "")
-            }
-        }
-
-        val warmupIterations = when (compilationMode) {
-            is CompilationMode.Partial -> compilationMode.warmupIterations
-            else -> 0
-        }
-
-        val mergedProfilerOutputs = (tracePaths.mapIndexed { index, it ->
-            Profiler.ResultFile.ofPerfettoTrace(
-                label = "Trace Iteration $index",
-                absolutePath = it
-            )
-        } + methodTracingResultFiles).map {
-            BenchmarkData.TestResult.ProfilerOutput(it)
-        }
-        val testResult = BenchmarkData.TestResult(
-            className = className,
-            name = testName,
-            totalRunTimeNs = System.nanoTime() - startTime,
-            metrics = measurements.singleMetrics + measurements.sampledMetrics,
-            repeatIterations = iterations,
-            thermalThrottleSleepSeconds = 0,
-            warmupIterations = warmupIterations,
-            profilerOutputs = mergedProfilerOutputs
+    PerfettoTraceProcessor.runServer {
+        // Measurement Phase
+        outputs += runPhase(
+            uniqueName = uniqueName,
+            packageName = packageName,
+            macrobenchmarkPackageName = macrobenchPackageName,
+            iterations = if (Arguments.dryRunMode) 1 else iterations,
+            startupMode = startupModeMetricHint,
+            scope = scope,
+            profiler = null, // Don't profile when measuring
+            metrics = metrics,
+            perfettoConfig = perfettoConfig,
+            perfettoSdkConfig = perfettoSdkConfig,
+            setupBlock = setupBlock,
+            measureBlock = measureBlock
         )
-        ResultWriter.appendTestResult(testResult)
-        return testResult
-    } finally {
-        scope.killProcess()
+        // Profiling Phase
+        if (requestMethodTracing) {
+            outputs += runPhase(
+                uniqueName = uniqueName,
+                packageName = packageName,
+                macrobenchmarkPackageName = macrobenchPackageName,
+                // We should open up an API to control the number of iterations here.
+                // Run profiling for 1 additional iteration.
+                iterations = 1,
+                startupMode = startupModeMetricHint,
+                scope = scope,
+                profiler = MethodTracingProfiler(scope),
+                metrics = emptyList(), // Nothing to measure
+                perfettoConfig = perfettoConfig,
+                perfettoSdkConfig = perfettoSdkConfig,
+                setupBlock = setupBlock,
+                measureBlock = measureBlock
+            )
+        }
     }
+
+    val tracePaths = mutableListOf<String>()
+    val profilerResults = mutableListOf<Profiler.ResultFile>()
+    val measurementsList = mutableListOf<List<Metric.Measurement>>()
+
+    outputs.forEach {
+        tracePaths += it.tracePaths
+        profilerResults += it.profilerResults
+        measurementsList += it.measurements
+    }
+
+    // Merge measurements
+    val measurements = measurementsList.mergeMultiIterResults()
+    require(measurements.isNotEmpty()) {
+        """
+            Unable to read any metrics during benchmark (metric list: $metrics).
+            Check that you're performing the operations to be measured. For example, if
+            using StartupTimingMetric, are you starting an activity for the specified package
+            in the measure block?
+        """.trimIndent()
+    }
+
+    InstrumentationResults.instrumentationReport {
+        reportSummaryToIde(
+            warningMessage = warningMessage,
+            testName = uniqueName,
+            measurements = measurements,
+            iterationTracePaths = tracePaths,
+            profilerResults = profilerResults
+        )
+
+        warningMessage = "" // warning only printed once
+        measurements.singleMetrics.forEach {
+            it.putInBundle(bundle, suppressionState?.prefix ?: "")
+        }
+        measurements.sampledMetrics.forEach {
+            it.putPercentilesInBundle(bundle, suppressionState?.prefix ?: "")
+        }
+    }
+
+    val warmupIterations = when (compilationMode) {
+        is CompilationMode.Partial -> compilationMode.warmupIterations
+        else -> 0
+    }
+
+    val mergedProfilerOutputs = (tracePaths.mapIndexed { index, it ->
+        Profiler.ResultFile.ofPerfettoTrace(
+            label = "Trace Iteration $index",
+            absolutePath = it
+        )
+    } + profilerResults).map {
+        BenchmarkData.TestResult.ProfilerOutput(it)
+    }
+
+    val testResult = BenchmarkData.TestResult(
+        className = className,
+        name = testName,
+        totalRunTimeNs = System.nanoTime() - startTime,
+        metrics = measurements.singleMetrics + measurements.sampledMetrics,
+        repeatIterations = iterations,
+        thermalThrottleSleepSeconds = 0,
+        warmupIterations = warmupIterations,
+        profilerOutputs = mergedProfilerOutputs
+    )
+    ResultWriter.appendTestResult(testResult)
+    return testResult
 }
 
 /**

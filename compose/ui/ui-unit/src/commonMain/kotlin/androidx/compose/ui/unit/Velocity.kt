@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.compose.ui.unit
 
 import androidx.compose.runtime.Immutable
@@ -37,7 +39,6 @@ fun Velocity(x: Float, y: Float) = Velocity(packFloats(x, y))
 @Immutable
 @kotlin.jvm.JvmInline
 value class Velocity internal constructor(private val packedValue: Long) {
-
     /**
      * The horizontal component of the velocity in pixels per second.
      */
@@ -48,26 +49,26 @@ value class Velocity internal constructor(private val packedValue: Long) {
      * The vertical component of the velocity in pixels per second.
      */
     @Stable
-    val y: Float
-        get() = unpackFloat2(packedValue)
+    val y: Float get() = unpackFloat2(packedValue)
 
     /**
      * The horizontal component of the velocity in pixels per second.
      */
     @Stable
-    operator fun component1(): Float = x
+    inline operator fun component1(): Float = x
 
     /**
      * The vertical component of the velocity in pixels per second.
      */
     @Stable
-    operator fun component2(): Float = y
+    inline operator fun component2(): Float = y
 
     /**
      * Returns a copy of this [Velocity] instance optionally overriding the
      * x or y parameter
      */
-    fun copy(x: Float = this.x, y: Float = this.y) = Velocity(x, y)
+    fun copy(x: Float = unpackFloat1(packedValue), y: Float = unpackFloat2(packedValue)) =
+        Velocity(packFloats(x, y))
 
     companion object {
         /**
@@ -76,7 +77,7 @@ value class Velocity internal constructor(private val packedValue: Long) {
          * This can be used to represent the origin of a coordinate space.
          */
         @Stable
-        val Zero = Velocity(0.0f, 0.0f)
+        val Zero = Velocity(0x0L)
     }
 
     /**
@@ -88,7 +89,7 @@ value class Velocity internal constructor(private val packedValue: Long) {
      * same arrow but pointing in the reverse direction.
      */
     @Stable
-    operator fun unaryMinus(): Velocity = Velocity(-x, -y)
+    operator fun unaryMinus(): Velocity = Velocity(packedValue xor DualFloatSignBit)
 
     /**
      * Binary subtraction operator.
@@ -98,7 +99,12 @@ value class Velocity internal constructor(private val packedValue: Long) {
      * left-hand-side operand's [y] minus the right-hand-side operand's [y].
      */
     @Stable
-    operator fun minus(other: Velocity): Velocity = Velocity(x - other.x, y - other.y)
+    operator fun minus(other: Velocity): Velocity = Velocity(
+        packFloats(
+            unpackFloat1(packedValue) - unpackFloat1(other.packedValue),
+            unpackFloat2(packedValue) - unpackFloat2(other.packedValue)
+        )
+    )
 
     /**
      * Binary addition operator.
@@ -108,7 +114,12 @@ value class Velocity internal constructor(private val packedValue: Long) {
      * two operands.
      */
     @Stable
-    operator fun plus(other: Velocity): Velocity = Velocity(x + other.x, y + other.y)
+    operator fun plus(other: Velocity): Velocity = Velocity(
+        packFloats(
+            unpackFloat1(packedValue) + unpackFloat1(other.packedValue),
+            unpackFloat2(packedValue) + unpackFloat2(other.packedValue)
+        )
+    )
 
     /**
      * Multiplication operator.
@@ -118,7 +129,12 @@ value class Velocity internal constructor(private val packedValue: Long) {
      * right-hand-side operand (a [Float]).
      */
     @Stable
-    operator fun times(operand: Float): Velocity = Velocity(x * operand, y * operand)
+    operator fun times(operand: Float): Velocity = Velocity(
+        packFloats(
+            unpackFloat1(packedValue) * operand,
+            unpackFloat2(packedValue) * operand
+        )
+    )
 
     /**
      * Division operator.
@@ -128,7 +144,12 @@ value class Velocity internal constructor(private val packedValue: Long) {
      * operand (a [Float]).
      */
     @Stable
-    operator fun div(operand: Float): Velocity = Velocity(x / operand, y / operand)
+    operator fun div(operand: Float): Velocity = Velocity(
+        packFloats(
+            unpackFloat1(packedValue) / operand,
+            unpackFloat2(packedValue) / operand
+        )
+    )
 
     /**
      * Modulo (remainder) operator.
@@ -138,7 +159,12 @@ value class Velocity internal constructor(private val packedValue: Long) {
      * right-hand-side operand (a [Float]).
      */
     @Stable
-    operator fun rem(operand: Float) = Velocity(x % operand, y % operand)
+    operator fun rem(operand: Float) = Velocity(
+        packFloats(
+            unpackFloat1(packedValue) % operand,
+            unpackFloat2(packedValue) % operand
+        )
+    )
 
     override fun toString() = "($x, $y) px/sec"
 }

@@ -30,9 +30,8 @@ plugins {
 }
 
 dependencies {
-    implementation(androidxArtifact(":annotation:annotation"))
-    // TODO: artifact is not found, so commented out
-//    implementation(androidxArtifact(":annotation:annotation-experimental"))
+    implementation("androidx.annotation:annotation:1.8.0")
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
     implementation(libs.kotlinStdlib)
 }
 

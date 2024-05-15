@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.KotlinTarget
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -37,7 +37,7 @@ dependencies {
 
 androidx {
     name = "Experimental annotation"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL
     kotlinTarget = KotlinTarget.KOTLIN_1_7
     inceptionYear = "2019"

@@ -189,6 +189,8 @@ fun ToggleButton(
     toggleControlWidth: Dp,
     toggleControlHeight: Dp,
     labelSpacerSize: Dp,
+    toggleControlSpacing: Dp,
+    iconSpacing: Dp,
     ripple: Indication
 ) {
     // One and only one of toggleControl and selectionControl should be provided.
@@ -211,6 +213,9 @@ fun ToggleButton(
                         indication = ripple,
                         interactionSource = interactionSource
                     )
+                    // For a toggleable button, the role could be Checkbox or Switch,
+                    // so we cannot set the semantics here. Instead,
+                    // we set them in the toggle control
                 } else {
                     Modifier.selectable(
                         enabled = enabled,
@@ -218,13 +223,21 @@ fun ToggleButton(
                         onClick = { onCheckedChange(true) },
                         indication = ripple,
                         interactionSource = interactionSource
-                    )
+                    ).semantics {
+                        // For a selectable button, the role is always RadioButton.
+                        // See also b/330869742 for issue with setting the RadioButton role
+                        // within the selection control.
+                        role = Role.RadioButton
+                    }
                 }
             )
             .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ToggleButtonIcon(content = icon)
+        ToggleButtonIcon(
+            spacerSize = iconSpacing,
+            content = icon
+        )
         Labels(
             label = label,
             secondaryLabel = secondaryLabel,
@@ -232,7 +245,7 @@ fun ToggleButton(
         )
         Spacer(
             modifier = Modifier.size(
-                TOGGLE_CONTROL_SPACING
+                toggleControlSpacing
             )
         )
         ToggleControl(
@@ -375,6 +388,12 @@ fun SplitToggleButton(
                     indication = ripple,
                     interactionSource = checkedInteractionSource
                 )
+                .semantics {
+                    // For a selectable button, the role is always RadioButton.
+                    // See also b/330869742 for issue with setting the RadioButton role
+                    // within the selection control.
+                    role = Role.RadioButton
+                }
             }
 
         Box(
@@ -399,6 +418,7 @@ fun SplitToggleButton(
 
 @Composable
 private fun ToggleButtonIcon(
+    spacerSize: Dp,
     content: @Composable (BoxScope.() -> Unit)? = null
 ) {
     if (content != null) {
@@ -406,7 +426,7 @@ private fun ToggleButtonIcon(
             modifier = Modifier.wrapContentSize(align = Alignment.Center),
             content = content
         )
-        Spacer(modifier = Modifier.size(ICON_SPACING))
+        Spacer(modifier = Modifier.size(spacerSize))
     }
 }
 
@@ -458,5 +478,4 @@ private fun PaddingValues.splitHorizontally() =
     )
 
 private val TOGGLE_CONTROL_SPACING = 4.dp
-private val ICON_SPACING = 6.dp
 private val SPLIT_WIDTH = 52.dp

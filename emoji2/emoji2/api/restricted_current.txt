@@ -87,7 +87,7 @@ package androidx.emoji2.text {
   public class EmojiCompatInitializer implements androidx.startup.Initializer<java.lang.Boolean!> {
     ctor public EmojiCompatInitializer();
     method public Boolean create(android.content.Context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>!>!> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>!>!> dependencies();
   }
 
   public abstract class EmojiSpan extends android.text.style.ReplacementSpan {

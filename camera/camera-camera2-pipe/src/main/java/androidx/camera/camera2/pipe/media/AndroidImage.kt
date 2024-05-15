@@ -17,8 +17,6 @@
 package androidx.camera.camera2.pipe.media
 
 import android.media.Image
-import android.os.Build.VERSION_CODES
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.StreamFormat
 import java.nio.ByteBuffer
 import kotlin.reflect.KClass
@@ -29,7 +27,6 @@ import kotlin.reflect.KClass
  * Note: [Image] is not thread-safe, so all interactions with the underlying properties must be
  *   copied into local fields or guarded by a lock.
  */
-@RequiresApi(VERSION_CODES.LOLLIPOP)
 class AndroidImage(
     private val image: Image
 ) : ImageWrapper {

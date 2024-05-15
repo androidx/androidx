@@ -28,6 +28,7 @@ import android.view.inputmethod.SelectGesture
 import android.view.inputmethod.SelectRangeGesture
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -160,8 +161,14 @@ internal fun EditorInfo.update(
 
     this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+    if (isStylusHandwritingSupported &&
+        imeOptions.keyboardType != KeyboardType.Password &&
+        imeOptions.keyboardType != KeyboardType.NumberPassword
+    ) {
+        EditorInfoCompat.setStylusHandwritingEnabled(this, true)
         EditorInfoApi34.setHandwritingGestures(this)
+    } else {
+        EditorInfoCompat.setStylusHandwritingEnabled(this, false)
     }
 }
 

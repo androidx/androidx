@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 /**
  * A [SnapLayoutInfoProvider] for LazyLists.
@@ -34,7 +35,7 @@ import kotlin.math.absoluteValue
  * This position should be considered with regard to the start edge of the item and the placement
  * within the viewport.
  *
- * @return A [SnapLayoutInfoProvider] that can be used with [SnapFlingBehavior]
+ * @return A [SnapLayoutInfoProvider] that can be used with [snapFlingBehavior]
  */
 fun SnapLayoutInfoProvider(
     lazyListState: LazyListState,
@@ -44,7 +45,25 @@ fun SnapLayoutInfoProvider(
     private val layoutInfo: LazyListLayoutInfo
         get() = lazyListState.layoutInfo
 
-    override fun calculateSnappingOffset(currentVelocity: Float): Float {
+    private val averageItemSize: Int
+        get() {
+            val layoutInfo = layoutInfo
+            return if (layoutInfo.visibleItemsInfo.isEmpty()) {
+                0
+            } else {
+                val numberOfItems = layoutInfo.visibleItemsInfo.size
+                layoutInfo.visibleItemsInfo.sumOf {
+                    it.size
+                } / numberOfItems
+            }
+        }
+
+    override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
+        return (decayOffset.absoluteValue - averageItemSize)
+            .coerceAtLeast(0.0f) * decayOffset.sign
+    }
+
+    override fun calculateSnapOffset(velocity: Float): Float {
         var lowerBoundOffset = Float.NEGATIVE_INFINITY
         var upperBoundOffset = Float.POSITIVE_INFINITY
 
@@ -73,7 +92,7 @@ fun SnapLayoutInfoProvider(
         }
 
         return calculateFinalOffset(
-            with(lazyListState.density) { calculateFinalSnappingItem(currentVelocity) },
+            with(lazyListState.density) { calculateFinalSnappingItem(velocity) },
             lowerBoundOffset,
             upperBoundOffset
         )
@@ -82,14 +101,21 @@ fun SnapLayoutInfoProvider(
 
 /**
  * Create and remember a FlingBehavior for decayed snapping in Lazy Lists. This will snap
- * the item's center to the center of the viewport.
+ * the item according to [snapPosition].
  *
  * @param lazyListState The [LazyListState] from the LazyList where this [FlingBehavior] will
  * be used.
+ * @param snapPosition The desired positioning of the snapped item within the main layout.
+ * This position should be considered with regards to the start edge of the item and the placement
+ * within the viewport.
  */
 @Composable
-fun rememberSnapFlingBehavior(lazyListState: LazyListState): FlingBehavior {
-    val snappingLayout = remember(lazyListState) { SnapLayoutInfoProvider(lazyListState) }
+fun rememberSnapFlingBehavior(
+    lazyListState: LazyListState,
+    snapPosition: SnapPosition = SnapPosition.Center
+): FlingBehavior {
+    val snappingLayout =
+        remember(lazyListState) { SnapLayoutInfoProvider(lazyListState, snapPosition) }
     return rememberSnapFlingBehavior(snappingLayout)
 }
 

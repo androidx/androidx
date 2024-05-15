@@ -24,14 +24,12 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Size
 import android.view.Display
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.workaround.MaxPreviewSize
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Suppress("DEPRECATION") // getRealSize
 @Singleton
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class DisplayInfoManager @Inject constructor(context: Context) {
     private val MAX_PREVIEW_SIZE = Size(1920, 1080)
     private val maxPreviewSize: MaxPreviewSize = MaxPreviewSize()

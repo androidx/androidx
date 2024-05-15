@@ -21,7 +21,6 @@ import android.app.admin.DevicePolicyManager
 import android.hardware.camera2.CameraDevice.StateCallback
 import android.hardware.camera2.CameraManager
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
@@ -43,17 +42,14 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 
 // TODO(b/246180670): Replace all duration usage in CameraPipe with kotlin.time.Duration
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 private val defaultCameraRetryTimeoutNs = DurationNs(10_000_000_000L) // 10s
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 private val activeResumeCameraRetryTimeoutNs = DurationNs(30L * 60L * 1_000_000_000L) // 30m
 
 private const val defaultCameraRetryDelayMs = 500L
 
 private const val activeResumeCameraRetryDelayBaseMs = defaultCameraRetryDelayMs
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 private val activeResumeCameraRetryThresholds = arrayOf(
     DurationNs(2L * 60L * 1_000_000_000L), // 2m
     DurationNs(5L * 60L * 1_000_000_000L), // 5m
@@ -71,7 +67,6 @@ internal interface DevicePolicyManagerWrapper {
     val camerasDisabled: Boolean
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CameraOpener
 @Inject
 constructor(private val cameraManager: Provider<CameraManager>, private val threads: Threads) :
@@ -94,7 +89,6 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
     }
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CameraAvailabilityMonitor
 @Inject
 constructor(private val cameraManager: Provider<CameraManager>, private val threads: Threads) :
@@ -141,7 +135,6 @@ constructor(private val cameraManager: Provider<CameraManager>, private val thre
         }
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidDevicePolicyManagerWrapper
 @Inject
 constructor(private val devicePolicyManager: DevicePolicyManager) : DevicePolicyManagerWrapper {
@@ -157,7 +150,6 @@ internal data class OpenCameraResult(
     val errorCode: CameraError? = null,
 )
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class CameraStateOpener
 @Inject
 constructor(
@@ -223,7 +215,6 @@ constructor(
     }
 }
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class RetryingCameraStateOpener
 @Inject
 constructor(

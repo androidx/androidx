@@ -17,8 +17,6 @@
 package androidx.camera.camera2.pipe.media
 
 import android.media.Image
-import android.os.Build
-import androidx.annotation.RequiresApi
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
@@ -29,7 +27,6 @@ import kotlinx.atomicfu.atomic
  * [setFinalizer] to get access to the underlying image once all outstanding references have been
  * closed.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 interface SharedOutputImage : OutputImage {
     /**
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Throws an

@@ -112,6 +112,9 @@ class TextFieldState internal constructor(
     internal var value: TextFieldCharSequence by mutableStateOf(
         TextFieldCharSequence(initialText, initialSelection)
     )
+        /**
+         * Do not set directly. Always go through [updateValueAndNotifyListeners].
+         */
         private set
 
     /**
@@ -206,9 +209,9 @@ class TextFieldState internal constructor(
     }
 
     /**
-     * If the text or selection in [newValue] was actually modified, updates this state's internal
-     * values. If [newValue] was not modified at all, the state is not updated, and this will not
-     * invalidate anyone who is observing this state.
+     * If the text or selection in [newValue] was actually modified, updates this state's
+     * internal values. If [newValue] was not modified at all, the state is not updated, and
+     * this will not invalidate anyone who is observing this state.
      *
      * @param newValue [TextFieldBuffer] that contains the latest updates
      */
@@ -217,11 +220,16 @@ class TextFieldState internal constructor(
     internal fun commitEdit(newValue: TextFieldBuffer) {
         val textChanged = newValue.changes.changeCount > 0
         val selectionChanged = newValue.selection != mainBuffer.selection
-        if (textChanged || selectionChanged) {
-            val finalValue = newValue.toTextFieldCharSequence()
-            resetStateAndNotifyIme(finalValue)
+        if (textChanged) {
+            // clear the undo history after a programmatic edit if the text content has changed
+            textUndoManager.clearHistory()
         }
-        textUndoManager.clearHistory()
+        syncMainBufferToTemporaryBuffer(
+            textFieldBuffer = newValue,
+            newComposition = null, // new composition will be decided by the IME
+            textChanged = textChanged,
+            selectionChanged = selectionChanged
+        )
     }
 
     @Suppress("ShowingMemberInHiddenClass")
@@ -233,7 +241,7 @@ class TextFieldState internal constructor(
     /**
      * An edit block that updates [TextFieldState] on behalf of user actions such as gestures,
      * IME commands, hardware keyboard events, clipboard actions, and more. These modifications
-     * must also run through the given [filter] since they are user actions.
+     * must also run through the given [inputTransformation] since they are user actions.
      *
      * Be careful that this method is not snapshot aware. It is only safe to call this from main
      * thread, or global snapshot. Also, this function is defined as inline for performance gains,
@@ -256,21 +264,10 @@ class TextFieldState internal constructor(
         undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
         block: EditingBuffer.() -> Unit
     ) {
-        val previousValue = value
-
         mainBuffer.changeTracker.clearChanges()
         mainBuffer.block()
 
-        if (mainBuffer.changeTracker.changeCount == 0 &&
-            previousValue.selection == mainBuffer.selection &&
-            previousValue.composition == mainBuffer.composition &&
-            previousValue.highlight == mainBuffer.highlight) {
-            // nothing has changed after applying block.
-            return
-        }
-
         commitEditAsUser(
-            previousValue = previousValue,
             inputTransformation = inputTransformation,
             restartImeIfContentChanges = restartImeIfContentChanges,
             undoBehavior = undoBehavior
@@ -288,8 +285,6 @@ class TextFieldState internal constructor(
      * a public API.
      */
     internal inline fun editWithNoSideEffects(block: EditingBuffer.() -> Unit) {
-        val previousValue = value
-
         mainBuffer.changeTracker.clearChanges()
         mainBuffer.block()
 
@@ -299,20 +294,49 @@ class TextFieldState internal constructor(
             composition = mainBuffer.composition
         )
 
-        value = afterEditValue
-        sendChangesToIme(
-            oldValue = previousValue,
+        updateValueAndNotifyListeners(
+            oldValue = value,
             newValue = afterEditValue,
             restartImeIfContentChanges = true
         )
     }
 
+    // Do not inline this function into editAsUser. Inline functions should be kept short.
     private fun commitEditAsUser(
-        previousValue: TextFieldCharSequence,
         inputTransformation: InputTransformation?,
-        restartImeIfContentChanges: Boolean,
-        undoBehavior: TextFieldEditUndoBehavior
+        restartImeIfContentChanges: Boolean = true,
+        undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
     ) {
+        val beforeEditValue = value
+
+        // first immediately check whether there's any actual change of content or selection.
+        // We only look at the operation count for content change because inputTransformation
+        // should still run even if text doesn't change as a result of an input.
+        // If there is no change at all, or only composition or highlight has changed, we can end
+        // early.
+        if (mainBuffer.changeTracker.changeCount == 0 &&
+            beforeEditValue.selection == mainBuffer.selection) {
+            if (beforeEditValue.composition != mainBuffer.composition ||
+                beforeEditValue.highlight != mainBuffer.highlight) {
+                // edit operation caused no change to text content or selection
+                // No need to run an existing InputTransformation, or record an undo. Only update
+                // the IME that composition has been accepted.
+                updateValueAndNotifyListeners(
+                    oldValue = value,
+                    newValue = TextFieldCharSequence(
+                        text = mainBuffer.toString(),
+                        selection = mainBuffer.selection,
+                        composition = mainBuffer.composition,
+                        highlight = mainBuffer.highlight
+                    ),
+                    restartImeIfContentChanges = restartImeIfContentChanges
+                )
+            }
+            return
+        }
+
+        // There's a meaningful change to the buffer, let's run the full logic.
+        // first take a _snapshot_ of current state of the mainBuffer after changes are applied.
         val afterEditValue = TextFieldCharSequence(
             text = mainBuffer.toString(),
             selection = mainBuffer.selection,
@@ -320,56 +344,94 @@ class TextFieldState internal constructor(
             highlight = mainBuffer.highlight
         )
 
+        // if there's no filter; just record the undo, update the snapshot value, end.
         if (inputTransformation == null) {
-            val oldValue = value
-            value = afterEditValue
-            sendChangesToIme(
-                oldValue = oldValue,
+            updateValueAndNotifyListeners(
+                oldValue = beforeEditValue,
                 newValue = afterEditValue,
                 restartImeIfContentChanges = restartImeIfContentChanges
             )
-            recordEditForUndo(previousValue, value, mainBuffer.changeTracker, undoBehavior)
-            return
-        }
-
-        val oldValue = value
-
-        // if only difference is composition, don't run filter, don't send it to undo manager
-        if (afterEditValue.contentEquals(oldValue) &&
-            afterEditValue.selection == oldValue.selection
-        ) {
-            value = afterEditValue
-            sendChangesToIme(
-                oldValue = oldValue,
-                newValue = afterEditValue,
-                restartImeIfContentChanges = restartImeIfContentChanges
+            recordEditForUndo(
+                previousValue = beforeEditValue,
+                postValue = afterEditValue,
+                changes = mainBuffer.changeTracker,
+                undoBehavior = undoBehavior
             )
             return
         }
 
+        // Prepare a TextFieldBuffer to run InputTransformation. TextFieldBuffer should be
+        // initialized with the edits that are already applied on mainBuffer, hence the difference
+        // between originalValue and initialValue.
         val textFieldBuffer = TextFieldBuffer(
+            originalValue = beforeEditValue,
             initialValue = afterEditValue,
-            originalValue = oldValue,
             initialChanges = mainBuffer.changeTracker
         )
+
+        // apply the inputTransformation.
         with(inputTransformation) { textFieldBuffer.transformInput() }
-        // If neither the text nor the selection changed, we want to preserve the composition.
-        // Otherwise, the IME will reset it anyway.
-        val afterFilterValue = textFieldBuffer.toTextFieldCharSequence(
-            composition = afterEditValue.composition
-        )
-        if (afterFilterValue == afterEditValue) {
-            value = afterFilterValue
-            sendChangesToIme(
-                oldValue = oldValue,
-                newValue = afterEditValue,
-                restartImeIfContentChanges = restartImeIfContentChanges
+
+        val textChangedByFilter = !textFieldBuffer.asCharSequence().contentEquals(afterEditValue)
+        val selectionChangedByFilter = textFieldBuffer.selection != afterEditValue.selection
+        if (textChangedByFilter || selectionChangedByFilter) {
+            syncMainBufferToTemporaryBuffer(
+                textFieldBuffer = textFieldBuffer,
+                // Composition should be decided by the IME after the content or selection has been
+                // changed programmatically, outside the knowledge of IME.
+                newComposition = null,
+                textChanged = textChangedByFilter,
+                selectionChanged = selectionChangedByFilter
             )
         } else {
-            resetStateAndNotifyIme(afterFilterValue)
+            updateValueAndNotifyListeners(
+                oldValue = beforeEditValue,
+                // If neither the text nor the selection changed by the filter, we want to preserve
+                // the composition. Otherwise, the IME will reset it anyway.
+                newValue = textFieldBuffer.toTextFieldCharSequence(
+                    composition = afterEditValue.composition
+                ),
+                restartImeIfContentChanges = restartImeIfContentChanges
+            )
         }
-        // mutableValue contains all the changes from user and the filter.
-        recordEditForUndo(previousValue, value, textFieldBuffer.changes, undoBehavior)
+        // textFieldBuffer contains all the changes from both the user and the filter.
+        recordEditForUndo(
+            previousValue = beforeEditValue,
+            postValue = value,
+            changes = textFieldBuffer.changes,
+            undoBehavior = undoBehavior
+        )
+    }
+
+    /**
+     * There are 3 types of edits that are defined on [TextFieldState];
+     *   1. Programmatic changes that are created by [edit] function,
+     *   2. User edits coming from the system that are initiated through IME, semantics, or gestures
+     *   3. Applying Undo/Redo actions that should not trigger side effects.
+     *
+     * Eventually all changes, no matter the source, should be committed to [value]. Also, they
+     * have to trigger the content change listeners. However, we have two different buffers called
+     * [EditingBuffer] and [TextFieldBuffer]. All developer facing APIs use [TextFieldBuffer] to
+     * change the state but internal ones use [EditingBuffer]. This function consolidates both
+     * forms of updates, then commits the result to [value].
+     *
+     * Finally notifies the listeners in [notifyImeListeners] that the contents of this
+     * [TextFieldState] has changed.
+     */
+    private fun updateValueAndNotifyListeners(
+        oldValue: TextFieldCharSequence,
+        newValue: TextFieldCharSequence,
+        restartImeIfContentChanges: Boolean
+    ) {
+        // value must be set before notifyImeListeners are called. Even though we are sending the
+        // previous and current values, a system callback may request the latest state e.g. IME
+        // restartInput call is handled before notifyImeListeners return.
+        value = newValue
+        finishEditing()
+
+        notifyImeListeners.forEach {
+            it.onChange(oldValue, newValue, restartImeIfContentChanges)
+        }
     }
 
     /**
@@ -440,41 +502,50 @@ class TextFieldState internal constructor(
     }
 
     /**
-     * Must be called whenever [text] needs to change but the content of the changes are not yet
-     * replicated on [mainBuffer].
+     * Carries changes made to a [TextFieldBuffer] into [mainBuffer], then updates the [value].
+     * This usually happens when the edit source is something programmatic like [edit] or
+     * [InputTransformation]. IME commands are applied directly on [mainBuffer].
      *
-     * This method updates the internal editing buffer with the given [TextFieldCharSequence], it
-     * also notifies the IME about the selection or composition changes.
+     * @param textFieldBuffer Source buffer that will be used to sync the mainBuffer.
+     * @param newComposition TextFieldBuffer does not allow changing composition. This parameter
+     * is an opportunity to decide what the mainBuffer's new composition should be.
+     * @param textChanged Whether the text content inside [textFieldBuffer] is different than
+     * [mainBuffer]'s text content. Although this value can be calculated by this function, some
+     * callers already do the comparison before hand, so there's no need to recalculate it.
+     * @param selectionChanged Whether the selection inside [textFieldBuffer] is different than
+     * [mainBuffer]'s selection.
      */
     @VisibleForTesting
-    internal fun resetStateAndNotifyIme(newValue: TextFieldCharSequence) {
+    internal fun syncMainBufferToTemporaryBuffer(
+        textFieldBuffer: TextFieldBuffer,
+        newComposition: TextRange?,
+        textChanged: Boolean,
+        selectionChanged: Boolean
+    ) {
+        val bufferString = mainBuffer.toString()
+
         val bufferState = TextFieldCharSequence(
-            mainBuffer.toString(),
+            bufferString,
             mainBuffer.selection,
             mainBuffer.composition
         )
 
-        var textChanged = false
-        var selectionChanged = false
-        val compositionChanged = newValue.composition != mainBuffer.composition
+        val compositionChanged = newComposition != mainBuffer.composition
 
-        if (!bufferState.contentEquals(newValue)) {
+        if (textChanged) {
             // reset the buffer in its entirety
             mainBuffer = EditingBuffer(
-                text = newValue.toString(),
-                selection = newValue.selection
+                text = textFieldBuffer.toString(),
+                selection = textFieldBuffer.selection
             )
-            textChanged = true
-        } else if (bufferState.selection != newValue.selection) {
-            mainBuffer.setSelection(newValue.selection.start, newValue.selection.end)
-            selectionChanged = true
+        } else if (selectionChanged) {
+            mainBuffer.setSelection(textFieldBuffer.selection.start, textFieldBuffer.selection.end)
         }
 
-        val composition = newValue.composition
-        if (composition == null || composition.collapsed) {
+        if (newComposition == null || newComposition.collapsed) {
             mainBuffer.commitComposition()
         } else {
-            mainBuffer.setComposition(composition.min, composition.max)
+            mainBuffer.setComposition(newComposition.min, newComposition.max)
         }
 
         if (textChanged || (!selectionChanged && compositionChanged)) {
@@ -482,17 +553,16 @@ class TextFieldState internal constructor(
         }
 
         val finalValue = TextFieldCharSequence(
-            text = if (textChanged) newValue else bufferState,
+            text = if (textChanged) textFieldBuffer.toString() else bufferString,
             selection = mainBuffer.selection,
             composition = mainBuffer.composition
         )
 
-        // value must be set before notifyImeListeners are called. Even though we are sending the
-        // previous and current values, a system callback may request the latest state e.g. IME
-        // restartInput call is handled before notifyImeListeners return.
-        value = finalValue
-
-        sendChangesToIme(
+        // We cannot use `value` as the old value here because intermediate IME changes are only
+        // applied on mainBuffer (this only happens if syncMainBufferToTemporaryBuffer is triggered
+        // after an InputTransformation). We must pass in the latest state just before finalValue is
+        // calculated. This is the state IME knows about and is synced with.
+        updateValueAndNotifyListeners(
             oldValue = bufferState,
             newValue = finalValue,
             restartImeIfContentChanges = true
@@ -500,19 +570,6 @@ class TextFieldState internal constructor(
     }
 
     private val notifyImeListeners = mutableVectorOf<NotifyImeListener>()
-
-    /**
-     * Sends an update to the IME depending on .
-     */
-    private fun sendChangesToIme(
-        oldValue: TextFieldCharSequence,
-        newValue: TextFieldCharSequence,
-        restartImeIfContentChanges: Boolean
-    ) {
-        notifyImeListeners.forEach {
-            it.onChange(oldValue, newValue, restartImeIfContentChanges)
-        }
-    }
 
     /**
      * Saves and restores a [TextFieldState] for [rememberSaveable].

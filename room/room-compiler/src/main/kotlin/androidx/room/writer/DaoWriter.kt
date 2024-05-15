@@ -29,6 +29,7 @@ import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
@@ -41,6 +42,7 @@ import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER
 import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER_COMPAT
 import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.capitalize
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinBoxedPrimitiveMethodDelegateBinder
@@ -58,6 +60,9 @@ import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.UpsertMethod
 import androidx.room.vo.WriteQueryMethod
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.jvm.jvmName
+import java.util.Locale
 
 /**
  * Creates the implementation for a class annotated with Dao.
@@ -65,9 +70,8 @@ import androidx.room.vo.WriteQueryMethod
 class DaoWriter(
     val dao: Dao,
     private val dbElement: XElement,
-    codeLanguage: CodeLanguage,
-    javaLambdaSyntaxAvailable: Boolean
-) : TypeWriter(codeLanguage, javaLambdaSyntaxAvailable) {
+    writerContext: WriterContext,
+) : TypeWriter(writerContext) {
     private val declaredDao = dao.element.type
 
     // TODO nothing prevents this from conflicting, we should fix.
@@ -138,6 +142,10 @@ class DaoWriter(
             }
             dao.queryMethods.filterIsInstance<ReadQueryMethod>().forEach { method ->
                 addFunction(createSelectMethod(method))
+                if (codeLanguage == CodeLanguage.KOTLIN && method.isProperty) {
+                    // DAO function is a getter from a Kotlin property, generate property override.
+                    addProperty(createSelectProperty(method))
+                }
             }
             preparedQueries.forEach {
                 addFunction(createPreparedQueryMethod(it))
@@ -282,8 +290,43 @@ class DaoWriter(
 
     private fun createSelectMethod(method: ReadQueryMethod): XFunSpec {
         return overrideWithoutAnnotations(method.element, declaredDao)
+            .apply(
+                javaMethodBuilder = { },
+                kotlinFunctionBuilder = {
+                    // TODO: Update XPoet to better handle this case.
+                    if (method.isProperty) {
+                        // When the DAO function is from a Kotlin property, we'll still generate
+                        // a DAO function, but it won't be an override and it'll be private, to be
+                        // called from the overridden property's getter.
+                        modifiers.remove(KModifier.OVERRIDE)
+                        modifiers.removeAll(
+                            listOf(KModifier.PUBLIC, KModifier.INTERNAL, KModifier.PROTECTED)
+                        )
+                        addModifiers(KModifier.PRIVATE)
+
+                        // For JVM emit a @JvmName to avoid same-signature conflict with
+                        // actual property.
+                        if (
+                            context.targetPlatforms.size == 1 &&
+                            context.targetPlatforms.contains(XProcessingEnv.Platform.JVM)
+                        ) {
+                            jvmName("_private${method.element.name.capitalize(Locale.US)}")
+                        }
+                    }
+                }
+            )
             .addCode(createQueryMethodBody(method))
             .build()
+    }
+
+    private fun createSelectProperty(method: ReadQueryMethod): XPropertySpec {
+        return XPropertySpec.overridingBuilder(
+            language = codeLanguage,
+            element = method.element,
+            owner = declaredDao
+        ).getter(
+            XCodeBlock.of(codeLanguage, "return %L()", method.element.name)
+        ).build()
     }
 
     private fun createRawQueryMethod(method: RawQueryMethod): XFunSpec {

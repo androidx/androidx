@@ -43,12 +43,24 @@ class AndroidImageWriter private constructor(
 
     override val format: Int = imageWriter.format
 
-    override fun queueInputImage(image: ImageWrapper) {
-        try {
-            imageWriter.queueInputImage(image.unwrapAs(Image::class))
-        } catch (e: Exception) {
+    override fun queueInputImage(image: ImageWrapper): Boolean {
+        return try {
+            val unwrappedImage = image.unwrapAs(Image::class)
+            if (unwrappedImage == null) {
+                Log.warn {
+                    "Failed to unwrap image wrapper $image"
+                }
+                return false
+            }
+            imageWriter.queueInputImage(unwrappedImage)
+            true
+        } catch (e: Throwable) {
+            Log.warn {
+                "Failed to queue image to $this due to error ${e.message}. " +
+                    "Ignoring failure and closing $image"
+            }
             image.close()
-            Log.warn { "Reprocessing failed due to error: ${e.message}. Closing image.}" }
+            false
         }
     }
 
@@ -89,7 +101,7 @@ class AndroidImageWriter private constructor(
             surface: Surface,
             inputStreamId: InputStreamId,
             maxImages: Int,
-            format: Int?,
+            format: StreamFormat?,
             handler: Handler
         ): ImageWriterWrapper {
             require(maxImages > 0) { "Max images ($maxImages) must be > 0" }
@@ -101,7 +113,7 @@ class AndroidImageWriter private constructor(
             // Create and configure a new ImageWriter
             val imageWriter =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && format != null) {
-                    Api29Compat.imageWriterNewInstance(surface, maxImages, format)
+                    Api29Compat.imageWriterNewInstance(surface, maxImages, format.value)
                 } else {
                     if (format != null) {
                         Log.warn {

@@ -6,7 +6,7 @@ package androidx.concurrent.futures {
   }
 
   public final class SuspendToFutureAdapter {
-    method public <T> com.google.common.util.concurrent.ListenableFuture<T> launchFuture(optional kotlin.coroutines.CoroutineContext context, optional boolean launchUndispatched, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block);
+    method public <T> com.google.common.util.concurrent.ListenableFuture<T> launchFuture(optional kotlin.coroutines.CoroutineContext context, optional boolean launchUndispatched, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> block);
     field public static final androidx.concurrent.futures.SuspendToFutureAdapter INSTANCE;
   }
 

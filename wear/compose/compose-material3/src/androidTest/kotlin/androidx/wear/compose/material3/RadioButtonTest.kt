@@ -82,6 +82,23 @@ class RadioButtonTest {
     }
 
     @Test
+    fun radio_button_has_role_radiobutton() {
+        rule.setContentWithTheme {
+            RadioButtonWithDefaults(
+                modifier = Modifier.testTag(TEST_TAG)
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG)
+            .assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.Role,
+                    Role.RadioButton
+                )
+            )
+    }
+
+    @Test
     fun radio_button_samples_build() {
         rule.setContentWithTheme {
             RadioButton()
@@ -526,10 +543,19 @@ class RadioButtonTest {
     }
 
     @Test
-    fun radio_button_height_defaults_52dp() {
+    fun radio_button_height_defaults_52dp_with_secondary_label() {
+        rule.setContentWithThemeForSizeAssertions {
+            RadioButtonWithDefaults(
+                secondaryLabel = { Text("Secondary label") }
+            )
+        }.assertHeightIsEqualTo(52.dp)
+    }
+
+    @Test
+    fun radio_button_height_defaults_48dp_without_secondary_label() {
         rule.setContentWithThemeForSizeAssertions {
             RadioButtonWithDefaults()
-        }.assertHeightIsEqualTo(52.dp)
+        }.assertHeightIsEqualTo(48.dp)
     }
 
     @Test

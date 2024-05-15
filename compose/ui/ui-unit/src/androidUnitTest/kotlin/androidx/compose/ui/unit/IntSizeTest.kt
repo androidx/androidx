@@ -50,6 +50,8 @@ class IntSizeTest {
     fun sizeCenter() {
         val size = IntSize(width = 10, height = 20)
         assertEquals(IntOffset(5, 10), size.center)
+        val negativeSize = IntSize(width = -10, height = -20)
+        assertEquals(IntOffset(-5, -10), negativeSize.center)
     }
 
     @Test

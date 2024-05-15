@@ -31,6 +31,7 @@
     <string name="close_drawer" msgid="406453423630273620">"Cerrar el menú de navegación"</string>
     <string name="close_sheet" msgid="7573152094250666567">"Cerrar hoja"</string>
     <string name="default_error_message" msgid="8038256446254964252">"Entrada no válida"</string>
+    <string name="state_empty" msgid="4139871816613051306">"Vacío"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"Ventana emergente"</string>
     <string name="range_start" msgid="7097486360902471446">"Inicio de intervalo"</string>
     <string name="range_end" msgid="5941395253238309765">"Final de intervalo"</string>

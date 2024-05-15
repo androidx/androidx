@@ -29,6 +29,10 @@ import androidx.compose.material3.tokens.NavigationDrawerTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -49,6 +53,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -167,50 +172,68 @@ class ModalNavigationDrawerTest {
 
     @Test
     fun navigationDrawer_testOffset_customWidthLarger_whenOpen() {
-        val customWidth = NavigationDrawerWidth + 5.dp
+        val customWidth = NavigationDrawerWidth + 20.dp
+        val density = Density(0.5f)
+        lateinit var coords: LayoutCoordinates
         rule.setMaterialContent(lightColorScheme()) {
-            val drawerState = rememberDrawerState(DrawerValue.Open)
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet(Modifier.width(customWidth)) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag("content")
-                        )
-                    }
-                },
-                content = {}
-            )
+            // Reduce density to ensure wide drawer fits on screen
+            CompositionLocalProvider(LocalDensity provides density) {
+                val drawerState = rememberDrawerState(DrawerValue.Open)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet(Modifier.width(customWidth)) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .onGloballyPositioned {
+                                        coords = it
+                                    }
+                            )
+                        }
+                    },
+                    content = {}
+                )
+            }
         }
 
-        rule.onNodeWithTag("content")
-            .assertLeftPositionInRootIsEqualTo(0.dp)
+        rule.runOnIdle {
+            assertThat(coords.positionOnScreen().x).isEqualTo(0f)
+        }
     }
 
     @Test
     fun navigationDrawer_testOffset_customWidthLarger_whenClosed() {
-        val customWidth = NavigationDrawerWidth + 5.dp
+        val customWidth = NavigationDrawerWidth + 20.dp
+        val density = Density(0.5f)
+        lateinit var coords: LayoutCoordinates
         rule.setMaterialContent(lightColorScheme()) {
-            val drawerState = rememberDrawerState(DrawerValue.Closed)
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet(Modifier.width(customWidth)) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag("content")
-                        )
-                    }
-                },
-                content = {}
-            )
+            // Reduce density to ensure wide drawer fits on screen
+            CompositionLocalProvider(LocalDensity provides density) {
+                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet(Modifier.width(customWidth)) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .onGloballyPositioned {
+                                        coords = it
+                                    }
+                            )
+                        }
+                    },
+                    content = {}
+                )
+            }
         }
 
-        rule.onNodeWithTag("content")
-            .assertLeftPositionInRootIsEqualTo(-customWidth)
+        rule.runOnIdle {
+            with(density) {
+                assertThat(coords.positionOnScreen().x).isWithin(1f).of(-customWidth.toPx())
+            }
+        }
     }
 
     @Test
@@ -419,12 +442,16 @@ class ModalNavigationDrawerTest {
         // When the drawer state is set to Opened
         drawerState.snapTo(DrawerValue.Open)
         // Then the drawer should be opened
-        assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
+        rule.runOnIdle {
+            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
+        }
 
         // When the drawer state is set to Closed
         drawerState.snapTo(DrawerValue.Closed)
         // Then the drawer should be closed
-        assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+        rule.runOnIdle {
+            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+        }
     }
 
     @Test

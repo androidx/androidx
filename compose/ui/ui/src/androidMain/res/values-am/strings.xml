@@ -31,6 +31,7 @@
     <string name="close_drawer" msgid="406453423630273620">"የዳሰሳ ምናሌን ዝጋ"</string>
     <string name="close_sheet" msgid="7573152094250666567">"ሉህን ዝጋ"</string>
     <string name="default_error_message" msgid="8038256446254964252">"ልክ ያልሆነ ግቤት"</string>
+    <string name="state_empty" msgid="4139871816613051306">"ባዶ"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"ብቅ-ባይ መስኮት"</string>
     <string name="range_start" msgid="7097486360902471446">"የክልል መጀመሪያ"</string>
     <string name="range_end" msgid="5941395253238309765">"የክልል መጨረሻ"</string>

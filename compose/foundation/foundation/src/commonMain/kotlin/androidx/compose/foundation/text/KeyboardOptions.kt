@@ -155,30 +155,20 @@ class KeyboardOptions(
         showKeyboardOnFocus = Default.showKeyboardOnFocusOrDefault
     )
 
-    @Deprecated("Maintained for binary compat", level = DeprecationLevel.HIDDEN)
-    constructor(
-        capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
-        autoCorrect: Boolean = Default.autoCorrectOrDefault,
-        keyboardType: KeyboardType = KeyboardType.Text,
-        imeAction: ImeAction = ImeAction.Default,
-        platformImeOptions: PlatformImeOptions? = null,
-        @Suppress("AutoBoxing")
-        showKeyboardOnFocus: Boolean? = null
-    ) : this(
-        capitalization = capitalization,
-        autoCorrectEnabled = autoCorrect,
-        keyboardType = keyboardType,
-        imeAction = imeAction,
-        platformImeOptions = platformImeOptions,
-        showKeyboardOnFocus = showKeyboardOnFocus,
-        hintLocales = null
-    )
-
     @Deprecated(
         "Please use the autoCorrectEnabled property.",
         level = DeprecationLevel.WARNING
     )
     val autoCorrect: Boolean get() = autoCorrectOrDefault
+
+    // Suppress GetterSetterNames because this is how the property was named previously.
+    @Suppress("unused", "GetterSetterNames")
+    @get:Suppress("GetterSetterNames")
+    @Deprecated(
+        "Included for binary compatibility. Use showKeyboardOnFocus.",
+        level = DeprecationLevel.HIDDEN
+    )
+    val shouldShowKeyboardOnFocus: Boolean get() = showKeyboardOnFocus ?: true
 
     private val autoCorrectOrDefault: Boolean
         get() = autoCorrectEnabled
@@ -285,32 +275,6 @@ class KeyboardOptions(
             platformImeOptions = platformImeOptions,
             showKeyboardOnFocus = showKeyboardOnFocus,
             hintLocales = hintLocales
-        )
-    }
-
-    @Deprecated(
-        "Maintained for binary compatibility",
-        level = DeprecationLevel.HIDDEN
-    )
-    fun copy(
-        capitalization: KeyboardCapitalization = this.capitalization,
-        autoCorrect: Boolean = this.autoCorrectOrDefault,
-        keyboardType: KeyboardType = this.keyboardType,
-        imeAction: ImeAction = this.imeAction,
-        platformImeOptions: PlatformImeOptions? = this.platformImeOptions,
-        @Suppress("AutoBoxing")
-        showKeyboardOnFocus: Boolean? = this.showKeyboardOnFocus
-    ): KeyboardOptions {
-        return KeyboardOptions(
-            capitalization = capitalization,
-            autoCorrectEnabled = autoCorrect,
-            keyboardType = keyboardType,
-            imeAction = imeAction,
-            platformImeOptions = platformImeOptions,
-            showKeyboardOnFocus = showKeyboardOnFocus,
-            hintLocales = this.hintLocales
-            // New properties must be added here even though this is deprecated. The deprecated copy
-            // constructors should still work on instances created with newer library versions.
         )
     }
 

@@ -22,7 +22,6 @@ import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -336,8 +335,10 @@ internal class LayoutNode(
             "count ($count) must be greater than 0"
         }
         for (i in index + count - 1 downTo index) {
+            // Call detach callbacks before removing from _foldedChildren, so the child is still
+            // visible to parents traversing downwards, such as when clearing focus.
+            onChildRemoved(_foldedChildren[i])
             val child = _foldedChildren.removeAt(i)
-            onChildRemoved(child)
             if (DebugChanges) {
                 println("$child removed from $this at index $i")
             }
@@ -522,7 +523,6 @@ internal class LayoutNode(
         checkPreconditionNotNull(owner) {
             "Cannot detach node that is already detached!  Tree: " + parent?.debugTreeToString()
         }
-        invalidateFocusOnDetach()
         val parent = this.parent
         if (parent != null) {
             parent.invalidateLayer()
@@ -1123,20 +1123,6 @@ internal class LayoutNode(
         }
     }
 
-    private fun invalidateFocusOnDetach() {
-        nodes.tailToHead(FocusTarget) {
-            if (it.focusState.isFocused) {
-                requireOwner().focusOwner.clearFocus(
-                    force = true,
-                    refreshFocusEvents = false,
-                    clearOwnerFocus = true,
-                    focusDirection = Exit
-                )
-                it.scheduleInvalidationForFocusEvents()
-            }
-        }
-    }
-
     internal inline fun ignoreRemeasureRequests(block: () -> Unit) {
         ignoreRemeasureRequests = true
         block()
@@ -1407,7 +1393,6 @@ internal class LayoutNode(
             // we don't need to reset state as it was done when deactivated
         } else {
             resetModifierState()
-            resetExplicitLayers()
         }
         // resetModifierState detaches all nodes, so we need to re-attach them upon reuse.
         semanticsId = generateSemanticsId()
@@ -1425,12 +1410,12 @@ internal class LayoutNode(
         if (isAttached) {
             invalidateSemantics()
         }
-        resetExplicitLayers()
+        releaseLayers()
     }
 
-    private fun resetExplicitLayers() {
+    private fun releaseLayers() {
         forEachCoordinatorIncludingInner {
-            it.releaseExplicitLayer()
+            it.releaseLayer()
         }
     }
 

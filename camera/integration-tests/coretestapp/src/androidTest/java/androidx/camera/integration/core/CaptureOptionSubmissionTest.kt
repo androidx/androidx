@@ -19,16 +19,23 @@ package androidx.camera.integration.core
 import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES
+import android.hardware.camera2.CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON
+import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE
 import android.hardware.camera2.TotalCaptureResult
 import android.util.Range
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.UseCaseConfig
@@ -159,10 +166,11 @@ class CaptureOptionSubmissionTest(
 
             bindUseCases(listOf(Preview.Builder().setTargetFrameRate(targetFpsRange)))
 
+            val isCompleted = result.awaitUntil(timeoutMillis = 10000)
             assertWithMessage(
                 "Test failed for targetFpsRange = $targetFpsRange" +
                     ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
-            ).that(result.awaitUntil(timeoutMillis = 10000)).isTrue()
+            ).that(isCompleted).isTrue()
 
             unbindAllUseCases()
         }
@@ -203,16 +211,283 @@ class CaptureOptionSubmissionTest(
                     )
                 )
 
+                val isCompleted = result.awaitUntil(timeoutMillis = 10000)
                 assertWithMessage(
                     "Test failed for targetFpsRange = $targetFpsRange" +
                         ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
-                ).that(result.awaitUntil(timeoutMillis = 10000)).isTrue()
+                ).that(isCompleted).isTrue()
 
                 unbindAllUseCases()
             }
         }
 
     // TODO: b/332464991 - Add a FPS test adding different FPS ranges to Preview & VideoCapture
+
+    @Test
+    fun canSetAeTargetFpsRangeWithCamera2Interop() = runBlocking {
+        assumeTrue(
+            "TODO(b/331900702): Enable when the bug is fixed at camera-pipe",
+            implName != CameraPipeConfig::class.simpleName
+        )
+
+        assumeTrue(
+            "TODO(b/332235883): Enable for legacy when the bug is resolved",
+            !isHwLevelLegacy()
+        )
+
+        // At least 2 FPS ranges should be checked as the submitted range may just be from template
+        getSupportedFpsRanges().forEach { targetFpsRange ->
+            if (targetFpsRange.upper > 30) {
+                // TODO: b/332464740 - High FPS may not be supported as per stream config map
+                return@forEach
+            }
+
+            var lastSubmittedFpsRange: Range<Int>? = null
+            val result = sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                    lastSubmittedFpsRange = it
+                }
+                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
+            }
+
+            bindUseCases(listOf(
+                // since Preview & VideoCapture already has FPS APIs, Camera2Interop isn't needed
+                // when they are bound. Also, ImageCapture-only is more complex due to
+                // MeteringRepeating and may pick up further issues.
+                ImageCapture.Builder().also {
+                    Camera2Interop.Extender(it).setCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, targetFpsRange
+                    )
+                }
+            ))
+
+            val isCompleted = result.awaitUntil(timeoutMillis = 10000)
+            assertWithMessage(
+                "Test failed for FPS range = $targetFpsRange" +
+                    ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
+            ).that(isCompleted).isTrue()
+
+            unbindAllUseCases()
+
+            // Checking for first supported & testable FPS range only
+            return@forEach
+        }
+    }
+
+    @Test
+    fun canOverwriteFpsRangeWithCamera2Interop_whenAnotherSetViaSetTargetFrameRate() = runBlocking {
+        assumeTrue(
+            "TODO(b/331900702): Enable when the bug is fixed at camera-pipe",
+            implName != CameraPipeConfig::class.simpleName
+        )
+
+        assumeTrue(
+            "TODO(b/332235883): Enable for legacy when the bug is resolved",
+            !isHwLevelLegacy()
+        )
+
+        val targetFpsRange = getSupportedFpsRanges().first { it.upper <= 30 }
+        val interopFpsRange = getSupportedFpsRanges().last { it.upper <= 30 }
+
+        var lastSubmittedFpsRange: Range<Int>? = null
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                lastSubmittedFpsRange = it
+            }
+            captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == interopFpsRange
+        }
+
+        bindUseCases(
+            listOf(
+                Preview.Builder().setTargetFrameRate(targetFpsRange),
+                // since Preview & VideoCapture already has FPS APIs, Camera2Interop isn't needed
+                // when they are bound.
+                ImageCapture.Builder().also {
+                    Camera2Interop.Extender(it).setCaptureRequestOption(
+                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, interopFpsRange
+                    )
+                }
+
+            )
+        )
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 10000)
+        assertWithMessage(
+            "Test failed for FPS range = $interopFpsRange" +
+                ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
+        ).that(isCompleted).isTrue()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 33)
+    fun canEnablePreviewStabilization() = runBlocking {
+        val targetStabilizationMode = CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+
+        assumeTrue(
+            "Preview stabilization not supported",
+            getSupportedStabilizationModes().contains(targetStabilizationMode)
+        )
+
+        var lastSubmittedMode: Int? = null
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
+                lastSubmittedMode = it
+            }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
+
+        bindUseCases(
+            listOf(
+                Preview.Builder().setPreviewStabilizationEnabled(true),
+                VideoCapture.Builder(Recorder.Builder().build())
+            )
+        )
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 10000)
+        assertWithMessage(
+            "Test failed for stabilization mode = $targetStabilizationMode" +
+                ", lastSubmittedMode = $lastSubmittedMode"
+        ).that(isCompleted).isTrue()
+    }
+
+    @Test
+    fun canEnableVideoStabilization() = runBlocking {
+        val targetStabilizationMode = CONTROL_VIDEO_STABILIZATION_MODE_ON
+
+        assumeTrue(
+            "Video stabilization not supported",
+            getSupportedStabilizationModes().contains(targetStabilizationMode)
+        )
+
+        var lastSubmittedMode: Int? = null
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
+                lastSubmittedMode = it
+            }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
+
+        bindUseCases(
+            listOf(
+                Preview.Builder(),
+                VideoCapture.Builder(Recorder.Builder().build()).setVideoStabilizationEnabled(true)
+            )
+        )
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 10000)
+        assertWithMessage(
+            "Test failed for stabilization mode = $targetStabilizationMode" +
+                ", lastSubmittedMode = $lastSubmittedMode"
+        ).that(isCompleted).isTrue()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 33)
+    fun canEnablePreviewStabilization_whenBothPreviewAndVideoStabilizationEnabled() = runBlocking {
+        val targetStabilizationMode = CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+
+        assumeTrue(
+            "Preview stabilization not supported",
+            getSupportedStabilizationModes().contains(targetStabilizationMode)
+        )
+
+        assumeTrue(
+            "Video stabilization not supported",
+            getSupportedStabilizationModes().contains(CONTROL_VIDEO_STABILIZATION_MODE_ON)
+        )
+
+        var lastSubmittedMode: Int? = null
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
+                lastSubmittedMode = it
+            }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
+
+        bindUseCases(
+            listOf(
+                Preview.Builder().setPreviewStabilizationEnabled(true),
+                VideoCapture.Builder(Recorder.Builder().build()).setVideoStabilizationEnabled(true)
+            )
+        )
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 10000)
+        assertWithMessage(
+            "Test failed for stabilization mode = $targetStabilizationMode" +
+                ", lastSubmittedMode = $lastSubmittedMode"
+        ).that(isCompleted).isTrue()
+    }
+
+    @Test
+    fun canSetStabilizationModeWithCamera2Interop() = runBlocking {
+        val targetStabilizationMode = CONTROL_VIDEO_STABILIZATION_MODE_ON
+
+        assumeTrue(
+            "Video stabilization not supported",
+            getSupportedStabilizationModes().contains(targetStabilizationMode)
+        )
+
+        var lastSubmittedMode: Int? = null
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
+                lastSubmittedMode = it
+            }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
+
+        bindUseCases(listOf(
+            // since Preview & VideoCapture already has stabilization APIs, Camera2Interop isn't
+            // needed when they are bound. Also, ImageCapture-only is more complex due to
+            // MeteringRepeating and may pick up further issues.
+            ImageCapture.Builder().also {
+                Camera2Interop.Extender(it).setCaptureRequestOption(
+                    CONTROL_VIDEO_STABILIZATION_MODE, targetStabilizationMode
+                )
+            }
+        ))
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 10000)
+        assertWithMessage(
+            "Test failed for stabilization mode = $targetStabilizationMode" +
+                ", lastSubmittedMode = $lastSubmittedMode"
+        ).that(isCompleted).isTrue()
+    }
+
+    @Test
+    fun canOverwriteStabilizationWithCamera2Interop_whenEnabledAtVideoCapture() = runBlocking {
+        val targetStabilizationMode = CONTROL_VIDEO_STABILIZATION_MODE_OFF
+
+        assumeTrue(
+            "Video stabilization not supported",
+            getSupportedStabilizationModes().contains(CONTROL_VIDEO_STABILIZATION_MODE_ON)
+        )
+
+        var lastSubmittedMode: Int? = null
+        val result = sessionCaptureCallback.verify { captureRequest, _ ->
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
+                lastSubmittedMode = it
+            }
+            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
+        }
+
+        bindUseCases(listOf(
+            // since Preview & VideoCapture already has stabilization APIs, Camera2Interop isn't
+            // needed when they are bound. Also, ImageCapture-only is more complex due to
+            // MeteringRepeating and may pick up further issues.
+            ImageCapture.Builder().also {
+                Camera2Interop.Extender(it).setCaptureRequestOption(
+                    CONTROL_VIDEO_STABILIZATION_MODE, targetStabilizationMode
+                )
+            },
+            VideoCapture.Builder(Recorder.Builder().build()).setVideoStabilizationEnabled(true)
+        ))
+
+        val isCompleted = result.awaitUntil(timeoutMillis = 10000)
+        assertWithMessage(
+            "Test failed for stabilization mode = $targetStabilizationMode" +
+                ", lastSubmittedMode = $lastSubmittedMode"
+        ).that(isCompleted).isTrue()
+    }
 
     // TODO - Adds tests to check capture option is consistent for both non-repeating and repeating
     //  captures. E.g., FPS range is not submitted for non-repeating capture right now. But this
@@ -227,6 +502,16 @@ class CaptureOptionSubmissionTest(
         Assume.assumeNotNull(fpsRanges)
 
         return fpsRanges!!
+    }
+
+    private fun getSupportedStabilizationModes(): IntArray {
+        val cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraSelector.lensFacing!!)
+        Assume.assumeNotNull(cameraCharacteristics)
+
+        val modes = cameraCharacteristics!!.get(CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)
+        Assume.assumeNotNull(modes)
+
+        return modes!!
     }
 
     private fun isHwLevelLegacy(): Boolean {

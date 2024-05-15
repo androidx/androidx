@@ -356,6 +356,21 @@ class AnnotatedStringFromHtmlTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_appliesColorFromHtmlTag() {
+        val stringWithColoredLink = "<span style=\"color:blue\"><a href=\"url\">link</a></span>"
+        val annotatedString = AnnotatedString.fromHtml(stringWithColoredLink)
+
+        rule.setContent {
+            BasicText(text = annotatedString)
+        }
+
+        rule.onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_appliesColorFromMethod() {
         val stringWithColoredLink = "<span style=\"color:blue\"><a href=\"url\">link</a></span>"
         val annotatedString = AnnotatedString.fromHtml(

@@ -18,6 +18,7 @@ package androidx.compose.material
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.CompositionLocalProvider
@@ -92,6 +93,29 @@ class SnackbarTest {
             .performClick()
 
         assertThat(clicked).isTrue()
+    }
+
+    @Test
+    fun snackbar_emptyContent() {
+        rule.setMaterialContent {
+            Snackbar {
+                // empty content should not crash
+            }
+        }
+    }
+
+    @Test
+    fun snackbar_noTextInContent() {
+        val snackbarHeight = 48.dp
+        val contentSize = 20.dp
+        rule.setMaterialContent {
+            Snackbar {
+                // non-text content should not crash
+                Box(Modifier.testTag("content").size(contentSize))
+            }
+        }
+        rule.onNodeWithTag("content")
+            .assertTopPositionInRootIsEqualTo((snackbarHeight - contentSize) / 2)
     }
 
     @Test

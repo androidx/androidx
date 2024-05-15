@@ -71,8 +71,21 @@ public class ViewBenchmark {
 As in the public documentation, benchmarks in the AndroidX repo are test-only
 library modules. Differences for AndroidX repo:
 
-1.  Module must live in `integration-tests` group directory
-1.  Module name must end with `-benchmark` in `settings.gradle`.
+1.  Module *must* apply `id("androidx.benchmark")` in the plugin block
+1.  Module *should* live in `integration-tests` group directory to follow
+    convention
+1.  Module name *should* end with `-benchmark` in `settings.gradle` to follow
+    convention
+1.  Module *should not* contain non-benchmark tests to avoid wasting resources
+    in benchmark postsubmit
+
+Applying the benchmark plugin give you benefits from the AndroidX plugin:
+
+*   Inclusion in microbenchmark CI runs
+*   AOT Compilation of module (local and CI) for stability
+*   Disable ANR avoidance in local runs (so you always get method traces)
+
+But note that these can be detrimental for non-benchmark code.
 
 ### I'm lazy and want to start quickly
 

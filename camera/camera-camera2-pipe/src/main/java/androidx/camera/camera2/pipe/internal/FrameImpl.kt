@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.internal
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameId
@@ -36,7 +34,6 @@ import kotlinx.atomicfu.atomic
  * Each instance is closeable, and references to an underlying [FrameState] object which aggregates
  * and all of the underlying placeholder objects for each expected output.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal class FrameImpl private constructor(
     private val frameState: FrameState,
     override val imageStreams: Set<StreamId>,

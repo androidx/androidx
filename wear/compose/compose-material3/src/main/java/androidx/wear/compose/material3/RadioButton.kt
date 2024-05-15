@@ -132,7 +132,10 @@ fun RadioButton(
     // Stadium/Pill shaped toggle button
     Row(
         modifier = modifier
-            .defaultMinSize(minHeight = MIN_HEIGHT)
+            .defaultMinSize(
+                minHeight = if (secondaryLabel == null) MIN_HEIGHT_WITHOUT_SECONDARY_LABEL
+                else MIN_HEIGHT
+            )
             .height(IntrinsicSize.Min)
             .width(IntrinsicSize.Max)
             .clip(shape = shape)
@@ -144,7 +147,13 @@ fun RadioButton(
                 indication = rippleOrFallbackImplementation(),
                 interactionSource = interactionSource
             )
-            .padding(contentPadding),
+            .padding(contentPadding)
+            .semantics {
+                // For a selectable button, the role is always RadioButton.
+                // See also b/330869742 for issue with setting the RadioButton role
+                // within the selection control.
+                role = Role.RadioButton
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (icon != null) {
@@ -329,7 +338,13 @@ fun SplitRadioButton(
                 .width(SPLIT_WIDTH)
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .wrapContentWidth(align = Alignment.End)
-                .then(endPadding),
+                .then(endPadding)
+                .semantics {
+                    // For a selectable button, the role is always RadioButton.
+                    // See also b/330869742 for issue with setting the RadioButton role
+                    // within the selection control.
+                    role = Role.RadioButton
+                },
         ) {
             val scope = remember(enabled, selected) { SelectionControlScope(enabled, selected) }
             selectionControl(scope)
@@ -502,7 +517,7 @@ object RadioButtonDefaults {
 
     internal val LabelSpacerSize = 2.dp
     private val HorizontalPadding = 14.dp
-    private val VerticalPadding = 6.dp
+    private val VerticalPadding = 8.dp
 
     /**
      * The default content padding used by [RadioButton]
@@ -530,20 +545,23 @@ object RadioButtonDefaults {
                 unselectedIconColor = fromToken(RadioButtonTokens.UnselectedIconColor),
                 disabledSelectedContainerColor =
                 fromToken(RadioButtonTokens.DisabledSelectedContainerColor)
-                    .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
+                    .toDisabledColor(
+                        disabledAlpha = RadioButtonTokens.DisabledSelectedContainerOpacity
+                    ),
                 disabledSelectedContentColor =
                 fromToken(RadioButtonTokens.DisabledSelectedContentColor)
                     .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
                 disabledSelectedSecondaryContentColor =
                 fromToken(RadioButtonTokens.DisabledSelectedSecondaryLabelColor)
-                    .copy(alpha = RadioButtonTokens.DisabledSelectedSecondaryLabelOpacity)
                     .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
                 disabledSelectedIconColor =
                 fromToken(RadioButtonTokens.DisabledSelectedIconColor)
                     .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
                 disabledUnselectedContainerColor =
                 fromToken(RadioButtonTokens.DisabledUnselectedContainerColor)
-                    .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
+                    .toDisabledColor(
+                        disabledAlpha = RadioButtonTokens.DisabledUnselectedContainerOpacity
+                    ),
                 disabledUnselectedContentColor =
                 fromToken(RadioButtonTokens.DisabledUnselectedContentColor)
                     .toDisabledColor(disabledAlpha = RadioButtonTokens.DisabledOpacity),
@@ -1111,7 +1129,8 @@ private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
     tween(MotionTokens.DurationMedium1, 0, MotionTokens.EasingStandardDecelerate)
 private val SELECTION_CONTROL_WIDTH = 32.dp
 private val SELECTION_CONTROL_HEIGHT = 24.dp
-private val SELECTION_CONTROL_SPACING = 4.dp
+private val SELECTION_CONTROL_SPACING = 6.dp
 private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
+private val MIN_HEIGHT_WITHOUT_SECONDARY_LABEL = 48.dp
 private val SPLIT_WIDTH = 52.dp

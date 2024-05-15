@@ -20,6 +20,7 @@ import android.graphics.PixelFormat
 import android.media.ImageReader
 import android.os.Build
 import android.os.Looper
+import android.os.Message
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.collection.ObjectList
@@ -55,7 +56,13 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
         if (!layerList.contains(layer)) {
             layerList.add(layer)
             if (!handler.hasMessages(0)) {
-                handler.sendEmptyMessage(0)
+                // we don't run persistLayers() synchronously in order to do less work as there
+                // might be a lot of new layers created during one frame. however we also want
+                // to execute it as soon as possible to be able to persist the layers before
+                // they discard their content. it is possible that there is some other work
+                // scheduled on the main thread which is going to change what layers are drawn.
+                // we use sendMessageAtFrontOfQueue() in order to be executed before that.
+                handler.sendMessageAtFrontOfQueue(Message.obtain())
             }
         }
     }
@@ -80,7 +87,11 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
                 1,
                 PixelFormat.RGBA_8888,
                 1
-            ).also { imageReader = it }
+            ).apply {
+                // We don't care about the result, but release the buffer back to the queue
+                // for subsequent renders to ensure the RenderThread is free as much as possible
+                setOnImageAvailableListener({ it?.acquireLatestImage()?.close() }, handler)
+            }.also { imageReader = it }
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
             // on Robolectric even this canvas is not hardware accelerated and drawing render nodes

@@ -30,7 +30,7 @@ class CursorTest {
         assertThat(cursor.currentLine).isEqualTo("two")
         cursor.nextLine()
         assertThat(cursor.currentLine).isEqualTo("three")
-        assertThat(cursor.hasNext()).isFalse()
+        assertThat(cursor.hasNextRow()).isFalse()
     }
 
     @Test
@@ -79,6 +79,14 @@ class CursorTest {
     @Test
     fun skipWhitespaceOnBlankLine() {
         val input = ""
+        val cursor = Cursor(input)
+        cursor.skipInlineWhitespace()
+        assertThat(cursor.currentLine).isEqualTo("")
+    }
+
+    @Test
+    fun skipWhitespaceSkipsEntireLine() {
+        val input = "    "
         val cursor = Cursor(input)
         cursor.skipInlineWhitespace()
         assertThat(cursor.currentLine).isEqualTo("")

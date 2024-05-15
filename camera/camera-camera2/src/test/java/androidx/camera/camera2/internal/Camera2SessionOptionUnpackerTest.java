@@ -220,7 +220,7 @@ public final class Camera2SessionOptionUnpackerTest {
     }
 
     @Test
-    public void unpackerExtractsBothPreviewAndVideoStabilizationMode() {
+    public void unpackerExtractsStabilizationModeSetLast_whenSessionConfigReused() {
         ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
         ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
 
@@ -233,7 +233,7 @@ public final class Camera2SessionOptionUnpackerTest {
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         mUnpacker.unpack(RESOLUTION_VGA, previewConfig, sessionBuilder);
 
-        // unpack for preview
+        // unpack for video
         VideoCapture.Builder<Recorder> videoCaptureConfigBuilder =
                 new VideoCapture.Builder<>(new Recorder.Builder().build())
                         .setVideoStabilizationEnabled(true);
@@ -243,6 +243,47 @@ public final class Camera2SessionOptionUnpackerTest {
 
         mUnpacker.unpack(RESOLUTION_VGA, videoCaptureConfig, sessionBuilder);
         SessionConfig sessionConfig = sessionBuilder.build();
+        CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
+
+        assertThat(captureConfig.getVideoStabilizationMode())
+                .isEqualTo(StabilizationMode.ON);
+        // Since same sessionBuilder is used for both use cases, the later one replaces the capture
+        // options of the previous ones by design
+        assertThat(captureConfig.getPreviewStabilizationMode())
+                .isEqualTo(StabilizationMode.UNSPECIFIED);
+    }
+
+    @Test
+    public void unpackerExtractsBothPreviewAndVideoStabilizationMode_whenMerged() {
+        ReflectionHelpers.setStaticField(Build.class, "MANUFACTURER", "Google");
+        ReflectionHelpers.setStaticField(Build.class, "DEVICE", "sunfish");
+
+        // unpack for preview
+        Preview.Builder previewConfigBuilder =
+                new Preview.Builder().setPreviewStabilizationEnabled(true);
+
+        PreviewConfig previewConfig = previewConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder previewSessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, previewConfig, previewSessionBuilder);
+
+        // unpack for video
+        VideoCapture.Builder<Recorder> videoCaptureConfigBuilder =
+                new VideoCapture.Builder<>(new Recorder.Builder().build())
+                        .setVideoStabilizationEnabled(true);
+
+        VideoCaptureConfig<Recorder> videoCaptureConfig =
+                videoCaptureConfigBuilder.getUseCaseConfig();
+
+        SessionConfig.Builder videoSessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(RESOLUTION_VGA, videoCaptureConfig, videoSessionBuilder);
+
+        SessionConfig.ValidatingBuilder mergedSessionBuilder =
+                new SessionConfig.ValidatingBuilder();
+        mergedSessionBuilder.add(previewSessionBuilder.build());
+        mergedSessionBuilder.add(videoSessionBuilder.build());
+
+        SessionConfig sessionConfig = mergedSessionBuilder.build();
         CaptureConfig captureConfig = sessionConfig.getRepeatingCaptureConfig();
 
         assertThat(captureConfig.getVideoStabilizationMode())

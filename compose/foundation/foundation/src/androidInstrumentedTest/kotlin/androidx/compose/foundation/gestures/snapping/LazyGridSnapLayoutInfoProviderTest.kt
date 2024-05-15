@@ -81,7 +81,7 @@ class LazyGridSnapLayoutInfoProviderTest(orientation: Orientation) :
                 offset.x
             }
             assertEquals(
-                layoutInfoProvider.calculateSnappingOffset(0f).roundToInt(),
+                layoutInfoProvider.calculateSnapOffset(0f).roundToInt(),
                 expectedResult
             )
         }
@@ -116,7 +116,7 @@ class LazyGridSnapLayoutInfoProviderTest(orientation: Orientation) :
                 offset.x
             }
             assertEquals(
-                layoutInfoProvider.calculateSnappingOffset(2 * minVelocityThreshold.toFloat())
+                layoutInfoProvider.calculateSnapOffset(2 * minVelocityThreshold.toFloat())
                     .roundToInt(),
                 expectedResult
             )
@@ -153,7 +153,7 @@ class LazyGridSnapLayoutInfoProviderTest(orientation: Orientation) :
                 offset.x
             }
             assertEquals(
-                layoutInfoProvider.calculateSnappingOffset(-2 * minVelocityThreshold.toFloat())
+                layoutInfoProvider.calculateSnapOffset(-2 * minVelocityThreshold.toFloat())
                     .roundToInt(),
                 expectedResult
             )

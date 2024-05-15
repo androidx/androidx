@@ -175,7 +175,7 @@ package androidx.work {
     ctor public Data.Builder();
     method public androidx.work.Data build();
     method public androidx.work.Data.Builder putAll(androidx.work.Data data);
-    method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String,?> values);
+    method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String,? extends java.lang.Object?> values);
     method public androidx.work.Data.Builder putBoolean(String key, boolean value);
     method public androidx.work.Data.Builder putBooleanArray(String key, boolean[] value);
     method public androidx.work.Data.Builder putByte(String key, byte value);
@@ -198,7 +198,7 @@ package androidx.work {
 
   public final class DataKt {
     method public static inline <reified T> boolean hasKeyWithValueOfType(androidx.work.Data, String key);
-    method public static inline androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,?>... pairs);
+    method public static inline androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,? extends java.lang.Object?>... pairs);
   }
 
   public class DelegatingWorkerFactory extends androidx.work.WorkerFactory {
@@ -519,7 +519,7 @@ package androidx.work {
   public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager!> {
     ctor public WorkManagerInitializer();
     method public androidx.work.WorkManager create(android.content.Context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>!>!> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>!>!> dependencies();
   }
 
   public final class WorkQuery {

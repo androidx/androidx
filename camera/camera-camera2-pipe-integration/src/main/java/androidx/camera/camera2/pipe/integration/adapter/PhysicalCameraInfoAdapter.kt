@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Range
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
@@ -44,7 +43,6 @@ import kotlin.reflect.KClass
 @SuppressLint(
     "UnsafeOptInUsageError" // Suppressed due to experimental API
 )
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class PhysicalCameraInfoAdapter(
     private val cameraProperties: CameraProperties
 ) : CameraInfo, UnsafeWrapper {

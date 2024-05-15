@@ -30,7 +30,7 @@ import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion.MIR
  * The [CameraCharacteristics] will be used to populate information including lens facing,
  * sensor orientation and [ImplementationMode].
  * If the hardware level is legacy, the [ImplementationMode] will be set to
- * [ImplementationMode.COMPATIBLE].
+ * [ImplementationMode.EMBEDDED].
  */
 @SuppressLint("ClassVerificationFailure")
 @RequiresApi(21)
@@ -45,7 +45,7 @@ fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(
         cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!)
     if (cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
         == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-        setImplementationMode(androidx.camera.viewfinder.surface.ImplementationMode.COMPATIBLE)
+        setImplementationMode(androidx.camera.viewfinder.surface.ImplementationMode.EMBEDDED)
     }
     return this
 }

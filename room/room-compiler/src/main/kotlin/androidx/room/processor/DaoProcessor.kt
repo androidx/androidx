@@ -24,7 +24,6 @@ import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -83,22 +82,25 @@ class DaoProcessor(
             .filter {
                 it.isAbstract() && !it.hasKotlinDefaultImpl()
             }.groupBy { method ->
-                context.checker.check(
-                    PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1, method,
-                    ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
-                )
+                if (method.isKotlinPropertyMethod()) {
+                    context.checker.check(
+                        predicate = method.hasAnnotation(Query::class),
+                        element = method,
+                        errorMsg = ProcessorErrors.INVALID_ANNOTATION_IN_DAO_PROPERTY
+                    )
+                } else {
+                    context.checker.check(
+                        predicate = PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1,
+                        element = method,
+                        errorMsg = ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
+                    )
+                }
                 if (method.hasAnnotation(JvmName::class)) {
                     context.logger.w(
                         Warning.JVM_NAME_ON_OVERRIDDEN_METHOD,
                         method,
                         ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
                     )
-                }
-                if (
-                    context.codeLanguage == CodeLanguage.KOTLIN &&
-                    method.isKotlinPropertyMethod()
-                ) {
-                    context.logger.e(method, ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
                 }
                 if (method.hasAnnotation(Query::class)) {
                     Query::class

@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.pager.PagerDebugConfig
@@ -31,11 +29,9 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
-@OptIn(ExperimentalFoundationApi::class)
 internal fun SnapLayoutInfoProvider(
     pagerState: PagerState,
     pagerSnapDistance: PagerSnapDistance,
-    decayAnimationSpec: DecayAnimationSpec<Float>,
     calculateFinalSnappingBound: (Float, Float, Float) -> Float
 ): SnapLayoutInfoProvider {
     return object : SnapLayoutInfoProvider {
@@ -46,13 +42,13 @@ internal fun SnapLayoutInfoProvider(
             return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
         }
 
-        override fun calculateSnappingOffset(currentVelocity: Float): Float {
+        override fun calculateSnapOffset(velocity: Float): Float {
             val snapPosition = pagerState.layoutInfo.snapPosition
             val (lowerBoundOffset, upperBoundOffset) = searchForSnappingBounds(snapPosition)
 
             val finalDistance =
                 calculateFinalSnappingBound(
-                    currentVelocity,
+                    velocity,
                     lowerBoundOffset,
                     upperBoundOffset
                 )
@@ -74,15 +70,17 @@ internal fun SnapLayoutInfoProvider(
             }
         }
 
-        override fun calculateApproachOffset(initialVelocity: Float): Float {
-            debugLog { "Approach Velocity=$initialVelocity" }
+        override fun calculateApproachOffset(
+            velocity: Float,
+            decayOffset: Float
+        ): Float {
+            debugLog { "Approach Velocity=$velocity" }
             val effectivePageSizePx = pagerState.pageSize + pagerState.pageSpacing
 
             // given this velocity, where can I go with a decay animation.
-            val animationOffsetPx =
-                decayAnimationSpec.calculateTargetValue(0f, initialVelocity)
+            val animationOffsetPx = decayOffset
 
-            val startPage = if (initialVelocity < 0) {
+            val startPage = if (velocity < 0) {
                 pagerState.firstVisiblePage + 1
             } else {
                 pagerState.firstVisiblePage
@@ -109,7 +107,7 @@ internal fun SnapLayoutInfoProvider(
             val correctedTargetPage = pagerSnapDistance.calculateTargetPage(
                 startPage,
                 targetPage,
-                initialVelocity,
+                velocity,
                 pagerState.pageSize,
                 pagerState.pageSpacing
             ).coerceIn(0, pagerState.pageCount)
@@ -131,7 +129,7 @@ internal fun SnapLayoutInfoProvider(
             return if (flingApproachOffsetPx == 0) {
                 flingApproachOffsetPx.toFloat()
             } else {
-                flingApproachOffsetPx * initialVelocity.sign
+                flingApproachOffsetPx * velocity.sign
             }.also {
                 debugLog { "Fling Approach Offset=$it" }
             }

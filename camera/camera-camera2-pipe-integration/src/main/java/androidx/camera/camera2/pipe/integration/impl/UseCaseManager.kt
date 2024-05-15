@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.camera2.pipe.integration.impl
 
@@ -25,7 +24,6 @@ import android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR
 import android.media.MediaCodec
 import android.os.Build
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode
@@ -102,7 +100,6 @@ import kotlinx.coroutines.runBlocking
  *  the streams created and have capture requests submitting.
  */
 @OptIn(ExperimentalCamera2Interop::class)
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class UseCaseManager @Inject constructor(
     private val cameraPipe: CameraPipe,
@@ -647,7 +644,6 @@ class UseCaseManager @Inject constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun Collection<UseCase>.checkSurfaces(
         predicate: (
             repeatingSurfaces: List<DeferrableSurface>,
@@ -750,8 +746,8 @@ class UseCaseManager @Inject constructor(
                         inputStreams.add(
                             InputStream.Config(
                                 stream = it,
-                                format = it.outputs.single().format.value,
-                                1,
+                                maxImages = 1,
+                                streamFormat = it.outputs.single().format,
                             )
                         )
                     }

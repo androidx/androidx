@@ -17,13 +17,10 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.hardware.camera2.CaptureFailure
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.compat.AndroidCaptureFailure
 import androidx.camera.core.impl.CameraCaptureFailure
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class CaptureFailureAdapter(
     private val requestFailure: RequestFailure,
 ) : CameraCaptureFailure(Reason.ERROR) {

@@ -239,7 +239,7 @@ internal fun SelectionRegistrar.makeDefaultSelectionModifier(
                         previousPosition = lastPosition,
                         newPosition = newPosition,
                         isStartHandle = false,
-                        adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
+                        adjustment = SelectionAdjustment.Word,
                         isInTouchMode = true
                     )
                     if (consumed) {

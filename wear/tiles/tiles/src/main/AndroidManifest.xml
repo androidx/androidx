@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <uses-library
+            android:name="wear-sdk"
+            android:required="false"/>
+    </application>
     <queries>
         <intent>
             <action android:name="androidx.wear.tiles.action.BIND_UPDATE_REQUESTER" />

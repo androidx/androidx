@@ -831,7 +831,7 @@ package androidx.appcompat.view.menu {
     method public androidx.appcompat.view.menu.MenuView! getMenuView(android.view.ViewGroup!);
     method public void initForMenu(android.content.Context!, androidx.appcompat.view.menu.MenuBuilder!);
     method public void onCloseMenu(androidx.appcompat.view.menu.MenuBuilder!, boolean);
-    method public void onItemClick(android.widget.AdapterView<?>!, android.view.View!, int, long);
+    method public void onItemClick(android.widget.AdapterView<? extends java.lang.Object!>!, android.view.View!, int, long);
     method public void onRestoreInstanceState(android.os.Parcelable!);
     method public android.os.Parcelable! onSaveInstanceState();
     method public boolean onSubMenuSelected(androidx.appcompat.view.menu.SubMenuBuilder!);
@@ -1901,9 +1901,9 @@ package androidx.appcompat.widget {
     method public void animateToVisibility(int);
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
-    method public void onItemSelected(android.widget.AdapterView<?>!, android.view.View!, int, long);
+    method public void onItemSelected(android.widget.AdapterView<? extends java.lang.Object!>!, android.view.View!, int, long);
     method public void onMeasure(int, int);
-    method public void onNothingSelected(android.widget.AdapterView<?>!);
+    method public void onNothingSelected(android.widget.AdapterView<? extends java.lang.Object!>!);
     method public void removeAllTabs();
     method public void removeTabAt(int);
     method public void setAllowCollapse(boolean);

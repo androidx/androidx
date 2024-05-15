@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:label="Compose Material3 Macrobenchmark Target"
+        android:allowBackup="true"
+        android:supportsRtl="true">
+
+        <!-- Profileable to enable macrobenchmark profiling -->
+        <profileable android:shell="true"/>
+
+        <!--
+        Activities need to be exported so the macrobenchmark can discover them.
+
+        Feel free to add the launcher intent filter to enable easier profiling,
+        just be sure to add a consistent label.
+         -->
+        <activity
+            android:name=".TooltipActivity"
+            android:label="TooltipMacrobenchmark"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.material3.integration.macrobenchmark.target.TOOLTIP_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -57,8 +57,8 @@ import androidx.compose.ui.zIndex
  * layout grid.
  *
  * Example:
- * @sample androidx.tv.samples.SampleModalNavigationDrawerWithSolidScrim
- * @sample androidx.tv.samples.SampleModalNavigationDrawerWithGradientScrim
+ * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithSolidScrim
+ * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithGradientScrim
  *
  * @param drawerContent Content that needs to be displayed on the drawer based on whether the drawer
  * is [DrawerValue.Open] or [DrawerValue.Closed].
@@ -135,7 +135,7 @@ fun ModalNavigationDrawer(
  * remaining content.
  *
  * Example:
- * @sample androidx.tv.samples.SampleNavigationDrawer
+ * @sample androidx.tv.material3.samples.SampleNavigationDrawer
  *
  * @param drawerContent Content that needs to be displayed on the drawer based on whether the drawer
  * is [DrawerValue.Open] or [DrawerValue.Closed].

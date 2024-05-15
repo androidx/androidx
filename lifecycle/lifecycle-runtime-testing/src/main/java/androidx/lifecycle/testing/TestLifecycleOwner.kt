@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
  * matter what thread you mutate the state from.
  *
  * @param initialState The initial [Lifecycle.State].
+ * @param coroutineDispatcher A [CoroutineDispatcher] to use when dispatching work from this class.
  */
 public class TestLifecycleOwner @JvmOverloads constructor(
     initialState: Lifecycle.State = Lifecycle.State.STARTED,

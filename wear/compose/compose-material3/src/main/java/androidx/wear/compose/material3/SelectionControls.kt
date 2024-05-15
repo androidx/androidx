@@ -127,17 +127,23 @@ object RadioDefaults {
      *
      * @param selectedColor The color of the radio control when enabled and selected.
      * @param unselectedColor The color of the radio control when enabled and unselected.
+     * @param disabledSelectedColor The color of the radio control when selected and disabled
+     * @param disabledUnselectedColor The color of the radio control unselected and disabled
      */
     @Composable
     fun colors(
         selectedColor: Color = MaterialTheme.colorScheme.primary,
-        unselectedColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+        unselectedColor: Color = MaterialTheme.colorScheme.outline,
+        disabledSelectedColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
+        disabledUnselectedColor: Color =
+            MaterialTheme.colorScheme.onSurface.toDisabledColor(disabledAlpha = 0.12f),
     ): RadioColors {
         return RadioColors(
             selectedColor = selectedColor,
             unselectedColor = unselectedColor,
-            disabledSelectedColor = selectedColor.toDisabledColor(),
-            disabledUnselectedColor = unselectedColor.toDisabledColor()
+            disabledSelectedColor = disabledSelectedColor,
+            disabledUnselectedColor = disabledUnselectedColor
         )
     }
 }

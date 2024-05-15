@@ -284,18 +284,15 @@ class PagerRemeasureTestCase(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 val NoOpInfoProvider = object : SnapLayoutInfoProvider {
-    override fun calculateApproachOffset(initialVelocity: Float): Float {
-        return 0f
-    }
+    override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float =
+        0.0f
 
-    override fun calculateSnappingOffset(currentVelocity: Float): Float {
+    override fun calculateSnapOffset(velocity: Float): Float {
         return 0f
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 val VerticalPagerContent: @Composable PagerRemeasureTestCase.(
     state: PagerState,
     useKeys: Boolean,
@@ -322,7 +319,6 @@ val VerticalPagerContent: @Composable PagerRemeasureTestCase.(
         }
     }
 
-@OptIn(ExperimentalFoundationApi::class)
 val HorizontalPagerContent: @Composable PagerRemeasureTestCase.(
     state: PagerState,
     useKeys: Boolean,

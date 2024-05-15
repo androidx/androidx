@@ -8,7 +8,6 @@ import androidx.room.util.dropFtsSyncTriggers
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 import javax.`annotation`.processing.Generated
-import kotlin.Any
 import kotlin.Lazy
 import kotlin.String
 import kotlin.Suppress
@@ -93,9 +92,8 @@ internal class MyDatabase_Impl : MyDatabase() {
     super.performClear(false, "MyEntity")
   }
 
-  protected override fun getRequiredTypeConverterClasses():
-      Map<KClass<out Any>, List<KClass<out Any>>> {
-    val _typeConvertersMap: MutableMap<KClass<out Any>, List<KClass<out Any>>> = mutableMapOf()
+  protected override fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
+    val _typeConvertersMap: MutableMap<KClass<*>, List<KClass<*>>> = mutableMapOf()
     _typeConvertersMap.put(MyDao::class, MyDao_Impl.getRequiredConverters())
     return _typeConvertersMap
   }

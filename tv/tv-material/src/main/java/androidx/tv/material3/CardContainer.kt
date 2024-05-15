@@ -44,7 +44,7 @@ import androidx.compose.ui.graphics.Color
  *
  * Checkout TV design guidelines to learn more about <a href="https://developer.android.com/design/ui/tv/guides/components/cards#standard-card" class="external" target="_blank">Material Standard Card</a>.
  *
- * @sample androidx.tv.samples.StandardCardContainerSample
+ * @sample androidx.tv.material3.samples.StandardCardContainerSample
  *
  * @param imageCard defines the [Composable] to be used for the image card.
  * @param title defines the [Composable] title placed below the image card in the CardContainer.
@@ -107,7 +107,7 @@ fun StandardCardContainer(
  *
  * Checkout TV design guidelines to learn more about <a href="https://developer.android.com/design/ui/tv/guides/components/cards#wide-standard-card" class="external" target="_blank">Material Wide Standard Card</a>.
  *
- * @sample androidx.tv.samples.WideCardContainerSample
+ * @sample androidx.tv.material3.samples.WideCardContainerSample
  *
  * @param imageCard defines the [Composable] to be used for the image card.
  * @param title defines the [Composable] title placed below the image card in the CardContainer.

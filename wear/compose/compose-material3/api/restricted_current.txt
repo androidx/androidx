@@ -131,7 +131,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class CheckboxDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CheckboxColors colors(optional long checkedBoxColor, optional long checkedCheckmarkColor, optional long uncheckedBoxColor, optional long uncheckedCheckmarkColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CheckboxColors colors(optional long checkedBoxColor, optional long checkedCheckmarkColor, optional long uncheckedBoxColor, optional long uncheckedCheckmarkColor, optional long disabledCheckedBoxColor, optional long disabledCheckedCheckmarkColor, optional long disabledUncheckedBoxColor, optional long disabledUncheckedCheckmarkColor);
     field public static final androidx.wear.compose.material3.CheckboxDefaults INSTANCE;
   }
 
@@ -348,6 +348,34 @@ package androidx.wear.compose.material3 {
     property @IntRange(from=0L) public abstract int pageCount;
   }
 
+  public final class ProgressIndicatorColors {
+    ctor public ProgressIndicatorColors(androidx.compose.ui.graphics.Brush indicatorBrush, androidx.compose.ui.graphics.Brush trackBrush);
+    method public androidx.compose.ui.graphics.Brush getIndicatorBrush();
+    method public androidx.compose.ui.graphics.Brush getTrackBrush();
+    property public final androidx.compose.ui.graphics.Brush indicatorBrush;
+    property public final androidx.compose.ui.graphics.Brush trackBrush;
+  }
+
+  public final class ProgressIndicatorDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional androidx.compose.ui.graphics.Brush? indicatorBrush, optional androidx.compose.ui.graphics.Brush? trackBrush);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional long indicatorColor, optional long trackColor);
+    method public float gapSize(float strokeWidth);
+    method public float getButtonCircularIndicatorStrokeWidth();
+    method public float getFullScreenPadding();
+    method public float getStartAngle();
+    method public float getStrokeWidth();
+    property public final float ButtonCircularIndicatorStrokeWidth;
+    property public final float FullScreenPadding;
+    property public final float StartAngle;
+    property public final float StrokeWidth;
+    field public static final androidx.wear.compose.material3.ProgressIndicatorDefaults INSTANCE;
+  }
+
+  public final class ProgressIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize);
+  }
+
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
     ctor public RadioButtonColors(long selectedContainerColor, long selectedContentColor, long selectedSecondaryContentColor, long selectedIconColor, long unselectedContainerColor, long unselectedContentColor, long unselectedSecondaryContentColor, long unselectedIconColor, long disabledSelectedContainerColor, long disabledSelectedContentColor, long disabledSelectedSecondaryContentColor, long disabledSelectedIconColor, long disabledUnselectedContainerColor, long disabledUnselectedContentColor, long disabledUnselectedSecondaryContentColor, long disabledUnselectedIconColor);
     method public long getDisabledSelectedContainerColor();
@@ -412,7 +440,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class RadioDefaults {
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioColors colors(optional long selectedColor, optional long unselectedColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.RadioColors colors(optional long selectedColor, optional long unselectedColor, optional long disabledSelectedColor, optional long disabledUnselectedColor);
     field public static final androidx.wear.compose.material3.RadioDefaults INSTANCE;
   }
 

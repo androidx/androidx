@@ -25,7 +25,6 @@
 
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 
@@ -108,7 +107,7 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(project(":room:room-common"))
                 api(project(":sqlite:sqlite"))
-                api(projectOrArtifact(":annotation:annotation"))
+                api("androidx.annotation:annotation:1.8.0")
                 api(libs.kotlinCoroutinesCore)
                 implementation(libs.atomicFu)
             }
@@ -223,7 +222,6 @@ dependencies {
 androidx {
     name = "Room-Runtime"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room-Runtime"
 }

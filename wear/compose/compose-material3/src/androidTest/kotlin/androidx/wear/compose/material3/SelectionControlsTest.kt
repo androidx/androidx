@@ -22,10 +22,6 @@ import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
@@ -64,25 +60,6 @@ class SelectionControlsTest {
             }
             .assertHeightIsEqualTo(SELECTION_CONTROL_HEIGHT)
             .assertWidthIsEqualTo(SELECTION_CONTROL_WIDTH)
-    }
-
-    @Test
-    fun radio_control_has_role_radiobutton() {
-        rule.setContentWithTheme {
-            with(SelectionControlScope(isEnabled = true, isSelected = true)) {
-                Radio(
-                    modifier = Modifier.testTag(TEST_TAG)
-                )
-            }
-        }
-
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.RadioButton
-                )
-            )
     }
 
     @Test

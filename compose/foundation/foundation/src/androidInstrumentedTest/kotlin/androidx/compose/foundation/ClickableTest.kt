@@ -29,6 +29,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -106,6 +108,8 @@ import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.After
@@ -1080,6 +1084,138 @@ class ClickableTest {
         }
     }
 
+    @Test
+    fun interactionSource_resetWhenReused() {
+        val interactionSource = MutableInteractionSource()
+        var key by mutableStateOf(true)
+
+        lateinit var scope: CoroutineScope
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box {
+                ReusableContent(key) {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("myClickable")
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {}
+                    )
+                }
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeBy(TapIndicationDelay)
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        // Change the key to trigger reuse
+        rule.runOnIdle {
+            key = false
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
+            assertThat((interactions[1] as PressInteraction.Cancel).press)
+                .isEqualTo(interactions[0])
+        }
+    }
+
+    @Test
+    fun interactionSource_resetWhenMoved() {
+        val interactionSource = MutableInteractionSource()
+        var moveContent by mutableStateOf(false)
+
+        lateinit var scope: CoroutineScope
+
+        rule.mainClock.autoAdvance = false
+
+        val content = movableContentOf {
+            BasicText(
+                "ClickableText",
+                modifier = Modifier
+                    .testTag("myClickable")
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {}
+            )
+        }
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            if (moveContent) {
+                Box {
+                    content()
+                }
+            } else {
+                Box {
+                    content()
+                }
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeBy(TapIndicationDelay)
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        // Move the content
+        rule.runOnIdle {
+            moveContent = true
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(2)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+            assertThat(interactions[1]).isInstanceOf(PressInteraction.Cancel::class.java)
+            assertThat((interactions[1] as PressInteraction.Cancel).press)
+                .isEqualTo(interactions[0])
+        }
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun interactionSource_hover() {
@@ -1335,25 +1471,51 @@ class ClickableTest {
     private fun Modifier.dynamicPointerInputModifier(
         enabled: Boolean,
         key: Any? = Unit,
-        onPress: () -> Unit = { },
+        onEnter: () -> Unit = { },
         onMove: () -> Unit = { },
+        onPress: () -> Unit = { },
         onRelease: () -> Unit = { },
-    ) = if (enabled) {
+        onExit: () -> Unit = { },
+        ) = if (enabled) {
         pointerInput(key) {
             awaitPointerEventScope {
                 while (true) {
                     val event = awaitPointerEvent()
-                    if (event.type == PointerEventType.Press) {
-                        onPress()
-                    } else if (event.type == PointerEventType.Move) {
-                        onMove()
-                    } else if (event.type == PointerEventType.Release) {
-                        onRelease()
+                    when (event.type) {
+                        PointerEventType.Enter -> {
+                            onEnter()
+                        }
+                        PointerEventType.Press -> {
+                            onPress()
+                        }
+                        PointerEventType.Move -> {
+                            onMove()
+                        }
+                        PointerEventType.Release -> {
+                            onRelease()
+                        }
+                        PointerEventType.Exit -> {
+                            onExit()
+                        }
                     }
                 }
             }
         }
     } else this
+
+    private fun Modifier.dynamicPointerInputModifierWithDetectTapGestures(
+        enabled: Boolean,
+        key: Any? = Unit,
+        onTap: () -> Unit = { }
+    ) = if (enabled) {
+        pointerInput(key) {
+            detectTapGestures {
+                onTap()
+            }
+        }
+    } else {
+        this
+    }
 
     private fun Modifier.dynamicClickableModifier(
         enabled: Boolean,
@@ -1365,8 +1527,20 @@ class ClickableTest {
         ) { onClick() }
     } else this
 
+    // !!!!! MOUSE & TOUCH EVENTS TESTS WITH DYNAMIC MODIFIER INPUT TESTS SECTION (START) !!!!!
+    // The next ~20 tests test enabling/disabling dynamic input modifiers (both pointer input and
+    // clickable) using various combinations (touch vs. mouse, Unit vs. unique keys, nested UI
+    // elements vs. all modifiers on one UI element, etc.)
+
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for the non-dynamic
+     * pointer input and clickable{} for the dynamic pointer input (both on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Touch "click" (down/move/up)
+     * 2. Assert
+     */
     @Test
-    fun dynamicClickableModifierTouch_addsAbovePointerInputWithKey_triggersBothModifiers() {
+    fun dynamicClickableModifier_addsAbovePointerInputWithKeyTouchEvents_correctEvents() {
         // This is part of a dynamic modifier
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
@@ -1410,8 +1584,15 @@ class ClickableTest {
         }
     }
 
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for the non-dynamic
+     * pointer input and clickable{} for the dynamic pointer input (both on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Touch "click" (down/move/up)
+     * 2. Assert
+     */
     @Test
-    fun dynamicClickableModifierTouch_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+    fun dynamicClickableModifier_addsAbovePointerInputWithUnitKeyTouchEvents_correctEvents() {
         // This is part of a dynamic modifier
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
@@ -1455,9 +1636,18 @@ class ClickableTest {
         }
     }
 
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for the non-dynamic
+     * pointer input and clickable{} for the dynamic pointer input (both on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse enter
+     * 2. Mouse "click()" (press/release)
+     * 3. Mouse exit
+     * 4. Assert
+     */
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun dynamicClickableModifierMouse_addsAbovePointerInputWithKey_triggersBothModifiers() {
+    fun dynamicClickableModifier_addsAbovePointerInputWithKeyMouseEvents_correctEvents() {
         // This is part of a dynamic modifier
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
@@ -1509,9 +1699,18 @@ class ClickableTest {
         }
     }
 
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for the non-dynamic
+     * pointer input and clickable{} for the dynamic pointer input (both on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse enter
+     * 2. Mouse "click()" (press/release)
+     * 3. Mouse exit
+     * 4. Assert
+     */
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun dynamicClickableModifierMouse_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+    fun dynamicClickableModifier_addsAbovePointerInputWithUnitKeyMouseEvents_correctEvents() {
         // This is part of a dynamic modifier
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
@@ -1563,8 +1762,16 @@ class ClickableTest {
         }
     }
 
+    /* Uses clickable{} for the non-dynamic pointer input and pointer input
+     * block (awaitPointerEventScope + awaitPointerEvent) for the dynamic pointer input (both
+     * on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Touch "click" (down/move/up)
+     * 2. Assert
+     */
     @Test
-    fun dynamicInputModifierTouch_addsAboveClickableWithKey_triggersBothModifiers() {
+    fun dynamicInputModifier_addsAboveClickableWithKeyTouchEvents_correctEvents() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
@@ -1603,8 +1810,16 @@ class ClickableTest {
         }
     }
 
+    /* Uses clickable{} for the non-dynamic pointer input and pointer input
+     * block (awaitPointerEventScope + awaitPointerEvent) for the dynamic pointer input (both
+     * on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Touch "click" (down/move/up)
+     * 2. Assert
+     */
     @Test
-    fun dynamicInputModifierTouch_addsAboveClickableWithUnitKey_triggersInBothModifiers() {
+    fun dynamicInputModifier_addsAboveClickableWithUnitKeyTouchEvents_correctEvents() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
@@ -1642,9 +1857,22 @@ class ClickableTest {
         }
     }
 
-    // Tests a dynamic pointer input AND a dynamic clickable{} above an existing pointer input.
+    /* Uses pointer input block for the non-dynamic pointer input and BOTH a clickable{} and
+     * pointer input block (awaitPointerEventScope + awaitPointerEvent) for the dynamic pointer
+     * inputs (both on same Box).
+     * Both the dynamic Pointer and clickable{} are disabled to start and then enabled.
+     * Event sequences:
+     * 1. Touch "click" (down/move/up)
+     * 2. Assert
+     * 3. Touch down
+     * 4. Assert
+     * 5. Touch move
+     * 6. Assert
+     * 7. Touch up
+     * 8. Assert
+     */
     @Test
-    fun dynamicInputModifiersInTouchStream_addsAboveClickableWithUnitKey_triggersAllModifiers() {
+    fun dynamicInputAndClickableModifier_addsAbovePointerInputWithUnitKeyTouchEventsWithMove() {
         var activeDynamicClickable by mutableStateOf(false)
         var dynamicClickableCounter by mutableStateOf(0)
 
@@ -1676,6 +1904,10 @@ class ClickableTest {
                 .dynamicClickableModifier(activeDynamicClickable) {
                     dynamicClickableCounter++
                 }
+                // Note the .background() above the static pointer input block
+                // TODO (jjw): Remove once bug fixed for when a dynamic pointer input follows
+                // directly after another pointer input (both using Unit key).
+                // Workaround: add a modifier between them OR use unique keys (that is, not Unit)
                 .background(Color.Green)
                 .pointerInput(Unit) {
                     originalPointerInputLambdaExecutionCount++
@@ -1768,13 +2000,19 @@ class ClickableTest {
         }
     }
 
-    /*
-     * Tests adding dynamic modifier with COMPLETE mouse events, that is, the expected events from
-     * using a hardware device with an Android device.
+    /* Uses clickable{} for the non-dynamic pointer input and pointer input
+     * block (awaitPointerEventScope + awaitPointerEvent) for the dynamic pointer input (both
+     * on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse enter
+     * 2. Mouse "click()" (press/release)
+     * 3. Mouse exit
+     * 4. Assert
      */
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun dynamicInputModifierMouse_addsAboveClickableWithKey_triggersBothModifiers() {
+    fun dynamicInputModifier_addsAboveClickableWithKeyMouseEvents_correctEvents() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
@@ -1820,13 +2058,19 @@ class ClickableTest {
         }
     }
 
-    /*
-     * Tests adding dynamic modifier with COMPLETE mouse events, that is, the expected events from
-     * using a hardware device with an Android device.
+    /* Uses clickable{} for the non-dynamic pointer input and pointer input
+     * block (awaitPointerEventScope + awaitPointerEvent) for the dynamic pointer input (both
+     * on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse enter
+     * 2. Mouse "click()" (press/release)
+     * 3. Mouse exit
+     * 4. Assert
      */
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun dynamicInputModifierMouse_addsAboveClickableWithUnitKey_triggersInBothModifiers() {
+    fun dynamicInputModifier_addsAboveClickableWithUnitKeyMouseEvents_correctEvents() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
@@ -1871,15 +2115,26 @@ class ClickableTest {
         }
     }
 
-    /* Tests dynamically adding a pointer input DURING an event stream (specifically, Hover).
-     * Hover is the only scenario where you can add a new pointer input modifier during the event
-     * stream AND receive events in the same active stream from that new pointer input modifier.
-     * It isn't possible in the down/up scenario because you add the new modifier during the down
-     * but you don't get another down until the next event stream.
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for both the
+     * non-dynamic pointer input and the dynamic pointer input (both on same Box).
+     *
+     * Tests dynamically adding a pointer input ABOVE an existing pointer input DURING an
+     * event stream (specifically, Hover).
+     *
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse enter
+     * 2. Assert
+     * 3. Mouse press
+     * 4. Assert
+     * 5. Mouse release
+     * 6. Assert
+     * 7. Mouse exit
+     * 8. Assert
      */
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun dynamicInputModifierHoverMouse_addsAbovePointerInputWithUnitKey_triggersBothModifiers() {
+    fun dynamicInputModifier_addsAbovePointerInputWithUnitKeyMouseEvents_correctEvents() {
         var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
         var originalPointerInputEventCounter by mutableStateOf(0)
 
@@ -1959,14 +2214,17 @@ class ClickableTest {
         }
     }
 
-    /* This is the same as the test above, but
-     *   1. Using clickable{}
-     *   2. It enables the dynamic pointer input and starts the hover event stream in a more
-     * hacky way (using mouse click without hover which triggers hover enter on release).
+    /* Uses clickable{} for the non-dynamic pointer input and pointer input
+     * block (awaitPointerEventScope + awaitPointerEvent) for the dynamic pointer input (both
+     * on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
+     * 2. Assert
      */
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun dynamicInputModifierIncompleteMouse_addsAboveClickableHackyEvents_triggersBothModifiers() {
+    fun dynamicInputModifier_addsAboveClickableIncompleteMouseEvents_correctEvents() {
         var clickableClickCounter by mutableStateOf(0)
         // Note: I'm tracking press instead of release because clickable{} consumes release
         var dynamicPressCounter by mutableStateOf(0)
@@ -1989,16 +2247,6 @@ class ClickableTest {
             )
         }
 
-        // Usually, a proper event stream from hardware for mouse input would be:
-        // - enter() (hover enter)
-        // - click()
-        // - exit()
-        // However, in this case, I'm just calling click() which triggers actions:
-        // - press
-        // - release
-        // - hover enter
-        // This starts a hover event stream (in a more hacky way) and also enables the dynamic
-        // pointer input to start recording events.
         rule.onNodeWithTag("myClickable").performMouseInput {
             click()
         }
@@ -2017,6 +2265,1749 @@ class ClickableTest {
             assertEquals(1, dynamicPressCounter)
         }
     }
+
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for both the
+     * non-dynamic pointer input and the dynamic pointer input (both on same Box).
+     *
+     * Tests dynamically adding a pointer input AFTER an existing pointer input DURING an
+     * event stream (specifically, Hover).
+     * Hover is the only scenario where you can add a new pointer input modifier during the event
+     * stream AND receive events in the same active stream from that new pointer input modifier.
+     * It isn't possible in the down/up scenario because you add the new modifier during the down
+     * but you don't get another down until the next event stream.
+     *
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse enter
+     * 2. Assert
+     * 3. Mouse press
+     * 4. Assert
+     * 5. Mouse release
+     * 6. Assert
+     * 7. Mouse exit
+     * 8. Assert
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifier_addsBelowPointerInputWithUnitKeyMouseEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent()
+                            originalPointerInputEventCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                }
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    },
+                    onRelease = {
+                        dynamicReleaseCounter++
+                    }
+                )
+            )
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEventCounter)
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            press()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // Both the original and enabled dynamic pointer input modifiers will get the event
+            // since they are on the same Box.
+            assertEquals(2, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            assertTrue(activateDynamicPointerInput)
+            release()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(4, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for both the
+     * non-dynamic pointer input and the dynamic pointer input (both on same Box).
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
+     * 2. Assert
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifier_addsBelowPointerInputUnitKeyIncompleteMouseEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent()
+                            originalPointerInputEventCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                }
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onPress = {
+                        dynamicPressCounter++
+                    },
+                    onRelease = {
+                        dynamicReleaseCounter++
+                    }
+                )
+            )
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter) // Enter, Press, Release
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            // Because the mouse is still within the box area, Compose doesn't need to trigger an
+            // Exit. Instead, it just triggers two events (Press and Release) which is why the
+            // total is only 5.
+            assertEquals(5, originalPointerInputEventCounter) // Press, Release
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* The next set of tests uses two nested boxes inside a box. The two nested boxes each contain
+     * their own pointer input modifier (vs. the tests above that apply two pointer input modifiers
+     * to the same box).
+     */
+
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for both the
+     * non-dynamic pointer input and the dynamic pointer input.
+     * The Dynamic Pointer is disabled to start and then enabled.
+     * Event sequences:
+     * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
+     * 2. Assert
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBox_addsBelowPointerInputUnitKeyIncompleteMouseEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+                        awaitPointerEventScope {
+                            while (true) {
+                                awaitPointerEvent()
+                                originalPointerInputEventCounter++
+                                activateDynamicPointerInput = true
+                            }
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        onPress = {
+                            dynamicPressCounter++
+                        },
+                        onRelease = {
+                            dynamicReleaseCounter++
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* Uses pointer input block (awaitPointerEventScope + awaitPointerEvent) for both the
+     * non-dynamic pointer input and the dynamic pointer input.
+     * The Dynamic Pointer is disabled to start, then enabled, and finally disabled.
+     * Event sequences:
+     * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
+     * 2. Assert
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBox_togglesBelowPointerInputUnitKeyIncompleteMouseEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                originalPointerInputEventCounter++
+
+                                // Note: We only set the activateDynamicPointerInput to true on
+                                // Release because we do not want it set on just any event.
+                                // Specifically, we do not want it set on Exit, because, in the
+                                // case of this event, the exit will be triggered around the same
+                                // time as the other dynamic pointer input receives a press (when
+                                // it is enabled) because, as soon as that gets that event, Compose
+                                // sees this box no longer the hit target (the box with the dynamic
+                                // pointer input is now), so it triggers an exit on this original
+                                // non-dynamic pointer input. If we allowed
+                                // activateDynamicPointerInput to be set during any event, it would
+                                // undo us setting activateDynamicPointerInput to false in the other
+                                // pointer input handler.
+                                if (event.type == PointerEventType.Release) {
+                                    activateDynamicPointerInput = true
+                                }
+                            }
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Cyan)
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        onPress = {
+                            dynamicPressCounter++
+                        },
+                        onRelease = {
+                            dynamicReleaseCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(3, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* Uses Foundation's detectTapGestures{} for the non-dynamic pointer input. The dynamic pointer
+     * input uses the lower level pointer input commands.
+     * The Dynamic Pointer is disabled to start, then enabled, and finally disabled.
+     * Event sequences:
+     * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
+     * 2. Assert
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBoxGesture_togglesBelowWithUnitKeyIncompleteMouseEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEventCounter by mutableStateOf(0)
+
+        var dynamicPressCounter by mutableStateOf(0)
+        var dynamicReleaseCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+                        detectTapGestures {
+                            originalPointerInputEventCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        onPress = {
+                            dynamicPressCounter++
+                        },
+                        onRelease = {
+                            dynamicReleaseCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEventCounter)
+            assertEquals(0, dynamicPressCounter)
+            assertEquals(0, dynamicReleaseCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            click()
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEventCounter)
+            assertEquals(1, dynamicPressCounter)
+            assertEquals(1, dynamicReleaseCounter)
+        }
+    }
+
+    /* Uses Foundation's detectTapGestures{} for both the non-dynamic pointer input and the
+     * dynamic pointer input (vs. the lower level pointer input commands).
+     * The Dynamic Pointer is disabled to start, then enabled, and finally disabled.
+     * Event sequences:
+     * 1. Touch "click" (down/move/up)
+     * 2. Assert
+     */
+    @Test
+    fun dynamicInputNestedBoxGesture_togglesBelowWithKeyTouchEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputTapGestureCounter by mutableStateOf(0)
+
+        var dynamicTapGestureCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput("myUniqueKey1") {
+                        originalPointerInputLambdaExecutionCount++
+
+                        detectTapGestures {
+                            originalPointerInputTapGestureCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifierWithDetectTapGestures(
+                        enabled = activateDynamicPointerInput,
+                        key = "myUniqueKey2",
+                        onTap = {
+                            dynamicTapGestureCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        // This command is the same as
+        // rule.onNodeWithTag("myClickable").performTouchInput { click() }
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputTapGestureCounter)
+            assertEquals(0, dynamicTapGestureCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputTapGestureCounter)
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+    }
+
+    /*
+     * The next four tests are based on the test above (nested boxes using a pointer input
+     * modifier blocks with the Foundation Gesture detectTapGestures{}).
+     *
+     * The difference is the dynamic pointer input modifier is enabled to start (while in the
+     * other tests it is disabled to start).
+     *
+     * The tests below tests out variations (mouse vs. touch and Unit keys vs. unique keys).
+     */
+
+    /* Dynamic Pointer enabled to start, disabled, then re-enabled (uses UNIQUE key)
+     * Event sequences:
+     * 1. Touch "click" (down/move/up)
+     * 2. Assert
+     */
+    @Test
+    fun dynamicInputNestedBoxGesture_togglesBelowOffWithKeyTouchEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputTapGestureCounter by mutableStateOf(0)
+
+        var dynamicTapGestureCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(true)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput("myUniqueKey1") {
+                        originalPointerInputLambdaExecutionCount++
+
+                        detectTapGestures {
+                            originalPointerInputTapGestureCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifierWithDetectTapGestures(
+                        enabled = activateDynamicPointerInput,
+                        key = "myUniqueKey2",
+                        onTap = {
+                            dynamicTapGestureCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(0, originalPointerInputLambdaExecutionCount)
+            assertEquals(0, originalPointerInputTapGestureCounter)
+            // Since second box is created following first box, it will get the event
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputTapGestureCounter)
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+    }
+
+    /* Dynamic Pointer enabled to start, disabled, then re-enabled (uses UNIT for key)
+     * Event sequences:
+     * 1. Touch "click" (down/move/up)
+     * 2. Assert
+     */
+    @Test
+    fun dynamicInputNestedBoxGesture_togglesBelowOffWithUnitKeyTouchEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputTapGestureCounter by mutableStateOf(0)
+
+        var dynamicTapGestureCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(true)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+
+                        detectTapGestures {
+                            originalPointerInputTapGestureCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifierWithDetectTapGestures(
+                        enabled = activateDynamicPointerInput,
+                        key = Unit,
+                        onTap = {
+                            dynamicTapGestureCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(0, originalPointerInputLambdaExecutionCount)
+            assertEquals(0, originalPointerInputTapGestureCounter)
+            // Since second box is created following first box, it will get the event
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performClick()
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputTapGestureCounter)
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+    }
+
+    /* Dynamic Pointer enabled to start, disabled, then re-enabled (uses UNIQUE key)
+     * Event sequences:
+     * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
+     * 2. Assert
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBoxGesture_togglesBelowOffWithKeyIncompleteMouseEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputTapGestureCounter by mutableStateOf(0)
+
+        var dynamicTapGestureCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(true)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput("myUniqueKey1") {
+                        originalPointerInputLambdaExecutionCount++
+
+                        detectTapGestures {
+                            originalPointerInputTapGestureCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifierWithDetectTapGestures(
+                        enabled = activateDynamicPointerInput,
+                        key = "myUniqueKey2",
+                        onTap = {
+                            dynamicTapGestureCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput { click() }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(0, originalPointerInputLambdaExecutionCount)
+            assertEquals(0, originalPointerInputTapGestureCounter)
+            // Since second box is created following first box, it will get the event
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput { click() }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputTapGestureCounter)
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+    }
+
+    /* Dynamic Pointer enabled to start, disabled, then re-enabled (uses Unit for key)
+     * Event sequences:
+     * 1. Mouse "click" (incomplete [down/up only], does not include expected hover in/out)
+     * 2. Assert
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBoxGesture_togglesBelowOffUnitKeyIncompleteMouseEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputTapGestureCounter by mutableStateOf(0)
+
+        var dynamicTapGestureCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(true)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+
+                        detectTapGestures {
+                            originalPointerInputTapGestureCounter++
+                            activateDynamicPointerInput = true
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifierWithDetectTapGestures(
+                        enabled = activateDynamicPointerInput,
+                        key = Unit,
+                        onTap = {
+                            dynamicTapGestureCounter++
+                            activateDynamicPointerInput = false
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertTrue(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput { click() }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+            assertEquals(0, originalPointerInputLambdaExecutionCount)
+            assertEquals(0, originalPointerInputTapGestureCounter)
+            // Since second box is created following first box, it will get the event
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput { click() }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputTapGestureCounter)
+            assertTrue(activateDynamicPointerInput)
+            assertEquals(1, dynamicTapGestureCounter)
+        }
+    }
+    // !!!!! MOUSE & TOUCH EVENTS TESTS WITH DYNAMIC MODIFIER INPUT TESTS SECTION (END) !!!!!
+
+    // !!!!! HOVER EVENTS ONLY WITH DYNAMIC MODIFIER INPUT TESTS SECTION (START) !!!!!
+    /* These tests dynamically add a pointer input BEFORE or AFTER an existing pointer input DURING
+     * an event stream (specifically, Hover). Some tests use unique keys while others use UNIT as
+     * the key. Finally, some of the tests apply the modifiers to the same Box while others use
+     * sibling blocks (read the test name for details).
+     *
+     * Test name explains the test.
+     * All tests start with the dynamic pointer disabled and enable it on the first hover enter
+     *
+     * Event sequences:
+     * 1. Hover enter
+     * 2. Assert
+     * 3. Move
+     * 4. Assert
+     * 5. Move
+     * 6. Assert
+     * 7. Hover exit
+     * 8. Assert
+     */
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifier_addsAbovePointerInputWithUnitKeyHoverEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEnterEventCounter by mutableStateOf(0)
+        var originalPointerInputMoveEventCounter by mutableStateOf(0)
+        var originalPointerInputExitEventCounter by mutableStateOf(0)
+
+        var dynamicEnterCounter by mutableStateOf(0)
+        var dynamicMoveCounter by mutableStateOf(0)
+        var dynamicExitCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onEnter = {
+                        dynamicEnterCounter++
+                    },
+                    onMove = {
+                        dynamicMoveCounter++
+                    },
+                    onExit = {
+                        dynamicExitCounter++
+                    }
+                )
+                .background(Color.Green)
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            when (event.type) {
+                                PointerEventType.Enter -> {
+                                    originalPointerInputEnterEventCounter++
+                                    activateDynamicPointerInput = true
+                                }
+                                PointerEventType.Move -> {
+                                    originalPointerInputMoveEventCounter++
+                                }
+                                PointerEventType.Exit -> {
+                                    originalPointerInputExitEventCounter++
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        // Because the dynamic pointer input is added after the "enter" event (and it is part of the
+        // same modifier chain), it will receive events as well now.
+        // (Because the dynamic modifier is added BEFORE the original modifier, it WILL reset the
+        // event stream for the original modifier.)
+        // Original pointer input:  Hover Exit event then a Hover Enter event
+        // Dynamic pointer input:   Hover enter event
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEnterEventCounter)
+            assertEquals(1, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEnterEventCounter)
+            assertEquals(1, originalPointerInputMoveEventCounter)
+            assertEquals(2, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(1, dynamicExitCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifier_addsAbovePointerInputWithKeyHoverEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEnterEventCounter by mutableStateOf(0)
+        var originalPointerInputMoveEventCounter by mutableStateOf(0)
+        var originalPointerInputExitEventCounter by mutableStateOf(0)
+
+        var dynamicEnterCounter by mutableStateOf(0)
+        var dynamicMoveCounter by mutableStateOf(0)
+        var dynamicExitCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .dynamicPointerInputModifier(
+                    key = "unique_key_1234",
+                    enabled = activateDynamicPointerInput,
+                    onEnter = {
+                        dynamicEnterCounter++
+                    },
+                    onMove = {
+                        dynamicMoveCounter++
+                    },
+                    onExit = {
+                        dynamicExitCounter++
+                    }
+                )
+                .background(Color.Green)
+                .pointerInput("unique_key_5678") {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            when (event.type) {
+                                PointerEventType.Enter -> {
+                                    originalPointerInputEnterEventCounter++
+                                    activateDynamicPointerInput = true
+                                }
+                                PointerEventType.Move -> {
+                                    originalPointerInputMoveEventCounter++
+                                }
+                                PointerEventType.Exit -> {
+                                    originalPointerInputExitEventCounter++
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        // Because the dynamic pointer input is added after the "enter" event (and it is part of the
+        // same modifier chain), it will receive events as well now.
+        // (Because the dynamic modifier is added BEFORE the original modifier, it WILL reset the
+        // event stream for the original modifier.)
+        // Original pointer input:  Hover Exit event then a Hover Enter event
+        // Dynamic pointer input:   Hover enter event
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEnterEventCounter)
+            assertEquals(1, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(2, originalPointerInputEnterEventCounter)
+            assertEquals(1, originalPointerInputMoveEventCounter)
+            assertEquals(2, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(1, dynamicExitCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifier_addsBelowPointerInputWithUnitKeyHoverEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEnterEventCounter by mutableStateOf(0)
+        var originalPointerInputMoveEventCounter by mutableStateOf(0)
+        var originalPointerInputExitEventCounter by mutableStateOf(0)
+
+        var dynamicEnterCounter by mutableStateOf(0)
+        var dynamicMoveCounter by mutableStateOf(0)
+        var dynamicExitCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .pointerInput(Unit) {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            when (event.type) {
+                                PointerEventType.Enter -> {
+                                    originalPointerInputEnterEventCounter++
+                                    activateDynamicPointerInput = true
+                                }
+                                PointerEventType.Move -> {
+                                    originalPointerInputMoveEventCounter++
+                                }
+                                PointerEventType.Exit -> {
+                                    originalPointerInputExitEventCounter++
+                                }
+                            }
+                        }
+                    }
+                }
+                .background(Color.Green)
+                .dynamicPointerInputModifier(
+                    enabled = activateDynamicPointerInput,
+                    onEnter = {
+                        dynamicEnterCounter++
+                    },
+                    onMove = {
+                        dynamicMoveCounter++
+                    },
+                    onExit = {
+                        dynamicExitCounter++
+                    }
+                )
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        // Because the dynamic pointer input is added after the "enter" event (and it is part of the
+        // same modifier chain), it will receive events as well now.
+        // (Because the dynamic modifier is added BELOW the original modifier, it will not reset the
+        // event stream for the original modifier.)
+        // Original pointer input:  Move event
+        // Dynamic pointer input:   Hover enter event
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(1, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(2, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(2, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(1, dynamicExitCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputModifier_addsBelowPointerInputWithKeyHoverEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEnterEventCounter by mutableStateOf(0)
+        var originalPointerInputMoveEventCounter by mutableStateOf(0)
+        var originalPointerInputExitEventCounter by mutableStateOf(0)
+
+        var dynamicEnterCounter by mutableStateOf(0)
+        var dynamicMoveCounter by mutableStateOf(0)
+        var dynamicExitCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier
+                .size(200.dp)
+                .testTag("myClickable")
+                .pointerInput("unique_key_5678") {
+                    originalPointerInputLambdaExecutionCount++
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            when (event.type) {
+                                PointerEventType.Enter -> {
+                                    originalPointerInputEnterEventCounter++
+                                    activateDynamicPointerInput = true
+                                }
+                                PointerEventType.Move -> {
+                                    originalPointerInputMoveEventCounter++
+                                }
+                                PointerEventType.Exit -> {
+                                    originalPointerInputExitEventCounter++
+                                }
+                            }
+                        }
+                    }
+                }
+                .background(Color.Green)
+                .dynamicPointerInputModifier(
+                    key = "unique_key_1234",
+                    enabled = activateDynamicPointerInput,
+                    onEnter = {
+                        dynamicEnterCounter++
+                    },
+                    onMove = {
+                        dynamicMoveCounter++
+                    },
+                    onExit = {
+                        dynamicExitCounter++
+                    }
+                )
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        // Because the dynamic pointer input is added after the "enter" event (and it is part of the
+        // same modifier chain), it will receive events as well now.
+        // (Because the dynamic modifier is added BELOW the original modifier, it will not reset the
+        // event stream for the original modifier.)
+        // Original pointer input:  Move event
+        // Dynamic pointer input:   Hover enter event
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(1, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(2, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(2, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(1, dynamicExitCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBox_addsBelowPointerInputUnitKeyHoverEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEnterEventCounter by mutableStateOf(0)
+        var originalPointerInputMoveEventCounter by mutableStateOf(0)
+        var originalPointerInputExitEventCounter by mutableStateOf(0)
+
+        var dynamicEnterCounter by mutableStateOf(0)
+        var dynamicMoveCounter by mutableStateOf(0)
+        var dynamicExitCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                when (event.type) {
+                                    PointerEventType.Enter -> {
+                                        originalPointerInputEnterEventCounter++
+                                        activateDynamicPointerInput = true
+                                    }
+                                    PointerEventType.Move -> {
+                                        originalPointerInputMoveEventCounter++
+                                    }
+                                    PointerEventType.Exit -> {
+                                        originalPointerInputExitEventCounter++
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        onEnter = {
+                            dynamicEnterCounter++
+                        },
+                        onMove = {
+                            dynamicMoveCounter++
+                        },
+                        onExit = {
+                            dynamicExitCounter++
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(1, dynamicExitCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBox_addsBelowPointerInputKeyHoverEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEnterEventCounter by mutableStateOf(0)
+        var originalPointerInputMoveEventCounter by mutableStateOf(0)
+        var originalPointerInputExitEventCounter by mutableStateOf(0)
+
+        var dynamicEnterCounter by mutableStateOf(0)
+        var dynamicMoveCounter by mutableStateOf(0)
+        var dynamicExitCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput("unique_key_1234") {
+                        originalPointerInputLambdaExecutionCount++
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                when (event.type) {
+                                    PointerEventType.Enter -> {
+                                        originalPointerInputEnterEventCounter++
+                                        activateDynamicPointerInput = true
+                                    }
+                                    PointerEventType.Move -> {
+                                        originalPointerInputMoveEventCounter++
+                                    }
+                                    PointerEventType.Exit -> {
+                                        originalPointerInputExitEventCounter++
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        key = "unique_key_5678",
+                        enabled = activateDynamicPointerInput,
+                        onEnter = {
+                            dynamicEnterCounter++
+                        },
+                        onMove = {
+                            dynamicMoveCounter++
+                        },
+                        onExit = {
+                            dynamicExitCounter++
+                        }
+                    )
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(1, dynamicEnterCounter)
+            assertEquals(1, dynamicMoveCounter)
+            assertEquals(1, dynamicExitCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBox_addsAbovePointerInputUnitKeyHoverEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEnterEventCounter by mutableStateOf(0)
+        var originalPointerInputMoveEventCounter by mutableStateOf(0)
+        var originalPointerInputExitEventCounter by mutableStateOf(0)
+
+        var dynamicEnterCounter by mutableStateOf(0)
+        var dynamicMoveCounter by mutableStateOf(0)
+        var dynamicExitCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        enabled = activateDynamicPointerInput,
+                        onEnter = {
+                            dynamicEnterCounter++
+                        },
+                        onMove = {
+                            dynamicMoveCounter++
+                        },
+                        onExit = {
+                            dynamicExitCounter++
+                        }
+                    )
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput(Unit) {
+                        originalPointerInputLambdaExecutionCount++
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                when (event.type) {
+                                    PointerEventType.Enter -> {
+                                        originalPointerInputEnterEventCounter++
+                                        activateDynamicPointerInput = true
+                                    }
+                                    PointerEventType.Move -> {
+                                        originalPointerInputMoveEventCounter++
+                                    }
+                                    PointerEventType.Exit -> {
+                                        originalPointerInputExitEventCounter++
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(1, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(2, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(2, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamicInputNestedBox_addsAbovePointerInputKeyHoverEvents_correctEvents() {
+        var originalPointerInputLambdaExecutionCount by mutableStateOf(0)
+        var originalPointerInputEnterEventCounter by mutableStateOf(0)
+        var originalPointerInputMoveEventCounter by mutableStateOf(0)
+        var originalPointerInputExitEventCounter by mutableStateOf(0)
+
+        var dynamicEnterCounter by mutableStateOf(0)
+        var dynamicMoveCounter by mutableStateOf(0)
+        var dynamicExitCounter by mutableStateOf(0)
+        var activateDynamicPointerInput by mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.size(100.dp).testTag("myClickable")) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .dynamicPointerInputModifier(
+                        key = "unique_key_5678",
+                        enabled = activateDynamicPointerInput,
+                        onEnter = {
+                            dynamicEnterCounter++
+                        },
+                        onMove = {
+                            dynamicMoveCounter++
+                        },
+                        onExit = {
+                            dynamicExitCounter++
+                        }
+                    )
+                )
+                Box(Modifier
+                    .fillMaxSize()
+                    .background(Color.Green)
+                    .pointerInput("unique_key_1234") {
+                        originalPointerInputLambdaExecutionCount++
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                when (event.type) {
+                                    PointerEventType.Enter -> {
+                                        originalPointerInputEnterEventCounter++
+                                        activateDynamicPointerInput = true
+                                    }
+                                    PointerEventType.Move -> {
+                                        originalPointerInputMoveEventCounter++
+                                    }
+                                    PointerEventType.Exit -> {
+                                        originalPointerInputExitEventCounter++
+                                    }
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertFalse(activateDynamicPointerInput)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            enter()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(0, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(1, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            moveBy(Offset(1.0f, 1.0f))
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(2, originalPointerInputMoveEventCounter)
+            assertEquals(0, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+
+        rule.onNodeWithTag("myClickable").performMouseInput {
+            exit()
+        }
+
+        rule.runOnIdle {
+            assertEquals(1, originalPointerInputLambdaExecutionCount)
+            assertEquals(1, originalPointerInputEnterEventCounter)
+            assertEquals(2, originalPointerInputMoveEventCounter)
+            assertEquals(1, originalPointerInputExitEventCounter)
+            assertEquals(0, dynamicEnterCounter)
+            assertEquals(0, dynamicMoveCounter)
+            assertEquals(0, dynamicExitCounter)
+        }
+    }
+    // !!!!! HOVER EVENTS ONLY WITH DYNAMIC MODIFIER INPUT TESTS SECTION (END) !!!!!
 
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -3333,6 +5324,392 @@ class ClickableTest {
         rule.runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @Test
+    fun indicationNodeFactory_nullInteractionSource_resetWhenReused_pressed() {
+        var attachedCount = 0
+        var detachedCount = 0
+        val interactionSources = mutableListOf<InteractionSource>()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detachedCount++ }
+        ) { interactionSource, coroutineScope ->
+            attachedCount++
+            interactionSources += interactionSource
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var key by mutableStateOf(true)
+
+        rule.setContent {
+            Box {
+                ReusableContent(key) {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("clickable")
+                            .clickable(
+                                interactionSource = null,
+                                indication = indication
+                            ) {}
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(0)
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        // Change the key to trigger reuse
+        rule.runOnIdle {
+            interactions.clear()
+            key = false
+        }
+
+        rule.runOnIdle {
+            // The indication instance should be disposed
+            assertThat(detachedCount).isEqualTo(1)
+            // Because we collect the interactionSource using the node scope, this will be cancelled
+            // before the new interaction is emitted, so the node won't see the Cancel interaction.
+            // Since the node has been removed though, this doesn't really matter.
+            // No new node should be created, since we have reset, and are lazily creating the node
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+        }
+
+        // The touch event should cause a new indication node and interaction source to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput {
+                // Need to reset the previous down
+                up()
+                down(center)
+            }
+
+        rule.runOnIdle {
+            // The new node should be created now
+            assertThat(attachedCount).isEqualTo(2)
+            assertThat(interactionSources.size).isEqualTo(2)
+            // It should be using a different interaction source
+            assertThat(interactionSources[0]).isNotEqualTo(interactionSources[1])
+            assertThat(detachedCount).isEqualTo(1)
+            // There should be a new press
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun indicationNodeFactory_nullInteractionSource_resetWhenReused_focused() {
+        var attachedCount = 0
+        var detachedCount = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        val interactionSources = mutableListOf<InteractionSource>()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detachedCount++ }
+        ) { interactionSource, coroutineScope ->
+            attachedCount++
+            interactionSources += interactionSource
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var key by mutableStateOf(true)
+
+        // setFocusableContent so when we are reused, the focus system won't automatically try and
+        // set focus on us again
+        rule.setFocusableContent {
+            inputModeManager = LocalInputModeManager.current
+            Box {
+                ReusableContent(key) {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("clickable")
+                            .focusRequester(focusRequester)
+                            .clickable(
+                                interactionSource = null,
+                                indication = indication
+                            ) {}
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(0)
+        }
+
+        rule.runOnIdle {
+            // Clickable is only focusable in non-touch mode
+            inputModeManager.requestInputMode(Keyboard)
+            // The focus event should cause the indication node to be created
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+
+        // Change the key to trigger reuse
+        rule.runOnIdle {
+            interactions.clear()
+            key = false
+        }
+
+        rule.runOnIdle {
+            // The indication instance should be disposed
+            assertThat(detachedCount).isEqualTo(1)
+            // Because we collect the interactionSource using the node scope, this will be cancelled
+            // before the new interaction is emitted, so the node won't see the Unfocus interaction.
+            // Since the node has been removed though, this doesn't really matter.
+            // No new node should be created, since we have reset, and are lazily creating the node
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+        }
+
+        rule.runOnIdle {
+            // Request focus again
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            // The new node should be created now
+            assertThat(attachedCount).isEqualTo(2)
+            assertThat(interactionSources.size).isEqualTo(2)
+            // It should be using a different interaction source
+            assertThat(interactionSources[0]).isNotEqualTo(interactionSources[1])
+            assertThat(detachedCount).isEqualTo(1)
+            // There should be a new focus interaction
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+    }
+
+    @Test
+    fun indicationNodeFactory_nullInteractionSource_resetWhenMoved_pressed() {
+        var attachedCount = 0
+        var detachedCount = 0
+        val interactionSources = mutableListOf<InteractionSource>()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detachedCount++ }
+        ) { interactionSource, coroutineScope ->
+            attachedCount++
+            interactionSources += interactionSource
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var moveContent by mutableStateOf(false)
+
+        val content = movableContentOf {
+            BasicText(
+                "ClickableText",
+                modifier = Modifier
+                    .testTag("clickable")
+                    .clickable(
+                        interactionSource = null,
+                        indication = indication
+                    ) {}
+            )
+        }
+
+        rule.setContent {
+            if (moveContent) {
+                Box {
+                    content()
+                }
+            } else {
+                Box {
+                    content()
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(0)
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+
+        // Move the content
+        rule.runOnIdle {
+            interactions.clear()
+            moveContent = true
+        }
+
+        rule.runOnIdle {
+            // The indication instance should be disposed
+            assertThat(detachedCount).isEqualTo(1)
+            // Because we collect the interactionSource using the node scope, this will be cancelled
+            // before the new interaction is emitted, so the node won't see the Unfocus interaction.
+            // Since the node has been removed though, this doesn't really matter.
+            // No new node should be created, since we have reset, and are lazily creating the node
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+        }
+
+        // The touch event should cause a new indication node and interaction source to be created
+        rule.onNodeWithTag("clickable")
+            .performTouchInput {
+                // Need to reset the previous down
+                up()
+                down(center)
+            }
+
+        rule.runOnIdle {
+            // The new node should be created now
+            assertThat(attachedCount).isEqualTo(2)
+            assertThat(interactionSources.size).isEqualTo(2)
+            // It should be using a different interaction source
+            assertThat(interactionSources[0]).isNotEqualTo(interactionSources[1])
+            assertThat(detachedCount).isEqualTo(1)
+            // There should be a new press
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun indicationNodeFactory_nullInteractionSource_resetWhenMoved_focused() {
+        var attachedCount = 0
+        var detachedCount = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        val interactionSources = mutableListOf<InteractionSource>()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory(
+            onDetach = { detachedCount++ }
+        ) { interactionSource, coroutineScope ->
+            attachedCount++
+            interactionSources += interactionSource
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        var moveContent by mutableStateOf(false)
+
+        val content = movableContentOf {
+            BasicText(
+                "ClickableText",
+                modifier = Modifier
+                    .testTag("clickable")
+                    .focusRequester(focusRequester)
+                    .clickable(
+                        interactionSource = null,
+                        indication = indication
+                    ) {}
+            )
+        }
+
+        // setFocusableContent so when we are reused, the focus system won't automatically try and
+        // set focus on us again
+        rule.setFocusableContent {
+            inputModeManager = LocalInputModeManager.current
+            if (moveContent) {
+                Box {
+                    content()
+                }
+            } else {
+                Box {
+                    content()
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(0)
+        }
+
+        rule.runOnIdle {
+            // Clickable is only focusable in non-touch mode
+            inputModeManager.requestInputMode(Keyboard)
+            // The focus event should cause the indication node to be created
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
+        }
+
+        // Move the content
+        rule.runOnIdle {
+            interactions.clear()
+            moveContent = true
+        }
+
+        rule.runOnIdle {
+            // The indication instance should be disposed
+            assertThat(detachedCount).isEqualTo(1)
+            // Because we collect the interactionSource using the node scope, this will be cancelled
+            // before the new interaction is emitted, so the node won't see the Unfocus interaction.
+            // Since the node has been removed though, this doesn't really matter.
+            // No new node should be created, since we have reset, and are lazily creating the node
+            assertThat(attachedCount).isEqualTo(1)
+            assertThat(interactionSources.size).isEqualTo(1)
+        }
+
+        rule.runOnIdle {
+            // Request focus again
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            // The new node should be created now
+            assertThat(attachedCount).isEqualTo(2)
+            assertThat(interactionSources.size).isEqualTo(2)
+            // It should be using a different interaction source
+            assertThat(interactionSources[0]).isNotEqualTo(interactionSources[1])
+            assertThat(detachedCount).isEqualTo(1)
+            // There should be a new focus interaction
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(FocusInteraction.Focus::class.java)
         }
     }
 

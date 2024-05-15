@@ -26,10 +26,8 @@ package androidx.compose.ui.text
  */
 @ExperimentalTextApi
 @Deprecated(
-    "Use LinkAnnotatation.Url instead. If you're using material/material3 then use " +
-        "TextDefaults.Url(url) constructor to create a link annotation. " +
-        "Otherwise LinkAnnotation.Url(url)",
-    ReplaceWith("TextDefaults.Url(url)", "androidx.compose.material3.TextDefaults")
+    "Use LinkAnnotatation.Url(url) instead",
+    ReplaceWith("LinkAnnotation.Url(url)")
 )
 @Suppress("Deprecation")
 class UrlAnnotation(val url: String) {
