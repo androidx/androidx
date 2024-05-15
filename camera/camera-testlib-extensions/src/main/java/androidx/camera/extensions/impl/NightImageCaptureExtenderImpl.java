@@ -364,17 +364,15 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
         private List<Pair<CaptureResult.Key, Object>> getFilteredResults(
                 TotalCaptureResult captureResult) {
             List<Pair<CaptureResult.Key, Object>> list = new ArrayList<>();
-            if (captureResult.get(CaptureResult.JPEG_ORIENTATION) != null) {
-                list.add(new Pair<>(CaptureResult.JPEG_ORIENTATION,
-                        captureResult.get(CaptureResult.JPEG_ORIENTATION)));
-            }
-            if (captureResult.get(CaptureResult.JPEG_QUALITY) != null) {
-                list.add(new Pair<>(CaptureResult.JPEG_QUALITY,
-                        captureResult.get(CaptureResult.JPEG_QUALITY)));
+
+            for (CaptureResult.Key availableCaptureResultKey : getAvailableCaptureResultKeys()) {
+                if (captureResult.get(availableCaptureResultKey) != null) {
+                    list.add(new Pair<>(availableCaptureResultKey,
+                            captureResult.get(availableCaptureResultKey)));
+                }
             }
             return list;
         }
-
 
         @Override
         public void onResolutionUpdate(@NonNull Size size) {

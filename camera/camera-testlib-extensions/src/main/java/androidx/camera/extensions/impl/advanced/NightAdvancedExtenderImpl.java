@@ -24,8 +24,10 @@ import android.graphics.ImageFormat;
  *
  * @since 1.2
  */
-public class NightAdvancedExtenderImpl extends LongCaptureAdvancedExtenderImpl {
+public class NightAdvancedExtenderImpl extends ConfigurableAdvancedExtenderImpl {
     public NightAdvancedExtenderImpl() {
-        super(/* postviewFormat */ ImageFormat.YUV_420_888);
+        super(/* longDurationCapture */ true,
+                /* postviewFormat */ ImageFormat.YUV_420_888,
+                /* invokeOnCaptureCompleted */ true);
     }
 }
