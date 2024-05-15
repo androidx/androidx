@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.layout
 
-import androidx.collection.mutableObjectLongMapOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState.PrefetchHandle
 import androidx.compose.runtime.Stable
@@ -154,9 +153,6 @@ sealed interface NestedPrefetchScope {
 @ExperimentalFoundationApi
 internal class PrefetchMetrics {
 
-    val averageCompositionTimeNanosByContentType = mutableObjectLongMapOf<Any>()
-    val averageMeasureTimeNanosByContentType = mutableObjectLongMapOf<Any>()
-
     /**
      * The current average time composition has taken during prefetches of this LazyLayout.
      */
@@ -173,15 +169,8 @@ internal class PrefetchMetrics {
      * Executes the [doComposition] block and updates [averageCompositionTimeNanos] with the new
      * average.
      */
-    internal inline fun recordCompositionTiming(contentType: Any?, doComposition: () -> Unit) {
+    internal inline fun recordCompositionTiming(doComposition: () -> Unit) {
         val executionTime = measureNanoTime(doComposition)
-        contentType?.let {
-            val currentAvgCompositionTimeNanos =
-                averageCompositionTimeNanosByContentType.getOrDefault(contentType, 0L)
-            val newAvgCompositionTimeNanos =
-                calculateAverageTime(executionTime, currentAvgCompositionTimeNanos)
-            averageCompositionTimeNanosByContentType[contentType] = newAvgCompositionTimeNanos
-        }
         averageCompositionTimeNanos =
             calculateAverageTime(executionTime, averageCompositionTimeNanos)
     }
@@ -189,15 +178,8 @@ internal class PrefetchMetrics {
     /**
      * Executes the [doMeasure] block and updates [averageMeasureTimeNanos] with the new average.
      */
-    internal inline fun recordMeasureTiming(contentType: Any?, doMeasure: () -> Unit) {
+    internal inline fun recordMeasureTiming(doMeasure: () -> Unit) {
         val executionTime = measureNanoTime(doMeasure)
-        contentType?.let {
-            val currentAvgMeasureTimeNanos =
-                averageMeasureTimeNanosByContentType.getOrDefault(contentType, 0L)
-            val newAvgMeasureTimeNanos =
-                calculateAverageTime(executionTime, currentAvgMeasureTimeNanos)
-            averageMeasureTimeNanosByContentType[contentType] = newAvgMeasureTimeNanos
-        }
         averageMeasureTimeNanos = calculateAverageTime(executionTime, averageMeasureTimeNanos)
     }
 
@@ -291,15 +273,9 @@ internal class PrefetchHandleProvider(
                 return false
             }
 
-            val contentType = itemContentFactory.itemProvider().getContentType(index)
-
             if (!isComposed) {
-                val estimatedPrecomposeTime: Long =
-                    if (contentType != null)
-                        prefetchMetrics.averageCompositionTimeNanosByContentType[contentType]
-                    else prefetchMetrics.averageCompositionTimeNanos
-                if (shouldExecute(estimatedPrecomposeTime)) {
-                    prefetchMetrics.recordCompositionTiming(contentType) {
+                if (shouldExecute(prefetchMetrics.averageCompositionTimeNanos)) {
+                    prefetchMetrics.recordCompositionTiming {
                         trace("compose:lazy:prefetch:compose") {
                             performComposition()
                         }
@@ -337,12 +313,8 @@ internal class PrefetchHandleProvider(
             }
 
             if (!isMeasured && !constraints.isZero) {
-                val estimatedPremeasureTime: Long =
-                    if (contentType != null)
-                        prefetchMetrics.averageMeasureTimeNanosByContentType[contentType]
-                    else prefetchMetrics.averageMeasureTimeNanos
-                if (shouldExecute(estimatedPremeasureTime)) {
-                    prefetchMetrics.recordMeasureTiming(contentType) {
+                if (shouldExecute(prefetchMetrics.averageMeasureTimeNanos)) {
+                    prefetchMetrics.recordMeasureTiming {
                         trace("compose:lazy:prefetch:measure") {
                             performMeasure(constraints)
                         }
