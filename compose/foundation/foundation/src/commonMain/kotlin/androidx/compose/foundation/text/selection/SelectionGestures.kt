@@ -105,7 +105,7 @@ internal fun Modifier.selectionGestureInput(
     val currentMouseSelectionObserver by rememberUpdatedState(mouseSelectionObserver)
     val currentTextDragObserver by rememberUpdatedState(textDragObserver)
     this.pointerInput(Unit) {
-        val clicksCounter = ClicksCounter(viewConfiguration, clicksSlop = 50.dp.toPx())
+        val clicksCounter = ClicksCounter(viewConfiguration)
         awaitEachGesture {
             val down = awaitDown()
             if (
