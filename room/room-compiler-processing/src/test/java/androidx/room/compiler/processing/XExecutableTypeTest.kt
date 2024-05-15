@@ -19,6 +19,7 @@ package androidx.room.compiler.processing
 import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asMutableClassName
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
@@ -584,6 +585,8 @@ class XExecutableTypeTest {
               fun <T> oneTypeVar(): Unit = TODO()
               fun <T : MutableList<*>?> oneBoundedTypeVar(): Unit = TODO()
               fun <T : MutableList<*>> oneBoundedTypeVarNotNull(): Unit = TODO()
+              fun <T : Any?> oneBoundedTypeVarAny(): Unit = TODO()
+              fun <T : Any> oneBoundedTypeVarNotNullAny(): Unit = TODO()
               fun <A, B> twoTypeVar(param: B): A = TODO()
             }
             """.trimIndent()
@@ -597,12 +600,15 @@ class XExecutableTypeTest {
               <T> void oneTypeVar() {}
               <T extends List<?>> void oneBoundedTypeVar() { }
               <T extends @NotNull List<?>> void oneBoundedTypeVarNotNull() { }
+              <T extends Object> void oneBoundedTypeVarAny() { }
+              <T extends @NotNull Object> void oneBoundedTypeVarNotNullAny() {}
               <A, B> A twoTypeVar(B param) { return null; }
             }
             """.trimIndent()
         )
 
         fun handler(invocation: XTestInvocation) {
+            val isKsp2 = invocation.isKsp && (invocation.processingEnv as KspProcessingEnv).isKsp2
             listOf("KotlinSubject", "JavaSubject").forEach { subjectFqn ->
                 val subject = invocation.processingEnv.requireTypeElement(subjectFqn)
                 subject.getMethodByJvmName("oneTypeVar").let {
@@ -611,6 +617,7 @@ class XExecutableTypeTest {
                         .isEqualTo(XTypeName.getTypeVariableName("T"))
                     assertThat(typeVar.superTypes.map { it.asTypeName() })
                         .containsExactly(XTypeName.ANY_OBJECT.copy(nullable = true))
+                        .inOrder()
                     assertThat(typeVar.typeArguments).isEmpty()
                     assertThat(typeVar.typeElement).isNull()
                 }
@@ -633,7 +640,7 @@ class XExecutableTypeTest {
                             List::class.asMutableClassName()
                                 .parametrizedBy(XTypeName.ANY_WILDCARD)
                                 .copy(nullable = true)
-                        )
+                        ).inOrder()
                     assertThat(typeVar.typeArguments).isEmpty()
                     assertThat(typeVar.typeElement).isNull()
                 }
@@ -646,6 +653,7 @@ class XExecutableTypeTest {
                                 bounds = listOf(
                                     List::class.asMutableClassName()
                                         .parametrizedBy(XTypeName.ANY_WILDCARD)
+                                        .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
                                 )
                             )
                         )
@@ -654,7 +662,29 @@ class XExecutableTypeTest {
                             XTypeName.ANY_OBJECT.copy(nullable = true),
                             List::class.asMutableClassName()
                                 .parametrizedBy(XTypeName.ANY_WILDCARD)
+                                .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
+                        ).inOrder()
+                    assertThat(typeVar.typeArguments).isEmpty()
+                    assertThat(typeVar.typeElement).isNull()
+                }
+                subject.getMethodByJvmName("oneBoundedTypeVarNotNullAny").let {
+                    val typeVar = it.executableType.typeVariables.single()
+                    assertThat(typeVar.asTypeName())
+                        .isEqualTo(
+                            XTypeName.getTypeVariableName(
+                                name = "T",
+                                bounds = listOf(
+                                    XTypeName.ANY_OBJECT
+                                        .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
+                                )
+                            )
                         )
+                    assertThat(typeVar.superTypes.map { it.asTypeName() })
+                        .containsExactly(
+                            XTypeName.ANY_OBJECT
+                                .copy(nullable = isKsp2 && subjectFqn == "JavaSubject")
+                        ).inOrder()
+                    assertThat(typeVar.superTypes.single().nullability).equals(XNullability.NONNULL)
                     assertThat(typeVar.typeArguments).isEmpty()
                     assertThat(typeVar.typeElement).isNull()
                 }

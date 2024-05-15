@@ -93,10 +93,8 @@ private fun KSTypeParameter.asKTypeName(
     val mutableBounds = mutableListOf(ANY.copy(nullable = true))
     val typeName = createModifiableTypeVariableName(name = name.asString(), bounds = mutableBounds)
     typeArgumentTypeLookup[name] = typeName
-    val resolvedBounds = bounds.map { typeReference ->
-        val ksType = typeReference.resolve()
-        typeReference.asKTypeName(resolver, typeArgumentTypeLookup)
-            .copy(nullable = ksType.isMarkedNullable || ksType.nullability == Nullability.PLATFORM)
+    val resolvedBounds = bounds.map {
+        it.asKTypeName(resolver, typeArgumentTypeLookup)
     }.toList()
     if (resolvedBounds.isNotEmpty()) {
         mutableBounds.addAll(resolvedBounds)

@@ -186,11 +186,7 @@ class XTypeParameterElementTest {
             }
             val bar = invocation.processingEnv.requireType("Bar").makeNullable()
             assertThat(bound0.isSameType(bar)).isTrue()
-            if (invocation.isKsp) {
-                assertThat(bound0.nullability).isEqualTo(XNullability.NULLABLE)
-            } else {
-                assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
-            }
+            assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
 
             val bound1 = t.bounds[1]
             assertThat(bound1.asTypeName().java.toString()).isEqualTo("Baz")
@@ -199,11 +195,7 @@ class XTypeParameterElementTest {
             }
             val baz = invocation.processingEnv.requireType("Baz").makeNullable()
             assertThat(bound1.isSameType(baz)).isTrue()
-            if (invocation.isKsp) {
-                assertThat(bound1.nullability).isEqualTo(XNullability.NULLABLE)
-            } else {
-                assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
-            }
+            assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
         }
     }
 
@@ -345,11 +337,7 @@ class XTypeParameterElementTest {
             }
             val bar = invocation.processingEnv.requireType("Bar").makeNullable()
             assertThat(bound0.isSameType(bar)).isTrue()
-            if (invocation.isKsp) {
-                assertThat(bound0.nullability).isEqualTo(XNullability.NULLABLE)
-            } else {
-                assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
-            }
+            assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
 
             val bound1 = t.bounds[1]
             assertThat(bound1.asTypeName().java.toString()).isEqualTo("Baz")
@@ -358,11 +346,7 @@ class XTypeParameterElementTest {
             }
             val baz = invocation.processingEnv.requireType("Baz").makeNullable()
             assertThat(bound1.isSameType(baz)).isTrue()
-            if (invocation.isKsp) {
-                assertThat(bound1.nullability).isEqualTo(XNullability.NULLABLE)
-            } else {
-                assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
-            }
+            assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
         }
     }
 
@@ -401,11 +385,7 @@ class XTypeParameterElementTest {
             }
             val bar = invocation.processingEnv.requireType("Bar").makeNullable()
             assertThat(bound0.isSameType(bar)).isTrue()
-            if (invocation.isKsp) {
-                assertThat(bound0.nullability).isEqualTo(XNullability.NULLABLE)
-            } else {
-                assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
-            }
+            assertThat(bound0.nullability).isEqualTo(XNullability.UNKNOWN)
 
             val bound1 = t.bounds[1]
             assertThat(bound1.asTypeName().java.toString()).isEqualTo("Baz")
@@ -414,11 +394,7 @@ class XTypeParameterElementTest {
             }
             val baz = invocation.processingEnv.requireType("Baz").makeNullable()
             assertThat(bound1.isSameType(baz)).isTrue()
-            if (invocation.isKsp) {
-                assertThat(bound1.nullability).isEqualTo(XNullability.NULLABLE)
-            } else {
-                assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
-            }
+            assertThat(bound1.nullability).isEqualTo(XNullability.UNKNOWN)
 
             assertThat(constructor.parameters).hasSize(1)
             val parameter = constructor.parameters[0]
