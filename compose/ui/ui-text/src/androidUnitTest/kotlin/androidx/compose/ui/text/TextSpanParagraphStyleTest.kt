@@ -99,51 +99,37 @@ class TextSpanParagraphStyleTest {
     }
 
     @Test
-    fun textStyle_covered_by_ParagraphStyle_and_SpanStyle_and_TextLinkStyles() {
+    fun textStyle_covered_by_ParagraphStyle_and_SpanStyle() {
         val spanStyleParameters = allConstructorParams(SpanStyle::class).filter {
             it.name != "platformStyle" && it.name != "textForegroundStyle"
         }
         val paragraphStyleParameters = allConstructorParams(ParagraphStyle::class).filter {
             it.name != "platformStyle"
         }
-        val linkStylesParameters = allConstructorParams(TextLinkStyles::class).filter {
-            it.name != "textLinkStyles"
-        }
-        val allParameters = (
-            spanStyleParameters + paragraphStyleParameters + linkStylesParameters
-            ).toMutableSet()
+        val allParameters = (spanStyleParameters + paragraphStyleParameters).toMutableSet()
 
         val textStyleParameters = allConstructorParams(TextStyle::class).filter {
-            it.name != "platformStyle" &&
-                it.name != "spanStyle" &&
-                it.name != "paragraphStyle" &&
-                it.name != "linkStyles"
+            it.name != "platformStyle" && it.name != "spanStyle" && it.name != "paragraphStyle"
         }
 
         // for every TextStyle parameter, expecting that parameter to be in either ParagraphStyle
-        // or SpanStyle or TextLinkStyles
+        // or SpanStyle
         // this guards that if a parameter is added to TextStyle, it should be added
         // to one of SpanStyle or ParagraphStyle
         assertThat(allParameters).containsAtLeastElementsIn(textStyleParameters)
     }
 
     @Test
-    fun textStyle_properties_is_covered_by_ParagraphStyle_and_SpanStyle() {
+    fun testStyle_properties_is_covered_by_ParagraphStyle_and_SpanStyle() {
         val spanStyleProperties = memberProperties(SpanStyle::class).filter {
             it.name != "platformStyle" && it.name != "textForegroundStyle"
         }
         val paragraphStyleProperties = memberProperties(ParagraphStyle::class).filter {
             it.name != "platformStyle"
         }
-        val linkStylesProperties = allConstructorParams(TextLinkStyles::class).filter {
-            it.name != "textLinkStyles"
-        }
-        val allProperties = spanStyleProperties + paragraphStyleProperties + linkStylesProperties
+        val allProperties = spanStyleProperties + paragraphStyleProperties
         val textStyleProperties = memberProperties(TextStyle::class).filter {
-            it.name != "spanStyle" &&
-                it.name != "paragraphStyle" &&
-                it.name != "platformStyle" &&
-                it.name != "linkStyles"
+            it.name != "spanStyle" && it.name != "paragraphStyle" && it.name != "platformStyle"
         }
         assertThat(allProperties).containsAtLeastElementsIn(textStyleProperties)
     }
