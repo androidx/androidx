@@ -1265,11 +1265,15 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     .trimIndent()
             }
 
-        // Configure all KMP targets to allow expect/actual classes that are not stable.
-        // (see https://youtrack.jetbrains.com/issue/KT-61573)
         kmpExtension.targets.configureEach { kotlinTarget ->
-            kotlinTarget.compilations.configureEach {
-                it.compilerOptions.options.freeCompilerArgs.add("-Xexpect-actual-classes")
+            kotlinTarget.compilations.configureEach { compilation ->
+                // Configure all KMP targets to allow expect/actual classes that are not stable.
+                // (see https://youtrack.jetbrains.com/issue/KT-61573)
+                compilation.compilerOptions.options.freeCompilerArgs.add("-Xexpect-actual-classes")
+                androidXConfiguration.kotlinApiVersion.let {
+                    compilation.compilerOptions.options.apiVersion.set(it)
+                    compilation.compilerOptions.options.languageVersion.set(it)
+                }
             }
         }
     }
