@@ -143,7 +143,13 @@ fun BasicSwipeToDismissBox(
         val contentScrimColor = LocalSwipeToDismissContentScrimColor.current
 
         val progress by remember(state) {
-            derivedStateOf { ((state.swipeableState.offset ?: 0f) / maxWidthPx).coerceIn(0f, 1f) }
+            derivedStateOf {
+                if (state.swipeableState.offset?.isNaN() == true || maxWidthPx == 0f) {
+                    0f
+                } else {
+                    ((state.swipeableState.offset ?: 0f) / maxWidthPx).coerceIn(0f, 1f)
+                }
+            }
         }
         val isSwiping by remember { derivedStateOf { progress > 0 } }
         var squeezeMode by remember {
@@ -209,10 +215,16 @@ fun BasicSwipeToDismissBox(
                             Canvas(Modifier.fillMaxSize()) {
                                 val color = if (isBackground) {
                                     backgroundScrimColor
-                                        .copy(alpha = MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress))
+                                        .copy(
+                                            alpha = (MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress))
+                                                .coerceIn(0f, 1f)
+                                        )
                                 } else {
                                     contentScrimColor
-                                        .copy(alpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f))
+                                        .copy(
+                                            alpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f)
+                                                .coerceIn(0f, 1f)
+                                        )
                                 }
                                 drawRect(color = color)
                             }
@@ -341,6 +353,7 @@ class SwipeToDismissBoxState(
             edgeSwipeState: State<EdgeSwipeState>
         ): NestedScrollConnection =
             object : NestedScrollConnection {
+                @Suppress("DEPRECATION") // b/327155912
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                     val delta = available.x
                     // If swipeState = SwipeState.SWIPING_TO_DISMISS - perform swipeToDismiss

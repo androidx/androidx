@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -38,7 +47,7 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
-                implementation(project(":collection:collection"))
+                implementation("androidx.collection:collection:1.4.0")
             }
         }
 
@@ -52,7 +61,6 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(libs.skikoCommon)
-                implementation(project(":compose:runtime:runtime"))
             }
         }
 
@@ -65,7 +73,12 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api(libs.androidx.annotation)
+                // This has stub APIs for access to legacy Android APIs, so we don't want
+                // any dependency on this module.
+                compileOnly(project(":compose:ui:ui-android-stubs"))
+                implementation("androidx.graphics:graphics-path:1.0.1")
+                implementation libs.androidx.core
+                api("androidx.annotation:annotation-experimental:1.4.0")
             }
         }
 
@@ -126,10 +139,11 @@ dependencies {
 
 androidx {
     name = "Compose Graphics"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose graphics"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
 }
 
 androidxCompose {
@@ -140,6 +154,10 @@ android {
     namespace "androidx.compose.ui.graphics"
 }
 
-tasks.findByName("desktopTest").configure {
-    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+if (KmpPlatformsKt.enableDesktop(project)) {
+    tasks.withType(Test).configureEach {
+        if (name.equals("desktopTest")) {
+            systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/../../golden"
+        }
+    }
 }

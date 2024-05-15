@@ -24,6 +24,7 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.serialization.Serializable
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,9 +116,58 @@ class TestNavigatorDestinationBuilderTest {
             .that(graph[DESTINATION_ROUTE].label)
             .isEqualTo(LABEL)
     }
+
+    @UiThreadTest
+    @Test fun fragmentKClass() {
+        val navHostFragment = NavHostFragment()
+        fragmentManager.beginTransaction()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
+        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+            fragment<BuilderTestFragment, TestClass>()
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Fragment class should be set to BuilderTestFragment")
+            .that((graph[TestClass::class] as FragmentNavigator.Destination).className)
+            .isEqualTo(BuilderTestFragment::class.java.name)
+    }
+
+    @UiThreadTest
+    @Test fun fragmentWithBodyKClass() {
+        val navHostFragment = NavHostFragment()
+        fragmentManager.beginTransaction()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
+        val graph = navHostFragment.createGraph(startDestination = DESTINATION_ROUTE) {
+            fragment<BuilderTestFragment, TestClass> {
+                label = LABEL
+            }
+        }
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Fragment class should be set to BuilderTestFragment")
+            .that((graph[TestClass::class] as FragmentNavigator.Destination).className)
+            .isEqualTo(BuilderTestFragment::class.java.name)
+        assertWithMessage("Fragment should have label set")
+            .that(graph[TestClass::class].label)
+            .isEqualTo(LABEL)
+    }
 }
 
 private const val DESTINATION_ID = 1
 private const val DESTINATION_ROUTE = "destination"
 private const val LABEL = "Test"
+
 class BuilderTestFragment : Fragment()
+
+@Serializable
+internal class TestClass
+
+@Serializable
+internal class TestClassArg(val arg: Int)
+
+@Serializable
+internal class TestGraph

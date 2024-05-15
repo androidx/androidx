@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -247,7 +246,7 @@ class SelectionContainerTest {
     }
 
     @Test
-    fun selectionContinues_toBelowText() = with(rule.density) {
+    fun selectionContinues_toBelowText() {
         createSelectionContainer {
             Column {
                 BasicText(
@@ -275,7 +274,7 @@ class SelectionContainerTest {
     }
 
     @Test
-    fun selectionContinues_toAboveText() = with(rule.density) {
+    fun selectionContinues_toAboveText() {
         createSelectionContainer {
             Column {
                 BasicText(
@@ -303,7 +302,7 @@ class SelectionContainerTest {
     }
 
     @Test
-    fun selectionContinues_toNextText_skipsDisableSelection() = with(rule.density) {
+    fun selectionContinues_toNextText_skipsDisableSelection() {
         createSelectionContainer {
             Column {
                 BasicText(
@@ -496,7 +495,7 @@ class SelectionContainerTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selection_doesCopy_whenCopyKeyEventSent() {
         lateinit var clipboardManager: ClipboardManager
         createSelectionContainer {

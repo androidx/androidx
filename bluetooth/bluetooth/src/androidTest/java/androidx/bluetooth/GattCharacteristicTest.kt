@@ -17,15 +17,18 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothGattCharacteristic as FwkCharacteristic
+import com.google.common.truth.Truth.assertThat
 import java.util.UUID
-import org.junit.Assert
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+/**
+ * Test cases for [GattCharacteristic]
+ */
 @RunWith(JUnit4::class)
 class GattCharacteristicTest {
+
     @Test
     fun constructorWithFwkInstance() {
         val propertiesMap = mapOf(
@@ -53,8 +56,8 @@ class GattCharacteristicTest {
                 /*permissions=*/0)
             val gattCharacteristic = GattCharacteristic(fwkGattCharacteristic)
 
-            Assert.assertEquals(fwkGattCharacteristic.uuid, gattCharacteristic.uuid)
-            Assert.assertEquals(it.value, gattCharacteristic.properties)
+            assertThat(gattCharacteristic.uuid).isEqualTo(fwkGattCharacteristic.uuid)
+            assertThat(gattCharacteristic.properties).isEqualTo(it.value)
         }
     }
 
@@ -66,8 +69,8 @@ class GattCharacteristicTest {
 
         val characteristic = GattCharacteristic(uuid, properties)
 
-        Assert.assertEquals(uuid, characteristic.uuid)
-        Assert.assertEquals(properties, characteristic.properties)
+        assertThat(characteristic.uuid).isEqualTo(uuid)
+        assertThat(characteristic.properties).isEqualTo(properties)
     }
 
     @Test
@@ -77,7 +80,9 @@ class GattCharacteristicTest {
         val indicateCharacteristic = GattCharacteristic(UUID.randomUUID(),
             GattCharacteristic.PROPERTY_READ or GattCharacteristic.PROPERTY_INDICATE)
 
-        assertNotNull(notifyCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
-        assertNotNull(indicateCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
+        assertThat(notifyCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
+            .isNotNull()
+        assertThat(indicateCharacteristic.fwkCharacteristic.getDescriptor(GattCommon.UUID_CCCD))
+            .isNotNull()
     }
 }

@@ -1,3 +1,10 @@
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import com.android.build.api.artifact.SingleArtifact
 
 /*
@@ -21,16 +28,26 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("androidx.baselineprofile")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
 android {
+    sourceSets {
+        // This is required because of release variant specific code used by hilt.
+        releaseLibrariesOnly {
+            java.srcDirs += "src/release/"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+        }
+        releaseLibrariesOnly {
+            initWith(release)
+            matchingFallbacks += "release"
         }
     }
     namespace "androidx.benchmark.integration.baselineprofile.consumer"
@@ -40,9 +57,8 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
     implementation(libs.hiltAndroid)
-    kapt(libs.hiltCompiler)
+    ksp(libs.hiltCompiler)
     implementation(project(":profileinstaller:profileinstaller"))
-    baselineProfile(project(":benchmark:integration-tests:baselineprofile-producer"))
 }
 
 baselineProfile {
@@ -51,6 +67,15 @@ baselineProfile {
     // trigger baseline profile generation and integration tests on device.
     saveInSrc = true
     automaticGenerationDuringBuild = false
+
+    variants {
+        release {
+            from(project(":benchmark:integration-tests:baselineprofile-producer"))
+        }
+        releaseLibrariesOnly {
+            // No dependency set
+        }
+    }
 }
 
 apply(from: "../baselineprofile-test-utils/utils.gradle")
@@ -70,7 +95,7 @@ configurations {
     }
 }
 androidComponents {
-    onVariants(selector().all().withBuildType("release"), { variant ->
+    onVariants(selector().all(), { variant ->
         artifacts {
             apkAssets(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
         }

@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.classKeyForObject
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.focus.FocusEventModifierNode
 import androidx.compose.ui.focus.FocusProperties
@@ -30,7 +32,9 @@ import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
-import androidx.compose.ui.layout.IntermediateLayoutModifierNode
+import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.layout.ApproachLayoutModifierNode
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.OnPlacedModifier
@@ -85,7 +89,7 @@ internal object Nodes {
     @JvmStatic
     inline val GlobalPositionAware get() = NodeKind<GlobalPositionAwareModifierNode>(0b1 shl 8)
     @JvmStatic
-    inline val IntermediateMeasure get() = NodeKind<IntermediateLayoutModifierNode>(0b1 shl 9)
+    inline val ApproachMeasure get() = NodeKind<ApproachLayoutModifierNode>(0b1 shl 9)
     @JvmStatic
     inline val FocusTarget get() = NodeKind<FocusTargetNode>(0b1 shl 10)
     @JvmStatic
@@ -150,65 +154,68 @@ internal fun calculateNodeKindSetFrom(element: Modifier.Element): Int {
     return mask
 }
 
+private val classToKindSetMap = mutableObjectIntMapOf<Any>()
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
     // This function does not take delegates into account, as a result, the kindSet will never
     // change, so if it is non-zero, it means we've already calculated it and we can just bail
     // early here.
     if (node.kindSet != 0) return node.kindSet
-    var mask = Nodes.Any.mask
-    if (node is LayoutModifierNode) {
-        mask = mask or Nodes.Layout
+    return classToKindSetMap.getOrPut(classKeyForObject(node)) {
+        var mask = Nodes.Any.mask
+        if (node is LayoutModifierNode) {
+            mask = mask or Nodes.Layout
+        }
+        if (node is DrawModifierNode) {
+            mask = mask or Nodes.Draw
+        }
+        if (node is SemanticsModifierNode) {
+            mask = mask or Nodes.Semantics
+        }
+        if (node is PointerInputModifierNode) {
+            mask = mask or Nodes.PointerInput
+        }
+        if (node is ModifierLocalModifierNode) {
+            mask = mask or Nodes.Locals
+        }
+        if (node is ParentDataModifierNode) {
+            mask = mask or Nodes.ParentData
+        }
+        if (node is LayoutAwareModifierNode) {
+            mask = mask or Nodes.LayoutAware
+        }
+        if (node is GlobalPositionAwareModifierNode) {
+            mask = mask or Nodes.GlobalPositionAware
+        }
+        if (node is ApproachLayoutModifierNode) {
+            mask = mask or Nodes.ApproachMeasure
+        }
+        if (node is FocusTargetNode) {
+            mask = mask or Nodes.FocusTarget
+        }
+        if (node is FocusPropertiesModifierNode) {
+            mask = mask or Nodes.FocusProperties
+        }
+        if (node is FocusEventModifierNode) {
+            mask = mask or Nodes.FocusEvent
+        }
+        if (node is KeyInputModifierNode) {
+            mask = mask or Nodes.KeyInput
+        }
+        if (node is RotaryInputModifierNode) {
+            mask = mask or Nodes.RotaryInput
+        }
+        if (node is CompositionLocalConsumerModifierNode) {
+            mask = mask or Nodes.CompositionLocalConsumer
+        }
+        if (node is SoftKeyboardInterceptionModifierNode) {
+            mask = mask or Nodes.SoftKeyboardKeyInput
+        }
+        if (node is TraversableNode) {
+            mask = mask or Nodes.Traversable
+        }
+        mask
     }
-    if (node is DrawModifierNode) {
-        mask = mask or Nodes.Draw
-    }
-    if (node is SemanticsModifierNode) {
-        mask = mask or Nodes.Semantics
-    }
-    if (node is PointerInputModifierNode) {
-        mask = mask or Nodes.PointerInput
-    }
-    if (node is ModifierLocalModifierNode) {
-        mask = mask or Nodes.Locals
-    }
-    if (node is ParentDataModifierNode) {
-        mask = mask or Nodes.ParentData
-    }
-    if (node is LayoutAwareModifierNode) {
-        mask = mask or Nodes.LayoutAware
-    }
-    if (node is GlobalPositionAwareModifierNode) {
-        mask = mask or Nodes.GlobalPositionAware
-    }
-    if (node is IntermediateLayoutModifierNode) {
-        mask = mask or Nodes.IntermediateMeasure
-    }
-    if (node is FocusTargetNode) {
-        mask = mask or Nodes.FocusTarget
-    }
-    if (node is FocusPropertiesModifierNode) {
-        mask = mask or Nodes.FocusProperties
-    }
-    if (node is FocusEventModifierNode) {
-        mask = mask or Nodes.FocusEvent
-    }
-    if (node is KeyInputModifierNode) {
-        mask = mask or Nodes.KeyInput
-    }
-    if (node is RotaryInputModifierNode) {
-        mask = mask or Nodes.RotaryInput
-    }
-    if (node is CompositionLocalConsumerModifierNode) {
-        mask = mask or Nodes.CompositionLocalConsumer
-    }
-    if (node is SoftKeyboardInterceptionModifierNode) {
-        mask = mask or Nodes.SoftKeyboardKeyInput
-    }
-    if (node is TraversableNode) {
-        mask = mask or Nodes.Traversable
-    }
-    return mask
 }
 
 @Suppress("ConstPropertyName")
@@ -219,17 +226,17 @@ private const val Inserted = 1
 private const val Removed = 2
 
 internal fun autoInvalidateRemovedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateRemovedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateRemovedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Removed)
 }
 
 internal fun autoInvalidateInsertedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateInsertedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateInsertedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Inserted)
 }
 
 internal fun autoInvalidateUpdatedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateUpdatedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateUpdatedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Updated)
 }
 
@@ -261,8 +268,19 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
             coordinator.onRelease()
         }
     }
+    if (Nodes.LayoutAware in selfKindSet && node is LayoutAwareModifierNode) {
+        // No need to invalidate layout when removing a LayoutAwareModifierNode, as these won't be
+        // invoked anyway
+        if (phase != Removed) {
+            node.requireLayoutNode().invalidateMeasurements()
+        }
+    }
     if (Nodes.GlobalPositionAware in selfKindSet && node is GlobalPositionAwareModifierNode) {
-        node.requireLayoutNode().invalidateMeasurements()
+        // No need to invalidate when removing a GlobalPositionAwareModifierNode, as these won't be
+        // invoked anyway
+        if (phase != Removed) {
+            node.requireLayoutNode().invalidateOnPositioned()
+        }
     }
     if (Nodes.Draw in selfKindSet && node is DrawModifierNode) {
         node.invalidateDraw()
@@ -274,11 +292,8 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
         node.invalidateParentData()
     }
     if (Nodes.FocusTarget in selfKindSet && node is FocusTargetNode) {
-        when (phase) {
-            // when we previously had focus target modifier on a node and then this modifier
-            // is removed we need to notify the focus tree about so the focus state is reset.
-            Removed -> node.onReset()
-            else -> node.requireOwner().focusOwner.scheduleInvalidation(node)
+        if (phase != Removed) {
+            node.invalidateFocusTarget()
         }
     }
     if (
@@ -322,7 +337,7 @@ private fun FocusPropertiesModifierNode.specifiesCanFocusProperty(): Boolean {
 private object CanFocusChecker : FocusProperties {
     private var canFocusValue: Boolean? = null
     override var canFocus: Boolean
-        get() = checkNotNull(canFocusValue) { "canFocus is read before it is written" }
+        get() = checkPreconditionNotNull(canFocusValue) { "canFocus is read before it is written" }
         set(value) { canFocusValue = value }
     fun isCanFocusSet(): Boolean = canFocusValue != null
     fun reset() { canFocusValue = null }

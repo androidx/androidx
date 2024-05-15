@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 import androidx.build.RunApiTasks
 
 plugins {
@@ -24,7 +31,7 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.6.0")
-    implementation("androidx.annotation:annotation-experimental:1.3.1")
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
     implementation("androidx.window.extensions.core:core:1.0.0")
 
     testImplementation(libs.robolectric)
@@ -41,7 +48,7 @@ dependencies {
 
 androidx {
     name = "WindowManager Extensions"
-    publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
+    type = LibraryType.PUBLISHED_LIBRARY // Only to generate per-project-zips
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     inceptionYear = "2020"
     description = "OEM extension interface definition for the Jetpack WindowManager. " +

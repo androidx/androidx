@@ -15,6 +15,10 @@ package androidx.slidingpanelayout.widget {
     method public final int getLockMode();
     method @Px public int getParallaxDistance();
     method @Deprecated @ColorInt public int getSliderFadeColor();
+    method public final int getSplitDividerPosition();
+    method public final int getVisualDividerPosition();
+    method public final boolean isChildClippingToResizeDividerEnabled();
+    method public final boolean isDividerDragging();
     method public boolean isOpen();
     method public final boolean isOverlappingEnabled();
     method public boolean isSlideable();
@@ -24,8 +28,10 @@ package androidx.slidingpanelayout.widget {
     method public boolean openPane();
     method public void removePanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener listener);
     method public void removeSlideableStateListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.SlideableStateListener listener);
+    method public final void setChildClippingToResizeDividerEnabled(boolean);
     method @Deprecated public void setCoveredFadeColor(int);
     method public final void setLockMode(int);
+    method public final void setOnUserResizingDividerClickListener(android.view.View.OnClickListener? listener);
     method public final void setOverlappingEnabled(boolean);
     method @Deprecated public void setPanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener? listener);
     method public void setParallaxDistance(@Px int);
@@ -36,11 +42,16 @@ package androidx.slidingpanelayout.widget {
     method public void setShadowResourceLeft(@DrawableRes int resId);
     method public void setShadowResourceRight(@DrawableRes int resId);
     method @Deprecated public void setSliderFadeColor(int);
+    method public final void setSplitDividerPosition(int);
+    method public final void setUserResizeBehavior(androidx.slidingpanelayout.widget.SlidingPaneLayout.UserResizeBehavior userResizeBehavior);
     method public final void setUserResizingDividerDrawable(android.graphics.drawable.Drawable? drawable);
+    method public final void setUserResizingDividerDrawable(@DrawableRes int resId);
     method public final void setUserResizingEnabled(boolean);
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
     property @Deprecated @ColorInt public int coveredFadeColor;
+    property public final boolean isChildClippingToResizeDividerEnabled;
+    property public final boolean isDividerDragging;
     property public final boolean isOverlappingEnabled;
     property public boolean isSlideable;
     property public final boolean isUserResizable;
@@ -48,11 +59,16 @@ package androidx.slidingpanelayout.widget {
     property public final int lockMode;
     property @Px public int parallaxDistance;
     property @Deprecated @ColorInt public int sliderFadeColor;
+    property public final int splitDividerPosition;
+    property public final int visualDividerPosition;
     field public static final androidx.slidingpanelayout.widget.SlidingPaneLayout.Companion Companion;
     field public static final int LOCK_MODE_LOCKED = 3; // 0x3
     field public static final int LOCK_MODE_LOCKED_CLOSED = 2; // 0x2
     field public static final int LOCK_MODE_LOCKED_OPEN = 1; // 0x1
     field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
+    field public static final int SPLIT_DIVIDER_POSITION_AUTO = -1; // 0xffffffff
+    field public static final androidx.slidingpanelayout.widget.SlidingPaneLayout.UserResizeBehavior USER_RESIZE_RELAYOUT_WHEN_COMPLETE;
+    field public static final androidx.slidingpanelayout.widget.SlidingPaneLayout.UserResizeBehavior USER_RESIZE_RELAYOUT_WHEN_MOVED;
   }
 
   public static final class SlidingPaneLayout.Companion {
@@ -83,6 +99,13 @@ package androidx.slidingpanelayout.widget {
 
   public static fun interface SlidingPaneLayout.SlideableStateListener {
     method public void onSlideableStateChanged(boolean isSlideable);
+  }
+
+  public static interface SlidingPaneLayout.UserResizeBehavior {
+    method public void onUserResizeCancelled(androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout, int dividerPositionX);
+    method public void onUserResizeComplete(androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout, int dividerPositionX);
+    method public void onUserResizeProgress(androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout, int dividerPositionX);
+    method public void onUserResizeStarted(androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout, int dividerPositionX);
   }
 
 }

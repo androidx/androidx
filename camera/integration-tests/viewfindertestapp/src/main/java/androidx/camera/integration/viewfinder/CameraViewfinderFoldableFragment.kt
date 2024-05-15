@@ -56,11 +56,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.viewfinder.CameraViewfinder
-import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType
 import androidx.camera.viewfinder.CameraViewfinderExt.requestSurface
-import androidx.camera.viewfinder.ViewfinderSurfaceRequest
-import androidx.camera.viewfinder.populateFromCharacteristics
+import androidx.camera.viewfinder.surface.ImplementationMode
+import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest
+import androidx.camera.viewfinder.surface.populateFromCharacteristics
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -171,10 +171,10 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
         when (item.itemId) {
             R.id.implementationMode -> {
                 val implementationMode =
-                    when (cameraViewfinder.implementationMode) {
-                        ImplementationMode.PERFORMANCE ->
-                            ImplementationMode.COMPATIBLE
-                        else -> ImplementationMode.PERFORMANCE
+                    when (cameraViewfinder.surfaceImplementationMode) {
+                        ImplementationMode.EXTERNAL ->
+                            ImplementationMode.EMBEDDED
+                        else -> ImplementationMode.EXTERNAL
                     }
 
                 lifecycleScope.launch {

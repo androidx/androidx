@@ -3,8 +3,8 @@ syntax = "proto3";
 
 package androidx.wear.protolayout.proto;
 
-import "state.proto";
 import "dynamic_data.proto";
+import "state.proto";
 
 option java_package = "androidx.wear.protolayout.proto";
 option java_outer_classname = "ActionProto";

@@ -18,8 +18,10 @@ package androidx.core.telecom.internal
 
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.extensions.voip.VoipParticipantActionRequest
+import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.channels.Channel
 
+@OptIn(ExperimentalAppActions::class)
 internal class CallChannels(
     val currentEndpointChannel: Channel<CallEndpointCompat> = Channel(Channel.UNLIMITED),
     val availableEndpointChannel: Channel<List<CallEndpointCompat>> = Channel(Channel.UNLIMITED),

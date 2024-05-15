@@ -124,12 +124,12 @@ class NestedScrollModifierTest {
         assertThat(counter).isEqualTo(0)
         counter++
 
-        childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+        childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.UserInput)
         assertThat(counter).isEqualTo(2)
         counter++
 
         childDispatcher
-            .dispatchPostScroll(scrollOffset, scrollLeftOffset, NestedScrollSource.Drag)
+            .dispatchPostScroll(scrollOffset, scrollLeftOffset, NestedScrollSource.UserInput)
         assertThat(counter).isEqualTo(4)
         counter++
 
@@ -175,7 +175,7 @@ class NestedScrollModifierTest {
             assertThat(counter).isEqualTo(0)
             counter++
 
-            childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+            childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.UserInput)
             assertThat(counter).isEqualTo(3)
             counter++
         }
@@ -224,7 +224,7 @@ class NestedScrollModifierTest {
             counter++
 
             childDispatcher
-                .dispatchPostScroll(scrollOffset, scrollLeftOffset, NestedScrollSource.Drag)
+                .dispatchPostScroll(scrollOffset, scrollLeftOffset, NestedScrollSource.UserInput)
             assertThat(counter).isEqualTo(3)
             counter++
         }
@@ -316,7 +316,7 @@ class NestedScrollModifierTest {
     fun nestedScroll_twoNodes_hierarchyDispatch(): Unit = runBlocking {
         val preScrollReturn = Offset(60f, 30f)
         val preFlingReturn = Velocity(154f, 56f)
-        var currentsource = NestedScrollSource.Drag
+        var currentsource = NestedScrollSource.UserInput
 
         val childConnection = object : NestedScrollConnection {}
         val parentConnection = object : NestedScrollConnection {
@@ -365,7 +365,7 @@ class NestedScrollModifierTest {
 
         childDispatcher.dispatchPostScroll(scrollOffset, scrollLeftOffset, currentsource)
         // flip to fling to test again below
-        currentsource = NestedScrollSource.Fling
+        currentsource = NestedScrollSource.SideEffect
 
         val preRes2 = childDispatcher.dispatchPreScroll(preScrollOffset, currentsource)
         assertThat(preRes2).isEqualTo(preScrollReturn)
@@ -410,7 +410,7 @@ class NestedScrollModifierTest {
 
         rule.runOnIdle {
             val preRes =
-                childDispatcher.dispatchPreScroll(dispatchedPreScroll, NestedScrollSource.Drag)
+                childDispatcher.dispatchPreScroll(dispatchedPreScroll, NestedScrollSource.UserInput)
             assertThat(preRes).isEqualTo(grandParentConsumesPreScroll + parentConsumedPreScroll)
         }
     }
@@ -460,7 +460,7 @@ class NestedScrollModifierTest {
             childDispatcher.dispatchPostScroll(
                 dispatchedConsumedScroll,
                 dispatchedScroll,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
         }
     }
@@ -549,7 +549,7 @@ class NestedScrollModifierTest {
     fun nestedScroll_twoNodes_flatDispatch(): Unit = runBlocking {
         val preScrollReturn = Offset(60f, 30f)
         val preFlingReturn = Velocity(154f, 56f)
-        var currentsource = NestedScrollSource.Drag
+        var currentsource = NestedScrollSource.UserInput
 
         val childConnection = object : NestedScrollConnection {}
         val parentConnection = object : NestedScrollConnection {
@@ -599,7 +599,7 @@ class NestedScrollModifierTest {
 
         childDispatcher.dispatchPostScroll(scrollOffset, scrollLeftOffset, currentsource)
         // flip to fling to test again below
-        currentsource = NestedScrollSource.Fling
+        currentsource = NestedScrollSource.SideEffect
 
         val preRes2 = childDispatcher.dispatchPreScroll(preScrollOffset, currentsource)
         assertThat(preRes2).isEqualTo(preScrollReturn)
@@ -649,9 +649,9 @@ class NestedScrollModifierTest {
             }
         }
 
-        childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+        childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.UserInput)
         childDispatcher
-            .dispatchPostScroll(scrollOffset, scrollLeftOffset, NestedScrollSource.Fling)
+            .dispatchPostScroll(scrollOffset, scrollLeftOffset, NestedScrollSource.SideEffect)
 
         childDispatcher.dispatchPreFling(preFling)
         childDispatcher.dispatchPostFling(postFlingConsumed, postFlingLeft)
@@ -822,14 +822,14 @@ class NestedScrollModifierTest {
         repeat(2) {
             counter = 1
 
-            childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+            childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.UserInput)
             assertThat(counter).isEqualTo(3)
             counter = 1
 
             childDispatcher.dispatchPostScroll(
                 scrollOffset,
                 scrollLeftOffset,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             assertThat(counter).isEqualTo(3)
             counter = 1
@@ -962,14 +962,14 @@ class NestedScrollModifierTest {
         repeat(2) {
             counter = 1
 
-            childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+            childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.UserInput)
             assertThat(counter).isEqualTo(3)
             counter = 1
 
             childDispatcher.dispatchPostScroll(
                 scrollOffset,
                 scrollLeftOffset,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             assertThat(counter).isEqualTo(3)
             counter = 1
@@ -1118,14 +1118,14 @@ class NestedScrollModifierTest {
 
         rule.runOnIdle {
             val res =
-                childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+                childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.UserInput)
             assertThat(res).isEqualTo(rootParentPreConsumed + parentToRemovePreConsumed)
             emitNewParent.value = false
         }
 
         rule.runOnIdle {
             val res =
-                childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+                childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.UserInput)
             assertThat(res).isEqualTo(rootParentPreConsumed)
 
             emitNewParent.value = true
@@ -1133,7 +1133,7 @@ class NestedScrollModifierTest {
 
         rule.runOnIdle {
             val res =
-                childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+                childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.UserInput)
             assertThat(res).isEqualTo(rootParentPreConsumed + parentToRemovePreConsumed)
         }
     }
@@ -1161,20 +1161,29 @@ class NestedScrollModifierTest {
         }
 
         rule.runOnIdle {
-            val res = childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+            val res = childDispatcher.dispatchPreScroll(
+                preScrollOffset,
+                NestedScrollSource.UserInput
+            )
             assertThat(res).isEqualTo(preScrollReturn)
 
             emitParentNestedScroll.value = false
         }
 
         rule.runOnIdle {
-            val res = childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+            val res = childDispatcher.dispatchPreScroll(
+                preScrollOffset,
+                NestedScrollSource.UserInput
+            )
             assertThat(res).isEqualTo(Offset.Zero)
             emitParentNestedScroll.value = true
         }
 
         rule.runOnIdle {
-            val res = childDispatcher.dispatchPreScroll(preScrollOffset, NestedScrollSource.Drag)
+            val res = childDispatcher.dispatchPreScroll(
+                preScrollOffset,
+                NestedScrollSource.UserInput
+            )
             assertThat(res).isEqualTo(preScrollReturn)
         }
     }

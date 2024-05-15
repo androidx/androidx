@@ -93,14 +93,14 @@ internal data class SelectableTextAnnotatedStringElement(
 
         // these are equally unlikely to change
         if (fontFamilyResolver != other.fontFamilyResolver) return false
-        if (onTextLayout != other.onTextLayout) return false
+        if (onTextLayout !== other.onTextLayout) return false
         if (overflow != other.overflow) return false
         if (softWrap != other.softWrap) return false
         if (maxLines != other.maxLines) return false
         if (minLines != other.minLines) return false
 
         // these never change, but check anyway for correctness
-        if (onPlaceholderLayout != other.onPlaceholderLayout) return false
+        if (onPlaceholderLayout !== other.onPlaceholderLayout) return false
         if (selectionController != other.selectionController) return false
 
         return true

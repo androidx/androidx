@@ -33,13 +33,8 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraThreadConfig
-import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.Identifier
-import androidx.camera.core.impl.MutableOptionsBundle
-import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -48,6 +43,7 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.fakes.FakeCameraConfig
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -126,7 +122,14 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
     @Test
     fun successCaptureImage_whenExtraYuvPrivYuvConfigurationSupported() = runBlocking {
         var cameraSelector = createCameraSelectorById(cameraId)
-        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
+        val fakeCameraConfig = FakeCameraConfig(
+            sessionProcessor = FakeSessionProcessor(
+                inputFormatPreview = null,
+                inputFormatCapture = ImageFormat.YUV_420_888
+            )
+        )
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            context, cameraSelector, fakeCameraConfig)
         var camera2CameraInfo = Camera2CameraInfo.from(cameraUseCaseAdapter.cameraInfo)
 
         var hardwareLevel: Int? = camera2CameraInfo.getCameraCharacteristic(
@@ -159,11 +162,6 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         var preview = Preview.Builder().build()
         var imageCapture = ImageCapture.Builder().build()
         // This will force ImageCapture to use YUV_420_888 to configure capture session.
-        val fakeSessionProcessor = FakeSessionProcessor(
-            inputFormatPreview = null,
-            inputFormatCapture = ImageFormat.YUV_420_888
-        )
-        enableSessionProcessor(cameraUseCaseAdapter, fakeSessionProcessor)
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(getSurfaceProvider())
             cameraUseCaseAdapter.addUseCases(Arrays.asList(imageAnalysis, preview, imageCapture))
@@ -185,7 +183,15 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
     @Test
     fun successCaptureImage_whenExtraYuvYuvYuvConfigurationSupported() = runBlocking {
         var cameraSelector = createCameraSelectorById(cameraId)
-        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
+        // This will force ImageCapture / Preview to use YUV_420_888 to configure capture session.
+        val fakeCameraConfig = FakeCameraConfig(
+            sessionProcessor = FakeSessionProcessor(
+                inputFormatPreview = ImageFormat.YUV_420_888,
+                inputFormatCapture = ImageFormat.YUV_420_888
+            )
+        )
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            context, cameraSelector, fakeCameraConfig)
         var camera2CameraInfo = Camera2CameraInfo.from(cameraUseCaseAdapter.cameraInfo)
 
         var hardwareLevel: Int? = camera2CameraInfo.getCameraCharacteristic(
@@ -216,13 +222,6 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         var imageAnalysis = ImageAnalysis.Builder().build()
         var preview = Preview.Builder().build()
         var imageCapture = ImageCapture.Builder().build()
-
-        // This will force ImageCapture / Preview to use YUV_420_888 to configure capture session.
-        val fakeSessionProcessor = FakeSessionProcessor(
-            inputFormatPreview = ImageFormat.YUV_420_888,
-            inputFormatCapture = ImageFormat.YUV_420_888
-        )
-        enableSessionProcessor(cameraUseCaseAdapter, fakeSessionProcessor)
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(getSurfaceProvider())
             cameraUseCaseAdapter.addUseCases(Arrays.asList(imageAnalysis, preview, imageCapture))
@@ -238,31 +237,6 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         withContext(Dispatchers.Main) {
             cameraUseCaseAdapter.removeUseCases(cameraUseCaseAdapter.useCases)
         }
-    }
-
-    private fun enableSessionProcessor(
-        cameraUseCaseAdapter: CameraUseCaseAdapter,
-        sessionProcessor: SessionProcessor
-    ) {
-        cameraUseCaseAdapter.setExtendedConfig(object : CameraConfig {
-            override fun getConfig(): Config {
-                return MutableOptionsBundle.create()
-            }
-
-            override fun getCompatibilityId(): Identifier {
-                return Identifier.create(0)
-            }
-
-            override fun getSessionProcessor(
-                valueIfMissing: SessionProcessor?
-            ): SessionProcessor? {
-                return sessionProcessor
-            }
-
-            override fun getSessionProcessor(): SessionProcessor {
-                return sessionProcessor
-            }
-        })
     }
 
     private fun createCameraSelectorById(id: String): CameraSelector {

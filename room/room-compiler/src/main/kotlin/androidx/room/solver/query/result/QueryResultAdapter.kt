@@ -37,4 +37,7 @@ abstract class QueryResultAdapter(val rowAdapters: List<RowAdapter>) {
     // (e.g. does done to satisfy @Relation fields).
     fun accessedTableNames(): List<String> =
         rowAdapters.filterIsInstance<PojoRowAdapter>().flatMap { it.relationTableNames() }
+
+    // TODO(b/319660042): Remove once migration to driver API is done.
+    open fun isMigratedToDriver(): Boolean = false
 }

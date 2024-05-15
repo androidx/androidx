@@ -29,8 +29,8 @@ public class TestConsumer<T> : Consumer<T> {
     /**
      * Add the value to the list of seen values.
      */
-    override fun accept(t: T) {
-        values.add(t)
+    override fun accept(value: T) {
+        values.add(value)
     }
 
     /**

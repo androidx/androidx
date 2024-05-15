@@ -24,6 +24,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.annotation.IdRes
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * Construct a new [ActivityNavigator.Destination]
@@ -57,6 +58,25 @@ public inline fun NavGraphBuilder.activity(
 )
 
 /**
+ * Construct a new [ActivityNavigator.Destination]
+ *
+ * @param T destination's unique route from a [KClass]
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ * [NavType]. May be empty if [T] does not use custom NavTypes.
+ * @param builder the builder used to construct the fragment destination
+ */
+public inline fun <reified T : Any> NavGraphBuilder.activity(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: ActivityNavigatorDestinationBuilder.() -> Unit
+): Unit = destination(
+    ActivityNavigatorDestinationBuilder(
+        provider[ActivityNavigator::class],
+        T::class,
+        typeMap
+    ).apply(builder)
+)
+
+/**
  * DSL for constructing a new [ActivityNavigator.Destination]
  */
 @NavDestinationDsl
@@ -74,6 +94,22 @@ public class ActivityNavigatorDestinationBuilder :
     }
 
     public constructor(navigator: ActivityNavigator, route: String) : super(navigator, route) {
+        context = navigator.context
+    }
+
+    /**
+     * DSL for constructing a new [ActivityNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the route from a [KClass] of the destination
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     */
+    public constructor(
+        navigator: ActivityNavigator,
+        route: KClass<out Any>,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+    ) : super(navigator, route, typeMap) {
         context = navigator.context
     }
 

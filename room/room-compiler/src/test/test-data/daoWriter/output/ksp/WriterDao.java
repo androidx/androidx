@@ -1,9 +1,10 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
-import androidx.room.EntityInsertionAdapter;
+import androidx.room.EntityInsertAdapter;
 import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteStatement;
+import androidx.room.util.DBUtil;
+import androidx.sqlite.SQLiteStatement;
 import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
@@ -13,149 +14,149 @@ import java.util.List;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.room.RoomProcessor")
-@SuppressWarnings({"unchecked", "deprecation"})
+@SuppressWarnings({"unchecked", "deprecation", "removal"})
 public final class WriterDao_Impl implements WriterDao {
-    private final RoomDatabase __db;
+  private final RoomDatabase __db;
 
-    private final EntityInsertionAdapter<User> __insertionAdapterOfUser;
+  private final EntityInsertAdapter<User> __insertAdapterOfUser;
 
-    private final EntityInsertionAdapter<User> __insertionAdapterOfUser_1;
+  private final EntityInsertAdapter<User> __insertAdapterOfUser_1;
 
-    private final EntityInsertionAdapter<User> __insertionAdapterOfUser_2;
+  private final EntityInsertAdapter<User> __insertAdapterOfUser_2;
 
-    private final EntityInsertionAdapter<Book> __insertionAdapterOfBook;
+  private final EntityInsertAdapter<Book> __insertAdapterOfBook;
 
-    public WriterDao_Impl(@NonNull final RoomDatabase __db) {
-        this.__db = __db;
-        this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
-            @Override
-            @NonNull
-            protected String createQuery() {
-                return "INSERT OR ABORT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
-            }
+  public WriterDao_Impl(@NonNull final RoomDatabase __db) {
+    this.__db = __db;
+    this.__insertAdapterOfUser = new EntityInsertAdapter<User>() {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT OR ABORT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
+      }
 
-            @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final User entity) {
-                statement.bindLong(1, entity.uid);
-                statement.bindString(2, entity.name);
-                statement.bindString(3, entity.getLastName());
-                statement.bindLong(4, entity.age);
-            }
-        };
-        this.__insertionAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
-            @Override
-            @NonNull
-            protected String createQuery() {
-                return "INSERT OR REPLACE INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
-            }
-
-            @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final User entity) {
-                statement.bindLong(1, entity.uid);
-                statement.bindString(2, entity.name);
-                statement.bindString(3, entity.getLastName());
-                statement.bindLong(4, entity.age);
-            }
-        };
-        this.__insertionAdapterOfUser_2 = new EntityInsertionAdapter<User>(__db) {
-            @Override
-            @NonNull
-            protected String createQuery() {
-                return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
-            }
-
-            @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final User entity) {
-                statement.bindLong(1, entity.uid);
-                statement.bindString(2, entity.name);
-                statement.bindString(3, entity.getLastName());
-                statement.bindLong(4, entity.age);
-            }
-        };
-        this.__insertionAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
-            @Override
-            @NonNull
-            protected String createQuery() {
-                return "INSERT OR ABORT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
-            }
-
-            @Override
-            protected void bind(@NonNull final SupportSQLiteStatement statement,
-                    @NonNull final Book entity) {
-                statement.bindLong(1, entity.bookId);
-                statement.bindLong(2, entity.uid);
-            }
-        };
-    }
-
-    @Override
-    public void insertUser(final User user) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertionAdapterOfUser.insert(user);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+      @Override
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+        statement.bindLong(1, entity.uid);
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
         }
-    }
-
-    @Override
-    public void insertUsers(final User user1, final List<User> others) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertionAdapterOfUser.insert(user1);
-            __insertionAdapterOfUser.insert(others);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
         }
-    }
+        statement.bindLong(4, entity.age);
+      }
+    };
+    this.__insertAdapterOfUser_1 = new EntityInsertAdapter<User>() {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT OR REPLACE INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
+      }
 
-    @Override
-    public void insertUsers(final User[] users) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertionAdapterOfUser_1.insert(users);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+      @Override
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+        statement.bindLong(1, entity.uid);
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
         }
-    }
-
-    @Override
-    public void insertTwoUsers(final User userOne, final User userTwo) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertionAdapterOfUser_2.insert(userOne);
-            __insertionAdapterOfUser_2.insert(userTwo);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
         }
-    }
+        statement.bindLong(4, entity.age);
+      }
+    };
+    this.__insertAdapterOfUser_2 = new EntityInsertAdapter<User>() {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
+      }
 
-    @Override
-    public void insertUserAndBook(final User user, final Book book) {
-        __db.assertNotSuspendingTransaction();
-        __db.beginTransaction();
-        try {
-            __insertionAdapterOfUser.insert(user);
-            __insertionAdapterOfBook.insert(book);
-            __db.setTransactionSuccessful();
-        } finally {
-            __db.endTransaction();
+      @Override
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
+        statement.bindLong(1, entity.uid);
+        if (entity.name == null) {
+          statement.bindNull(2);
+        } else {
+          statement.bindText(2, entity.name);
         }
-    }
+        if (entity.getLastName() == null) {
+          statement.bindNull(3);
+        } else {
+          statement.bindText(3, entity.getLastName());
+        }
+        statement.bindLong(4, entity.age);
+      }
+    };
+    this.__insertAdapterOfBook = new EntityInsertAdapter<Book>() {
+      @Override
+      @NonNull
+      protected String createQuery() {
+        return "INSERT OR ABORT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
+      }
 
-    @NonNull
-    public static List<Class<?>> getRequiredConverters() {
-        return Collections.emptyList();
-    }
+      @Override
+      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Book entity) {
+        statement.bindLong(1, entity.bookId);
+        statement.bindLong(2, entity.uid);
+      }
+    };
+  }
+
+  @Override
+  public void insertUser(final User user) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __insertAdapterOfUser.insert(_connection, user);
+      return null;
+    });
+  }
+
+  @Override
+  public void insertUsers(final User user1, final List<User> others) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __insertAdapterOfUser.insert(_connection, user1);
+      __insertAdapterOfUser.insert(_connection, others);
+      return null;
+    });
+  }
+
+  @Override
+  public void insertUsers(final User[] users) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __insertAdapterOfUser_1.insert(_connection, users);
+      return null;
+    });
+  }
+
+  @Override
+  public void insertTwoUsers(final User userOne, final User userTwo) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __insertAdapterOfUser_2.insert(_connection, userOne);
+      __insertAdapterOfUser_2.insert(_connection, userTwo);
+      return null;
+    });
+  }
+
+  @Override
+  public void insertUserAndBook(final User user, final Book book) {
+    DBUtil.performBlocking(__db, false, true, (_connection) -> {
+      __insertAdapterOfUser.insert(_connection, user);
+      __insertAdapterOfBook.insert(_connection, book);
+      return null;
+    });
+  }
+
+  @NonNull
+  public static List<Class<?>> getRequiredConverters() {
+    return Collections.emptyList();
+  }
 }

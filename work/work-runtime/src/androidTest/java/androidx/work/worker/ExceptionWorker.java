@@ -30,6 +30,6 @@ public class ExceptionWorker extends Worker {
 
     @Override
     public @NonNull Result doWork() {
-        throw new IllegalStateException();
+        throw new IllegalStateException("Thrown in doWork Exception");
     }
 }

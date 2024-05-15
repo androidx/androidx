@@ -52,7 +52,6 @@ import android.graphics.drawable.Icon;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.ObjectsCompat;
@@ -63,7 +62,6 @@ import androidx.slice.SliceItem;
  * Class representing an action, supports tappable icons, custom toggle icons, and default toggles.
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-@RequiresApi(19)
 @Deprecated
 public class SliceActionImpl implements SliceAction {
 

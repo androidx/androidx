@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <string name="example" translatable="false">
+        &lt;b>bold&lt;/b>
+        &lt;i>italic&lt;/i>
+        &lt;big>big&lt;/big>
+        &lt;small>small&lt;/small>
+        &lt;tt>monospace&lt;/tt>
+        &lt;font face="serif">serif&lt;/font>
+        &lt;font face="serif-monospace">serif-monospace&lt;/font>
+        &lt;font face="sans_serif">sans_serif&lt;/font>
+        &lt;font face="cursive">cursive&lt;/font>
+        &lt;font face="casual">casual&lt;/font>
+        &lt;font face="sans-serif-smallcaps">sans-serif-smallcaps&lt;/font>
+        &lt;font face="sans-serif-condensed-light">sans-serif-condensed-light&lt;/font>
+        &lt;font face="sans-serif-condensed">sans-serif-condensed&lt;/font>
+        &lt;font face="sans-serif-condensed-medium">sans-serif-condensed-medium&lt;/font>
+        &lt;font color="#00ff00">green&lt;/font>
+        &lt;sup>superscript&lt;/sup>
+        &lt;strike>strikethrough&lt;/strike>
+        &lt;sub>subscript&lt;/sub>
+        &lt;u>underline&lt;/u>
+        &lt;span style="background-color:#ff0000">span&lt;/span>
+        &lt;p dir="rtl">right to left&lt;/p>
+        &lt;p dir="ltr">left to right&lt;/p>
+        I am &lt;div>div&lt;/div> element.&lt;br>
+        &lt;a href="https://developer.android.com">Link&lt;/a>
+    </string>
+</resources>

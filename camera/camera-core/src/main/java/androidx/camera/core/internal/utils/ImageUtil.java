@@ -65,10 +65,10 @@ public final class ImageUtil {
     /**
      * Creates {@link Bitmap} from {@link ImageProxy}.
      *
-     * <p> Currently only {@link ImageFormat#YUV_420_888}, {@link ImageFormat#JPEG} and
-     * {@link PixelFormat#RGBA_8888} are supported. If the format is invalid, an
-     * {@link IllegalArgumentException} will be thrown. If the conversion to bimap failed, an
-     * {@link UnsupportedOperationException} will be thrown.
+     * <p> Currently only {@link ImageFormat#YUV_420_888}, {@link ImageFormat#JPEG},
+     * {@link ImageFormat#JPEG_R} and {@link PixelFormat#RGBA_8888} are supported. If the format
+     * is invalid, an {@link IllegalArgumentException} will be thrown. If the conversion to bimap
+     * failed, an {@link UnsupportedOperationException} will be thrown.
      *
      * @param imageProxy The input {@link ImageProxy} instance.
      * @return {@link Bitmap} instance.
@@ -79,6 +79,7 @@ public final class ImageUtil {
             case ImageFormat.YUV_420_888:
                 return ImageProcessingUtil.convertYUVToBitmap(imageProxy);
             case ImageFormat.JPEG:
+            case ImageFormat.JPEG_R:
                 return createBitmapFromJpegImage(imageProxy);
             case PixelFormat.RGBA_8888:
                 return createBitmapFromRgbaImage(imageProxy);
@@ -111,6 +112,17 @@ public final class ImageUtil {
         ImageProcessingUtil.copyByteBufferToBitmap(bitmap, planes[0].getBuffer(),
                 planes[0].getRowStride());
         return bitmap;
+    }
+
+    /**
+     * Rotates the bitmap by the given rotation degrees.
+     */
+    @NonNull
+    public static Bitmap rotateBitmap(@NonNull Bitmap bitmap, int rotationDegrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(rotationDegrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix,
+                true);
     }
 
     /**
@@ -157,11 +169,11 @@ public final class ImageUtil {
     }
 
     /**
-     * Converts JPEG {@link ImageProxy} to JPEG byte array.
+     * Converts JPEG or JPEG_R {@link ImageProxy} to JPEG byte array.
      */
     @NonNull
     public static byte[] jpegImageToJpegByteArray(@NonNull ImageProxy image) {
-        if (image.getFormat() != ImageFormat.JPEG) {
+        if (!isJpegFormats(image.getFormat())) {
             throw new IllegalArgumentException(
                     "Incorrect image format of the input image proxy: " + image.getFormat());
         }
@@ -183,7 +195,7 @@ public final class ImageUtil {
     public static byte[] jpegImageToJpegByteArray(@NonNull ImageProxy image,
             @NonNull Rect cropRect, @IntRange(from = 1, to = 100) int jpegQuality)
             throws CodecFailedException {
-        if (image.getFormat() != ImageFormat.JPEG) {
+        if (!isJpegFormats(image.getFormat())) {
             throw new IllegalArgumentException(
                     "Incorrect image format of the input image proxy: " + image.getFormat());
         }
@@ -285,7 +297,7 @@ public final class ImageUtil {
         return nv21;
     }
 
-    /** Crops JPEG byte array with given {@link android.graphics.Rect}. */
+    /** Crops JPEG or JPEG_R byte array with given {@link android.graphics.Rect}. */
     @NonNull
     @SuppressWarnings("deprecation")
     private static byte[] cropJpegByteArray(@NonNull byte[] data, @NonNull Rect cropRect,
@@ -323,6 +335,11 @@ public final class ImageUtil {
     /** True if the given aspect ratio is meaningful. */
     public static boolean isAspectRatioValid(@Nullable Rational aspectRatio) {
         return aspectRatio != null && aspectRatio.floatValue() > 0 && !aspectRatio.isNaN();
+    }
+
+    /** True if the given image format is JPEG or JPEG/R. */
+    public static boolean isJpegFormats(int imageFormat) {
+        return imageFormat == ImageFormat.JPEG || imageFormat == ImageFormat.JPEG_R;
     }
 
     /** True if the given aspect ratio is meaningful and has effect on the given size. */

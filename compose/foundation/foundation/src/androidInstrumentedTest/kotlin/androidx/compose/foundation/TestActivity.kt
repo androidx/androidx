@@ -15,16 +15,24 @@
  */
 package androidx.compose.foundation
 
+import android.view.DragAndDropPermissions
+import android.view.DragEvent
 import androidx.activity.ComponentActivity
 import java.util.concurrent.CountDownLatch
 
 class TestActivity : ComponentActivity() {
     var hasFocusLatch = CountDownLatch(1)
+    val requestedDragAndDropPermissions: MutableList<DragEvent> = mutableListOf()
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
             hasFocusLatch.countDown()
         }
+    }
+
+    override fun requestDragAndDropPermissions(event: DragEvent?): DragAndDropPermissions {
+        event?.let { requestedDragAndDropPermissions += it }
+        return super.requestDragAndDropPermissions(event)
     }
 }

@@ -30,6 +30,10 @@ import org.junit.rules.TemporaryFolder
 abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
+        put(ComposeConfiguration.FEATURE_FLAGS, listOf(
+            FeatureFlag.StrongSkipping.featureName,
+            FeatureFlag.OptimizeNonSkippingGroups.featureName,
+        ))
     }
 
     @JvmField
@@ -121,7 +125,8 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
             // replace source keys for start group calls
             .replace(
                 Regex(
-                    "(%composer\\.start(Restart|Movable|Replaceable)Group\\()-?((0b)?[-\\d]+)"
+                    "(%composer\\.start(Restart|Movable|Replaceable|Replace)" +
+                        "Group\\()-?((0b)?[-\\d]+)"
                 )
             ) {
                 val stringKey = it.groupValues[3]
@@ -160,7 +165,7 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
             // replace source information with source it references
             .replace(
                 Regex(
-                    "(%composer\\.start(Restart|Movable|Replaceable)Group\\" +
+                    "(%composer\\.start(Restart|Movable|Replaceable|Replace)Group\\" +
                         "([^\"\\n]*)\"(.*)\"\\)"
                 )
             ) {
@@ -178,6 +183,11 @@ abstract class AbstractIrTransformTest(useFir: Boolean) : AbstractCodegenTest(us
                 )
             ) {
                 "${it.groupValues[1]}\"${generateSourceInfo(it.groupValues[2], source)}\")"
+            }
+            .replace(
+                Regex("(rememberComposableLambda[N]?)\\((-?\\d+)")
+            ) {
+                "${it.groupValues[1]}(<>"
             }
             // replace source keys for joinKey calls
             .replace(

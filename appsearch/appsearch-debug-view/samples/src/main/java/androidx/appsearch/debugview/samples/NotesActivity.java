@@ -121,14 +121,13 @@ public class NotesActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.app_search_debug:
-                Intent intent = new Intent(this, AppSearchDebugActivity.class);
-                intent.putExtra(AppSearchDebugActivity.DB_INTENT_KEY, DB_NAME);
-                intent.putExtra(AppSearchDebugActivity.STORAGE_TYPE_INTENT_KEY,
-                        AppSearchDebugActivity.STORAGE_TYPE_LOCAL);
-                startActivity(intent);
-                return true;
+        if (item.getItemId() == R.id.app_search_debug) {
+            Intent intent = new Intent(this, AppSearchDebugActivity.class);
+            intent.putExtra(AppSearchDebugActivity.DB_INTENT_KEY, DB_NAME);
+            intent.putExtra(AppSearchDebugActivity.STORAGE_TYPE_INTENT_KEY,
+                    AppSearchDebugActivity.STORAGE_TYPE_LOCAL);
+            startActivity(intent);
+            return true;
         }
 
         return false;

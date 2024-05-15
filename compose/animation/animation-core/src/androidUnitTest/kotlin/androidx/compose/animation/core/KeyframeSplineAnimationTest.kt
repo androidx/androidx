@@ -19,6 +19,7 @@ package androidx.compose.animation.core
 import androidx.compose.ui.geometry.Offset
 import junit.framework.TestCase.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -58,6 +59,113 @@ class KeyframeSplineAnimationTest {
             AnimationVector2D(-4f, -10f),
             animation.velocityAt(375, start = Offset(2f, 2f), end = Offset(0f, 0f))
         )
+    }
+
+    // Tests the expected effect that different periodic bias have compared against a regular spline
+    @Test
+    fun interpolatedValues_periodic() {
+        // Testing a curve with points at [0, 1, 0], where the intermediate point is at half of the
+        // duration
+        // This means that on a linear interpolation, the initial velocity (past 0ms) would be
+        // positive and the final velocity would be negative with the same magnitude
+        val sharedConfig = KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<Float>().apply {
+            durationMillis = 1000
+
+            1f at 500 using LinearEasing
+        }
+
+        // We'll compare different periodic bias against the regular spline
+        val splineAnimation = KeyframesWithSplineSpec(sharedConfig, Float.NaN)
+            .vectorize(Float.VectorConverter)
+        val splineAnimationBalancedBias = KeyframesWithSplineSpec(sharedConfig, 0.5f)
+            .vectorize(Float.VectorConverter)
+        val splineAnimationStartBias = KeyframesWithSplineSpec(sharedConfig, 0f)
+            .vectorize(Float.VectorConverter)
+        val splineAnimationEndBias = KeyframesWithSplineSpec(sharedConfig, 1f)
+            .vectorize(Float.VectorConverter)
+
+        // Periodic bias affect the velocity at the start and end of the animation.
+        // Note that we don't test at exactly 0 since that would always return the initial velocity
+        fun VectorizedDurationBasedAnimationSpec<AnimationVector1D>.startVelocity():
+            AnimationVector1D {
+            return getVelocityFromNanos(
+                playTimeNanos = 1L,
+                initialValue = AnimationVector1D(0f),
+                targetValue = AnimationVector1D(0f),
+                initialVelocity = AnimationVector1D(0f)
+            ).let { AnimationVector1D(it.value) } // Copy since vector is reused internally
+        }
+        fun VectorizedDurationBasedAnimationSpec<AnimationVector1D>.endVelocity():
+            AnimationVector1D {
+            return getVelocityFromNanos(
+                playTimeNanos = 1000 * MillisToNanos,
+                initialValue = AnimationVector1D(0f),
+                targetValue = AnimationVector1D(0f),
+                initialVelocity = AnimationVector1D(0f)
+            ).let { AnimationVector1D(it.value) } // Copy since vector is reused internally
+        }
+
+        val regularV0 = splineAnimation.startVelocity()
+        val regularV1 = splineAnimation.endVelocity()
+
+        val balancedV0 = splineAnimationBalancedBias.startVelocity()
+        val balancedV1 = splineAnimationBalancedBias.endVelocity()
+
+        val startBiasV0 =
+            splineAnimationStartBias.startVelocity()
+        val startBiasV1 =
+            splineAnimationStartBias.endVelocity()
+
+        val endBiasV0 = splineAnimationEndBias.startVelocity()
+        val endBiasV1 = splineAnimationEndBias.endVelocity()
+
+        // On splines with periodic bias, the start and end velocity should be the same
+        assertEquals(balancedV0.value, balancedV1.value, 0.0001f)
+        assertEquals(startBiasV0.value, startBiasV1.value, 0.0001f)
+        assertEquals(endBiasV0.value, endBiasV1.value, 0.001f)
+
+        // Velocities on balanced bias should be the average of the start/end velocities of the
+        // regular monotonic spline
+        val avg = (regularV0.value + regularV1.value) / 2f
+        assertEquals(avg, balancedV0.value)
+        assertEquals(avg, balancedV1.value)
+
+        // On fully biased at the start, the end velocity remains unchanged
+        assertEquals(startBiasV1.value, regularV1.value, 0.00001f)
+
+        // On fully biased at the end, the start velocity remains unchanged
+        assertEquals(endBiasV0.value, regularV0.value, 0.00001f)
+    }
+
+    @Test
+    fun testMultipleEasing() {
+        val animation = keyframesWithSpline {
+            durationMillis = 300
+
+            Offset(0f, 0f) at 0 using EaseInCubic
+            Offset(1f, 1f) at 100 using EaseOutCubic
+            Offset(2f, 2f) at 200 using LinearEasing
+
+            // This easing is never applied since it's at the end
+            Offset(3f, 3f) at 300 using LinearOutSlowInEasing
+        }.vectorize(Offset.VectorConverter)
+
+        // Initial and target values don't matter since they're overwritten
+        var valueVector = animation.valueAt(50)
+
+        // Start with EaseInCubic, which is always a lower value than Linear
+        assertTrue(valueVector[0] < 0.5f)
+        assertTrue(valueVector[1] < 0.5f)
+
+        // Then, EaseOutCubic, which is always a higher value than linear
+        valueVector = animation.valueAt(50 + 100)
+        assertTrue(valueVector[0] > (0.5f + 1f))
+        assertTrue(valueVector[1] > (0.5f + 1f))
+
+        // Then, LinearEasing which is the same as linear interpolation (in this particular setup)
+        valueVector = animation.valueAt(50 + 200)
+        assertEquals((0.5f + 2f), valueVector[0], 0.001f)
+        assertEquals((0.5f + 2f), valueVector[1], 0.001f)
     }
 
     @Test
@@ -183,8 +291,8 @@ class KeyframeSplineAnimationTest {
             }
         )
 
-        animationA = KeyframesWithSplineSpec(config)
-        animationB = KeyframesWithSplineSpec(config)
+        animationA = KeyframesWithSplineSpec(config, Float.NaN)
+        animationB = KeyframesWithSplineSpec(config, Float.NaN)
 
         // Test re-using config
         assertNotEquals(animationA, animationB)

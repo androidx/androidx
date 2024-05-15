@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.build.gradle.extraPropertyOrNull
 import androidx.build.gradle.isRoot
 import groovy.xml.DOMBuilder
 import java.net.URI
@@ -25,9 +26,8 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.api.tasks.testing.Test
+import org.gradle.api.tasks.testing.AbstractTestTask
 import org.gradle.work.DisableCachingByDefault
-import org.jetbrains.kotlin.gradle.plugin.extraProperties
 
 /**
  * This plugin is used in Playground projects and adds functionality like resolving to snapshot
@@ -69,7 +69,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
 
     private fun configureSubProject(project: Project) {
         project.repositories.addPlaygroundRepositories()
-        project.configurations.all { configuration ->
+        project.configurations.configureEach { configuration ->
             configuration.resolutionStrategy.eachDependency { details ->
                 val requested = details.requested
                 if (requested.version == SNAPSHOT_MARKER) {
@@ -79,7 +79,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             }
         }
         if (project.path in primaryProjectPaths) {
-            project.tasks.withType(Test::class.java).configureEach {
+            project.tasks.withType(AbstractTestTask::class.java).configureEach {
                 PlaygroundCIHostTestsTask.addTask(project, it)
             }
         }
@@ -103,6 +103,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             metadataCacheFile.readText(Charsets.UTF_8)
         } else {
             val metadataUrl = "${repos.snapshots.url}/$groupPath/$modulePath/maven-metadata.xml"
+            @Suppress("deprecation")
             URL(metadataUrl).openStream().use {
                 val parsedMetadata = DOMBuilder.parse(it.reader())
                 val versionNodes = parsedMetadata.getElementsByTagName("latest")
@@ -195,7 +196,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             }
 
             private fun Project.requireProperty(name: String): String {
-                return checkNotNull(findProperty(name)) {
+                return checkNotNull(extraPropertyOrNull(name)) {
                         "missing $name property. It must be defined in the gradle.properties file"
                     }
                     .toString()
@@ -254,9 +255,10 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             description = "Runs host tests that belong to the projects which were explicitly " +
                 "requested in the playground setup."
         }
+
         companion object {
             private val NAME = "playgroundCIHostTests"
-            fun addTask(project: Project, task: Test) {
+            fun addTask(project: Project, task: AbstractTestTask) {
                 project.rootProject.tasks.named(NAME).configure {
                     it.dependsOn(task)
                 }

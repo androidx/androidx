@@ -18,7 +18,7 @@
 
 package androidx.compose.material3.tokens
 
-import androidx.compose.material3.defaultPlatformTextStyle
+import androidx.compose.material3.internal.defaultPlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.LineHeightStyle
 

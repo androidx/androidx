@@ -78,23 +78,29 @@ internal class Utils {
         }
 
         @RequiresApi(VERSION_CODES.O)
-        fun remapJetpackCapabilitiesToPlatformCapabilities(
+        fun remapJetpackCapsToPlatformCaps(
             @CallsManager.Companion.Capability clientBitmapSelection: Int
         ): Int {
-            var remappedCapabilities = 0
+            // start to build the PhoneAccount that will be registered via the platform API
+            var platformCapabilities: Int = PhoneAccount.CAPABILITY_SELF_MANAGED
+            // append additional capabilities if the device is on a U build or above
+            if (hasPlatformV2Apis()) {
+                platformCapabilities = PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS or
+                    platformCapabilities
+            }
 
             if (hasJetpackVideoCallingCapability(clientBitmapSelection)) {
-                remappedCapabilities =
-                    PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING or
-                        remappedCapabilities
+                platformCapabilities =
+                    PhoneAccount.CAPABILITY_VIDEO_CALLING or
+                    PhoneAccount.CAPABILITY_SUPPORTS_VIDEO_CALLING or platformCapabilities
             }
 
             if (hasJetpackSteamingCapability(clientBitmapSelection)) {
-                remappedCapabilities =
-                    PhoneAccount.CAPABILITY_SUPPORTS_CALL_STREAMING or
-                        remappedCapabilities
+                platformCapabilities =
+                    PhoneAccount.CAPABILITY_SUPPORTS_CALL_STREAMING or platformCapabilities
             }
-            return remappedCapabilities
+
+            return platformCapabilities
         }
 
         fun hasCapability(targetCapability: Int, bitMap: Int): Boolean {

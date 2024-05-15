@@ -17,8 +17,6 @@
 package androidx.core.animation
 
 import android.animation.Animator
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresApi
 
 /**
  * Add an action which will be invoked when the animation has ended.
@@ -69,7 +67,6 @@ public inline fun Animator.doOnRepeat(
  * @return the [Animator.AnimatorPauseListener] added to the Animator
  * @see Animator.resume
  */
-@RequiresApi(19)
 public fun Animator.doOnResume(
     action: (animator: Animator) -> Unit
 ): Animator.AnimatorPauseListener =
@@ -81,7 +78,6 @@ public fun Animator.doOnResume(
  * @return the [Animator.AnimatorPauseListener] added to the Animator
  * @see Animator.pause
  */
-@RequiresApi(19)
 public fun Animator.doOnPause(
     action: (animator: Animator) -> Unit
 ): Animator.AnimatorPauseListener =
@@ -113,7 +109,6 @@ public inline fun Animator.addListener(
  *
  * @return the [Animator.AnimatorPauseListener] added to the Animator
  */
-@RequiresApi(19)
 public fun Animator.addPauseListener(
     onResume: (animator: Animator) -> Unit = {},
     onPause: (animator: Animator) -> Unit = {}
@@ -122,15 +117,6 @@ public fun Animator.addPauseListener(
         override fun onAnimationPause(animator: Animator) = onPause(animator)
         override fun onAnimationResume(animator: Animator) = onResume(animator)
     }
-    Api19Impl.addPauseListener(this, listener)
+    this.addPauseListener(listener)
     return listener
-}
-
-@RequiresApi(19)
-private object Api19Impl {
-    @JvmStatic
-    @DoNotInline
-    fun addPauseListener(animator: Animator, listener: Animator.AnimatorPauseListener) {
-        animator.addPauseListener(listener)
-    }
 }

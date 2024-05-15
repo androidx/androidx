@@ -28,6 +28,7 @@ import org.intellij.lang.annotations.Language
 /**
  * Defines interpolation parameters between two [ConstraintSet]s.
  */
+@ExperimentalMotionApi
 @Immutable
 interface Transition {
     fun getStartConstraintSetId(): String
@@ -40,6 +41,7 @@ interface Transition {
  * See the official [Github Wiki](https://github.com/androidx/constraintlayout/wiki/Compose-MotionLayout-JSON-Syntax#transitions) to learn the syntax.
  */
 @SuppressLint("ComposableNaming")
+@ExperimentalMotionApi
 fun Transition(@Language("json5") content: String): Transition {
     val parsed = try {
         CLParser.parse(content)
@@ -55,6 +57,7 @@ fun Transition(@Language("json5") content: String): Transition {
  *
  * Used to reduced the exposed API from [Transition].
  */
+@ExperimentalMotionApi
 internal class TransitionImpl(
     private val parsedTransition: CLObject
 ) : Transition {

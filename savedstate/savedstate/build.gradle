@@ -1,35 +1,81 @@
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.PlatformIdentifier
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+}
+
+androidXMultiplatform {
+    android()
+    desktop()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            // TODO(b/334076622)
+        }
+
+        commonTest {
+            // TODO(b/334076622)
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.1.0")
+                implementation("androidx.arch.core:core-common:2.2.0")
+                implementation("androidx.lifecycle:lifecycle-common:2.6.1")
+                api(libs.kotlinStdlib)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
+                implementation(libs.truth)
+            }
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+        }
+    }
 }
 
 android {
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.savedstate"
 }
 
-dependencies {
-    api("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.arch.core:core-common:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-common:2.6.1")
-    api(libs.kotlinStdlib)
-
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.truth)
-}
-
 androidx {
     name = "Saved State"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Lifecycle Saved State"
     metalavaK2UastEnabled = true

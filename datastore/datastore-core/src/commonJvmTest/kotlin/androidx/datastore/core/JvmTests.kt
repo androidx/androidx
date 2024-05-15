@@ -84,7 +84,9 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
         }
 
         assertThat(result.exceptionOrNull()).isInstanceOf<IOException>()
-        assertThat(result.exceptionOrNull()).hasMessageThat().contains("Permission denied")
+        // Don't assert hasCauseThat().hasMessageThat() as it's platform dependent
+        assertThat(result.exceptionOrNull()).hasMessageThat()
+            .contains("Inoperable file")
     }
 
     @Test
@@ -93,8 +95,9 @@ class SingleProcessDataStoreJavaTest : SingleProcessDataStoreTest<JavaIOFile>(Fi
         testFile.file.writeText("")
         testFile.file.setReadable(false)
 
-        assertThrows<IOException> { store.data.first() }.hasMessageThat()
-            .contains("Permission denied")
+        // Don't assert hasCauseThat().hasMessageThat() as it's platform dependent
+        assertThrows<IOException> { store.data.first() }
+            .hasMessageThat().contains("Inoperable file")
 
         testFile.file.setReadable(true)
         assertThat(store.data.first()).isEqualTo(0)

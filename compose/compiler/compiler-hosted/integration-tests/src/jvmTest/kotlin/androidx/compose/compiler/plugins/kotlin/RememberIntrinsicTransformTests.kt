@@ -23,7 +23,13 @@ import org.junit.Test
 class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest(useFir) {
     override fun CompilerConfiguration.updateConfiguration() {
         put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
-        put(ComposeConfiguration.INTRINSIC_REMEMBER_OPTIMIZATION_ENABLED_KEY, true)
+        put(
+            ComposeConfiguration.FEATURE_FLAGS,
+            listOf(
+                FeatureFlag.OptimizeNonSkippingGroups.featureName,
+                FeatureFlag.IntrinsicRemember.featureName
+            )
+        )
     }
 
     private fun comparisonPropagation(
@@ -467,6 +473,7 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
             }
         """
     )
+
     @Test
     fun testRememberPropertyReference(): Unit = comparisonPropagation(
         """
@@ -680,5 +687,205 @@ class RememberIntrinsicTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 val count = 0
                 class SomeUnstableClass(val a: Any = "abc")
             """
+    )
+
+    @Test
+    fun testRememberWithUnstableUnused_InInlineLambda() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String, unstable: List<*>) {
+                InlineWrapper {
+                    remember(param) { param }
+                }
+            }
+        """,
+        extra = """
+                import androidx.compose.runtime.*
+
+                @Composable inline fun InlineWrapper(block: @Composable () -> Unit) {}
+            """,
+    )
+
+    @Test
+    fun testRememberWithUnstable_InInlineLambda() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String, unstable: List<*>) {
+                println(unstable)
+                InlineWrapper {
+                    remember(param) { param }
+                }
+            }
+        """,
+        extra = """
+                import androidx.compose.runtime.*
+
+                @Composable inline fun InlineWrapper(block: @Composable () -> Unit) {}
+            """,
+    )
+
+    @Test
+    fun testRememberWithUnstable_inLambda() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String, unstable: List<*>) {
+                Wrapper {
+                    remember(param, unstable) { param }
+                }
+            }
+        """,
+        extra = """
+                import androidx.compose.runtime.*
+
+                @Composable fun Wrapper(block: @Composable () -> Unit) {}
+            """,
+    )
+
+    @Test
+    fun testRememberExpressionMeta() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String) {
+                val a = remember { param }
+                Test(a)
+            }
+        """,
+    )
+
+    @Test
+    fun testMemoizationWStableCapture() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String, unstable: List<*>) {
+                Wrapper {
+                    println(param)
+                }
+            }
+        """,
+        extra = """
+                import androidx.compose.runtime.*
+
+                @Composable fun Wrapper(block: () -> Unit) {}
+            """,
+    )
+
+    @Test
+    fun testMemoizationWUnstableCapture() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String, unstable: List<*>) {
+                Wrapper {
+                    println(unstable)
+                }
+            }
+        """,
+        extra = """
+                import androidx.compose.runtime.*
+
+                @Composable fun Wrapper(block: () -> Unit) {}
+            """,
+    )
+}
+
+class RememberIntrinsicTransformTestsStrongSkipping(
+    useFir: Boolean
+) : AbstractIrTransformTest(useFir) {
+    override fun CompilerConfiguration.updateConfiguration() {
+        put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
+        put(
+            ComposeConfiguration.FEATURE_FLAGS,
+            listOf(
+                FeatureFlag.IntrinsicRemember.featureName,
+                FeatureFlag.OptimizeNonSkippingGroups.featureName,
+                FeatureFlag.StrongSkipping.featureName
+            )
+        )
+    }
+
+    @Test
+    fun testMemoizationWStableCapture() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String, unstable: List<*>) {
+                Wrapper {
+                    println(param)
+                }
+            }
+        """,
+        extra = """
+                import androidx.compose.runtime.*
+
+                @Composable fun Wrapper(block: () -> Unit) {}
+            """,
+    )
+
+    @Test
+    fun testMemoizationWUnstableCapture() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String, unstable: List<*>) {
+                Wrapper {
+                    println(unstable)
+                }
+            }
+        """,
+        extra = """
+                import androidx.compose.runtime.*
+
+                @Composable fun Wrapper(block: () -> Unit) {}
+            """,
+    )
+
+    @Test
+    fun testRememberWithUnstableParam() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Test(param: String, unstable: List<*>) {
+                remember(unstable) {
+                    unstable[0]
+                }
+            }
+        """,
+    )
+
+    @Test
+    fun testRememberWithDefaultParams() = verifyGoldenComposeIrTransform(
+        extra = """
+            import androidx.compose.runtime.*
+
+            val LocalColor = compositionLocalOf { 0 }
+        """,
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Icon(
+                param: Int,
+                defaultParam: Int = LocalColor.current
+            ) {
+                val remembered = remember(param, defaultParam) { TODO() }
+            }
+        """
+    )
+
+    @Test
+    fun testRememberMethodReference() = verifyGoldenComposeIrTransform(
+        source = """
+            import androidx.compose.runtime.*
+
+            @Composable fun Icon(
+                param: Int
+            ) {
+                val remembered = remember(param::toString) { TODO() }
+            }
+        """
     )
 }

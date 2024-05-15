@@ -40,7 +40,7 @@ internal class SingleTextSelectionGesturesBidiTest : TextSelectionGesturesBidiTe
 
     private val testTag = "testTag"
     private val ltrWord = "hello"
-    private val rtlWord = "בבבבב"
+    private val rtlWord = RtlChar.repeat(5)
     override val textContent = mutableStateOf("""
         $ltrWord $rtlWord $ltrWord
         $rtlWord $ltrWord $rtlWord

@@ -72,7 +72,10 @@ class PullRefreshStateTest {
                 refreshThreshold = with(LocalDensity.current) { threshold.toDp() }
             )
 
-            Box(Modifier.pullRefresh(state).testTag(PullRefreshTag)) {
+            Box(
+                Modifier
+                    .pullRefresh(state)
+                    .testTag(PullRefreshTag)) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -102,7 +105,10 @@ class PullRefreshStateTest {
                 refreshThreshold = with(LocalDensity.current) { threshold.toDp() }
             )
 
-            Box(Modifier.pullRefresh(state).testTag(PullRefreshTag)) {
+            Box(
+                Modifier
+                    .pullRefresh(state)
+                    .testTag(PullRefreshTag)) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -146,7 +152,10 @@ class PullRefreshStateTest {
                 refreshThreshold = with(LocalDensity.current) { threshold.toDp() }
             )
 
-            Box(Modifier.pullRefresh(state).testTag(PullRefreshTag)) {
+            Box(
+                Modifier
+                    .pullRefresh(state)
+                    .testTag(PullRefreshTag)) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -197,7 +206,10 @@ class PullRefreshStateTest {
                 refreshThreshold = with(LocalDensity.current) { threshold.toDp() }
             )
 
-            Box(Modifier.pullRefresh(state).testTag(PullRefreshTag)) {
+            Box(
+                Modifier
+                    .pullRefresh(state)
+                    .testTag(PullRefreshTag)) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -246,7 +258,10 @@ class PullRefreshStateTest {
                 refreshThreshold = with(LocalDensity.current) { threshold.toDp() }
             )
 
-            Box(Modifier.pullRefresh(state).testTag(PullRefreshTag)) {
+            Box(
+                Modifier
+                    .pullRefresh(state)
+                    .testTag(PullRefreshTag)) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -287,7 +302,10 @@ class PullRefreshStateTest {
                 refreshingOffset = with(LocalDensity.current) { refreshingOffset.toDp() }
             )
 
-            Box(Modifier.pullRefresh(state).testTag(PullRefreshTag)) {
+            Box(
+                Modifier
+                    .pullRefresh(state)
+                    .testTag(PullRefreshTag)) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -340,7 +358,10 @@ class PullRefreshStateTest {
                 refreshThreshold = with(LocalDensity.current) { threshold.toDp() }
             )
 
-            Box(Modifier.pullRefresh(state).testTag(PullRefreshTag)) {
+            Box(
+                Modifier
+                    .pullRefresh(state)
+                    .testTag(PullRefreshTag)) {
                 LazyColumn {
                     items(100) {
                         Text("item $it")
@@ -408,8 +429,14 @@ class PullRefreshStateTest {
                 onRefresh = { },
                 refreshThreshold = with(LocalDensity.current) { refreshThreshold.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -417,7 +444,8 @@ class PullRefreshStateTest {
         val dragUpOffset = Offset(0f, -100f)
 
         rule.runOnIdle {
-            val preConsumed = dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.Drag)
+            val preConsumed =
+                dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.UserInput)
             // Pull refresh is not showing, so we should consume nothing
             assertThat(preConsumed).isEqualTo(Offset.Zero)
             assertThat(state.position).isEqualTo(0f)
@@ -428,7 +456,8 @@ class PullRefreshStateTest {
 
         rule.runOnIdle {
             assertThat(state.position).isEqualTo(100f /* 200 / 2 for drag multiplier */)
-            val preConsumed = dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.Drag)
+            val preConsumed =
+                dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.UserInput)
             // Pull refresh is currently showing, so we should consume all the delta
             assertThat(preConsumed).isEqualTo(dragUpOffset)
             assertThat(state.position).isEqualTo(50f /* (200 - 100) / 2 for drag multiplier */)
@@ -449,8 +478,14 @@ class PullRefreshStateTest {
                 onRefresh = { },
                 refreshingOffset = with(LocalDensity.current) { refreshingOffset.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -458,7 +493,8 @@ class PullRefreshStateTest {
         val dragUpOffset = Offset(0f, -100f)
 
         rule.runOnIdle {
-            val preConsumed = dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.Drag)
+            val preConsumed =
+                dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.UserInput)
             // Pull refresh is refreshing, so we should consume nothing
             assertThat(preConsumed).isEqualTo(Offset.Zero)
             assertThat(state.position).isEqualTo(refreshingOffset)
@@ -479,8 +515,14 @@ class PullRefreshStateTest {
                 onRefresh = { },
                 refreshThreshold = with(LocalDensity.current) { refreshThreshold.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -488,7 +530,8 @@ class PullRefreshStateTest {
         val dragUpOffset = Offset(0f, 100f)
 
         rule.runOnIdle {
-            val preConsumed = dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.Drag)
+            val preConsumed =
+                dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.UserInput)
             // We should ignore positive delta in prescroll, so we should consume nothing
             assertThat(preConsumed).isEqualTo(Offset.Zero)
             assertThat(state.position).isEqualTo(0f)
@@ -499,7 +542,8 @@ class PullRefreshStateTest {
 
         rule.runOnIdle {
             assertThat(state.position).isEqualTo(100f /* 200 / 2 for drag multiplier */)
-            val preConsumed = dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.Drag)
+            val preConsumed =
+                dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.UserInput)
             // We should ignore positive delta in prescroll, so we should consume nothing
             assertThat(preConsumed).isEqualTo(Offset.Zero)
             assertThat(state.position).isEqualTo(100f /* 200 / 2 for drag multiplier */)
@@ -520,8 +564,14 @@ class PullRefreshStateTest {
                 onRefresh = { },
                 refreshingOffset = with(LocalDensity.current) { refreshingOffset.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -529,7 +579,8 @@ class PullRefreshStateTest {
         val dragUpOffset = Offset(0f, 100f)
 
         rule.runOnIdle {
-            val preConsumed = dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.Drag)
+            val preConsumed =
+                dispatcher.dispatchPreScroll(dragUpOffset, NestedScrollSource.UserInput)
             // Pull refresh is refreshing, so we should consume nothing
             assertThat(preConsumed).isEqualTo(Offset.Zero)
             assertThat(state.position).isEqualTo(refreshingOffset)
@@ -550,8 +601,14 @@ class PullRefreshStateTest {
                 onRefresh = { },
                 refreshThreshold = with(LocalDensity.current) { refreshThreshold.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -562,7 +619,7 @@ class PullRefreshStateTest {
             val postConsumed = dispatcher.dispatchPostScroll(
                 Offset.Zero,
                 dragUpOffset,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             // We should ignore negative delta in postscroll, so we should consume nothing
             assertThat(postConsumed).isEqualTo(Offset.Zero)
@@ -577,7 +634,7 @@ class PullRefreshStateTest {
             val postConsumed = dispatcher.dispatchPostScroll(
                 Offset.Zero,
                 dragUpOffset,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             // We should ignore negative delta in postscroll, so we should consume nothing
             assertThat(postConsumed).isEqualTo(Offset.Zero)
@@ -599,8 +656,14 @@ class PullRefreshStateTest {
                 onRefresh = { },
                 refreshingOffset = with(LocalDensity.current) { refreshingOffset.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -611,7 +674,7 @@ class PullRefreshStateTest {
             val postConsumed = dispatcher.dispatchPostScroll(
                 Offset.Zero,
                 dragUpOffset,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             // Pull refresh is refreshing, so we should consume nothing
             assertThat(postConsumed).isEqualTo(Offset.Zero)
@@ -633,8 +696,14 @@ class PullRefreshStateTest {
                 onRefresh = { },
                 refreshThreshold = with(LocalDensity.current) { refreshThreshold.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -645,7 +714,7 @@ class PullRefreshStateTest {
             val postConsumed = dispatcher.dispatchPostScroll(
                 Offset.Zero,
                 dragUpOffset,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             // We should consume all the delta
             assertThat(postConsumed).isEqualTo(dragUpOffset)
@@ -660,7 +729,7 @@ class PullRefreshStateTest {
             val postConsumed = dispatcher.dispatchPostScroll(
                 Offset.Zero,
                 dragUpOffset,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             // We should consume all the delta again
             assertThat(postConsumed).isEqualTo(dragUpOffset)
@@ -683,8 +752,14 @@ class PullRefreshStateTest {
                 onRefresh = { },
                 refreshingOffset = with(LocalDensity.current) { refreshingOffset.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -695,7 +770,7 @@ class PullRefreshStateTest {
             val postConsumed = dispatcher.dispatchPostScroll(
                 Offset.Zero,
                 dragUpOffset,
-                NestedScrollSource.Drag
+                NestedScrollSource.UserInput
             )
             // Pull refresh is refreshing, so we should consume nothing
             assertThat(postConsumed).isEqualTo(Offset.Zero)
@@ -718,8 +793,14 @@ class PullRefreshStateTest {
                 onRefresh = { onRefreshCalled = true },
                 refreshThreshold = with(LocalDensity.current) { refreshThreshold.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -761,10 +842,12 @@ class PullRefreshStateTest {
 
         rule.runOnIdle {
             assertThat(state.position)
-                .isEqualTo(calculateIndicatorPosition(
-                    refreshThreshold * (3 / 2f) /* account for drag multiplier */,
-                    refreshThreshold
-                ))
+                .isEqualTo(
+                    calculateIndicatorPosition(
+                        refreshThreshold * (3 / 2f) /* account for drag multiplier */,
+                        refreshThreshold
+                    )
+                )
             val preConsumed = runBlocking { dispatcher.dispatchPreFling(flingUp) }
             // Upwards fling, so we should consume nothing
             assertThat(preConsumed).isEqualTo(Velocity.Zero)
@@ -792,8 +875,14 @@ class PullRefreshStateTest {
                 onRefresh = {},
                 refreshingOffset = with(LocalDensity.current) { refreshingOffset.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -828,8 +917,14 @@ class PullRefreshStateTest {
                 onRefresh = { onRefreshCalled = true },
                 refreshThreshold = with(LocalDensity.current) { refreshThreshold.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -871,10 +966,12 @@ class PullRefreshStateTest {
 
         rule.runOnIdle {
             assertThat(state.position)
-                .isEqualTo(calculateIndicatorPosition(
-                    refreshThreshold * (3 / 2f) /* account for drag multiplier */,
-                    refreshThreshold
-                ))
+                .isEqualTo(
+                    calculateIndicatorPosition(
+                        refreshThreshold * (3 / 2f) /* account for drag multiplier */,
+                        refreshThreshold
+                    )
+                )
             val preConsumed = runBlocking { dispatcher.dispatchPreFling(flingDown) }
             // Downwards fling, and we are currently showing, so we should consume all
             assertThat(preConsumed).isEqualTo(flingDown)
@@ -902,8 +999,14 @@ class PullRefreshStateTest {
                 onRefresh = {},
                 refreshingOffset = with(LocalDensity.current) { refreshingOffset.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 
@@ -938,8 +1041,14 @@ class PullRefreshStateTest {
                 onRefresh = { onRefreshCalled = true },
                 refreshThreshold = with(LocalDensity.current) { refreshThreshold.toDp() }
             )
-            Box(Modifier.size(200.dp).pullRefresh(state)) {
-                Box(Modifier.size(100.dp).nestedScroll(connection, dispatcher))
+            Box(
+                Modifier
+                    .size(200.dp)
+                    .pullRefresh(state)) {
+                Box(
+                    Modifier
+                        .size(100.dp)
+                        .nestedScroll(connection, dispatcher))
             }
         }
 

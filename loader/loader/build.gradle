@@ -1,4 +1,11 @@
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -8,7 +15,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
     api("androidx.lifecycle:lifecycle-viewmodel:2.0.0")
-    implementation("androidx.core:core:1.0.0")
+    implementation(projectOrArtifact(":core:core"))
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
@@ -24,7 +31,7 @@ dependencies {
 
 androidx {
     name = "loader"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
     metalavaK2UastEnabled = true

@@ -17,9 +17,7 @@
 package androidx.compose.integration.macrobenchmark
 
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.testutils.createStartupCompilationParams
@@ -30,7 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalMetricApi::class)
 @LargeTest
 @RunWith(Parameterized::class)
 class SmallListStartupBenchmark(
@@ -45,14 +42,7 @@ class SmallListStartupBenchmark(
      *
      * Note that this tracing only exists on more recent API levels
      */
-    private val metrics = getStartupMetrics() + if (startupMode == StartupMode.COLD) {
-        listOf(
-            TraceSectionMetric("cache_hit", TraceSectionMetric.Mode.Sum),
-            TraceSectionMetric("cache_miss", TraceSectionMetric.Mode.Sum)
-        )
-    } else {
-        emptyList()
-    }
+    private val metrics = getStartupMetrics()
 
     @Test
     fun startup() = benchmarkRule.measureStartup(

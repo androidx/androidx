@@ -37,6 +37,8 @@ import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.params.InputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.camera2.internal.compat.quirk.CaptureNoResponseQuirk;
+import androidx.camera.camera2.internal.compat.workaround.RequestMonitor;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
 import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -45,7 +47,9 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -76,16 +80,6 @@ final class CaptureSession implements CaptureSessionInterface {
     /** The configuration for the currently issued single capture requests. */
     @GuardedBy("mSessionLock")
     private final List<CaptureConfig> mCaptureConfigs = new ArrayList<>();
-    /** Callback for handling image captures. */
-    private final CameraCaptureSession.CaptureCallback mCaptureCallback =
-            new CaptureCallback() {
-                @Override
-                public void onCaptureCompleted(
-                        @NonNull CameraCaptureSession session,
-                        @NonNull CaptureRequest request,
-                        @NonNull TotalCaptureResult result) {
-                }
-            };
     @GuardedBy("mSessionLock")
     private final StateCallback mCaptureSessionStateCallback;
     /** The Opener to help on creating the SynchronizedCaptureSession. */
@@ -122,19 +116,29 @@ final class CaptureSession implements CaptureSessionInterface {
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
     @NonNull
     @GuardedBy("mSessionLock")
-    Map<DeferrableSurface, Long> mStreamUseCaseMap = new HashMap<>();
-    final StillCaptureFlow mStillCaptureFlow = new StillCaptureFlow();
-    final TorchStateReset mTorchStateReset = new TorchStateReset();
-
+    private Map<DeferrableSurface, Long> mStreamUseCaseMap = new HashMap<>();
+    private final StillCaptureFlow mStillCaptureFlow = new StillCaptureFlow();
+    private final TorchStateReset mTorchStateReset = new TorchStateReset();
+    private final RequestMonitor mRequestMonitor;
     private final DynamicRangesCompat mDynamicRangesCompat;
+
+    /**
+     * Constructor for CaptureSession without CameraQuirk.
+     */
+    CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat) {
+        this(dynamicRangesCompat, null);
+    }
 
     /**
      * Constructor for CaptureSession.
      */
-    CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat) {
+    CaptureSession(@NonNull DynamicRangesCompat dynamicRangesCompat,
+            @Nullable Quirks cameraQuirks) {
         mState = State.INITIALIZED;
         mDynamicRangesCompat = dynamicRangesCompat;
         mCaptureSessionStateCallback = new StateCallback();
+        mRequestMonitor = new RequestMonitor(
+                cameraQuirks != null && cameraQuirks.contains(CaptureNoResponseQuirk.class));
     }
 
     @Override
@@ -445,6 +449,7 @@ final class CaptureSession implements CaptureSessionInterface {
                             "The Opener shouldn't null in state:" + mState);
                     mSessionOpener.stop();
                     mState = State.CLOSED;
+                    mRequestMonitor.stop();
                     mSessionConfig = null;
 
                     break;
@@ -485,6 +490,7 @@ final class CaptureSession implements CaptureSessionInterface {
                     // Fall through
                 case OPENING:
                     mState = State.RELEASING;
+                    mRequestMonitor.stop();
                     Preconditions.checkNotNull(mSessionOpener,
                             "The Opener shouldn't null in state:" + mState);
                     if (mSessionOpener.stop()) {
@@ -626,16 +632,15 @@ final class CaptureSession implements CaptureSessionInterface {
                 Logger.d(TAG, "Issuing request for session.");
                 CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                         captureConfig, mSynchronizedCaptureSession.getDevice(),
-                        mConfiguredSurfaceMap);
+                        mConfiguredSurfaceMap, true);
                 if (captureRequest == null) {
                     Logger.d(TAG, "Skipping issuing empty request for session.");
                     return -1;
                 }
 
                 CameraCaptureSession.CaptureCallback comboCaptureCallback =
-                        createCamera2CaptureCallback(
-                                captureConfig.getCameraCaptureCallbacks(),
-                                mCaptureCallback);
+                        mRequestMonitor.createMonitorListener(createCamera2CaptureCallback(
+                                captureConfig.getCameraCaptureCallbacks()));
 
                 return mSynchronizedCaptureSession.setSingleRepeatingRequest(captureRequest,
                         comboCaptureCallback);
@@ -652,14 +657,18 @@ final class CaptureSession implements CaptureSessionInterface {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @GuardedBy("mSessionLock")
     void issuePendingCaptureRequest() {
-        if (mCaptureConfigs.isEmpty()) {
-            return;
-        }
-        try {
-            issueBurstCaptureRequest(mCaptureConfigs);
-        } finally {
-            mCaptureConfigs.clear();
-        }
+        mRequestMonitor.getRequestsProcessedFuture().addListener(() -> {
+            synchronized (mSessionLock) {
+                if (mCaptureConfigs.isEmpty()) {
+                    return;
+                }
+                try {
+                    issueBurstCaptureRequest(mCaptureConfigs);
+                } finally {
+                    mCaptureConfigs.clear();
+                }
+            }
+        }, CameraXExecutors.directExecutor());
     }
 
     /**
@@ -733,7 +742,7 @@ final class CaptureSession implements CaptureSessionInterface {
 
                     CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                             captureConfigBuilder.build(), mSynchronizedCaptureSession.getDevice(),
-                            mConfiguredSurfaceMap);
+                            mConfiguredSurfaceMap, false);
                     if (captureRequest == null) {
                         Logger.d(TAG, "Skipping issuing request without surface.");
                         return -1;
@@ -853,7 +862,7 @@ final class CaptureSession implements CaptureSessionInterface {
             for (CaptureConfig captureConfig : captureConfigs) {
                 for (CameraCaptureCallback cameraCaptureCallback :
                         captureConfig.getCameraCaptureCallbacks()) {
-                    cameraCaptureCallback.onCaptureCancelled();
+                    cameraCaptureCallback.onCaptureCancelled(captureConfig.getId());
                 }
             }
         }
@@ -1006,22 +1015,5 @@ final class CaptureSession implements CaptureSessionInterface {
                 Logger.e(TAG, "CameraCaptureSession.onConfigureFailed() " + mState);
             }
         }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mSessionLock")
-    List<CaptureConfig> setupConfiguredSurface(List<CaptureConfig> list) {
-        List<CaptureConfig> ret = new ArrayList<>();
-        for (CaptureConfig c : list) {
-            CaptureConfig.Builder builder = CaptureConfig.Builder.from(c);
-            builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            for (DeferrableSurface deferrableSurface :
-                    mSessionConfig.getRepeatingCaptureConfig().getSurfaces()) {
-                builder.addSurface(deferrableSurface);
-            }
-            ret.add(builder.build());
-        }
-
-        return ret;
     }
 }

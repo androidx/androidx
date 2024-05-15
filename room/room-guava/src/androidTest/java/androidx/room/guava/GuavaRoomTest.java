@@ -21,11 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.CancellationSignal;
 
 import androidx.annotation.NonNull;
-import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -38,7 +35,6 @@ import java.util.concurrent.Executor;
 public class GuavaRoomTest {
 
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void queryIsCancelled() {
         Executor executor = runnable -> { /* nothing to do */ };
 
@@ -63,12 +59,6 @@ public class GuavaRoomTest {
         @Override
         public Executor getQueryExecutor() {
             return mTestExecutor;
-        }
-
-        @NonNull
-        @Override
-        protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config) {
-            throw new UnsupportedOperationException("Shouldn't be called!");
         }
 
         @NonNull

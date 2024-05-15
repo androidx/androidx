@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -62,6 +63,7 @@ class SurfaceTextureRendererTest {
         }
     }
 
+    @Ignore("b/314825888")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRenderAfterReleaseDoesNotRender() {

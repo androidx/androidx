@@ -31,7 +31,6 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.internal.tasks.userinput.UserInputHandler
-import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.service.ServiceRegistry
@@ -272,10 +271,9 @@ abstract class StudioTask : DefaultTask() {
             val userInput = services.get(UserInputHandler::class.java)
             val acceptAgreement =
                 userInput.askYesNoQuestion(
-                    "Do you accept the license agreement at $licensePath?",
-                    /* default answer*/ false
+                    "Do you accept the license agreement at $licensePath?"
                 )
-            if (!acceptAgreement) {
+            if (acceptAgreement == null || !acceptAgreement) {
                 return false
             }
             licenseAcceptedFile.createNewFile()
@@ -340,7 +338,7 @@ abstract class RootStudioTask : StudioTask() {
 abstract class PlaygroundStudioTask : RootStudioTask() {
     @get:Internal
     val supportRootFolder =
-        (project.rootProject.property("ext") as ExtraPropertiesExtension).let {
+        (project.rootProject.extensions.extraProperties).let {
             it.get("supportRootFolder") as File
         }
 

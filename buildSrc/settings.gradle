@@ -14,14 +14,23 @@
  * limitations under the License.
  */
 
+apply from: "settingsScripts/out-setup.groovy"
+getGradle().beforeProject { project ->
+    init.chooseBuildDirectory(
+            new File("${buildscript.sourceFile.parent}/../../.."), rootProject.name, project
+    )
+}
+
 include ":jetpad-integration"
 include ":plugins"
 include ":private"
 include ":public"
+include ":imports:binary-compatibility-validator"
 include ":imports:benchmark-gradle-plugin"
 include ":imports:benchmark-darwin-plugin"
 include ":imports:baseline-profile-gradle-plugin"
 include ":imports:inspection-gradle-plugin"
+include ":imports:room-gradle-plugin"
 include ":imports:compose-icons"
 include ":imports:glance-layout-generator"
 include ":imports:stableaidl-gradle-plugin"

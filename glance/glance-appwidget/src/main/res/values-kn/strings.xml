@@ -19,4 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance ಆ್ಯಪ್ ವಿಜೆಟ್ ದೋಷ"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033"><b><tt>"adb logcat"</tt></b>" ಬಳಸಿಕೊಂಡು ನಿಖರವಾದ ದೋಷವನ್ನು ಪರಿಶೀಲಿಸಿ, "<b><tt>"GlanceAppWidget"</tt></b>" ಅನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ"</string>
+    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"ಕಂಟೆಂಟ್ ಅನ್ನು ತೋರಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ"</string>
 </resources>

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.AndroidXComposePlugin
 
@@ -25,20 +32,25 @@ plugins {
 }
 
 dependencies {
-    api(project(":compose:foundation:foundation"))
-    api(project(":compose:ui:ui"))
-    api(project(":compose:ui:ui-text"))
-    api(project(":compose:runtime:runtime"))
+    api("androidx.compose.foundation:foundation:1.6.0")
+    api("androidx.compose.ui:ui:1.6.0")
+    api("androidx.compose.ui:ui-text:1.6.0")
+    api("androidx.compose.runtime:runtime:1.6.0")
 
     implementation(libs.kotlinStdlib)
-    implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:ui:ui-util"))
-    implementation("androidx.core:core:1.11.0-beta02")
-    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
+    implementation("androidx.compose.foundation:foundation-layout:1.6.0")
+    implementation("androidx.compose.ui:ui-util:1.6.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+    implementation("androidx.core:core:1.12.0")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.robolectric)
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
@@ -46,8 +58,11 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.mockitoAndroid5)
 
-    samples(project(":wear:compose:compose-foundation-samples"))
+    // Includes the wear-sdk jar
+    compileOnly files("../../wear_sdk/wear-sdk.jar")
+    testImplementation(files("../../wear_sdk/wear-sdk.jar"))
 }
 
 android {
@@ -59,7 +74,7 @@ android {
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/foundation"
 
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.wear.compose.foundation"
@@ -67,11 +82,11 @@ android {
 
 androidx {
     name = "Android Wear Compose Foundation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "WearOS Compose Foundation Library. This library makes it easier for developers" +
             "to write Jetpack Compose applications for Wearable devices by providing " +
             "functionality to support wearable specific devices sizes, shapes and navigation " +
             "gestures. It builds upon the Jetpack Compose libraries."
-    targetsJavaConsumers = false
+    samples(project(":wear:compose:compose-foundation-samples"))
 }

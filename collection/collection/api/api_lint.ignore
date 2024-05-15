@@ -1,8 +1,8 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.collection.ArraySet#ArraySet(E[]) parameter #0:
-    Method parameter should be Collection<E> (or subclass) instead of raw array; was `E[]`
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `E[]`
 ArrayReturn: androidx.collection.ArraySet#toArray(T[]) parameter #0:
-    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
+    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
 
 
 GetterSetterNames: androidx.collection.SparseArrayCompat#getIsEmpty():
@@ -11,18 +11,6 @@ GetterSetterNames: androidx.collection.SparseArrayCompat#getIsEmpty():
 
 KotlinOperator: androidx.collection.SparseArrayCompat#get(int, E):
     Note that adding the `operator` keyword would allow calling this method using operator syntax
-
-
-MissingNullability: androidx.collection.ArraySetKt#arraySetOf(T...) parameter #0:
-    Missing nullability on parameter `values` in method `arraySetOf`
-MissingNullability: androidx.collection.ObjectListKt#mutableObjectListOf(E...) parameter #0:
-    Missing nullability on parameter `elements` in method `mutableObjectListOf`
-MissingNullability: androidx.collection.ObjectListKt#objectListOf(E...) parameter #0:
-    Missing nullability on parameter `elements` in method `objectListOf`
-MissingNullability: androidx.collection.ScatterSetKt#mutableScatterSetOf(E...) parameter #0:
-    Missing nullability on parameter `elements` in method `mutableScatterSetOf`
-MissingNullability: androidx.collection.ScatterSetKt#scatterSetOf(E...) parameter #0:
-    Missing nullability on parameter `elements` in method `scatterSetOf`
 
 
 NoClone: androidx.collection.LongSparseArray#clone():

@@ -24,6 +24,10 @@ import android.os.Bundle
  *
  * @property allowedUserIds a optional set of user ids with which the credentials associated are
  * requested; leave as empty if you want to request all the available user credentials
+ * @property typePriorityHint always sets the priority of this entry to
+ * [CredentialOption.PRIORITY_PASSWORD_OR_SIMILAR], which defines how it appears in the credential
+ * selector, with less precedence than account ordering but more precedence than last used time;
+ * see [CredentialOption] for more information
  */
 class GetPasswordOption private constructor(
     val allowedUserIds: Set<String>,
@@ -31,13 +35,15 @@ class GetPasswordOption private constructor(
     allowedProviders: Set<ComponentName>,
     requestData: Bundle,
     candidateQueryData: Bundle,
+    typePriorityHint: @PriorityHints Int = PRIORITY_PASSWORD_OR_SIMILAR,
 ) : CredentialOption(
     type = PasswordCredential.TYPE_PASSWORD_CREDENTIAL,
     requestData = requestData,
     candidateQueryData = candidateQueryData,
     isSystemProviderRequired = false,
     isAutoSelectAllowed = isAutoSelectAllowed,
-    allowedProviders,
+    allowedProviders = allowedProviders,
+    typePriorityHint = typePriorityHint,
 ) {
 
     /**
@@ -82,6 +88,8 @@ class GetPasswordOption private constructor(
                 allowedProviders = allowedProviders,
                 requestData = data,
                 candidateQueryData = candidateQueryData,
+                typePriorityHint = data.getInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE,
+                    PRIORITY_PASSWORD_OR_SIMILAR),
             )
         }
 

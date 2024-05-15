@@ -17,6 +17,8 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RangeSlider
@@ -28,34 +30,43 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 @Sampled
 @Composable
 fun SliderSample() {
     var sliderPosition by remember { mutableStateOf(0f) }
-    Text(text = sliderPosition.toString())
-    Slider(value = sliderPosition, onValueChange = { sliderPosition = it })
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(text = "%.2f".format(sliderPosition))
+        Slider(value = sliderPosition, onValueChange = { sliderPosition = it })
+    }
 }
 
 @Sampled
 @Composable
 fun StepsSliderSample() {
     var sliderPosition by remember { mutableStateOf(0f) }
-    Text(text = sliderPosition.toString())
-    Slider(
-        value = sliderPosition,
-        onValueChange = { sliderPosition = it },
-        valueRange = 0f..100f,
-        onValueChangeFinished = {
-            // launch some business logic update with the state you hold
-            // viewModel.updateSelectedSliderValue(sliderPosition)
-        },
-        steps = 5,
-        colors = SliderDefaults.colors(
-            thumbColor = MaterialTheme.colors.secondary,
-            activeTrackColor = MaterialTheme.colors.secondary
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(text = sliderPosition.roundToInt().toString())
+        Slider(
+            value = sliderPosition,
+            onValueChange = { sliderPosition = it },
+            valueRange = 0f..100f,
+            onValueChangeFinished = {
+                // launch some business logic update with the state you hold
+                // viewModel.updateSelectedSliderValue(sliderPosition)
+            },
+            // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
+            // there are 9 steps (10, 20, ..., 90).
+            steps = 9,
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colors.secondary,
+                activeTrackColor = MaterialTheme.colors.secondary
+            )
         )
-    )
+    }
 }
 
 @Sampled
@@ -63,16 +74,20 @@ fun StepsSliderSample() {
 @OptIn(ExperimentalMaterialApi::class)
 fun RangeSliderSample() {
     var sliderPosition by remember { mutableStateOf(0f..100f) }
-    Text(text = sliderPosition.toString())
-    RangeSlider(
-        value = sliderPosition,
-        onValueChange = { sliderPosition = it },
-        valueRange = 0f..100f,
-        onValueChangeFinished = {
-            // launch some business logic update with the state you hold
-            // viewModel.updateSelectedSliderValue(sliderPosition)
-        },
-    )
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        val rangeStart = "%.2f".format(sliderPosition.start)
+        val rangeEnd = "%.2f".format(sliderPosition.endInclusive)
+        Text(text = "$rangeStart .. $rangeEnd")
+        RangeSlider(
+            value = sliderPosition,
+            onValueChange = { sliderPosition = it },
+            valueRange = 0f..100f,
+            onValueChangeFinished = {
+                // launch some business logic update with the state you hold
+                // viewModel.updateSelectedSliderValue(sliderPosition)
+            },
+        )
+    }
 }
 
 @Sampled
@@ -80,19 +95,25 @@ fun RangeSliderSample() {
 @OptIn(ExperimentalMaterialApi::class)
 fun StepRangeSliderSample() {
     var sliderPosition by remember { mutableStateOf(0f..100f) }
-    Text(text = sliderPosition.toString())
-    RangeSlider(
-        steps = 5,
-        value = sliderPosition,
-        onValueChange = { sliderPosition = it },
-        valueRange = 0f..100f,
-        onValueChangeFinished = {
-            // launch some business logic update with the state you hold
-            // viewModel.updateSelectedSliderValue(sliderPosition)
-        },
-        colors = SliderDefaults.colors(
-            thumbColor = MaterialTheme.colors.secondary,
-            activeTrackColor = MaterialTheme.colors.secondary
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        val rangeStart = sliderPosition.start.roundToInt()
+        val rangeEnd = sliderPosition.endInclusive.roundToInt()
+        Text(text = "$rangeStart .. $rangeEnd")
+        RangeSlider(
+            value = sliderPosition,
+            onValueChange = { sliderPosition = it },
+            valueRange = 0f..100f,
+            onValueChangeFinished = {
+                // launch some business logic update with the state you hold
+                // viewModel.updateSelectedSliderValue(sliderPosition)
+            },
+            // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
+            // there are 9 steps (10, 20, ..., 90).
+            steps = 9,
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colors.secondary,
+                activeTrackColor = MaterialTheme.colors.secondary
+            )
         )
-    )
+    }
 }

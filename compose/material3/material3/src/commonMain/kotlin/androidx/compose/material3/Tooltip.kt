@@ -25,44 +25,38 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
-import androidx.compose.foundation.layout.requiredHeightIn
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material3.internal.BasicTooltipBox
+import androidx.compose.material3.internal.BasicTooltipDefaults
+import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.PlainTooltipTokens
 import androidx.compose.material3.tokens.RichTooltipTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.CacheDrawScope
+import androidx.compose.ui.draw.DrawResult
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.onLongClick
-import androidx.compose.ui.semantics.paneTitle
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -70,509 +64,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupPositionProvider
 import kotlinx.coroutines.CancellableContinuation
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
-
-/**
- * Plain tooltip that provides a descriptive message for an anchor.
- *
- * Tooltip that is invoked when the anchor is long pressed:
- *
- * @sample androidx.compose.material3.samples.PlainTooltipSample
- *
- * If control of when the tooltip is shown is desired please see
- *
- * @sample androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
- *
- * @param tooltip the composable that will be used to populate the tooltip's content.
- * @param modifier the [Modifier] to be applied to the tooltip.
- * @param focusable [Boolean] that determines if the tooltip is focusable. When true,
- * the tooltip will consume touch events while it's shown and will have accessibility
- * focus move to the first element of the component. When false, the tooltip
- * won't consume touch events while it's shown but assistive-tech users will need
- * to swipe or drag to get to the first element of the component.
- * @param tooltipState handles the state of the tooltip's visibility.
- * @param shape the [Shape] that should be applied to the tooltip container.
- * @param containerColor [Color] that will be applied to the tooltip's container.
- * @param tonalElevation the tonal elevation of the tooltip.
- * @param shadowElevation the shadow elevation of the tooltip.
- * @param contentColor [Color] that will be applied to the tooltip's content.
- * @param content the composable that the tooltip will anchor to.
- */
-@Suppress("DEPRECATION")
-@Composable
-@ExperimentalMaterial3Api
-@Deprecated("Use TooltipBox with PlainTooltip")
-fun PlainTooltipBox(
-    tooltip: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    focusable: Boolean = true,
-    tooltipState: PlainTooltipState = rememberPlainTooltipState(),
-    shape: Shape = TooltipDefaults.plainTooltipContainerShape,
-    containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
-    tonalElevation: Dp = 0.dp,
-    shadowElevation: Dp = 0.dp,
-    contentColor: Color = TooltipDefaults.plainTooltipContentColor,
-    content: @Composable TooltipBoxScope.() -> Unit
-) {
-    Material3TooltipBox(
-        tooltipContent = {
-            Box(modifier = Modifier.padding(PlainTooltipContentPadding)) {
-                val textStyle =
-                    MaterialTheme.typography.fromToken(PlainTooltipTokens.SupportingTextFont)
-                CompositionLocalProvider(
-                    LocalContentColor provides contentColor,
-                    LocalTextStyle provides textStyle,
-                    content = tooltip
-                )
-            }
-        },
-        modifier = modifier,
-        focusable = focusable,
-        tooltipState = tooltipState,
-        shape = shape,
-        containerColor = containerColor,
-        tooltipPositionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        maxWidth = PlainTooltipMaxWidth,
-        content = content
-    )
-}
-
-/**
- * Rich text tooltip that allows the user to pass in a title, text, and action.
- * Tooltips are used to provide a descriptive message for an anchor.
- *
- * Tooltip that is invoked when the anchor is long pressed:
- *
- * @sample androidx.compose.material3.samples.RichTooltipSample
- *
- * If control of when the tooltip is shown is desired please see
- *
- * @sample androidx.compose.material3.samples.RichTooltipWithManualInvocationSample
- *
- * @param text the message to be displayed in the center of the tooltip.
- * @param modifier the [Modifier] to be applied to the tooltip.
- * @param focusable [Boolean] that determines if the tooltip is focusable. When true,
- * the tooltip will consume touch events while it's shown and will have accessibility
- * focus move to the first element of the component. When false, the tooltip
- * won't consume touch events while it's shown but assistive-tech users will need
- * to swipe or drag to get to the first element of the component.
- * @param tooltipState handles the state of the tooltip's visibility.
- * @param title An optional title for the tooltip.
- * @param action An optional action for the tooltip.
- * @param shape the [Shape] that should be applied to the tooltip container.
- * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
- * @param tonalElevation the tonal elevation of the tooltip.
- * @param shadowElevation the shadow elevation of the tooltip.
- * @param content the composable that the tooltip will anchor to.
- */
-@Suppress("DEPRECATION")
-@Composable
-@ExperimentalMaterial3Api
-@Deprecated("Use TooltipBox with RichTooltip")
-fun RichTooltipBox(
-    text: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    focusable: Boolean = true,
-    title: (@Composable () -> Unit)? = null,
-    action: (@Composable () -> Unit)? = null,
-    tooltipState: RichTooltipState = rememberRichTooltipState(action != null),
-    shape: Shape = TooltipDefaults.richTooltipContainerShape,
-    colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
-    tonalElevation: Dp = RichTooltipTokens.ContainerElevation,
-    shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
-    content: @Composable TooltipBoxScope.() -> Unit
-) {
-    Material3TooltipBox(
-        tooltipContent = {
-            val actionLabelTextStyle =
-                MaterialTheme.typography.fromToken(RichTooltipTokens.ActionLabelTextFont)
-            val subheadTextStyle =
-                MaterialTheme.typography.fromToken(RichTooltipTokens.SubheadFont)
-            val supportingTextStyle =
-                MaterialTheme.typography.fromToken(RichTooltipTokens.SupportingTextFont)
-            Column(
-                modifier = Modifier.padding(horizontal = RichTooltipHorizontalPadding)
-            ) {
-                title?.let {
-                    Box(
-                        modifier = Modifier.paddingFromBaseline(top = HeightToSubheadFirstLine)
-                    ) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides colors.titleContentColor,
-                            LocalTextStyle provides subheadTextStyle,
-                            content = it
-                        )
-                    }
-                }
-                Box(
-                    modifier = Modifier.textVerticalPadding(title != null, action != null)
-                ) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.contentColor,
-                        LocalTextStyle provides supportingTextStyle,
-                        content = text
-                    )
-                }
-                action?.let {
-                    Box(
-                        modifier = Modifier
-                            .requiredHeightIn(min = ActionLabelMinHeight)
-                            .padding(bottom = ActionLabelBottomPadding)
-                    ) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides colors.actionContentColor,
-                            LocalTextStyle provides actionLabelTextStyle,
-                            content = it
-                        )
-                    }
-                }
-            }
-        },
-        shape = shape,
-        containerColor = colors.containerColor,
-        tooltipPositionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
-        tooltipState = tooltipState,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation,
-        maxWidth = RichTooltipMaxWidth,
-        modifier = modifier,
-        focusable = focusable,
-        content = content
-    )
-}
-
-@Suppress("DEPRECATION")
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun Material3TooltipBox(
-    tooltipContent: @Composable () -> Unit,
-    tooltipPositionProvider: PopupPositionProvider,
-    modifier: Modifier,
-    focusable: Boolean,
-    shape: Shape,
-    tooltipState: BasicTooltipState,
-    containerColor: Color,
-    tonalElevation: Dp,
-    shadowElevation: Dp,
-    maxWidth: Dp,
-    content: @Composable TooltipBoxScope.() -> Unit,
-) {
-    val coroutineScope = rememberCoroutineScope()
-    val longPressLabel = getString(string = Strings.TooltipLongPressLabel)
-
-    val scope = remember(tooltipState) {
-        object : TooltipBoxScope {
-            override fun Modifier.tooltipTrigger(): Modifier {
-                val onLongPress = {
-                    coroutineScope.launch {
-                        tooltipState.show()
-                    }
-                }
-                return pointerInput(tooltipState) {
-                    awaitEachGesture {
-                        val longPressTimeout = viewConfiguration.longPressTimeoutMillis
-                        val pass = PointerEventPass.Initial
-
-                        // wait for the first down press
-                        awaitFirstDown(pass = pass)
-
-                        try {
-                            // listen to if there is up gesture within the longPressTimeout limit
-                            withTimeout(longPressTimeout) {
-                                waitForUpOrCancellation(pass = pass)
-                            }
-                        } catch (_: PointerEventTimeoutCancellationException) {
-                            // handle long press - Show the tooltip
-                            onLongPress()
-
-                            // consume the children's click handling
-                            val changes = awaitPointerEvent(pass = pass).changes
-                            for (i in 0 until changes.size) { changes[i].consume() }
-                        }
-                    }
-                }.semantics(mergeDescendants = true) {
-                    onLongClick(
-                        label = longPressLabel,
-                        action = {
-                            onLongPress()
-                            true
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-    Box {
-        val transition = updateTransition(tooltipState.isVisible, label = "Tooltip transition")
-        if (transition.currentState || transition.targetState) {
-            val tooltipPaneDescription = getString(Strings.TooltipPaneDescription)
-            TooltipPopup(
-                popupPositionProvider = tooltipPositionProvider,
-                onDismissRequest = {
-                    if (tooltipState.isVisible) {
-                        coroutineScope.launch { tooltipState.dismiss() }
-                    }
-                },
-                focusable = focusable
-            ) {
-                Surface(
-                    modifier = modifier
-                        .sizeIn(
-                            minWidth = TooltipMinWidth,
-                            maxWidth = maxWidth,
-                            minHeight = TooltipMinHeight
-                        )
-                        .animateTooltip(transition)
-                        .semantics {
-                            liveRegion = LiveRegionMode.Assertive
-                            paneTitle = tooltipPaneDescription
-                        },
-                    shape = shape,
-                    color = containerColor,
-                    tonalElevation = tonalElevation,
-                    shadowElevation = shadowElevation,
-                    content = tooltipContent
-                )
-            }
-        }
-
-        scope.content()
-    }
-
-    DisposableEffect(tooltipState) {
-        onDispose { tooltipState.onDispose() }
-    }
-}
-
-/**
- * Scope of [PlainTooltipBox] and RichTooltipBox
- */
-@Suppress("DEPRECATION")
-@ExperimentalMaterial3Api
-@Deprecated("Use TooltipBox with enableUserInput to handle default gestures")
-interface TooltipBoxScope {
-    /**
-     * [Modifier] that should be applied to the anchor composable when showing the tooltip
-     * after long pressing the anchor composable is desired. It appends a long click to
-     * the composable that this modifier is chained with.
-     */
-    fun Modifier.tooltipTrigger(): Modifier
-}
-
-@Composable
-@ExperimentalMaterial3Api
-internal expect fun TooltipPopup(
-    popupPositionProvider: PopupPositionProvider,
-    onDismissRequest: () -> Unit,
-    focusable: Boolean,
-    content: @Composable () -> Unit
-)
-
-/**
- * Create and remember the default [PlainTooltipState].
- *
- * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
- * with the mutator mutex, only one will be shown on the screen at any time.
- */
-@Suppress("DEPRECATION")
-@Composable
-@ExperimentalMaterial3Api
-@Deprecated("Use rememberTooltipState with TooltipBox.")
-fun rememberPlainTooltipState(
-    mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
-): PlainTooltipState =
-    remember(mutatorMutex) { PlainTooltipStateImpl(mutatorMutex) }
-
-/**
- * Create and remember the default [RichTooltipState].
- *
- * @param isPersistent [Boolean] that determines if the tooltip associated with this
- * [RichTooltipState] will be persistent or not. If isPersistent is true, then the tooltip will
- * only be dismissed when the user clicks outside the bounds of the tooltip or if
- * [TooltipState.dismiss] is called. When isPersistent is false, the tooltip will dismiss after
- * a short duration. Ideally, this should be set to true when an action is provided to the
- * [RichTooltipBox] that this [RichTooltipState] is associated with.
- * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
- * with the mutator mutex, only one will be shown on the screen at any time.
- */
-@Suppress("DEPRECATION")
-@Composable
-@ExperimentalMaterial3Api
-@Deprecated("Use rememberTooltipState with TooltipBox")
-fun rememberRichTooltipState(
-    isPersistent: Boolean,
-    mutatorMutex: MutatorMutex = BasicTooltipDefaults.GlobalMutatorMutex
-): RichTooltipState =
-    remember(
-        isPersistent,
-        mutatorMutex
-    ) { RichTooltipStateImpl(isPersistent = isPersistent, mutatorMutex = mutatorMutex) }
-
-/**
- * The default implementation for [RichTooltipState]
- *
- * @param isPersistent [Boolean] that determines if the tooltip associated with this
- * [RichTooltipState] will be persistent or not. If isPersistent is true, then the tooltip will
- * only be dismissed when the user clicks outside the bounds of the tooltip or if
- * [TooltipState.dismiss] is called. When isPersistent is false, the tooltip will dismiss after
- * a short duration. Ideally, this should be set to true when an action is provided to the
- * [RichTooltipBox] that this [RichTooltipState] is associated with.
- * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated
- * with the mutator mutex, only one will be shown on the screen at any time.
- */
-@Suppress("DEPRECATION")
-@OptIn(ExperimentalMaterial3Api::class)
-@Stable
-internal class RichTooltipStateImpl(
-    override val isPersistent: Boolean,
-    private val mutatorMutex: MutatorMutex
-) : RichTooltipState {
-
-    /**
-     * [Boolean] that will be used to update the visibility
-     * state of the associated tooltip.
-     */
-    override var isVisible: Boolean by mutableStateOf(false)
-        private set
-
-    /**
-     * Show the tooltip associated with the current [RichTooltipState].
-     * It will persist or dismiss after a short duration depending on [isPersistent].
-     * When this method is called, all of the other tooltips currently
-     * being shown will dismiss.
-     */
-    override suspend fun show(mutatePriority: MutatePriority) {
-        val cancellableShow: suspend () -> Unit = {
-            suspendCancellableCoroutine { continuation ->
-                isVisible = true
-                job = continuation
-            }
-        }
-
-        // Show associated tooltip for [TooltipDuration] amount of time
-        // or until tooltip is explicitly dismissed depending on [isPersistent].
-        mutatorMutex.mutate(mutatePriority) {
-            try {
-                if (isPersistent) {
-                    cancellableShow()
-                } else {
-                    withTimeout(BasicTooltipDefaults.TooltipDuration) {
-                        cancellableShow()
-                    }
-                }
-            } finally {
-                // timeout or cancellation has occurred
-                // and we close out the current tooltip.
-                isVisible = false
-            }
-        }
-    }
-
-    /**
-     * continuation used to clean up
-     */
-    private var job: (CancellableContinuation<Unit>)? = null
-
-    /**
-     * Dismiss the tooltip associated with
-     * this [RichTooltipState] if it's currently being shown.
-     */
-    override fun dismiss() {
-        isVisible = false
-    }
-
-    /**
-     * Cleans up [MutatorMutex] when the tooltip associated
-     * with this state leaves Composition.
-     */
-    override fun onDispose() {
-        job?.cancel()
-    }
-}
-
-/**
- * The default implementation for [PlainTooltipState]
- */
-@Suppress("DEPRECATION")
-@OptIn(ExperimentalMaterial3Api::class)
-@Stable
-internal class PlainTooltipStateImpl(private val mutatorMutex: MutatorMutex) : PlainTooltipState {
-
-    /**
-     * [Boolean] that will be used to update the visibility
-     * state of the associated tooltip.
-     */
-    override var isVisible by mutableStateOf(false)
-        private set
-
-    override val isPersistent: Boolean = false
-
-    /**
-     * Show the tooltip associated with the current [PlainTooltipState].
-     * It will dismiss after a short duration. When this method is called,
-     * all of the other tooltips currently being shown will dismiss.
-     */
-    override suspend fun show(mutatePriority: MutatePriority) {
-        mutatorMutex.mutate(mutatePriority) {
-            try {
-                withTimeout(BasicTooltipDefaults.TooltipDuration) {
-                    suspendCancellableCoroutine { continuation ->
-                        isVisible = true
-                        job = continuation
-                    }
-                }
-            } finally {
-                // timeout or cancellation has occurred
-                // and we close out the current tooltip.
-                isVisible = false
-            }
-        }
-    }
-
-    /**
-     * continuation used to clean up
-     */
-    private var job: (CancellableContinuation<Unit>)? = null
-
-    /**
-     * Dismiss the tooltip associated with
-     * this [PlainTooltipState] if it's currently being shown.
-     */
-    override fun dismiss() {
-        isVisible = false
-    }
-
-    /**
-     * Cleans up [MutatorMutex] when the tooltip associated
-     * with this state leaves Composition.
-     */
-    override fun onDispose() {
-        job?.cancel()
-    }
-}
-
-/**
- * The [TooltipState] that should be used with [RichTooltipBox]
- */
-@Suppress("DEPRECATION")
-@Stable
-@ExperimentalMaterial3Api
-@Deprecated("Use TooltipState with TooltipBox")
-interface PlainTooltipState : BasicTooltipState
-
-/**
- * The [TooltipState] that should be used with [RichTooltipBox]
- */
-@Suppress("DEPRECATION")
-@Stable
-@ExperimentalMaterial3Api
-@Deprecated("Use TooltipState with TooltipBox")
-interface RichTooltipState : BasicTooltipState
 
 /**
  * Material TooltipBox that wraps a composable with a tooltip.
@@ -588,6 +81,14 @@ interface RichTooltipState : BasicTooltipState
  *
  * @sample androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
  *
+ * Plain tooltip with caret shown on long press:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaret
+ *
+ * Plain tooltip shown on long press with a custom caret:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCustomCaret
+ *
  * Tooltip that is invoked when the anchor is long pressed:
  *
  * @sample androidx.compose.material3.samples.RichTooltipSample
@@ -595,6 +96,14 @@ interface RichTooltipState : BasicTooltipState
  * If control of when the tooltip is shown is desired please see
  *
  * @sample androidx.compose.material3.samples.RichTooltipWithManualInvocationSample
+ *
+ * Rich tooltip with caret shown on long press:
+ *
+ * @sample androidx.compose.material3.samples.RichTooltipWithCaretSample
+ *
+ * Rich tooltip shown on long press with a custom caret
+ *
+ * @sample androidx.compose.material3.samples.RichTooltipWithCustomCaretSample
  *
  * @param positionProvider [PopupPositionProvider] that will be used to place the tooltip
  * relative to the anchor content.
@@ -614,23 +123,63 @@ interface RichTooltipState : BasicTooltipState
 @ExperimentalMaterial3Api
 fun TooltipBox(
     positionProvider: PopupPositionProvider,
-    tooltip: @Composable () -> Unit,
+    tooltip: @Composable TooltipScope.() -> Unit,
     state: TooltipState,
     modifier: Modifier = Modifier,
     focusable: Boolean = true,
     enableUserInput: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    @Suppress("DEPRECATION")
     val transition = updateTransition(state.transition, label = "tooltip transition")
+    val anchorBounds: MutableState<LayoutCoordinates?> = remember { mutableStateOf(null) }
+    val scope = remember { TooltipScopeImpl { anchorBounds.value } }
+
+    val wrappedContent: @Composable () -> Unit = {
+        Box(
+            modifier = Modifier.onGloballyPositioned { anchorBounds.value = it }
+        ) {
+            content()
+        }
+    }
+
     BasicTooltipBox(
         positionProvider = positionProvider,
-        tooltip = { Box(Modifier.animateTooltip(transition)) { tooltip() } },
+        tooltip = { Box(Modifier.animateTooltip(transition)) { scope.tooltip() } },
         focusable = focusable,
         enableUserInput = enableUserInput,
         state = state,
         modifier = modifier,
-        content = content
+        content = wrappedContent
     )
+}
+
+/**
+ * Tooltip scope for [TooltipBox] to be used to obtain the [LayoutCoordinates] of the
+ * anchor content, and to draw a caret for the tooltip.
+ */
+@ExperimentalMaterial3Api
+sealed interface TooltipScope {
+    /**
+     * [Modifier] that is used to draw the caret for the tooltip. A [LayoutCoordinates] will
+     * be provided that can be used to obtain the bounds of the anchor content, which can be used
+     * to draw the caret more precisely. [PlainTooltip] and [RichTooltip] have
+     * default implementations for their caret.
+     */
+    fun Modifier.drawCaret(
+        draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
+    ): Modifier
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+internal class TooltipScopeImpl(
+    val getAnchorBounds: () -> LayoutCoordinates?
+) : TooltipScope {
+    override fun Modifier.drawCaret(
+        draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
+    ): Modifier = this.drawWithCache {
+        draw(getAnchorBounds())
+    }
 }
 
 /**
@@ -639,48 +188,28 @@ fun TooltipBox(
  * Usually used with [TooltipBox].
  *
  * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default
+ * caret is desired with a specific dimension. Please see [TooltipDefaults.caretSize] to
+ * see the default dimensions. Pass in Dp.Unspecified for this parameter if no caret is desired.
+ * @param shape the [Shape] that should be applied to the tooltip container.
  * @param contentColor [Color] that will be applied to the tooltip's content.
  * @param containerColor [Color] that will be applied to the tooltip's container.
  * @param tonalElevation the tonal elevation of the tooltip.
  * @param shadowElevation the shadow elevation of the tooltip.
- * @param shape the [Shape] that should be applied to the tooltip container.
  * @param content the composable that will be used to populate the tooltip's content.
  */
 @Composable
 @ExperimentalMaterial3Api
-fun PlainTooltip(
+expect fun TooltipScope.PlainTooltip(
     modifier: Modifier = Modifier,
+    caretSize: DpSize = DpSize.Unspecified,
+    shape: Shape = TooltipDefaults.plainTooltipContainerShape,
     contentColor: Color = TooltipDefaults.plainTooltipContentColor,
     containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
     tonalElevation: Dp = 0.dp,
     shadowElevation: Dp = 0.dp,
-    shape: Shape = TooltipDefaults.plainTooltipContainerShape,
     content: @Composable () -> Unit
-) {
-    Surface(
-        shape = shape,
-        color = containerColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation
-    ) {
-        Box(modifier = modifier
-            .sizeIn(
-                minWidth = TooltipMinWidth,
-                maxWidth = PlainTooltipMaxWidth,
-                minHeight = TooltipMinHeight
-            )
-            .padding(PlainTooltipContentPadding)
-        ) {
-            val textStyle =
-                MaterialTheme.typography.fromToken(PlainTooltipTokens.SupportingTextFont)
-            CompositionLocalProvider(
-                LocalContentColor provides contentColor,
-                LocalTextStyle provides textStyle,
-                content = content
-            )
-        }
-    }
-}
+)
 
 /**
  * Rich text tooltip that allows the user to pass in a title, text, and action.
@@ -691,82 +220,28 @@ fun PlainTooltip(
  * @param modifier the [Modifier] to be applied to the tooltip.
  * @param title An optional title for the tooltip.
  * @param action An optional action for the tooltip.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default
+ * caret is desired with a specific dimension. Please see [TooltipDefaults.caretSize] to
+ * see the default dimensions. Pass in Dp.Unspecified for this parameter if no caret is desired.
+ * @param shape the [Shape] that should be applied to the tooltip container.
  * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
  * @param tonalElevation the tonal elevation of the tooltip.
  * @param shadowElevation the shadow elevation of the tooltip.
- * @param shape the [Shape] that should be applied to the tooltip container.
  * @param text the composable that will be used to populate the rich tooltip's text.
  */
 @Composable
 @ExperimentalMaterial3Api
-fun RichTooltip(
+expect fun TooltipScope.RichTooltip(
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
-    colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
-    tonalElevation: Dp = RichTooltipTokens.ContainerElevation,
-    shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
+    caretSize: DpSize = DpSize.Unspecified,
     shape: Shape = TooltipDefaults.richTooltipContainerShape,
+    colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
+    tonalElevation: Dp = ElevationTokens.Level0,
+    shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
     text: @Composable () -> Unit
-) {
-    Surface(
-        modifier = modifier
-            .sizeIn(
-                minWidth = TooltipMinWidth,
-                maxWidth = RichTooltipMaxWidth,
-                minHeight = TooltipMinHeight
-            ),
-        shape = shape,
-        color = colors.containerColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation
-    ) {
-        val actionLabelTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.ActionLabelTextFont)
-        val subheadTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.SubheadFont)
-        val supportingTextStyle =
-            MaterialTheme.typography.fromToken(RichTooltipTokens.SupportingTextFont)
-
-        Column(
-            modifier = Modifier.padding(horizontal = RichTooltipHorizontalPadding)
-        ) {
-            title?.let {
-                Box(
-                    modifier = Modifier.paddingFromBaseline(top = HeightToSubheadFirstLine)
-                ) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.titleContentColor,
-                        LocalTextStyle provides subheadTextStyle,
-                        content = it
-                    )
-                }
-            }
-            Box(
-                modifier = Modifier.textVerticalPadding(title != null, action != null)
-            ) {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.contentColor,
-                    LocalTextStyle provides supportingTextStyle,
-                    content = text
-                )
-            }
-            action?.let {
-                Box(
-                    modifier = Modifier
-                        .requiredHeightIn(min = ActionLabelMinHeight)
-                        .padding(bottom = ActionLabelBottomPadding)
-                ) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.actionContentColor,
-                        LocalTextStyle provides actionLabelTextStyle,
-                        content = it
-                    )
-                }
-            }
-        }
-    }
-}
+)
 
 /**
  * Tooltip defaults that contain default values for both [PlainTooltip] and [RichTooltip]
@@ -798,22 +273,46 @@ object TooltipDefaults {
         RichTooltipTokens.ContainerShape.value
 
     /**
+     * The default [DpSize] for tooltip carets.
+     */
+    val caretSize: DpSize =
+        DpSize(16.dp, 8.dp)
+
+    /**
+     * Method to create a [RichTooltipColors] for [RichTooltip]
+     * using [RichTooltipTokens] to obtain the default colors.
+     */
+    @Composable
+    fun richTooltipColors() = MaterialTheme.colorScheme.defaultRichTooltipColors
+
+    /**
      * Method to create a [RichTooltipColors] for [RichTooltip]
      * using [RichTooltipTokens] to obtain the default colors.
      */
     @Composable
     fun richTooltipColors(
-        containerColor: Color = RichTooltipTokens.ContainerColor.value,
-        contentColor: Color = RichTooltipTokens.SupportingTextColor.value,
-        titleContentColor: Color = RichTooltipTokens.SubheadColor.value,
-        actionContentColor: Color = RichTooltipTokens.ActionLabelTextColor.value,
-    ): RichTooltipColors =
-        RichTooltipColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            titleContentColor = titleContentColor,
-            actionContentColor = actionContentColor
-        )
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        titleContentColor: Color = Color.Unspecified,
+        actionContentColor: Color = Color.Unspecified,
+    ): RichTooltipColors = MaterialTheme.colorScheme.defaultRichTooltipColors.copy(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        titleContentColor = titleContentColor,
+        actionContentColor = actionContentColor
+    )
+
+    internal val ColorScheme.defaultRichTooltipColors: RichTooltipColors
+        get() {
+            return defaultRichTooltipColorsCached ?: RichTooltipColors(
+                containerColor = fromToken(RichTooltipTokens.ContainerColor),
+                contentColor = fromToken(RichTooltipTokens.SupportingTextColor),
+                titleContentColor = fromToken(RichTooltipTokens.SubheadColor),
+                actionContentColor = fromToken(RichTooltipTokens.ActionLabelTextColor),
+            ).also {
+                defaultRichTooltipColorsCached = it
+            }
+        }
 
     /**
      * [PopupPositionProvider] that should be used with [PlainTooltip].
@@ -871,11 +370,11 @@ object TooltipDefaults {
                     layoutDirection: LayoutDirection,
                     popupContentSize: IntSize
                 ): IntOffset {
-                    var x = anchorBounds.right
+                    var x = anchorBounds.left
                     // Try to shift it to the left of the anchor
                     // if the tooltip would collide with the right side of the screen
                     if (x + popupContentSize.width > windowSize.width) {
-                        x = anchorBounds.left - popupContentSize.width
+                        x = anchorBounds.right - popupContentSize.width
                         // Center if it'll also collide with the left side of the screen
                         if (x < 0)
                             x = anchorBounds.left +
@@ -904,6 +403,22 @@ class RichTooltipColors(
     val titleContentColor: Color,
     val actionContentColor: Color
 ) {
+    /**
+     * Returns a copy of this RichTooltipColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        contentColor: Color = this.contentColor,
+        titleContentColor: Color = this.titleContentColor,
+        actionContentColor: Color = this.actionContentColor,
+    ) = RichTooltipColors(
+        containerColor.takeOrElse { this.containerColor },
+        contentColor.takeOrElse { this.contentColor },
+        titleContentColor.takeOrElse { this.titleContentColor },
+        actionContentColor.takeOrElse { this.actionContentColor },
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RichTooltipColors) return false
@@ -1001,7 +516,7 @@ private class TooltipStateImpl(
     private var job: (CancellableContinuation<Unit>)? = null
 
     /**
-     * Show the tooltip associated with the current [BasicTooltipState].
+     * Show the tooltip associated with the current [TooltipState].
      * When this method is called, all of the other tooltips associated
      * with [mutatorMutex] will be dismissed.
      *
@@ -1058,15 +573,51 @@ private class TooltipStateImpl(
  * Each instance of [TooltipBox] should have its own [TooltipState].
  */
 @ExperimentalMaterial3Api
-interface TooltipState : BasicTooltipState {
+interface TooltipState {
     /**
      * The current transition state of the tooltip.
      * Used to start the transition of the tooltip when fading in and out.
      */
     val transition: MutableTransitionState<Boolean>
+
+    /**
+     * [Boolean] that indicates if the tooltip is currently being shown or not.
+     */
+    val isVisible: Boolean
+
+    /**
+     * [Boolean] that determines if the tooltip associated with this
+     * will be persistent or not. If isPersistent is true, then the tooltip will
+     * only be dismissed when the user clicks outside the bounds of the tooltip or if
+     * [TooltipState.dismiss] is called. When isPersistent is false, the tooltip will
+     * dismiss after a short duration. Ideally, this should be set to true when there
+     * is actionable content being displayed within a tooltip.
+     */
+    val isPersistent: Boolean
+
+    /**
+     * Show the tooltip associated with the current [TooltipState].
+     * When this method is called all of the other tooltips currently
+     * being shown will dismiss.
+     *
+     * @param mutatePriority [MutatePriority] to be used.
+     */
+    suspend fun show(mutatePriority: MutatePriority = MutatePriority.Default)
+
+    /**
+     * Dismiss the tooltip associated with
+     * this [TooltipState] if it's currently being shown.
+     */
+    fun dismiss()
+
+    /**
+     * Clean up when the this state leaves Composition.
+     */
+    fun onDispose()
 }
 
-private fun Modifier.textVerticalPadding(
+@Stable
+internal fun Modifier.textVerticalPadding(
     subheadExists: Boolean,
     actionExists: Boolean
 ): Modifier {
@@ -1079,7 +630,7 @@ private fun Modifier.textVerticalPadding(
     }
 }
 
-private fun Modifier.animateTooltip(
+internal fun Modifier.animateTooltip(
     transition: Transition<Boolean>
 ): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
@@ -1132,21 +683,21 @@ private fun Modifier.animateTooltip(
     )
 }
 
-private val SpacingBetweenTooltipAndAnchor = 4.dp
+internal val SpacingBetweenTooltipAndAnchor = 4.dp
 internal val TooltipMinHeight = 24.dp
 internal val TooltipMinWidth = 40.dp
-private val PlainTooltipMaxWidth = 200.dp
+internal val PlainTooltipMaxWidth = 200.dp
 private val PlainTooltipVerticalPadding = 4.dp
 private val PlainTooltipHorizontalPadding = 8.dp
-private val PlainTooltipContentPadding =
+internal val PlainTooltipContentPadding =
     PaddingValues(PlainTooltipHorizontalPadding, PlainTooltipVerticalPadding)
-private val RichTooltipMaxWidth = 320.dp
+internal val RichTooltipMaxWidth = 320.dp
 internal val RichTooltipHorizontalPadding = 16.dp
-private val HeightToSubheadFirstLine = 28.dp
+internal val HeightToSubheadFirstLine = 28.dp
 private val HeightFromSubheadToTextFirstLine = 24.dp
 private val TextBottomPadding = 16.dp
-private val ActionLabelMinHeight = 36.dp
-private val ActionLabelBottomPadding = 8.dp
+internal val ActionLabelMinHeight = 36.dp
+internal val ActionLabelBottomPadding = 8.dp
 // No specification for fade in and fade out duration, so aligning it with the behavior for snack bar
 internal const val TooltipFadeInDuration = 150
 internal const val TooltipFadeOutDuration = 75

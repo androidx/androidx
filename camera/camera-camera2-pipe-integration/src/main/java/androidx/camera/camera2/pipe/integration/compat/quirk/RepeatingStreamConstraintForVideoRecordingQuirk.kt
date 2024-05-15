@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -31,7 +30,6 @@ import androidx.camera.core.impl.Quirk
  * - Device(s): Huawei Mate 9
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class RepeatingStreamConstraintForVideoRecordingQuirk : Quirk {
     companion object {
         fun isEnabled() = isHuaweiMate9()

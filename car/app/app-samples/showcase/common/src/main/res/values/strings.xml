@@ -109,10 +109,10 @@
 
   <!-- ColorDemoScreen -->
   <string name="example_title">Example %d</string>
-  <string name="example_1_text">This text has a red color</string>
-  <string name="example_2_text">This text has a green color</string>
-  <string name="example_3_text">This text has a blue color</string>
-  <string name="example_4_text">This text has a yellow color</string>
+  <string name="example_1_text">This text has a <annotation color="red">red</annotation> color</string>
+  <string name="example_2_text">This text has a <annotation color="green">green</annotation> color</string>
+  <string name="example_3_text">This text has a <annotation color="blue">blue</annotation> color</string>
+  <string name="example_4_text">This text has a <annotation color="yellow">yellow</annotation> color</string>
   <string name="example_5_text">This text uses the primary color</string>
   <string name="example_6_text">This text uses the secondary color</string>
   <string name="color_demo">Color Demo</string>
@@ -305,7 +305,7 @@
   <string name="search_hint">Search here</string>
 
   <!-- SignInTemplateDemoScreen -->
-  <string name="additional_text">Please review our terms of service</string>
+  <string name="additional_text">Please review our <annotation link="terms_of_service">terms of service</annotation></string>
   <string name="google_sign_in">Google sign-in</string>
   <string name="use_pin">Use PIN</string>
   <string name="qr_code">QR Code</string>
@@ -492,4 +492,8 @@
     <string name="route_options_demo_title">Route options</string>
   <string name="avoid_highways_row_title">Avoid highways</string>
   <string name="avoid_ferries_row_title">Avoid ferry</string>
+  <string name="map_demos_title">Map Demos</string>
+  <string name="map_with_content_demo_title">Map With Content Demos</string>
+  <string name="map_with_message_demo_title">Map With Message Template Demo</string>
+  <string name="map_with_grid_demo_title">Map With Grid Template Demo</string>
 </resources>

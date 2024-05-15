@@ -119,14 +119,14 @@ class CredentialProviderBeginSignInControllerTest {
     }
 
     @Test
-    fun duplicateGetInstance_shouldBeEqual() {
+    fun duplicateGetInstance_shouldBeUnequal() {
         val activityScenario = ActivityScenario.launch(
             TestCredentialsActivity::class.java
         )
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
             val firstInstance = getInstance(activity!!)
             val secondInstance = getInstance(activity)
-            assertThat(firstInstance).isEqualTo(secondInstance)
+            assertThat(firstInstance).isNotEqualTo(secondInstance)
         }
     }
 }

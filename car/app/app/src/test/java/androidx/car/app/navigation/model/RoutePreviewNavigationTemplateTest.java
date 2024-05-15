@@ -46,6 +46,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 /** Tests for {@link RoutePreviewNavigationTemplate}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class RoutePreviewNavigationTemplateTest {
     private static final Header DEFAULT_HEADER = new Header.Builder()
             .setTitle("title")

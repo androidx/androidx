@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -38,7 +37,6 @@ import kotlinx.coroutines.launch
 /**
  * Implementation of Torch control exposed by [CameraControlInternal].
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class TorchControl @Inject constructor(
     cameraProperties: CameraProperties,
@@ -76,10 +74,22 @@ class TorchControl @Inject constructor(
 
     private var _updateSignal: CompletableDeferred<Unit>? = null
 
-    fun setTorchAsync(torch: Boolean, cancelPreviousTask: Boolean = true): Deferred<Unit> {
+    /**
+     * Turn the torch on or off.
+     *
+     * @param torch Whether the torch should be on or off.
+     * @param cancelPreviousTask Whether to cancel the previous task if it's running.
+     * @param ignoreFlashUnitAvailability Whether to ignore the flash unit availability. When true,
+     *      torch mode setting will be attempted even if a physical flash unit is not available.
+     */
+    fun setTorchAsync(
+        torch: Boolean,
+        cancelPreviousTask: Boolean = true,
+        ignoreFlashUnitAvailability: Boolean = false
+    ): Deferred<Unit> {
         val signal = CompletableDeferred<Unit>()
 
-        if (!hasFlashUnit) {
+        if (!ignoreFlashUnitAvailability && !hasFlashUnit) {
             return signal.createFailureResult(IllegalStateException("No flash unit"))
         }
 

@@ -19,6 +19,7 @@ package androidx.compose.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -41,7 +42,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.collect
 
 @Sampled
 @Composable
@@ -96,7 +96,10 @@ fun StickyHeaderSample() {
             stickyHeader {
                 Text(
                     "Section $section",
-                    Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp)
+                    Modifier
+                        .fillMaxWidth()
+                        .background(Color.LightGray)
+                        .padding(8.dp)
                 )
             }
             items(10) {
@@ -106,19 +109,21 @@ fun StickyHeaderSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
-fun ItemPlacementAnimationSample() {
-    var list by remember { mutableStateOf(listOf("A", "B", "C")) }
-    LazyColumn {
-        item {
-            Button(onClick = { list = list.shuffled() }) {
-                Text("Shuffle")
-            }
+fun AnimateItemSample() {
+    var list by remember { mutableStateOf(listOf("1", "2", "3")) }
+    Column {
+        Button(onClick = { list = list + "${list.count() + 1}" }) {
+            Text("Add new item")
         }
-        items(list, key = { it }) {
-            Text("Item $it", Modifier.animateItemPlacement())
+        Button(onClick = { list = list.shuffled() }) {
+            Text("Shuffle")
+        }
+        LazyColumn {
+            items(list, key = { it }) {
+                Text("Item $it", Modifier.animateItem())
+            }
         }
     }
 }

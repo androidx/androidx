@@ -831,7 +831,7 @@ internal val <T> CarouselSwipeableState<T>.PreUpPostDownNestedScrollConnection:
     get() = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
             val delta = available.toFloat()
-            return if (delta < 0 && source == NestedScrollSource.Drag) {
+            return if (delta < 0 && source == NestedScrollSource.UserInput) {
                 performDrag(delta).toOffset()
             } else {
                 Offset.Zero
@@ -843,7 +843,7 @@ internal val <T> CarouselSwipeableState<T>.PreUpPostDownNestedScrollConnection:
             available: Offset,
             source: NestedScrollSource
         ): Offset {
-            return if (source == NestedScrollSource.Drag) {
+            return if (source == NestedScrollSource.UserInput) {
                 performDrag(available.toFloat()).toOffset()
             } else {
                 Offset.Zero

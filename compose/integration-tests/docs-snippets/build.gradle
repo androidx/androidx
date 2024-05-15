@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -33,7 +40,7 @@ dependencies {
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material:material"))
     implementation(project(":compose:material3:material3"))
-    implementation(project(":compose:material:material-icons-extended"))
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:runtime:runtime-livedata"))
     implementation(project(":compose:ui:ui-graphics"))

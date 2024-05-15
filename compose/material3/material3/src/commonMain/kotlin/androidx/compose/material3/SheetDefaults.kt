@@ -16,16 +16,25 @@
 
 package androidx.compose.material3
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
+import androidx.compose.material3.internal.AnchoredDraggableState
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.animateTo
+import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.snapTo
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable
@@ -57,6 +66,7 @@ import kotlinx.coroutines.CancellationException
  * to the [Hidden] state if available when hiding the sheet, either programmatically or by user
  * interaction.
  * @param initialValue The initial value of the state.
+ * @param density The density that this state can use to convert values to and from dp.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
  * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
@@ -64,48 +74,13 @@ import kotlinx.coroutines.CancellationException
  */
 @Stable
 @ExperimentalMaterial3Api
-class SheetState @Deprecated(
-    message = "This constructor is deprecated. " +
-        "Please use the constructor that provides a [Density]",
-    replaceWith = ReplaceWith(
-        "SheetState(" +
-            "skipPartiallyExpanded, LocalDensity.current, initialValue, " +
-            "confirmValueChange, skipHiddenState)"
-    )
-) constructor(
+class SheetState(
     internal val skipPartiallyExpanded: Boolean,
+    density: Density,
     initialValue: SheetValue = Hidden,
     confirmValueChange: (SheetValue) -> Boolean = { true },
     internal val skipHiddenState: Boolean = false,
 ) {
-
-    /**
-     * State of a sheet composable, such as [ModalBottomSheet]
-     *
-     * Contains states relating to its swipe position as well as animations between state values.
-     *
-     * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is large
-     * enough, should be skipped. If true, the sheet will always expand to the [Expanded] state and move
-     * to the [Hidden] state if available when hiding the sheet, either programmatically or by user
-     * interaction.
-     * @param initialValue The initial value of the state.
-     * @param density The density that this state can use to convert values to and from dp.
-     * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
-     * @param skipHiddenState Whether the hidden state should be skipped. If true, the sheet will always
-     * expand to the [Expanded] state and move to the [PartiallyExpanded] if available, either
-     * programmatically or by user interaction.
-     */
-    @ExperimentalMaterial3Api
-    @Suppress("Deprecation")
-    constructor(
-        skipPartiallyExpanded: Boolean,
-        density: Density,
-        initialValue: SheetValue = Hidden,
-        confirmValueChange: (SheetValue) -> Boolean = { true },
-        skipHiddenState: Boolean = false,
-    ) : this(skipPartiallyExpanded, initialValue, confirmValueChange, skipHiddenState) {
-        this.density = density
-    }
     init {
         if (skipPartiallyExpanded) {
             require(initialValue != PartiallyExpanded) {
@@ -264,19 +239,13 @@ class SheetState @Deprecated(
 
     internal var anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
-        animationSpec = AnchoredDraggableDefaults.AnimationSpec,
+        animationSpec = BottomSheetAnimationSpec,
         confirmValueChange = confirmValueChange,
-        positionalThreshold = { with(requireDensity()) { 56.dp.toPx() } },
-        velocityThreshold = { with(requireDensity()) { 125.dp.toPx() } }
+        positionalThreshold = { with(density) { 56.dp.toPx() } },
+        velocityThreshold = { with(density) { 125.dp.toPx() } },
     )
 
     internal val offset: Float? get() = anchoredDraggableState.offset
-
-    internal var density: Density? = null
-    private fun requireDensity() = requireNotNull(density) {
-        "SheetState did not have a density attached. Are you using SheetState with " +
-            "BottomSheetScaffold or ModalBottomSheet component?"
-    }
 
     companion object {
         /**
@@ -285,32 +254,18 @@ class SheetState @Deprecated(
         fun Saver(
             skipPartiallyExpanded: Boolean,
             confirmValueChange: (SheetValue) -> Boolean,
-            density: Density
+            density: Density,
+            skipHiddenState: Boolean,
         ) = Saver<SheetState, SheetValue>(
             save = { it.currentValue },
             restore = { savedValue ->
-                SheetState(skipPartiallyExpanded, density, savedValue, confirmValueChange)
-            }
-        )
-
-        /**
-         * The default [Saver] implementation for [SheetState].
-         */
-        @Deprecated(
-            message = "This function is deprecated. Please use the overload where Density is" +
-                " provided.",
-            replaceWith = ReplaceWith(
-                "Saver(skipPartiallyExpanded, confirmValueChange, LocalDensity.current)"
-            )
-        )
-        @Suppress("Deprecation")
-        fun Saver(
-            skipPartiallyExpanded: Boolean,
-            confirmValueChange: (SheetValue) -> Boolean
-        ) = Saver<SheetState, SheetValue>(
-            save = { it.currentValue },
-            restore = { savedValue ->
-                SheetState(skipPartiallyExpanded, savedValue, confirmValueChange)
+                SheetState(
+                    skipPartiallyExpanded,
+                    density,
+                    savedValue,
+                    confirmValueChange,
+                    skipHiddenState,
+                )
             }
         )
     }
@@ -377,11 +332,11 @@ object BottomSheetDefaults {
     val SheetMaxWidth = 640.dp
 
     /**
-     * Default insets to be used and consumed by the [ModalBottomSheet] window.
+     * Default insets to be used and consumed by the [ModalBottomSheet]'s content.
      */
     val windowInsets: WindowInsets
         @Composable
-        get() = WindowInsets.systemBarsForVisualComponents.only(WindowInsetsSides.Vertical)
+        get() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)
 
     /**
      * The optional visual marker placed on top of a bottom sheet to indicate it may be dragged.
@@ -392,8 +347,7 @@ object BottomSheetDefaults {
         width: Dp = SheetBottomTokens.DockedDragHandleWidth,
         height: Dp = SheetBottomTokens.DockedDragHandleHeight,
         shape: Shape = MaterialTheme.shapes.extraLarge,
-        color: Color = SheetBottomTokens.DockedDragHandleColor.value
-            .copy(SheetBottomTokens.DockedDragHandleOpacity),
+        color: Color = SheetBottomTokens.DockedDragHandleColor.value,
     ) {
         val dragHandleDescription = getString(Strings.BottomSheetDragHandleDescription)
         Surface(
@@ -422,7 +376,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
 ): NestedScrollConnection = object : NestedScrollConnection {
     override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
         val delta = available.toFloat()
-        return if (delta < 0 && source == NestedScrollSource.Drag) {
+        return if (delta < 0 && source == NestedScrollSource.UserInput) {
             sheetState.anchoredDraggableState.dispatchRawDelta(delta).toOffset()
         } else {
             Offset.Zero
@@ -434,7 +388,7 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         available: Offset,
         source: NestedScrollSource
     ): Offset {
-        return if (source == NestedScrollSource.Drag) {
+        return if (source == NestedScrollSource.UserInput) {
             sheetState.anchoredDraggableState.dispatchRawDelta(available.toFloat()).toOffset()
         } else {
             Offset.Zero
@@ -479,14 +433,14 @@ internal fun rememberSheetState(
     initialValue: SheetValue = Hidden,
     skipHiddenState: Boolean = false,
 ): SheetState {
-
     val density = LocalDensity.current
     return rememberSaveable(
-        skipPartiallyExpanded, confirmValueChange,
+        skipPartiallyExpanded, confirmValueChange, skipHiddenState,
         saver = SheetState.Saver(
             skipPartiallyExpanded = skipPartiallyExpanded,
             confirmValueChange = confirmValueChange,
-            density = density
+            density = density,
+            skipHiddenState = skipHiddenState,
         )
     ) {
         SheetState(
@@ -494,9 +448,16 @@ internal fun rememberSheetState(
             density,
             initialValue,
             confirmValueChange,
-            skipHiddenState
+            skipHiddenState,
         )
     }
 }
 
 private val DragHandleVerticalPadding = 22.dp
+/**
+ * The default animation spec used by [SheetState].
+ */
+private val BottomSheetAnimationSpec: AnimationSpec<Float> = tween(
+    durationMillis = 300,
+    easing = FastOutSlowInEasing
+)

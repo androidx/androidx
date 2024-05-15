@@ -57,8 +57,8 @@ import androidx.compose.ui.zIndex
  * layout grid.
  *
  * Example:
- * @sample androidx.tv.samples.SampleModalNavigationDrawerWithSolidScrim
- * @sample androidx.tv.samples.SampleModalNavigationDrawerWithGradientScrim
+ * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithSolidScrim
+ * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithGradientScrim
  *
  * @param drawerContent Content that needs to be displayed on the drawer based on whether the drawer
  * is [DrawerValue.Open] or [DrawerValue.Closed].
@@ -76,7 +76,6 @@ import androidx.compose.ui.zIndex
  * under the modal navigation drawer. Focusable content that is not part of the background must have
  * start-padding sufficient to prevent it from being drawn under the drawer in the Closed state.
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun ModalNavigationDrawer(
     drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
@@ -136,7 +135,7 @@ fun ModalNavigationDrawer(
  * remaining content.
  *
  * Example:
- * @sample androidx.tv.samples.SampleNavigationDrawer
+ * @sample androidx.tv.material3.samples.SampleNavigationDrawer
  *
  * @param drawerContent Content that needs to be displayed on the drawer based on whether the drawer
  * is [DrawerValue.Open] or [DrawerValue.Closed].
@@ -151,7 +150,6 @@ fun ModalNavigationDrawer(
  * @param drawerState state of the drawer
  * @param content content of the rest of the UI
  */
-@ExperimentalTvMaterial3Api
 @Composable
 fun NavigationDrawer(
     drawerContent: @Composable NavigationDrawerScope.(DrawerValue) -> Unit,
@@ -171,7 +169,6 @@ fun NavigationDrawer(
 /**
  * States that the drawer can exist in.
  */
-@ExperimentalTvMaterial3Api
 enum class DrawerValue {
     /**
      * The state of the drawer when it is closed.
@@ -189,7 +186,6 @@ enum class DrawerValue {
  *
  * @param initialValue the initial value ([DrawerValue.Closed] or [DrawerValue.Open]) of the drawer.
  */
-@ExperimentalTvMaterial3Api
 class DrawerState(initialValue: DrawerValue = DrawerValue.Closed) {
     var currentValue by mutableStateOf(initialValue)
         private set
@@ -222,14 +218,12 @@ class DrawerState(initialValue: DrawerValue = DrawerValue.Closed) {
  * @param initialValue The initial value of the state.
  */
 @Composable
-@ExperimentalTvMaterial3Api
 fun rememberDrawerState(initialValue: DrawerValue): DrawerState {
     return rememberSaveable(saver = DrawerState.Saver) {
         DrawerState(initialValue)
     }
 }
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun DrawerSheet(
     modifier: Modifier = Modifier,

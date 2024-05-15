@@ -40,6 +40,7 @@ import android.database.sqlite.SQLiteDatabaseCorruptException;
 import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteFullException;
 import android.database.sqlite.SQLiteTableLockedException;
 import android.os.Build;
 import android.text.TextUtils;
@@ -134,13 +135,14 @@ public class ForceStopRunnable implements Runnable {
                 try {
                     forceStopRunnable();
                     break;
-                } catch (SQLiteCantOpenDatabaseException
-                         | SQLiteDiskIOException
+                } catch (SQLiteAccessPermException
+                         | SQLiteCantOpenDatabaseException
+                         | SQLiteConstraintException
                          | SQLiteDatabaseCorruptException
                          | SQLiteDatabaseLockedException
-                         | SQLiteTableLockedException
-                         | SQLiteConstraintException
-                         | SQLiteAccessPermException exception) {
+                         | SQLiteDiskIOException
+                         | SQLiteFullException
+                         | SQLiteTableLockedException exception) {
                     mRetryCount++;
                     if (mRetryCount >= MAX_ATTEMPTS) {
                         // ForceStopRunnable is usually the first thing that accesses a database
@@ -396,11 +398,7 @@ public class ForceStopRunnable implements Runnable {
         // scheduled ~forever and shouldn't need WorkManager to be initialized to reschedule.
         long triggerAt = System.currentTimeMillis() + TEN_YEARS;
         if (alarmManager != null) {
-            if (Build.VERSION.SDK_INT >= 19) {
-                alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);
-            } else {
-                alarmManager.set(RTC_WAKEUP, triggerAt, pendingIntent);
-            }
+            alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);
         }
     }
 

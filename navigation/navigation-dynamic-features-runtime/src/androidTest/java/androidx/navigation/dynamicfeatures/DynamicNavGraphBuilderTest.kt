@@ -18,6 +18,8 @@ package androidx.navigation.dynamicfeatures
 import androidx.annotation.IdRes
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestinationBuilder
+import androidx.navigation.NavGraph
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavigatorProvider
 import androidx.navigation.NoOpNavigator
 import androidx.navigation.contains
@@ -26,7 +28,9 @@ import androidx.navigation.get
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -113,6 +117,93 @@ public class DynamicNavGraphBuilderTest {
             .isEqualTo(MODULE_NAME)
     }
 
+    @Test
+    public fun navigationKClass() {
+        @Serializable
+        class TestClass
+
+        val graph = provider.navigation(startDestination = TestClass::class) {
+            moduleName = MODULE_NAME
+            navDestination<TestClass> {}
+        } as DynamicGraphNavigator.DynamicNavGraph
+
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Module should be set in the graph")
+            .that(graph.moduleName)
+            .isEqualTo(MODULE_NAME)
+    }
+
+    @Test
+    public fun navigationObject() {
+        @Serializable
+        class TestClass(val arg: Int)
+
+        val graph = provider.navigation(startDestination = TestClass(0)) {
+            moduleName = MODULE_NAME
+            navDestination<TestClass> {}
+        } as DynamicGraphNavigator.DynamicNavGraph
+
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in graph)
+            .isTrue()
+        assertWithMessage("Module should be set in the graph")
+            .that(graph.moduleName)
+            .isEqualTo(MODULE_NAME)
+        assertThat(graph.findNode<TestClass>()?.arguments?.get("arg")).isNotNull()
+    }
+
+    @Test
+    public fun navigationNestedKClass() {
+        @Serializable
+        class TestGraph
+
+        @Serializable
+        class TestClass
+
+        val graph = provider.navigation(startDestination = TestGraph::class) {
+            moduleName = MODULE_NAME
+            navigation<TestGraph>(startDestination = TestClass::class) {
+                navDestination<TestClass> {}
+            }
+        } as DynamicGraphNavigator.DynamicNavGraph
+
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestGraph::class in graph)
+            .isTrue()
+        val nested = graph.findNode<TestGraph>() as NavGraph
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in nested)
+            .isTrue()
+    }
+
+    @Test
+    public fun navigationNestedObject() {
+        @Serializable
+        class TestGraph(val arg: Int)
+
+        @Serializable
+        class TestClass(val arg2: String)
+
+        val graph = provider.navigation(startDestination = TestGraph(0)) {
+            moduleName = MODULE_NAME
+            navigation<TestGraph>(startDestination = TestClass("test")) {
+                navDestination<TestClass> {}
+            }
+        } as DynamicGraphNavigator.DynamicNavGraph
+
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestGraph::class in graph)
+            .isTrue()
+        val nested = graph.findNode<TestGraph>() as NavGraph
+        assertWithMessage("Destination should be added to the graph")
+            .that(TestClass::class in nested)
+            .isTrue()
+        assertThat(nested.arguments["arg"]).isNotNull()
+        assertThat(nested.findStartDestination().arguments["arg2"]).isNotNull()
+    }
+
     public fun navigation_emptyModuleNameRoute() {
         val graph = provider.navigation(startDestination = DESTINATION_ROUTE) {
         }
@@ -173,3 +264,12 @@ public fun DynamicNavGraphBuilder.navDestination(
     route: String,
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
 ): Unit = destination(NavDestinationBuilder(provider[NoOpNavigator::class], route).apply(builder))
+
+/**
+ * Create a base NavDestination. Generally, only subtypes of NavDestination should be
+ * added to a NavGraph (hence why this is not in the common-ktx library)
+ */
+public inline fun <reified T> DynamicNavGraphBuilder.navDestination(
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+): Unit = destination(NavDestinationBuilder(provider[NoOpNavigator::class], T::class, emptyMap())
+    .apply(builder))

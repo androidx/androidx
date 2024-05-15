@@ -126,7 +126,7 @@ private fun applyListScope(
                 ?: (ReservedItemIdRangeEnd - index)
             check(id != LazyListScope.UnspecifiedItemId) { "Implicit list item ids exhausted." }
             LazyListItem(id, alignment) {
-                object : LazyItemScope { }.apply { composable() }
+                object : LazyItemScope { }.composable()
             }
         }
     }

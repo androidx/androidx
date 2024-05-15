@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -195,8 +196,15 @@ class DefaultsInDaoTest(
                         dbVerifier = createVerifierFromEntitiesAndViews(invocation)
                     )
                     val parsedDao = parser.process()
-                    DaoWriter(parsedDao, db, CodeLanguage.JAVA)
-                        .write(invocation.processingEnv)
+                    DaoWriter(
+                        dao = parsedDao,
+                        dbElement = db,
+                        writerContext = TypeWriter.WriterContext(
+                            codeLanguage = CodeLanguage.JAVA,
+                            javaLambdaSyntaxAvailable = true,
+                            targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                        )
+                    ).write(invocation.processingEnv)
                     invocation.assertCompilationResult {
                         val relativePath =
                             parsedDao.implTypeName.canonicalName + ".java"

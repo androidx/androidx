@@ -20,18 +20,12 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
@@ -39,11 +33,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,27 +53,11 @@ class PullToRefreshIndicatorTest {
     @Test
     fun indicatorDisplayed_refreshing() {
         rule.setContent {
-            val density = LocalDensity.current
             Box(Modifier.fillMaxSize()) {
-                PullToRefreshContainer(
-                    state = object : PullToRefreshState {
-                        override val positionalThreshold: Float
-                            get() = TODO("Not yet implemented")
-                        override val progress = 0.5f
-                        override val verticalOffset = with(density) { 50.dp.toPx() }
-                        override var nestedScrollConnection: NestedScrollConnection
-                            get() = TODO("Not yet implemented")
-                            set(_) {}
-                        override val isRefreshing = true
-                        override fun startRefresh() {
-                            TODO("Not yet implemented")
-                        }
-
-                        override fun endRefresh() {
-                            TODO("Not yet implemented")
-                        }
-                    },
-                    modifier = Modifier.testTag(INDICATOR_TAG)
+                PullToRefreshDefaults.Indicator(
+                    modifier = Modifier.testTag(INDICATOR_TAG),
+                    state = rememberPullToRefreshState(),
+                    isRefreshing = true,
                 )
             }
         }
@@ -89,27 +67,11 @@ class PullToRefreshIndicatorTest {
     @Test
     fun indicatorDisplayed_notRefreshing() {
         rule.setContent {
-            val density = LocalDensity.current
             Box(Modifier.fillMaxSize()) {
-                PullToRefreshContainer(
-                    state = object : PullToRefreshState {
-                        override val positionalThreshold: Float
-                            get() = TODO("Not yet implemented")
-                        override val progress = 0.5f
-                        override val verticalOffset = with(density) { 50.dp.toPx() }
-                        override var nestedScrollConnection: NestedScrollConnection
-                            get() = TODO("Not yet implemented")
-                            set(_) {}
-                        override val isRefreshing = false
-                        override fun startRefresh() {
-                            TODO("Not yet implemented")
-                        }
-
-                        override fun endRefresh() {
-                            TODO("Not yet implemented")
-                        }
-                    },
-                    modifier = Modifier.testTag(INDICATOR_TAG)
+                PullToRefreshDefaults.Indicator(
+                    modifier = Modifier.testTag(INDICATOR_TAG),
+                    isRefreshing = false,
+                    state = rememberPullToRefreshState(),
                 )
             }
         }
@@ -118,95 +80,69 @@ class PullToRefreshIndicatorTest {
 
     @Test
     fun indicatorRespects_changingOffset() {
-        val verticalOffsetDp = mutableStateOf(0.dp)
+        val containerSize = 30.dp
+        var verticalOffsetDp = 200.dp
+        val state = PullToRefreshState()
         rule.setContent {
-            val density = LocalDensity.current
             Box(Modifier.fillMaxSize()) {
-                PullToRefreshContainer(
-                    state = object : PullToRefreshState {
-                        override val positionalThreshold: Float
-                            get() = TODO("Not yet implemented")
-                        override val progress = 0.5f
-                        override val verticalOffset =
-                            with(density) { verticalOffsetDp.value.toPx() }
-                        override var nestedScrollConnection: NestedScrollConnection
-                            get() = TODO("Not yet implemented")
-                            set(_) {}
-                        override val isRefreshing = false
-                        override fun startRefresh() {
-                            TODO("Not yet implemented")
-                        }
+                PullToRefreshDefaults.Indicator(
+                    modifier = Modifier
+                        .size(containerSize)
+                        .testTag(INDICATOR_TAG),
+                    state = state,
+                    isRefreshing = true,
+                    threshold = verticalOffsetDp
 
-                        override fun endRefresh() {
-                            TODO("Not yet implemented")
-                        }
-                    },
-                    modifier = Modifier.heightIn(min = 30.dp).testTag(INDICATOR_TAG)
                 )
             }
+            LaunchedEffect(true) {
+                state.animateToThreshold()
+            }
         }
-        rule
-            .onNodeWithTag(INDICATOR_TAG)
-            .onChild()
-            .assertTopPositionInRootIsEqualTo(verticalOffsetDp.value - 30.dp)
 
-        verticalOffsetDp.value = 100.dp
         rule.waitForIdle()
 
         rule
             .onNodeWithTag(INDICATOR_TAG)
             .onChild()
-            .assertTopPositionInRootIsEqualTo(verticalOffsetDp.value - 30.dp)
+            .assertTopPositionInRootIsEqualTo(verticalOffsetDp - (containerSize + SpinnerSize) / 2)
+
+        runBlocking {
+            state.snapTo(0.5f)
+        }
+        rule.waitForIdle()
+
+        rule
+            .onNodeWithTag(INDICATOR_TAG)
+            .onChild()
+            .assertTopPositionInRootIsEqualTo(100.dp - (containerSize + SpinnerSize) / 2)
     }
 
     // Regression test for b/271777421
     @Test
     fun indicatorDoesNotCapturePointerEvents() {
-        var verticalOffset by mutableFloatStateOf(0f)
-        var indicatorSize: IntSize? = null
         var downEvent: PointerInputChange? = null
 
         rule.setContent {
             Box {
-                Box(Modifier.fillMaxSize().pointerInput(Unit) {
-                    awaitEachGesture {
-                        downEvent = awaitFirstDown()
-                    }
-                })
-                PullToRefreshContainer(
-                    state = object : PullToRefreshState {
-                        override val positionalThreshold: Float
-                            get() = TODO("Not yet implemented")
-                        override val progress = 0f
-                        override val verticalOffset = verticalOffset
-                        override var nestedScrollConnection: NestedScrollConnection
-                            get() = TODO("Not yet implemented")
-                            set(_) {}
-                        override val isRefreshing = false
-                        override fun startRefresh() {
-                            TODO("Not yet implemented")
-                        }
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            awaitEachGesture {
+                                downEvent = awaitFirstDown()
+                            }
+                        })
 
-                        override fun endRefresh() {
-                            TODO("Not yet implemented")
-                        }
-                    },
-                    modifier = Modifier.onSizeChanged {
-                        // The indicator starts as offset by its negative height in the y direction,
-                        // so work out its height so we can place it inside its normal layout
-                        // bounds
-                        indicatorSize = it
-                    }.testTag(INDICATOR_TAG)
+                PullToRefreshDefaults.Indicator(
+                    modifier = Modifier.testTag(INDICATOR_TAG),
+                    state = rememberPullToRefreshState(),
+                    isRefreshing = true
                 )
             }
         }
 
-        rule.runOnIdle {
-            // Pull by twice the indicator height (since pull delta is halved) - this will make the
-            // indicator fully visible in its layout bounds, so when we performClick() the indicator
-            // will be visibly inside those coordinates.
-            verticalOffset = indicatorSize!!.height.toFloat() * 2
-        }
+        rule.waitForIdle()
 
         rule.onNodeWithTag(INDICATOR_TAG).performClick()
         rule.runOnIdle {

@@ -27,7 +27,6 @@ import androidx.window.layout.HardwareFoldingFeature
 import androidx.window.layout.HardwareFoldingFeature.Type.Companion.HINGE
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -37,11 +36,11 @@ import kotlin.concurrent.withLock
  * unregister then register again.
  */
 internal class SwitchOnUnregisterExtensionInterfaceCompat : ExtensionInterfaceCompat {
-    private val lock: Lock = ReentrantLock()
+    private val globalLock = ReentrantLock()
     private val foldBounds = Rect(0, 100, 200, 100)
-    @GuardedBy("mLock")
+    @GuardedBy("globalLock")
     private var callback: ExtensionCallbackInterface = EmptyExtensionCallbackInterface()
-    @GuardedBy("mLock")
+    @GuardedBy("globalLock")
     private var state = FLAT
 
     override fun validateExtensionInterface(): Boolean {
@@ -49,15 +48,15 @@ internal class SwitchOnUnregisterExtensionInterfaceCompat : ExtensionInterfaceCo
     }
 
     override fun setExtensionCallback(extensionCallback: ExtensionCallbackInterface) {
-        lock.withLock { callback = extensionCallback }
+        globalLock.withLock { callback = extensionCallback }
     }
 
     override fun onWindowLayoutChangeListenerAdded(activity: Activity) {
-        lock.withLock { callback.onWindowLayoutChanged(activity, currentWindowLayoutInfo()) }
+        globalLock.withLock { callback.onWindowLayoutChanged(activity, currentWindowLayoutInfo()) }
     }
 
     override fun onWindowLayoutChangeListenerRemoved(activity: Activity) {
-        lock.withLock { state = toggleState(state) }
+        globalLock.withLock { state = toggleState(state) }
     }
 
     fun currentWindowLayoutInfo(): WindowLayoutInfo {

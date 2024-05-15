@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -37,17 +43,16 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
-
-    samples(projectOrArtifact(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples"))
 }
 
 androidx {
     name = "Compose RxJava 3 integration"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose integration with RxJava 3"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(projectOrArtifact(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples"))
 }
 
 android {

@@ -73,17 +73,15 @@ public class ContentLoadingProgressBarActivity extends Activity implements
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.show:
-                mBar.show();
-                mShowTime = System.currentTimeMillis();
-                mShowText.setText("Show clicked at " + mShowTime);
-                break;
-            case R.id.hide:
-                mBar.hide();
-                mHideTime = System.currentTimeMillis();
-                mHideText.setText("Hide clicked at " + mHideTime);
-                break;
+        int id = v.getId();
+        if (id == R.id.show) {
+            mBar.show();
+            mShowTime = System.currentTimeMillis();
+            mShowText.setText("Show clicked at " + mShowTime);
+        } else if (id == R.id.hide) {
+            mBar.hide();
+            mHideTime = System.currentTimeMillis();
+            mHideText.setText("Hide clicked at " + mHideTime);
         }
     }
 

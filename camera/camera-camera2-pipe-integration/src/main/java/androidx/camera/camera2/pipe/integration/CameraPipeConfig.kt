@@ -16,7 +16,6 @@
 package androidx.camera.camera2.pipe.integration
 
 import android.content.Context
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.adapter.CameraFactoryProvider
@@ -28,7 +27,6 @@ import androidx.camera.core.impl.CameraThreadConfig
 /**
  * Convenience class for generating a pre-populated CameraPipe based [CameraXConfig].
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraPipeConfig private constructor() {
     companion object {
         /**

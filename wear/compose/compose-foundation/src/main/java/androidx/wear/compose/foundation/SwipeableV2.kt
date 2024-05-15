@@ -471,6 +471,7 @@ public class SwipeableV2State<T>(
      *
      * @return The delta the consumed by the [SwipeableV2State]
      */
+    @Suppress("DEPRECATION") // b/327155912
     fun dispatchRawDelta(delta: Float): Float {
         var remainingDelta = delta
 
@@ -676,17 +677,19 @@ public fun fractionalPositionalThreshold(
 @RestrictTo(LIBRARY_GROUP)
 public object SwipeableV2Defaults {
     /**
-     * The default animation used by [SwipeableV2State].
+     * The default animation that will be used to animate to a new state.
      */
     val AnimationSpec = SpringSpec<Float>()
 
     /**
-     * The default velocity threshold (1.8 dp per millisecond) used by [rememberSwipeableV2State].
+     * The default velocity threshold (in dp per second) that the end velocity has to
+     * exceed in order to animate to the next state.
      */
     val VelocityThreshold: Dp = 125.dp
 
     /**
-     * The default positional threshold (56 dp) used by [rememberSwipeableV2State]
+     * The default positional threshold used when calculating the target state while a swipe is in
+     * progress and when settling after the swipe ends.
      */
     val PositionalThreshold: Density.(totalDistance: Float) -> Float =
         fixedPositionalThreshold(56.dp)

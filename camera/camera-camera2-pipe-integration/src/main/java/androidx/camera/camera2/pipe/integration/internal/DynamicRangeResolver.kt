@@ -12,7 +12,6 @@ import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.core.util.Preconditions
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
     private val is10BitSupported: Boolean
     private val dynamicRangesInfo: DynamicRangeProfilesCompat
@@ -54,7 +53,7 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         }
 
         // Get the supported dynamic ranges from the device
-        val supportedDynamicRanges = dynamicRangesInfo.getSupportedDynamicRanges()
+        val supportedDynamicRanges = dynamicRangesInfo.supportedDynamicRanges
 
         // Collect initial dynamic range constraints. This set will potentially shrink as we add
         // more dynamic ranges. We start with the initial set of supported dynamic ranges to

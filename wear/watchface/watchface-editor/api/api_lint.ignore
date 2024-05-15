@@ -9,5 +9,5 @@ BannedThrow: androidx.wear.watchface.editor.EditorSession.Companion#createOnWatc
     Methods must not throw unchecked exceptions
 
 
-GetterSetterNames: field EditorSession.commitChangesOnClose:
+GetterSetterNames: androidx.wear.watchface.editor.EditorSession#commitChangesOnClose:
     Invalid name for boolean property `commitChangesOnClose`. Should start with one of `has`, `can`, `should`, `is`.

@@ -16,24 +16,46 @@
 
 package androidx.privacysandbox.sdkruntime.client.controller
 
+import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.LoadSdkCallback
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import java.util.concurrent.Executor
 
 /**
  * Local implementation that will be injected to locally loaded SDKs.
  */
 internal class LocalController(
     private val sdkPackageName: String,
-    private val locallyLoadedSdks: LocallyLoadedSdks,
+    private val localSdkRegistry: SdkRegistry,
     private val appOwnedSdkRegistry: AppOwnedSdkRegistry
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
+    override fun loadSdk(
+        sdkName: String,
+        params: Bundle,
+        executor: Executor,
+        callback: LoadSdkCallback
+    ) {
+        try {
+            val result = localSdkRegistry.loadSdk(sdkName, params)
+            executor.execute {
+                callback.onResult(result)
+            }
+        } catch (ex: LoadSdkCompatException) {
+            executor.execute {
+                callback.onError(ex)
+            }
+        }
+    }
+
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
-        return locallyLoadedSdks.getLoadedSdks()
+        return localSdkRegistry.getLoadedSdks()
     }
 
     override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
@@ -49,5 +71,9 @@ internal class LocalController(
         handlerCompat: SdkSandboxActivityHandlerCompat
     ) {
         LocalSdkActivityHandlerRegistry.unregister(handlerCompat)
+    }
+
+    override fun getClientPackageName(): String {
+        throw UnsupportedOperationException("Not supported yet")
     }
 }

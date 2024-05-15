@@ -30,11 +30,11 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
+import org.jetbrains.uast.UBlockExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
+import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
-import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
-import org.jetbrains.uast.kotlin.KotlinULambdaExpression
 
 @Suppress("UnstableApiUsage")
 class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeScanner {
@@ -76,7 +76,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
                 }
             }
             return
-        } else if (node is KotlinULambdaExpression.Body) {
+        } else if (node is UBlockExpression && node.uastParent is ULambdaExpression) {
             return
         }
 
@@ -90,7 +90,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
     ) {
         if (node == null) {
             return
-        } else if (node is KotlinUFunctionCallExpression && node.isLazyDelegate()) {
+        } else if (node is UCallExpression && node.isLazyDelegate()) {
             report(context, usage) { localBeingRead ->
                 "Reading $localBeingRead lazily will only access the CompositionLocal's value " +
                     "once. To be notified of the latest value of the CompositionLocal, read " +
@@ -121,7 +121,7 @@ class SuspiciousCompositionLocalModifierReadDetector : Detector(), SourceCodeSca
         this?.implementsListTypes
             ?.any { it.canonicalText == ClConsumerModifierNode } == true
 
-    private fun KotlinUFunctionCallExpression.isLazyDelegate(): Boolean =
+    private fun UCallExpression.isLazyDelegate(): Boolean =
         resolve()?.run { isInPackageName(Package("kotlin")) && name == "lazy" } == true
 
     companion object {

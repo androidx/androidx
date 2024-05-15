@@ -87,7 +87,8 @@ private object PersistableBundleApi21ImplKt {
                         PersistableBundleApi22ImplKt.putBoolean(this, key, value)
                     } else {
                         throw IllegalArgumentException(
-                            "Illegal value type boolean for key \"$key\""
+                            "Unsupported value type boolean for key \"$key\" (requires API level " +
+                                "22+)"
                         )
                     }
                 }
@@ -97,6 +98,7 @@ private object PersistableBundleApi21ImplKt {
 
                 // References
                 is String -> putString(key, value)
+                is PersistableBundle -> putPersistableBundle(key, value)
 
                 // Scalar arrays
                 is BooleanArray -> {
@@ -104,7 +106,8 @@ private object PersistableBundleApi21ImplKt {
                         PersistableBundleApi22ImplKt.putBooleanArray(this, key, value)
                     } else {
                         throw IllegalArgumentException(
-                            "Illegal value type boolean[] for key \"$key\""
+                            "Unsupported value type boolean[] for key \"$key\" (requires API " +
+                                "level 22+)"
                         )
                     }
                 }
@@ -123,7 +126,7 @@ private object PersistableBundleApi21ImplKt {
                         else -> {
                             val valueType = componentType.canonicalName
                             throw IllegalArgumentException(
-                                "Illegal value array type $valueType for key \"$key\""
+                                "Unsupported value array type $valueType for key \"$key\""
                             )
                         }
                     }
@@ -131,7 +134,8 @@ private object PersistableBundleApi21ImplKt {
 
                 else -> {
                     val valueType = value.javaClass.canonicalName
-                    throw IllegalArgumentException("Illegal value type $valueType for key \"$key\"")
+                    throw IllegalArgumentException("Unsupported value type $valueType for key " +
+                        "\"$key\"")
                 }
             }
         }

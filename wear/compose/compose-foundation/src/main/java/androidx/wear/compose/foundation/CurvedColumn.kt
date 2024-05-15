@@ -44,6 +44,7 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * than the curved column, either at the [CurvedAlignment.Angular.Start] of the layout,
  * at the [CurvedAlignment.Angular.End], or [CurvedAlignment.Angular.Center].
  * If unspecified or null, they can choose for themselves.
+ * @param contentBuilder Scope used to provide the content for this column.
  */
 public fun CurvedScope.curvedColumn(
     modifier: CurvedModifier = CurvedModifier,

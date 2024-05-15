@@ -88,10 +88,16 @@
 
         <item name="android:radioButtonStyle">@android:style/Widget.Material.CompoundButton.RadioButton</item>
 
-        <item name="android:switchStyle">@android:style/Widget.Material.CompoundButton.Switch</item>
+        <item name="android:switchStyle">@style/LeanbackSwitchCompatStyle</item>
 
         <item name="android:seekBarStyle">@android:style/Widget.Material.SeekBar</item>
 
+    </style>
+
+    <!-- Extends Switch style to SwitchCompat. -->
+    <style name="LeanbackSwitchCompatStyle" parent="@android:style/Widget.Material.CompoundButton.Switch">
+        <item name="showText">false</item>
+        <item name="track">@drawable/leanback_switch_compat_track</item>
     </style>
 
 </resources>

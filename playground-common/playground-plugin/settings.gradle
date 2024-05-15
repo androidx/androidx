@@ -29,12 +29,22 @@ dependencyResolutionManagement {
         mavenCentral()
         google()
         gradlePluginPortal().content {
-            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
+            it.includeModule("com.gradle", "develocity-gradle-plugin")
             it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
+            it.includeModule("org.spdx", "spdx-gradle-plugin")
+            it.includeModule("com.github.johnrengelman.shadow",
+                    "com.github.johnrengelman.shadow.gradle.plugin")
+            it.includeModule("com.github.johnrengelman", "shadow")
         }
     }
 }
 
+apply from: "shared/src/main/groovy/out-setup.groovy"
+getGradle().beforeProject { project ->
+    init.chooseBuildDirectory(
+            new File("${buildscript.sourceFile.parent}/../.."), rootProject.name, project
+    )
+}
 System.setProperty("ALLOW_PUBLIC_REPOS", "true")
 rootProject.name = "playground-plugin"
 includeBuild("../../buildSrc") {

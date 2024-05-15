@@ -41,6 +41,27 @@ internal fun equalWithinTolerance(left: Float, right: Float, tolerance: Float): 
 }
 
 /**
+ * Returns true iff [left] and [right] are values within [tolerance] of each other.
+ */
+internal fun equalWithinTolerance(left: Long, right: Long, tolerance: Long): Boolean =
+    try {
+        val absDiff = abs(left subtractExact right)
+        0 <= absDiff && absDiff <= abs(tolerance)
+    } catch (e: ArithmeticException) {
+        // The numbers are so far apart their difference isn't even a long.
+        false
+    }
+
+private infix fun Long.subtractExact(other: Long): Long {
+    val result = this - other
+    if ((this xor other) and (this xor result) < 0) {
+        throw ArithmeticException("Overflow when subtracting $other flow $this")
+    }
+
+    return result
+}
+
+/**
  * Returns true iff [left] and [right] are finite values not within [tolerance]
  * of each other. Note that both this method and [equalWithinTolerance] returns false if
  * either [left] or [right] is infinite or NaN.

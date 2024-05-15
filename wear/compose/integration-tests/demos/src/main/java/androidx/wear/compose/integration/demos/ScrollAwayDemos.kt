@@ -36,8 +36,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.wear.compose.material.Card
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
@@ -128,6 +131,7 @@ fun ScrollAwayScalingLazyColumnChipDemo2() {
     )
 }
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 private fun ColumnCardDemo(offset: Dp) {
@@ -151,9 +155,11 @@ private fun ColumnCardDemo(offset: Dp) {
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState)
-                .rsbScroll(
-                    scrollableState = scrollState,
-                    flingBehavior = ScrollableDefaults.flingBehavior(),
+                .rotaryScrollable(
+                    RotaryScrollableDefaults.behavior(
+                        scrollableState = scrollState,
+                        flingBehavior = ScrollableDefaults.flingBehavior()
+                    ),
                     focusRequester = focusRequester
                 )
         ) {
@@ -165,6 +171,7 @@ private fun ColumnCardDemo(offset: Dp) {
     }
 }
 
+@Suppress("DEPRECATION")
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 private fun LazyColumnCardDemo(offset: Dp, itemIndex: Int, initialVisibleItemIndex: Int) {
@@ -186,9 +193,11 @@ private fun LazyColumnCardDemo(offset: Dp, itemIndex: Int, initialVisibleItemInd
     ) {
         LazyColumn(
             state = scrollState,
-            modifier = Modifier.rsbScroll(
-                scrollableState = scrollState,
-                flingBehavior = ScrollableDefaults.flingBehavior(),
+            modifier = Modifier.rotaryScrollable(
+                RotaryScrollableDefaults.behavior(
+                    scrollableState = scrollState,
+                    flingBehavior = ScrollableDefaults.flingBehavior()
+                ),
                 focusRequester = focusRequester
             )
         ) {
@@ -226,7 +235,7 @@ private fun ScalingLazyColumnCardDemo(
             PositionIndicator(scalingLazyListState = scrollState)
         }
     ) {
-        ScalingLazyColumnWithRSB(
+        ScalingLazyColumn(
             contentPadding = PaddingValues(10.dp),
             state = scrollState,
             autoCentering = AutoCenteringParams(itemIndex = 1, itemOffset = 0)
@@ -268,7 +277,7 @@ private fun ScalingLazyColumnChipDemo(
             PositionIndicator(scalingLazyListState = scrollState)
         }
     ) {
-        ScalingLazyColumnWithRSB(
+        ScalingLazyColumn(
             contentPadding = PaddingValues(10.dp),
             state = scrollState,
         ) {

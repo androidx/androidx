@@ -18,7 +18,10 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import kotlin.math.absoluteValue
+import androidx.compose.ui.graphics.computeCubicVerticalBounds
+import androidx.compose.ui.graphics.evaluateCubic
+import androidx.compose.ui.graphics.findFirstCubicRoot
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * Easing is a way to adjust an animation’s fraction. Easing allows transitioning
@@ -72,7 +75,11 @@ val LinearEasing: Easing = Easing { fraction -> fraction }
  *
  * The [CubicBezierEasing] class implements third-order Bézier curves.
  *
- * This is equivalent to the Android `PathInterpolator`
+ * This is equivalent to the Android `PathInterpolator` when a single cubic Bézier
+ * curve is specified.
+ *
+ * Note: [CubicBezierEasing] instances are stateless and can be used concurrently
+ * from multiple threads.
  *
  * Rather than creating a new instance, consider using one of the common
  * cubic [Easing]s:
@@ -101,36 +108,54 @@ class CubicBezierEasing(
     private val c: Float,
     private val d: Float
 ) : Easing {
+    private val min: Float
+    private val max: Float
 
     init {
-        require(!a.isNaN() && !b.isNaN() && !c.isNaN() && !d.isNaN()) {
+        requirePrecondition(!a.isNaN() && !b.isNaN() && !c.isNaN() && !d.isNaN()) {
             "Parameters to CubicBezierEasing cannot be NaN. Actual parameters are: $a, $b, $c, $d."
         }
+        val roots = FloatArray(5)
+        val extrema = computeCubicVerticalBounds(0.0f, b, d, 1.0f, roots, 0)
+        min = extrema.first
+        max = extrema.second
     }
 
-    private fun evaluateCubic(a: Float, b: Float, m: Float): Float {
-        return 3 * a * (1 - m) * (1 - m) * m +
-            3 * b * (1 - m) * /*    */ m * m +
-            /*                      */ m * m * m
-    }
-
+    /**
+     * Transforms the specified [fraction] in the range 0..1 by this cubic Bézier curve.
+     * To solve the curve, [fraction] is used as the x coordinate along the curve, and
+     * the corresponding y coordinate on the curve is returned. If no solution exists,
+     * this method throws an [IllegalArgumentException].
+     *
+     * @throws IllegalArgumentException If the cubic Bézier curve cannot be solved
+     */
     override fun transform(fraction: Float): Float {
-        if (fraction > 0f && fraction < 1f) {
-            var start = 0.0f
-            var end = 1.0f
-            while (true) {
-                val midpoint = (start + end) / 2
-                val estimate = evaluateCubic(a, c, midpoint)
-                if ((fraction - estimate).absoluteValue < CubicErrorBound)
-                    return evaluateCubic(b, d, midpoint)
-                if (estimate < fraction)
-                    start = midpoint
-                else
-                    end = midpoint
+        return if (fraction > 0f && fraction < 1f) {
+            val t = findFirstCubicRoot(
+                0.0f - fraction,
+                a - fraction,
+                c - fraction,
+                1.0f - fraction,
+            )
+
+            // No root, the cubic curve has no solution
+            if (t.isNaN()) {
+                throwNoSolution(fraction)
             }
+
+            // Don't clamp the values since the curve might be used to over- or under-shoot
+            // The test above that checks if fraction is in ]0..1[ will ensure we start and
+            // end at 0 and 1 respectively
+            evaluateCubic(b, d, t).fastCoerceIn(min, max)
         } else {
-            return fraction
+            fraction
         }
+    }
+
+    private fun throwNoSolution(fraction: Float) {
+        throw IllegalArgumentException(
+            "The cubic curve with parameters ($a, $b, $c, $d) has no solution at $fraction"
+        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -141,6 +166,6 @@ class CubicBezierEasing(
     override fun hashCode(): Int {
         return ((a.hashCode() * 31 + b.hashCode()) * 31 + c.hashCode()) * 31 + d.hashCode()
     }
-}
 
-private const val CubicErrorBound: Float = 0.001f
+    override fun toString(): String = "CubicBezierEasing(a=$a, b=$b, c=$c, d=$d)"
+}

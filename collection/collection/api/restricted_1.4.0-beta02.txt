@@ -11,7 +11,7 @@ package androidx.collection {
     method public java.util.Set<java.util.Map.Entry<K!,V!>!> entrySet();
     method public V! get(Object?);
     method public java.util.Set<K!> keySet();
-    method public void putAll(java.util.Map<? extends K,? extends V>);
+    method public void putAll(java.util.Map<? extends K!,? extends V!>);
     method public V! remove(Object?);
     method public boolean removeAll(java.util.Collection<?>);
     method public boolean retainAll(java.util.Collection<?>);
@@ -25,7 +25,7 @@ package androidx.collection {
 
   public final class ArraySet<E> implements java.util.Collection<E> kotlin.jvm.internal.markers.KMutableCollection kotlin.jvm.internal.markers.KMutableSet java.util.Set<E> {
     ctor public ArraySet(androidx.collection.ArraySet<? extends E>? set);
-    ctor public ArraySet(E![]? array);
+    ctor public ArraySet(E[]? array);
     ctor public ArraySet();
     ctor public ArraySet(optional int capacity);
     ctor public ArraySet(java.util.Collection<? extends E>? set);
@@ -34,7 +34,7 @@ package androidx.collection {
     method public boolean addAll(java.util.Collection<? extends E> elements);
     method public void clear();
     method public operator boolean contains(E element);
-    method public boolean containsAll(java.util.Collection<E!> elements);
+    method public boolean containsAll(java.util.Collection<E> elements);
     method public void ensureCapacity(int minimumCapacity);
     method public int getSize();
     method public int indexOf(Object? key);
@@ -42,11 +42,11 @@ package androidx.collection {
     method public java.util.Iterator<E> iterator();
     method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ArraySet<? extends E> array);
-    method public boolean removeAll(java.util.Collection<E!> elements);
+    method public boolean removeAll(java.util.Collection<E> elements);
     method public E removeAt(int index);
-    method public boolean retainAll(java.util.Collection<E!> elements);
-    method public Object![] toArray();
-    method public <T> T![] toArray(T![] array);
+    method public boolean retainAll(java.util.Collection<E> elements);
+    method public Object?[] toArray();
+    method public <T> T[] toArray(T[] array);
     method public E valueAt(int index);
     property public int size;
   }
@@ -378,7 +378,7 @@ package androidx.collection {
     property public final int size;
     field @kotlin.PublishedApi internal float[] keys;
     field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object![] values;
+    field @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class FloatObjectMapKt {
@@ -729,7 +729,7 @@ package androidx.collection {
     property public final int size;
     field @kotlin.PublishedApi internal int[] keys;
     field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object![] values;
+    field @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class IntObjectMapKt {
@@ -1080,7 +1080,7 @@ package androidx.collection {
     property public final int size;
     field @kotlin.PublishedApi internal long[] keys;
     field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object![] values;
+    field @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class LongObjectMapKt {
@@ -1211,7 +1211,7 @@ package androidx.collection {
   }
 
   public final class LruCacheKt {
-    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved);
+    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> create, optional kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V?,kotlin.Unit> onEntryRemoved);
   }
 
   public final class MutableFloatFloatMap extends androidx.collection.FloatFloatMap {
@@ -1605,7 +1605,7 @@ package androidx.collection {
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
-    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(K[] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectFloatMap<K> from);
     method public void put(K key, float value);
@@ -1626,7 +1626,7 @@ package androidx.collection {
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
-    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(K[] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectIntMap<K> from);
     method public void put(K key, int value);
@@ -1646,9 +1646,9 @@ package androidx.collection {
     method public void add(@IntRange(from=0L) int index, E element);
     method public boolean addAll(androidx.collection.ObjectList<E> elements);
     method public boolean addAll(androidx.collection.ScatterSet<E> elements);
-    method public boolean addAll(E![] elements);
+    method public boolean addAll(E[] elements);
     method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.ObjectList<E> elements);
-    method public boolean addAll(@IntRange(from=0L) int index, E![] elements);
+    method public boolean addAll(@IntRange(from=0L) int index, E[] elements);
     method public boolean addAll(@IntRange(from=0L) int index, java.util.Collection<? extends E> elements);
     method public boolean addAll(Iterable<? extends E> elements);
     method public boolean addAll(java.util.List<? extends E> elements);
@@ -1661,21 +1661,21 @@ package androidx.collection {
     method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
     method public inline operator void minusAssign(E element);
-    method public operator void minusAssign(E![] elements);
+    method public operator void minusAssign(E[] elements);
     method public operator void minusAssign(Iterable<? extends E> elements);
     method public operator void minusAssign(java.util.List<? extends E> elements);
     method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
     method public inline operator void plusAssign(E element);
-    method public operator void plusAssign(E![] elements);
+    method public operator void plusAssign(E[] elements);
     method public operator void plusAssign(Iterable<? extends E> elements);
     method public operator void plusAssign(java.util.List<? extends E> elements);
     method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ObjectList<E> elements);
     method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
-    method public boolean removeAll(E![] elements);
+    method public boolean removeAll(E[] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
     method public boolean removeAll(java.util.List<? extends E> elements);
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
@@ -1683,7 +1683,7 @@ package androidx.collection {
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public void removeRange(@IntRange(from=0L) int start, @IntRange(from=0L) int end);
     method public boolean retainAll(androidx.collection.ObjectList<E> elements);
-    method public boolean retainAll(E![] elements);
+    method public boolean retainAll(E[] elements);
     method public boolean retainAll(Iterable<? extends E> elements);
     method public boolean retainAll(java.util.Collection<? extends E> elements);
     method public boolean retainAll(kotlin.sequences.Sequence<? extends E> elements);
@@ -1699,7 +1699,7 @@ package androidx.collection {
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
-    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(K[] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ObjectLongMap<K> from);
     method public void put(K key, long value);
@@ -1717,26 +1717,26 @@ package androidx.collection {
     ctor public MutableScatterMap(optional int initialCapacity);
     method public java.util.Map<K,V> asMutableMap();
     method public void clear();
-    method public inline V compute(K key, kotlin.jvm.functions.Function2<? super K,? super V,? extends V> computeBlock);
+    method public inline V compute(K key, kotlin.jvm.functions.Function2<? super K,? super V?,? extends V> computeBlock);
     method @kotlin.PublishedApi internal int findInsertIndex(K key);
     method public inline V getOrPut(K key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
     method public inline operator void minusAssign(androidx.collection.ObjectList<K> keys);
     method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
     method public inline operator void minusAssign(Iterable<? extends K> keys);
     method public inline operator void minusAssign(K key);
-    method public inline operator void minusAssign(K![] keys);
+    method public inline operator void minusAssign(K[] keys);
     method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
     method public inline operator void plusAssign(androidx.collection.ScatterMap<K,V> from);
     method public inline operator void plusAssign(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public inline operator void plusAssign(java.util.Map<K,? extends V> from);
     method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V> pair);
-    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V>![] pairs);
+    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V>[] pairs);
     method public inline operator void plusAssign(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public V? put(K key, V value);
     method public void putAll(androidx.collection.ScatterMap<K,V> from);
     method public void putAll(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public void putAll(java.util.Map<K,? extends V> from);
-    method public void putAll(kotlin.Pair<? extends K,? extends V>![] pairs);
+    method public void putAll(kotlin.Pair<? extends K,? extends V>[] pairs);
     method public void putAll(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
     method public V? remove(K key);
     method public boolean remove(K key, V value);
@@ -1751,7 +1751,7 @@ package androidx.collection {
     method public boolean add(E element);
     method public boolean addAll(androidx.collection.ObjectList<E> elements);
     method public boolean addAll(androidx.collection.ScatterSet<E> elements);
-    method public boolean addAll(E![] elements);
+    method public boolean addAll(E[] elements);
     method public boolean addAll(Iterable<? extends E> elements);
     method public boolean addAll(kotlin.sequences.Sequence<? extends E> elements);
     method public java.util.Set<E> asMutableSet();
@@ -1759,19 +1759,19 @@ package androidx.collection {
     method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
     method public operator void minusAssign(E element);
-    method public operator void minusAssign(E![] elements);
+    method public operator void minusAssign(E[] elements);
     method public operator void minusAssign(Iterable<? extends E> elements);
     method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
     method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
     method public operator void plusAssign(E element);
-    method public operator void plusAssign(E![] elements);
+    method public operator void plusAssign(E[] elements);
     method public operator void plusAssign(Iterable<? extends E> elements);
     method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ObjectList<E> elements);
     method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
-    method public boolean removeAll(E![] elements);
+    method public boolean removeAll(E[] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
     method @kotlin.PublishedApi internal void removeElementAt(int index);
@@ -1815,7 +1815,7 @@ package androidx.collection {
     method public final boolean none();
     property public final int capacity;
     property public final int size;
-    field @kotlin.PublishedApi internal Object![] keys;
+    field @kotlin.PublishedApi internal Object?[] keys;
     field @kotlin.PublishedApi internal long[] metadata;
     field @kotlin.PublishedApi internal float[] values;
   }
@@ -1872,7 +1872,7 @@ package androidx.collection {
     method public final boolean none();
     property public final int capacity;
     property public final int size;
-    field @kotlin.PublishedApi internal Object![] keys;
+    field @kotlin.PublishedApi internal Object?[] keys;
     field @kotlin.PublishedApi internal long[] metadata;
     field @kotlin.PublishedApi internal int[] values;
   }
@@ -1899,7 +1899,7 @@ package androidx.collection {
     method public abstract java.util.List<E> asList();
     method public final operator boolean contains(E element);
     method public final boolean containsAll(androidx.collection.ObjectList<E> elements);
-    method public final boolean containsAll(E![] elements);
+    method public final boolean containsAll(E[] elements);
     method public final boolean containsAll(Iterable<? extends E> elements);
     method public final boolean containsAll(java.util.List<? extends E> elements);
     method public final int count();
@@ -1945,7 +1945,7 @@ package androidx.collection {
     property @IntRange(from=-1L) public final inline int lastIndex;
     property @IntRange(from=0L) public final int size;
     field @kotlin.PublishedApi internal int _size;
-    field @kotlin.PublishedApi internal Object![] content;
+    field @kotlin.PublishedApi internal Object?[] content;
   }
 
   public final class ObjectListKt {
@@ -1998,7 +1998,7 @@ package androidx.collection {
     method public final boolean none();
     property public final int capacity;
     property public final int size;
-    field @kotlin.PublishedApi internal Object![] keys;
+    field @kotlin.PublishedApi internal Object?[] keys;
     field @kotlin.PublishedApi internal long[] metadata;
     field @kotlin.PublishedApi internal long[] values;
   }
@@ -2050,9 +2050,9 @@ package androidx.collection {
     method public final boolean none();
     property public final int capacity;
     property public final int size;
-    field @kotlin.PublishedApi internal Object![] keys;
+    field @kotlin.PublishedApi internal Object?[] keys;
     field @kotlin.PublishedApi internal long[] metadata;
-    field @kotlin.PublishedApi internal Object![] values;
+    field @kotlin.PublishedApi internal Object?[] values;
   }
 
   public final class ScatterMapKt {
@@ -2096,7 +2096,7 @@ package androidx.collection {
     method public final boolean none();
     property @IntRange(from=0L) public final int capacity;
     property @IntRange(from=0L) public final int size;
-    field @kotlin.PublishedApi internal Object![] elements;
+    field @kotlin.PublishedApi internal Object?[] elements;
     field @kotlin.PublishedApi internal long[] metadata;
   }
 
@@ -2183,6 +2183,14 @@ package androidx.collection {
     method @Deprecated public static <T> boolean remove(androidx.collection.SparseArrayCompat<T>, int key, T value);
     method public static inline operator <T> void set(androidx.collection.SparseArrayCompat<T>, int key, T value);
     method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.SparseArrayCompat<T>);
+  }
+
+}
+
+package androidx.collection.internal {
+
+  public final class PackingHelpers_jvmKt {
+    method @kotlin.PublishedApi internal static inline float floatFromBits(int bits);
   }
 
 }

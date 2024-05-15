@@ -30,10 +30,9 @@ package androidx.kruth
  * into the process.
  */
 class SimpleSubjectBuilder<out S : Subject<T>, T> internal constructor(
-    private val metadata: FailureMetadata = FailureMetadata(),
+    private val metadata: FailureMetadata,
     private val subjectFactory: Subject.Factory<S, T>,
 ) {
 
-    fun that(actual: T): S =
-        subjectFactory.createSubject(metadata, actual)
+    fun that(actual: T?): S = subjectFactory.createSubject(metadata, actual)
 }

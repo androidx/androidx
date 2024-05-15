@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.build.gradle.extraPropertyOrNull
 import org.gradle.api.Project
 
 enum class ProjectLayoutType {
@@ -26,7 +27,7 @@ enum class ProjectLayoutType {
         /** Returns the project layout type for the project (PLAYGROUND or ANDROIDX) */
         @JvmStatic
         fun from(project: Project): ProjectLayoutType {
-            val value = project.findProperty(STUDIO_TYPE)?.toString()
+            val value = project.extraPropertyOrNull(STUDIO_TYPE)
             return when (value) {
                 "playground" -> ProjectLayoutType.PLAYGROUND
                 null,

@@ -16,9 +16,28 @@
 
 package androidx.compose.compiler.plugins.kotlin
 
+import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.LanguageFeature
+import org.jetbrains.kotlin.config.LanguageVersionSettingsImpl
+import org.jetbrains.kotlin.config.languageVersionSettings
 import org.junit.Test
 
 class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest(useFir) {
+    override fun CompilerConfiguration.updateConfiguration() {
+        put(ComposeConfiguration.SOURCE_INFORMATION_ENABLED_KEY, true)
+        put(
+            ComposeConfiguration.FEATURE_FLAGS,
+            listOf(FeatureFlag.OptimizeNonSkippingGroups.featureName)
+        )
+        languageVersionSettings = LanguageVersionSettingsImpl(
+            languageVersion = languageVersionSettings.languageVersion,
+            apiVersion = languageVersionSettings.apiVersion,
+            specificFeatures = mapOf(
+                LanguageFeature.ContextReceivers to LanguageFeature.State.ENABLED
+            )
+        )
+    }
+
     @Test
     fun testCapturedThisFromFieldInitializer() = verifyGoldenComposeIrTransform(
         """
@@ -402,7 +421,7 @@ class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest
 
     @Test
     fun testNonComposableFunctionReferenceWithStableExtensionReceiverMemoization() =
-        verifyComposeIrTransform(
+        verifyGoldenComposeIrTransform(
             extra = """
             class Stable
             fun Stable.foo() {}
@@ -418,39 +437,12 @@ class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest
                 val x = remember { Stable() }
                 val shouldMemoize = x::foo
             }
-        """,
-            expectedTransformed = """
-            @NonRestartableComposable
-            @Composable
-            fun Example(%composer: Composer?, %changed: Int) {
-              %composer.startReplaceableGroup(<>)
-              sourceInformation(%composer, "C(Example)<rememb...>:Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              val x = remember({
-                Stable()
-              }, %composer, 0)
-              val shouldMemoize = <block>{
-                val tmp0 = x
-                %composer.startReplaceableGroup(<>)
-                val tmpCache = %composer.cache(%composer.changed(tmp0)) {
-                  tmp0::foo
-                }
-                %composer.endReplaceableGroup()
-                tmpCache
-              }
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endReplaceableGroup()
-            }
         """
         )
 
     @Test
     fun testNonComposableFunctionReferenceWithUnstableExtensionReceiverMemoization() =
-        verifyComposeIrTransform(
+        verifyGoldenComposeIrTransform(
             extra = """
             class Unstable {
                 var value: Int = 0
@@ -467,25 +459,6 @@ class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest
             fun Example() {
                 val x = remember { Unstable() }
                 val shouldNotMemoize = x::foo
-            }
-        """,
-            expectedTransformed = """
-            @NonRestartableComposable
-            @Composable
-            fun Example(%composer: Composer?, %changed: Int) {
-              %composer.startReplaceableGroup(<>)
-              sourceInformation(%composer, "C(Example)<rememb...>:Test.kt")
-              if (isTraceInProgress()) {
-                traceEventStart(<>, %changed, -1, <>)
-              }
-              val x = remember({
-                Unstable()
-              }, %composer, 0)
-              val shouldNotMemoize = x::foo
-              if (isTraceInProgress()) {
-                traceEventEnd()
-              }
-              %composer.endReplaceableGroup()
             }
         """
         )
@@ -541,4 +514,232 @@ class LambdaMemoizationTransformTests(useFir: Boolean) : AbstractIrTransformTest
             """
         )
     }
+
+    @Test
+    fun testNonComposableFunctionReferenceWithNoArgumentsMemoization() {
+        verifyGoldenComposeIrTransform(
+            source = """
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.remember
+
+                class Stable { fun qux() {} }
+
+                @Composable
+                fun Something() {
+                    val x = remember { Stable() }
+                    val shouldMemoize = x::qux
+                }
+            """
+        )
+    }
+
+    // Validate fix for b/302680514.
+    @Test
+    fun testNonComposableFunctionReferenceWithArgumentsMemoization() {
+        verifyGoldenComposeIrTransform(
+            source = """
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.remember
+
+                class Stable { fun qux(arg1: Any) {} }
+
+                @Composable
+                fun Something() {
+                    val x = remember { Stable() }
+                    val shouldMemoize = x::qux
+                }
+            """
+        )
+    }
+
+    // Reference to function with context receivers does not currently support memoization.
+    @Test
+    fun testNonComposableFunctionReferenceWithStableContextReceiverNotMemoized() {
+        verifyGoldenComposeIrTransform(
+            source = """
+                import androidx.compose.runtime.Composable
+                import androidx.compose.runtime.remember
+
+                class StableReceiver
+                class Stable {
+                    context(StableReceiver)
+                    fun qux() {}
+                }
+
+                @Composable
+                fun Something() {
+                    val x = remember { Stable() }
+                    val shouldNotMemoize = x::qux
+                }
+            """
+        )
+    }
+
+    @Test
+    fun testUnstableReceiverFunctionReferenceNotMemoized() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.Composable
+
+            @Composable
+            fun Something() {
+                val x = unstable::method
+            }
+        """,
+        """
+            class Unstable(var qux: Int = 0) { fun method(arg1: Int) {} }
+            val unstable = Unstable()
+        """
+    )
+
+    @Test
+    fun testUnstableExtensionReceiverFunctionReferenceNotMemoized() =
+        verifyGoldenComposeIrTransform(
+            """
+            import androidx.compose.runtime.Composable
+
+            @Composable
+            fun Something() {
+                val x = unstable::method
+            }
+        """,
+            """
+            class Unstable(var foo: Int = 0)
+            fun Unstable.method(arg1: Int) {}
+            val unstable = Unstable()
+        """
+        )
+
+    @Test
+    fun testLocalFunctionReference() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.Composable
+
+            @Composable
+            fun Something(param: String) {
+                fun method() {
+                    println(param)
+                }
+                val x = ::method
+            }
+        """
+    )
+
+    @Test
+    fun testLocalFunctionReferenceWReceiver() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.Composable
+
+            @Composable
+            fun Something(param: String, rcvr: Int) {
+                fun Int.method() {
+                    println(param)
+                }
+                val x = rcvr::method
+            }
+        """
+    )
+
+    @Test
+    fun testMemoizingFunctionInIf() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.Composable
+
+            @Composable
+            fun Something(param: (() -> String)?) {
+                Something(
+                    if (param != null) {
+                        { param() }
+                    } else {
+                        null
+                    }
+                )
+            }
+        """
+    )
+
+    @Test
+    fun testAdaptedFunctionRef() = verifyGoldenComposeIrTransform(
+        """
+            import androidx.compose.runtime.Composable
+
+            class ScrollState {
+                fun test(index: Int, default: Int = 0): Int = 0
+                fun testExact(index: Int): Int = 0
+            }
+            fun scrollState(): ScrollState = TODO()
+
+            @Composable fun rememberFooInline() = fooInline(scrollState()::test)
+            @Composable fun rememberFoo() = foo(scrollState()::test)
+            @Composable fun rememberFooExactInline() = fooInline(scrollState()::testExact)
+            @Composable fun rememberFooExact() = foo(scrollState()::testExact)
+
+            @Composable
+            inline fun fooInline(block: (Int) -> Int) = block(0)
+
+            @Composable
+            fun foo(block: (Int) -> Int) = block(0)
+        """,
+    )
+
+    @Test
+    fun testCrossinlineCapture() = verifyGoldenComposeIrTransform(
+        extra = """
+            import androidx.compose.runtime.Composable
+
+            @Composable fun Lazy(content: () -> Unit) {}
+            @Composable inline fun Box(content: () -> Unit) {}
+        """,
+        source = """
+            import androidx.compose.runtime.Composable
+
+            @Composable inline fun Test(crossinline content: () -> Unit) {
+                Box {
+                    Lazy {
+                        val items = @Composable { content() }
+                    }
+                }
+            }
+
+            @Composable inline fun TestComposable(crossinline content: @Composable () -> Unit) {
+                Box {
+                    Lazy {
+                        val items = @Composable { content() }
+                    }
+                }
+            }
+
+            @Composable inline fun TestSuspend(crossinline content: suspend () -> Unit) {
+                Box {
+                    Lazy {
+                        val items = suspend { content() }
+                    }
+                }
+            }
+        """
+    )
+
+    @Test
+    fun memoizeFunctionReferenceFromLocalClass() =
+        verifyGoldenComposeIrTransform(
+            extra = """
+                  interface Test {
+                    fun go()
+                  }
+            """,
+            source = """
+                import androidx.compose.runtime.Composable
+
+                class MainActivity {
+                  private val test = object : Test {
+                    override fun go() {
+                      this@MainActivity
+                    }
+                  }
+
+                  @Composable fun Test() {
+                    test::go
+                  }
+                }
+            """
+        )
 }

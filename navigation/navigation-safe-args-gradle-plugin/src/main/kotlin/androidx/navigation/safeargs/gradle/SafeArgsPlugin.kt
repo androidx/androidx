@@ -50,9 +50,9 @@ abstract class SafeArgsPlugin protected constructor(
         action: (com.android.build.gradle.api.BaseVariant) -> Unit
     ) {
         when {
-            extension is AppExtension -> extension.applicationVariants.all(action)
+            extension is AppExtension -> extension.applicationVariants.configureEach(action)
             extension is LibraryExtension -> {
-                extension.libraryVariants.all(action)
+                extension.libraryVariants.configureEach(action)
             }
             else -> throw GradleException(
                 "safeargs plugin must be used with android app," +

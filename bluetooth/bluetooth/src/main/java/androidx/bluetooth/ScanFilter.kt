@@ -16,10 +16,11 @@
 
 package androidx.bluetooth
 
-import android.annotation.SuppressLint
 import android.bluetooth.le.ScanFilter as FwkScanFilter
 import android.os.Build
 import android.os.ParcelUuid
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import java.util.UUID
 
 /**
@@ -61,7 +62,11 @@ class ScanFilter(
      */
     val serviceUuidMask: UUID? = null,
 
-    /** The scan filter for service Solicitation uuid. `null` if filter is not set. */
+    /**
+     * The scan filter for service Solicitation uuid. `null` if filter is not set.
+     *
+     * Please note that this will be ignored on versions before [android.os.Build.VERSION_CODES.Q].
+     */
     val serviceSolicitationUuid: UUID? = null,
 
     /**
@@ -71,11 +76,34 @@ class ScanFilter(
      * `null` if filter is not set.
      * @throws IllegalArgumentException if this bit mask [serviceSolicitationUuidMask] is set but
      * [serviceSolicitationUuid] is null
+     *
+     * Please note that this will be ignored on versions before [android.os.Build.VERSION_CODES.Q].
      */
     val serviceSolicitationUuidMask: UUID? = null
 ) {
+
     companion object {
         const val MANUFACTURER_FILTER_NONE: Int = -1
+    }
+
+    @RequiresApi(29)
+    private object ScanFilterApi29Impl {
+        @JvmStatic
+        @DoNotInline
+        fun setServiceSolicitationUuid(
+            builder: FwkScanFilter.Builder,
+            serviceSolicitationUuid: UUID,
+            serviceSolicitationUuidMask: UUID?
+        ) {
+            if (serviceSolicitationUuidMask == null) {
+                builder.setServiceSolicitationUuid(ParcelUuid(serviceSolicitationUuid))
+            } else {
+                builder.setServiceSolicitationUuid(
+                    ParcelUuid(serviceSolicitationUuid),
+                    ParcelUuid(serviceSolicitationUuidMask)
+                )
+            }
+        }
     }
 
     init {
@@ -122,7 +150,6 @@ class ScanFilter(
         }
     }
 
-    @delegate:SuppressLint("ObsoleteSdkInt")
     internal val fwkScanFilter: FwkScanFilter by lazy(LazyThreadSafetyMode.PUBLICATION) {
         FwkScanFilter.Builder().run {
             deviceAddress?.let { setDeviceAddress(it.address) }
@@ -164,13 +191,11 @@ class ScanFilter(
             }
 
             serviceSolicitationUuid?.let {
-                // TODO(b/304911762) Handle below API 29
-                if (serviceSolicitationUuidMask == null) {
-                    setServiceSolicitationUuid(ParcelUuid(it))
-                } else {
-                    setServiceSolicitationUuid(
-                        ParcelUuid(it),
-                        ParcelUuid(serviceSolicitationUuidMask)
+                if (Build.VERSION.SDK_INT >= 29) {
+                    ScanFilterApi29Impl.setServiceSolicitationUuid(
+                        this,
+                        it,
+                        serviceSolicitationUuidMask
                     )
                 }
             }

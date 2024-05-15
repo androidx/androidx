@@ -47,7 +47,6 @@ import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Looper;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.testutils.TestUtils;
@@ -63,7 +62,6 @@ import androidx.annotation.ColorInt;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.test.R;
 import androidx.core.text.PrecomputedTextCompat;
-import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -206,7 +204,7 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
 
     @Test
     public void testCompoundDrawablesRelativeRtl() throws Throwable {
-        onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
+        onView(withId(R.id.text_view)).perform(setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
 
         final Drawable drawableStart = new ColorDrawable(0xFFFF0000);
         drawableStart.setBounds(0, 0, 20, 20);
@@ -220,7 +218,7 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
                 drawableTop, drawableEnd, null));
 
         // Check to see whether our text view is under RTL mode
-        if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
+        if (mTextView.getLayoutDirection() != View.LAYOUT_DIRECTION_RTL) {
             // This will happen on v17- devices
             return;
         }
@@ -285,7 +283,7 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
 
     @Test
     public void testCompoundDrawablesRelativeWithIntrinsicBoundsRtl() throws Throwable {
-        onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
+        onView(withId(R.id.text_view)).perform(setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
 
         final Drawable drawableStart = new TestDrawable(0xFFFF0000, 30, 20);
         final Drawable drawableEnd = new TestDrawable(0xFF0000FF, 25, 45);
@@ -296,7 +294,7 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
                 drawableStart, null, drawableEnd, drawableBottom));
 
         // Check to see whether our text view is under RTL mode
-        if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
+        if (mTextView.getLayoutDirection() != View.LAYOUT_DIRECTION_RTL) {
             // This will happen on v17- devices
             return;
         }
@@ -371,7 +369,7 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
 
     @Test
     public void testCompoundDrawablesRelativeWithIntrinsicBoundsByIdRtl() throws Throwable {
-        onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
+        onView(withId(R.id.text_view)).perform(setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
 
         onView(withId(R.id.text_view)).perform(setText(R.string.test_text_long));
         onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelativeWithIntrinsicBounds(
@@ -379,7 +377,7 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
                 R.drawable.test_drawable_green, R.drawable.test_drawable_blue));
 
         // Check to see whether our text view is under RTL mode
-        if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
+        if (mTextView.getLayoutDirection() != View.LAYOUT_DIRECTION_RTL) {
             // This will happen on v17- devices
             return;
         }
@@ -427,12 +425,12 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
         final Drawable drawableEnd = new TestDrawable(0xFF0000FF, 20, 20);
         final Drawable drawableBottom = new TestDrawable(0xFF00FF00, 20, 20);
 
-        onView(withId(R.id.text_view)).perform(setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
+        onView(withId(R.id.text_view)).perform(setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
         onView(withId(R.id.text_view)).perform(setCompoundDrawablesRelative(drawableStart,
                 drawableTop, drawableEnd, drawableBottom));
 
         // Check to see whether our text view is under RTL mode
-        if (ViewCompat.getLayoutDirection(mTextView) != ViewCompat.LAYOUT_DIRECTION_RTL) {
+        if (mTextView.getLayoutDirection() != View.LAYOUT_DIRECTION_RTL) {
             // This will happen on v17- devices
             return;
         }
@@ -681,19 +679,15 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
 
         TextViewCompat.setLineHeight(mTextView, 100);
         assertEquals(100, mTextView.getLineHeight());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            assertNotEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
-            assertNotEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
-        }
+        assertNotEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
+        assertNotEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
 
         TextViewCompat.setLineHeight(mTextView, 200);
         assertEquals(200, mTextView.getLineHeight());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mTextView.setLineSpacing(lineSpacingExtra, lineSpacingMultiplier);
-            assertEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
-            assertEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
-        }
+        mTextView.setLineSpacing(lineSpacingExtra, lineSpacingMultiplier);
+        assertEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
+        assertEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
     }
 
     @UiThreadTest

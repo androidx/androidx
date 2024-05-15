@@ -159,21 +159,15 @@ import org.intellij.lang.annotations.Language
  * ```
  * See [ConstrainScope] to learn more about how to constrain elements together.
  *
- * &nbsp;
- *
  * ## Helpers
  * You may also use helpers, a set of virtual (not shown on screen) components that provide special
  * layout behaviors, you may find these in the [ConstraintLayoutScope] with the '`create...`' prefix,
  * a few of these are **Guidelines**, **Chains** and **Barriers**.
  *
- * &nbsp;
- *
  * ### Guidelines
  * Lines to which other [ConstrainedLayoutReference]s may be constrained to, these are defined at
  * either a fixed or percent position from an anchor of the ConstraintLayout parent (top, bottom,
  * start, end, absoluteLeft, absoluteRight).
- *
- * &nbsp;
  *
  * Example:
  * ```
@@ -202,8 +196,6 @@ import org.intellij.lang.annotations.Language
  * given order, meaning that an horizontal chain will create constraints between the start and end anchors.
  *
  * The result, a layout that evenly distributes the space within its elements.
- *
- * &nbsp;
  *
  * For example, to make a layout with three text elements distributed so that the spacing between
  * them (and around them) is equal:
@@ -249,8 +241,6 @@ import org.intellij.lang.annotations.Language
  * Weighted chains are useful when you want the size of the elements to depend on the remaining size
  * of the chain. As opposed to just distributing the space around and/or in-between the items.
  *
- * &nbsp;
- *
  * For example, to create a layout with three text elements in a row where each element takes the
  * exact same size regardless of content, you can use a simple weighted chain where each item has the
  * same weight:
@@ -278,8 +268,6 @@ import org.intellij.lang.annotations.Language
  * This way, the texts will horizontally occupy the same space even if one of them is significantly
  * larger than the others.
  *
- * &nbsp;
- *
  * Keep in mind that chains have a relatively high performance cost. For example, if you plan on
  * having multiple chains one below the other, consider instead, applying just one chain and using
  * it as a reference to constrain all other elements to the ones that match their position in that
@@ -287,8 +275,6 @@ import org.intellij.lang.annotations.Language
  *
  * Alternatively, consider if other helpers such as [ConstraintLayoutScope.createGrid] can
  * accomplish the same layout.
- *
- * &nbsp;
  *
  * See
  * - [ConstraintLayoutScope.createHorizontalChain]
@@ -298,8 +284,6 @@ import org.intellij.lang.annotations.Language
  * ### Barriers
  * Barriers take a set of [ConstrainedLayoutReference]s and creates the most further point in a
  * given direction where other [ConstrainedLayoutReference] can constrain to.
- *
- * &nbsp;
  *
  * This is useful in situations where elements in a layout may have different sizes but you want to
  * always constrain to the largest item, for example, if you have a text element on top of another
@@ -349,8 +333,6 @@ import org.intellij.lang.annotations.Language
  * - [ConstraintLayoutScope.createAbsoluteLeftBarrier]
  * - [ConstraintLayoutScope.createAbsoluteRightBarrier]
  *
- * &nbsp;
- *
  * **Tip**: If you notice that you are creating many different constraints based on [State][androidx.compose.runtime.State]
  * variables or configuration changes, consider using the [ConstraintSet] pattern instead, makes it
  * clearer to distinguish different layouts and allows you to automatically animate the layout when
@@ -359,25 +341,23 @@ import org.intellij.lang.annotations.Language
  * @param modifier Modifier to apply to this layout node.
  * @param optimizationLevel Optimization flags for ConstraintLayout. The default is
  * [Optimizer.OPTIMIZATION_STANDARD].
- * @param animateChanges When enabled, ConstraintLayout will animate the layout if there were any
- * changes on the constraints during recomposition. If there's a change while the layout is still
- * animating the current animation will always complete before animating to the latest changes.
- * @param animationSpec The [AnimationSpec] used for [animateChanges]. [tween] by default.
- * @param finishedAnimationListener Lambda called whenever an animation due to [animateChanges]
+ * @param animateChangesSpec Null by default. Otherwise, ConstraintLayout will animate the layout
+ * if there were any changes on the constraints during recomposition using the given
+ * [AnimationSpec]. If there's a change while the layout is still animating, the current animation
+ * will complete before animating to the latest changes.
+ * @param finishedAnimationListener Lambda called whenever an animation due to [animateChangesSpec]
  * finishes.
  * @param content Content of this layout node.
  */
-@SuppressLint("AutoboxingStateCreation")
 @Composable
 inline fun ConstraintLayout(
     modifier: Modifier = Modifier,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    animateChanges: Boolean = false,
-    animationSpec: AnimationSpec<Float> = tween<Float>(),
+    animateChangesSpec: AnimationSpec<Float>? = null,
     noinline finishedAnimationListener: (() -> Unit)? = null,
     crossinline content: @Composable ConstraintLayoutScope.() -> Unit
 ) {
-    if (animateChanges) {
+    if (animateChangesSpec != null) {
         val start: MutableState<ConstraintSet?> = remember { mutableStateOf(null) }
         val end: MutableState<ConstraintSet?> = remember { mutableStateOf(null) }
         val scope = remember { ConstraintLayoutScope().apply { isAnimateChanges = true } }
@@ -420,7 +400,7 @@ inline fun ConstraintLayout(
         LateMotionLayout(
             start = start,
             end = end,
-            animationSpec = animationSpec,
+            animationSpec = animateChangesSpec,
             channel = channel,
             contentTracker = contentTracker,
             compositionSource = compositionSource,
@@ -482,6 +462,36 @@ inline fun ConstraintLayout(
                 SideEffect(onHelpersChanged)
             }
         }
+    )
+}
+
+@Deprecated(
+    message = "Prefer version that takes a nullable AnimationSpec to animate changes.",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith(
+        "ConstraintLayout(" +
+            "modifier = modifier, " +
+            "optimizationLevel = optimizationLevel, " +
+            "animateChangesSpec = animationSpec, " +
+            "finishedAnimationListener = finishedAnimationListener" +
+            ") { content() }"
+    )
+)
+@Composable
+inline fun ConstraintLayout(
+    modifier: Modifier = Modifier,
+    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
+    animateChanges: Boolean = false,
+    animationSpec: AnimationSpec<Float> = tween<Float>(),
+    noinline finishedAnimationListener: (() -> Unit)? = null,
+    crossinline content: @Composable ConstraintLayoutScope.() -> Unit
+) {
+    ConstraintLayout(
+        modifier = modifier,
+        optimizationLevel = optimizationLevel,
+        animateChangesSpec = if (animateChanges) animationSpec else null,
+        finishedAnimationListener = finishedAnimationListener,
+        content = content
     )
 }
 
@@ -557,8 +567,6 @@ internal class ConstraintSetForInlineDsl(
  * Layouts referenced in the given [constraintSet] can be bound to immediate child Composables
  * using [Modifier.layoutId], where the given layoutIds match each named reference.
  *
- * &nbsp;
- *
  * So, a simple layout with a text in the middle and an image next to it may be declared like this:
  *
  * ```
@@ -599,16 +607,12 @@ internal class ConstraintSetForInlineDsl(
  * ```
  * See [ConstraintSet] to learn more on how to declare layouts using constraints.
  *
- * &nbsp;
- *
  * ### Handling of ConstraintSet objects
  *
  * You typically want to *`remember`* declared [ConstraintSet]s, to avoid unnecessary allocations on
  * recomposition, if the [ConstraintSetScope] block consumes any [State][androidx.compose.runtime.State]
  * variables, then something like *`remember { derivedStateOf { ConstraintSet { ... } } }`* would be
  * more appropriate.
- *
- * &nbsp;
  *
  * However, note in the example above that our ConstraintSet is constant, so we can declare it at a
  * top level, improving overall Composition performance:
@@ -723,15 +727,12 @@ internal class ConstraintSetForInlineDsl(
  *
  * ### Animate Changes
  *
- * At this point, you may also use the [animateChanges] flag to animate the layout changes. This is
- * triggered whenever a different (by equality) [constraintSet] is provided on recomposition. And,
- * is driven by [animationSpec], [finishedAnimationListener] is called whenever a layout animation
- * ends.
+ * When using multiple discrete [ConstraintSet]s, you may pass non-null object to
+ * [animateChangesSpec]. With this, whenever ConstraintLayout is recomposed with a different
+ * [ConstraintSet] (by equality), it will animate all its children using the given [AnimationSpec].
  *
- * On the example above, using [animateChanges] would result on the layout being animated when the
- * device changes to non-compact window class, typical behavior in some Foldable devices.
- *
- * &nbsp;
+ * On the example above, using [animateChangesSpec] would result on the layout being animated when
+ * the device changes to non-compact window class, typical behavior in some Foldable devices.
  *
  * If more control is needed, we recommend using [MotionLayout] instead, which has a very similar
  * pattern through the [MotionScene] object.
@@ -741,27 +742,25 @@ internal class ConstraintSetForInlineDsl(
  * @param modifier Modifier to apply to this layout node.
  * @param optimizationLevel Optimization flags for ConstraintLayout. The default is
  * [Optimizer.OPTIMIZATION_STANDARD].
- * @param animateChanges When enabled, ConstraintLayout will animate the layout if there were any
- * changes on the constraints during recomposition. If there's a change while the layout is still
- * animating the current animation will always complete before animating to the latest changes.
- * @param animationSpec The [AnimationSpec] used for [animateChanges]. [tween] by default.
- * @param finishedAnimationListener Lambda called whenever an animation due to [animateChanges]
+ * @param animateChangesSpec Null by default. Otherwise, ConstraintLayout will animate the layout
+ * if a different [ConstraintSet] is provided on recomposition using the given [AnimationSpec].
+ * If there's a change in [ConstraintSet] while the layout is still animating, the current animation
+ * will complete before animating to the latest changes.
+ * @param finishedAnimationListener Lambda called whenever an animation due to [animateChangesSpec]
  * finishes.
  * @param content Content of this layout node.
  */
-@OptIn(ExperimentalMotionApi::class)
-@Suppress("NOTHING_TO_INLINE")
+@OptIn(ExperimentalMotionApi::class) // To support animateChangesSpec
 @Composable
 inline fun ConstraintLayout(
     constraintSet: ConstraintSet,
     modifier: Modifier = Modifier,
     optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
-    animateChanges: Boolean = false,
-    animationSpec: AnimationSpec<Float> = tween<Float>(),
+    animateChangesSpec: AnimationSpec<Float>? = null,
     noinline finishedAnimationListener: (() -> Unit)? = null,
     crossinline content: @Composable () -> Unit
 ) {
-    if (animateChanges) {
+    if (animateChangesSpec != null) {
         var startConstraint by remember { mutableStateOf(constraintSet) }
         var endConstraint by remember { mutableStateOf(constraintSet) }
         val progress = remember { Animatable(0.0f) }
@@ -783,7 +782,7 @@ inline fun ConstraintLayout(
                     } else {
                         startConstraint = newConstraints
                     }
-                    progress.animateTo(direction.intValue.toFloat(), animationSpec)
+                    progress.animateTo(direction.intValue.toFloat(), animateChangesSpec)
                     direction.intValue = if (direction.intValue == 1) 0 else 1
                     finishedAnimationListener?.invoke()
                 }
@@ -827,7 +826,7 @@ inline fun ConstraintLayout(
 
         val forcedScaleFactor = measurer.forcedScaleFactor
         if (!forcedScaleFactor.isNaN()) {
-            var mod = modifier.scale(measurer.forcedScaleFactor)
+            val mod = modifier.scale(measurer.forcedScaleFactor)
             Box {
                 @Suppress("DEPRECATION")
                 MultiMeasureLayout(
@@ -858,6 +857,39 @@ inline fun ConstraintLayout(
             )
         }
     }
+}
+
+@Deprecated(
+    message = "Prefer version that takes a nullable AnimationSpec to animate changes.",
+    level = DeprecationLevel.WARNING,
+    replaceWith = ReplaceWith(
+        "ConstraintLayout(" +
+            "constraintSet = constraintSet, " +
+            "modifier = modifier, " +
+            "optimizationLevel = optimizationLevel, " +
+            "animateChangesSpec = animationSpec, " +
+            "finishedAnimationListener = finishedAnimationListener" +
+            ") { content() }"
+    )
+)
+@Composable
+inline fun ConstraintLayout(
+    constraintSet: ConstraintSet,
+    modifier: Modifier = Modifier,
+    optimizationLevel: Int = Optimizer.OPTIMIZATION_STANDARD,
+    animateChanges: Boolean = false,
+    animationSpec: AnimationSpec<Float> = tween<Float>(),
+    noinline finishedAnimationListener: (() -> Unit)? = null,
+    crossinline content: @Composable () -> Unit
+) {
+    ConstraintLayout(
+        constraintSet = constraintSet,
+        modifier = modifier,
+        optimizationLevel = optimizationLevel,
+        animateChangesSpec = if (animateChanges) animationSpec else null,
+        finishedAnimationListener = finishedAnimationListener,
+        content = content
+    )
 }
 
 /**
@@ -957,7 +989,7 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
         override fun hashCode() = constrainBlock.hashCode()
 
         override fun equals(other: Any?) =
-            constrainBlock == (other as? ConstrainAsModifier)?.constrainBlock
+            constrainBlock === (other as? ConstrainAsModifier)?.constrainBlock
     }
 }
 
@@ -992,8 +1024,6 @@ class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
      * val (box, text, button) = createRefsFor("box", "text", "button")
      * ```
      * Note that the number of ids should match the number of variables assigned.
-     *
-     * &nbsp;
      *
      * To create a singular [ConstrainedLayoutReference] see [createRefFor].
      */
@@ -1064,7 +1094,7 @@ private class ConstraintLayoutParentData(
     override val layoutId: Any = ref.id
 
     override fun equals(other: Any?) = other is ConstraintLayoutParentData &&
-        ref.id == other.ref.id && constrain == other.constrain
+        ref.id == other.ref.id && constrain === other.constrain
 
     override fun hashCode() = ref.id.hashCode() * 31 + constrain.hashCode()
 }
@@ -1970,10 +2000,9 @@ internal open class Measurer(
 
     fun Placeable.PlacementScope.performLayout(measurables: List<Measurable>) {
         if (frameCache.isEmpty()) {
-            @Suppress("ListIterator")
-            for (child in root.children) {
+            root.children.fastForEach { child ->
                 val measurable = child.companionWidget
-                if (measurable !is Measurable) continue
+                if (measurable !is Measurable) return@fastForEach
                 val frame = WidgetFrame(child.frame.update())
                 frameCache[measurable] = frame
             }
@@ -2231,8 +2260,8 @@ internal fun Placeable.PlacementScope.placeWithFrameTransform(
         val y = frame.top - offset.y
         val zIndex = if (frame.translationZ.isNaN()) 0f else frame.translationZ
         placeable.placeWithLayer(
-            x,
-            y,
+            x = x,
+            y = y,
             layerBlock = layerBlock,
             zIndex = zIndex
         )

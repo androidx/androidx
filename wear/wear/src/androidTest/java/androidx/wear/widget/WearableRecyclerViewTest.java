@@ -41,6 +41,7 @@ import androidx.test.espresso.action.Swipe;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
@@ -186,6 +187,7 @@ public class WearableRecyclerViewTest {
         });
     }
 
+    @SdkSuppress(maxSdkVersion = 33) // b/322537327
     @Test
     public void testCircularScrollingGesture() throws Throwable {
         onView(withId(R.id.wrv)).perform(swipeDownFromTopRight());

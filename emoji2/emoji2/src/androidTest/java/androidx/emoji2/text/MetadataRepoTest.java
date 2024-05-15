@@ -22,7 +22,6 @@ import static org.mockito.Mockito.mock;
 import android.graphics.Typeface;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -31,7 +30,6 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 19)
 public class MetadataRepoTest {
 
     MetadataRepo mMetadataRepo;

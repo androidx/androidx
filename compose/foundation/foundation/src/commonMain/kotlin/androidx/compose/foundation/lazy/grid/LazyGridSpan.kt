@@ -20,21 +20,21 @@ import androidx.annotation.IntRange
 import androidx.compose.runtime.Immutable
 
 /**
- * Represents the span of an item in a [LazyVerticalGrid].
+ * Represents the span of an item in a [LazyVerticalGrid] or a [LazyHorizontalGrid].
  */
 @Immutable
 @kotlin.jvm.JvmInline
 value class GridItemSpan internal constructor(private val packedValue: Long) {
     /**
      * The span of the item on the current line. This will be the horizontal span for items of
-     * [LazyVerticalGrid].
+     * [LazyVerticalGrid] and the vertical span for a [LazyHorizontalGrid].
      */
     val currentLineSpan: Int get() = packedValue.toInt()
 }
 
 /**
  * Creates a [GridItemSpan] with a specified [currentLineSpan]. This will be the horizontal span
- * for an item of a [LazyVerticalGrid].
+ * for an item of a [LazyVerticalGrid] and the vertical span for a [LazyHorizontalGrid].
  */
 fun GridItemSpan(@IntRange(from = 1) currentLineSpan: Int): GridItemSpan {
     require(currentLineSpan > 0) { "The span value should be higher than 0" }

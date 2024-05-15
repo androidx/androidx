@@ -73,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
+import androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.materialcore.isRoundDevice
 import kotlin.math.PI
@@ -199,7 +200,7 @@ public fun PositionIndicator(
     ScrollStateAdapter(scrollState),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    paddingHorizontal = PositionIndicatorDefaults.horizontalPadding,
     modifier = modifier,
     reverseDirection = reverseDirection,
     fadeInAnimationSpec = fadeInAnimationSpec,
@@ -279,7 +280,7 @@ public fun PositionIndicator(
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    paddingHorizontal = PositionIndicatorDefaults.horizontalPadding,
     modifier = modifier,
     reverseDirection = reverseDirection,
     fadeInAnimationSpec = fadeInAnimationSpec,
@@ -348,7 +349,7 @@ public fun PositionIndicator(
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    paddingHorizontal = PositionIndicatorDefaults.horizontalPadding,
     modifier = modifier,
     reverseDirection = reverseDirection
 )
@@ -395,7 +396,7 @@ public fun PositionIndicator(
     ),
     indicatorHeight = 50.dp,
     indicatorWidth = 4.dp,
-    paddingHorizontal = 5.dp,
+    paddingHorizontal = PositionIndicatorDefaults.horizontalPadding,
     modifier = modifier,
     reverseDirection = reverseDirection,
     fadeInAnimationSpec = fadeInAnimationSpec,
@@ -714,7 +715,9 @@ public fun PositionIndicator(
     val updatedPositionAnimationSpec by rememberUpdatedState(positionAnimationSpec)
 
     LaunchedEffect(state) {
-        var beforeFirstAnimation = true
+        // We don't want to trigger first animation when we receive position or size
+        // for the first time, because initial position and size are equal to 0.
+        var skipFirstPositionAnimation = true
 
         // Skip first alpha animation only when initial visibility is not Hide
         var skipFirstAlphaAnimation = state.visibility(containerSize.height.toFloat()) !=
@@ -730,10 +733,22 @@ public fun PositionIndicator(
                     state.visibility(containerSize.height.toFloat())
                 )
             }.collectLatest {
-                if (beforeFirstAnimation || updatedPositionAnimationSpec is SnapSpec) {
+                // Workaround for b/315149417. When visibility is Hide and other values equal to 0,
+                // we consider that as non-initialized state.
+                // It means that we skip first alpha animation, and also ignore these values.
+                if (skipFirstPositionAnimation &&
+                    it.visibility == PositionIndicatorVisibility.Hide &&
+                    it.position == 0f &&
+                    it.size == 0f
+                ) {
+                    skipFirstAlphaAnimation = true
+                    return@collectLatest
+                }
+
+                if (skipFirstPositionAnimation || updatedPositionAnimationSpec is SnapSpec) {
                     sizeFractionAnimatable.snapTo(it.size)
                     positionFractionAnimatable.snapTo(it.position)
-                    beforeFirstAnimation = false
+                    skipFirstPositionAnimation = false
                 } else {
                     launch {
                         sizeFractionAnimatable
@@ -764,7 +779,9 @@ public fun PositionIndicator(
                         handleFadeOut(updatedFadeOutAnimationSpec, animateAlphaChannel, alphaValue)
                     }
 
-                    PositionIndicatorVisibility.Show -> {
+                    // PositionIndicatorVisibility.Show and
+                    // PositionIndicatorVisibility.AutoHide cases
+                    else -> {
                         // If fadeInAnimationSpec is SnapSpec or we skip the first animation,
                         // then we change alphaValue directly here
                         if (updatedFadeInAnimationSpec is SnapSpec || skipFirstAlphaAnimation) {
@@ -774,11 +791,6 @@ public fun PositionIndicator(
                             // Otherwise we send an event to animation channel
                             animateAlphaChannel.trySend(1f)
                         }
-                    }
-
-                    // PositionIndicatorVisibility.AutoHide case
-                    else -> {
-                        skipFirstAlphaAnimation = false
 
                         if (it.visibility == PositionIndicatorVisibility.AutoHide) {
                             // Waiting for 2000ms and changing alpha value to 0f
@@ -1001,6 +1013,11 @@ public object PositionIndicatorDefaults {
      */
     val visibilityAnimationSpec: AnimationSpec<Float> =
         spring(stiffness = Spring.StiffnessMediumLow)
+
+    /**
+     * Horizontal padding from the PositionIndicator to the screen edge.
+     */
+    internal val horizontalPadding = 2.dp
 }
 
 internal fun handleFadeOut(
@@ -1123,13 +1140,53 @@ internal class ScrollStateAdapter(private val scrollState: ScrollState) : Positi
  */
 internal class ScalingLazyColumnStateAdapter(
     private val state: ScalingLazyListState
-) : BaseScalingLazyColumnStateAdapter() {
+) : PositionIndicatorState {
 
-    override fun noVisibleItems(): Boolean = state.layoutInfo.visibleItemsInfo.isEmpty()
+    override val positionFraction: Float
+        get() {
+            val layoutInfo: ScalingLazyListLayoutInfo = state.layoutInfo
+            return if (layoutInfo.visibleItemsInfo.isEmpty()) {
+                0.0f
+            } else {
+                val decimalFirstItemIndex = decimalFirstItemIndex(layoutInfo)
+                val decimalLastItemIndex = decimalLastItemIndex(layoutInfo)
+                val decimalLastItemIndexDistanceFromEnd = layoutInfo.totalItemsCount -
+                    decimalLastItemIndex
 
-    override fun totalItemsCount(): Int = state.layoutInfo.totalItemsCount
+                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
+                    0.0f
+                } else {
+                    decimalFirstItemIndex /
+                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
+                }
+            }
+        }
 
-    override fun isScrollInProgress(): Boolean = state.isScrollInProgress
+    override fun sizeFraction(scrollableContainerSizePx: Float): Float {
+        val layoutInfo: ScalingLazyListLayoutInfo = state.layoutInfo
+        return if (layoutInfo.totalItemsCount == 0) {
+            1.0f
+        } else {
+            val decimalFirstItemIndex = decimalFirstItemIndex(layoutInfo)
+            val decimalLastItemIndex = decimalLastItemIndex(layoutInfo)
+
+            (decimalLastItemIndex - decimalFirstItemIndex) /
+                layoutInfo.totalItemsCount.toFloat()
+        }
+    }
+
+    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
+        val layoutInfo: ScalingLazyListLayoutInfo = state.layoutInfo
+        val canScroll = layoutInfo.visibleItemsInfo.isNotEmpty() && canScrollBackwardsOrForwards()
+        return if (canScroll) {
+            if (state.isScrollInProgress)
+                PositionIndicatorVisibility.Show
+            else
+                PositionIndicatorVisibility.AutoHide
+        } else {
+            PositionIndicatorVisibility.Hide
+        }
+    }
 
     override fun hashCode(): Int {
         return state.hashCode()
@@ -1148,9 +1205,9 @@ internal class ScalingLazyColumnStateAdapter(
      * Note that decimal index calculations ignore spacing between list items both for determining
      * the number and the number of visible items.
      */
-    override fun decimalLastItemIndex(): Float {
-        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
-        val lastItem = state.layoutInfo.visibleItemsInfo.last()
+    private fun decimalLastItemIndex(layoutInfo: ScalingLazyListLayoutInfo): Float {
+        if (layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val lastItem = layoutInfo.visibleItemsInfo.last()
         // This is the offset of the last item w.r.t. the ScalingLazyColumn coordinate system where
         // 0 in the center of the visible viewport and +/-(state.viewportHeightPx / 2f) are the
         // start and end of the viewport.
@@ -1159,8 +1216,8 @@ internal class ScalingLazyColumnStateAdapter(
         // center of the viewport, it does not change viewport coordinates. As a result this
         // calculation needs to take the anchorType into account to calculate the correct end
         // of list item offset.
-        val lastItemEndOffset = lastItem.startOffset(state.layoutInfo.anchorType) + lastItem.size
-        val viewportEndOffset = state.layoutInfo.viewportSize.height / 2f
+        val lastItemEndOffset = lastItem.startOffset(layoutInfo.anchorType) + lastItem.size
+        val viewportEndOffset = layoutInfo.viewportSize.height / 2f
         // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val lastItemVisibleFraction =
             (1f - ((lastItemEndOffset - viewportEndOffset) /
@@ -1179,11 +1236,11 @@ internal class ScalingLazyColumnStateAdapter(
      * Note that decimal index calculations ignore spacing between list items both for determining
      * the number and the number of visible items.
      */
-    override fun decimalFirstItemIndex(): Float {
-        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
-        val firstItem = state.layoutInfo.visibleItemsInfo.first()
-        val firstItemStartOffset = firstItem.startOffset(state.layoutInfo.anchorType)
-        val viewportStartOffset = -(state.layoutInfo.viewportSize.height / 2f)
+    private fun decimalFirstItemIndex(layoutInfo: ScalingLazyListLayoutInfo): Float {
+        if (layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val firstItem = layoutInfo.visibleItemsInfo.first()
+        val firstItemStartOffset = firstItem.startOffset(layoutInfo.anchorType)
+        val viewportStartOffset = -(layoutInfo.viewportSize.height / 2f)
         // Coerce item size to at least 1 to avoid divide by zero for zero height items
         val firstItemInvisibleFraction =
             ((viewportStartOffset - firstItemStartOffset) /
@@ -1192,7 +1249,7 @@ internal class ScalingLazyColumnStateAdapter(
         return firstItem.index.toFloat() + firstItemInvisibleFraction
     }
 
-    override fun canScrollBackwardsOrForwards(): Boolean =
+    private fun canScrollBackwardsOrForwards(): Boolean =
         state.canScrollBackward || state.canScrollForward
 }
 
@@ -1209,15 +1266,56 @@ internal class ScalingLazyColumnStateAdapter(
 internal class MaterialScalingLazyColumnStateAdapter(
     @Suppress("DEPRECATION")
     private val state: androidx.wear.compose.material.ScalingLazyListState
-) : BaseScalingLazyColumnStateAdapter() {
+) : PositionIndicatorState {
 
-    override fun noVisibleItems(): Boolean = state.layoutInfo.visibleItemsInfo.isEmpty()
+    override val positionFraction: Float
+        get() {
+            val layoutInfo = state.layoutInfo
 
-    override fun totalItemsCount(): Int = state.layoutInfo.totalItemsCount
+            return if (layoutInfo.visibleItemsInfo.isEmpty()) {
+                0.0f
+            } else {
+                val decimalFirstItemIndex = decimalFirstItemIndex(layoutInfo)
+                val decimalLastItemIndex = decimalLastItemIndex(layoutInfo)
+                val decimalLastItemIndexDistanceFromEnd = layoutInfo.totalItemsCount -
+                    decimalLastItemIndex
 
-    override fun isScrollInProgress(): Boolean = state.isScrollInProgress
+                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
+                    0.0f
+                } else {
+                    decimalFirstItemIndex /
+                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
+                }
+            }
+        }
 
-    override fun canScrollBackwardsOrForwards(): Boolean =
+    override fun sizeFraction(scrollableContainerSizePx: Float): Float {
+        val layoutInfo = state.layoutInfo
+        return if (layoutInfo.totalItemsCount == 0) {
+            1.0f
+        } else {
+            val decimalFirstItemIndex = decimalFirstItemIndex(layoutInfo)
+            val decimalLastItemIndex = decimalLastItemIndex(layoutInfo)
+
+            (decimalLastItemIndex - decimalFirstItemIndex) /
+                layoutInfo.totalItemsCount.toFloat()
+        }
+    }
+
+    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
+        val layoutInfo = state.layoutInfo
+        val canScroll = layoutInfo.visibleItemsInfo.isNotEmpty() && canScrollBackwardsOrForwards()
+        return if (canScroll) {
+            if (state.isScrollInProgress)
+                PositionIndicatorVisibility.Show
+            else
+                PositionIndicatorVisibility.AutoHide
+        } else {
+            PositionIndicatorVisibility.Hide
+        }
+    }
+
+    private fun canScrollBackwardsOrForwards(): Boolean =
         state.canScrollBackward || state.canScrollForward
 
     override fun hashCode(): Int {
@@ -1238,9 +1336,12 @@ internal class MaterialScalingLazyColumnStateAdapter(
      * Note that decimal index calculations ignore spacing between list items both for determining
      * the number and the number of visible items.
      */
-    override fun decimalLastItemIndex(): Float {
-        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
-        val lastItem = state.layoutInfo.visibleItemsInfo.last()
+    @Suppress("DEPRECATION")
+    private fun decimalLastItemIndex(
+        layoutInfo: androidx.wear.compose.material.ScalingLazyListLayoutInfo
+    ): Float {
+        if (layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val lastItem = layoutInfo.visibleItemsInfo.last()
         // This is the offset of the last item w.r.t. the ScalingLazyColumn coordinate system where
         // 0 in the center of the visible viewport and +/-(state.viewportHeightPx / 2f) are the
         // start and end of the viewport.
@@ -1269,9 +1370,12 @@ internal class MaterialScalingLazyColumnStateAdapter(
      * Note that decimal index calculations ignore spacing between list items both for determining
      * the number and the number of visible items.
      */
-    override fun decimalFirstItemIndex(): Float {
-        if (state.layoutInfo.visibleItemsInfo.isEmpty()) return 0f
-        val firstItem = state.layoutInfo.visibleItemsInfo.first()
+    @Suppress("DEPRECATION")
+    private fun decimalFirstItemIndex(
+        layoutInfo: androidx.wear.compose.material.ScalingLazyListLayoutInfo
+    ): Float {
+        if (layoutInfo.visibleItemsInfo.isEmpty()) return 0f
+        val firstItem = layoutInfo.visibleItemsInfo.first()
         val firstItemStartOffset = firstItem.startOffset(state.anchorType.value!!)
         val viewportStartOffset = -(state.viewportHeightPx.value!! / 2f)
         // Coerce item size to at least 1 to avoid divide by zero for zero height items
@@ -1281,62 +1385,6 @@ internal class MaterialScalingLazyColumnStateAdapter(
 
         return firstItem.index.toFloat() + firstItemInvisibleFraction
     }
-}
-
-internal abstract class BaseScalingLazyColumnStateAdapter : PositionIndicatorState {
-    override val positionFraction: Float
-        get() {
-            return if (noVisibleItems()) {
-                0.0f
-            } else {
-                val decimalFirstItemIndex = decimalFirstItemIndex()
-                val decimalLastItemIndex = decimalLastItemIndex()
-                val decimalLastItemIndexDistanceFromEnd = totalItemsCount() -
-                    decimalLastItemIndex
-
-                if (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd == 0.0f) {
-                    0.0f
-                } else {
-                    decimalFirstItemIndex /
-                        (decimalFirstItemIndex + decimalLastItemIndexDistanceFromEnd)
-                }
-            }
-        }
-
-    override fun sizeFraction(scrollableContainerSizePx: Float) =
-        if (totalItemsCount() == 0) {
-            1.0f
-        } else {
-            val decimalFirstItemIndex = decimalFirstItemIndex()
-            val decimalLastItemIndex = decimalLastItemIndex()
-
-            (decimalLastItemIndex - decimalFirstItemIndex) /
-                totalItemsCount().toFloat()
-        }
-
-    override fun visibility(scrollableContainerSizePx: Float): PositionIndicatorVisibility {
-        val canScroll = !noVisibleItems() && canScrollBackwardsOrForwards()
-        return if (canScroll) {
-            if (isScrollInProgress())
-                PositionIndicatorVisibility.Show
-            else
-                PositionIndicatorVisibility.AutoHide
-        } else {
-            PositionIndicatorVisibility.Hide
-        }
-    }
-
-    abstract fun noVisibleItems(): Boolean
-
-    abstract fun totalItemsCount(): Int
-
-    abstract fun isScrollInProgress(): Boolean
-
-    abstract fun decimalLastItemIndex(): Float
-
-    abstract fun decimalFirstItemIndex(): Float
-
-    abstract fun canScrollBackwardsOrForwards(): Boolean
 }
 
 /**

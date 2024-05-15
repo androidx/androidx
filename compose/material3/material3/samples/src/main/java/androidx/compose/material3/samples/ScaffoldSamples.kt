@@ -115,7 +115,6 @@ fun SimpleScaffoldWithTopBar() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -149,7 +148,6 @@ fun ScaffoldWithSimpleSnackbar() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -186,7 +184,6 @@ fun ScaffoldWithIndefiniteSnackbar() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -264,7 +261,6 @@ fun ScaffoldWithCustomSnackbar() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -313,7 +309,6 @@ fun ScaffoldWithCoroutinesSnackbar() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable

@@ -17,7 +17,6 @@
 package androidx.compose.ui.unit
 
 import android.content.Context
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.fontscaling.FontScaleConverter
 import androidx.compose.ui.unit.fontscaling.FontScaleConverterFactory
 
@@ -26,16 +25,12 @@ import androidx.compose.ui.unit.fontscaling.FontScaleConverterFactory
  *
  * @param context density values will be extracted from this [Context]
  */
-@OptIn(ExperimentalComposeUiApi::class)
 fun Density(context: Context): Density {
     val fontScale = context.resources.configuration.fontScale
-    val converter = if (DisableNonLinearFontScalingInCompose) LinearFontScaleConverter(fontScale)
-        else FontScaleConverterFactory.forScale(fontScale) ?: LinearFontScaleConverter(fontScale)
-
     return DensityWithConverter(
         context.resources.displayMetrics.density,
         fontScale,
-        converter
+        FontScaleConverterFactory.forScale(fontScale) ?: LinearFontScaleConverter(fontScale)
     )
 }
 

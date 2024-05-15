@@ -39,10 +39,10 @@ object ProcessorErrors {
     val ISSUE_TRACKER_LINK = "https://issuetracker.google.com/issues/new?component=413107"
 
     val MISSING_QUERY_ANNOTATION = "Query methods must be annotated with ${Query::class.java}"
-    val MISSING_INSERT_ANNOTATION = "Insertion methods must be annotated with ${Insert::class.java}"
-    val MISSING_DELETE_ANNOTATION = "Deletion methods must be annotated with ${Delete::class.java}"
+    val MISSING_INSERT_ANNOTATION = "Insert methods must be annotated with ${Insert::class.java}"
+    val MISSING_DELETE_ANNOTATION = "Delete methods must be annotated with ${Delete::class.java}"
     val MISSING_UPDATE_ANNOTATION = "Update methods must be annotated with ${Update::class.java}"
-    val MISSING_UPSERT_ANNOTATION = "Upsertion methods must be annotated with ${Upsert::class.java}"
+    val MISSING_UPSERT_ANNOTATION = "Upsert methods must be annotated with ${Upsert::class.java}"
     val MISSING_RAWQUERY_ANNOTATION = "RawQuery methods must be annotated with" +
         " ${RawQuery::class.java}"
     val INVALID_ON_CONFLICT_VALUE = "On conflict value must be one of @OnConflictStrategy values."
@@ -50,16 +50,18 @@ object ProcessorErrors {
         "room/Transaction.html"
     val INVALID_ANNOTATION_COUNT_IN_DAO_METHOD = "An abstract DAO method must be" +
         " annotated with one and only one of the following annotations: " +
-        DaoProcessor.PROCESSED_ANNOTATIONS.joinToString(",") {
-            it.java.simpleName
+        DaoProcessor.PROCESSED_ANNOTATIONS.joinToString(", ") {
+            "@" + it.java.simpleName
         }
+    val INVALID_ANNOTATION_IN_DAO_PROPERTY = "An abstract DAO property must be" +
+        " annotated with @get:${Query::class.java}."
     val CANNOT_RESOLVE_RETURN_TYPE = "Cannot resolve return type for %s"
     val CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS = "Cannot use unbound generics in query" +
         " methods. It must be bound to a type through base Dao class."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_INSERTION_METHODS = "Cannot use unbound generics in" +
-        " insertion methods. It must be bound to a type through base Dao class."
-    val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERTION_METHODS = "Cannot use unbound generics in" +
-        " upsertion methods. It must be bound to a type through base Dao class."
+    val CANNOT_USE_UNBOUND_GENERICS_IN_INSERT_METHODS = "Cannot use unbound generics in" +
+        " insert methods. It must be bound to a type through base Dao class."
+    val CANNOT_USE_UNBOUND_GENERICS_IN_UPSERT_METHODS = "Cannot use unbound generics in" +
+        " upsert methods. It must be bound to a type through base Dao class."
     val CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS = "Cannot use unbound fields in entities."
     val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES = "Cannot use unbound generics in Dao classes." +
         " If you are trying to create a base DAO, create a normal class, extend it with type" +
@@ -89,7 +91,7 @@ object ProcessorErrors {
     }
 
     fun primaryKeyColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
-        return "$columnName referenced in the primary key does not exists in the Entity." +
+        return "$columnName referenced in the primary key does not exist in the Entity." +
             " Available column names:${allColumns.joinToString(", ")}"
     }
 
@@ -145,13 +147,13 @@ object ProcessorErrors {
         " of the provided method's multimap return type must implement equals() and " +
         "hashCode(). Key type is: $keyType."
 
-    val INSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
+    val INSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_INSERT = "Method annotated with" +
         " @Insert but does not have any parameters to insert."
 
-    val UPSERTION_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT = "Method annotated with" +
+    val UPSERT_DOES_NOT_HAVE_ANY_PARAMETERS_TO_UPSERT = "Method annotated with" +
         " @Upsert but does not have any parameters to insert or update."
 
-    val DELETION_MISSING_PARAMS = "Method annotated with" +
+    val DELETE_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
 
     fun cannotMapSpecifiedColumn(column: String, columnsInQuery: List<String>, annotation: String) =
@@ -389,7 +391,7 @@ object ProcessorErrors {
     val INDEX_COLUMNS_CANNOT_BE_EMPTY = "List of columns in an index cannot be empty"
 
     fun indexColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
-        return "$columnName referenced in the index does not exists in the Entity." +
+        return "$columnName referenced in the index does not exist in the Entity." +
             " Available column names:${allColumns.joinToString(", ")}"
     }
 
@@ -554,7 +556,7 @@ object ProcessorErrors {
     val FOREIGN_KEY_CANNOT_FIND_PARENT = "Cannot find parent entity class."
 
     fun foreignKeyChildColumnDoesNotExist(columnName: String, allColumns: List<String>): String {
-        return "($columnName) referenced in the foreign key does not exists in the Entity." +
+        return "($columnName) referenced in the foreign key does not exist in the Entity." +
             " Available column names:${allColumns.joinToString(", ")}"
     }
 
@@ -652,9 +654,6 @@ object ProcessorErrors {
     val MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT = "To use RxPagingSource, you must " +
         "add `room-paging-rxjava3` artifact from Room as a dependency. " +
         "androidx.room:room-paging-rxjava3:<version>"
-
-    val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
-        " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 
     fun ambiguousConstructor(
         pojo: String,
@@ -784,6 +783,10 @@ object ProcessorErrors {
         "or @Delete must be annotated with @Entity."
 
     val INVALID_RELATION_IN_PARTIAL_ENTITY = "Partial entities cannot have relations."
+
+    fun invalidQueryForSingleColumnArray(returnType: String) = "If a DAO function has a " +
+        "primitive array or an array of String return type, a single column must be returned. " +
+        "Please check the query of the DAO function with the `$returnType` return type."
 
     val EXPAND_PROJECTION_ALONG_WITH_REMOVE_UNUSED = """
         Using @${RewriteQueriesToDropUnusedColumns::class.simpleName} annotation when
@@ -927,11 +930,6 @@ object ProcessorErrors {
     fun autoMigrationSchemasNotFound(schemaVersion: Int, schemaOutFolderPath: String): String {
         return "Schema '$schemaVersion.json' required for migration was not found at the schema " +
             "out folder: $schemaOutFolderPath. Cannot generate auto migrations."
-    }
-
-    fun autoMigrationSchemaIsEmpty(schemaVersion: Int, schemaOutFolderPath: String): String {
-        return "Found empty schema file '$schemaVersion.json' required for migration was not " +
-            "found at the schema out folder: $schemaOutFolderPath. Cannot generate auto migrations."
     }
 
     fun invalidAutoMigrationSchema(schemaVersion: Int, schemaOutFolderPath: String): String {
@@ -1124,9 +1122,6 @@ object ProcessorErrors {
         ENTITY,
     }
 
-    val KOTLIN_PROPERTY_OVERRIDE = "Property getter overrides are not support when generating " +
-        "Kotlin code, please rewrite as an abstract function."
-
     val NONNULL_VOID = "Invalid non-null declaration of 'Void', should be nullable. The 'Void' " +
         "class represents a placeholder type that is uninstantiable and 'null' is always returned."
 
@@ -1156,4 +1151,21 @@ object ProcessorErrors {
         "option `room.schemaLocation`, please remove the configuration of the option and " +
         "configure the schema location via the plugin project extension: " +
         "`room { schemaDirectory(...) }`."
+
+    val INVALID_DATABASE_VERSION = "Database version must be greater than 0"
+
+    val JAVA_CODEGEN_ON_NON_ANDROID_TARGET = "Cannot generate Java targeting a non-Android " +
+        "platform. To generate Java, you must only have Android as a target platform. " +
+        "To process a non-Android target platform, you must enable Kotlin code " +
+        "generation in KSP."
+
+    val INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID = "Only suspend functions are allowed in DAOs" +
+        " declared in source sets targeting non-Android platforms."
+
+    val INVALID_KOTLIN_CODE_GEN_IN_JAVAC =
+        "${Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName} can only be enabled in KSP."
+
+    val RAW_QUERY_NOT_SUPPORTED_ON_NON_ANDROID =
+        "@RawQuery annotated DAO functions are currently not supported in source sets targeting " +
+            "non-Android platforms."
 }

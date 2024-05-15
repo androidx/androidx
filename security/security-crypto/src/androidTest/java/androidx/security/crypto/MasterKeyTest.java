@@ -24,7 +24,6 @@ import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
-import androidx.security.crypto.MasterKey.KeyScheme;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -43,6 +42,7 @@ import java.security.KeyStore;
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class MasterKeyTest {
     private static final String PREFS_FILE = "test_shared_prefs";
     private static final int KEY_SIZE = 256;
@@ -153,7 +153,7 @@ public class MasterKeyTest {
     public void testCheckIfKeyIsKeyStoreBacked() throws GeneralSecurityException,
             IOException {
         MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
-                .setKeyScheme(KeyScheme.AES256_GCM)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .build();
 
         KeyStore keyStore = KeyStore.getInstance("AndroidKeyStore");
@@ -175,7 +175,7 @@ public class MasterKeyTest {
 
         try {
             MasterKey ignored = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
-                    .setKeyScheme(KeyScheme.AES256_GCM)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                     .setKeyGenParameterSpec(spec)
                     .build();
             Assert.fail("Could create key with both scheme + KeyGenParameterSpec");
@@ -188,7 +188,7 @@ public class MasterKeyTest {
     public void testCheckGettersAreCallable() throws GeneralSecurityException,
             IOException {
         MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
-                .setKeyScheme(KeyScheme.AES256_GCM)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
                 .build();
         Assert.assertFalse(masterKey.isUserAuthenticationRequired());
         Assert.assertFalse(masterKey.isStrongBoxBacked());

@@ -53,7 +53,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -841,8 +840,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             public View onFocusSearchFailed(View focused, int direction,
                     RecyclerView.Recycler recycler,
                     RecyclerView.State state) {
-                int expectedDir = Build.VERSION.SDK_INT <= 15 ? View.FOCUS_DOWN :
-                        View.FOCUS_FORWARD;
+                int expectedDir = View.FOCUS_FORWARD;
                 assertEquals(expectedDir, direction);
                 assertEquals(1, getChildCount());
                 View child0 = getChildAt(0);
@@ -2379,7 +2377,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ViewCompat.setHasTransientState(vh.itemView, true);
+                vh.itemView.setHasTransientState(true);
             }
         });
         tlm.expectLayouts(1);
@@ -4910,14 +4908,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     @Test
     public void focusBigViewOnLeftRTL() throws Throwable {
         focusTooBigViewTest(Gravity.LEFT, true);
-        assertEquals("Assumption check", ViewCompat.LAYOUT_DIRECTION_RTL,
+        assertEquals("Assumption check", View.LAYOUT_DIRECTION_RTL,
                 mRecyclerView.getLayoutManager().getLayoutDirection());
     }
 
     @Test
     public void focusBigViewOnRightRTL() throws Throwable {
         focusTooBigViewTest(Gravity.RIGHT, true);
-        assertEquals("Assumption check", ViewCompat.LAYOUT_DIRECTION_RTL,
+        assertEquals("Assumption check", View.LAYOUT_DIRECTION_RTL,
                 mRecyclerView.getLayoutManager().getLayoutDirection());
     }
 
@@ -4928,7 +4926,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     public void focusTooBigViewTest(final int gravity, final boolean rtl) throws Throwable {
         RecyclerView rv = new RecyclerView(getActivity());
         if (rtl) {
-            ViewCompat.setLayoutDirection(rv, ViewCompat.LAYOUT_DIRECTION_RTL);
+            ViewCompat.setLayoutDirection(rv, View.LAYOUT_DIRECTION_RTL);
         }
         final AtomicInteger vScrollDist = new AtomicInteger(0);
         final AtomicInteger hScrollDist = new AtomicInteger(0);
@@ -4938,7 +4936,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
             @Override
             public int getLayoutDirection() {
-                return rtl ? ViewCompat.LAYOUT_DIRECTION_RTL : ViewCompat.LAYOUT_DIRECTION_LTR;
+                return rtl ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR;
             }
 
             @Override
@@ -4959,7 +4957,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                         left = gravity == Gravity.LEFT ? getWidth() - view.getMeasuredWidth() - 80
                                 : 90;
                         top = 0;
-                        if (ViewCompat.LAYOUT_DIRECTION_RTL == getLayoutDirection()) {
+                        if (View.LAYOUT_DIRECTION_RTL == getLayoutDirection()) {
                             hDesiredDist.set((left + view.getMeasuredWidth()) - getWidth());
                         } else {
                             hDesiredDist.set(left);

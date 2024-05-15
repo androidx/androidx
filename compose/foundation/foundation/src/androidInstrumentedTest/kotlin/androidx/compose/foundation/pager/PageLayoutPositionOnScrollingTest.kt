@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
@@ -24,17 +23,12 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.filters.LargeTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
-@RunWith(Parameterized::class)
-class PageLayoutPositionOnScrollingTest(
-    val config: ParamConfig
-) : BasePagerTest(config) {
+class PageLayoutPositionOnScrollingTest : SingleParamBasePagerTest() {
 
     @Before
     fun setUp() {
@@ -42,52 +36,76 @@ class PageLayoutPositionOnScrollingTest(
     }
 
     @Test
-    fun swipeForwardAndBackward_verifyPagesAreLaidOutCorrectly() {
+    fun swipeForwardAndBackward_verifyPagesAreLaidOutCorrectly() = with(rule) {
         // Arrange
-        createPager(modifier = Modifier.fillMaxSize())
-        val delta = pagerSize * 0.4f * scrollForwardSign
-
-        // Act and Assert - forward
-        repeat(DefaultAnimationRepetition) {
-            rule.onNodeWithTag(it.toString()).assertIsDisplayed()
-            confirmPageIsInCorrectPosition(it)
-            runAndWaitForPageSettling {
-                rule.onNodeWithTag(it.toString()).performTouchInput {
-                    swipeWithVelocityAcrossMainAxis(
-                        with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
-                        delta
-                    )
-                }
-            }
+        setContent {
+            ParameterizedPager(
+                modifier = Modifier.fillMaxSize(),
+                orientation = it.orientation,
+                layoutDirection = it.layoutDirection,
+                pageSpacing = it.pageSpacing,
+                contentPadding = it.mainAxisContentPadding,
+                reverseLayout = it.reverseLayout
+            )
         }
 
-        // Act - backward
-        repeat(DefaultAnimationRepetition) {
-            val countDown = DefaultAnimationRepetition - it
-            rule.onNodeWithTag(countDown.toString()).assertIsDisplayed()
-            confirmPageIsInCorrectPosition(countDown)
-            runAndWaitForPageSettling {
-                rule.onNodeWithTag(countDown.toString()).performTouchInput {
-                    swipeWithVelocityAcrossMainAxis(
-                        with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
-                        delta * -1f
-                    )
+        forEachParameter(ParamsToTest) { param ->
+            val delta = pagerSize * 0.4f * param.scrollForwardSign
+
+            // Act and Assert - forward
+            repeat(DefaultAnimationRepetition) {
+                onNodeWithTag(it.toString()).assertIsDisplayed()
+                param.confirmPageIsInCorrectPosition(it)
+                runAndWaitForPageSettling {
+                    onNodeWithTag(it.toString()).performTouchInput {
+                        with(param) {
+                            swipeWithVelocityAcrossMainAxis(
+                                with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
+                                delta
+                            )
+                        }
+                    }
                 }
+            }
+
+            // Act - backward
+            repeat(DefaultAnimationRepetition) {
+                val countDown = DefaultAnimationRepetition - it
+                onNodeWithTag(countDown.toString()).assertIsDisplayed()
+                param.confirmPageIsInCorrectPosition(countDown)
+                runAndWaitForPageSettling {
+                    rule.onNodeWithTag(countDown.toString()).performTouchInput {
+                        with(param) {
+                            swipeWithVelocityAcrossMainAxis(
+                                with(rule.density) { 1.5f * MinFlingVelocityDp.toPx() },
+                                delta * -1f
+                            )
+                        }
+                    }
+                }
+            }
+
+            resetTestCase()
+        }
+    }
+
+    private fun resetTestCase() {
+        rule.runOnIdle {
+            runBlocking {
+                pagerState.scrollToPage(0)
             }
         }
     }
 
     companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<ParamConfig>().apply {
+        val ParamsToTest = mutableListOf<SingleParamConfig>().apply {
             for (orientation in TestOrientation) {
                 for (pageSpacing in TestPageSpacing) {
                     for (reverseLayout in TestReverseLayout) {
                         for (layoutDirection in TestLayoutDirection) {
                             for (contentPadding in testContentPaddings(orientation)) {
                                 add(
-                                    ParamConfig(
+                                    SingleParamConfig(
                                         orientation = orientation,
                                         mainAxisContentPadding = contentPadding,
                                         reverseLayout = reverseLayout,

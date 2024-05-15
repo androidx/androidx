@@ -22,6 +22,8 @@ import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.IntParameter
 import androidx.compose.runtime.changelist.Operation.ObjectParameter
+import androidx.compose.runtime.checkPrecondition
+import androidx.compose.runtime.requirePrecondition
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
@@ -37,7 +39,7 @@ import kotlin.contracts.contract
  *
  * `Operations` is not a thread safe data structure.
  */
-internal class Operations : OperationsDebugStringFormattable {
+internal class Operations : OperationsDebugStringFormattable() {
 
     private var opCodes = arrayOfNulls<Operation>(InitialCapacity)
     private var opCodesSize = 0
@@ -141,7 +143,7 @@ internal class Operations : OperationsDebugStringFormattable {
      * defines any arguments.
      */
     fun push(operation: Operation) {
-        require(operation.ints == 0 && operation.objects == 0) {
+        requirePrecondition(operation.ints == 0 && operation.objects == 0) {
             "Cannot push $operation without arguments because it expects " +
                 "${operation.ints} ints and ${operation.objects} objects."
         }
@@ -168,7 +170,7 @@ internal class Operations : OperationsDebugStringFormattable {
         WriteScope(this).args()
 
         // Verify all arguments were written to.
-        check(
+        checkPrecondition(
             pushedIntMask == createExpectedArgMask(operation.ints) &&
                 pushedObjectMask == createExpectedArgMask(operation.objects)
         ) {
@@ -330,7 +332,7 @@ internal class Operations : OperationsDebugStringFormattable {
 
         fun setInt(parameter: IntParameter, value: Int) = with(stack) {
             val mask = 0b1 shl parameter.offset
-            check(pushedIntMask and mask == 0) {
+            checkPrecondition(pushedIntMask and mask == 0) {
                 "Already pushed argument ${operation.intParamName(parameter)}"
             }
             pushedIntMask = pushedIntMask or mask
@@ -339,7 +341,7 @@ internal class Operations : OperationsDebugStringFormattable {
 
         fun <T> setObject(parameter: ObjectParameter<T>, value: T) = with(stack) {
             val mask = 0b1 shl parameter.offset
-            check(pushedObjectMask and mask == 0) {
+            checkPrecondition(pushedObjectMask and mask == 0) {
                 "Already pushed argument ${operation.objectParamName(parameter)}"
             }
             pushedObjectMask = pushedObjectMask or mask
@@ -467,6 +469,6 @@ internal class Operations : OperationsDebugStringFormattable {
         }
 }
 
-internal sealed interface OperationsDebugStringFormattable {
-    fun toDebugString(linePrefix: String = "  "): String
+internal abstract class OperationsDebugStringFormattable {
+    abstract fun toDebugString(linePrefix: String = "  "): String
 }

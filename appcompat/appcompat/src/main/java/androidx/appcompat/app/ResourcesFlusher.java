@@ -21,7 +21,6 @@ import android.os.Build;
 import android.util.Log;
 import android.util.LongSparseArray;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -162,7 +161,6 @@ class ResourcesFlusher {
         }
     }
 
-    @RequiresApi(16)
     private static void flushThemedResourcesCache(@NonNull final Object cache) {
         if (!sThemedResourceCacheClazzFetched) {
             try {
@@ -203,23 +201,10 @@ class ResourcesFlusher {
         }
 
         if (unthemedEntries != null) {
-            Api16Impl.clear(unthemedEntries);
+            unthemedEntries.clear();
         }
     }
 
     private ResourcesFlusher() {
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void clear(LongSparseArray longSparseArray) {
-            longSparseArray.clear();
-        }
-
     }
 }

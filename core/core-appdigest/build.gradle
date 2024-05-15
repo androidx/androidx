@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -24,17 +31,18 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
     implementation("androidx.core:core:1.7.0")
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("org.bouncycastle:bcprov-jdk15on:1.65")
     implementation("org.bouncycastle:bcpkix-jdk15on:1.56")
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(project(":core:core"))
 }
 
 androidx {
     name = "AppDigest"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_APPDIGEST
     inceptionYear = "2020"
     description = "AndroidX AppDigest Library"

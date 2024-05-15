@@ -41,7 +41,8 @@ interface LazyListScope {
      * via Bundle on Android. If null is passed the position in the list will represent the key.
      * When you specify the key the scroll position will be maintained based on the key, which
      * means if you add/remove items before the current visible item the item with the given key
-     * will be kept as the first visible one.
+     * will be kept as the first visible one. This can be overridden by calling
+     * 'requestScrollToItem' on the 'LazyListState'.
      * @param contentType the type of the content of this item. The item compositions of the same
      * type could be reused more efficiently. Note that null is a valid type and items of such
      * type will be considered compatible.
@@ -69,7 +70,8 @@ interface LazyListScope {
      * via Bundle on Android. If null is passed the position in the list will represent the key.
      * When you specify the key the scroll position will be maintained based on the key, which
      * means if you add/remove items before the current visible item the item with the given key
-     * will be kept as the first visible one.
+     * will be kept as the first visible one. This can be overridden by calling
+     * 'requestScrollToItem' on the 'LazyListState'.
      * @param contentType a factory of the content types for the item. The item compositions of
      * the same type could be reused more efficiently. Note that null is a valid type and items of such
      * type will be considered compatible.
@@ -104,7 +106,8 @@ interface LazyListScope {
      * via Bundle on Android. If null is passed the position in the list will represent the key.
      * When you specify the key the scroll position will be maintained based on the key, which
      * means if you add/remove items before the current visible item the item with the given key
-     * will be kept as the first visible one.
+     * will be kept as the first visible one. This can be overridden by calling
+     * 'requestScrollToItem' on the 'LazyListState'.
      * @param contentType the type of the content of this item. The item compositions of the same
      * type could be reused more efficiently. Note that null is a valid type and items of such
      * type will be considered compatible.
@@ -130,7 +133,8 @@ interface LazyListScope {
  * via Bundle on Android. If null is passed the position in the list will represent the key.
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
- * will be kept as the first visible one.
+ * will be kept as the first visible one. This can be overridden by calling 'requestScrollToItem'
+ * on the 'LazyListState'.
  * @param contentType a factory of the content types for the item. The item compositions of
  * the same type could be reused more efficiently. Note that null is a valid type and items of such
  * type will be considered compatible.
@@ -165,7 +169,8 @@ inline fun <T> LazyListScope.items(
  * via Bundle on Android. If null is passed the position in the list will represent the key.
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
- * will be kept as the first visible one.
+ * will be kept as the first visible one. This can be overridden by calling 'requestScrollToItem'
+ * on the 'LazyListState'.
  * @param contentType a factory of the content types for the item. The item compositions of
  * the same type could be reused more efficiently. Note that null is a valid type and items of such
  * type will be considered compatible.
@@ -200,7 +205,8 @@ inline fun <T> LazyListScope.itemsIndexed(
  * via Bundle on Android. If null is passed the position in the list will represent the key.
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
- * will be kept as the first visible one.
+ * will be kept as the first visible one. This can be overridden by calling 'requestScrollToItem'
+ * on the 'LazyListState'.
  * @param contentType a factory of the content types for the item. The item compositions of
  * the same type could be reused more efficiently. Note that null is a valid type and items of such
  * type will be considered compatible.
@@ -235,7 +241,8 @@ inline fun <T> LazyListScope.items(
  * via Bundle on Android. If null is passed the position in the list will represent the key.
  * When you specify the key the scroll position will be maintained based on the key, which
  * means if you add/remove items before the current visible item the item with the given key
- * will be kept as the first visible one.
+ * will be kept as the first visible one. This can be overridden by calling 'requestScrollToItem'
+ * on the 'LazyListState'.
  * @param contentType a factory of the content types for the item. The item compositions of
  * the same type could be reused more efficiently. Note that null is a valid type and items of such
  * type will be considered compatible.

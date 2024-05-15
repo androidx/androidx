@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.node
 
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Applier
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draganddrop.DragAndDropManager
@@ -26,20 +27,25 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerIconService
+import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.PlatformTextInputSessionHandler
+import androidx.compose.ui.platform.PlatformTextInputModifierNode
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.platform.establishTextInputSession
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
@@ -47,14 +53,15 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects
  * to Android [views][android.view.View] and all layout, draw, input, and accessibility is hooked
  * through them.
  */
-@OptIn(InternalComposeUiApi::class)
-internal interface Owner : PlatformTextInputSessionHandler {
+internal interface Owner : PositionCalculator {
 
     /**
      * The root layout node in the component tree.
@@ -88,6 +95,13 @@ internal interface Owner : PlatformTextInputSessionHandler {
      * Provide accessibility manager to the user. Use the Android version of accessibility manager.
      */
     val accessibilityManager: AccessibilityManager
+
+    /**
+     * Provide access to a GraphicsContext instance used to create GraphicsLayers for providing
+     * isolation boundaries for rendering portions of a Composition hierarchy as well as for
+     * achieving certain visual effects like masks and blurs
+     */
+    val graphicsContext: GraphicsContext
 
     /**
      * Provide toolbar for text-related actions, such as copy, paste, cut etc.
@@ -241,7 +255,11 @@ internal interface Owner : PlatformTextInputSessionHandler {
     /**
      * Creates an [OwnedLayer] which will be drawing the passed [drawBlock].
      */
-    fun createLayer(drawBlock: (Canvas) -> Unit, invalidateParentLayer: () -> Unit): OwnedLayer
+    fun createLayer(
+        drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer? = null
+    ): OwnedLayer
 
     /**
      * The semantics have changed. This function will be called when a SemanticsNode is added to
@@ -305,6 +323,18 @@ internal interface Owner : PlatformTextInputSessionHandler {
     fun registerOnLayoutCompletedListener(listener: OnLayoutCompletedListener)
 
     val dragAndDropManager: DragAndDropManager
+
+    /**
+     * Starts a new text input session and suspends until it's closed. For more information see
+     * [PlatformTextInputModifierNode.establishTextInputSession].
+     *
+     * Implementations must ensure that new requests cancel any active request. They must also
+     * ensure that the previous request is finished running all cancellation tasks before starting
+     * the new session, to ensure that no session code overlaps (e.g. using [Job.cancelAndJoin]).
+     */
+    suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing
 
     companion object {
         /**

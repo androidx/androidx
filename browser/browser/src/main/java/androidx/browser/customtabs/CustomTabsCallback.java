@@ -233,4 +233,24 @@ public class CustomTabsCallback {
     public void onActivityLayout(@Dimension(unit = PX) int left, @Dimension(unit = PX) int top,
             @Dimension(unit = PX) int right, @Dimension(unit = PX) int bottom,
             @ActivityLayoutState int state, @NonNull Bundle extras) {}
+
+    /**
+     * Called when the Custom Tab is minimized by the user such that it covers a small
+     * part of the screen.
+     *
+     * @param extras Reserved for future use.
+     */
+    @ExperimentalMinimizationCallback
+    public void onMinimized(@NonNull Bundle extras) {}
+
+    /**
+     * Called when the Custom Tab is unminimized by the user such that it returns back to its
+     * original state.
+     *
+     * @param extras Reserved for future use.
+     */
+    @ExperimentalMinimizationCallback
+    public void onUnminimized(@NonNull Bundle extras) {}
+
+
 }

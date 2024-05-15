@@ -41,6 +41,11 @@ internal class JavaPropertySpec(
             actual.initializer(initExpr.actual)
         }
 
+        override fun getter(code: XCodeBlock) = apply {
+            require(code is JavaCodeBlock)
+            error("Adding a property getter when code language is Java is not supported.")
+        }
+
         override fun build(): XPropertySpec {
             return JavaPropertySpec(name, actual.build())
         }

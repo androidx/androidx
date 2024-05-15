@@ -16,7 +16,6 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,34 +36,26 @@ class ScannerAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_scan_result, parent, false)
-        return ViewHolder(view, onClick)
+        return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val scanResult = getItem(position)
-        holder.bind(scanResult.device)
+        holder.bind(getItem(position).device)
     }
 
-    inner class ViewHolder(
-        itemView: View,
-        private val onClick: (BluetoothDevice) -> Unit
-    ) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewDeviceId: TextView = itemView.findViewById(R.id.text_view_device_id)
         private val textViewDeviceName: TextView = itemView.findViewById(R.id.text_view_device_name)
         private val buttonConnect: Button = itemView.findViewById(R.id.button_connect)
 
-        private var currentBluetoothDevice: BluetoothDevice? = null
-
         init {
             buttonConnect.setOnClickListener {
-                currentBluetoothDevice?.let(onClick)
+                onClick(getItem(bindingAdapterPosition).device)
             }
         }
 
-        @SuppressLint("MissingPermission")
         fun bind(bluetoothDevice: BluetoothDevice) {
-            currentBluetoothDevice = bluetoothDevice
             textViewDeviceId.text = bluetoothDevice.id.toString()
             textViewDeviceName.text = bluetoothDevice.name
             textViewDeviceName.isVisible = bluetoothDevice.name.isNullOrEmpty().not()
@@ -74,10 +65,11 @@ class ScannerAdapter(
 
 object ScannerDiffCallback : DiffUtil.ItemCallback<ScanResult>() {
     override fun areItemsTheSame(oldItem: ScanResult, newItem: ScanResult): Boolean {
-        return oldItem == newItem
+        return oldItem.device.id == newItem.device.id
     }
 
     override fun areContentsTheSame(oldItem: ScanResult, newItem: ScanResult): Boolean {
-        return oldItem.device == newItem.device
+        return oldItem.device.id == newItem.device.id &&
+            oldItem.timestampNanos == newItem.timestampNanos
     }
 }

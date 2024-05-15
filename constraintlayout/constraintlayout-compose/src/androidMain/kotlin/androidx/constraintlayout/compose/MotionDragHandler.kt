@@ -44,6 +44,7 @@ import kotlinx.coroutines.isActive
  * @see Modifier.pointerInput
  * @see TransitionHandler
  */
+@ExperimentalMotionApi
 internal fun Modifier.motionPointerInput(
     key: Any,
     motionProgress: MutableFloatState,

@@ -18,11 +18,9 @@ package androidx.test.uiautomator;
 
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -581,22 +579,14 @@ public class UiObject {
         if (text == null) {
             text = "";
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // ACTION_SET_TEXT is added in API 21.
-            AccessibilityNodeInfo node = findAccessibilityNodeInfo(
-                    mConfig.getWaitForSelectorTimeout());
-            if (node == null) {
-                throw new UiObjectNotFoundException(getSelector().toString());
-            }
-            Log.d(TAG, String.format("Setting text to '%s'.", text));
-            Bundle args = new Bundle();
-            args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
-            return node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args);
-        } else {
-            clearTextField();
-            Log.d(TAG, String.format("Setting text to '%s'.", text));
-            return getInteractionController().sendText(text);
+        AccessibilityNodeInfo node = findAccessibilityNodeInfo(mConfig.getWaitForSelectorTimeout());
+        if (node == null) {
+            throw new UiObjectNotFoundException(getSelector().toString());
         }
+        Log.d(TAG, String.format("Setting text to '%s'.", text));
+        Bundle args = new Bundle();
+        args.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, text);
+        return node.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, args);
     }
 
     /**
@@ -618,26 +608,7 @@ public class UiObject {
         CharSequence text = node.getText();
         // do nothing if already empty
         if (text != null && text.length() > 0) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                setText("");
-            } else {
-                Log.d(TAG, "Setting text to ''.");
-                Bundle selectionArgs = new Bundle();
-                // select all of the existing text
-                selectionArgs.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, 0);
-                selectionArgs.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT,
-                        text.length());
-                boolean ret = node.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-                if (!ret) {
-                    Log.w(TAG, "ACTION_FOCUS on text field failed.");
-                }
-                ret = node.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, selectionArgs);
-                if (!ret) {
-                    Log.w(TAG, "ACTION_SET_SELECTION on text field failed.");
-                }
-                // now delete all
-                getInteractionController().sendKey(KeyEvent.KEYCODE_DEL, 0);
-            }
+            setText("");
         }
     }
 

@@ -40,12 +40,6 @@ package androidx.privacysandbox.sdkruntime.core {
     property public final long version;
   }
 
-  @Deprecated @RequiresExtension(extension=android.os.ext.SdkExtensions.AD_SERVICES, version=4) public final class SandboxedSdkProviderAdapter extends android.app.sdksandbox.SandboxedSdkProvider {
-    ctor @Deprecated public SandboxedSdkProviderAdapter();
-    method @Deprecated public android.view.View getView(android.content.Context windowContext, android.os.Bundle params, int width, int height);
-    method @Deprecated @kotlin.jvm.Throws(exceptionClasses=LoadSdkException::class) public android.app.sdksandbox.SandboxedSdk onLoadSdk(android.os.Bundle params) throws android.app.sdksandbox.LoadSdkException;
-  }
-
   public abstract class SandboxedSdkProviderCompat {
     ctor public SandboxedSdkProviderCompat();
     method public final void attachContext(android.content.Context context);
@@ -76,7 +70,9 @@ package androidx.privacysandbox.sdkruntime.core.controller {
   public final class SdkSandboxControllerCompat {
     method public static androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat from(android.content.Context context);
     method public java.util.List<androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat> getAppOwnedSdkSandboxInterfaces();
+    method public String getClientPackageName();
     method public java.util.List<androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat> getSandboxedSdks();
+    method public suspend Object? loadSdk(String sdkName, android.os.Bundle params, kotlin.coroutines.Continuation<? super androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat>);
     method public android.os.IBinder registerSdkSandboxActivityHandler(androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat handlerCompat);
     method public void unregisterSdkSandboxActivityHandler(androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat handlerCompat);
     field public static final androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat.Companion Companion;

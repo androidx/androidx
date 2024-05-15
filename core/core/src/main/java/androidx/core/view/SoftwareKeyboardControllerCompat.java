@@ -192,10 +192,10 @@ public final class SoftwareKeyboardControllerCompat {
             }
             if (insetsController != null) {
                 insetsController.show(WindowInsets.Type.ime());
-            } else {
-                // Couldn't find an insets controller, fallback to old implementation
-                super.show();
             }
+            // InputMethodManager.showSoftInput() will also send the current toolType info to IME.
+            // We always call it so that it can report update toolType correctly.
+            super.show();
         }
 
         @Override

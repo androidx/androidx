@@ -40,7 +40,7 @@
     <string name="reject_action_title" msgid="6730366705938402668">"Tolak"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"Oke"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Lempar"</string>
-    <string name="commute_action_title" msgid="2585755255290185096">"Perjalanan"</string>
+    <string name="commute_action_title" msgid="2585755255290185096">"Perjalanan sehari-hari"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"Logout"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Tetap Coba"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Ya"</string>
@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Tidak tersedia"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Jenis Konektor Kendaraan Listrik"</string>
     <string name="example_title" msgid="530257630320010494">"Contoh %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"Teks ini berwarna merah"</string>
-    <string name="example_2_text" msgid="718820705318661440">"Teks ini berwarna hijau"</string>
-    <string name="example_3_text" msgid="977269832109695627">"Teks ini berwarna biru"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"Teks ini berwarna kuning"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"Teks ini berwarna "<annotation color="red">"merah"</annotation></string>
+    <string name="example_2_text" msgid="1359373957397219102">"Teks ini berwarna "<annotation color="green">"hijau"</annotation></string>
+    <string name="example_3_text" msgid="2409207170762049673">"Teks ini berwarna "<annotation color="blue">"biru"</annotation></string>
+    <string name="example_4_text" msgid="9055989886645433000">"Teks ini berwarna "<annotation color="yellow">"kuning"</annotation></string>
     <string name="example_5_text" msgid="8828804968749423500">"Teks ini menggunakan warna utama"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Teks ini menggunakan warna sekunder"</string>
     <string name="color_demo" msgid="1822427636476178993">"Demo Warna"</string>
@@ -165,7 +165,7 @@
     <string name="gas_station" msgid="1203313937444666161">"SPBU"</string>
     <string name="short_route" msgid="4831864276538141265">"Rute pendek"</string>
     <string name="less_busy" msgid="310625272281710983">"Tidak terlalu sibuk"</string>
-    <string name="hov_friendly" msgid="6956152104754594971">"Cocok untuk Kendaraan Padat Penumpang"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"Sesuai untuk kendaraan multi-penumpang"</string>
     <string name="long_route" msgid="4737969235741057506">"Rute panjang"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"Lanjutkan untuk memulai navigasi"</string>
     <string name="continue_route" msgid="5172258139245088080">"Lanjutkan ke rute"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Jelajahi Tempat"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Demo Template Penelusuran"</string>
     <string name="search_hint" msgid="978495498991026792">"Telusuri di sini"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Tinjau persyaratan layanan kami"</string>
+    <string name="additional_text" msgid="5755100726890686184">"Tinjau "<annotation link="terms_of_service">"persyaratan layanan"</annotation>" kami"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Login dengan Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Gunakan PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"Kode QR"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opsi rute"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Hindari jalan raya"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Hindari feri"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Demo Peta"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demo Peta Dengan Konten"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demo Peta Dengan Template Pesan"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demo Peta Dengan Template Petak"</string>
 </resources>

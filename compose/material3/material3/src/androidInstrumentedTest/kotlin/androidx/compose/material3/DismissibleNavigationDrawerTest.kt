@@ -22,10 +22,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.NavigationDrawerTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -44,6 +51,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -133,6 +141,120 @@ class DismissibleNavigationDrawerTest {
 
         rule.onNodeWithTag("content")
             .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+    }
+
+    @Test
+    fun dismissibleNavigationDrawer_testOffset_customWidthSmaller_whenOpen() {
+        val customWidth = 200.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            val drawerState = rememberDrawerState(DrawerValue.Open)
+            DismissibleNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    DismissibleDrawerSheet(Modifier.width(customWidth)) {
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .testTag("content")
+                        )
+                    }
+                },
+                content = {}
+            )
+        }
+
+        rule.onNodeWithTag("content")
+            .assertLeftPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun dismissibleNavigationDrawer_testOffset_customWidthSmaller_whenClosed() {
+        val customWidth = 200.dp
+        rule.setMaterialContent(lightColorScheme()) {
+            val drawerState = rememberDrawerState(DrawerValue.Closed)
+            DismissibleNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    DismissibleDrawerSheet(Modifier.width(customWidth)) {
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .testTag("content")
+                        )
+                    }
+                },
+                content = {}
+            )
+        }
+
+        rule.onNodeWithTag("content")
+            .assertLeftPositionInRootIsEqualTo(-customWidth)
+    }
+
+    @Test
+    fun dismissibleNavigationDrawer_testOffset_customWidthLarger_whenOpen() {
+        val customWidth = NavigationDrawerWidth + 20.dp
+        val density = Density(0.5f)
+        lateinit var coords: LayoutCoordinates
+        rule.setMaterialContent(lightColorScheme()) {
+            // Reduce density to ensure wide drawer fits on screen
+            CompositionLocalProvider(LocalDensity provides density) {
+                val drawerState = rememberDrawerState(DrawerValue.Open)
+                DismissibleNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        DismissibleDrawerSheet(Modifier.width(customWidth)) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .onGloballyPositioned {
+                                        coords = it
+                                    }
+                            )
+                        }
+                    },
+                    content = {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(coords.positionOnScreen().x).isEqualTo(0f)
+        }
+    }
+
+    @Test
+    fun dismissibleNavigationDrawer_testOffset_customWidthLarger_whenClosed() {
+        val customWidth = NavigationDrawerWidth + 20.dp
+        val density = Density(0.5f)
+        lateinit var coords: LayoutCoordinates
+        rule.setMaterialContent(lightColorScheme()) {
+            // Reduce density to ensure wide drawer fits on screen
+            CompositionLocalProvider(LocalDensity provides density) {
+                val drawerState = rememberDrawerState(DrawerValue.Closed)
+                DismissibleNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        DismissibleDrawerSheet(Modifier.width(customWidth)) {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .onGloballyPositioned {
+                                        coords = it
+                                    }
+                            )
+                        }
+                    },
+                    content = {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            with(density) {
+                assertThat(coords.positionOnScreen().x).isWithin(1f).of(-customWidth.toPx())
+            }
+        }
     }
 
     @Test
@@ -317,12 +439,16 @@ class DismissibleNavigationDrawerTest {
         // When the drawer state is set to Opened
         drawerState.snapTo(DrawerValue.Open)
         // Then the drawer should be opened
-        assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
+        rule.runOnIdle {
+            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
+        }
 
         // When the drawer state is set to Closed
         drawerState.snapTo(DrawerValue.Closed)
         // Then the drawer should be closed
-        assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+        rule.runOnIdle {
+            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+        }
     }
 
     @Test
@@ -517,7 +643,7 @@ class DismissibleNavigationDrawerTest {
 
     @Test
     @LargeTest
-    fun dismissibleNavigationDrawer_noDismissActionWhenClosed_hasDissmissActionWhenOpen(): Unit =
+    fun dismissibleNavigationDrawer_noDismissActionWhenClosed_hasDismissActionWhenOpen(): Unit =
         runBlocking(
             AutoTestFrameClock()
         ) {

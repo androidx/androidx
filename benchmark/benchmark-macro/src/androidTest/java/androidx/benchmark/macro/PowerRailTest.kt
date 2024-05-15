@@ -18,6 +18,7 @@ package androidx.benchmark.macro
 
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -30,12 +31,14 @@ import org.junit.runner.RunWith
 @SmallTest
 class PowerRailTest {
 
+    @SdkSuppress(minSdkVersion = 32)
     @Test
     fun hasMetrics_Pixel6() {
-        assumeTrue(Build.VERSION.SDK_INT > 31 && Build.MODEL.lowercase() == "oriole")
+        assumeTrue(Build.MODEL.lowercase() == "oriole")
 
         assertTrue(PowerRail.hasMetrics(throwOnMissingMetrics = true))
         assertTrue(PowerRail.hasMetrics(throwOnMissingMetrics = false))
+        assertTrue(PowerMetric.deviceSupportsHighPrecisionTracking())
     }
 
     @Test

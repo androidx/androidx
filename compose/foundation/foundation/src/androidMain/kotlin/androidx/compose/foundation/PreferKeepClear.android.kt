@@ -84,7 +84,7 @@ private class PreferKeepClearElement(
 
     override fun equals(other: Any?): Boolean {
         if (other !is PreferKeepClearNode) return false
-        return clearRect == other.rect
+        return clearRect === other.rect
     }
 
     override fun InspectorInfo.inspectableProperties() {

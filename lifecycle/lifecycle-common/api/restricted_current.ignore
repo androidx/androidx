@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-ParameterNameChange: androidx.lifecycle.Lifecycle.Event#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.lifecycle.Lifecycle.Event.valueOf
-ParameterNameChange: androidx.lifecycle.Lifecycle.State#valueOf(String) parameter #0:
-    Attempted to change parameter name from name to value in method androidx.lifecycle.Lifecycle.State.valueOf

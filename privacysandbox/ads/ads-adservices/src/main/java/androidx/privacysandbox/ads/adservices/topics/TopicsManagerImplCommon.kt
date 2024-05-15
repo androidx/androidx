@@ -55,18 +55,12 @@ open class TopicsManagerImplCommon(
     internal open fun convertRequest(
         request: GetTopicsRequest
     ): android.adservices.topics.GetTopicsRequest {
-        return android.adservices.topics.GetTopicsRequest.Builder()
-            .setAdsSdkName(request.adsSdkName)
-            .build()
+        return GetTopicsRequestHelper.convertRequestWithoutRecordObservation(request)
     }
 
-    internal fun convertResponse(
+    internal open fun convertResponse(
         response: android.adservices.topics.GetTopicsResponse
     ): GetTopicsResponse {
-        val topics = mutableListOf<Topic>()
-        for (topic in response.topics) {
-            topics.add(Topic(topic.taxonomyVersion, topic.modelVersion, topic.topicId))
-        }
-        return GetTopicsResponse(topics)
+        return GetTopicsResponseHelper.convertResponse(response)
     }
 }

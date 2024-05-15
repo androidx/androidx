@@ -39,6 +39,7 @@ public class CookieManagerCompat {
      * <a href="https://httpwg.org/specs/rfc6265.html#sane-set-cookie-syntax">the RFC6265 spec.</a>
      *  eg. "name=value; domain=.example.com; path=/"
      *
+     * @param cookieManager The CookieManager instance to get info from.
      * @param url the URL for which the API retrieves all available cookies.
      * @return the cookies as a list of strings.
      */

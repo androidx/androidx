@@ -160,9 +160,11 @@ internal object ProfileInstallBroadcast {
                     "https://developer.android.com/jetpack/androidx/releases/profileinstaller."
             }
             12 -> { // RESULT_SAVE_PROFILE_SIGNALLED
-                // For safety, since this is async, we wait before returning
-                // Empirically, this is extremely fast (< 10ms)
-                Thread.sleep(500)
+                // While this is observed to be fast for simple/sample apps,
+                // this can take up significantly longer on large apps
+                // especially on low end devices (see b/316082056)
+                @Suppress("BanThreadSleep")
+                Thread.sleep(1000)
                 null // success!
             }
             else -> {
@@ -185,10 +187,8 @@ internal object ProfileInstallBroadcast {
         // Use an explicit broadcast given the app was force-stopped.
         val action = "androidx.profileinstaller.action.BENCHMARK_OPERATION"
         val operationKey = "EXTRA_BENCHMARK_OPERATION"
-        val result = Shell.amBroadcast(
-            "-a $action -e $operationKey $operation $packageName/$receiverName"
-        )
-        return when (result) {
+        val broadcastArguments = "-a $action -e $operationKey $operation $packageName/$receiverName"
+        return when (val result = Shell.amBroadcast(broadcastArguments)) {
             null, 0, 16 /* BENCHMARK_OPERATION_UNKNOWN */ -> {
                 // 0 is returned by the platform by default, and also if no broadcast receiver
                 // receives the broadcast.
@@ -199,7 +199,12 @@ internal object ProfileInstallBroadcast {
                     "This most likely means that the `androidx.profileinstaller` library " +
                     "used by the target apk is old. Please use `1.3.0-alpha02` or newer. " +
                     "For more information refer to the release notes at " +
-                    "https://developer.android.com/jetpack/androidx/releases/profileinstaller."
+                    "https://developer.android.com/jetpack/androidx/releases/profileinstaller. " +
+                    "If you are already using androidx.profileinstaller library and still seeing " +
+                    "error, verify: 1) androidx.profileinstaller.ProfileInstallReceiver appears " +
+                    "unobfuscated in your APK's AndroidManifest and dex, and 2) the following " +
+                    "command executes successfully (should print 14): " +
+                    "adb shell am broadcast $broadcastArguments"
             }
             15 -> { // RESULT_BENCHMARK_OPERATION_FAILURE
                 "The $operation broadcast failed."

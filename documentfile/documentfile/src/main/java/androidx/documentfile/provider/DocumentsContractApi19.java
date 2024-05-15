@@ -29,9 +29,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
-@RequiresApi(19)
 class DocumentsContractApi19 {
     private static final String TAG = "DocumentFile";
 

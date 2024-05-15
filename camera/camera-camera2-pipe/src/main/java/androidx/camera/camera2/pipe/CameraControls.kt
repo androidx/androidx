@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.Result3A.Status
 
@@ -31,6 +28,15 @@ import androidx.camera.camera2.pipe.Result3A.Status
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class AfMode(val value: Int) {
+    fun isOn(): Boolean {
+        return value != CameraMetadata.CONTROL_AF_MODE_OFF
+    }
+
+    fun isContinuous(): Boolean {
+        return value == CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO ||
+            value == CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+    }
+
     companion object {
         val OFF = AfMode(CameraMetadata.CONTROL_AF_MODE_OFF)
         val AUTO = AfMode(CameraMetadata.CONTROL_AF_MODE_AUTO)
@@ -50,6 +56,10 @@ value class AfMode(val value: Int) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class AeMode(val value: Int) {
+    fun isOn(): Boolean {
+        return value != CameraMetadata.CONTROL_AE_MODE_OFF
+    }
+
     companion object {
         val OFF = AeMode(CameraMetadata.CONTROL_AE_MODE_OFF)
         val ON = AeMode(CameraMetadata.CONTROL_AE_MODE_ON)
@@ -70,6 +80,10 @@ value class AeMode(val value: Int) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class AwbMode(val value: Int) {
+    fun isOn(): Boolean {
+        return value != CameraMetadata.CONTROL_AWB_MODE_OFF
+    }
+
     companion object {
         val OFF = AwbMode(CameraMetadata.CONTROL_AWB_MODE_OFF)
         val AUTO = AwbMode(CameraMetadata.CONTROL_AWB_MODE_AUTO)

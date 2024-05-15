@@ -17,6 +17,7 @@ package androidx.compose.material3.samples
 
 import android.os.Build
 import androidx.annotation.Sampled
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DisplayMode
@@ -66,7 +68,10 @@ fun DatePickerSample() {
         val datePickerState = rememberDatePickerState(initialSelectedDateMillis = 1578096000000)
         DatePicker(state = datePickerState, modifier = Modifier.padding(16.dp))
 
-        Text("Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}")
+        Text(
+            "Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}",
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
@@ -154,7 +159,10 @@ fun DatePickerWithDateSelectableDatesSample() {
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         DatePicker(state = datePickerState)
-        Text("Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}")
+        Text(
+            "Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}",
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
@@ -167,7 +175,10 @@ fun DateInputSample() {
         val state = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
         DatePicker(state = state, modifier = Modifier.padding(16.dp))
 
-        Text("Entered date timestamp: ${state.selectedDateMillis ?: "no input"}")
+        Text(
+            "Entered date timestamp: ${state.selectedDateMillis ?: "no input"}",
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
@@ -187,6 +198,7 @@ fun DateRangePickerSample() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(DatePickerDefaults.colors().containerColor)
                 .padding(start = 12.dp, end = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
@@ -197,10 +209,9 @@ fun DateRangePickerSample() {
             TextButton(
                 onClick = {
                     snackScope.launch {
-                        snackState.showSnackbar(
-                            "Saved range (timestamps): " +
-                                "${state.selectedStartDateMillis!!..state.selectedEndDateMillis!!}"
-                        )
+                        val range =
+                            state.selectedStartDateMillis!!..state.selectedEndDateMillis!!
+                        snackState.showSnackbar("Saved range (timestamps): $range")
                     }
                 },
                 enabled = state.selectedEndDateMillis != null
@@ -208,7 +219,6 @@ fun DateRangePickerSample() {
                 Text(text = "Save")
             }
         }
-
         DateRangePicker(state = state, modifier = Modifier.weight(1f))
     }
 }

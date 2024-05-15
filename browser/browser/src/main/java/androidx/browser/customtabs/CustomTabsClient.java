@@ -36,7 +36,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -276,7 +275,7 @@ public class CustomTabsClient {
      *
      * {@see PendingSession}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @ExperimentalPendingSession
     @NonNull
     public static CustomTabsSession.PendingSession newPendingSession(
             @NonNull Context context, @Nullable final CustomTabsCallback callback, int id) {
@@ -401,6 +400,7 @@ public class CustomTabsClient {
                     throws RemoteException {
                 if (callback == null) return;
                 mHandler.post(new Runnable() {
+                    @SuppressWarnings("NullAway") // b/316641009
                     @Override
                     public void run() {
                         callback.onActivityResized(height, width, extras);
@@ -432,6 +432,29 @@ public class CustomTabsClient {
                     }
                 });
             }
+
+            @Override
+            public void onMinimized(@NonNull Bundle extras) throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onMinimized(extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onUnminimized(@NonNull Bundle extras)
+                    throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onUnminimized(extras);
+                    }
+                });
+            }
         };
     }
 
@@ -440,7 +463,7 @@ public class CustomTabsClient {
      * and turn it into a {@link CustomTabsSession}.
      *
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @ExperimentalPendingSession
     @SuppressWarnings("NullAway") // TODO: b/141869399
     @Nullable
     public CustomTabsSession attachSession(@NonNull CustomTabsSession.PendingSession session) {

@@ -32,10 +32,12 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 
 /**
@@ -245,25 +247,42 @@ private fun TextOnlySnackbar(content: @Composable () -> Unit) {
             content()
         }
     }) { measurables, constraints ->
-        require(measurables.size == 1) {
-            "text for Snackbar expected to have exactly only one child"
+        val textPlaceables = ArrayList<Placeable>(measurables.size)
+        var firstBaseline = AlignmentLine.Unspecified
+        var lastBaseline = AlignmentLine.Unspecified
+        var height = 0
+
+        measurables.fastForEach {
+            val placeable = it.measure(constraints)
+            textPlaceables.add(placeable)
+            if (placeable[FirstBaseline] != AlignmentLine.Unspecified &&
+                (firstBaseline == AlignmentLine.Unspecified ||
+                    placeable[FirstBaseline] < firstBaseline)) {
+                firstBaseline = placeable[FirstBaseline]
+            }
+            if (placeable[LastBaseline] != AlignmentLine.Unspecified &&
+                (lastBaseline == AlignmentLine.Unspecified ||
+                    placeable[LastBaseline] > lastBaseline)) {
+                lastBaseline = placeable[LastBaseline]
+            }
+            height = max(height, placeable.height)
         }
-        val textPlaceable = measurables.first().measure(constraints)
-        val firstBaseline = textPlaceable[FirstBaseline]
-        val lastBaseline = textPlaceable[LastBaseline]
-        require(firstBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
-        require(lastBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
+
+        val hasText = firstBaseline != AlignmentLine.Unspecified &&
+            lastBaseline != AlignmentLine.Unspecified
 
         val minHeight =
-            if (firstBaseline == lastBaseline) {
+            if (firstBaseline == lastBaseline || !hasText) {
                 SnackbarMinHeightOneLine
             } else {
                 SnackbarMinHeightTwoLines
             }
-        val containerHeight = max(minHeight.roundToPx(), textPlaceable.height)
+        val containerHeight = max(minHeight.roundToPx(), height)
         layout(constraints.maxWidth, containerHeight) {
-            val textPlaceY = (containerHeight - textPlaceable.height) / 2
-            textPlaceable.placeRelative(0, textPlaceY)
+            textPlaceables.fastForEach {
+                val textPlaceY = (containerHeight - it.height) / 2
+                it.placeRelative(0, textPlaceY)
+            }
         }
     }
 }
@@ -316,10 +335,10 @@ private fun OneRowSnackbar(
         )
 
         val firstTextBaseline = textPlaceable[FirstBaseline]
-        require(firstTextBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
         val lastTextBaseline = textPlaceable[LastBaseline]
-        require(lastTextBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
-        val isOneLine = firstTextBaseline == lastTextBaseline
+        val hasText = firstTextBaseline != AlignmentLine.Unspecified &&
+            lastTextBaseline != AlignmentLine.Unspecified
+        val isOneLine = firstTextBaseline == lastTextBaseline || !hasText
         val buttonPlaceX = constraints.maxWidth - buttonPlaceable.width
 
         val textPlaceY: Int

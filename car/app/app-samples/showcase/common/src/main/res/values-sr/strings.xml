@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Недоступно"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Типови конектора за електрична возила"</string>
     <string name="example_title" msgid="530257630320010494">"Пример %d"</string>
-    <string name="example_1_text" msgid="8456567953748293512">"Овај текст има црвену боју"</string>
-    <string name="example_2_text" msgid="718820705318661440">"Овај текст има зелену боју"</string>
-    <string name="example_3_text" msgid="977269832109695627">"Овај текст има плаву боју"</string>
-    <string name="example_4_text" msgid="2043547015979437373">"Овај текст има жуту боју"</string>
+    <string name="example_1_text" msgid="8631503055894800688">"Овај текст има "<annotation color="red">"црвену"</annotation>" боју"</string>
+    <string name="example_2_text" msgid="1359373957397219102">"Овај текст има "<annotation color="green">"зелену"</annotation>" боју"</string>
+    <string name="example_3_text" msgid="2409207170762049673">"Овај текст има "<annotation color="blue">"плаву"</annotation>" боју"</string>
+    <string name="example_4_text" msgid="9055989886645433000">"Овај текст има "<annotation color="yellow">"жуту"</annotation>" боју"</string>
     <string name="example_5_text" msgid="8828804968749423500">"Овај текст користи примарну боју"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Овај текст користи секундарну боју"</string>
     <string name="color_demo" msgid="1822427636476178993">"Демонстрација за боју"</string>
@@ -236,9 +236,9 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Прегледајте места"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Демонстрација шаблона претраге"</string>
     <string name="search_hint" msgid="978495498991026792">"Претражујте овде"</string>
-    <string name="additional_text" msgid="8410289578276941586">"Прегледајте услове коришћења услуге"</string>
+    <string name="additional_text" msgid="5755100726890686184">"Прегледајте "<annotation link="terms_of_service">"услове коришћења услуге"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Пријављивање на Google"</string>
-    <string name="use_pin" msgid="7850893299484337431">"Користите PIN"</string>
+    <string name="use_pin" msgid="7850893299484337431">"Користи PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR кôд"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Хост не подржава шаблон за пријављивање"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Некомпатибилан хост"</string>
@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Опције за руте"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Избегавај ауто-путеве"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Избегавај трајект"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Демо верзије мапе"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демо верзије мапе са садржајем"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демо верзија мапе са шаблоном поруке"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демо верзија мапе са шаблоном мреже"</string>
 </resources>

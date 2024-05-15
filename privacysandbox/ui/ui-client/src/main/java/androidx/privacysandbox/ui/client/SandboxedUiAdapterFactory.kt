@@ -23,6 +23,7 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.RemoteException
 import android.util.Log
 import android.view.Display
 import android.view.SurfaceControlViewHost
@@ -233,14 +234,16 @@ object SandboxedUiAdapterFactory {
                 context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             val displayId = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY).displayId
 
-            adapterInterface.openRemoteSession(
-                windowInputToken,
-                displayId,
-                initialWidth,
-                initialHeight,
-                isZOrderOnTop,
-                RemoteSessionClient(context, client, clientExecutor)
-            )
+            tryToCallRemoteObject {
+                adapterInterface.openRemoteSession(
+                    windowInputToken,
+                    displayId,
+                    initialWidth,
+                    initialHeight,
+                    isZOrderOnTop,
+                    RemoteSessionClient(context, client, clientExecutor)
+                )
+            }
         }
 
         class RemoteSessionClient(
@@ -249,19 +252,43 @@ object SandboxedUiAdapterFactory {
             val clientExecutor: Executor
         ) : IRemoteSessionClient.Stub() {
 
+            lateinit var surfaceView: SurfaceView
+
             override fun onRemoteSessionOpened(
                 surfacePackage: SurfaceControlViewHost.SurfacePackage,
                 remoteSessionController: IRemoteSessionController,
                 isZOrderOnTop: Boolean
             ) {
-                val surfaceView = SurfaceView(context)
+                surfaceView = SurfaceView(context)
                 surfaceView.setChildSurfacePackage(surfacePackage)
                 surfaceView.setZOrderOnTop(isZOrderOnTop)
+                surfaceView.addOnAttachStateChangeListener(
+                    object : View.OnAttachStateChangeListener {
+
+                    private var hasViewBeenPreviouslyAttached = false
+
+                    override fun onViewAttachedToWindow(v: View) {
+                        if (hasViewBeenPreviouslyAttached) {
+                            tryToCallRemoteObject {
+                                remoteSessionController.notifyFetchUiForSession()
+                            }
+                        } else {
+                            hasViewBeenPreviouslyAttached = true
+                        }
+                    }
+
+                    override fun onViewDetachedFromWindow(v: View) {}
+                })
 
                 clientExecutor.execute {
                     client
                         .onSessionOpened(SessionImpl(surfaceView,
                             remoteSessionController, surfacePackage))
+                }
+                tryToCallRemoteObject {
+                    remoteSessionController.asBinder().linkToDeath({
+                        onRemoteSessionError("Remote process died")
+                    }, 0)
                 }
             }
 
@@ -276,6 +303,12 @@ object SandboxedUiAdapterFactory {
                     client.onResizeRequested(width, height)
                 }
             }
+
+            override fun onSessionUiFetched(
+                surfacePackage: SurfaceControlViewHost.SurfacePackage
+            ) {
+                surfaceView.setChildSurfacePackage(surfacePackage)
+            }
         }
 
         private class SessionImpl(
@@ -287,7 +320,9 @@ object SandboxedUiAdapterFactory {
             override val view: View = surfaceView
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
-                remoteSessionController.notifyConfigurationChanged(configuration)
+                tryToCallRemoteObject {
+                    remoteSessionController.notifyConfigurationChanged(configuration)
+                }
             }
 
             @SuppressLint("ClassVerificationFailure")
@@ -302,7 +337,9 @@ object SandboxedUiAdapterFactory {
                 }
 
                 val providerResizeRunnable = Runnable {
-                    remoteSessionController.notifyResized(width, height)
+                    tryToCallRemoteObject {
+                        remoteSessionController.notifyResized(width, height)
+                    }
                 }
 
                 val syncGroup = SurfaceSyncGroup("AppAndSdkViewsSurfaceSync")
@@ -314,11 +351,27 @@ object SandboxedUiAdapterFactory {
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
                 surfaceView.setZOrderOnTop(isZOrderOnTop)
-                remoteSessionController.notifyZOrderChanged(isZOrderOnTop)
+                tryToCallRemoteObject {
+                    remoteSessionController.notifyZOrderChanged(isZOrderOnTop)
+                }
             }
 
             override fun close() {
-                remoteSessionController.close()
+                 tryToCallRemoteObject { remoteSessionController.close() }
+            }
+        }
+
+        private companion object {
+
+            /**
+             * Tries to call the remote object and handles exceptions if the remote object has died.
+             */
+            private inline fun tryToCallRemoteObject(function: () -> Unit) {
+                try {
+                    function()
+                } catch (e: RemoteException) {
+                    Log.e(TAG, "Calling remote object failed: $e")
+                }
             }
         }
     }

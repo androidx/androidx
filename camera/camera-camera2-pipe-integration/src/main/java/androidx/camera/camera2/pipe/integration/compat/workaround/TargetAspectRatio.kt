@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import androidx.annotation.IntDef
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
@@ -33,7 +32,6 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.Nexus4AndroidLTarge
  *
  * @see AspectRatioLegacyApi21Quirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 class TargetAspectRatio {
     /**

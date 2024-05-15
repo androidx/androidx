@@ -105,10 +105,11 @@ fun SwipeToRevealChipSample(swipeToDismissBoxState: SwipeToDismissBoxState) {
             modifier = Modifier.fillMaxWidth(),
             onClick = { /* Add the chip click handler here */ },
             colors = ChipDefaults.primaryChipColors(),
-            border = ChipDefaults.outlinedChipBorder()
-        ) {
-            Text("SwipeToReveal Chip")
-        }
+            border = ChipDefaults.outlinedChipBorder(),
+            label = {
+                Text("SwipeToReveal Chip", maxLines = 3)
+            }
+        )
     }
 }
 

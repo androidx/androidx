@@ -18,7 +18,9 @@ package androidx.build
 
 import androidx.build.dackka.DokkaAnalysisPlatform
 import androidx.build.dackka.docsPlatform
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
+import com.android.build.api.variant.LibraryVariant
 import com.google.gson.GsonBuilder
 import java.util.Locale
 import org.gradle.api.DefaultTask
@@ -38,63 +40,40 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 /** Sets up a source jar task for an Android library project. */
-fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
-    extension.defaultPublishVariant { variant ->
-        val sourceJar =
-            tasks.register(
-                "sourceJar${variant.name.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-            }}",
-                Jar::class.java
-            ) {
-                it.archiveClassifier.set("sources")
-                it.from(extension.sourceSets.getByName("main").java.srcDirs)
-                // Do not allow source files with duplicate names, information would be lost
-                // otherwise.
-                it.duplicatesStrategy = DuplicatesStrategy.FAIL
-            }
-        registerSourcesVariant(sourceJar)
-
-        // b/272214715
-        configurations.whenObjectAdded {
-            if (it.name == "debugSourcesElements" || it.name == "releaseSourcesElements") {
-                it.artifacts.whenObjectAdded { _ ->
-                    it.attributes.attribute(
-                        DocsType.DOCS_TYPE_ATTRIBUTE,
-                        project.objects.named(DocsType::class.java, "fake-sources")
-                    )
-                }
-            }
+fun Project.configureSourceJarForAndroid(
+    libraryVariant: LibraryVariant,
+    samplesProjects: MutableCollection<Project>
+) {
+    val sourceJar =
+        tasks.register(
+            "sourceJar${libraryVariant.name.capitalize()}",
+            Jar::class.java
+        ) { task ->
+            task.archiveClassifier.set("sources")
+            task.from(libraryVariant.sources.java!!.all)
+            task.exclude { it.file.path.contains("generated") }
+            // Do not allow source files with duplicate names, information would be lost
+            // otherwise.
+            task.duplicatesStrategy = DuplicatesStrategy.FAIL
         }
-    }
-    project.afterEvaluate {
-        // we can only tell if a project is multiplatform after it is configured
-        if (it.multiplatformExtension != null && it.extra.has("publish")) {
-            extension.defaultPublishVariant { variant ->
-                val kotlinExt = project.extensions.getByName("kotlin") as KotlinProjectExtension
-                val sourceJar =
-                    project.tasks.named(
-                        "sourceJar${variant.name.replaceFirstChar {
-                            if (it.isLowerCase()) {
-                                it.titlecase(Locale.getDefault())
-                            } else it.toString()
-                        }}",
-                        Jar::class.java
-                    )
-                // multiplatform projects use different source sets, so we need to modify the task
-                sourceJar.configure { sourceJarTask ->
-                    // use an inclusion list of source sets, because that is the preferred policy
-                    sourceJarTask.from(kotlinExt.sourceSets.getByName("commonMain").kotlin.srcDirs)
-                    sourceJarTask.from(kotlinExt.sourceSets.getByName("androidMain").kotlin.srcDirs)
-                }
+    registerSourcesVariant(sourceJar)
+    registerSamplesLibraries(samplesProjects)
+
+    // b/272214715
+    configurations.whenObjectAdded {
+        if (it.name == "debugSourcesElements" || it.name == "releaseSourcesElements") {
+            it.artifacts.whenObjectAdded { _ ->
+                it.attributes.attribute(
+                    DocsType.DOCS_TYPE_ATTRIBUTE,
+                    project.objects.named(DocsType::class.java, "fake-sources")
+                )
             }
         }
     }
@@ -106,8 +85,33 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
     disableUnusedSourceJarTasks(disableNames)
 }
 
+fun Project.configureMultiplatformSourcesForAndroid(
+    variantName: String,
+    target: KotlinMultiplatformAndroidTarget,
+    samplesProjects: MutableCollection<Project>
+) {
+    val sourceJar =
+        tasks.register(
+            "sourceJar${variantName.capitalize()}",
+            Jar::class.java
+        ) { task ->
+            task.archiveClassifier.set("sources")
+            target
+                .mainCompilation()
+                .allKotlinSourceSets
+                .forEach { sourceSet ->
+                    task.from(sourceSet.kotlin.srcDirs) { copySpec ->
+                        copySpec.into(sourceSet.name)
+                    }
+                }
+            task.duplicatesStrategy = DuplicatesStrategy.FAIL
+        }
+    registerSourcesVariant(sourceJar)
+    registerSamplesLibraries(samplesProjects)
+}
+
 /** Sets up a source jar task for a Java library project. */
-fun Project.configureSourceJarForJava() {
+fun Project.configureSourceJarForJava(samplesProjects: MutableCollection<Project>) {
     val sourceJar =
         tasks.register("sourceJar", Jar::class.java) { task ->
             task.archiveClassifier.set("sources")
@@ -116,25 +120,26 @@ fun Project.configureSourceJarForJava() {
             // Different sourceSets in KMP should use different platform infixes, see b/203764756
             task.duplicatesStrategy = DuplicatesStrategy.FAIL
 
-            extensions.findByType(JavaPluginExtension::class.java)?.let { extension ->
+            extensions.findByType(JavaPluginExtension::class.java)?.let { javaExtension ->
                 // Since KotlinPlugin applies JavaPlugin, it's possible for JavaPlugin to exist, but
                 // not to have "main".  Eventually, we should stop expecting to grab sourceSets by
                 // name
                 // (b/235828421)
-                extension.sourceSets.findByName("main")?.let {
+                javaExtension.sourceSets.findByName("main")?.let {
                     task.from(it.allSource.sourceDirectories)
                 }
             }
 
-            extensions.findByType(KotlinMultiplatformExtension::class.java)?.let { extension ->
+            extensions.findByType(KotlinMultiplatformExtension::class.java)?.let { kmpExtension ->
                 for (sourceSetName in listOf("commonMain", "jvmMain")) {
-                    extension.sourceSets.findByName(sourceSetName)?.let { sourceSet ->
+                    kmpExtension.sourceSets.findByName(sourceSetName)?.let { sourceSet ->
                         task.from(sourceSet.kotlin.sourceDirectories)
                     }
                 }
             }
         }
     registerSourcesVariant(sourceJar)
+    registerSamplesLibraries(samplesProjects)
 
     val disableNames =
         setOf(
@@ -144,7 +149,7 @@ fun Project.configureSourceJarForJava() {
 }
 
 fun Project.configureSourceJarForMultiplatform() {
-    val extension =
+    val kmpExtension =
         multiplatformExtension
             ?: throw GradleException(
                 "Unable to find multiplatform extension while configuring multiplatform source JAR"
@@ -153,7 +158,7 @@ fun Project.configureSourceJarForMultiplatform() {
     val multiplatformMetadataTask =
         tasks.register("createMultiplatformMetadata", CreateMultiplatformMetadata::class.java) {
             it.metadataFile.set(metadataFile)
-            it.sourceSetMetadata = project.provider { createSourceSetMetadata(extension) }
+            it.sourceSetMetadata = project.provider { createSourceSetMetadata(kmpExtension) }
         }
     val sourceJar =
         tasks.register("multiplatformSourceJar", Jar::class.java) { task ->
@@ -163,7 +168,7 @@ fun Project.configureSourceJarForMultiplatform() {
             // Do not allow source files with duplicate names, information would be lost otherwise.
             // Different sourceSets in KMP should use different platform infixes, see b/203764756
             task.duplicatesStrategy = DuplicatesStrategy.FAIL
-            extension.targets
+            kmpExtension.targets
                 .flatMap { it.mainCompilation().allKotlinSourceSets }
                 .toSet()
                 .forEach { sourceSet ->
@@ -174,6 +179,7 @@ fun Project.configureSourceJarForMultiplatform() {
             task.metaInf.from(metadataFile)
         }
     registerMultiplatformSourcesVariant(sourceJar)
+
     val disableNames =
         setOf(
             "kotlinSourcesJar",
@@ -182,29 +188,27 @@ fun Project.configureSourceJarForMultiplatform() {
 }
 
 fun Project.disableUnusedSourceJarTasks(disableNames: Set<String>) {
-    project.tasks.configureEach({ task ->
+    project.tasks.configureEach { task ->
         if (disableNames.contains(task.name)) {
             task.enabled = false
         }
-    })
+    }
 }
 
 internal val Project.multiplatformUsage
     get() = objects.named<Usage>("androidx-multiplatform-docs")
 
-private fun Project.registerMultiplatformSourcesVariant(sourceJar: TaskProvider<Jar>) {
-    registerSourcesVariant("androidxSourcesElements", sourceJar, multiplatformUsage)
-}
+private fun Project.registerMultiplatformSourcesVariant(sourceJar: TaskProvider<Jar>) =
+    registerSourcesVariant(kmpSourcesConfigurationName, sourceJar, multiplatformUsage)
 
-private fun Project.registerSourcesVariant(sourceJar: TaskProvider<Jar>) {
-    registerSourcesVariant("sourcesElements", sourceJar, objects.named(Usage.JAVA_RUNTIME))
-}
+private fun Project.registerSourcesVariant(sourceJar: TaskProvider<Jar>) =
+    registerSourcesVariant(sourcesConfigurationName, sourceJar, objects.named(Usage.JAVA_RUNTIME))
 
 private fun Project.registerSourcesVariant(
     configurationName: String,
     sourceJar: TaskProvider<Jar>,
-    usage: Usage
-) {
+    usage: Usage,
+) =
     configurations.create(configurationName) { gradleVariant ->
         gradleVariant.isVisible = false
         gradleVariant.isCanBeResolved = false
@@ -222,10 +226,8 @@ private fun Project.registerSourcesVariant(
             objects.named<DocsType>(DocsType.SOURCES)
         )
         gradleVariant.outgoing.artifact(sourceJar)
-
         registerAsComponentForPublishing(gradleVariant)
     }
-}
 
 /**
  * Finds the main compilation for a source set, usually called 'main' but for android we need to
@@ -256,8 +258,8 @@ abstract class CreateMultiplatformMetadata : DefaultTask() {
     }
 }
 
-fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): Map<String, Any> {
-    val commonMain = extension.sourceSets.getByName("commonMain")
+fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<String, Any> {
+    val commonMain = kmpExtension.sourceSets.getByName("commonMain")
     val sourceSetsByName =
         mutableMapOf(
             "commonMain" to
@@ -267,7 +269,7 @@ fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): Map<String
                     "analysisPlatform" to DokkaAnalysisPlatform.COMMON.jsonName
                 )
         )
-    extension.targets.forEach { target ->
+    kmpExtension.targets.forEach { target ->
         target.mainCompilation().allKotlinSourceSets.forEach {
             sourceSetsByName.getOrPut(it.name) {
                 mapOf(
@@ -281,7 +283,52 @@ fun createSourceSetMetadata(extension: KotlinMultiplatformExtension): Map<String
     return mapOf("sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] })
 }
 
+private fun Project.registerSamplesLibraries(samplesProjects: MutableCollection<Project>) =
+    samplesProjects.forEach {
+        dependencies.add("samples", it)
+        // this publishing variant is used in non-KMP projects and non-KMP source jars of KMP projects
+        val publishingVariants = mutableListOf<String>()
+        if (hasAndroidMultiplatformPlugin()) {
+            publishingVariants.add(androidMultiplatformSourcesConfigurationName)
+        } else {
+            publishingVariants.add(sourcesConfigurationName)
+        }
+        project.multiplatformExtension?.let {
+            publishingVariants += kmpSourcesConfigurationName // used for KMP source jars
+            if (it.targets.any { it.platformType == KotlinPlatformType.androidJvm })
+            // used for --android source jars of KMP projects
+                publishingVariants += "release" + sourcesConfigurationName.capitalize()
+        }
+        updateCopySampleSourceJarsTaskWithVariant(publishingVariants)
+}
+
+/**
+ * Updates the published variants with the output of [LazyInputsCopyTask]. This function must be
+ * called in the stack of [LibraryAndroidComponentsExtension.onVariants] as at that stage,
+ * [AndroidXExtension.samplesProjects] would be populated.
+ */
+private fun Project.updateCopySampleSourceJarsTaskWithVariant(publishingVariants: List<String>) {
+    val copySampleJarTask = tasks.named("copySampleSourceJars", LazyInputsCopyTask::class.java)
+    configurations.configureEach { config ->
+        if (config.name in publishingVariants) {
+            // Register the sample source jar as an outgoing artifact of the publishing variant
+            config.outgoing.artifact(copySampleJarTask.flatMap { it.destinationJar }) {
+                // The only place where this classifier is load-bearing is when we filter sample
+                // source jars out in our AndroidXDocsImplPlugin.configureUnzipJvmSourcesTasks
+                it.classifier = "samples-sources"
+            }
+        }
+    }
+}
+
 internal const val PROJECT_STRUCTURE_METADATA_FILENAME = "kotlin-project-structure-metadata.json"
 
 private const val PROJECT_STRUCTURE_METADATA_FILEPATH =
     "project_structure_metadata/$PROJECT_STRUCTURE_METADATA_FILENAME"
+
+internal const val sourcesConfigurationName = "sourcesElements"
+private const val androidMultiplatformSourcesConfigurationName = "androidSourcesElements"
+private const val kmpSourcesConfigurationName = "androidxSourcesElements"
+internal fun String.capitalize() = replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+}

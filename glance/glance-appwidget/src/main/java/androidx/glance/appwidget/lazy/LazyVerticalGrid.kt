@@ -135,7 +135,7 @@ internal fun applyVerticalGridScope(
                 "Implicit list item ids exhausted."
             }
             LazyVerticalGridItem(id, alignment) {
-                object : LazyItemScope { }.apply { composable() }
+                object : LazyItemScope { }.composable()
             }
         }
     }

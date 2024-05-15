@@ -18,5 +18,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="tooltip_description" msgid="3765533235322692011">"टुलटिप"</string>
-    <string name="tooltip_label" msgid="3124740595719787496">"टुलटिप देखाइयोस्"</string>
+    <string name="tooltip_label" msgid="3124740595719787496">"टुलटिप देखाउनुहोस्"</string>
 </resources>

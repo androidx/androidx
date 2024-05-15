@@ -56,7 +56,6 @@ import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
-import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -533,20 +532,6 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endTime = endTime,
                     endZoneOffset = endZoneOffset,
                     stages = subTypeDataListsMap["stages"]?.toStageList() ?: emptyList(),
-                    metadata = metadata
-                )
-            "SleepStage" ->
-                SleepStageRecord(
-                    stage =
-                        mapEnum(
-                            "stage",
-                            SleepStageRecord.STAGE_TYPE_STRING_TO_INT_MAP,
-                            SleepStageRecord.STAGE_TYPE_UNKNOWN
-                        ),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
             "IntermenstrualBleeding" ->

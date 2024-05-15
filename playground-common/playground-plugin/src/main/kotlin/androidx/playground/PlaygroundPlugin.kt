@@ -21,31 +21,31 @@ import org.gradle.api.initialization.Settings
 
 class PlaygroundPlugin : Plugin<Settings> {
     override fun apply(settings: Settings) {
-        settings.apply(mapOf("plugin" to "playground-ge-conventions"))
+        settings.apply(mapOf("plugin" to "playground-develocity-conventions"))
         settings.extensions.create("playground", PlaygroundExtension::class.java, settings)
         validateJvm(settings)
     }
 
     private fun validateJvm(settings: Settings) {
         // validate JVM version to print an understandable error if it is not set to the
-        // required value (17)
+        // required value (21)
         val jvmVersion = System.getProperty("java.vm.specification.version")
-        check(jvmVersion == "17") {
+        check(jvmVersion == "21") {
             """
-                AndroidX build must be invoked with JDK 17.
+                AndroidX build must be invoked with JDK 21.
                 ${
                     if (settings.gradle.startParameter.projectProperties.containsKey(
                             "android.injected.invoked.from.ide"
                         )
                     ) {
                         """
-                            Make sure to set the Gradle JDK to JDK 17 in the project settings.
+                            Make sure to set the Gradle JDK to JDK 21 in the project settings.
                             File -> Settings (on Mac Android Studio -> Preferences) ->
                             Build, Execution, Deployment -> Build Tools ->
                             Gradle -> Gradle JDK"
                         """
                         } else {
-                        "Make sure your JAVA_HOME environment variable points to Java 17 JDK."
+                        "Make sure your JAVA_HOME environment variable points to Java 21 JDK."
                     }
                 }
                 Current version: $jvmVersion

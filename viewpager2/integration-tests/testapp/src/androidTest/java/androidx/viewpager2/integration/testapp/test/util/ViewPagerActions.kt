@@ -20,7 +20,6 @@ import android.graphics.Rect
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.View
-import androidx.core.view.ViewCompat
 import androidx.test.espresso.InjectEventSecurityException
 import androidx.test.espresso.PerformException
 import androidx.test.espresso.UiController
@@ -103,7 +102,7 @@ private class SwipeAction(val direction: Direction) : ViewAction {
     }
 
     private fun ViewPager2.isRtl(): Boolean {
-        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+        return getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
     }
 }
 

@@ -29,6 +29,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.wear.compose.material3.tokens.ListHeaderTokens
+import androidx.wear.compose.material3.tokens.ListSubHeaderTokens
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
@@ -96,7 +98,7 @@ class ListHeaderTest {
 
     @Test
     fun listHeader_has_adjustable_height() {
-        val minHeight = ListHeaderDefaults.Height + 1.dp
+        val minHeight = ListHeaderTokens.Height + 1.dp
 
         rule.setContentWithThemeForSizeAssertions {
             ListHeader(
@@ -112,7 +114,7 @@ class ListHeaderTest {
 
     @Test
     fun listsubHeader_has_adjustable_height() {
-        val minHeight = ListHeaderDefaults.Height + 1.dp
+        val minHeight = ListSubHeaderTokens.Height + 1.dp
 
         rule.setContentWithThemeForSizeAssertions {
             ListSubheader(

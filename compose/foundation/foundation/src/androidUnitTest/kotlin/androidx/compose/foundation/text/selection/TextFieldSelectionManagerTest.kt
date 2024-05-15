@@ -17,9 +17,8 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.HandleState
-import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDelegate
-import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
@@ -44,12 +43,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.packInts
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -71,7 +72,7 @@ class TextFieldSelectionManagerTest {
     private var value = TextFieldValue(text)
     private val lambda: (TextFieldValue) -> Unit = { value = it }
     private val spyLambda = spy(lambda)
-    private lateinit var state: TextFieldState
+    private lateinit var state: LegacyTextFieldState
 
     private val dragBeginPosition = Offset.Zero
     private val dragDistance = Offset(300f, 15f)
@@ -88,7 +89,6 @@ class TextFieldSelectionManagerTest {
     private val hapticFeedback = mock<HapticFeedback>()
     private val focusRequester = mock<FocusRequester>()
 
-    @OptIn(InternalFoundationTextApi::class)
     @Before
     fun setup() {
         manager = TextFieldSelectionManager()
@@ -132,8 +132,18 @@ class TextFieldSelectionManagerTest {
             layoutResultProxy.getOffsetForPosition(dragBeginPosition, false)
         ).thenReturn(beginOffset)
         whenever(
+            layoutResultProxy.getOffsetForPosition(dragBeginPosition, true)
+        ).thenReturn(beginOffset)
+        whenever(
             layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, false)
         ).thenReturn(dragOffset)
+        whenever(
+            layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, true)
+        ).thenReturn(dragOffset)
+
+        whenever(
+            layoutResultProxy.translateInnerToDecorationCoordinates(matchesOffset(dragDistance))
+        ).thenAnswer(OffsetAnswer(dragDistance))
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
@@ -141,7 +151,7 @@ class TextFieldSelectionManagerTest {
             on { this.text }.thenReturn(textAnnotatedString)
         }
 
-        state = TextFieldState(
+        state = LegacyTextFieldState(
             textDelegate = textDelegate,
             recomposeScope = mock(),
             keyboardController = null
@@ -165,7 +175,7 @@ class TextFieldSelectionManagerTest {
 
         manager.touchSelectionObserver.onStart(dragBeginPosition)
 
-        assertThat(state.handleState).isEqualTo(HandleState.Selection)
+        assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(fakeTextRange)
         verify(
@@ -190,7 +200,7 @@ class TextFieldSelectionManagerTest {
         manager.touchSelectionObserver.onStart(dragBeginPosition)
 
         // Assert
-        assertThat(state.handleState).isEqualTo(HandleState.Cursor)
+        assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(TextRange(fakeLineEnd))
         verify(
@@ -211,6 +221,7 @@ class TextFieldSelectionManagerTest {
         manager.touchSelectionObserver.onStart(dragBeginPosition)
         manager.touchSelectionObserver.onDrag(dragDistance)
 
+        assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
         assertThat(state.showFloatingToolbar).isFalse()
         verify(
@@ -221,17 +232,25 @@ class TextFieldSelectionManagerTest {
 
     @Test
     fun TextFieldSelectionManager_touchSelectionObserver_onStop() {
+        whenever(layoutResultProxy.isPositionOnText(dragBeginPosition)).thenReturn(true)
+
         manager.touchSelectionObserver.onStart(dragBeginPosition)
         manager.touchSelectionObserver.onDrag(dragDistance)
-
+        manager.value = value
         manager.touchSelectionObserver.onStop()
 
+        assertThat(state.handleState).isEqualTo(HandleState.Selection)
+        assertThat(value.selection).isEqualTo(TextRange(0, text.length))
         assertThat(state.showFloatingToolbar).isTrue()
+        verify(
+            hapticFeedback,
+            times(2)
+        ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     @Test
-    fun TextFieldSelectionManager_handleDragObserver_onStart_startHandle() {
-        manager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
+    fun TextFieldSelectionManager_handleDragObserver_onDown_startHandle() {
+        manager.handleDragObserver(isStartHandle = true).onDown(Offset.Zero)
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
@@ -243,8 +262,8 @@ class TextFieldSelectionManagerTest {
     }
 
     @Test
-    fun TextFieldSelectionManager_handleDragObserver_onStart_endHandle() {
-        manager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
+    fun TextFieldSelectionManager_handleDragObserver_onDown_endHandle() {
+        manager.handleDragObserver(isStartHandle = false).onDown(Offset.Zero)
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
@@ -632,3 +651,19 @@ internal class TextRangeAnswer(private val textRange: TextRange) : Answer<Any> {
     override fun answer(invocation: InvocationOnMock?): Any =
         packInts(textRange.start, textRange.end)
 }
+
+internal class OffsetAnswer(private val offset: Offset) : Answer<Any> {
+    override fun answer(invocation: InvocationOnMock?): Any =
+        packFloats(offset.x, offset.y)
+}
+
+// Another workaround for matching an Offset
+// (https://github.com/nhaarman/mockito-kotlin/issues/309).
+private fun matchesOffset(offset: Offset): Offset =
+    Mockito.argThat { arg: Any ->
+        if (arg is Long) {
+            arg == packFloats(offset.x, offset.y)
+        } else {
+            arg == offset
+        }
+    } as Offset? ?: offset

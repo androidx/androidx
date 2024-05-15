@@ -1,7 +1,75 @@
 // Baseline format: 1.0
-AddedMethod: androidx.wear.watchface.complications.data.ColorRamp#isInterpolated():
-    Added method androidx.wear.watchface.complications.data.ColorRamp.isInterpolated()
+ChangedType: androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.LongTextComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.LongTextComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.LongTextComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.LongTextComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.LongTextComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.LongTextComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.LongTextComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.LongTextComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.LongTextComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder#setDataSource(android.content.ComponentName):
+    Method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder.setDataSource has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder#setDisplayPolicy(int):
+    Method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder.setDisplayPolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder
+ChangedType: androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder#setPersistencePolicy(int):
+    Method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder.setPersistencePolicy has changed return type from java.lang.BuilderT to androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder
 
 
-RemovedMethod: androidx.wear.watchface.complications.data.ColorRamp#getInterpolated():
-    Removed method androidx.wear.watchface.complications.data.ColorRamp.getInterpolated()
+RemovedMethod: androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.GoalProgressComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
+RemovedMethod: androidx.wear.watchface.complications.data.LongTextComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.LongTextComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
+RemovedMethod: androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.MonochromaticImageComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
+RemovedMethod: androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.NoPermissionComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
+RemovedMethod: androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.PhotoImageComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
+RemovedMethod: androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
+RemovedMethod: androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.ShortTextComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
+RemovedMethod: androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.SmallImageComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)
+RemovedMethod: androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder#setDynamicValueInvalidationFallback(BuiltT):
+    Removed method androidx.wear.watchface.complications.data.WeightedElementsComplicationData.Builder.setDynamicValueInvalidationFallback(BuiltT)

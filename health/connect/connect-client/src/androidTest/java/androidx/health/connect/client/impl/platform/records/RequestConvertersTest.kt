@@ -25,6 +25,9 @@ import android.health.connect.datatypes.NutritionRecord as PlatformNutritionReco
 import android.health.connect.datatypes.StepsRecord as PlatformStepsRecord
 import android.health.connect.datatypes.WheelchairPushesRecord as PlatformWheelchairPushesRecord
 import android.os.Build
+import androidx.health.connect.client.impl.platform.request.toAggregationType
+import androidx.health.connect.client.impl.platform.request.toPlatformRequest
+import androidx.health.connect.client.impl.platform.request.toPlatformTimeRangeFilter
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord

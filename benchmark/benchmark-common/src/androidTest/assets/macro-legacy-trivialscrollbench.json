@@ -1,0 +1,92 @@
+{
+    "context": {
+        "build": {
+            "brand": "google",
+            "device": "mokey_go32",
+            "fingerprint": "google/mokey_go32/mokey_go32:VanillaIceCream/MAIN/11551339:userdebug/dev-keys",
+            "id": "MAIN",
+            "model": "32-bit Go Reference Device",
+            "type": "userdebug",
+            "version": {
+                "codename": "VanillaIceCream",
+                "sdk": 34
+            }
+        },
+        "cpuCoreCount": 8,
+        "cpuLocked": true,
+        "cpuMaxFreqHz": 2000000000,
+        "memTotalBytes": 1903734784,
+        "sustainedPerformanceModeEnabled": false,
+        "osCodenameAbbreviated": "V",
+        "artMainlineVersion": 350090000
+    },
+    "benchmarks": [
+        {
+            "name": "startup[startup=COLD,compilation=Partial(baselineProfile=UseIfAvailable,iterations=0)]",
+            "params": {
+                "compilation": "Partial(baselineProfile=UseIfAvailable",
+                "startup": "COLD",
+                "iterations": "0)"
+            },
+            "className": "androidx.benchmark.integration.macrobenchmark.TrivialStartupBenchmark",
+            "totalRunTimeNs": 11127682959,
+            "metrics": {
+                "methodsJitCompiled": {
+                    "minimum": 65.0,
+                    "maximum": 65.0,
+                    "median": 65.0,
+                    "runs": [
+                        65.0,
+                        65.0
+                    ]
+                },
+                "timeToInitialDisplayMs": {
+                    "minimum": 474.123432,
+                    "maximum": 481.377279,
+                    "median": 477.75035549999996,
+                    "runs": [
+                        474.123432,
+                        481.377279
+                    ]
+                }
+            },
+            "sampledMetrics": {},
+            "warmupIterations": 0,
+            "repeatIterations": 2,
+            "thermalThrottleSleepSeconds": 0
+        },
+        {
+            "name": "startup[startup=COLD,compilation=None]",
+            "params": {
+                "compilation": "None",
+                "startup": "COLD"
+            },
+            "className": "androidx.benchmark.integration.macrobenchmark.TrivialStartupBenchmark",
+            "totalRunTimeNs": 9365189861,
+            "metrics": {
+                "methodsJitCompiled": {
+                    "minimum": 78.0,
+                    "maximum": 79.0,
+                    "median": 78.5,
+                    "runs": [
+                        78.0,
+                        79.0
+                    ]
+                },
+                "timeToInitialDisplayMs": {
+                    "minimum": 490.891433,
+                    "maximum": 497.585203,
+                    "median": 494.238318,
+                    "runs": [
+                        490.891433,
+                        497.585203
+                    ]
+                }
+            },
+            "sampledMetrics": {},
+            "warmupIterations": 0,
+            "repeatIterations": 2,
+            "thermalThrottleSleepSeconds": 0
+        }
+    ]
+}

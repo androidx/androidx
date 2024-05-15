@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun SimpleHorizontalPagerSample() {
@@ -83,7 +82,6 @@ fun SimpleHorizontalPagerSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun SimpleVerticalPagerSample() {
@@ -106,7 +104,6 @@ fun SimpleVerticalPagerSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun PagerWithStateSample() {
@@ -189,7 +186,6 @@ fun PagerCustomAnimateScrollToPage() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun CustomPageSizeSample() {
@@ -227,7 +223,6 @@ fun CustomPageSizeSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun ObservingStateChangesInPagerStateSample() {
@@ -260,7 +255,6 @@ fun ObservingStateChangesInPagerStateSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun AnimateScrollPageSample() {
@@ -299,7 +293,6 @@ fun AnimateScrollPageSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun ScrollToPageSample() {
@@ -334,7 +327,6 @@ fun ScrollToPageSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun HorizontalPagerWithScrollableContent() {
@@ -403,7 +395,6 @@ fun HorizontalPagerWithScrollableContent() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun UsingPagerLayoutInfoForSideEffectSample() {

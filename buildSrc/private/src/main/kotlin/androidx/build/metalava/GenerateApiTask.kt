@@ -67,7 +67,6 @@ abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecuto
         val prop = apiLocation.get()
         return listOf(
             prop.publicApiFile,
-            prop.removedApiFile,
             prop.restrictedApiFile,
             prop.apiLevelsFile
         )
@@ -92,8 +91,19 @@ abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecuto
     fun exec() {
         check(bootClasspath.files.isNotEmpty()) { "Android boot classpath not set." }
         check(sourcePaths.files.isNotEmpty()) { "Source paths not set." }
+        check(compiledSources.files.isNotEmpty()) {
+            "Compiled sources " + compiledSources + " is empty!"
+        }
+        compiledSources.files.forEach { compiled ->
+            check(compiled.exists()) { "File " + compiled + " does not exist" }
+        }
 
-        val inputs = JavaCompileInputs(sourcePaths, dependencyClasspath, bootClasspath)
+        val inputs = JavaCompileInputs(
+            sourcePaths = sourcePaths,
+            commonModuleSourcePaths = commonModuleSourcePaths,
+            dependencyClasspath = dependencyClasspath,
+            bootClasspath = bootClasspath
+        )
 
         val levelsArgs =
             getGenerateApiLevelsArgs(

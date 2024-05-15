@@ -659,7 +659,7 @@ public class GridLayout extends ViewGroup {
     }
 
     private boolean isLayoutRtlCompat() {
-        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
+        return getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
     }
 
     private int getMargin(View view, boolean horizontal, boolean leading) {
@@ -919,8 +919,8 @@ public class GridLayout extends ViewGroup {
     protected void onMeasure(int widthSpec, int heightSpec) {
         consistencyCheck();
 
-        /** If we have been called by {@link View#measure(int, int)}, one of width or height
-         *  is  likely to have changed. We must invalidate if so. */
+        /* If we have been called by {@link View#measure(int, int)}, one of width or height
+           is  likely to have changed. We must invalidate if so. */
         invalidateValues();
 
         int hPadding = getPaddingLeft() + getPaddingRight();
@@ -2746,15 +2746,13 @@ public class GridLayout extends ViewGroup {
         return new Alignment() {
             @Override
             int getGravityOffset(View view, int cellDelta) {
-                boolean isLayoutRtl = ViewCompat.getLayoutDirection(view) ==
-                        ViewCompat.LAYOUT_DIRECTION_RTL;
+                boolean isLayoutRtl = view.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
                 return (!isLayoutRtl ? ltr : rtl).getGravityOffset(view, cellDelta);
             }
 
             @Override
             public int getAlignmentValue(View view, int viewSize, int mode) {
-                boolean isLayoutRtl = ViewCompat.getLayoutDirection(view) ==
-                        ViewCompat.LAYOUT_DIRECTION_RTL;
+                boolean isLayoutRtl = view.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
                 return (!isLayoutRtl ? ltr : rtl).getAlignmentValue(view, viewSize, mode);
             }
 

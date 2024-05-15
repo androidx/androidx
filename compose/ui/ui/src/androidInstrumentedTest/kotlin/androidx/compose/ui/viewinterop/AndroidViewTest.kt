@@ -54,16 +54,19 @@ import androidx.compose.runtime.ReusableContentHost
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.SubcompositionReusableContentHost
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
@@ -71,7 +74,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.findViewTreeCompositionContext
@@ -105,6 +107,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.savedstate.SavedStateRegistry
@@ -132,7 +135,6 @@ import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -177,9 +179,8 @@ class AndroidViewTest {
                         .inflate(R.layout.test_multiple_invalidation_layout, null)
                     customView = view.findViewById<InvalidatedTextView>(R.id.custom_draw_view)
                     customView!!.timesToInvalidate = timesToInvalidate
-                    view.viewTreeObserver?.addOnPreDrawListener {
+                    customView!!.onDraw = {
                         ++drawCount
-                        true
                     }
                     view
                 })
@@ -1496,12 +1497,14 @@ class AndroidViewTest {
 
             Column {
                 repeat(10) { slot ->
-                    if (slot == slotWithContent) {
-                        ReusableContent(Unit) {
-                            movableContext()
+                    key(slot) {
+                        if (slot == slotWithContent) {
+                            ReusableContent(Unit) {
+                                movableContext()
+                            }
+                        } else {
+                            Text("Slot $slot")
                         }
-                    } else {
-                        Text("Slot $slot")
                     }
                 }
             }
@@ -1538,7 +1541,10 @@ class AndroidViewTest {
         assertEquals(
             "AndroidView experienced unexpected lifecycle events when " +
                 "moved in the composition",
-            emptyList<AndroidViewLifecycleEvent>(),
+            listOf(
+                OnViewDetach,
+                OnViewAttach
+            ),
             lifecycleEvents
         )
 
@@ -1712,6 +1718,92 @@ class AndroidViewTest {
             .assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
+    @Test
+    fun updateIsNotCalledOnDeactivatedNode() {
+        var active by mutableStateOf(true)
+        var counter by mutableStateOf(0)
+        val updateCalls = mutableListOf<Int>()
+        rule.setContent {
+            SubcompositionReusableContentHost(active = active) {
+                AndroidView(
+                    modifier = Modifier.size(10.dp),
+                    factory = { View(it) },
+                    update = { updateCalls.add(counter) },
+                    onReset = {
+                        counter++
+                        Snapshot.sendApplyNotifications()
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(updateCalls).isEqualTo(listOf(0))
+            updateCalls.clear()
+
+            active = false
+        }
+
+        rule.runOnIdle {
+            assertThat(updateCalls).isEmpty()
+
+            active = true
+        }
+
+        rule.runOnIdle {
+            // make sure the update is called after reactivation.
+            assertThat(updateCalls).isEqualTo(listOf(1))
+            updateCalls.clear()
+
+            counter++
+        }
+
+        rule.runOnIdle {
+            // make sure the state observation is active after reactivation.
+            assertThat(updateCalls).isEqualTo(listOf(2))
+        }
+    }
+
+    @Test
+    @LargeTest
+    fun androidView_attachingDoesNotCauseRelayout() {
+        lateinit var root: RequestLayoutTrackingFrameLayout
+        lateinit var composeView: ComposeView
+        lateinit var viewInsideCompose: View
+        var showAndroidView by mutableStateOf(false)
+
+        rule.activityRule.scenario.onActivity { activity ->
+            root = RequestLayoutTrackingFrameLayout(activity)
+            composeView = ComposeView(activity)
+            viewInsideCompose = View(activity)
+
+            activity.setContentView(root)
+            root.addView(composeView)
+            composeView.setContent {
+                Box(Modifier.fillMaxSize()) {
+                    // this view will create AndroidViewsHandler (causes relayout)
+                    AndroidView({ View(it) })
+                    if (showAndroidView) {
+                        // attaching this view should not cause relayout
+                        AndroidView({ viewInsideCompose })
+                    }
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            assertThat(viewInsideCompose.parent).isNull()
+            assertThat(root.requestLayoutCalled).isTrue()
+            root.requestLayoutCalled = false
+            showAndroidView = true
+        }
+
+        rule.runOnIdle {
+            assertThat(viewInsideCompose.parent).isNotNull()
+            assertThat(root.requestLayoutCalled).isFalse()
+        }
+    }
+
     @ExperimentalComposeUiApi
     @Composable
     private inline fun <T : View> ReusableAndroidViewWithLifecycleTracking(
@@ -1826,4 +1918,13 @@ class AndroidViewTest {
             value,
             displayMetrics
         ).roundToInt()
+
+    private class RequestLayoutTrackingFrameLayout(context: Context) : FrameLayout(context) {
+        var requestLayoutCalled = false
+
+        override fun requestLayout() {
+            super.requestLayout()
+            requestLayoutCalled = true
+        }
+    }
 }

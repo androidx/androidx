@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 /**
  * An object that paints text onto a [Canvas].
@@ -80,12 +80,9 @@ import kotlin.math.roundToInt
  *
  * @param placeholders a list of [Placeholder]s that specify ranges of text where the original
  * text is replaced empty spaces. It's typically used to embed images into text.
- *
- * @suppress
  */
-@InternalFoundationTextApi // Used by benchmarks
 @Stable
-class TextDelegate(
+internal class TextDelegate(
     val text: AnnotatedString,
     val style: TextStyle,
     val maxLines: Int = Int.MAX_VALUE,
@@ -202,7 +199,12 @@ class TextDelegate(
 
         return MultiParagraph(
             intrinsics = nonNullIntrinsics,
-            constraints = Constraints(maxWidth = width, maxHeight = constraints.maxHeight),
+            constraints = Constraints.fitPrioritizingWidth(
+                minWidth = 0,
+                maxWidth = width,
+                minHeight = 0,
+                maxHeight = constraints.maxHeight
+            ),
             // This is a fallback behavior for ellipsis. Native
             maxLines = finalMaxLines,
             ellipsis = overflow == TextOverflow.Ellipsis
@@ -299,13 +301,12 @@ class TextDelegate(
     }
 }
 
-internal fun Float.ceilToIntPx(): Int = ceil(this).roundToInt()
+internal fun Float.ceilToIntPx(): Int = ceil(this).fastRoundToInt()
 
 /**
  * Returns the [TextDelegate] passed as a [current] param if the input didn't change
  * otherwise creates a new [TextDelegate].
  */
-@OptIn(InternalFoundationTextApi::class)
 internal fun updateTextDelegate(
     current: TextDelegate,
     text: AnnotatedString,

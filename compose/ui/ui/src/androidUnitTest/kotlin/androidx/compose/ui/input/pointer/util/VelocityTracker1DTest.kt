@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer.util
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.util.VelocityTracker1D.Strategy
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -391,7 +392,7 @@ class VelocityTracker1DTest {
                     DataPointAtTime(90, 50f),
                     DataPointAtTime(100, 50f),
                 ),
-                expectedVelocities = listOf(ExpectedVelocity(Strategy.Impulse, 1000f))
+                expectedVelocities = listOf(ExpectedVelocity(Strategy.Impulse, 0f))
             )
         )
     }
@@ -652,11 +653,13 @@ class VelocityTracker1DTest {
 
     /** Test cases derived from [VelocityTrackerTest]. */
     @Test
-    fun testsFromThe2DVelocityTrackerTest_noClamping() {
+    fun testsFromThe2DVelocityTrackerTest_noClamping_lsq() {
         var xDataPoints: MutableList<DataPointAtTime> = mutableListOf()
         var yDataPoints: MutableList<DataPointAtTime> = mutableListOf()
 
         var i = 0
+        val strategy = Strategy.Lsq2
+
         velocityEventData.forEach {
             if (it.down) {
                 xDataPoints.add(DataPointAtTime(it.uptime, it.position.x))
@@ -669,7 +672,7 @@ class VelocityTracker1DTest {
                         dataPoints = xDataPoints,
                         expectedVelocities = listOf(
                             ExpectedVelocity(
-                                Strategy.Lsq2, expected2DVelocities[i].first
+                                strategy, expected2DVelocities[i].first
                             )
                         )
                     ),
@@ -681,7 +684,68 @@ class VelocityTracker1DTest {
                         dataPoints = yDataPoints,
                         expectedVelocities = listOf(
                             ExpectedVelocity(
-                                Strategy.Lsq2, expected2DVelocities[i].second
+                                strategy, expected2DVelocities[i].second
+                            )
+                        )
+                    ),
+                )
+                xDataPoints = mutableListOf()
+                yDataPoints = mutableListOf()
+                i += 1
+            }
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testsFromThe2DVelocityTrackerTest_noClamping_impulse() {
+        val expected2DVelocities = listOf(
+            Pair(118.8f, 799f),
+            Pair(214.5f, 855.8f),
+            Pair(-50.5f, 182.2f),
+            Pair(628.5f, -2127.9f),
+            Pair(120.72147f, -2970.8f),
+            Pair(537.3f, 2236.1f),
+            Pair(450.44498f, 1786.9f),
+            Pair(430.9f, -2648.1f),
+            Pair(248.4f, -2723.7f),
+            Pair(285.7f, -2929.3f),
+            Pair(322.6f, 2369.8f),
+            Pair(1024.00f, 4477.2f),
+            Pair(629.8f, 3802.5f)
+        )
+
+        var xDataPoints: MutableList<DataPointAtTime> = mutableListOf()
+        var yDataPoints: MutableList<DataPointAtTime> = mutableListOf()
+
+        var i = 0
+        val strategy = Strategy.Impulse
+
+        velocityEventData.forEach {
+            if (it.down) {
+                xDataPoints.add(DataPointAtTime(it.uptime, it.position.x))
+                yDataPoints.add(DataPointAtTime(it.uptime, it.position.y))
+            } else {
+                // Check velocity along the X axis
+                checkTestCase(
+                    VelocityTrackingTestCase(
+                        differentialDataPoints = false,
+                        dataPoints = xDataPoints,
+                        expectedVelocities = listOf(
+                            ExpectedVelocity(
+                                strategy, expected2DVelocities[i].first
+                            )
+                        )
+                    ),
+                )
+                // Check velocity along the Y axis
+                checkTestCase(
+                    VelocityTrackingTestCase(
+                        differentialDataPoints = false,
+                        dataPoints = yDataPoints,
+                        expectedVelocities = listOf(
+                            ExpectedVelocity(
+                                strategy, expected2DVelocities[i].second
                             )
                         )
                     ),

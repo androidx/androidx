@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
@@ -43,16 +44,18 @@ public class ResultDemoScreen extends Screen {
         if (callingComponent == null) {
             return new MessageTemplate.Builder(
                     getCarContext().getString(R.string.not_started_for_result_msg))
-                    .setTitle(getCarContext().getString(R.string.result_demo_title))
-                    .setHeaderAction(Action.BACK)
+                    .setHeader(new Header.Builder().setStartHeaderAction(Action.BACK)
+                            .setTitle(getCarContext().getString(R.string.result_demo_title))
+                            .build())
                     .build();
         }
 
         return new MessageTemplate.Builder(
                 getCarContext().getString(R.string.started_for_result_msg,
                         callingComponent.getPackageName()))
-                .setTitle(getCarContext().getString(R.string.result_demo_title))
-                .setHeaderAction(Action.BACK)
+                .setHeader(new Header.Builder().setStartHeaderAction(Action.BACK)
+                        .setTitle(getCarContext().getString(R.string.result_demo_title))
+                        .build())
                 .addAction(new Action.Builder()
                         .setTitle("Okay (action = 'foo')")
                         .setOnClickListener(() -> {

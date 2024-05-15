@@ -58,8 +58,14 @@ public class CameraQuirks {
         if (JpegHalCorruptImageQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new JpegHalCorruptImageQuirk());
         }
+        if (JpegCaptureDownsizingQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new JpegCaptureDownsizingQuirk());
+        }
         if (CamcorderProfileResolutionQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new CamcorderProfileResolutionQuirk(cameraCharacteristicsCompat));
+        }
+        if (CaptureNoResponseQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new CaptureNoResponseQuirk());
         }
         if (ImageCaptureWashedOutImageQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new ImageCaptureWashedOutImageQuirk());
@@ -96,6 +102,9 @@ public class CameraQuirks {
         }
         if (IncorrectCaptureStateQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new IncorrectCaptureStateQuirk());
+        }
+        if (TorchFlashRequiredFor3aUpdateQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new TorchFlashRequiredFor3aUpdateQuirk(cameraCharacteristicsCompat));
         }
 
         return new Quirks(quirks);

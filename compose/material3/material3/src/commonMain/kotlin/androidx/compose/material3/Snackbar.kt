@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.SnackbarTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -113,33 +115,25 @@ fun Snackbar(
         contentColor = contentColor,
         shadowElevation = SnackbarTokens.ContainerElevation
     ) {
-        val textStyle = MaterialTheme.typography.fromToken(SnackbarTokens.SupportingTextFont)
-        val actionTextStyle = MaterialTheme.typography.fromToken(SnackbarTokens.ActionLabelTextFont)
+        val textStyle = SnackbarTokens.SupportingTextFont.value
+        val actionTextStyle = SnackbarTokens.ActionLabelTextFont.value
         CompositionLocalProvider(LocalTextStyle provides textStyle) {
             when {
-                action == null -> OneRowSnackbar(
+                actionOnNewLine && action != null -> NewLineButtonSnackbar(
                     text = content,
-                    action = null,
+                    action = action,
                     dismissAction = dismissAction,
-                    actionTextStyle,
-                    actionContentColor,
-                    dismissActionContentColor
-                )
-                actionOnNewLine -> NewLineButtonSnackbar(
-                    content,
-                    action,
-                    dismissAction,
-                    actionTextStyle,
-                    actionContentColor,
-                    dismissActionContentColor
+                    actionTextStyle = actionTextStyle,
+                    actionContentColor = actionContentColor,
+                    dismissActionContentColor = dismissActionContentColor,
                 )
                 else -> OneRowSnackbar(
                     text = content,
                     action = action,
                     dismissAction = dismissAction,
-                    actionTextStyle,
-                    actionContentColor,
-                    dismissActionContentColor
+                    actionTextStyle = actionTextStyle,
+                    actionTextColor = actionContentColor,
+                    dismissActionColor = dismissActionContentColor,
                 )
             }
         }
@@ -351,10 +345,10 @@ private fun OneRowSnackbar(
         )
 
         val firstTextBaseline = textPlaceable[FirstBaseline]
-        require(firstTextBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
         val lastTextBaseline = textPlaceable[LastBaseline]
-        require(lastTextBaseline != AlignmentLine.Unspecified) { "No baselines for text" }
-        val isOneLine = firstTextBaseline == lastTextBaseline
+        val hasText = firstTextBaseline != AlignmentLine.Unspecified &&
+            lastTextBaseline != AlignmentLine.Unspecified
+        val isOneLine = firstTextBaseline == lastTextBaseline || !hasText
         val dismissButtonPlaceX = containerWidth - dismissButtonWidth
         val actionButtonPlaceX = dismissButtonPlaceX - actionButtonWidth
 

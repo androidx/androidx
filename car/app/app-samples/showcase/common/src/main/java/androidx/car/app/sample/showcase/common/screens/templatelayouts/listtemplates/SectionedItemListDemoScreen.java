@@ -16,13 +16,11 @@
 
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates;
 
-import static androidx.car.app.model.Action.BACK;
-
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.ActionStrip;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -57,19 +55,17 @@ public class SectionedItemListDemoScreen extends Screen {
                 .addSectionedList(SectionedItemList.create(listBuilderTwo.build(),
                         getCarContext()
                                 .getString(R.string.sectioned_item_list_two_title)))
-                .setTitle(getCarContext()
-                        .getString(R.string.sectioned_item_list_demo_title))
-                .setHeaderAction(BACK)
-                .setActionStrip(
-                        new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle(getCarContext().getString(
-                                                        R.string.home_caps_action_title))
-                                                .setOnClickListener(
-                                                        () -> getScreenManager().popToRoot())
-                                                .build())
+                .setHeader(new Header.Builder()
+                        .setTitle(getCarContext()
+                                .getString(R.string.sectioned_item_list_demo_title))
+                        .setStartHeaderAction(Action.BACK)
+                        .addEndHeaderAction(new Action.Builder()
+                                .setTitle(getCarContext().getString(
+                                        R.string.home_caps_action_title))
+                                .setOnClickListener(
+                                        () -> getScreenManager().popToRoot())
                                 .build())
+                        .build())
                 .build();
     }
 

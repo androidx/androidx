@@ -22,10 +22,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
-import androidx.compose.ui.focus.FocusStateImpl.Active
+import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
+import androidx.compose.ui.input.InputMode.Companion.Keyboard
+import androidx.compose.ui.input.InputMode.Companion.Touch
+import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
@@ -87,41 +91,96 @@ class FocusTransactionsTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun cancelTakeFocus_fromOnFocusChanged() {
+    fun reentrantRequestFocus_byCallingRequestFocusWithinOnFocusChanged2() {
         // Arrange.
-        lateinit var focusManager: FocusManager
-        lateinit var view: View
-        val box = FocusRequester()
-
+        val (item1, item2) = FocusRequester.createRefs()
+        var (item1Focused, item2Focused) = List(2) { false }
         rule.setFocusableContent {
-            focusManager = LocalFocusManager.current
-            view = LocalView.current
             Box(
                 Modifier
-                    .size(10.dp)
-                    .focusRequester(box)
-                    .onFocusChanged { if (it.isFocused) focusManager.clearFocus() }
+                    .focusRequester(item1)
+                    .onFocusChanged {
+                        item1Focused = it.isFocused
+                        if (item1Focused) item2.requestFocus()
+                    }
+                    .focusTarget()
+            )
+            Box(
+                Modifier
+                    .focusRequester(item2)
+                    .onFocusChanged { item2Focused = it.isFocused }
                     .focusTarget()
             )
         }
 
         // Act.
+        rule.runOnIdle { item1.requestFocus() }
+
+        // Assert.
         rule.runOnIdle {
+            assertThat(item1Focused).isFalse()
+            assertThat(item2Focused).isTrue()
+        }
+    }
+
+    @Test
+    fun cancelTakeFocus_fromOnFocusChanged() {
+        // Arrange.
+        lateinit var focusManager: FocusManager
+        lateinit var inputModeManager: InputModeManager
+        lateinit var view: View
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
+        lateinit var focusState3: FocusState
+        val box = FocusRequester()
+
+        rule.setFocusableContent {
+            focusManager = LocalFocusManager.current
+            inputModeManager = LocalInputModeManager.current
+            view = LocalView.current
+            Box(
+                Modifier
+                    .size(10.dp)
+                    .focusRequester(box)
+                    .onFocusChanged { focusState1 = it }
+                    .onFocusChanged {
+                        focusState2 = it
+                        if (it.isFocused) focusManager.clearFocus()
+                    }
+                    .onFocusChanged { focusState3 = it }
+                    .focusTarget()
+            )
+        }
+
+        // Act.
+        rule.runOnUiThread {
             box.requestFocus()
         }
 
         // Assert.
         rule.runOnIdle {
+            assertThat(focusState1).isEqualTo(Inactive)
+            assertThat(focusState2).isEqualTo(Inactive)
+            assertThat(focusState3).isEqualTo(Inactive)
+
             val root = view as AndroidComposeView
-            val focusOwner = root.focusOwner as FocusOwnerImpl
-            assertThat(focusOwner.rootFocusNode.focusState).isEqualTo(Inactive)
-            // TODO(b/288096244): Find out why this is flaky.
-            //  assertThat(view.isFocused()).isFalse()
+
+            when (inputModeManager.inputMode) {
+                Keyboard -> {
+                    assertThat(root.focusOwner.rootState).isEqualTo(ActiveParent)
+                    assertThat(view.isFocused).isTrue()
+                }
+                Touch -> {
+                    assertThat(root.focusOwner.rootState).isEqualTo(Inactive)
+                    assertThat(view.isFocused).isFalse()
+                }
+                else -> error("invalid input mode")
+            }
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun cancelTakeFocus_fromCustomEnter() {
         // Arrange.
@@ -152,14 +211,13 @@ class FocusTransactionsTest {
         // Assert.
         rule.runOnIdle {
             val root = view as AndroidComposeView
-            val focusOwner = root.focusOwner as FocusOwnerImpl
-            assertThat(focusOwner.rootFocusNode.focusState).isEqualTo(Inactive)
+            assertThat(root.focusOwner.rootState).isEqualTo(Inactive)
             assertThat(view.isFocused).isFalse()
         }
     }
 
     @Test
-    fun rootFocusNodeIsActiveWhenViewIsFocused() {
+    fun rootFocusNodeHasFocusWhenViewIsFocused() {
         lateinit var view: View
         val focusRequester = FocusRequester()
         rule.setFocusableContent {
@@ -174,9 +232,8 @@ class FocusTransactionsTest {
 
         // Assert.
         val root = view as AndroidComposeView
-        val focusOwner = root.focusOwner as FocusOwnerImpl
         rule.runOnIdle {
-            assertThat(focusOwner.rootFocusNode.focusState).isEqualTo(Active)
+            assertThat(root.focusOwner.rootState).isEqualTo(ActiveParent)
             assertThat(view.isFocused).isTrue()
         }
 
@@ -190,7 +247,7 @@ class FocusTransactionsTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(focusOwner.rootFocusNode.focusState).isEqualTo(Active)
+            assertThat(root.focusOwner.rootState.hasFocus).isEqualTo(true)
             assertThat(view.isFocused).isTrue()
         }
     }

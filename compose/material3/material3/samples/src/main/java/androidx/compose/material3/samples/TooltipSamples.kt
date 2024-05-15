@@ -40,6 +40,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -97,6 +98,58 @@ fun PlainTooltipWithManualInvocationSample() {
             onClick = { scope.launch { tooltipState.show() } }
         ) {
             Text("Display tooltip")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
+fun PlainTooltipWithCaret() {
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip(
+                caretSize = TooltipDefaults.caretSize
+            ) {
+                Text("Add to favorites")
+            }
+        },
+        state = rememberTooltipState()
+    ) {
+        IconButton(
+            onClick = { /* Icon button's click event */ }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Favorite,
+                contentDescription = "Localized Description"
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
+fun PlainTooltipWithCustomCaret() {
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip(
+                caretSize = DpSize(24.dp, 12.dp)
+            ) {
+                Text("Add to favorites")
+            }
+        },
+        state = rememberTooltipState()
+    ) {
+        IconButton(
+            onClick = { /* Icon button's click event */ }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Favorite,
+                contentDescription = "Localized Description"
+            )
         }
     }
 }
@@ -171,6 +224,74 @@ fun RichTooltipWithManualInvocationSample() {
             onClick = { scope.launch { tooltipState.show() } }
         ) {
             Text("Display tooltip")
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
+fun RichTooltipWithCaretSample() {
+    val tooltipState = rememberTooltipState(isPersistent = true)
+    val scope = rememberCoroutineScope()
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+        tooltip = {
+            RichTooltip(
+                title = { Text(richTooltipSubheadText) },
+                action = {
+                    TextButton(
+                        onClick = { scope.launch { tooltipState.dismiss() } }
+                    ) { Text(richTooltipActionText) }
+                },
+                caretSize = TooltipDefaults.caretSize
+            ) {
+                Text(richTooltipText)
+            }
+        },
+        state = tooltipState
+    ) {
+        IconButton(
+            onClick = { /* Icon button's click event */ }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Info,
+                contentDescription = "Localized Description"
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
+fun RichTooltipWithCustomCaretSample() {
+    val tooltipState = rememberTooltipState(isPersistent = true)
+    val scope = rememberCoroutineScope()
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+        tooltip = {
+            RichTooltip(
+                title = { Text(richTooltipSubheadText) },
+                action = {
+                    TextButton(
+                        onClick = { scope.launch { tooltipState.dismiss() } }
+                    ) { Text(richTooltipActionText) }
+                },
+                caretSize = DpSize(32.dp, 16.dp)
+            ) {
+                Text(richTooltipText)
+            }
+        },
+        state = tooltipState
+    ) {
+        IconButton(
+            onClick = { /* Icon button's click event */ }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Info,
+                contentDescription = "Localized Description"
+            )
         }
     }
 }

@@ -115,7 +115,7 @@ abstract class BasePluginTest {
         projectSetup.buildFile.writeText(
             """
             buildscript {
-                ext.compileSdk = ${props.compileSdkVersion}
+                ext.compileSdk = ${props.compileSdk}
                 ext.buildTools = "${props.buildToolsVersion}"
                 ext.minSdk = ${props.minSdkVersion}
                 ext.debugKeystoreFile = "${props.debugKeystore}"

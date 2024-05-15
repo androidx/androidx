@@ -60,8 +60,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
  * ProtoLayout component {@link CircularProgressIndicator} that represents circular progress
- * indicator which supports a gap in the circular track between startAngle and endAngle. [Progress
- * Indicator doc] (https://developer.android.com/training/wearables/components/progress-indicator)
+ * indicator which supports a gap in the circular track between startAngle and endAngle.
  *
  * <p>The CircularProgressIndicator is a colored arc around the edge of the screen with the given
  * start and end angles, which can describe a full or partial circle. Behind it is an arc with
@@ -118,6 +117,7 @@ public class CircularProgressIndicator implements LayoutElement {
         @NonNull private DegreesProp mStartAngle = degrees(DEFAULT_START_ANGLE);
         @NonNull private DegreesProp mEndAngle = degrees(DEFAULT_END_ANGLE);
         @NonNull private FloatProp mProgress = staticFloat(0f);
+        private boolean mIsMarginApplied = true;
 
         /** Creates a builder for the {@link CircularProgressIndicator}. */
         public Builder() {}
@@ -232,6 +232,24 @@ public class CircularProgressIndicator implements LayoutElement {
         }
 
         /**
+         * Sets whether this {@link CircularProgressIndicator} should have outer margin or not.
+         *
+         * <p>If this indicator is used as a smaller element, use this method to remove an
+         * additional margin around it by setting it to {@code false}.
+         *
+         * <p>Otherwise, if this indicator is used as a full screen one or in {@link
+         * androidx.wear.protolayout.material.layouts.EdgeContentLayout}, it's strongly recommended
+         * to set this to {@code true}.
+         *
+         * <p>If not set, defaults to true.
+         */
+        @NonNull
+        public Builder setOuterMarginApplied(boolean isApplied) {
+            this.mIsMarginApplied = isApplied;
+            return this;
+        }
+
+        /**
          * Constructs and returns {@link CircularProgressIndicator} with the provided field and
          * look.
          */
@@ -243,11 +261,15 @@ public class CircularProgressIndicator implements LayoutElement {
             DegreesProp length = getLength();
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
-                            .setPadding(new Padding.Builder().setAll(DEFAULT_PADDING).build())
                             .setMetadata(
                                     new ElementMetadata.Builder()
                                             .setTagData(getTagBytes(METADATA_TAG))
                                             .build());
+
+            if (mIsMarginApplied) {
+                modifiers.setPadding(
+                        new Padding.Builder().setRtlAware(true).setAll(DEFAULT_PADDING).build());
+            }
 
             if (mContentDescription != null) {
                 modifiers.setSemantics(
@@ -256,17 +278,21 @@ public class CircularProgressIndicator implements LayoutElement {
 
             ArcLine.Builder progressArcLineBuilder =
                     new ArcLine.Builder()
+                            .setArcDirection(LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
                             .setColor(mCircularProgressIndicatorColors.getIndicatorColor())
                             .setThickness(mStrokeWidth);
             applyCorrectValue(progressArcLineBuilder);
 
             Arc.Builder element =
                     new Arc.Builder()
+                            .setArcDirection(LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
                             .setAnchorType(LayoutElementBuilders.ARC_ANCHOR_START)
                             .setAnchorAngle(mStartAngle)
                             .setModifiers(modifiers.build())
                             .addContent(
                                     new ArcLine.Builder()
+                                            .setArcDirection(
+                                                    LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE)
                                             .setColor(
                                                     mCircularProgressIndicatorColors
                                                             .getTrackColor())
@@ -376,6 +402,12 @@ public class CircularProgressIndicator implements LayoutElement {
     String getMetadataTag() {
         return getMetadataTagName(
                 checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
+    }
+
+    /** Returns whether there is a margin around this indicator or not. */
+    public boolean isOuterMarginApplied() {
+        return this.mElement.getModifiers() != null
+                && this.mElement.getModifiers().getPadding() != null;
     }
 
     /**

@@ -38,6 +38,12 @@ message Clickable {
   // clickable height is not guaranteed unless there is enough space around the
   // element within its parent bounds.
   DpProp minimum_clickable_height = 4;
+
+  oneof optional_visual_feedback_enabled {
+    // Whether the click visual feedback (such as a ripple) should be enabled.
+    // Defaults to true.
+    bool visual_feedback_enabled = 5;
+  }
 }
 
 // The type of user interface element. Accessibility services might use this to
@@ -46,7 +52,7 @@ enum SemanticsRole {
   // Role is undefined. It may be automatically populated.
   SEMANTICS_ROLE_NONE = 0;
 
-  // The element is an Image.
+  // The element is an image.
   SEMANTICS_ROLE_IMAGE = 1;
 
   // The element is a Button control.
@@ -89,6 +95,8 @@ message Semantics {
   // The localized state description of the semantics node.
   // For example: "on" or "off". This will be dictated when the element is
   // focused by the screen reader.
+  //
+  // This field is bindable and will use the dynamic value (if set).
   StringProp state_description = 3;
 }
 
@@ -128,10 +136,39 @@ message Border {
   ColorProp color = 2;
 }
 
+// A radius for either circular or elliptical shapes.
+message CornerRadius {
+  // The radius value in dp on the horizontal axis.
+  DpProp x = 1;
+  // The radius value in dp on the vertical axis.
+  DpProp y = 2;
+}
+
 // The corner of a Box element.
 message Corner {
   // The radius of the corner in DP.
+  // <p>The shape for a specific corner can be overridden by setting that corner separately.
   DpProp radius = 1;
+
+  // The radius for the top-left corner of either circular or elliptical shapes.
+  // If not set, defaults to radius for both horizontal and vertical
+  // axes when radius is set; or defaults to zeros when radius is also not set.
+  CornerRadius top_left_radius = 2;
+
+  // The radius for the top-right corner of either circular or elliptical shapes.
+  // If not set, defaults to radius for both horizontal and vertical
+  // axes when radius is set; or defaults to zeros when radius is also not set.
+  CornerRadius top_right_radius = 3;
+
+  // The radius for the bottom-right corner of either circular or elliptical shapes.
+  // If not set, defaults to radius for both horizontal and vertical
+  // axes when radius is set; or defaults to zeros when radius is also not set.
+  CornerRadius bottom_right_radius = 4;
+
+  // The radius for the bottom-left corner of either circular or elliptical shapes.
+  // If not set, defaults to radius for both horizontal and vertical
+  // axes when radius is set; or defaults to zeros when radius is also not set.
+  CornerRadius bottom_left_radius = 5;
 }
 
 // A modifier to apply a background to an element.
@@ -157,6 +194,42 @@ message ElementMetadata {
   // libraries building higher-level components only. This can be used to track
   // component metadata.
   bytes tag_data = 1;
+}
+
+// A modifier to apply transformations to the element. All of these
+// transformations can be animated by setting dynamic values.
+// This modifier is not layout affecting.
+message Transformation {
+  // The horizontal offset of this element relative to the location where the
+  // element's layout placed it.
+  DpProp translation_x = 1;
+
+  // The vertical offset of this element in addition to the location where the
+  // element's layout placed it.
+  DpProp translation_y = 2;
+
+  // The scale of this element in the x direction around the pivot point, as a
+  // proportion of the element's unscaled width .
+  FloatProp scale_x = 3;
+
+  // The scale of this element in the y direction around the pivot point, as a
+  // proportion of the element's unscaled height.
+  FloatProp scale_y = 4;
+
+  // The clockwise degrees that the element is rotated around the pivot point.
+  DegreesProp rotation = 5;
+
+  // The horizontal location of the point around which the element is rotated
+  // and scaled. With type DpProp, it is the offset from the element center;
+  // otherwise with type BoundingBoxRatio, it is the location proportional to
+  // the bounding box width.
+  PivotDimension pivot_x = 6;
+
+  // The vertical location of the point around which the element is rotated and
+  // scaled. With type DpProp, it is the offset from the element center;
+  // otherwise with type BoundingBoxRatio, it is the location proportional to
+  // the bounding box height.
+  PivotDimension pivot_y = 7;
 }
 
 // Modifiers for an element. These may change the way they are drawn (e.g.
@@ -198,10 +271,28 @@ message Modifiers {
   // modifier would be ignored).
   //
   // Defaults to false (i.e. not hidden).
+  // This field is deprecated and is only kept for backward compatibility.
   BoolProp hidden = 8;
 
   // The optional identifier for the layout element.
   string id = 9;
+
+  // Whether the attached element is visible, or hidden. If the element is
+  // hidden, then it will still consume space in the layout, but will not render
+  // any contents, nor will any children render any contents. Defaults to
+  // visible.
+  //
+  // Note that a hidden element also cannot be clickable (i.e. a Clickable
+  // modifier would be ignored).
+  BoolProp visible = 10;
+
+  // The transformation applied to the element post-layout
+  Transformation transformation = 11;
+
+  // The opacity of the element with a value from 0 to 1, where 0 means
+  // the element is completely transparent and 1 means the element is
+  // completely opaque. Defaults to 1.
+  FloatProp opacity = 12;
 }
 
 // The content transition of an element. Any update to the element or its
@@ -364,6 +455,13 @@ message ArcModifiers {
   // Adds metadata for the modified element, for example, screen reader content
   // descriptions.
   Semantics semantics = 2;
+
+  // The opacity of the element with a value from 0 to 1, where 0 means
+  // the element is completely transparent and 1 means the element is
+  // completely opaque. Defaults to 1.
+  FloatProp opacity = 4;
+
+  reserved 3;
 }
 
 // Modifiers that can be used with Span elements. These may change the way
@@ -378,8 +476,7 @@ message SpanModifiers {
 // element.
 message Shadow {
   // The blur radius of the shadow. It controls the size of the blur that is
-  // drawn.
-  // When set to zero, the shadow is not drawn. Defaults to zero.
+  // drawn. When set to zero, the shadow is not drawn. Defaults to zero.
   DpProp blur_radius = 1;
 
   // The color used in the shadow. Defaults to Black.

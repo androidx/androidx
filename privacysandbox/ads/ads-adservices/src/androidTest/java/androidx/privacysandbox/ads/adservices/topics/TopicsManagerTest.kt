@@ -16,10 +16,12 @@
 
 package androidx.privacysandbox.ads.adservices.topics
 
+import android.adservices.topics.EncryptedTopic
 import android.adservices.topics.Topic
 import android.adservices.topics.TopicsManager
 import android.content.Context
 import android.os.OutcomeReceiver
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import androidx.privacysandbox.ads.adservices.topics.TopicsManager.Companion.obtain
 import androidx.test.core.app.ApplicationProvider
@@ -50,18 +52,21 @@ import org.mockito.quality.Strictness
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 30)
+@ExperimentalFeatures.Ext11OptIn
 class TopicsManagerTest {
 
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExt4Version = AdServicesInfo.adServicesVersion() >= 4
     private val mValidAdServicesSdkExt5Version = AdServicesInfo.adServicesVersion() >= 5
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
+    private val mValidAdServicesSdkExt11Version = AdServicesInfo.adServicesVersion() >= 11
+    private val mValidAdExtServicesSdkExt9Version = AdServicesInfo.extServicesVersionS() >= 9
+    private val mValidAdExtServicesSdkExt11Version = AdServicesInfo.extServicesVersionS() >= 11
 
     @Before
     fun setUp() {
         mContext = spy(ApplicationProvider.getApplicationContext<Context>())
 
-        if (mValidAdExtServicesSdkExtVersion) {
+        if (mValidAdExtServicesSdkExt9Version) {
             // setup a mockitoSession to return the mocked manager
             // when the static method .get() is called
             mSession = ExtendedMockito.mockitoSession()
@@ -80,16 +85,26 @@ class TopicsManagerTest {
     @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testTopicsOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExt4Version)
-        Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(obtain(mContext)).isEqualTo(null)
+        Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExt9Version)
+        assertThat(obtain(mContext)).isNull()
+    }
+
+    @Test
+    fun testTopicsManagerNoClassDefFoundError() {
+        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExt9Version);
+
+        `when`(TopicsManager.get(any())).thenThrow(NoClassDefFoundError())
+        assertThat(obtain(mContext)).isNull()
     }
 
     @Test
     fun testTopicsAsync() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-            mValidAdServicesSdkExt4Version || mValidAdExtServicesSdkExtVersion)
+        Assume.assumeTrue(
+            "minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+            mValidAdServicesSdkExt4Version || mValidAdExtServicesSdkExt9Version
+        )
 
-        val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExtVersion)
+        val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExt9Version)
         setupTopicsResponse(topicsManager)
         val managerCompat = obtain(mContext)
 
@@ -116,11 +131,46 @@ class TopicsManagerTest {
     }
 
     @Test
-    fun testTopicsAsyncPreviewSupported() {
-        Assume.assumeTrue("minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
-            mValidAdServicesSdkExt5Version || mValidAdExtServicesSdkExtVersion)
+    fun testEncryptedTopicsAsync() {
+        Assume.assumeTrue(
+            "minSdkVersion = API 33 ext 11 or API 31/32 ext 11",
+            mValidAdServicesSdkExt11Version || mValidAdExtServicesSdkExt11Version,
+        )
 
-        val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExtVersion)
+        val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExt11Version)
+        setupEncryptedTopicsResponse(topicsManager)
+        val managerCompat = obtain(mContext)
+
+        // Actually invoke the compat code.
+        val result = runBlocking {
+            val request = GetTopicsRequest.Builder()
+                .setAdsSdkName(mSdkName)
+                .setShouldRecordObservation(true)
+                .build()
+
+            managerCompat!!.getTopics(request)
+        }
+
+        // Verify that the compat code was invoked correctly.
+        val captor = ArgumentCaptor
+            .forClass(android.adservices.topics.GetTopicsRequest::class.java)
+        verify(topicsManager).getTopics(captor.capture(), any(), any())
+
+        // Verify that the request that the compat code makes to the platform is correct.
+        verifyRequest(captor.value)
+
+        // Verify that the result of the compat call is correct.
+        verifyEncryptedResponse(result)
+    }
+
+    @Test
+    fun testTopicsAsyncPreviewSupported() {
+        Assume.assumeTrue(
+            "minSdkVersion = API 33 ext 5 or API 31/32 ext 9",
+            mValidAdServicesSdkExt5Version || mValidAdExtServicesSdkExt9Version
+        )
+
+        val topicsManager = mockTopicsManager(mContext, mValidAdExtServicesSdkExt9Version)
         setupTopicsResponse(topicsManager)
         val managerCompat = obtain(mContext)
 
@@ -162,12 +212,44 @@ class TopicsManagerTest {
             return topicsManager
         }
 
+        @Suppress("deprecation")
         private fun setupTopicsResponse(topicsManager: TopicsManager) {
             // Set up the response that TopicsManager will return when the compat code calls it.
             val topic1 = Topic(1, 1, 1)
             val topic2 = Topic(2, 2, 2)
             val topics = listOf(topic1, topic2)
             val response = android.adservices.topics.GetTopicsResponse.Builder(topics).build()
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<
+                    OutcomeReceiver<android.adservices.topics.GetTopicsResponse, Exception>>(2)
+                receiver.onResult(response)
+                null
+            }
+            doAnswer(answer).`when`(topicsManager).getTopics(
+                any(), any(), any()
+            )
+        }
+
+        @Suppress("deprecation")
+        private fun setupEncryptedTopicsResponse(topicsManager: TopicsManager) {
+            // Set up the response that TopicsManager will return when the compat code calls it.
+            val topic1 = Topic(1, 1, 1)
+            val topic2 = Topic(2, 2, 2)
+            var encryptedTopic1 = EncryptedTopic(
+                "encryptedTopic1".toByteArray(),
+                "publicKey1",
+                "encapsulatedKey1".toByteArray()
+            )
+            var encryptedTopic2 = EncryptedTopic(
+                "encryptedTopic2".toByteArray(),
+                "publicKey2",
+                "encapsulatedKey2".toByteArray()
+            )
+
+            val topics = listOf(topic1, topic2)
+            val encryptedTopics = listOf(encryptedTopic1, encryptedTopic2)
+            val response =
+                android.adservices.topics.GetTopicsResponse.Builder(topics, encryptedTopics).build()
             val answer = { args: InvocationOnMock ->
                 val receiver = args.getArgument<
                     OutcomeReceiver<android.adservices.topics.GetTopicsResponse, Exception>>(2)
@@ -198,6 +280,33 @@ class TopicsManagerTest {
                     .setShouldRecordObservation(false).build()
 
             Assert.assertEquals(expectedRequest.adsSdkName, topicsRequest.adsSdkName)
+        }
+
+        private fun verifyEncryptedResponse(getTopicsResponse: GetTopicsResponse) {
+            Assert.assertEquals(2, getTopicsResponse.encryptedTopics.size)
+            val encryptedTopic1 = getTopicsResponse.encryptedTopics[0]
+            Assert.assertArrayEquals(
+                "encryptedTopic1".toByteArray(),
+                encryptedTopic1.encryptedTopic
+            )
+            Assert.assertEquals("publicKey1", encryptedTopic1.keyIdentifier)
+            Assert.assertArrayEquals(
+                "encapsulatedKey1".toByteArray(),
+                encryptedTopic1.encapsulatedKey
+            )
+            val encryptedTopic2 = getTopicsResponse.encryptedTopics[1]
+            Assert.assertArrayEquals(
+                "encryptedTopic2".toByteArray(),
+                encryptedTopic2.encryptedTopic
+            )
+            Assert.assertEquals("publicKey2", encryptedTopic2.keyIdentifier)
+            Assert.assertArrayEquals(
+                "encapsulatedKey2".toByteArray(),
+                encryptedTopic2.encapsulatedKey
+            )
+
+            // Verify plaintext topic fields
+            verifyResponse(getTopicsResponse)
         }
 
         private fun verifyResponse(getTopicsResponse: GetTopicsResponse) {

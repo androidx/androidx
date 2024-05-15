@@ -21,6 +21,7 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XProcessingEnv.Platform
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
@@ -332,7 +333,9 @@ object COMMON {
 
 fun testCodeGenScope(): CodeGenScope {
     return CodeGenScope(
-        object : TypeWriter(CodeLanguage.JAVA) {
+        object : TypeWriter(
+            WriterContext(CodeLanguage.JAVA, setOf(Platform.JVM), true)
+        ) {
             override fun createTypeSpecBuilder(): XTypeSpec.Builder {
                 return XTypeSpec.classBuilder(codeLanguage, XClassName.get("test", "Foo"))
             }
@@ -354,6 +357,11 @@ fun loadTestSource(fileName: String, qName: String): Source {
     val contents = File("src/test/test-data/$fileName")
     val relativePath = qName.replace('.', File.separatorChar) + "." + contents.extension
     return Source.load(contents, qName, relativePath)
+}
+
+fun writeTestSource(source: Source, fileName: String) {
+    val contents = File("src/test/test-data/$fileName")
+    contents.writeText(source.contents)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {

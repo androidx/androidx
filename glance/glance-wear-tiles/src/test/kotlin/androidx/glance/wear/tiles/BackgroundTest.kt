@@ -66,7 +66,8 @@ class BackgroundTest {
         fun tintColor() = ColorProvider(Color.Magenta)
 
         val modifier = GlanceModifier.background(
-            ImageProvider(R.drawable.oval), ColorFilter.tint(
+            ImageProvider(R.drawable.oval),
+            colorFilter = ColorFilter.tint(
                 tintColor()
             )
         )

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: v0_210
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -24,24 +24,23 @@ internal object FilledTextFieldTokens {
     val ActiveIndicatorColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ActiveIndicatorHeight = 1.0.dp
     val CaretColor = ColorSchemeKeyTokens.Primary
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceVariant
-    val ContainerHeight = 56.0.dp
+    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainerHighest
     val ContainerShape = ShapeKeyTokens.CornerExtraSmallTop
     val DisabledActiveIndicatorColor = ColorSchemeKeyTokens.OnSurface
     val DisabledActiveIndicatorHeight = 1.0.dp
-    const val DisabledActiveIndicatorOpacity = 0.38f
+    val DisabledActiveIndicatorOpacity = 0.38f
     val DisabledContainerColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledContainerOpacity = 0.04f
+    val DisabledContainerOpacity = 0.04f
     val DisabledInputColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledInputOpacity = 0.38f
+    val DisabledInputOpacity = 0.38f
     val DisabledLabelColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledLabelOpacity = 0.38f
+    val DisabledLabelOpacity = 0.38f
     val DisabledLeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledLeadingIconOpacity = 0.38f
+    val DisabledLeadingIconOpacity = 0.38f
     val DisabledSupportingColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledSupportingOpacity = 0.38f
+    val DisabledSupportingOpacity = 0.38f
     val DisabledTrailingIconColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledTrailingIconOpacity = 0.38f
+    val DisabledTrailingIconOpacity = 0.38f
     val ErrorActiveIndicatorColor = ColorSchemeKeyTokens.Error
     val ErrorFocusActiveIndicatorColor = ColorSchemeKeyTokens.Error
     val ErrorFocusCaretColor = ColorSchemeKeyTokens.Error
@@ -83,7 +82,7 @@ internal object FilledTextFieldTokens {
     val LabelColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val LabelFont = TypographyKeyTokens.BodyLarge
     val LeadingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val LeadingIconSize = 20.0.dp
+    val LeadingIconSize = 24.0.dp
     val SupportingColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val SupportingFont = TypographyKeyTokens.BodySmall
     val TrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant

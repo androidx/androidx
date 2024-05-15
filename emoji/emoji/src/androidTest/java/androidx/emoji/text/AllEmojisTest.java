@@ -29,7 +29,6 @@ import androidx.core.graphics.PaintCompat;
 import androidx.emoji.util.TestString;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,7 +48,6 @@ import java.util.Collection;
  */
 @LargeTest
 @RunWith(Parameterized.class)
-@SdkSuppress(minSdkVersion = 19)
 public class AllEmojisTest {
 
     /**

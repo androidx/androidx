@@ -14,21 +14,71 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.PlatformIdentifier
+import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-dependencies {
-    api("androidx.annotation:annotation:1.0.0")
-    implementation(libs.kotlinStdlib)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.truth)
+
+androidXMultiplatform {
+    android()
+    ios()
+    jvm()
+    linux()
+    mac()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                api("androidx.annotation:annotation:1.8.0")
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+            }
+        }
+        androidMain {
+            dependsOn(commonMain)
+        }
+        androidUnitTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockitoCore4)
+                implementation(libs.truth)
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+        }
+        nativeMain {
+            dependsOn(commonMain)
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                def main = target.compilations["main"]
+                main.defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
+        }
+    }
 }
 
 android {
@@ -37,8 +87,8 @@ android {
 
 androidx {
     name = "SQLite"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
-    description = "Android DB"
+    description = "SQLite API"
     metalavaK2UastEnabled = true
 }

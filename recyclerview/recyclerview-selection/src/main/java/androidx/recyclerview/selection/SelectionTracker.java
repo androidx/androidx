@@ -393,14 +393,15 @@ public abstract class SelectionTracker<K> {
      * <p>
      * Building a bare-bones instance:
      *
-     * <pre>SelectionTracker<Uri> tracker = new SelectionTracker.Builder<>(
-     *        "my-uri-selection",
-     *        recyclerView,
-     *        new YourItemKeyProvider(recyclerView.getAdapter()),
-     *        new YourItemDetailsLookup(recyclerView),
-     *        StorageStrategy.createParcelableStorage(Uri.class))
-     *        .build();
-     * </pre>
+     * <pre>{@code
+     * SelectionTracker<Uri> tracker = new SelectionTracker.Builder<>(
+     *         "my-uri-selection",
+     *         recyclerView,
+     *         new YourItemKeyProvider(recyclerView.getAdapter()),
+     *         new YourItemDetailsLookup(recyclerView),
+     *         StorageStrategy.createParcelableStorage(Uri.class))
+     *     .build();
+     * }</pre>
      *
      * <p>
      * <b>Restricting which items can be selected and limiting selection size</b>
@@ -413,15 +414,16 @@ public abstract class SelectionTracker<K> {
      * for single-selection, or write your own {@link SelectionPredicate} if other
      * constraints are required.
      *
+     * <pre>{@code
      * SelectionTracker<String> tracker = new SelectionTracker.Builder<>(
-     *               "my-string-selection",
-     *               recyclerView,
-     *               new YourItemKeyProvider(recyclerView.getAdapter()),
-     *               new YourItemDetailsLookup(recyclerView),
-     *               StorageStrategy.createStringStorage())
-     *        .withSelectionPredicate(SelectionPredicates#createSelectSingleAnything())
-     *        .build();
-     * </pre>
+     *         "my-string-selection",
+     *         recyclerView,
+     *         new YourItemKeyProvider(recyclerView.getAdapter()),
+     *         new YourItemDetailsLookup(recyclerView),
+     *         StorageStrategy.createStringStorage())
+     *     .withSelectionPredicate(SelectionPredicates#createSelectSingleAnything())
+     *     .build();
+     * }</pre>
      *
      * <p>
      * <b>Retaining state across Android lifecycle events</b>
@@ -465,20 +467,20 @@ public abstract class SelectionTracker<K> {
      * <p>
      * Usage:
      *
-     * <pre>
-     * private SelectionTracker<Uri> mTracker;
+     * <pre>{@code
+     * private SelectionTracker<Uri> tracker;
      *
      * public void onCreate(Bundle savedInstanceState) {
-     * if (savedInstanceState != null) {
-     * mTracker.onRestoreInstanceState(savedInstanceState);
-     * }
+     *   if (savedInstanceState != null) {
+     *     tracker.onRestoreInstanceState(savedInstanceState);
+     *   }
      * }
      *
      * protected void onSaveInstanceState(Bundle outState) {
-     * super.onSaveInstanceState(outState);
-     * mTracker.onSaveInstanceState(outState);
+     *   super.onSaveInstanceState(outState);
+     *   tracker.onSaveInstanceState(outState);
      * }
-     * </pre>
+     * }</pre>
      *
      * @param <K> Selection key type. Built in support is provided for {@link String},
      *            {@link Long}, and {@link Parcelable}. {@link StorageStrategy}

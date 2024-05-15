@@ -183,7 +183,7 @@ public class ChangeImageTransform extends Transition {
             animator = createMatrixAnimator(imageView, startMatrix, endMatrix);
             Listener listener = new Listener(imageView, startMatrix, endMatrix);
             animator.addListener(listener);
-            AnimatorUtils.addPauseListener(animator, listener);
+            animator.addPauseListener(listener);
             addListener(listener);
         }
 
@@ -258,8 +258,7 @@ public class ChangeImageTransform extends Transition {
         return matrix;
     }
 
-    private static class Listener extends AnimatorListenerAdapter implements TransitionListener,
-            AnimatorUtils.AnimatorPauseListenerCompat {
+    private static class Listener extends AnimatorListenerAdapter implements TransitionListener {
         private final ImageView mImageView;
         private final Matrix mStartMatrix;
         private final Matrix mEndMatrix;

@@ -106,8 +106,9 @@ public class Button implements LayoutElement {
 
         /**
          * Creates a builder for the {@link Button} from the given content. Custom content should be
-         * later set with one of the following ({@link #setIconContent}, {@link #setTextContent},
-         * {@link #setImageContent}.
+         * later set with one of the following {@link #setIconContent(String)},
+         * {@link #setIconContent(String, DpProp)}, {@link #setTextContent(String)},
+         * {@link #setTextContent(String, int)} or {@link #setImageContent(String)}.
          *
          * @param context The application's context.
          * @param clickable Associated {@link Clickable} for click events. When the Button is
@@ -341,7 +342,8 @@ public class Button implements LayoutElement {
             }
         }
 
-        private static @TypographyName int getDefaultTypographyForSize(@NonNull DpProp size) {
+        @TypographyName
+        private static int getDefaultTypographyForSize(@NonNull DpProp size) {
             if (size.getValue() == LARGE_SIZE.getValue()) {
                 return Typography.TYPOGRAPHY_TITLE1;
             } else if (size.getValue() == EXTRA_LARGE_SIZE.getValue()) {
@@ -455,6 +457,7 @@ public class Button implements LayoutElement {
             case METADATA_TAG_IMAGE:
             case METADATA_TAG_CUSTOM_CONTENT:
                 break;
+            default: // fall out
         }
 
         if (contentColor == null) {

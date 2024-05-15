@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.impl.SurfaceConfig
@@ -25,7 +24,6 @@ import androidx.camera.core.impl.SurfaceConfig
 /**
  * Helper class that overrides the maximum preview size used in surface combination check.
  */
-@RequiresApi(21)
 class MaxPreviewSize constructor(
     private val extraCroppingQuirk: ExtraCroppingQuirk? =
         DeviceQuirks[ExtraCroppingQuirk::class.java]

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
 package androidx.credentials.playservices.controllers.BeginSignIn
 
 import android.content.Context
@@ -31,18 +32,20 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 /**
  * A utility class to handle logic for the begin sign in controller.
  */
-@Suppress("deprecation")
 internal class BeginSignInControllerUtility {
 
     companion object {
 
         private const val TAG = "BeginSignInUtility"
         private const val AUTH_MIN_VERSION_JSON_PARSING: Long = 231815000
+        private const val AUTH_MIN_VERSION_PREFER_IMME_CRED: Long = 241217000
+
         internal fun constructBeginSignInRequest(request: GetCredentialRequest, context: Context):
             BeginSignInRequest {
             var isPublicKeyCredReqFound = false
             val requestBuilder = BeginSignInRequest.Builder()
             var autoSelect = false
+            val curAuthVersion = determineDeviceGMSVersionCode(context)
             for (option in request.credentialOptions) {
                 if (option is GetPasswordOption) {
                     requestBuilder.setPasswordRequestOptions(
@@ -52,7 +55,6 @@ internal class BeginSignInControllerUtility {
                     )
                     autoSelect = autoSelect || option.isAutoSelectAllowed
                 } else if (option is GetPublicKeyCredentialOption && !isPublicKeyCredReqFound) {
-                    val curAuthVersion = determineDeviceGMSVersionCode(context)
                     if (needsBackwardsCompatibleRequest(curAuthVersion)) {
                         requestBuilder.setPasskeysSignInRequestOptions(
                             convertToPlayAuthPasskeyRequest(option)
@@ -69,6 +71,10 @@ internal class BeginSignInControllerUtility {
                     )
                     autoSelect = autoSelect || option.autoSelectEnabled
                 }
+            }
+            if (curAuthVersion > AUTH_MIN_VERSION_PREFER_IMME_CRED) {
+                requestBuilder.setPreferImmediatelyAvailableCredentials(
+                    request.preferImmediatelyAvailableCredentials)
             }
             return requestBuilder
                 .setAutoSelectEnabled(autoSelect)

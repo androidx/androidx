@@ -32,7 +32,7 @@
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"फिंगरप्रिन्ट जनाउने आइकन"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"फिंगरप्रिन्ट प्रयोग गरी पुष्टि गर्नुहोस्"</string>
     <string name="use_face_label" msgid="6533512708069459542">"फेस प्रयोग गरी पुष्टि गर्नुहोस्"</string>
-    <string name="use_biometric_label" msgid="6524145989441579428">"बायोमेट्रिक्स प्रयोग गरी पुष्टि गरियोस्"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"बायोमेट्रिक्स प्रयोग गरी पुष्टि गर्नुहोस्"</string>
     <string name="use_screen_lock_label" msgid="5459869335976243512">"स्क्रिन लक प्रयोग गरी पुष्टि गर्नुहोस्"</string>
     <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"फिंगरप्रिन्ट वा स्क्रिन लक प्रयोग गरी पुष्टि गर्नुहोस्"</string>
     <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"फेस वा स्क्रिन लक प्रयोग गरी पुष्टि गर्नुहोस्"</string>

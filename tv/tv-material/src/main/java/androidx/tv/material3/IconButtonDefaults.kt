@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
-@ExperimentalTvMaterial3Api
 object IconButtonDefaults {
     private val ContainerShape = CircleShape
 
@@ -184,7 +183,6 @@ object IconButtonDefaults {
     )
 }
 
-@ExperimentalTvMaterial3Api
 object OutlinedIconButtonDefaults {
     private val ContainerShape = CircleShape
 

@@ -431,10 +431,8 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
             mActivityTestRule.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (Build.VERSION.SDK_INT >= 17) {
-                        autoSizeView.setCompoundDrawablesRelative(
-                                drawable, drawable, drawable, drawable);
-                    }
+                    autoSizeView.setCompoundDrawablesRelative(
+                            drawable, drawable, drawable, drawable);
                 }
             });
             mInstrumentation.waitForIdleSync();

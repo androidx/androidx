@@ -87,7 +87,7 @@ class CircleImageView extends ImageView {
             setPadding(padding, padding, padding, padding);
         }
         circle.getPaint().setColor(mBackgroundColor);
-        ViewCompat.setBackground(this, circle);
+        setBackground(circle);
     }
 
     private boolean elevationSupported() {

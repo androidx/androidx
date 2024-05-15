@@ -24,7 +24,6 @@ import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
@@ -58,9 +57,9 @@ class DaoProcessor(
                 type = element.type,
                 queryMethods = emptyList(),
                 rawQueryMethods = emptyList(),
-                insertionMethods = emptyList(),
-                upsertionMethods = emptyList(),
-                deletionMethods = emptyList(),
+                insertMethods = emptyList(),
+                upsertMethods = emptyList(),
+                deleteMethods = emptyList(),
                 updateMethods = emptyList(),
                 transactionMethods = emptyList(),
                 kotlinBoxedPrimitiveMethodDelegates = emptyList(),
@@ -83,22 +82,25 @@ class DaoProcessor(
             .filter {
                 it.isAbstract() && !it.hasKotlinDefaultImpl()
             }.groupBy { method ->
-                context.checker.check(
-                    PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1, method,
-                    ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
-                )
+                if (method.isKotlinPropertyMethod()) {
+                    context.checker.check(
+                        predicate = method.hasAnnotation(Query::class),
+                        element = method,
+                        errorMsg = ProcessorErrors.INVALID_ANNOTATION_IN_DAO_PROPERTY
+                    )
+                } else {
+                    context.checker.check(
+                        predicate = PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1,
+                        element = method,
+                        errorMsg = ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
+                    )
+                }
                 if (method.hasAnnotation(JvmName::class)) {
                     context.logger.w(
                         Warning.JVM_NAME_ON_OVERRIDDEN_METHOD,
                         method,
                         ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
                     )
-                }
-                if (
-                    context.codeLanguage == CodeLanguage.KOTLIN &&
-                    method.isKotlinPropertyMethod()
-                ) {
-                    context.logger.e(method, ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
                 }
                 if (method.hasAnnotation(Query::class)) {
                     Query::class
@@ -142,16 +144,16 @@ class DaoProcessor(
             ).process()
         } ?: emptyList()
 
-        val insertionMethods = methods[Insert::class]?.map {
-            InsertionMethodProcessor(
+        val insertMethods = methods[Insert::class]?.map {
+            InsertMethodProcessor(
                 baseContext = context,
                 containing = declaredType,
                 executableElement = it
             ).process()
         } ?: emptyList()
 
-        val deletionMethods = methods[Delete::class]?.map {
-            DeletionMethodProcessor(
+        val deleteMethods = methods[Delete::class]?.map {
+            DeleteMethodProcessor(
                 baseContext = context,
                 containing = declaredType,
                 executableElement = it
@@ -166,8 +168,8 @@ class DaoProcessor(
             ).process()
         } ?: emptyList()
 
-        val upsertionMethods = methods[Upsert::class]?.map {
-            UpsertionMethodProcessor(
+        val upsertMethods = methods[Upsert::class]?.map {
+            UpsertMethodProcessor(
                 baseContext = context,
                 containing = declaredType,
                 executableElement = it
@@ -246,10 +248,10 @@ class DaoProcessor(
             type = declaredType,
             queryMethods = queryMethods,
             rawQueryMethods = rawQueryMethods,
-            insertionMethods = insertionMethods,
-            deletionMethods = deletionMethods,
+            insertMethods = insertMethods,
+            deleteMethods = deleteMethods,
             updateMethods = updateMethods,
-            upsertionMethods = upsertionMethods,
+            upsertMethods = upsertMethods,
             transactionMethods = transactionMethods.toList(),
             kotlinBoxedPrimitiveMethodDelegates = kotlinBoxedPrimitiveBridgeMethods,
             kotlinDefaultMethodDelegates = kotlinDefaultMethodDelegates.toList(),

@@ -119,6 +119,12 @@ expect sealed interface Paragraph {
     /** Returns the bottom y coordinate of the given line. */
     fun getLineTop(lineIndex: Int): Float
 
+    /**
+     * Returns the distance from the top of the paragraph to the alphabetic
+     * baseline of the given line.
+     */
+    fun getLineBaseline(lineIndex: Int): Float
+
     /** Returns the bottom y coordinate of the given line. */
     fun getLineBottom(lineIndex: Int): Float
 
@@ -223,6 +229,31 @@ expect sealed interface Paragraph {
 
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: Offset): Int
+
+    /**
+     * Find the range of text which is inside the specified [rect].
+     * This method will break text into small text segments based on the given [granularity] such as
+     * character or word. It also support different [inclusionStrategy], which determines when a
+     * small text segments is considered as inside the [rect].
+     * Note that the word/character breaking is both operating system and language dependent.
+     * In the certain cases, the text may be break into smaller segments than the specified the
+     * [granularity].
+     * If a text segment spans multiple lines or multiple directional runs (e.g. a hyphenated word),
+     * the text segment is divided into pieces at the line and run breaks, then the text segment is
+     * considered to be inside the area if any of its pieces are inside the area.
+     *
+     * @param rect the rectangle area in which the text range will be found.
+     * @param granularity the granularity of the text, it controls how text is segmented.
+     * @param inclusionStrategy the strategy that determines whether a range of text's bounds is
+     * inside the given [rect] or not.
+     * @return the [TextRange] that is inside the given [rect], or [TextRange.Zero] if no text is
+     * found.
+     */
+    fun getRangeForRect(
+        rect: Rect,
+        granularity: TextGranularity,
+        inclusionStrategy: TextInclusionStrategy
+    ): TextRange
 
     /**
      * Returns the bounding box as Rect of the character for given character offset. Rect

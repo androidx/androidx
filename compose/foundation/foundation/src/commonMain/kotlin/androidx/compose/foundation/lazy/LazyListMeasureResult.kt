@@ -18,8 +18,11 @@ package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * The result of the measure pass for lazy list layout.
@@ -40,6 +43,12 @@ internal class LazyListMeasureResult(
     val scrollBackAmount: Float,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
+    /** Scope for animations. */
+    val coroutineScope: CoroutineScope,
+    /** Density of the last measure. */
+    val density: Density,
+    /** Constraints used to measure children. */
+    val childConstraints: Constraints,
     // properties representing the info needed for LazyListLayoutInfo:
     /** see [LazyListLayoutInfo.visibleItemsInfo] */
     override val visibleItemsInfo: List<LazyListMeasuredItem>,
@@ -56,7 +65,7 @@ internal class LazyListMeasureResult(
     /** see [LazyListLayoutInfo.afterContentPadding] */
     override val afterContentPadding: Int,
     /** see [LazyListLayoutInfo.mainAxisItemSpacing] */
-    override val mainAxisItemSpacing: Int
+    override val mainAxisItemSpacing: Int,
 ) : LazyListLayoutInfo, MeasureResult by measureResult {
 
     val canScrollBackward
@@ -80,7 +89,8 @@ internal class LazyListMeasureResult(
     fun tryToApplyScrollWithoutRemeasure(delta: Int, updateAnimations: Boolean): Boolean {
         if (remeasureNeeded || visibleItemsInfo.isEmpty() || firstVisibleItem == null ||
             // applying this delta will change firstVisibleItem
-            (firstVisibleItemScrollOffset - delta) !in 0 until firstVisibleItem.sizeWithSpacings
+            (firstVisibleItemScrollOffset - delta) !in
+            0 until firstVisibleItem.mainAxisSizeWithSpacings
         ) {
             return false
         }
@@ -93,9 +103,9 @@ internal class LazyListMeasureResult(
         val canApply = if (delta < 0) {
             // scrolling forward
             val deltaToFirstItemChange =
-                first.offset + first.sizeWithSpacings - viewportStartOffset
+                first.offset + first.mainAxisSizeWithSpacings - viewportStartOffset
             val deltaToLastItemChange =
-                last.offset + last.sizeWithSpacings - viewportEndOffset
+                last.offset + last.mainAxisSizeWithSpacings - viewportEndOffset
             minOf(deltaToFirstItemChange, deltaToLastItemChange) > -delta
         } else {
             // scrolling backward

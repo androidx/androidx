@@ -1,56 +1,51 @@
-import android.database.Cursor
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
-import java.lang.Class
-import java.util.ArrayList
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.MutableList
-import kotlin.jvm.JvmStatic
+import kotlin.collections.mutableListOf
+import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
 public class MyDao_Impl(
-    __db: RoomDatabase,
+  __db: RoomDatabase,
 ) : MyDao {
-    private val __db: RoomDatabase
-    init {
-        this.__db = __db
-    }
+  private val __db: RoomDatabase
+  init {
+    this.__db = __db
+  }
 
-    public override fun queryOfList(): List<MyEntity> {
-        val _sql: String = "SELECT * FROM MyEntity"
-        val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-        __db.assertNotSuspendingTransaction()
-        val _cursor: Cursor = query(__db, _statement, false, null)
-        try {
-            val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-            val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-            val _result: MutableList<MyEntity> = ArrayList<MyEntity>(_cursor.getCount())
-            while (_cursor.moveToNext()) {
-                val _item: MyEntity
-                val _tmpPk: Int
-                _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-                val _tmpOther: String
-                _tmpOther = _cursor.getString(_cursorIndexOfOther)
-                _item = MyEntity(_tmpPk,_tmpOther)
-                _result.add(_item)
-            }
-            return _result
-        } finally {
-            _cursor.close()
-            _statement.release()
+  public override fun queryOfList(): List<MyEntity> {
+    val _sql: String = "SELECT * FROM MyEntity"
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _result: MutableList<MyEntity> = mutableListOf()
+        while (_stmt.step()) {
+          val _item: MyEntity
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          _item = MyEntity(_tmpPk,_tmpOther)
+          _result.add(_item)
         }
+        _result
+      } finally {
+        _stmt.close()
+      }
     }
+  }
 
-    public companion object {
-        @JvmStatic
-        public fun getRequiredConverters(): List<Class<*>> = emptyList()
-    }
+  public companion object {
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
+  }
 }

@@ -31,6 +31,7 @@ import android.widget.TextView
 class InvalidatedTextView : TextView {
     var timesDrawn: Int = 0
     var timesToInvalidate: Int = 0
+    var onDraw: () -> Unit = {}
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
@@ -46,5 +47,6 @@ class InvalidatedTextView : TextView {
         }
         super.draw(canvas)
         ++timesDrawn
+        onDraw()
     }
 }

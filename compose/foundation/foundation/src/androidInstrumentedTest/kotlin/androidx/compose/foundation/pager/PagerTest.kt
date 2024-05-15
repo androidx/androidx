@@ -17,9 +17,12 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -28,9 +31,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -166,7 +171,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     fun pageCount_readBeforeCompositionIsAccurate() {
         // Arrange
         val pageCount = mutableStateOf(2)
-        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        val state = PagerState(0, 0f) { pageCount.value }
         assertThat(state.pageCount).isEqualTo(pageCount.value)
         rule.setContent {
             HorizontalOrVerticalPager(
@@ -193,7 +198,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         // Arrange
         var recomposeCount = 0
         val pageCount = mutableStateOf(2)
-        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        val state = PagerState(0, 0f) { pageCount.value }
         assertThat(state.pageCount).isEqualTo(pageCount.value)
 
         rule.setContent {
@@ -225,7 +230,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     fun pageCountDecreased_currentPageIsAdjustedAccordingly() {
         // Arrange
         val pageCount = mutableStateOf(5)
-        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        val state = PagerState(0, 0f) { pageCount.value }
         assertThat(state.pageCount).isEqualTo(pageCount.value)
 
         rule.setContent {
@@ -254,6 +259,23 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
             assertThat(state.pageCount).isEqualTo(pageCount.value)
             assertThat(state.currentPage).isEqualTo(1) // last page
         }
+    }
+
+    @Test
+    fun pageCount_canBeMaxInt() {
+        // Arrange
+
+        // Act
+        createPager(modifier = Modifier.fillMaxSize(), pageCount = { Int.MAX_VALUE })
+
+        // Assert
+        rule.runOnIdle {
+            scope.launch {
+                pagerState.scrollToPage(Int.MAX_VALUE)
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag("${Int.MAX_VALUE - 1}").assertIsDisplayed()
     }
 
     @Test
@@ -299,9 +321,9 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
 
     @Test
     fun pagerStateChange_flingBehaviorShouldRecreate() {
-        var previousFlingBehavior: SnapFlingBehavior? = null
-        var latestFlingBehavior: SnapFlingBehavior? = null
-        val stateHolder = mutableStateOf(PagerStateImpl(0, 0.0f) { 10 })
+        var previousFlingBehavior: FlingBehavior? = null
+        var latestFlingBehavior: FlingBehavior? = null
+        val stateHolder = mutableStateOf(PagerState(0, 0.0f) { 10 })
         rule.setContent {
             HorizontalOrVerticalPager(
                 modifier = Modifier
@@ -321,7 +343,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         }
 
         rule.runOnIdle {
-            stateHolder.value = PagerStateImpl(0, 0.0f) { 20 }
+            stateHolder.value = PagerState(0, 0.0f) { 20 }
         }
 
         rule.waitForIdle()
@@ -339,6 +361,194 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 0)
         confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 1)
         confirmPageIsInCorrectPosition(0, pageToVerifyPosition = 2)
+    }
+
+    @Test
+    fun snapPositionChanges_shouldReLayoutPages() {
+        val snapPosition = mutableStateOf<SnapPosition>(SnapPosition.Start)
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag)
+                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                state = rememberPagerState(initialPage = 5) {
+                    40
+                }.also {
+                    pagerState = it
+                },
+                pageSize = PageSize.Fixed(250.dp), // make sure pages bleed in the layout
+                snapPosition = snapPosition.value
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.first().index).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.first().offset).isEqualTo(0)
+        }
+
+        rule.runOnUiThread {
+            snapPosition.value = SnapPosition.End
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().index).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().offset)
+                .isEqualTo(pagerSize - pageSize)
+        }
+    }
+
+    @Test
+    fun pagerSizeChanges_shouldReLayoutPagesAccordingToSnapPosition() {
+        val pagerSizeDp = mutableStateOf(500.dp)
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .mainAxisSize(pagerSizeDp.value)
+                    .testTag(PagerTestTag)
+                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                state = rememberPagerState(initialPage = 5) {
+                    40
+                }.also {
+                    pagerState = it
+                },
+                pageSize = PageSize.Fixed(100.dp),
+                snapPosition = SnapPosition.Center // snap position that depends on pager size
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            val page = pagerState.layoutInfo.visiblePagesInfo.first { it.index == 5 }
+            // page is centered
+            assertThat(page.offset).isEqualTo(pagerSize / 2 - pageSize / 2)
+        }
+
+        val previousPagerSize = pagerSize
+        rule.runOnUiThread {
+            pagerSizeDp.value = 300.dp
+        }
+
+        // make sure we continue in the same place
+        rule.runOnIdle {
+            assertThat(pagerSize).isNotEqualTo(previousPagerSize) // make sure pager size changed
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            val page = pagerState.layoutInfo.visiblePagesInfo.first { it.index == 5 }
+            // page is centered
+            assertThat(page.offset).isEqualTo(pagerSize / 2 - pageSize / 2)
+        }
+    }
+
+    @Test
+    fun pageSizeChanges_shouldReLayoutPagesAccordingToSnapPosition() {
+        val pageSizeDp = mutableStateOf(PageSize.Fixed(200.dp))
+        rule.setContent {
+            HorizontalOrVerticalPager(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .testTag(PagerTestTag)
+                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                state = rememberPagerState(initialPage = 5) {
+                    40
+                }.also {
+                    pagerState = it
+                },
+                pageSize = pageSizeDp.value,
+                snapPosition = SnapPosition.End // snap position that depends on page size
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().index).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().offset)
+                .isEqualTo(pagerSize - pageSize)
+        }
+
+        val previousPageSize = pageSize
+        rule.runOnUiThread {
+            pageSizeDp.value = PageSize.Fixed(250.dp)
+        }
+
+        // make sure we continue in the same place
+        rule.runOnIdle {
+            assertThat(pageSize).isNotEqualTo(previousPageSize) // make sure page size changed
+            assertThat(pagerState.currentPage).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().index).isEqualTo(5)
+            assertThat(pagerState.layoutInfo.visiblePagesInfo.last().offset)
+                .isEqualTo(pagerSize - pageSize)
+        }
+    }
+
+    @Test
+    fun flingOnUnattachedPager_shouldNotCrash() {
+        val pageSize = object : PageSize {
+            override fun Density.calculateMainAxisPageSize(
+                availableSpace: Int,
+                pageSpacing: Int
+            ): Int = 0
+        }
+
+        createPager(pageSize = { pageSize }, modifier = Modifier.fillMaxSize())
+
+        onPager().performTouchInput { swipeWithVelocityAcrossMainAxis(1000f) }
+
+        rule.onNodeWithTag("0").isNotDisplayed()
+    }
+
+    @Test
+    fun smallScroll_shouldNotTriggerRemeasurements() {
+        createPager(modifier = Modifier.fillMaxSize())
+
+        val measurements = pagerState.numMeasurePasses
+        rule.runOnIdle {
+            runBlocking {
+                pagerState.scrollBy(0f)
+            }
+        }
+        assertThat(measurements).isEqualTo(pagerState.numMeasurePasses)
+        rule.runOnIdle {
+            runBlocking {
+                pagerState.scrollBy(-0f)
+            }
+        }
+        assertThat(measurements).isEqualTo(pagerState.numMeasurePasses)
+    }
+
+    @Test
+    fun contentPadding_largerThanConstraints_measuresAsZero() {
+        createPager(
+            modifier = Modifier.requiredSize(100.dp),
+            contentPadding = PaddingValues(200.dp)
+        )
+
+        assertThat(pagerState.pageSize).isEqualTo(0)
+    }
+
+    @Test
+    fun pageSize_smallerThanAvailableSpace_measuresAsZero() {
+        createPager(
+            modifier = Modifier.requiredSize(300.dp),
+            contentPadding = PaddingValues(200.dp),
+            pageSize = {
+                object : PageSize {
+                    override fun Density.calculateMainAxisPageSize(
+                        availableSpace: Int,
+                        pageSpacing: Int
+                    ) = availableSpace - 1
+                }
+            }
+        )
+
+        assertThat(pagerState.pageSize).isEqualTo(0)
     }
 
     companion object {

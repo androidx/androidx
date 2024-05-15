@@ -21,6 +21,7 @@ import android.os.SystemClock
 import android.view.KeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,13 +29,16 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -516,7 +520,7 @@ class SurfaceTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun clickableSurface_onFocus_changesGlowColor() {
-        rule.setContent {
+        rule.setFocusableContent {
             Surface(
                 modifier = Modifier
                     .testTag("surface")
@@ -607,16 +611,16 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleable_semantics() {
-        var isChecked by mutableStateOf(false)
+    fun selectable_semantics() {
+        var isSelected by mutableStateOf(false)
         rule.setContent {
             Surface(
-                checked = isChecked,
+                selected = isSelected,
                 modifier = Modifier
                     .testTag("surface"),
-                onCheckedChange = { isChecked = it }
+                onClick = { isSelected = !isSelected }
             ) {
-                Text("$isChecked")
+                Text("$isSelected")
                 Spacer(Modifier.size(30.toDp()))
             }
         }
@@ -632,17 +636,17 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleable_longClickSemantics() {
-        var isChecked by mutableStateOf(false)
+    fun selectable_longClickSemantics() {
+        var isSelected by mutableStateOf(false)
         rule.setContent {
             Surface(
-                checked = isChecked,
+                selected = isSelected,
                 modifier = Modifier
                     .testTag("surface"),
-                onCheckedChange = { },
-                onLongClick = { isChecked = !isChecked }
+                onClick = { },
+                onLongClick = { isSelected = !isSelected }
             ) {
-                Text("$isChecked")
+                Text("$isSelected")
                 Spacer(Modifier.size(30.toDp()))
             }
         }
@@ -658,17 +662,17 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleable_customSemantics() {
-        var isChecked by mutableStateOf(false)
+    fun selectable_customSemantics() {
+        var isSelected by mutableStateOf(false)
         rule.setContent {
             Surface(
-                checked = isChecked,
+                selected = isSelected,
                 modifier = Modifier
                     .semantics { role = Role.Tab }
                     .testTag("surface"),
-                onCheckedChange = { isChecked = it }
+                onClick = { isSelected = !isSelected }
             ) {
-                Text("$isChecked")
+                Text("$isSelected")
                 Spacer(Modifier.size(30.toDp()))
             }
         }
@@ -684,15 +688,15 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleable_toggleAction() {
-        var isChecked by mutableStateOf(false)
+    fun selectable_selectAction() {
+        var isSelected by mutableStateOf(false)
 
         rule.setContent {
             Surface(
-                checked = isChecked,
+                selected = isSelected,
                 modifier = Modifier
                     .testTag("surface"),
-                onCheckedChange = { isChecked = it }
+                onClick = { isSelected = !isSelected }
             ) {
                 Spacer(modifier = Modifier.size(30.toDp()))
             }
@@ -700,22 +704,22 @@ class SurfaceTest {
         rule.onNodeWithTag("surface")
             .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
-        Truth.assertThat(isChecked).isTrue()
+        Truth.assertThat(isSelected).isTrue()
 
         rule.onNodeWithTag("surface").performKeyInput { pressKey(Key.DirectionCenter) }
-        Truth.assertThat(isChecked).isFalse()
+        Truth.assertThat(isSelected).isFalse()
     }
 
     @Test
-    fun toggleable_longClickAction() {
+    fun selectable_longClickAction() {
         val count = mutableStateOf(0)
 
         rule.setContent {
             Surface(
-                checked = false,
+                selected = false,
                 modifier = Modifier
                     .testTag("surface"),
-                onCheckedChange = { },
+                onClick = { },
                 onLongClick = { count.value += 1 }
             ) {
                 Spacer(modifier = Modifier.size(30.toDp()))
@@ -733,16 +737,16 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleable_clickAction_withLongClick() {
+    fun selectable_clickAction_withLongClick() {
         val count1 = mutableStateOf(0)
         val count2 = mutableStateOf(0)
 
         rule.setContent {
             Surface(
-                checked = false,
+                selected = false,
                 modifier = Modifier
                     .testTag("surface"),
-                onCheckedChange = { count1.value += 1 },
+                onClick = { count1.value += 1 },
                 onLongClick = { count2.value += 1 }
             ) {
                 Spacer(modifier = Modifier.size(30.toDp()))
@@ -770,16 +774,16 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleable_enabled_disabled() {
-        var isChecked by mutableStateOf(false)
+    fun selectable_enabled_disabled() {
+        var isSelected by mutableStateOf(false)
         var enabled by mutableStateOf(true)
 
         rule.setContent {
             Surface(
-                checked = isChecked,
+                selected = isSelected,
                 modifier = Modifier
                     .testTag("surface"),
-                onCheckedChange = { isChecked = it },
+                onClick = { isSelected = !isSelected },
                 enabled = enabled
             ) {
                 Spacer(Modifier.size(30.toDp()))
@@ -790,7 +794,7 @@ class SurfaceTest {
             .assertIsEnabled()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
-        Truth.assertThat(isChecked).isTrue()
+        Truth.assertThat(isSelected).isTrue()
         rule.runOnIdle {
             enabled = false
         }
@@ -798,11 +802,11 @@ class SurfaceTest {
         rule.onNodeWithTag("surface")
             .assertIsNotEnabled()
             .performKeyInput { pressKey(Key.DirectionCenter) }
-        Truth.assertThat(isChecked).isTrue()
+        Truth.assertThat(isSelected).isTrue()
     }
 
     @Test
-    fun toggleable_interactionSource() {
+    fun selectable_interactionSource() {
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope
@@ -810,10 +814,10 @@ class SurfaceTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             Surface(
-                checked = false,
+                selected = false,
                 modifier = Modifier
                     .testTag("surface"),
-                onCheckedChange = {},
+                onClick = {},
                 interactionSource = interactionSource
             ) {
                 Spacer(Modifier.size(30.toDp()))
@@ -852,18 +856,18 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleableSurface_reactsToStateChange() {
+    fun selectableSurface_reactsToStateChange() {
         val interactionSource = MutableInteractionSource()
         var isPressed by mutableStateOf(false)
 
         rule.setContent {
             isPressed = interactionSource.collectIsPressedAsState().value
             Surface(
-                checked = false,
+                selected = false,
                 modifier = Modifier
                     .testTag("surface")
                     .size(100.toDp()),
-                onCheckedChange = {},
+                onClick = {},
                 interactionSource = interactionSource
             ) {}
         }
@@ -880,7 +884,7 @@ class SurfaceTest {
     }
 
     @Test
-    fun toggleableSurface_onFocusChange_releasesPressInteraction() {
+    fun selectableSurface_onFocusChange_releasesPressInteraction() {
         val interactionSource = MutableInteractionSource()
         var isPressed by mutableStateOf(false)
 
@@ -888,11 +892,11 @@ class SurfaceTest {
             isPressed = interactionSource.collectIsPressedAsState().value
             Column {
                 Surface(
-                    checked = false,
+                    selected = false,
                     modifier = Modifier
                         .testTag("surface-1")
                         .size(100.toDp()),
-                    onCheckedChange = {},
+                    onClick = {},
                     interactionSource = interactionSource
                 ) {}
                 Surface(
@@ -924,22 +928,22 @@ class SurfaceTest {
     @FlakyTest(bugId = 269229262)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun toggleableSurface_onCheckedChange_changesGlowColor() {
-        var isChecked by mutableStateOf(false)
-        var focusManager: FocusManager? = null
-        rule.setContent {
+    fun selectableSurface_onClick_changesGlowColor() {
+        var isSelected by mutableStateOf(false)
+        lateinit var focusManager: FocusManager
+        rule.setFocusableContent {
             focusManager = LocalFocusManager.current
             Surface(
-                checked = isChecked,
+                selected = isSelected,
                 modifier = Modifier
                     .testTag("surface")
                     .size(100.toDp()),
-                onCheckedChange = { isChecked = it },
-                colors = ToggleableSurfaceDefaults.colors(
+                onClick = { isSelected = !isSelected },
+                colors = SelectableSurfaceDefaults.colors(
                     containerColor = Color.Transparent,
                     selectedContainerColor = Color.Transparent
                 ),
-                glow = ToggleableSurfaceDefaults.glow(
+                glow = SelectableSurfaceDefaults.glow(
                     glow = Glow(
                         elevationColor = Color.Magenta,
                         elevation = Elevation.Level5
@@ -960,7 +964,7 @@ class SurfaceTest {
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
-        focusManager?.clearFocus()
+        rule.runOnUiThread { focusManager.clearFocus() }
 
         rule.onNodeWithTag("surface")
             .captureToImage()
@@ -969,10 +973,10 @@ class SurfaceTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun toggleableSurface_onCheckedChange_changesScaleFactor() {
-        var isChecked by mutableStateOf(false)
-        var focusManager: FocusManager? = null
-        rule.setContent {
+    fun selectableSurface_onClick_changesScaleFactor() {
+        var isSelected by mutableStateOf(false)
+        lateinit var focusManager: FocusManager
+        rule.setFocusableContent {
             focusManager = LocalFocusManager.current
             Box(
                 modifier = Modifier
@@ -980,12 +984,12 @@ class SurfaceTest {
                     .size(50.toDp())
             )
             Surface(
-                checked = isChecked,
-                onCheckedChange = { isChecked = it },
+                selected = isSelected,
+                onClick = { isSelected = !isSelected },
                 modifier = Modifier
                     .size(50.toDp())
                     .testTag("surface"),
-                scale = ToggleableSurfaceDefaults.scale(
+                scale = SelectableSurfaceDefaults.scale(
                     selectedScale = 1.5f
                 )
             ) {}
@@ -997,30 +1001,30 @@ class SurfaceTest {
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
-        focusManager?.clearFocus()
+        rule.runOnUiThread { focusManager.clearFocus() }
 
         rule.onRoot().captureToImage().assertDoesNotContainColor(Color.Blue)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun toggleableSurface_onCheckedChange_showsOutline() {
-        var isChecked by mutableStateOf(false)
-        var focusManager: FocusManager? = null
-        rule.setContent {
+    fun selectableSurface_onClick_showsOutline() {
+        var isSelected by mutableStateOf(false)
+        lateinit var focusManager: FocusManager
+        rule.setFocusableContent {
             focusManager = LocalFocusManager.current
             Surface(
-                checked = isChecked,
-                onCheckedChange = { isChecked = it },
+                selected = isSelected,
+                onClick = { isSelected = !isSelected },
                 modifier = Modifier
                     .size(100.toDp())
                     .testTag("surface"),
-                border = ToggleableSurfaceDefaults.border(
+                border = SelectableSurfaceDefaults.border(
                     selectedBorder = Border(
                         border = BorderStroke(width = 5.toDp(), color = Color.Magenta)
                     )
                 ),
-                colors = ToggleableSurfaceDefaults.colors(
+                colors = SelectableSurfaceDefaults.colors(
                     containerColor = Color.Transparent,
                     selectedContainerColor = Color.Transparent
                 )
@@ -1036,7 +1040,9 @@ class SurfaceTest {
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         // Remove focused state to reveal selected state
-        focusManager?.clearFocus()
+        rule.runOnUiThread { focusManager.clearFocus() }
+
+        rule.waitForIdle()
 
         surface.captureToImage().assertContainsColor(Color.Magenta)
     }
@@ -1071,9 +1077,9 @@ class SurfaceTest {
     @Test
     fun surface_onStateChanges_shouldUpdateBorder() {
         val clickableItemTag = "clickable-item"
-        val toggleableItemTag = "toggleable-item"
+        val selectableItemTag = "selectable-item"
         val rootElementTag = "root"
-        var focusManager: FocusManager? = null
+        lateinit var focusManager: FocusManager
 
         rule.setContent {
             // arrange
@@ -1108,11 +1114,11 @@ class SurfaceTest {
                 Surface(
                     modifier = Modifier
                         .padding(end = 16.dp)
-                        .testTag(toggleableItemTag),
-                    onCheckedChange = { selected = !selected },
-                    checked = selected,
-                    shape = ToggleableSurfaceDefaults.shape(RectangleShape),
-                    border = ToggleableSurfaceDefaults.border(
+                        .testTag(selectableItemTag),
+                    onClick = { selected = !selected },
+                    selected = selected,
+                    shape = SelectableSurfaceDefaults.shape(RectangleShape),
+                    border = SelectableSurfaceDefaults.border(
                         border = Border(
                             border = BorderStroke(width = 1.dp, color = Color.White),
                         ),
@@ -1120,7 +1126,7 @@ class SurfaceTest {
                             border = BorderStroke(width = 10.dp, color = Color.Blue),
                         ),
                     ),
-                    colors = ToggleableSurfaceDefaults.colors(
+                    colors = SelectableSurfaceDefaults.colors(
                         containerColor = Color.Green,
                         focusedContainerColor = Color.Red,
                         contentColor = Color.White,
@@ -1147,18 +1153,18 @@ class SurfaceTest {
         // blue border shouldn't be visible
         rootEl.captureToImage().assertDoesNotContainColor(Color.Blue)
 
-        focusManager?.moveFocus(FocusDirection.Down)
+        focusManager.moveFocus(FocusDirection.Down)
         rule.waitForIdle()
 
         // blue border should be visible
         rootEl.captureToImage().assertContainsColor(Color.Blue)
 
         rule
-            .onNodeWithTag(toggleableItemTag)
+            .onNodeWithTag(selectableItemTag)
             .performSemanticsAction(SemanticsActions.OnClick)
         rule.waitForIdle()
 
-        focusManager?.moveFocus(FocusDirection.Up)
+        focusManager.moveFocus(FocusDirection.Up)
         rule.waitForIdle()
 
         // blue border shouldn't be visible
@@ -1207,8 +1213,7 @@ class SurfaceTest {
             rule
                 .onNodeWithTag(containerTag)
                 .captureToImage()
-                .toPixelMap(0, 0, 1, 1)
-                .get(0, 0) == Color.White
+                .toPixelMap(0, 0, 1, 1)[0, 0] == Color.White
         )
 
         rule.onNodeWithTag(surfaceTag).requestFocus()
@@ -1219,8 +1224,7 @@ class SurfaceTest {
             rule
                 .onNodeWithTag(containerTag)
                 .captureToImage()
-                .toPixelMap(0, 0, 1, 1)
-                .get(0, 0) == Color.Red
+                .toPixelMap(0, 0, 1, 1)[0, 0] == Color.Red
         )
     }
 }
@@ -1257,4 +1261,30 @@ internal fun SemanticsNodeInteraction.performLongKeyPress(
         rule.waitForIdle()
     }
     return this
+}
+
+/**
+ * This function adds a parent composable which has size.
+ * [View.requestFocus()][android.view.View.requestFocus] will not take focus if the view has no
+ * size.
+ *
+ * @param extraItemForInitialFocus Includes an extra item that takes focus initially. This is
+ * useful in cases where we need tests that could be affected by initial focus. Eg. When there is
+ * only one focusable item and we clear focus, that item could end up being focused on again by the
+ * initial focus logic.
+ */
+private fun ComposeContentTestRule.setFocusableContent(
+    extraItemForInitialFocus: Boolean = true,
+    content: @Composable () -> Unit
+) {
+    setContent {
+        if (extraItemForInitialFocus) {
+            Row {
+                Box(modifier = Modifier.requiredSize(10.dp, 10.dp).focusable())
+                Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
+            }
+        } else {
+            Box(modifier = Modifier.requiredSize(100.dp, 100.dp)) { content() }
+        }
+    }
 }

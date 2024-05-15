@@ -22,6 +22,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
 import android.media.MediaRouter2;
 import android.os.Build;
 import android.provider.Settings;
@@ -175,7 +177,9 @@ public final class SystemOutputSwitcherDialogController {
         Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .putExtra("EXTRA_CONNECTION_ONLY", true)
-                .putExtra("android.bluetooth.devicepicker.extra.FILTER_TYPE", 1);
+                .putExtra("android.bluetooth.devicepicker.extra.FILTER_TYPE", 1)
+                .putExtra("EXTRA_CLOSE_ON_CONNECT",
+                        !isSuitableDeviceAlreadyConnectedAsAudioOutput(context));
 
         PackageManager packageManager = context.getPackageManager();
         List<ResolveInfo> resolveInfos = packageManager.queryIntentActivities(intent,
@@ -200,6 +204,14 @@ public final class SystemOutputSwitcherDialogController {
         return packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH);
     }
 
+    private static boolean isSuitableDeviceAlreadyConnectedAsAudioOutput(
+            @NonNull Context context) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            return Api23Impl.isSuitableDeviceAlreadyConnectedAsAudioOutput(context);
+        }
+        return true;
+    }
+
     @RequiresApi(30)
     static class Api30Impl {
         private Api30Impl() {
@@ -221,6 +233,36 @@ public final class SystemOutputSwitcherDialogController {
         @DoNotInline
         static boolean showSystemOutputSwitcher(MediaRouter2 mediaRouter2) {
             return mediaRouter2.showSystemOutputSwitcher();
+        }
+    }
+
+    @RequiresApi(23)
+    static final class Api23Impl {
+        private Api23Impl() {
+        }
+
+        @DoNotInline
+        public static boolean isSuitableDeviceAlreadyConnectedAsAudioOutput(Context context) {
+            AudioManager audioManager = context.getSystemService(AudioManager.class);
+            AudioDeviceInfo[] audioDeviceInfos = audioManager.getDevices(
+                    AudioManager.GET_DEVICES_OUTPUTS);
+            for (AudioDeviceInfo device : audioDeviceInfos) {
+                switch (device.getType()) {
+                    case AudioDeviceInfo.TYPE_BLE_BROADCAST:
+                    case AudioDeviceInfo.TYPE_BLE_HEADSET:
+                    case AudioDeviceInfo.TYPE_BLE_SPEAKER:
+                    case AudioDeviceInfo.TYPE_BLUETOOTH_A2DP:
+                    case AudioDeviceInfo.TYPE_HEARING_AID:
+                    case AudioDeviceInfo.TYPE_LINE_ANALOG:
+                    case AudioDeviceInfo.TYPE_LINE_DIGITAL:
+                    case AudioDeviceInfo.TYPE_USB_DEVICE:
+                    case AudioDeviceInfo.TYPE_USB_HEADSET:
+                    case AudioDeviceInfo.TYPE_WIRED_HEADPHONES:
+                    case AudioDeviceInfo.TYPE_WIRED_HEADSET:
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

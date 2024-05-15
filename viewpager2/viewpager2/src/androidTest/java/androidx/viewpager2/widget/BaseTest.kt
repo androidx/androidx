@@ -20,10 +20,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.view.View
-import android.view.View.OVER_SCROLL_NEVER
 import android.view.ViewConfiguration
 import android.view.accessibility.AccessibilityNodeInfo
-import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
@@ -73,7 +71,6 @@ import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.After
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 
@@ -124,11 +121,6 @@ open class BaseTest {
             viewPager.setSystemExclusionRectsForEspressoSwipes(requestLayout = true)
         }
         onView(withId(R.id.view_pager)).check(matches(isDisplayed()))
-
-        // animations getting in the way on API < 16
-        if (Build.VERSION.SDK_INT < 16) {
-            viewPager.recyclerView.overScrollMode = OVER_SCROLL_NEVER
-        }
 
         return Context(activityTestRule)
     }
@@ -303,13 +295,9 @@ open class BaseTest {
                 isUserInputEnabled && isVerticalOrientation &&
                 currentPage < numPages - 1
 
-            val expectScrollBackwardAction =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && isUserInputEnabled &&
-                    currentPage > 0
+            val expectScrollBackwardAction = isUserInputEnabled && currentPage > 0
 
-            val expectScrollForwardAction =
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && isUserInputEnabled &&
-                    currentPage < numPages - 1
+            val expectScrollForwardAction = isUserInputEnabled && currentPage < numPages - 1
 
             assertThat(
                 "Left action expected: $expectPageLeftAction",
@@ -414,12 +402,6 @@ open class BaseTest {
         }
 
         waitForRenderLatch.await(5, TimeUnit.SECONDS)
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            // Give slow devices some time to warm up,
-            // to prevent severe frame drops in the smooth scroll
-            Thread.sleep(1000)
-        }
     }
 
     fun ViewPager2.addWaitForLayoutChangeLatch(): CountDownLatch {
@@ -734,11 +716,7 @@ fun tryNTimes(n: Int, resetBlock: () -> Unit, tryBlock: () -> Unit) {
             if (i < n - 1) {
                 Log.w(BaseTest.TAG, "Bad state, retrying block", e)
             } else {
-                val errorMessage = "Block hit bad state $n times"
-                when {
-                    Build.VERSION.SDK_INT >= 19 -> throw AssertionError(errorMessage, e)
-                    else -> fail(errorMessage)
-                }
+                throw AssertionError("Block hit bad state $n times", e)
             }
             resetBlock()
         }
@@ -746,6 +724,6 @@ fun tryNTimes(n: Int, resetBlock: () -> Unit, tryBlock: () -> Unit) {
 }
 
 val View.isRtl: Boolean
-    get() = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+    get() = getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
 
 val ViewPager2.isHorizontal: Boolean get() = orientation == ORIENTATION_HORIZONTAL

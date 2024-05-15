@@ -55,7 +55,7 @@ package androidx.car.app {
     method public int getCarAppApiLevel();
     method public <T> T getCarService(Class<T!>);
     method public Object getCarService(String);
-    method public String getCarServiceName(Class<?>);
+    method public String getCarServiceName(Class<? extends java.lang.Object!>);
     method public androidx.car.app.HostInfo? getHostInfo();
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public boolean isDarkMode();
@@ -169,7 +169,7 @@ package androidx.car.app {
     ctor public SessionInfo(int, String);
     method public int getDisplayType();
     method public String getSessionId();
-    method public java.util.Set<java.lang.Class<? extends androidx.car.app.model.Template>!>? getSupportedTemplates(int);
+    method public java.util.Set<java.lang.Class<? extends androidx.car.app.model.Template!>!>? getSupportedTemplates(int);
     field public static final androidx.car.app.SessionInfo DEFAULT_SESSION_INFO;
     field public static final int DISPLAY_TYPE_CLUSTER = 1; // 0x1
     field public static final int DISPLAY_TYPE_MAIN = 0; // 0x0
@@ -641,6 +641,7 @@ package androidx.car.app.hardware.info {
     method public void addSpeedListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Speed!>);
     method public void addTollListener(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.TollCard!>);
     method public void fetchEnergyProfile(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyProfile!>);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public default void fetchExteriorDimensions(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.ExteriorDimensions!>);
     method public void fetchModel(java.util.concurrent.Executor, androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.Model!>);
     method public void removeEnergyLevelListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EnergyLevel!>);
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public void removeEvStatusListener(androidx.car.app.hardware.common.OnCarDataAvailableListener<androidx.car.app.hardware.info.EvStatus!>);
@@ -736,6 +737,20 @@ package androidx.car.app.hardware.info {
     method public androidx.car.app.hardware.info.EvStatus build();
     method public androidx.car.app.hardware.info.EvStatus.Builder setEvChargePortConnected(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
     method public androidx.car.app.hardware.info.EvStatus.Builder setEvChargePortOpen(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(7) public class ExteriorDimensions {
+    ctor public ExteriorDimensions();
+    ctor public ExteriorDimensions(androidx.car.app.hardware.common.CarValue<java.lang.Integer![]!>);
+    method public androidx.car.app.hardware.common.CarValue<java.lang.Integer![]!> getExteriorDimensions();
+    field public static final int CURB_TO_CURB_TURNING_RADIUS_INDEX = 7; // 0x7
+    field public static final int HEIGHT_INDEX = 0; // 0x0
+    field public static final int LENGTH_INDEX = 1; // 0x1
+    field public static final int TRACK_WIDTH_FRONT_INDEX = 5; // 0x5
+    field public static final int TRACK_WIDTH_REAR_INDEX = 6; // 0x6
+    field public static final int WHEEL_BASE_INDEX = 4; // 0x4
+    field public static final int WIDTH_INCLUDING_MIRRORS_INDEX = 3; // 0x3
+    field public static final int WIDTH_INDEX = 2; // 0x2
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class Gyroscope {
@@ -854,12 +869,121 @@ package androidx.car.app.media {
 
 package androidx.car.app.mediaextensions {
 
+  public final class MediaBrowserExtras {
+    field public static final String KEY_HINT_VIEW_MAX_CATEGORY_GRID_ITEMS_COUNT_PER_ROW = "androidx.car.app.mediaextensions.KEY_HINT_VIEW_MAX_CATEGORY_GRID_ITEMS_COUNT_PER_ROW";
+    field public static final String KEY_HINT_VIEW_MAX_CATEGORY_LIST_ITEMS_COUNT_PER_ROW = "androidx.car.app.mediaextensions.KEY_HINT_VIEW_MAX_CATEGORY_LIST_ITEMS_COUNT_PER_ROW";
+    field public static final String KEY_HINT_VIEW_MAX_GRID_ITEMS_COUNT_PER_ROW = "androidx.car.app.mediaextensions.KEY_HINT_VIEW_MAX_GRID_ITEMS_COUNT_PER_ROW";
+    field public static final String KEY_HINT_VIEW_MAX_ITEMS_WHILE_RESTRICTED = "androidx.car.app.mediaextensions.KEY_HINT_VIEW_MAX_ITEMS_WHILE_RESTRICTED";
+    field public static final String KEY_HINT_VIEW_MAX_LIST_ITEMS_COUNT_PER_ROW = "androidx.car.app.mediaextensions.KEY_HINT_VIEW_MAX_LIST_ITEMS_COUNT_PER_ROW";
+    field public static final String KEY_ROOT_HINT_MAX_QUEUE_ITEMS_WHILE_RESTRICTED = "androidx.car.app.mediaextensions.KEY_ROOT_HINT_MAX_QUEUE_ITEMS_WHILE_RESTRICTED";
+    field public static final String KEY_ROOT_HINT_MEDIA_SESSION_API = "androidx.car.app.mediaextensions.KEY_ROOT_HINT_MEDIA_SESSION_API";
+  }
+
   public final class MetadataExtras {
     field public static final String KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI = "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI";
     field public static final String KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI = "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI";
     field public static final String KEY_DESCRIPTION_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_DESCRIPTION_LINK_MEDIA_ID";
     field public static final String KEY_IMMERSIVE_AUDIO = "androidx.car.app.mediaextensions.KEY_IMMERSIVE_AUDIO";
     field public static final String KEY_SUBTITLE_LINK_MEDIA_ID = "androidx.car.app.mediaextensions.KEY_SUBTITLE_LINK_MEDIA_ID";
+  }
+
+}
+
+package androidx.car.app.mediaextensions.analytics {
+
+  public class Constants {
+    field public static final String ACTION_ANALYTICS = "androidx.car.app.mediaextensions.analytics.action.ANALYTICS";
+  }
+
+}
+
+package androidx.car.app.mediaextensions.analytics.client {
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public interface AnalyticsCallback {
+    method public void onBrowseNodeChangeEvent(androidx.car.app.mediaextensions.analytics.event.BrowseChangeEvent);
+    method public void onErrorEvent(androidx.car.app.mediaextensions.analytics.event.ErrorEvent);
+    method public void onMediaClickedEvent(androidx.car.app.mediaextensions.analytics.event.MediaClickedEvent);
+    method public default void onUnknownEvent(android.os.Bundle);
+    method public void onViewChangeEvent(androidx.car.app.mediaextensions.analytics.event.ViewChangeEvent);
+    method public void onVisibleItemsEvent(androidx.car.app.mediaextensions.analytics.event.VisibleItemsEvent);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class RootHintsPopulator {
+    ctor public RootHintsPopulator(android.os.Bundle);
+    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setAnalyticsOptIn(boolean);
+    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setShareOem(boolean);
+    method public androidx.car.app.mediaextensions.analytics.client.RootHintsPopulator setSharePlatform(boolean);
+  }
+
+}
+
+package androidx.car.app.mediaextensions.analytics.event {
+
+  public abstract class AnalyticsEvent {
+    method public int getAnalyticsVersion();
+    method public String getComponent();
+    method public int getEventType();
+    method public long getTimestampMillis();
+    field public static final int EVENT_TYPE_BROWSE_NODE_CHANGED_EVENT = 3; // 0x3
+    field public static final int EVENT_TYPE_ERROR_EVENT = 5; // 0x5
+    field public static final int EVENT_TYPE_MEDIA_CLICKED_EVENT = 2; // 0x2
+    field public static final int EVENT_TYPE_UNKNOWN_EVENT = 0; // 0x0
+    field public static final int EVENT_TYPE_VIEW_CHANGE_EVENT = 4; // 0x4
+    field public static final int EVENT_TYPE_VISIBLE_ITEMS_EVENT = 1; // 0x1
+    field public static final int VIEW_ACTION_HIDE = 0; // 0x0
+    field public static final int VIEW_ACTION_MODE_NONE = 0; // 0x0
+    field public static final int VIEW_ACTION_MODE_SCROLL = 1; // 0x1
+    field public static final int VIEW_ACTION_SHOW = 1; // 0x1
+    field public static final int VIEW_COMPONENT_BROWSE_ACTION_OVERFLOW = 8; // 0x8
+    field public static final int VIEW_COMPONENT_BROWSE_LIST = 1; // 0x1
+    field public static final int VIEW_COMPONENT_BROWSE_TABS = 2; // 0x2
+    field public static final int VIEW_COMPONENT_ERROR_MESSAGE = 10; // 0xa
+    field public static final int VIEW_COMPONENT_LAUNCHER = 6; // 0x6
+    field public static final int VIEW_COMPONENT_MEDIA_HOST = 9; // 0x9
+    field public static final int VIEW_COMPONENT_MINI_PLAYBACK = 5; // 0x5
+    field public static final int VIEW_COMPONENT_PLAYBACK = 4; // 0x4
+    field public static final int VIEW_COMPONENT_QUEUE_LIST = 3; // 0x3
+    field public static final int VIEW_COMPONENT_SETTINGS_VIEW = 7; // 0x7
+    field public static final int VIEW_COMPONENT_UNKNOWN_COMPONENT = 0; // 0x0
+  }
+
+  public class BrowseChangeEvent extends androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent {
+    method public int getBrowseMode();
+    method public String getBrowseNodeId();
+    method public int getViewAction();
+    field public static final int BROWSE_MODE_LINK = 4; // 0x4
+    field public static final int BROWSE_MODE_LINK_BROWSE = 5; // 0x5
+    field public static final int BROWSE_MODE_SEARCH_BROWSE = 6; // 0x6
+    field public static final int BROWSE_MODE_SEARCH_RESULTS = 7; // 0x7
+    field public static final int BROWSE_MODE_TREE_BROWSE = 2; // 0x2
+    field public static final int BROWSE_MODE_TREE_ROOT = 1; // 0x1
+    field public static final int BROWSE_MODE_TREE_TAB = 3; // 0x3
+    field public static final int BROWSE_MODE_UNKNOWN = 0; // 0x0
+  }
+
+  public class ErrorEvent extends androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent {
+    method public int getErrorCode();
+    field public static final int ERROR_CODE_INVALID_BUNDLE = 1; // 0x1
+    field public static final int ERROR_CODE_INVALID_EVENT = 2; // 0x2
+    field public static final int ERROR_CODE_INVALID_EXTRAS = 0; // 0x0
+  }
+
+  public class MediaClickedEvent extends androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent {
+    method public String? getMediaId();
+    method public int getViewComponent();
+  }
+
+  public class ViewChangeEvent extends androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent {
+    method public int getViewAction();
+    method public int getViewComponent();
+  }
+
+  public class VisibleItemsEvent extends androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent {
+    method public java.util.List<java.lang.String!>? getItemsIds();
+    method public String? getNodeId();
+    method public int getViewAction();
+    method public int getViewActionMode();
+    method public int getViewComponent();
   }
 
 }
@@ -989,6 +1113,7 @@ package androidx.car.app.model {
     method public int getId();
     method public androidx.car.app.model.CarText? getSubtitle();
     method public androidx.car.app.model.CarText getTitle();
+    field public static final int DURATION_SHOW_INDEFINITELY = 2147483647; // 0x7fffffff
   }
 
   public static final class Alert.Builder {
@@ -1013,7 +1138,7 @@ package androidx.car.app.model {
     method public void sendDismiss(androidx.car.app.OnDoneCallback);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public class Badge {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public class Badge {
     method public androidx.car.app.model.CarColor? getBackgroundColor();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public boolean hasDot();
@@ -1159,7 +1284,7 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class GridItem implements androidx.car.app.model.Item {
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.Badge? getBadge();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.Badge? getBadge();
     method public androidx.car.app.model.CarIcon? getImage();
     method public int getImageType();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
@@ -1174,44 +1299,46 @@ package androidx.car.app.model {
     ctor public GridItem.Builder();
     method public androidx.car.app.model.GridItem build();
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, androidx.car.app.model.Badge);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, androidx.car.app.model.Badge);
     method public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int, androidx.car.app.model.Badge);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.GridItem.Builder setImage(androidx.car.app.model.CarIcon, int, androidx.car.app.model.Badge);
     method public androidx.car.app.model.GridItem.Builder setLoading(boolean);
     method public androidx.car.app.model.GridItem.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
     method public androidx.car.app.model.GridItem.Builder setText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.GridItem.Builder setText(CharSequence);
-    method public androidx.car.app.model.GridItem.Builder setTitle(androidx.car.app.model.CarText);
-    method public androidx.car.app.model.GridItem.Builder setTitle(CharSequence);
+    method public androidx.car.app.model.GridItem.Builder setTitle(androidx.car.app.model.CarText?);
+    method public androidx.car.app.model.GridItem.Builder setTitle(CharSequence?);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class GridTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public java.util.List<androidx.car.app.model.Action!> getActions();
-    method public androidx.car.app.model.Action? getHeaderAction();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public int getItemImageShape();
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public int getItemSize();
+    method public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public int getItemImageShape();
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public int getItemSize();
     method public androidx.car.app.model.ItemList? getSingleList();
-    method public androidx.car.app.model.CarText? getTitle();
+    method @Deprecated public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
-    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_IMAGE_SHAPE_CIRCLE = 2; // 0x2
-    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_IMAGE_SHAPE_UNSET = 1; // 0x1
-    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_LARGE = 4; // 0x4
-    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_MEDIUM = 2; // 0x2
-    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public static final int ITEM_SIZE_SMALL = 1; // 0x1
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int ITEM_IMAGE_SHAPE_CIRCLE = 2; // 0x2
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int ITEM_IMAGE_SHAPE_UNSET = 1; // 0x1
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int ITEM_SIZE_LARGE = 4; // 0x4
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int ITEM_SIZE_MEDIUM = 2; // 0x2
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int ITEM_SIZE_SMALL = 1; // 0x1
   }
 
   public static final class GridTemplate.Builder {
     ctor public GridTemplate.Builder();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.GridTemplate build();
-    method public androidx.car.app.model.GridTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.model.GridTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder setItemImageShape(@SuppressCompatibility int);
-    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder setItemSize(@SuppressCompatibility int);
+    method @Deprecated public androidx.car.app.model.GridTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.GridTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.model.GridTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.GridTemplate.Builder setItemImageShape(@SuppressCompatibility int);
+    method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.GridTemplate.Builder setItemSize(@SuppressCompatibility int);
     method public androidx.car.app.model.GridTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.GridTemplate.Builder setSingleList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.model.GridTemplate.Builder setTitle(CharSequence);
+    method @Deprecated public androidx.car.app.model.GridTemplate.Builder setTitle(CharSequence);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class Header {
@@ -1271,12 +1398,13 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ListTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
     method @androidx.car.app.annotations.RequiresCarApi(6) public java.util.List<androidx.car.app.model.Action!> getActions();
-    method public androidx.car.app.model.Action? getHeaderAction();
+    method public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public java.util.List<androidx.car.app.model.SectionedItemList!> getSectionedLists();
     method public androidx.car.app.model.ItemList? getSingleList();
-    method public androidx.car.app.model.CarText? getTitle();
+    method @Deprecated public androidx.car.app.model.CarText? getTitle();
     method public boolean isLoading();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder toBuilder();
   }
@@ -1287,11 +1415,12 @@ package androidx.car.app.model {
     method public androidx.car.app.model.ListTemplate.Builder addSectionedList(androidx.car.app.model.SectionedItemList);
     method public androidx.car.app.model.ListTemplate build();
     method @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public androidx.car.app.model.ListTemplate.Builder clearSectionedLists();
-    method public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.model.ListTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method @Deprecated public androidx.car.app.model.ListTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.ListTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.model.ListTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.ListTemplate.Builder setLoading(boolean);
     method public androidx.car.app.model.ListTemplate.Builder setSingleList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.model.ListTemplate.Builder setTitle(CharSequence);
+    method @Deprecated public androidx.car.app.model.ListTemplate.Builder setTitle(CharSequence);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.RequiresCarApi(2) public final class LongMessageTemplate implements androidx.car.app.model.Template {
@@ -1312,13 +1441,14 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class MessageTemplate implements androidx.car.app.model.Template {
-    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.ActionStrip? getActionStrip();
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarText? getDebugMessage();
-    method public androidx.car.app.model.Action? getHeaderAction();
+    method public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.CarIcon? getIcon();
     method public androidx.car.app.model.CarText getMessage();
-    method public androidx.car.app.model.CarText? getTitle();
+    method @Deprecated public androidx.car.app.model.CarText? getTitle();
     method @androidx.car.app.annotations.RequiresCarApi(2) public boolean isLoading();
   }
 
@@ -1327,13 +1457,14 @@ package androidx.car.app.model {
     ctor public MessageTemplate.Builder(CharSequence);
     method public androidx.car.app.model.MessageTemplate.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate build();
-    method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.MessageTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.MessageTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(String);
     method public androidx.car.app.model.MessageTemplate.Builder setDebugMessage(Throwable);
-    method public androidx.car.app.model.MessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.MessageTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.MessageTemplate.Builder setIcon(androidx.car.app.model.CarIcon);
     method @androidx.car.app.annotations.RequiresCarApi(2) public androidx.car.app.model.MessageTemplate.Builder setLoading(boolean);
-    method public androidx.car.app.model.MessageTemplate.Builder setTitle(CharSequence);
+    method @Deprecated public androidx.car.app.model.MessageTemplate.Builder setTitle(CharSequence);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class Metadata {
@@ -1394,18 +1525,20 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PaneTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method public androidx.car.app.model.Action? getHeaderAction();
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
     method public androidx.car.app.model.Pane getPane();
-    method public androidx.car.app.model.CarText? getTitle();
+    method @Deprecated public androidx.car.app.model.CarText? getTitle();
   }
 
   public static final class PaneTemplate.Builder {
     ctor public PaneTemplate.Builder(androidx.car.app.model.Pane);
     method public androidx.car.app.model.PaneTemplate build();
-    method public androidx.car.app.model.PaneTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.model.PaneTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
-    method public androidx.car.app.model.PaneTemplate.Builder setTitle(CharSequence);
+    method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @androidx.car.app.annotations.RequiresCarApi(7) public androidx.car.app.model.PaneTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
+    method @Deprecated public androidx.car.app.model.PaneTemplate.Builder setTitle(CharSequence);
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class ParkedOnlyOnClickListener implements androidx.car.app.model.OnClickListener {
@@ -1481,6 +1614,7 @@ package androidx.car.app.model {
     method @androidx.car.app.annotations.RequiresCarApi(5) public boolean isEnabled();
     method public androidx.car.app.model.Row row();
     method public CharSequence yourBoat();
+    field @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final int IMAGE_TYPE_EXTRA_SMALL = 8; // 0x8
     field public static final int IMAGE_TYPE_ICON = 4; // 0x4
     field public static final int IMAGE_TYPE_LARGE = 2; // 0x2
     field public static final int IMAGE_TYPE_SMALL = 1; // 0x1
@@ -1602,8 +1736,8 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class TemplateInfo {
-    ctor public TemplateInfo(Class<? extends androidx.car.app.model.Template>, String);
-    method public Class<? extends androidx.car.app.model.Template> getTemplateClass();
+    ctor public TemplateInfo(Class<? extends androidx.car.app.model.Template!>, String);
+    method public Class<? extends androidx.car.app.model.Template!> getTemplateClass();
     method public String getTemplateId();
   }
 
@@ -1849,29 +1983,28 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.MapController.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class MapTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method public androidx.car.app.model.Header? getHeader();
-    method public androidx.car.app.model.ItemList? getItemList();
-    method public androidx.car.app.navigation.model.MapController? getMapController();
-    method public androidx.car.app.model.Pane? getPane();
+  @Deprecated @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public final class MapTemplate implements androidx.car.app.model.Template {
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated public androidx.car.app.model.Header? getHeader();
+    method @Deprecated public androidx.car.app.model.ItemList? getItemList();
+    method @Deprecated public androidx.car.app.navigation.model.MapController? getMapController();
+    method @Deprecated public androidx.car.app.model.Pane? getPane();
   }
 
-  public static final class MapTemplate.Builder {
-    ctor public MapTemplate.Builder();
-    method public androidx.car.app.navigation.model.MapTemplate build();
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setHeader(androidx.car.app.model.Header);
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setItemList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setMapController(androidx.car.app.navigation.model.MapController);
-    method public androidx.car.app.navigation.model.MapTemplate.Builder setPane(androidx.car.app.model.Pane);
+  @Deprecated public static final class MapTemplate.Builder {
+    ctor @Deprecated public MapTemplate.Builder();
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate build();
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setHeader(androidx.car.app.model.Header);
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setItemList(androidx.car.app.model.ItemList);
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setMapController(androidx.car.app.navigation.model.MapController);
+    method @Deprecated public androidx.car.app.navigation.model.MapTemplate.Builder setPane(androidx.car.app.model.Pane);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(7) public final class MapWithContentTemplate implements androidx.car.app.model.Template {
+  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(7) public final class MapWithContentTemplate implements androidx.car.app.model.Template {
     method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method public androidx.car.app.model.Template? getContentTemplate();
+    method public androidx.car.app.model.Template getContentTemplate();
     method public androidx.car.app.navigation.model.MapController? getMapController();
-    method public boolean isLoading();
   }
 
   public static final class MapWithContentTemplate.Builder {
@@ -1879,7 +2012,6 @@ package androidx.car.app.navigation.model {
     method public androidx.car.app.navigation.model.MapWithContentTemplate build();
     method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
     method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setContentTemplate(androidx.car.app.model.Template);
-    method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setLoading(boolean);
     method public androidx.car.app.navigation.model.MapWithContentTemplate.Builder setMapController(androidx.car.app.navigation.model.MapController);
   }
 
@@ -1931,56 +2063,56 @@ package androidx.car.app.navigation.model {
     method public void onPanModeChanged(boolean);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PlaceListNavigationTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
+  @Deprecated @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class PlaceListNavigationTemplate implements androidx.car.app.model.Template {
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
-    method public androidx.car.app.model.ItemList? getItemList();
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
-    method public androidx.car.app.model.OnContentRefreshDelegate? getOnContentRefreshDelegate();
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
+    method @Deprecated public androidx.car.app.model.ItemList? getItemList();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method @Deprecated public androidx.car.app.model.OnContentRefreshDelegate? getOnContentRefreshDelegate();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method @Deprecated public androidx.car.app.model.CarText? getTitle();
-    method public boolean isLoading();
+    method @Deprecated public boolean isLoading();
   }
 
-  public static final class PlaceListNavigationTemplate.Builder {
-    ctor public PlaceListNavigationTemplate.Builder();
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate build();
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeader(androidx.car.app.model.Header);
+  @Deprecated public static final class PlaceListNavigationTemplate.Builder {
+    ctor @Deprecated public PlaceListNavigationTemplate.Builder();
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate build();
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeader(androidx.car.app.model.Header);
     method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setOnContentRefreshListener(androidx.car.app.model.OnContentRefreshListener);
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setLoading(boolean);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setOnContentRefreshListener(androidx.car.app.model.OnContentRefreshListener);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
     method @Deprecated public androidx.car.app.navigation.model.PlaceListNavigationTemplate.Builder setTitle(CharSequence);
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class RoutePreviewNavigationTemplate implements androidx.car.app.model.Template {
-    method public androidx.car.app.model.ActionStrip? getActionStrip();
-    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
+  @Deprecated @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class RoutePreviewNavigationTemplate implements androidx.car.app.model.Template {
+    method @Deprecated public androidx.car.app.model.ActionStrip? getActionStrip();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Header? getHeader();
     method @Deprecated public androidx.car.app.model.Action? getHeaderAction();
-    method public androidx.car.app.model.ItemList? getItemList();
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
-    method public androidx.car.app.model.Action? getNavigateAction();
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
+    method @Deprecated public androidx.car.app.model.ItemList? getItemList();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.ActionStrip? getMapActionStrip();
+    method @Deprecated public androidx.car.app.model.Action? getNavigateAction();
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.PanModeDelegate? getPanModeDelegate();
     method @Deprecated public androidx.car.app.model.CarText? getTitle();
-    method public boolean isLoading();
+    method @Deprecated public boolean isLoading();
   }
 
-  public static final class RoutePreviewNavigationTemplate.Builder {
-    ctor public RoutePreviewNavigationTemplate.Builder();
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate build();
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
-    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeader(androidx.car.app.model.Header);
+  @Deprecated public static final class RoutePreviewNavigationTemplate.Builder {
+    ctor @Deprecated public RoutePreviewNavigationTemplate.Builder();
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate build();
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeader(androidx.car.app.model.Header);
     method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setHeaderAction(androidx.car.app.model.Action);
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
-    method public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
-    method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setItemList(androidx.car.app.model.ItemList);
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setLoading(boolean);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setMapActionStrip(androidx.car.app.model.ActionStrip);
+    method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setNavigateAction(androidx.car.app.model.Action);
+    method @Deprecated @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setPanModeListener(androidx.car.app.navigation.model.PanModeListener);
     method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(androidx.car.app.model.CarText);
     method @Deprecated public androidx.car.app.navigation.model.RoutePreviewNavigationTemplate.Builder setTitle(CharSequence);
   }
@@ -2141,6 +2273,12 @@ package androidx.car.app.serialization {
   public class BundlerException extends java.lang.Exception {
     ctor public BundlerException(String?);
     ctor public BundlerException(String?, Throwable);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public interface RemoteListDelegate<T> {
+    method public int getSize();
+    method public void requestItemRange(int startIndex, int endIndex, androidx.car.app.OnDoneCallback callback);
+    property public abstract int size;
   }
 
 }

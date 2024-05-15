@@ -16,10 +16,11 @@
 package androidx.health.platform.client.response
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ResponseProto
 
-/** @suppress */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class ReadDataResponse(override val proto: ResponseProto.ReadDataResponse) :
     ProtoParcelable<ResponseProto.ReadDataResponse>() {
 

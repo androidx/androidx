@@ -32,17 +32,20 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
-import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
+import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
+import androidx.core.telecom.util.ExperimentalAppActions
+import java.util.UUID
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.job
 import kotlinx.coroutines.withTimeout
@@ -70,6 +73,7 @@ class CallsManager constructor(context: Context) {
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.
     private val mDirectExecutor = Executor { it.run() }
+    @ExperimentalAppActions
     // Capabilities to be set by the VOIP app which will be used in addCall.
     private var mCapabilities: MutableList<androidx.core.telecom.extensions.Capability> =
         mutableListOf()
@@ -197,6 +201,7 @@ class CallsManager constructor(context: Context) {
         internal const val CALL_CREATION_FAILURE_MSG =
             "The call failed to be added."
         internal const val ADD_CALL_TIMEOUT = 5000L
+        internal const val SWITCH_TO_SPEAKER_TIMEOUT = 1000L
         private val TAG: String = CallsManager::class.java.simpleName.toString()
     }
 
@@ -215,19 +220,15 @@ class CallsManager constructor(context: Context) {
     fun registerAppWithTelecom(@Capability capabilities: Int) {
         // verify the build version supports this API and throw an exception if not
         Utils.verifyBuildVersion()
-        // start to build the PhoneAccount that will be registered via the platform API
-        var platformCapabilities: Int = PhoneAccount.CAPABILITY_SELF_MANAGED
+
         val phoneAccountBuilder = PhoneAccount.builder(
             getPhoneAccountHandleForPackage(),
             PACKAGE_LABEL
         )
-        // append additional capabilities if the device is on a U build or above
-        if (Utils.hasPlatformV2Apis()) {
-            platformCapabilities = PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS or
-                Utils.remapJetpackCapabilitiesToPlatformCapabilities(capabilities)
-        }
+
         // remap and set capabilities
-        phoneAccountBuilder.setCapabilities(platformCapabilities)
+        phoneAccountBuilder.setCapabilities(remapJetpackCapsToPlatformCaps(capabilities))
+
         // build and register the PhoneAccount via the Platform API
         mPhoneAccount = phoneAccountBuilder.build()
         mTelecomManager.registerPhoneAccount(mPhoneAccount)
@@ -250,6 +251,17 @@ class CallsManager constructor(context: Context) {
      *     - For outgoing calls, your application should either immediately post a
      *       [android.app.Notification.CallStyle] notification or delay adding the call via this
      *       addCall method until the remote side is ready.
+     *     - addCall will NOT complete until the call session has ended. Instead, the addCall block,
+     *       which is called the [CallControlScope], will run once the call has been added. Do not
+     *       put addCall in a function expecting it to return or add logic after the addCall request
+     *       that is important for the call session.
+     *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) will be
+     *       invoked by Telecom whenever the system needs your VoIP application to change the call
+     *       state. For example, if there is an ongoing VoIP call in your application and the
+     *       system receives a sim call, Telecom will invoke onSetInactive to place your call on
+     *       hold/inactive if the user answers the incoming sim call.  These events may not occur
+     *       during most calls but should still be implemented in the event Telecom needs to
+     *       manipulate your applications call state.
      *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a
      *       timeout of 5000 milliseconds. Failing to complete the suspend fun before the timeout
      *       will result in a failed transaction.
@@ -257,10 +269,6 @@ class CallsManager constructor(context: Context) {
      *       is handled successfully on the client side. If the callback cannot be completed,
      *       an Exception should be thrown. Telecom will rethrow the Exception and tear down
      *       the call session.
-     *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a
-     *       timeout of 5000 milliseconds. Failing to complete the suspend fun before the
-     *       timeout will result in a failed transaction.
-     *
      * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
      *
      * @param onAnswer           where callType is the audio/video state the call should be
@@ -290,7 +298,7 @@ class CallsManager constructor(context: Context) {
      * @throws CancellationException if the call failed to be added within 5000 milliseconds
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalAppActions::class)
     @Suppress("ClassVerificationFailure")
     suspend fun addCall(
         callAttributes: CallAttributesCompat,
@@ -330,6 +338,10 @@ class CallsManager constructor(context: Context) {
                 onSetActive,
                 onSetInactive,
                 blockingSessionExecution)
+            // The CallSession.CallEvent* class receives callbacks from the platform and emits
+            // the values through Flows out to the client.
+            val callEvents = CallSession.CallEventCallbackImpl(callChannels, coroutineContext,
+                voipExtensionManager)
 
             /**
              * The Platform [android.telecom.TelecomManager.addCall] requires a
@@ -350,17 +362,21 @@ class CallsManager constructor(context: Context) {
                         openResult.cancel(CancellationException(CALL_CREATION_FAILURE_MSG))
                     }
                 }
+
             // leverage the platform API
             mTelecomManager.addCall(
                 callAttributes.toCallAttributes(getPhoneAccountHandleForPackage()),
                 mDirectExecutor,
                 callControlOutcomeReceiver,
                 CallSession.CallControlCallbackImpl(callSession),
-                CallSession.CallEventCallbackImpl(callChannels, coroutineContext,
-                    voipExtensionManager)
+                callEvents
             )
 
             pauseExecutionUntilCallIsReady_orTimeout(openResult)
+
+            callEvents.maybeSwitchToSpeakerOnCallStart(
+                openResult.getCompleted().getCallControl(),
+                callAttributes)
 
             /* at this point in time we have CallControl object */
             val scope =
@@ -385,6 +401,7 @@ class CallsManager constructor(context: Context) {
                 CompletableDeferred<CallSessionLegacy>(parent = coroutineContext.job)
 
             val request = JetpackConnectionService.PendingConnectionRequest(
+                UUID.randomUUID().toString(),
                 callAttributes,
                 callChannels,
                 coroutineContext,
@@ -421,6 +438,7 @@ class CallsManager constructor(context: Context) {
         mCapabilities.clear()
     }
 
+    @ExperimentalAppActions
     private suspend fun pauseExecutionUntilCallIsReady_orTimeout(
         openResult: CompletableDeferred<*>,
         request: JetpackConnectionService.PendingConnectionRequest? = null
@@ -468,6 +486,7 @@ class CallsManager constructor(context: Context) {
         return mPhoneAccount
     }
 
+    @ExperimentalAppActions
     internal fun setVoipCapabilities(
         capabilities: List<androidx.core.telecom.extensions.Capability>
     ) {

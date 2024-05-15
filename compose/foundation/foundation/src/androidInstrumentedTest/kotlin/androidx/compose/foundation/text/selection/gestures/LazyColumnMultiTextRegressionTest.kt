@@ -168,7 +168,7 @@ class LazyColumnMultiTextRegressionTest {
         assertTextToolbarTopAt(pointerAreaRect.top)
 
         scrollLines(fromLine = 5, toLine = 3)
-        assertThat(textToolbarShown).isFalse()
+        assertTextToolbarTopAt(pointerAreaRect.top)
 
         scrollLines(fromLine = 5, toLine = 7)
         assertThat(textToolbarShown).isTrue()

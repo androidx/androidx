@@ -18,6 +18,7 @@ package androidx.room.writer
 
 import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -25,17 +26,19 @@ import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.DaoProcessor
 import androidx.room.testing.context
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import createVerifierFromEntitiesAndViews
 import java.util.Locale
 import loadTestSource
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import writeTestSource
 
-@RunWith(JUnit4::class)
+@RunWith(TestParameterInjector::class)
 class DaoWriterTest {
     @Test
-    fun complexDao() {
+    fun complexDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "databasewriter/input/ComplexDatabase.java",
@@ -44,18 +47,10 @@ class DaoWriterTest {
             loadTestSource(
                 fileName = "daoWriter/input/ComplexDao.java",
                 qName = "foo.bar.ComplexDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/ComplexDao.java",
-                        qName = "foo.bar.ComplexDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
+            outputFileName = "ComplexDao.java"
+        )
     }
 
     @Test
@@ -63,95 +58,65 @@ class DaoWriterTest {
         val originalLocale = Locale.getDefault()
         try {
             Locale.setDefault(Locale("tr")) // Turkish has special upper/lowercase i chars
-            complexDao()
+            complexDao(false)
         } finally {
             Locale.setDefault(originalLocale)
         }
     }
 
     @Test
-    fun writerDao() {
+    fun writerDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/WriterDao.java",
                 qName = "foo.bar.WriterDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/WriterDao.java",
-                        qName = "foo.bar.WriterDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
+            outputFileName = "WriterDao.java"
+        )
     }
 
     @Test
-    fun deletionDao() {
+    fun deletionDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/DeletionDao.java",
                 qName = "foo.bar.DeletionDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/DeletionDao.java",
-                        qName = "foo.bar.DeletionDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
+            outputFileName = "DeletionDao.java"
+        )
     }
 
     @Test
-    fun updateDao() {
+    fun updateDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/UpdateDao.java",
                 qName = "foo.bar.UpdateDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/UpdateDao.java",
-                        qName = "foo.bar.UpdateDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
+            outputFileName = "UpdateDao.java"
+        )
     }
 
     @Test
-    fun upsertDao() {
+    fun upsertDao(@TestParameter javaLambdaSyntaxAvailable: Boolean) {
         singleDao(
             loadTestSource(
                 fileName = "daoWriter/input/UpsertDao.java",
                 qName = "foo.bar.UpsertDao"
-            )
-        ) {
-            val backendFolder = backendFolder(it)
-            it.assertCompilationResult {
-                generatedSource(
-                    loadTestSource(
-                        fileName = "daoWriter/output/$backendFolder/UpsertDao.java",
-                        qName = "foo.bar.UpsertDao_Impl"
-                    )
-                )
-            }
-        }
+            ),
+            javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
+            outputFileName = "UpsertDao.java"
+        )
     }
 
     private fun singleDao(
         vararg inputs: Source,
-        handler: (XTestInvocation) -> Unit
+        javaLambdaSyntaxAvailable: Boolean = false,
+        outputFileName: String,
+        handler: (XTestInvocation) -> Unit = { }
     ) {
         val sources = listOf(
             COMMON.USER, COMMON.MULTI_PKEY_ENTITY, COMMON.BOOK,
@@ -165,6 +130,10 @@ class DaoWriterTest {
         runProcessorTest(
             sources = sources
         ) { invocation ->
+            if (invocation.isKsp && !javaLambdaSyntaxAvailable) {
+                // Skip KSP backend without lambda syntax, it is a nonsensical combination.
+                return@runProcessorTest
+            }
             val dao = invocation.roundEnv
                 .getElementsAnnotatedWith(
                     androidx.room.Dao::class.qualifiedName!!
@@ -186,15 +155,49 @@ class DaoWriterTest {
                     dbVerifier = dbVerifier
                 )
                 val parsedDao = parser.process()
-                DaoWriter(parsedDao, db, CodeLanguage.JAVA)
-                    .write(invocation.processingEnv)
+                DaoWriter(
+                    dao = parsedDao,
+                    dbElement = db,
+                    writerContext = TypeWriter.WriterContext(
+                        codeLanguage = CodeLanguage.JAVA,
+                        javaLambdaSyntaxAvailable = javaLambdaSyntaxAvailable,
+                        targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
+                    )
+                ).write(invocation.processingEnv)
+                val outputSubFolder = outputFolder(invocation, javaLambdaSyntaxAvailable)
+                invocation.assertCompilationResult {
+                    val expectedFilePath = "daoWriter/output/$outputSubFolder/$outputFileName"
+                    val expectedSrc = loadTestSource(
+                        fileName = expectedFilePath,
+                        qName = parsedDao.implTypeName.canonicalName
+                    )
+                    // Set ROOM_TEST_WRITE_SRCS env variable to make tests write expected sources,
+                    // handy for big sweeping code gen changes. ;)
+                    if (System.getenv("ROOM_TEST_WRITE_SRCS") != null) {
+                        writeTestSource(
+                            checkNotNull(this.findGeneratedSource(expectedSrc.relativePath)) {
+                                "Couldn't find gen src: $expectedSrc"
+                            },
+                            expectedFilePath
+                        )
+                    }
+                    generatedSource(expectedSrc)
+                }
             }
-            // we could call handler inside the if block but if something happens and we cannot
-            // find the dao, test will never assert on generated code.
             handler(invocation)
         }
     }
 
-    private fun backendFolder(invocation: XTestInvocation) =
-        invocation.processingEnv.backend.name.lowercase()
+    private fun outputFolder(
+        invocation: XTestInvocation,
+        javaLambdaSyntaxAvailable: Boolean
+    ): String {
+        val backendFolder = invocation.processingEnv.backend.name.lowercase()
+        val lambdaFolder = if (javaLambdaSyntaxAvailable) "withLambda" else "withoutLambda"
+        if (invocation.isKsp) {
+            return backendFolder
+        } else {
+            return "$backendFolder/$lambdaFolder"
+        }
+    }
 }

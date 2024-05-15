@@ -33,39 +33,43 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class PaneTemplateTest {
+    Header mHeader = new Header.Builder()
+            .setTitle("Title")
+            .setStartHeaderAction(Action.BACK)
+            .addEndHeaderAction(Action.APP_ICON)
+            .build();
 
     @Test
     public void pane_moreThanMaxActions_throws() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new PaneTemplate.Builder(TestUtils.createPane(2, 3)).setTitle(
-                        "Title").build());
+                () -> new PaneTemplate.Builder(TestUtils.createPane(2, 3))
+                        .setHeader(mHeader).build());
 
         // Positive cases.
-        new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle("Title").build();
+        new PaneTemplate.Builder(TestUtils.createPane(2, 2))
+                .setHeader(mHeader).build();
     }
 
     @Test
     public void paneTemplate_title_unsupportedSpans_throws() {
         CharSequence title1 = TestUtils.getCharSequenceWithClickableSpan("Title");
+
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle(
-                        title1).build());
+                () -> new PaneTemplate.Builder(TestUtils.createPane(2, 2))
+                        .setHeader(createHeaderWithCustomTitle(title1)).build());
 
         CharSequence title2 = TestUtils.getCharSequenceWithColorSpan("Title");
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle(
-                        title2).build());
-
-        // CarIconSpan assert no exceptions
-        CharSequence title3 = TestUtils.getCharSequenceWithIconSpan("Title");
-        new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle(title3).build();
+                () -> new PaneTemplate.Builder(TestUtils.createPane(2, 2))
+                        .setHeader(createHeaderWithCustomTitle(title2)).build());
 
         // DistanceSpan and DurationSpan assert no exceptions
         CharSequence title4 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
-        new PaneTemplate.Builder(TestUtils.createPane(2, 2)).setTitle(title4).build();
+        new PaneTemplate.Builder(TestUtils.createPane(2, 2))
+                .setHeader(createHeaderWithCustomTitle(title4)).build();
     }
 
     @Test
@@ -75,25 +79,25 @@ public class PaneTemplateTest {
         Pane pane1 = getPane().addAction(action1).build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new PaneTemplate.Builder(pane1).setTitle("Title").build());
+                () -> new PaneTemplate.Builder(pane1).setHeader(mHeader).build());
 
         CarText title2 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
         Action action2 = new Action.Builder().setTitle(title2).build();
         Pane pane2 = getPane().addAction(action2).build();
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new PaneTemplate.Builder(pane2).setTitle("Title").build());
+                () -> new PaneTemplate.Builder(pane2).setHeader(mHeader).build());
 
         // DurationSpan and DistanceSpan do not throw
         CharSequence title3 = TestUtils.getCharSequenceWithColorSpan("Title");
         Action action3 = new Action.Builder().setTitle(title3).build();
         Pane pane3 = getPane().addAction(action3).build();
-        new PaneTemplate.Builder(pane3).setTitle("Title").build();
+        new PaneTemplate.Builder(pane3).setHeader(mHeader).build();
 
         CarText title4 = TestUtils.getCarTextVariantsWithColorSpan("Title");
         Action action4 = new Action.Builder().setTitle(title4).build();
         Pane pane4 = getPane().addAction(action4).build();
-        new PaneTemplate.Builder(pane4).setTitle("Title").build();
+        new PaneTemplate.Builder(pane4).setHeader(mHeader).build();
     }
 
     @Test
@@ -108,12 +112,12 @@ public class PaneTemplateTest {
                 () ->
                         new PaneTemplate.Builder(
                                 new Pane.Builder().addRow(rowExceedsMaxTexts).build())
-                                .setTitle("Title")
+                                .setHeader(mHeader)
                                 .build());
 
         // Positive cases.
         new PaneTemplate.Builder(new Pane.Builder().addRow(rowMeetingMaxTexts).build())
-                .setTitle("Title")
+                .setHeader(mHeader)
                 .build();
     }
 
@@ -136,7 +140,7 @@ public class PaneTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new PaneTemplate.Builder(paneExceedsMaxPrimaryAction)
-                        .setTitle("Title")
+                        .setHeader(mHeader)
                         .build());
     }
 
@@ -155,26 +159,23 @@ public class PaneTemplateTest {
                 () ->
                         new PaneTemplate.Builder(
                                 new Pane.Builder().addRow(rowWithClickListener).build())
-                                .setTitle("Title")
+                                .setHeader(mHeader)
                                 .build());
 
         // Positive cases.
         new PaneTemplate.Builder(new Pane.Builder().addRow(rowWithToggle).build())
-                                .setTitle("Title")
+                                .setHeader(mHeader)
                                 .build();
 
         new PaneTemplate.Builder(new Pane.Builder().addRow(rowMeetingRestrictions).build())
-                .setTitle("Title")
+                .setHeader(mHeader)
                 .build();
     }
 
     @Test
     public void createInstance_emptyHeader() {
         PaneTemplate template = new PaneTemplate.Builder(getPane().build()).build();
-
-        assertThat(template.getTitle()).isNull();
-        assertThat(template.getHeaderAction()).isNull();
-        assertThat(template.getActionStrip()).isNull();
+        assertThat(template.getHeader()).isNull();
     }
 
     @Test
@@ -182,17 +183,19 @@ public class PaneTemplateTest {
         CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new PaneTemplate.Builder(getPane().build()).setTitle(title));
+                () -> new PaneTemplate.Builder(getPane().build())
+                        .setHeader(createHeaderWithCustomTitle(title)));
 
         // DurationSpan and DistanceSpan do not throw
         CharSequence title2 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
-        new PaneTemplate.Builder(getPane().build()).setTitle(title2).build();
+        new PaneTemplate.Builder(getPane().build()).setHeader(createHeaderWithCustomTitle(title2))
+                .build();
     }
 
     @Test
     public void createInstance_setPane() {
         Pane pane = getPane().build();
-        PaneTemplate template = new PaneTemplate.Builder(pane).setTitle("Title").build();
+        PaneTemplate template = new PaneTemplate.Builder(pane).setHeader(mHeader).build();
         assertThat(template.getPane()).isEqualTo(pane);
     }
 
@@ -201,118 +204,148 @@ public class PaneTemplateTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        new PaneTemplate.Builder(getPane().build())
-                                .setHeaderAction(
-                                        new Action.Builder().setTitle("Action").setOnClickListener(
-                                                () -> {
-                                                }).build()));
+                    new PaneTemplate.Builder(getPane().build())
+                            .setHeader(new Header.Builder()
+                                    .setStartHeaderAction(
+                                            new Action.Builder()
+                                                    .setTitle("Action")
+                                                    .setOnClickListener(() -> {})
+                                                    .build())
+                                    .build())
+                            .build());
+
     }
 
     @Test
     public void createInstance_setHeaderAction() {
-        PaneTemplate template = new PaneTemplate.Builder(getPane().build()).setHeaderAction(
-                Action.BACK).build();
-        assertThat(template.getHeaderAction()).isEqualTo(Action.BACK);
+        PaneTemplate template = new PaneTemplate.Builder(getPane().build())
+                .setHeader(new Header.Builder()
+                .setStartHeaderAction(Action.BACK).build())
+                .build();
+        assertThat(template.getHeader().getStartHeaderAction()).isEqualTo(Action.BACK);
     }
 
     @Test
     public void createInstance_setActionStrip() {
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
         PaneTemplate template =
-                new PaneTemplate.Builder(getPane().build()).setTitle("Title").setActionStrip(
-                        actionStrip).build();
-        assertThat(template.getActionStrip()).isEqualTo(actionStrip);
+                new PaneTemplate.Builder(getPane().build())
+                        .setHeader(new Header.Builder()
+                                .setTitle("Title")
+                                .addEndHeaderAction(Action.BACK)
+                                .build())
+                        .build();
+        assertThat(template.getHeader().getEndHeaderActions().get(0)).isEqualTo(Action.BACK);
     }
 
     @Test
     public void equals() {
         Pane pane = new Pane.Builder().addRow(new Row.Builder().setTitle("Title").build()).build();
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
-        String title = "foo";
-
         PaneTemplate template =
                 new PaneTemplate.Builder(pane)
-                        .setHeaderAction(Action.BACK)
-                        .setActionStrip(actionStrip)
-                        .setTitle(title)
+                        .setHeader(new Header.Builder()
+                                .setTitle("foo")
+                                .setStartHeaderAction(Action.BACK)
+                                .addEndHeaderAction(Action.BACK)
+                                .build())
                         .build();
 
         assertThat(template)
                 .isEqualTo(
                         new PaneTemplate.Builder(pane)
-                                .setHeaderAction(Action.BACK)
-                                .setActionStrip(actionStrip)
-                                .setTitle(title)
+                                .setHeader(new Header.Builder()
+                                        .setTitle("foo")
+                                        .setStartHeaderAction(Action.BACK)
+                                        .addEndHeaderAction(Action.BACK)
+                                        .build())
                                 .build());
     }
 
     @Test
     public void notEquals_differentPane() {
         Pane pane = new Pane.Builder().addRow(new Row.Builder().setTitle("Title").build()).build();
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
-        String title = "foo";
 
         PaneTemplate template =
-                new PaneTemplate.Builder(pane).setActionStrip(actionStrip).setTitle(title).build();
+                new PaneTemplate.Builder(pane)
+                        .setHeader(new Header.Builder()
+                                .setTitle("foo")
+                                .build()).build();
 
         assertThat(template)
                 .isNotEqualTo(
                         new PaneTemplate.Builder(
                                 new Pane.Builder().addRow(
                                         new Row.Builder().setTitle("Title2").build()).build())
-                                .setActionStrip(actionStrip)
-                                .setTitle(title)
-                                .build());
+                                .setHeader(new Header.Builder()
+                                        .setTitle("foo")
+                                        .addEndHeaderAction(Action.BACK)
+                                        .build()).build());
     }
 
     @Test
     public void notEquals_differentHeaderAction() {
         Pane pane = new Pane.Builder().addRow(new Row.Builder().setTitle("Title").build()).build();
 
-        PaneTemplate template = new PaneTemplate.Builder(pane).setHeaderAction(Action.BACK).build();
+        PaneTemplate template = new PaneTemplate.Builder(pane)
+                .setHeader(new Header.Builder()
+                        .setStartHeaderAction(Action.BACK)
+                        .build()).build();
 
         assertThat(template)
-                .isNotEqualTo(new PaneTemplate.Builder(pane).setHeaderAction(
-                        Action.APP_ICON).build());
+                .isNotEqualTo(new PaneTemplate.Builder(pane)
+                        .setHeader(new Header.Builder()
+                                .setStartHeaderAction(Action.APP_ICON)
+                                .build()).build());
     }
 
     @Test
-    public void notEquals_differentActionStrip() {
+    public void notEquals_differentEndHeaderActions() {
         Pane pane = new Pane.Builder().addRow(new Row.Builder().setTitle("Title").build()).build();
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
-        String title = "foo";
 
         PaneTemplate template =
-                new PaneTemplate.Builder(pane).setActionStrip(actionStrip).setTitle(title).build();
+                new PaneTemplate.Builder(pane)
+                        .setHeader(new Header.Builder()
+                                .setTitle("foo")
+                                .addEndHeaderAction(Action.BACK)
+                                .build())
+                        .build();
 
         assertThat(template)
                 .isNotEqualTo(
                         new PaneTemplate.Builder(pane)
-                                .setActionStrip(
-                                        new ActionStrip.Builder().addAction(
-                                                Action.APP_ICON).build())
-                                .setTitle(title)
+                                .setHeader(new Header.Builder()
+                                        .setTitle("foo")
+                                        .addEndHeaderAction(Action.APP_ICON)
+                                        .build())
                                 .build());
     }
 
     @Test
     public void notEquals_differentTitle() {
         Pane pane = new Pane.Builder().addRow(new Row.Builder().setTitle("Title").build()).build();
-        ActionStrip actionStrip = new ActionStrip.Builder().addAction(Action.BACK).build();
-        String title = "foo";
 
         PaneTemplate template =
-                new PaneTemplate.Builder(pane).setActionStrip(actionStrip).setTitle(title).build();
+                new PaneTemplate.Builder(pane)
+                        .setHeader(new Header.Builder()
+                                .setTitle("foo")
+                                .addEndHeaderAction(Action.BACK)
+                                .build()).build();
 
         assertThat(template)
                 .isNotEqualTo(
-                        new PaneTemplate.Builder(pane).setActionStrip(actionStrip).setTitle(
-                                "bar").build());
+                        new PaneTemplate.Builder(pane)
+                                .setHeader(new Header.Builder()
+                                        .setTitle("bar")
+                                        .addEndHeaderAction(Action.BACK)
+                                        .build()).build());
     }
 
     private static Pane.Builder getPane() {
         Row row1 = new Row.Builder().setTitle("Bananas").build();
         Row row2 = new Row.Builder().setTitle("Oranges").build();
         return new Pane.Builder().addRow(row1).addRow(row2);
+    }
+
+    private Header createHeaderWithCustomTitle(CharSequence title) {
+        return new Header.Builder().setTitle(title).build();
     }
 }

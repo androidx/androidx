@@ -16,13 +16,13 @@
 
 package androidx.compose.foundation.pager
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.CoroutineScope
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class PagerMeasureResult(
     override val visiblePagesInfo: List<MeasuredPage>,
     override val pageSize: Int,
@@ -32,15 +32,19 @@ internal class PagerMeasureResult(
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
     override val reverseLayout: Boolean,
-    override val beyondBoundsPageCount: Int,
+    override val beyondViewportPageCount: Int,
     val firstVisiblePage: MeasuredPage?,
     val currentPage: MeasuredPage?,
     var currentPageOffsetFraction: Float,
     var firstVisiblePageScrollOffset: Int,
     var canScrollForward: Boolean,
+    override val snapPosition: SnapPosition,
     measureResult: MeasureResult,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
+    val extraPagesBefore: List<MeasuredPage> = emptyList(),
+    val extraPagesAfter: List<MeasuredPage> = emptyList(),
+    val coroutineScope: CoroutineScope
 ) : PagerLayoutInfo, MeasureResult by measureResult {
     override val viewportSize: IntSize
         get() = IntSize(width, height)
@@ -86,6 +90,7 @@ internal class PagerMeasureResult(
 
         val first = visiblePagesInfo.first()
         val last = visiblePagesInfo.last()
+
         val canApply = if (delta < 0) {
             // scrolling forward
             val deltaToFirstItemChange =
@@ -107,8 +112,14 @@ internal class PagerMeasureResult(
             visiblePagesInfo.fastForEach {
                 it.applyScrollDelta(delta)
             }
+            extraPagesBefore.fastForEach {
+                it.applyScrollDelta(delta)
+            }
+            extraPagesAfter.fastForEach {
+                it.applyScrollDelta(delta)
+            }
             if (!canScrollForward && delta > 0) {
-                // we scrolled backward, so now we can scroll forward
+                // we scrolled backward, so now we can scroll forward.
                 canScrollForward = true
             }
             true

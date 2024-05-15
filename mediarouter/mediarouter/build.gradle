@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -34,7 +41,10 @@ dependencies {
     implementation("androidx.palette:palette:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation("androidx.appcompat:appcompat-resources:1.2.0")
-    implementation "androidx.annotation:annotation-experimental:1.3.0"
+
+    // TODO(b/307906685) Change to the stable version with the next release.
+    // See b/307906685#comment6 for details.
+    implementation("androidx.annotation:annotation-experimental:1.4.0-rc01")
 
     testImplementation(libs.junit)
     testImplementation(libs.testCore)
@@ -53,7 +63,7 @@ dependencies {
 }
 
 android {
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
     defaultConfig {
@@ -64,7 +74,7 @@ android {
 
 androidx {
     name = "MediaRouter"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
     failOnDeprecationWarnings = false

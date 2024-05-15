@@ -38,7 +38,9 @@
         <item name="android:ellipsize">end</item>
     </style>
     <style name="Glance.AppWidget.LinearProgressIndicator"
-           parent="@android:style/Widget.ProgressBar.Horizontal"/>
+           parent="@android:style/Widget.Material.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/glance_progress_horizontal</item>
+    </style>
     <style name="Glance.AppWidget.CircularProgressIndicator" parent=""/>
     <style name="Glance.AppWidget.VerticalGrid" parent=""/>
 

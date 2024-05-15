@@ -18,12 +18,12 @@ package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CameraAccessException
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.compat.ObjectUnavailableException
+import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import kotlinx.atomicfu.atomic
 
@@ -35,7 +35,6 @@ internal val graphRequestProcessorIds = atomic(0)
  *
  * GraphRequestProcessors are intended to be in conjunction with a [GraphListener].
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Suppress("NOTHING_TO_INLINE")
 class GraphRequestProcessor
 private constructor(
@@ -127,17 +126,34 @@ private constructor(
 
         // This can fail for various reasons and may throw exceptions.
         val captureSequence =
-            captureSequenceProcessor.build(
-                isRepeating,
-                requests,
-                defaultParameters,
-                requiredParameters,
-                listeners,
-                activeBurstListener
-            )
+            Debug.trace("CXCP#buildCaptureSequence") {
+                captureSequenceProcessor.build(
+                    isRepeating,
+                    requests,
+                    defaultParameters,
+                    requiredParameters,
+                    listeners,
+                    activeBurstListener
+                )
+            }
 
         // Reject incoming requests if this instance has been stopped or closed.
         if (captureSequence == null) {
+            if (requests.any { it.inputRequest != null }) {
+                // A burst is classified as a reprocessing burst if *any* of the items have a non
+                // null inputRequest. If this happens, abort the entire burst and close all
+                // of the images.
+                for (request in requests) {
+                    // Ensure the image, if it exists, is closed.
+                    request.inputRequest?.image?.close()
+                    for (listener in request.listeners) {
+                        listener.onAborted(request)
+                    }
+                }
+                // Tell the calling method that the request was successfully handled. In this
+                // case, it was handled by aborting the requests and closing the images.
+                return true
+            }
             Log.warn { "Rejecting requests $requests: Could not create the capture sequence." }
 
             // We do not need to invoke the sequenceCompleteListener since it has not been added to
@@ -150,11 +166,6 @@ private constructor(
         if (closed.value) {
             Log.warn { "Rejecting requests $requests: Request processor is closed." }
             return false
-        }
-
-        // Reject incorrectly structured capture sequences:
-        check(captureSequence.captureRequestList.size == captureSequence.captureMetadataList.size) {
-            "CaptureSequence ($captureSequence) has mismatched request and metadata lists!"
         }
 
         // Non-repeating requests must always be aware of abort calls.
@@ -179,9 +190,12 @@ private constructor(
                         Log.warn { "Did not submit $captureSequence, $this was closed!" }
                         return false
                     }
-                    val sequenceNumber = captureSequenceProcessor.submit(captureSequence) ?: -1
-                    captureSequence.sequenceNumber = sequenceNumber
-                    sequenceNumber
+
+                    Debug.trace("CXCP#submitCaptureSequence") {
+                        val sequenceNumber = captureSequenceProcessor.submit(captureSequence) ?: -1
+                        captureSequence.sequenceNumber = sequenceNumber
+                        sequenceNumber
+                    }
                 }
 
             if (result != -1) {

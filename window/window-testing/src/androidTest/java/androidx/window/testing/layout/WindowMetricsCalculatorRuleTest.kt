@@ -96,11 +96,9 @@ class WindowMetricsCalculatorRuleTest {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
     fun testCurrentWindowMetrics_context_matchesDisplayRealSize_17to29() {
         Utils.assumePlatformAtOrBelow(Build.VERSION_CODES.Q)
-        Utils.assumePlatformAtOrAbove(Build.VERSION_CODES.JELLY_BEAN_MR1)
 
         activityRule.scenario.onActivity { activity ->
             val calculator = WindowMetricsCalculator.getOrCreate()

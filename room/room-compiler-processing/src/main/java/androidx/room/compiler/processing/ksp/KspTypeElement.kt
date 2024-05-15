@@ -102,25 +102,28 @@ internal sealed class KspTypeElement(
     }
 
     override val superClass: XType? by lazy {
+        val anyTypeElement = env.requireTypeElement(Any::class)
         if (isInterface()) {
             // interfaces don't have super classes (they do have super types)
             null
-        } else if (this == env.commonTypes.anyType.typeElement) {
+        } else if (this == anyTypeElement) {
             null
         } else {
             declaration.superTypes
                 .singleOrNull {
-                    (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.CLASS
-                }?.let { env.wrap(it) }
-                ?: env.commonTypes.anyType
+                    val declaration = it.resolve().declaration.replaceTypeAliases()
+                    declaration is KSClassDeclaration && declaration.classKind == ClassKind.CLASS
+                }?.let { env.wrap(it).makeNonNullable() }
+                ?: anyTypeElement.type
         }
     }
 
     override val superInterfaces by lazy {
-        declaration.superTypes.asSequence()
+        declaration.superTypes
             .filter {
-                (it.resolve().declaration as? KSClassDeclaration)?.classKind == ClassKind.INTERFACE
-            }.mapTo(mutableListOf()) { env.wrap(it) }
+                val declaration = it.resolve().declaration.replaceTypeAliases()
+                declaration is KSClassDeclaration && declaration.classKind == ClassKind.INTERFACE
+            }.mapTo(mutableListOf()) { env.wrap(it).makeNonNullable() }
     }
 
     @Deprecated(
@@ -177,6 +180,39 @@ internal sealed class KspTypeElement(
                     declaration = it
                 )
             }
+    }
+
+    private val _constructors by lazy {
+        if (isAnnotationClass()) {
+            emptyList()
+        } else {
+            val constructors = declaration.getConstructors().toList()
+            buildList {
+                addAll(
+                    constructors.map { env.wrapFunctionDeclaration(it) as XConstructorElement }
+                )
+                constructors
+                    .filter { it.hasOverloads() }
+                    .forEach { addAll(enumerateSyntheticConstructors(it)) }
+
+                // To match KAPT if all params in the primary constructor have default values then
+                // synthesize a no-arg constructor if one is not already present.
+                val hasNoArgConstructor = constructors.any { it.parameters.isEmpty() }
+                if (!hasNoArgConstructor) {
+                    declaration.primaryConstructor?.let {
+                        if (!it.hasOverloads() && it.parameters.all { it.hasDefault }) {
+                            add(
+                                KspSyntheticConstructorElement(
+                                    env = env,
+                                    declaration = it,
+                                    valueParameters = emptyList()
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private val _declaredFields by lazy {
@@ -251,6 +287,12 @@ internal sealed class KspTypeElement(
         return !isInterface() && !declaration.isOpen()
     }
 
+    override fun isRecordClass(): Boolean {
+        // Need to also check super type since @JvmRecord is @Retention(SOURCE)
+        return hasAnnotation(JvmRecord::class) ||
+            superClass?.isTypeOf(java.lang.Record::class) == true
+    }
+
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
     }
@@ -320,41 +362,7 @@ internal sealed class KspTypeElement(
     }
 
     override fun getConstructors(): List<XConstructorElement> {
-        if (isAnnotationClass()) {
-            return emptyList()
-        }
-        val constructors = declaration.getConstructors().toList()
-
-        return buildList {
-            addAll(
-                constructors.map {
-                    KspConstructorElement(
-                        env = env,
-                        declaration = it
-                    )
-                }
-            )
-            constructors
-                .filter { it.hasOverloads() }
-                .forEach { addAll(enumerateSyntheticConstructors(it)) }
-
-            // To match KAPT if all params in the primary constructor have default values then
-            // synthesize a no-arg constructor if one is not already present.
-            val hasNoArgConstructor = constructors.any { it.parameters.isEmpty() }
-            if (!hasNoArgConstructor) {
-                declaration.primaryConstructor?.let {
-                    if (!it.hasOverloads() && it.parameters.all { it.hasDefault }) {
-                        add(
-                            KspSyntheticConstructorElement(
-                                env = env,
-                                declaration = it,
-                                valueParameters = emptyList()
-                            )
-                        )
-                    }
-                }
-            }
-        }
+        return _constructors
     }
 
     private fun enumerateSyntheticConstructors(
@@ -383,13 +391,7 @@ internal sealed class KspTypeElement(
         return if (isPreCompiled) constructorEnumeration.reversed() else constructorEnumeration
     }
 
-    override fun getSuperInterfaceElements(): List<XTypeElement> {
-        return declaration.superTypes
-            .mapNotNull { it.resolve().declaration }
-            .filterIsInstance<KSClassDeclaration>()
-            .filter { it.classKind == ClassKind.INTERFACE }
-            .mapTo(mutableListOf()) { env.wrapClassDeclaration(it) }
-    }
+    override fun getSuperInterfaceElements() = superInterfaces.mapNotNull { it.typeElement }
 
     override fun getEnclosedTypeElements(): List<XTypeElement> {
         return declaration.declarations.filterIsInstance<KSClassDeclaration>()

@@ -26,7 +26,7 @@ import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
-import androidx.core.telecom.test.utils.MockInCallService
+import androidx.core.telecom.test.utils.MockInCallServiceDelegate
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -43,6 +43,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -137,6 +138,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      * [CallEndpointCompat] via [CallControlScope.requestEndpointChange].
      * The call should use the *V2 platform APIs* under the hood.
      */
+    @Ignore // b/329357697  TODO:: re-enable when cache_call_audio_callbacks is enabled in builds
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
     @Test(timeout = 10000)
@@ -150,6 +152,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
      * mute/unmute the call are reflected in [CallControlScope.isMuted]. The call should use the
      * *V2 platform APIs* under the hood.
      */
+    @Ignore // b/323006293  TODO:: re-enable when cache_call_audio_callbacks is enabled in builds
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
     @Test(timeout = 10000)
@@ -386,7 +389,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
 
     /**
      * This helper verifies that [CallControlScope.isMuted] properly collects updates to the mute
-     * state via [MockInCallService.setMuted].
+     * state via [MockInCallServiceDelegate.setMuted].
      *
      * Note: Due to the possibility that the channel can receive stale updates, it's necessary to
      * keep receiving those updates until the state does change. To prevent the test execution from
@@ -407,7 +410,7 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     val setMuteStateTo = !initialMuteState
                     var muteStateChanged = false
                     // Toggle mute via ICS
-                    MockInCallService.setMute(setMuteStateTo)
+                    MockInCallServiceDelegate.setMute(setMuteStateTo)
                     runBlocking {
                         launch {
                             isMuted.collect {

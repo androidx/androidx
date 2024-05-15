@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.Quirks;
 
 import java.util.List;
 
@@ -37,6 +38,13 @@ import java.util.List;
 public class DeviceQuirks {
 
     private DeviceQuirks() {
+    }
+
+    /** Returns all device specific quirks loaded on the current device. */
+    @RequiresApi(21)
+    @NonNull
+    public static Quirks getAll() {
+        return new Quirks(DeviceQuirksLoader.loadQuirks());
     }
 
     /**

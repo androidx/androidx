@@ -18,5 +18,6 @@
 
 package androidx.compose.material
 
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual typealias InternalAtomicReference<V> =
     java.util.concurrent.atomic.AtomicReference<V>

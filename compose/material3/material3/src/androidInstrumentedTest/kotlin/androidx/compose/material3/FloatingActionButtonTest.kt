@@ -137,7 +137,7 @@ class FloatingActionButtonTest {
         rule
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides false
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
                 ) {
                     SmallFloatingActionButton(onClick = {}) {
                         Icon(
@@ -162,12 +162,8 @@ class FloatingActionButtonTest {
     fun smallFabHasMinTouchTarget() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentEnforcement provides true
-                ) {
-                    SmallFloatingActionButton(onClick = {}) {
-                        Icon(Icons.Filled.Favorite, null)
-                    }
+                SmallFloatingActionButton(onClick = {}) {
+                    Icon(Icons.Filled.Favorite, null)
                 }
             }
             // Expecting the size to be equal to the minimum touch target.
@@ -253,9 +249,7 @@ class FloatingActionButtonTest {
                     }
                 )
             }
-            expectedTextStyle = MaterialTheme.typography.fromToken(
-                ExtendedFabPrimaryTokens.LabelTextFont
-            )
+            expectedTextStyle = ExtendedFabPrimaryTokens.LabelTextFont.value
         }
         rule.runOnIdle {
             assertThat(fontFamily).isEqualTo(expectedTextStyle!!.fontFamily)
@@ -288,9 +282,8 @@ class FloatingActionButtonTest {
                     }
                 )
             }
-            expectedTextStyle = MaterialTheme.typography.fromToken(
-                ExtendedFabPrimaryTokens.LabelTextFont
-            )
+            expectedTextStyle =
+                ExtendedFabPrimaryTokens.LabelTextFont.value
         }
         rule.runOnIdle {
             assertThat(fontFamily).isEqualTo(expectedTextStyle!!.fontFamily)
@@ -308,14 +301,18 @@ class FloatingActionButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             Column {
                 Spacer(
-                    Modifier.requiredSize(10.dp).weight(1f).onGloballyPositioned {
-                        item1Bounds = it.boundsInRoot()
-                    }
+                    Modifier
+                        .requiredSize(10.dp)
+                        .weight(1f)
+                        .onGloballyPositioned {
+                            item1Bounds = it.boundsInRoot()
+                        }
                 )
 
                 FloatingActionButton(
                     onClick = {},
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
                         .onGloballyPositioned {
                             buttonBounds = it.boundsInRoot()
                         }
@@ -323,7 +320,10 @@ class FloatingActionButtonTest {
                     Text("Button")
                 }
 
-                Spacer(Modifier.requiredSize(10.dp).weight(1f))
+                Spacer(
+                    Modifier
+                        .requiredSize(10.dp)
+                        .weight(1f))
             }
         }
 
@@ -344,7 +344,8 @@ class FloatingActionButtonTest {
                     }
                 ) {
                     Box(
-                        Modifier.size(2.dp)
+                        Modifier
+                            .size(2.dp)
                             .onGloballyPositioned { contentCoordinates = it }
                     )
                 }
@@ -375,7 +376,8 @@ class FloatingActionButtonTest {
                     modifier = Modifier.onGloballyPositioned { buttonCoordinates = it },
                 ) {
                     Box(
-                        Modifier.size(2.dp)
+                        Modifier
+                            .size(2.dp)
                             .onGloballyPositioned { contentCoordinates = it }
                     )
                 }
@@ -405,13 +407,15 @@ class FloatingActionButtonTest {
                 ExtendedFloatingActionButton(
                     text = {
                         Box(
-                            Modifier.size(2.dp)
+                            Modifier
+                                .size(2.dp)
                                 .onGloballyPositioned { textCoordinates = it }
                         )
                     },
                     icon = {
                         Box(
-                            Modifier.size(10.dp)
+                            Modifier
+                                .size(10.dp)
                                 .onGloballyPositioned { iconCoordinates = it }
                         )
                     },

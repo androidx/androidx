@@ -16,17 +16,31 @@
 
 package androidx.benchmark
 
+import androidx.benchmark.json.BenchmarkData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import java.io.File
 import kotlin.test.assertFailsWith
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class InstrumentationResultsTest {
+    @Before
+    fun setup() {
+        // flush any scheduled ide warnings so that tests below aren't affected
+        InstrumentationResults.ideSummary(
+            testName = "foo",
+            measurements = Measurements(
+                singleMetrics = listOf(MetricResult("Metric", listOf(0.0))),
+                sampledMetrics = emptyList()
+            )
+        )
+    }
+
     @Test
     fun ideSummaryBasicMicro_alignment() {
         val summary1 = InstrumentationResults.ideSummaryBasicMicro(
@@ -87,9 +101,10 @@ class InstrumentationResultsTest {
                 benchmarkName = "foo",
                 nanos = 1000.0,
                 allocations = null,
-                listOf(Profiler.ResultFile(
+                listOf(Profiler.ResultFile.of(
                     label = "Trace Label",
                     outputRelativePath = "tracePath.trace",
+                    type = BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
                     source = MethodTracing
                 ))
             )
@@ -112,7 +127,7 @@ class InstrumentationResultsTest {
         val absoluteTracePaths = createAbsoluteTracePaths(3)
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(metricResult),
                 sampledMetrics = emptyList()
             ),
@@ -143,7 +158,7 @@ class InstrumentationResultsTest {
         val metric2 = MetricResult("Metric2", listOf(222.0, 111.0, 0.0))
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(metric1, metric2),
                 sampledMetrics = emptyList()
             ),
@@ -175,7 +190,7 @@ class InstrumentationResultsTest {
         val metricResult = MetricResult("Metric1", List(101) { it.toDouble() })
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = emptyList(),
                 sampledMetrics = listOf(metricResult)
             ),
@@ -207,7 +222,7 @@ class InstrumentationResultsTest {
         val absoluteTracePaths = createAbsoluteTracePaths(3)
         val summary = InstrumentationResults.ideSummary(
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(single),
                 sampledMetrics = listOf(sampled)
             ),
@@ -235,13 +250,38 @@ class InstrumentationResultsTest {
     }
 
     @Test
+    fun ideSummary_warning_singleLine() {
+        val metricResult = MetricResult("timeNs", listOf(0.0, 1.0, 2.0))
+
+        InstrumentationResults.scheduleIdeWarningOnNextReport("warning\nstring")
+        val summary = InstrumentationResults.ideSummary(
+            testName = "foo",
+            measurements = Measurements(
+                singleMetrics = listOf(metricResult),
+                sampledMetrics = emptyList()
+            ),
+        )
+        assertEquals(
+            """
+                |warning
+                |string
+                |            0.0 ns    foo
+            """.trimMargin(),
+            summary.summaryV1
+        )
+        // no links so both versions are equivalent
+        assertEquals(summary.summaryV1, summary.summaryV2)
+    }
+
+    @Test
     fun ideSummary_warning() {
         val metricResult = MetricResult("Metric", listOf(0.0, 1.0, 2.0))
         val absoluteTracePaths = createAbsoluteTracePaths(3)
+
+        InstrumentationResults.scheduleIdeWarningOnNextReport("warning\nstring")
         val summary = InstrumentationResults.ideSummary(
-            warningMessage = "warning\nstring",
             testName = "foo",
-            measurements = BenchmarkResult.Measurements(
+            measurements = Measurements(
                 singleMetrics = listOf(metricResult),
                 sampledMetrics = emptyList()
             ),
@@ -274,7 +314,7 @@ class InstrumentationResultsTest {
     fun ideSummary_requireMeasurementsNotEmpty() {
         assertFailsWith<IllegalArgumentException> {
             InstrumentationResults.ideSummary(
-                measurements = BenchmarkResult.Measurements(
+                measurements = Measurements(
                     singleMetrics = emptyList(),
                     sampledMetrics = emptyList()
                 ),

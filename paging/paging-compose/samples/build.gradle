@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -27,9 +34,9 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
-    implementation("androidx.compose.foundation:foundation:1.5.0-beta01")
-    implementation("androidx.compose.material:material:1.5.0-beta01")
-    implementation("androidx.compose.ui:ui-tooling:1.5.0-beta01")
+    implementation("androidx.compose.foundation:foundation:1.5.0")
+    implementation("androidx.compose.material:material:1.5.0")
+    implementation("androidx.compose.ui:ui-tooling:1.5.0")
     implementation(project(":paging:paging-compose"))
 }
 

@@ -22,11 +22,16 @@ import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XMemberName.Companion.companionMember
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.box
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CallableTypeSpecBuilder
+import androidx.room.ext.InvokeWithLambdaParameter
+import androidx.room.ext.LambdaSpec
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -46,11 +51,13 @@ class CoroutineResultBinder(
         scope: CodeGenScope
     ) {
         val cancellationSignalVar = scope.getTmpVar("_cancellationSignal")
-        scope.builder.addLocalVal(
-            cancellationSignalVar,
-            AndroidTypeNames.CANCELLATION_SIGNAL.copy(nullable = true),
-            "%M()",
-            RoomTypeNames.DB_UTIL.packageMember("createCancellationSignal")
+        scope.builder.addLocalVariable(
+            name = cancellationSignalVar,
+            typeName = AndroidTypeNames.CANCELLATION_SIGNAL,
+            assignExpr = XCodeBlock.ofNewInstance(
+                scope.language,
+                AndroidTypeNames.CANCELLATION_SIGNAL,
+            ),
         )
 
         val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
@@ -134,5 +141,55 @@ class CoroutineResultBinder(
         }
         endControlFlow()
         transactionWrapper?.endTransactionWithControlFlow()
+    }
+
+    override fun isMigratedToDriver(): Boolean = adapter?.isMigratedToDriver() == true
+
+    override fun convertAndReturn(
+        sqlQueryVar: String,
+        dbProperty: XPropertySpec,
+        bindStatement: CodeGenScope.(String) -> Unit,
+        returnTypeName: XTypeName,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
+        val connectionVar = scope.getTmpVar("_connection")
+        val performBlock = InvokeWithLambdaParameter(
+            scope = scope,
+            functionName = RoomTypeNames.DB_UTIL.packageMember("performSuspending"),
+            argFormat = listOf("%N", "%L", "%L"),
+            args = listOf(dbProperty, /* isReadOnly = */ true, inTransaction),
+            continuationParamName = continuationParamName,
+            lambdaSpec = object : LambdaSpec(
+                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                parameterName = connectionVar,
+                returnTypeName = returnTypeName.box(),
+                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+            ) {
+                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                    val returnPrefix = when (language) {
+                        CodeLanguage.JAVA -> "return "
+                        CodeLanguage.KOTLIN -> ""
+                    }
+                    val statementVar = scope.getTmpVar("_stmt")
+                    addLocalVal(
+                        statementVar,
+                        SQLiteDriverTypeNames.STATEMENT,
+                        "%L.prepare(%L)",
+                        connectionVar,
+                        sqlQueryVar
+                    )
+                    beginControlFlow("try")
+                    bindStatement(scope, statementVar)
+                    val outVar = scope.getTmpVar("_result")
+                    adapter?.convert(outVar, statementVar, scope)
+                    addStatement("$returnPrefix%L", outVar)
+                    nextControlFlow("finally")
+                    addStatement("%L.close()", statementVar)
+                    endControlFlow()
+                }
+            }
+        )
+        scope.builder.add("return %L", performBlock)
     }
 }

@@ -22,6 +22,8 @@ import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.material.ChipDefaults.MIN_TAPPABLE_SQUARE_LENGTH;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.DEFAULT_VERTICAL_SPACER_HEIGHT;
+import static androidx.wear.protolayout.material.layouts.LayoutDefaults.LAYOUTS_LABEL_PADDING_PERCENT;
+import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_PERCENT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT;
@@ -32,6 +34,7 @@ import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_ROUND_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_PRIMARY_LABEL_SPACER_HEIGHT_SQUARE_DP;
+import static androidx.wear.protolayout.material.layouts.LayoutDefaults.insetElementWithPadding;
 import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
 import static androidx.wear.protolayout.materialcore.Helper.checkTag;
 import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagBytes;
@@ -117,21 +120,30 @@ public class PrimaryLayout implements LayoutElement {
      * the primary chip is present or not.
      */
     static final int CHIP_PRESENT = 0x1;
+
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
      * the primary label is present or not.
      */
-    static final int PRIMARY_LABEL_PRESENT = 0x2;
+    static final int PRIMARY_LABEL_PRESENT = 1 << 1;
+
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
      * the secondary label is present or not.
      */
-    static final int SECONDARY_LABEL_PRESENT = 0x4;
+    static final int SECONDARY_LABEL_PRESENT = 1 << 2;
+
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
      * the content is present or not.
      */
-    static final int CONTENT_PRESENT = 0x8;
+    static final int CONTENT_PRESENT = 1 << 3;
+
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the responsive content inset is used or not.
+     */
+    static final int CONTENT_INSET_USED = 1 << 4;
 
     /** Position of the primary label in its own inner column if exists. */
     static final int PRIMARY_LABEL_POSITION = 1;
@@ -140,18 +152,26 @@ public class PrimaryLayout implements LayoutElement {
     /** Position of the primary chip in main layout column. */
     static final int PRIMARY_CHIP_POSITION = 1;
 
+    private final boolean mIsResponsiveInsetEnabled;
+
     @RestrictTo(Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(
             flag = true,
-            value = {CHIP_PRESENT, PRIMARY_LABEL_PRESENT, SECONDARY_LABEL_PRESENT, CONTENT_PRESENT})
+            value = {
+                    CHIP_PRESENT,
+                    PRIMARY_LABEL_PRESENT,
+                    SECONDARY_LABEL_PRESENT,
+                    CONTENT_PRESENT,
+                    CONTENT_INSET_USED
+            })
     @interface ContentBits {}
 
     @NonNull private final Box mImpl;
 
     // This contains inner columns and primary chip.
     @NonNull private final List<LayoutElement> mAllContent;
-    // This contains optional labels, spacers and main content.
+    // This contains primary label content.
     @NonNull private final List<LayoutElement> mPrimaryLabel;
     // This contains optional labels, spacers and main content.
     @NonNull private final List<LayoutElement> mContentAndSecondaryLabel;
@@ -163,12 +183,14 @@ public class PrimaryLayout implements LayoutElement {
         this.mPrimaryLabel = ((Column) innerContent.get(0)).getContents();
         this.mContentAndSecondaryLabel =
                 ((Column) ((Box) innerContent.get(1)).getContents().get(0)).getContents();
+        this.mIsResponsiveInsetEnabled = areElementsPresent(CONTENT_INSET_USED);
     }
 
     /** Builder class for {@link PrimaryLayout}. */
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final DeviceParameters mDeviceParameters;
         @Nullable private LayoutElement mPrimaryChip = null;
+        private boolean mIsResponsiveInsetEnabled = false;
         @Nullable private LayoutElement mPrimaryLabelText = null;
         @Nullable private LayoutElement mSecondaryLabelText = null;
         @NonNull private LayoutElement mContent = new Box.Builder().build();
@@ -179,9 +201,31 @@ public class PrimaryLayout implements LayoutElement {
          * Creates a builder for the {@link PrimaryLayout} from the given content. Content inside of
          * it can later be set with {@link #setContent}, {@link #setPrimaryChipContent}, {@link
          * #setPrimaryLabelTextContent} and {@link #setSecondaryLabelTextContent}.
+         *
+         * <p>For optimal layouts across different screen sizes, it is highly recommended to call
+         * {@link #setResponsiveContentInsetEnabled}.
          */
         public Builder(@NonNull DeviceParameters deviceParameters) {
             this.mDeviceParameters = deviceParameters;
+        }
+
+        /**
+         * Changes this {@link PrimaryLayout} to use responsive insets for its content (primary
+         * label, secondary label and primary bottom chip) by adding an additional space on
+         * the side of this element to avoid that content going off the screen edge.
+         *
+         * <p>It is highly recommended to call this method with {@code true} when using this layout
+         * to optimize it for different screen sizes.
+         */
+        @NonNull
+        public Builder setResponsiveContentInsetEnabled(boolean enabled) {
+            this.mIsResponsiveInsetEnabled = enabled;
+            if (enabled) {
+                mMetadataContentByte = (byte) (mMetadataContentByte | CONTENT_INSET_USED);
+            } else {
+                mMetadataContentByte = (byte) (mMetadataContentByte & ~CONTENT_INSET_USED);
+            }
+            return this;
         }
 
         /**
@@ -256,7 +300,6 @@ public class PrimaryLayout implements LayoutElement {
             float topPadding = getTopPadding();
             float bottomPadding = getBottomPadding();
             float horizontalPadding = getHorizontalPadding();
-            float horizontalChipPadding = getChipHorizontalPadding();
 
             float primaryChipHeight =
                     mPrimaryChip != null ? MIN_TAPPABLE_SQUARE_LENGTH.getValue() : 0;
@@ -298,7 +341,7 @@ public class PrimaryLayout implements LayoutElement {
             if (mPrimaryLabelText != null) {
                 primaryLabelBuilder.addContent(
                         new Spacer.Builder().setHeight(getPrimaryLabelTopSpacerHeight()).build());
-                primaryLabelBuilder.addContent(mPrimaryLabelText);
+                primaryLabelBuilder.addContent(maybeInsetLabel(mPrimaryLabelText));
             }
 
             contentAreaBuilder.addContent(primaryLabelBuilder.build());
@@ -314,7 +357,11 @@ public class PrimaryLayout implements LayoutElement {
             if (mSecondaryLabelText != null) {
                 contentSecondaryLabelBuilder.addContent(
                         new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
-                contentSecondaryLabelBuilder.addContent(mSecondaryLabelText);
+                contentSecondaryLabelBuilder.addContent(
+                        // We only need to add extra padding to the secondary label if there's no
+                        // bottom chip.
+                        mPrimaryChip == null
+                                ? maybeInsetLabel(mSecondaryLabelText) : mSecondaryLabelText);
             }
 
             contentAreaBuilder.addContent(
@@ -330,6 +377,7 @@ public class PrimaryLayout implements LayoutElement {
                             new Modifiers.Builder()
                                     .setPadding(
                                             new Padding.Builder()
+                                                    .setRtlAware(true)
                                                     .setStart(dp(horizontalPadding))
                                                     .setEnd(dp(horizontalPadding))
                                                     .setTop(dp(topPadding))
@@ -343,6 +391,9 @@ public class PrimaryLayout implements LayoutElement {
             layoutBuilder.addContent(contentAreaBuilder.build());
 
             if (mPrimaryChip != null) {
+                // Depending on setter for responsive inset, this method will return either fixed or
+                // percentage based padding.
+                float horizontalChipPadding = getChipHorizontalPadding();
                 layoutBuilder.addContent(
                         new Box.Builder()
                                 .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
@@ -352,6 +403,7 @@ public class PrimaryLayout implements LayoutElement {
                                         new Modifiers.Builder()
                                                 .setPadding(
                                                         new Padding.Builder()
+                                                                .setRtlAware(true)
                                                                 .setStart(dp(horizontalChipPadding))
                                                                 .setEnd(dp(horizontalChipPadding))
                                                                 .build())
@@ -378,6 +430,19 @@ public class PrimaryLayout implements LayoutElement {
                             .addContent(layoutBuilder.build());
 
             return new PrimaryLayout(element.build());
+        }
+
+        /**
+         * Wraps the given label (for primary or secondary label content) if responsive inset is
+         * set.
+         */
+        private LayoutElement maybeInsetLabel(@NonNull LayoutElement label) {
+            if (!mIsResponsiveInsetEnabled) {
+                return label;
+            }
+
+            return insetElementWithPadding(
+                    label, mDeviceParameters.getScreenWidthDp() * LAYOUTS_LABEL_PADDING_PERCENT);
         }
 
         /**
@@ -423,9 +488,12 @@ public class PrimaryLayout implements LayoutElement {
          */
         @Dimension(unit = DP)
         private float getChipHorizontalPadding() {
-            return isRoundDevice(mDeviceParameters)
-                    ? PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP
-                    : PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
+            return mIsResponsiveInsetEnabled
+                    ? PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_PERCENT
+                        * mDeviceParameters.getScreenWidthDp()
+                    : isRoundDevice(mDeviceParameters)
+                        ? PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP
+                        : PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
         }
 
         /** Returns the spacer height to be placed above primary label to accommodate Tile icon. */
@@ -443,7 +511,11 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
             return null;
         }
-        return mPrimaryLabel.get(PRIMARY_LABEL_POSITION);
+        LayoutElement primaryLabelWrapper = mPrimaryLabel.get(PRIMARY_LABEL_POSITION);
+        // If responsive inset are used, label passed in is wrapped in a Box.
+        return mIsResponsiveInsetEnabled
+                ? ((Box) primaryLabelWrapper).getContents().get(0)
+                : primaryLabelWrapper;
     }
 
     /** Get the secondary label content from this layout. */
@@ -453,7 +525,11 @@ public class PrimaryLayout implements LayoutElement {
             return null;
         }
         // By tag we know that secondary label exists. It will always be at last position.
-        return mContentAndSecondaryLabel.get(mContentAndSecondaryLabel.size() - 1);
+        LayoutElement secondaryLabelWrapper =
+                mContentAndSecondaryLabel.get(mContentAndSecondaryLabel.size() - 1);
+        return mIsResponsiveInsetEnabled && !areElementsPresent(CHIP_PRESENT)
+                ? ((Box) secondaryLabelWrapper).getContents().get(0)
+                : secondaryLabelWrapper;
     }
 
     /** Get the inner content from this layout. */
@@ -472,6 +548,11 @@ public class PrimaryLayout implements LayoutElement {
             return ((Box) mAllContent.get(PRIMARY_CHIP_POSITION)).getContents().get(0);
         }
         return null;
+    }
+
+    /** Returns whether the contents from this layout are using responsive inset. */
+    public boolean isResponsiveContentInsetEnabled() {
+        return mIsResponsiveInsetEnabled;
     }
 
     /** Get the vertical spacer height from this layout. */

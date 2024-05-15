@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.compose.material.icons.generator.tasks.IconGenerationTask
@@ -34,7 +41,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api(project(":compose:ui:ui"))
+                api("androidx.compose.ui:ui:1.6.0")
             }
         }
 
@@ -53,7 +60,6 @@ androidXMultiplatform {
         skikoMain {
             dependsOn(commonMain)
             dependencies {
-                api(project(":compose:ui:ui"))
             }
         }
 
@@ -104,10 +110,12 @@ IconGenerationTask.registerCoreIconProject(
 
 androidx {
     name = "Compose Material Icons Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2020"
     description = "Compose Material Design core icons. This module contains the most commonly used set of Material icons."
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:material:material-icons-core:material-icons-core-samples"))
 }
 
 android {

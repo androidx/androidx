@@ -1,0 +1,21 @@
+// Baseline format: 1.0
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat:
+    Class androidx.core.view.GestureDetectorCompat has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener):
+    Constructor androidx.core.view.GestureDetectorCompat has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler):
+    Constructor androidx.core.view.GestureDetectorCompat has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#isLongpressEnabled():
+    Method androidx.core.view.GestureDetectorCompat.isLongpressEnabled has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#onTouchEvent(android.view.MotionEvent):
+    Method androidx.core.view.GestureDetectorCompat.onTouchEvent has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#setIsLongpressEnabled(boolean):
+    Method androidx.core.view.GestureDetectorCompat.setIsLongpressEnabled has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.view.GestureDetectorCompat#setOnDoubleTapListener(android.view.GestureDetector.OnDoubleTapListener):
+    Method androidx.core.view.GestureDetectorCompat.setOnDoubleTapListener has changed deprecation state false --> true
+ChangedValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH:
+    Field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH has changed value from android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH to android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH
+ChangedValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX:
+    Field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX has changed value from android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX to android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
+ChangedValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY:
+    Field androidx.core.view.accessibility.AccessibilityNodeInfoCompat.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY has changed value from android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_KEY to android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_KEY

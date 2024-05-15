@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.tokens.DialogTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -74,7 +75,7 @@ internal fun AlertDialogContent(
             title?.let {
                 ProvideContentColorTextStyle(
                     contentColor = titleContentColor,
-                    textStyle = MaterialTheme.typography.fromToken(DialogTokens.HeadlineFont)) {
+                    textStyle = DialogTokens.HeadlineFont.value) {
                     Box(
                         // Align the title to the center when an icon is present.
                         Modifier
@@ -92,7 +93,7 @@ internal fun AlertDialogContent(
                 }
             }
             text?.let {
-                val textStyle = MaterialTheme.typography.fromToken(DialogTokens.SupportingTextFont)
+                val textStyle = DialogTokens.SupportingTextFont.value
                 ProvideContentColorTextStyle(
                     contentColor = textContentColor,
                     textStyle = textStyle) {
@@ -108,7 +109,7 @@ internal fun AlertDialogContent(
             }
             Box(modifier = Modifier.align(Alignment.End)) {
                 val textStyle =
-                    MaterialTheme.typography.fromToken(DialogTokens.ActionLabelTextFont)
+                    DialogTokens.ActionLabelTextFont.value
                 ProvideContentColorTextStyle(
                     contentColor = buttonContentColor,
                     textStyle = textStyle,

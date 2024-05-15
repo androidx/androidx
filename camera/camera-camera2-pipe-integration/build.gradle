@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
     implementation("androidx.core:core:1.3.2")
-    implementation("androidx.concurrent:concurrent-listenablefuture-callback:1.0.0-beta01")
 
     // Classes and types that are needed at compile & runtime
     api("androidx.annotation:annotation:1.2.0")
@@ -34,7 +39,6 @@ dependencies {
 
     // Classes and types that are only needed at runtime
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
-    implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(libs.atomicFu)
     implementation(libs.dagger)
     implementation(libs.kotlinStdlib)
@@ -42,7 +46,7 @@ dependencies {
     implementation(project(":camera:camera-camera2-pipe"))
     implementation(project(":concurrent:concurrent-futures-ktx"))
 
-    kapt(libs.daggerCompiler)
+    ksp(libs.daggerCompiler)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -50,6 +54,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.byteBuddy)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTestJunit)
@@ -68,7 +73,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":annotation:annotation-experimental"))
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies
@@ -94,20 +99,18 @@ tasks.withType(Test).configureEach { test ->
     test.maxParallelForks(2)
 }
 
-kapt {
-    javacOptions {
-        option("-Adagger.fastInit=enabled")
-        option("-Adagger.fullBindingGraphValidation=ERROR")
-    }
+ksp {
+    arg("dagger.fastInit", "enabled")
+    arg("dagger.fullBindingGraphValidation", "ERROR")
 }
 
 androidx {
     name = "Camera2 Pipe Integration"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.CAMERA_PIPE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "A Camera2 Pipe implementation of CameraX, a library providing a consistent " +
             "and reliable camera foundation that enables great camera driven experiences across " +
             "all of Android."
     metalavaK2UastEnabled = true
+    doNotDocumentReason = "Not shipped externally"
 }

@@ -1,0 +1,1 @@
+Bundled SQLite Driver's JNI bindings.

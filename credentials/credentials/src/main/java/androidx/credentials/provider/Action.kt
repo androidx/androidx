@@ -20,6 +20,7 @@ import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -110,7 +111,16 @@ class Action constructor(
         }
     }
 
-    internal companion object {
+    @RequiresApi(34)
+    private object Api34Impl {
+        @JvmStatic
+        fun fromAction(action: android.service.credentials.Action): Action? {
+            val slice = action.slice
+            return fromSlice(slice)
+        }
+    }
+
+    companion object {
         private const val TAG = "Action"
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "Action"
@@ -127,9 +137,9 @@ class Action constructor(
         /**
          * Converts to slice
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         @RequiresApi(28)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun toSlice(
             action: Action
         ): Slice {
@@ -165,8 +175,8 @@ class Action constructor(
          * @param slice the [Slice] object constructed through [toSlice]
          *
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @JvmStatic
         fun fromSlice(slice: Slice): Action? {
@@ -190,6 +200,25 @@ class Action constructor(
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
             }
+        }
+
+        /**
+         * Converts a framework [android.service.credentials.Action] class to a Jetpack
+         * [Action] class
+         *
+         * Note that this API is not needed in a general credential retrieval flow that is
+         * implemented using this jetpack library, where you are only required to construct
+         * an instance of [Action] to populate the [BeginGetCredentialResponse], along with
+         * setting other entries.
+         *
+         * @param action the instance of framework action class to be converted
+         */
+        @JvmStatic
+        fun fromAction(action: android.service.credentials.Action): Action? {
+            if (Build.VERSION.SDK_INT >= 34) {
+                return Api34Impl.fromAction(action)
+            }
+            return null
         }
     }
 }

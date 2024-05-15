@@ -99,8 +99,6 @@ public abstract class Visibility extends Transition {
     public Visibility() {
     }
 
-    @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
-    // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
     public Visibility(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.VISIBILITY_TRANSITION);
@@ -428,12 +426,12 @@ public abstract class Visibility extends Transition {
                 sceneRoot.getLocationOnScreen(loc);
                 overlayView.offsetLeftAndRight((screenX - loc[0]) - overlayView.getLeft());
                 overlayView.offsetTopAndBottom((screenY - loc[1]) - overlayView.getTop());
-                ViewGroupUtils.getOverlay(sceneRoot).add(overlayView);
+                sceneRoot.getOverlay().add(overlayView);
             }
             Animator animator = onDisappear(sceneRoot, overlayView, startValues, endValues);
             if (!reusingOverlayView) {
                 if (animator == null) {
-                    ViewGroupUtils.getOverlay(sceneRoot).remove(overlayView);
+                    sceneRoot.getOverlay().remove(overlayView);
                 } else {
                     startView.setTag(R.id.save_overlay_view, overlayView);
 
@@ -441,7 +439,7 @@ public abstract class Visibility extends Transition {
                             startView);
 
                     animator.addListener(listener);
-                    AnimatorUtils.addPauseListener(animator, listener);
+                    animator.addPauseListener(listener);
                     getRootTransition().addListener(listener);
                 }
             }
@@ -610,8 +608,7 @@ public abstract class Visibility extends Transition {
         }
     }
 
-    private class OverlayListener extends AnimatorListenerAdapter implements TransitionListener,
-            AnimatorUtils.AnimatorPauseListenerCompat {
+    private class OverlayListener extends AnimatorListenerAdapter implements TransitionListener {
         private final ViewGroup mOverlayHost;
         private final View mOverlayView;
         private final View mStartView;
@@ -625,13 +622,13 @@ public abstract class Visibility extends Transition {
 
         @Override
         public void onAnimationPause(Animator animation) {
-            ViewGroupUtils.getOverlay(mOverlayHost).remove(mOverlayView);
+            mOverlayHost.getOverlay().remove(mOverlayView);
         }
 
         @Override
         public void onAnimationResume(Animator animation) {
             if (mOverlayView.getParent() == null) {
-                ViewGroupUtils.getOverlay(mOverlayHost).add(mOverlayView);
+                mOverlayHost.getOverlay().add(mOverlayView);
             } else {
                 cancel();
             }
@@ -641,7 +638,7 @@ public abstract class Visibility extends Transition {
         public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
             if (isReverse) {
                 mStartView.setTag(R.id.save_overlay_view, mOverlayView);
-                ViewGroupUtils.getOverlay(mOverlayHost).add(mOverlayView);
+                mOverlayHost.getOverlay().add(mOverlayView);
                 mHasOverlay = true;
             }
         }
@@ -684,7 +681,7 @@ public abstract class Visibility extends Transition {
 
         private void removeFromOverlay() {
             mStartView.setTag(R.id.save_overlay_view, null);
-            ViewGroupUtils.getOverlay(mOverlayHost).remove(mOverlayView);
+            mOverlayHost.getOverlay().remove(mOverlayView);
             mHasOverlay = false;
         }
     }

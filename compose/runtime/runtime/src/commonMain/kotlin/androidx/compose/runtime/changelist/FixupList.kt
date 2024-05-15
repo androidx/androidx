@@ -25,7 +25,7 @@ import androidx.compose.runtime.changelist.Operation.PostInsertNodeFixup
 import androidx.compose.runtime.changelist.Operation.UpdateNode
 import androidx.compose.runtime.runtimeCheck
 
-internal class FixupList : OperationsDebugStringFormattable {
+internal class FixupList : OperationsDebugStringFormattable() {
     private val operations = Operations()
     private val pendingOperations = Operations()
 

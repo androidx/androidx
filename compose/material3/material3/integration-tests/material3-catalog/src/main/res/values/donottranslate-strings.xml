@@ -19,6 +19,11 @@
 
     <string name="compose_material_3">Compose Material 3</string>
 
+    <string name="back_button">Back</string>
+    <string name="favorite_button">Pin screen</string>
+    <string name="change_theme_button">Change theme</string>
+    <string name="more_menu_button">External links</string>
+
     <string name="description">Description</string>
     <string name="examples">Examples</string>
     <string name="no_examples">No examples</string>

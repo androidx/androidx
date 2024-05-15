@@ -30,31 +30,29 @@ inline fun FakeBox(content: @Composable () -> Unit) {
 @Composable
 @NonRestartableComposable
 fun CustomTextBroken(condition: Boolean, %composer: Composer?, %changed: Int) {
-  %composer.startReplaceableGroup(<>)
-  sourceInformation(%composer, "C(CustomTextBroken)<FakeBo...>:Test.kt")
+  sourceInformationMarkerStart(%composer, <>, "C(CustomTextBroken)<FakeBo...>:Test.kt")
   if (isTraceInProgress()) {
     traceEventStart(<>, %changed, -1, <>)
   }
   FakeBox({ %composer: Composer?, %changed: Int ->
-    %composer.startReplaceableGroup(<>)
+    %composer.startReplaceGroup(<>)
     sourceInformation(%composer, "C<A()>:Test.kt")
     if (condition) {
-      %composer.endReplaceableGroup()
+      %composer.endReplaceGroup()
       return@FakeBox
     }
     A(%composer, 0)
-    %composer.endReplaceableGroup()
+    %composer.endReplaceGroup()
   }, %composer, 0)
   if (isTraceInProgress()) {
     traceEventEnd()
   }
-  %composer.endReplaceableGroup()
+  sourceInformationMarkerEnd(%composer)
 }
 @Composable
 @ComposableInferredTarget(scheme = "[0[0]]")
 fun FakeBox(content: Function2<Composer, Int, Unit>, %composer: Composer?, %changed: Int) {
-  %composer.startReplaceableGroup(<>)
-  sourceInformation(%composer, "CC(FakeBox)<conten...>:Test.kt")
+  sourceInformationMarkerStart(%composer, <>, "CC(FakeBox)<conten...>:Test.kt")
   content(%composer, 0b1110 and %changed)
-  %composer.endReplaceableGroup()
+  sourceInformationMarkerEnd(%composer)
 }

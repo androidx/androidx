@@ -29,6 +29,8 @@
         <!-- Tint to apply to the media route button -->
         <attr name="mediaRouteButtonTint" format="color" />
 
+        <attr name="android:minWidth" />
+        <attr name="android:minHeight" />
     </declare-styleable>
 
     <attr name="mediaRouteButtonStyle" format="reference" />

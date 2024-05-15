@@ -93,16 +93,29 @@ public class GridItemTest {
     }
 
     @Test
-    public void title_throwsIfNotSet() {
-        // Not set
-        assertThrows(IllegalStateException.class,
-                () -> new GridItem.Builder().setImage(BACK).build());
-
-        // Not set
-        assertThrows(
-                IllegalArgumentException.class, () -> new GridItem.Builder().setTitle("").setImage(
-                        BACK).build());
+    public void createImage_doesNotThrowIfTitleIsNotSet() {
+        // Test that no exceptions are thrown.
+        GridItem unused = new GridItem.Builder().setImage(BACK).build();
     }
+
+    @Test
+    public void title_doesNotThrowIfEmptyString() {
+        // Test that no exceptions are thrown.
+        new GridItem.Builder().setTitle("").setImage(BACK).build();
+    }
+
+    @Test
+    public void title_doesNotThrowIfNullCharSequence() {
+        // Test that no exceptions are thrown.
+        new GridItem.Builder().setTitle((CharSequence) null).setImage(BACK).build();
+    }
+
+    @Test
+    public void title_doesNotThrowIfNullCarText() {
+        // Test that no exceptions are thrown.
+        new GridItem.Builder().setTitle((CarText) null).setImage(BACK).build();
+    }
+
 
     @Test
     public void text_charSequence() {
@@ -124,10 +137,18 @@ public class GridItemTest {
     }
 
     @Test
-    public void textWithoutTitle_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new GridItem.Builder().setText("text").setImage(BACK).build());
+    public void textWithoutTitle_returnsNullTitle() {
+        GridItem item = new GridItem.Builder().setText("text").setImage(BACK).build();
+
+        assertThat(item.getTitle()).isNull();
+    }
+
+    @Test
+    public void textSetTitleToNull_returnsNullTitle() {
+        GridItem item = new GridItem.Builder().setTitle("title").setTitle((CharSequence) null)
+                .setImage(BACK).build();
+
+        assertThat(item.getTitle()).isNull();
     }
 
     @Test

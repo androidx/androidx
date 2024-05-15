@@ -33,16 +33,17 @@ import android.os.Looper
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.impl.Camera2ImplConfig
+import androidx.camera.camera2.internal.Camera2CapturePipeline.ScreenFlashTask
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.camera2.internal.compat.quirk.AutoFlashUnderExposedQuirk
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
+import androidx.camera.camera2.internal.compat.quirk.TorchFlashRequiredFor3aUpdateQuirk
 import androidx.camera.camera2.internal.compat.quirk.UseTorchAsFlashQuirk
 import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.core.ImageCapture.FLASH_MODE_ON
-import androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState
@@ -53,6 +54,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
+import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -60,7 +62,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.impl.fakes.FakeImageProxy
-import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
+import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth
@@ -72,6 +74,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
@@ -140,12 +143,12 @@ class Camera2CapturePipelineTest {
             field = value
         }
 
-    private lateinit var screenFlashControl: MockScreenFlashUiControl
+    private lateinit var testScreenFlash: MockScreenFlash
 
     @Before
     fun setUp() {
         initCameras()
-        screenFlashControl = MockScreenFlashUiControl()
+        testScreenFlash = MockScreenFlash()
     }
 
     @After
@@ -183,6 +186,7 @@ class Camera2CapturePipelineTest {
 
         val pipeline = Camera2CapturePipeline.Pipeline(
             CameraDevice.TEMPLATE_PREVIEW,
+            executorService,
             executorService,
             cameraControl,
             false,
@@ -350,97 +354,32 @@ class Camera2CapturePipelineTest {
     }
 
     @Test
-    fun minLatency_screenFlashCapture_screenFlashTaskInvokedProperly() {
-        screenFlash_screenFlashUiControlInvokedProperly(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-    }
-
-    @Test
-    fun maxQuality_screenFlashCapture_screenFlashTaskInvokedProperly() {
-        screenFlash_screenFlashUiControlInvokedProperly(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-    }
-
-    private fun screenFlash_screenFlashUiControlInvokedProperly(imageCaptureMode: Int) {
-        val cameraControl = createCameraControl().apply {
-            // Arrange.
-            flashMode = FLASH_MODE_SCREEN
-
-            // Act.
-            submitStillCaptureRequests(
-                listOf(singleRequest),
-                imageCaptureMode,
-                ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
-            )
-        }
-
-        // Wait for a few repeating requests to be submitted for the initial flash mode confirmation
-        // in Camera2CameraControlImpl#submitStillCaptureRequests
-        CountDownLatch(5).let {
-            cameraControl.simulateRepeatingResult(
-                initialDelay = 100,
-                period = 50,
-                requestCountLatch = it,
-                scheduledRunnableExecutor = CameraXExecutors.mainThreadExecutor()
-            )
-            it.await(1, TimeUnit.SECONDS)
-        }
-
-        // Wait for main thread because ScreenFlashTask invokes callbacks in UI thread
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
-
-        if (Build.VERSION.SDK_INT >= 28) {
-            // Submit a repeating request for CONTROL_AE_MODE_ON_EXTERNAL_FLASH
-            CountDownLatch(5).let {
-                cameraControl.simulateRepeatingResult(
-                    initialDelay = 100,
-                    period = 50,
-                    resultParameters = mapOf(CaptureResult.CONTROL_AE_MODE
-                        to CaptureResult.CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
-                    requestCountLatch = it
-                )
-                it.await(1, TimeUnit.SECONDS)
-            }
-        }
-
-        // Assert, verify AE precapture is triggered
-        immediateCompleteCapture.verifyRequestResult {
-            it.requestContains(
-                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
-                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START
-            )
-        }
-
-        // Submit a repeating request for convergence
-        CountDownLatch(5).let {
-            cameraControl.simulateRepeatingResult(
-                initialDelay = 100,
-                period = 50,
-                resultParameters = resultConverged,
-                requestCountLatch = it
-            )
-            it.await(1, TimeUnit.SECONDS)
-        }
-
-        // Wait for main thread because ScreenFlashTask invokes callbacks in UI thread
-        Shadows.shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
-
-        // Assert, verify ScreenFlashUiControls are invoked properly
-        assertThat(screenFlashControl.awaitScreenFlashUiClear(1000)).isTrue()
-        assertThat(screenFlashControl.screenFlashUiEvents).isEqualTo(
-            listOf(
-                MockScreenFlashUiControl.APPLY_SCREEN_FLASH,
-                MockScreenFlashUiControl.CLEAR_SCREEN_FLASH
-            )
+    fun createPipeline_screenFlashTaskAdded() {
+        val camera2CapturePipeline = Camera2CapturePipeline(
+            createCameraControl(),
+            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                ShadowCameraCharacteristics.newCameraCharacteristics(),
+                CAMERA_ID_0,
+            ),
+            Quirks(emptyList()),
+            CameraXExecutors.directExecutor(),
+            CameraXExecutors.myLooperExecutor(),
         )
 
-        // Assert, AE precapture is cancelled finally.
-        if (Build.VERSION.SDK_INT >= 23) {
-            immediateCompleteCapture.verifyRequestResult {
-                it.requestContains(
-                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
-                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL
-                )
+        val pipeline = camera2CapturePipeline.createPipeline(
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ImageCapture.FLASH_MODE_SCREEN,
+            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH
+        )
+
+        var hasScreenFlashTask = false
+        pipeline.mTasks.forEach { task ->
+            if (task is ScreenFlashTask) {
+                hasScreenFlashTask = true
             }
         }
+
+        assertThat(hasScreenFlashTask).isTrue()
     }
 
     @Test
@@ -808,6 +747,7 @@ class Camera2CapturePipelineTest {
                     captureConfigs.forEach { captureConfig ->
                         captureConfig.cameraCaptureCallbacks.forEach {
                             it.onCaptureFailed(
+                                CaptureConfig.DEFAULT_ID,
                                 CameraCaptureFailure(
                                     CameraCaptureFailure.Reason.ERROR
                                 )
@@ -849,7 +789,7 @@ class Camera2CapturePipelineTest {
                 ) {
                     captureConfigs.forEach { captureConfig ->
                         captureConfig.cameraCaptureCallbacks.forEach {
-                            it.onCaptureCancelled()
+                            it.onCaptureCancelled(CaptureConfig.DEFAULT_ID)
                         }
                     }
                 }
@@ -1068,6 +1008,99 @@ class Camera2CapturePipelineTest {
         }
     }
 
+    @Test
+    fun waitForResultCompletes_whenCaptureResultProvided_noTimeout_noCheckingCondition() {
+        val cameraControl = createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 1)
+        }
+
+        val future = Camera2CapturePipeline.waitForResult(cameraControl, null)
+
+        future.get(500, TimeUnit.MILLISECONDS)
+    }
+
+    @Test
+    fun waitForResultCompletes_whenCaptureResultProvided_noTimeout_specificCheckingCondition() {
+        val cameraControl = createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 1)
+        }
+
+        cameraControl.simulateRepeatingResult(
+            initialDelay = 50,
+            resultParameters = resultConverged
+        )
+
+        val future = Camera2CapturePipeline.waitForResult(cameraControl
+        ) { result -> Camera2CapturePipeline.is3AConverged(result, false) }
+
+        future.get(500, TimeUnit.MILLISECONDS).verifyResultFields(resultConverged)
+    }
+
+    @Test
+    fun waitForResultDoesNotComplete_whenNoResult_noCheckingCondition() {
+        // tested for 500ms
+        Camera2CapturePipeline.waitForResult(createCameraControl(), null)
+            .awaitException(500, TimeoutException::class.java)
+    }
+
+    @Test
+    fun waitForResultDoesNotComplete_whenNoMatchingResult() {
+        // tested for 500ms
+        Camera2CapturePipeline.waitForResult(createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 1)
+        }) { result ->
+            Camera2CapturePipeline.is3AConverged(result, false)
+        }.awaitException(500, TimeoutException::class.java)
+    }
+
+    @Test
+    fun waitForResultCompletesWithNullResult_whenNoResultWithinTimeout_noCheckingCondition() {
+        val result = Camera2CapturePipeline.waitForResult(
+            TimeUnit.MILLISECONDS.toNanos(500),
+            executorService,
+            createCameraControl(),
+            null
+        ).get(1, TimeUnit.SECONDS) // timeout exception will be thrown if not completed within 1s
+
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun waitForResultCompletesWithNullResult_whenNoMatchingResultWithinTimeout() {
+        val result = Camera2CapturePipeline.waitForResult(
+            TimeUnit.MILLISECONDS.toNanos(500),
+            executorService,
+            createCameraControl().apply {
+                simulateRepeatingResult(initialDelay = 1)
+            }
+        ) { result ->
+            Camera2CapturePipeline.is3AConverged(result, false)
+        }.get(1, TimeUnit.SECONDS) // timeout exception will be thrown if not completed within 1s
+
+        assertThat(result).isNull()
+    }
+
+    private fun TotalCaptureResult.verifyResultFields(
+        expectedFields: Map<CaptureResult.Key<*>, Any>
+    ) {
+        assertThat(this).isNotNull()
+        expectedFields.forEach { entry ->
+            assertThat(this[entry.key]).isEqualTo(entry.value)
+        }
+    }
+
+    private fun ListenableFuture<*>.awaitException(timeoutMillis: Long, exceptionType: Class<*>) {
+        try {
+            get(timeoutMillis, TimeUnit.MILLISECONDS)
+        } catch (e: ExecutionException) {
+            if (exceptionType != ExecutionException::class.java) {
+                assertThat(e.cause).isInstanceOf(exceptionType)
+            }
+        } catch (e: Exception) {
+            assertThat(e).isInstanceOf(exceptionType)
+        }
+    }
+
     private fun Camera2CameraControlImpl.waitForSessionConfig(
         checkResult: (sessionConfig: SessionConfig) -> Boolean = { true }
     ) {
@@ -1177,23 +1210,35 @@ class Camera2CapturePipelineTest {
         cameraId: String = CAMERA_ID_0,
         quirks: Quirks? = null,
         updateCallback: CameraControlInternal.ControlUpdateCallback = immediateCompleteCapture,
+        addTorchFlashRequiredFor3aUpdateQuirk: Boolean = false,
+        executor: Executor = executorService,
     ): Camera2CameraControlImpl {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
         val characteristicsCompat = CameraCharacteristicsCompat
             .toCameraCharacteristicsCompat(characteristics, cameraId)
-        val cameraQuirk = quirks ?: CameraQuirks.get(cameraId, characteristicsCompat)
+        var cameraQuirk = quirks ?: CameraQuirks.get(cameraId, characteristicsCompat)
+
+        if (addTorchFlashRequiredFor3aUpdateQuirk) {
+            cameraQuirk = Quirks(cameraQuirk.getAll(Quirk::class.java).apply {
+                add(
+                    TorchFlashRequiredFor3aUpdateQuirk(
+                        characteristicsCompat
+                    )
+                )
+            })
+        }
 
         return Camera2CameraControlImpl(
             characteristicsCompat,
             executorService,
-            executorService,
+            executor,
             updateCallback,
             cameraQuirk
         ).apply {
             setActive(true)
             incrementUseCount()
-            this.screenFlashUiControl = screenFlashControl
+            this.screenFlash = testScreenFlash
         }
     }
 
@@ -1240,15 +1285,15 @@ class Camera2CapturePipelineTest {
                 timeout: Long = TimeUnit.SECONDS.toMillis(5),
                 verifyResults: (captureRequests: List<CaptureConfig>) -> Boolean = { true }
             ) {
+                val resultPair = Pair(CountDownLatch(1), verifyResults)
                 synchronized(lock) {
                     allResults.forEach {
                         if (verifyResults(it)) {
                             return
                         }
                     }
+                    waitingList.add(resultPair)
                 }
-                val resultPair = Pair(CountDownLatch(1), verifyResults)
-                waitingList.add(resultPair)
                 assertTrue(resultPair.first.await(timeout, TimeUnit.MILLISECONDS))
                 waitingList.remove(resultPair)
             }
@@ -1285,7 +1330,8 @@ class Camera2CapturePipelineTest {
                 // Complete the single capture with an empty result.
                 captureConfigs.forEach { captureConfig ->
                     captureConfig.cameraCaptureCallbacks.forEach {
-                        it.onCaptureCompleted(CameraCaptureResult.EmptyCameraCaptureResult())
+                        it.onCaptureCompleted(CaptureConfig.DEFAULT_ID,
+                            CameraCaptureResult.EmptyCameraCaptureResult())
                     }
                 }
             }
@@ -1381,5 +1427,12 @@ class Camera2CapturePipelineTest {
         cameraControl.mZslControl = zslControl
 
         return cameraControl
+    }
+
+    private fun Looper.advanceUntilIdle() {
+        val shadowLooper = Shadows.shadowOf(this)
+        while (!shadowLooper.isIdle) {
+            shadowLooper.idle()
+        }
     }
 }

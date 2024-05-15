@@ -21,6 +21,8 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,30 +31,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
 import androidx.wear.compose.material3.HorizontalPageIndicator
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.InlineSlider
 import androidx.wear.compose.material3.InlineSliderDefaults
-import androidx.wear.compose.material3.PageIndicatorState
-import androidx.wear.compose.material3.rememberPageIndicatorState
+import androidx.wear.compose.material3.Text
 
 @OptIn(ExperimentalWearMaterial3Api::class)
 @Sampled
 @Composable
 fun HorizontalPageIndicatorSample() {
-    val maxPages = 9
+    val pageCount = 9
     var selectedPage by remember { mutableStateOf(0) }
-    var finalValue by remember { mutableStateOf(0) }
 
     val animatedSelectedPage by animateFloatAsState(
         targetValue = selectedPage.toFloat(), label = "animateSelectedPage",
-    ) {
-        finalValue = it.toInt()
-    }
-
-    val pageIndicatorState: PageIndicatorState =
-        rememberPageIndicatorState(maxPages) { animatedSelectedPage }
+    )
 
     Box(
         modifier = Modifier
@@ -64,11 +61,44 @@ fun HorizontalPageIndicatorSample() {
             value = selectedPage,
             increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
             decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-            valueProgression = 0 until maxPages,
+            valueProgression = 0 until pageCount,
             onValueChange = { selectedPage = it }
         )
         HorizontalPageIndicator(
-            pageIndicatorState = pageIndicatorState
+            pageCount = pageCount,
+            currentPage = selectedPage,
+            currentPageOffsetFraction = { animatedSelectedPage - selectedPage },
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun HorizontalPageIndicatorWithPagerSample(swipeState: SwipeToDismissBoxState) {
+    val pageCount = 9
+    val pagerState = rememberPagerState { pageCount }
+
+    Box {
+        HorizontalPager(
+            modifier = Modifier
+                .fillMaxSize()
+                .edgeSwipeToDismiss(swipeState),
+            state = pagerState,
+        ) { page ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Text(
+                    modifier = Modifier.align(Alignment.Center),
+                    text = "Page #$page"
+                )
+            }
+        }
+        HorizontalPageIndicator(
+            pageCount = pageCount,
+            currentPage = pagerState.currentPage,
+            currentPageOffsetFraction = { pagerState.currentPageOffsetFraction },
         )
     }
 }

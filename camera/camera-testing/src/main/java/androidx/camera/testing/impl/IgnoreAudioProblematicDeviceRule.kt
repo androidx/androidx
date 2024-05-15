@@ -18,6 +18,7 @@ package androidx.camera.testing.impl
 
 import androidx.annotation.RequiresApi
 import androidx.camera.testing.impl.IgnoreProblematicDeviceRule.Companion.isPixel2Api26Emulator
+import androidx.camera.testing.impl.IgnoreProblematicDeviceRule.Companion.isPixel2Api30Emulator
 import org.junit.AssumptionViolatedException
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -28,7 +29,7 @@ import org.junit.runners.model.Statement
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class IgnoreAudioProblematicDeviceRule : TestRule {
-    private val isProblematicDevices = isPixel2Api26Emulator
+    private val isProblematicDevices = isPixel2Api26Emulator || isPixel2Api30Emulator
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {

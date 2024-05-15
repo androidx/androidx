@@ -24,7 +24,6 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_FRAME_LIMIT
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS
@@ -35,12 +34,13 @@ import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.NORMAL
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
+import androidx.camera.camera2.pipe.core.Log
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.StateFlow
 
 /** A [CameraGraph] represents the combined configuration and state of a camera. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface CameraGraph : AutoCloseable {
     val streams: StreamGraph
 
@@ -72,14 +72,77 @@ interface CameraGraph : AutoCloseable {
      */
     fun stop()
 
-    /** Acquire and exclusive access to the [CameraGraph] in a suspending fashion. */
+    /** Used exclusively interact with the camera via a [Session] from within an existing suspending
+     * function. This function will suspend until the internal mutex lock can be acquired and
+     * returned. When possible, prefer [useSession] when possible as it will guarantee that the
+     * session will be closed.
+     *
+     * The returned [Session] **must** be closed.
+     */
     suspend fun acquireSession(): Session
 
     /**
-     * Try acquiring an exclusive access the [CameraGraph]. Returns null if it can't be acquired
-     * immediately.
+     * Immediately try to acquire access to the internal mutex lock, and return null if it is not
+     * currently available.
+     *
+     * The returned [Session] **must** be closed.
      */
     fun acquireSessionOrNull(): Session?
+
+    /**
+     * Used exclusively interact with the camera via a [Session] from within an existing suspending
+     * function. This method will suspend until the internal mutex lock can be acquired. This is
+     * similar to [acquireSession] an [use] with the additional guarantee that all launch and async
+     * calls will complete before the lock is released (unless the [Session] is closed early). The
+     * [action] will always execute unless parent scope has been canceled.
+     *
+     * Example:
+     * ```
+     * suspend fun process(cameraGraph: CameraGraph, analysisStream: CameraStream) {
+     *     cameraGraph.useSession { session ->
+     *         val result = session.capture(
+     *             Request(streams = listOf(jpegStream.id))
+     *         )
+     *         val frame = result.awaitFrame()
+     *         val image = frame?.awaitImage(analysisStream.id)
+     *         // process image if not null
+     *     }
+     * }
+     * ```
+     */
+    suspend fun <T> useSession(
+        action: suspend CoroutineScope.(Session) -> T
+    ): T
+
+    /**
+     * Used to exclusively interact with the camera from a normal function with a [Session]
+     * by acquiring a lock to the internal mutex and running the [action] in the provided [scope].
+     * This is similar to [useSession] with the additional guarantee that multiple calls to
+     * [useSessionIn] will be executed in the same order they are invoked in, which is not the case
+     * for `scope.launch` or `scope.async`. When possible, prefer using this function when
+     * interacting with a [CameraGraph.Session] from non-suspending code. The [action] will always
+     * execute unless parent scope has been canceled.
+     *
+     * Example:
+     * ```
+     * fun capture(
+     *     cameraGraph: CameraGraph, jpegStream: CameraStream, scope: CoroutineScope
+     * ) {
+     *     cameraGraph.useSessionIn(scope) { session ->
+     *         val result = session.capture(
+     *             Request(streams = listOf(jpegStream.id))
+     *         )
+     *         val frame = result.awaitFrame()
+     *         val jpeg = frame?.awaitImage(jpegStream.id)
+     *         // Save jpeg
+     *     }
+     * }
+     * ```
+     */
+    fun <T> useSessionIn(
+        scope: CoroutineScope,
+        action: suspend CoroutineScope.(Session) -> T
+    ): Deferred<T>
 
     /**
      * This configures the camera graph to use a specific Surface for the given stream.
@@ -89,12 +152,23 @@ interface CameraGraph : AutoCloseable {
     fun setSurface(stream: StreamId, surface: Surface?)
 
     /**
+     * CameraPipe allows setting the global audio restriction through [CameraPipe] and audio
+     * restrictions on individual [CameraGraph]s. When multiple settings are present, the highest
+     * level of audio restriction across global and individual [CameraGraph]s is used as the
+     * device's audio restriction.
+     *
+     * Sets the audio restriction of CameraGraph.
+     */
+    fun updateAudioRestrictionMode(mode: AudioRestrictionMode)
+
+    /**
      * This defines the configuration, flags, and pre-defined structure of a [CameraGraph] instance.
      * Note that for parameters, null is considered a valid value, and unset keys are ignored.
      *
      * @param camera The Camera2 [CameraId] that this [CameraGraph] represents.
      * @param streams A list of [CameraStream]s to use when building the configuration.
-     * @param streamSharingGroups A list of [CameraStream]s to apply buffer sharing to.
+     * @param exclusiveStreamGroups A list of [CameraStream] groups where the [CameraStream]s in
+     *   a group aren't expected to used simultaneously.
      * @param input A list of input configurations to support Camera2 Reprocessing.
      * @param sessionTemplate The template id to use when creating the [CaptureRequest] to supply
      *   the default parameters for a [SessionConfiguration] object.
@@ -120,8 +194,9 @@ interface CameraGraph : AutoCloseable {
     data class Config(
         val camera: CameraId,
         val streams: List<CameraStream.Config>,
-        val streamSharingGroups: List<List<CameraStream.Config>> = listOf(),
+        val exclusiveStreamGroups: List<List<CameraStream.Config>> = listOf(),
         val input: List<InputStream.Config>? = null,
+        val postviewStream: CameraStream.Config? = null,
         val sessionTemplate: RequestTemplate = RequestTemplate(1),
         val sessionParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val sessionMode: OperatingMode = NORMAL,
@@ -265,15 +340,22 @@ interface CameraGraph : AutoCloseable {
      * @property EXTENSION represents device-specific modes that may operate differently or have
      *   significant limitations in order to produce specific kinds of camera results.
      */
-    class OperatingMode private constructor() {
+    @JvmInline
+    value class OperatingMode private constructor(internal val mode: Int) {
         companion object {
-            val NORMAL = OperatingMode()
-            val HIGH_SPEED = OperatingMode()
-            val EXTENSION = OperatingMode()
+            val NORMAL = OperatingMode(0)
+            val HIGH_SPEED = OperatingMode(1)
+            val EXTENSION = OperatingMode(2)
+
+            fun custom(mode: Int): OperatingMode {
+                require(mode != NORMAL.mode && mode != HIGH_SPEED.mode) {
+                    Log.error { "Custom operating mode $mode conflicts with standard modes" }
+                }
+                return OperatingMode(mode)
+            }
         }
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     object Constants3A {
         // Constants related to controlling the time or frame budget a 3A operation should get.
         const val DEFAULT_FRAME_LIMIT: Int = 60
@@ -319,16 +401,37 @@ interface CameraGraph : AutoCloseable {
         fun stopRepeating()
 
         /**
-         * Add the [Request] into an in-flight request queue. Requests will be issued to the Camera
-         * exactly once.
+         * Submit the [Request] to the camera. Requests are issued to the Camera, in order, on a
+         * background queue. Each call to submit will issue the [Request] to the camera exactly
+         * once unless the request is invalid, or unless the requests are aborted via [abort].
+         * The same request can be submitted multiple times.
          */
         fun submit(request: Request)
 
         /**
-         * Add the [Request] into an in-flight request queue. Requests will be issued to the Camera
-         * exactly once. The list of [Request]s is guaranteed to be submitted together.
+         * Submit the [Request]s to the camera. [Request]s are issued to the Camera, in order, on a
+         * background queue. Each call to submit will issue the List of [Request]s to the camera
+         * exactly once unless the one or more of the requests are invalid, or unless the requests
+         * are aborted via [abort]. The same list of [Request]s may be submitted multiple times.
          */
         fun submit(requests: List<Request>)
+
+        /**
+         * Submit the [Request] to the camera, and aggregate the results into a [FrameCapture],
+         * which can be used to wait for the [Frame] to start using [FrameCapture.awaitFrame].
+         *
+         * The [FrameCapture] **must** be closed, or it will result in a memory leak.
+         */
+        fun capture(request: Request): FrameCapture
+
+        /**
+         * Submit the [Request]s to the camera, and aggregate the results into a list of
+         * [FrameCapture]s, which can be used to wait for the associated [Frame]
+         * using [FrameCapture.awaitFrame].
+         *
+         * Each [FrameCapture] **must** be closed, or it will result in a memory leak.
+         */
+        fun capture(requests: List<Request>): List<FrameCapture>
 
         /**
          * Abort in-flight requests. This will abort *all* requests in the current
@@ -475,6 +578,7 @@ interface CameraGraph : AutoCloseable {
          *   operation to complete.
          * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
          *   this operation to complete.
+         *
          * @return [Result3A], which will contain the latest frame number at which the locks were
          *   applied or the frame number at which the method returned early because either frame
          *   limit or time limit was reached.
@@ -482,7 +586,33 @@ interface CameraGraph : AutoCloseable {
         suspend fun lock3AForCapture(
             lockedCondition: ((FrameMetadata) -> Boolean)? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
-            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
+        ): Deferred<Result3A>
+
+        /**
+         * This methods does pre-capture metering sequence and locks auto-focus. Once the operation
+         * completes, we can proceed to take high-quality pictures.
+         *
+         * Note: Flash will be used during pre-capture metering and during image capture if the AE
+         * mode was set to [AeMode.ON_AUTO_FLASH] or [AeMode.ON_ALWAYS_FLASH], thus firing it for
+         * low light captures or for every capture, respectively.
+         *
+         * @param triggerAf Whether to trigger AF, enabled by default.
+         * @param waitForAwb Whether to wait for AWB to converge/lock, disabled by default.
+         * @param frameLimit the maximum number of frames to wait before we give up waiting for this
+         *   operation to complete.
+         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
+         *   this operation to complete.
+         *
+         * @return [Result3A], which will contain the latest frame number at which the locks were
+         *   applied or the frame number at which the method returned early because either frame
+         *   limit or time limit was reached.
+         */
+        suspend fun lock3AForCapture(
+            triggerAf: Boolean = true,
+            waitForAwb: Boolean = false,
+            frameLimit: Int = DEFAULT_FRAME_LIMIT,
+            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
         ): Deferred<Result3A>
 
         /**
@@ -491,8 +621,10 @@ interface CameraGraph : AutoCloseable {
          * capture, and if not image capture request is submitted the auto-exposure may not resume
          * it's normal scan. This method brings focus and exposure back to normal after high quality
          * image captures using [lock3AForCapture] method.
+         *
+         * @param cancelAf  Whether to trigger AF cancel, enabled by default.
          */
-        suspend fun unlock3APostCapture(): Deferred<Result3A>
+        suspend fun unlock3APostCapture(cancelAf: Boolean = true): Deferred<Result3A>
     }
 }
 
@@ -534,6 +666,19 @@ abstract class GraphState internal constructor() {
     class GraphStateError(val cameraError: CameraError, val willAttemptRetry: Boolean) :
         GraphState() {
         override fun toString(): String =
-            super.toString() + "(cameraError = $cameraError, willAttemptRetry = $willAttemptRetry)"
+            super.toString() + "(cameraError=$cameraError, willAttemptRetry=$willAttemptRetry)"
+    }
+}
+
+/**
+ * @see [CameraDevice.AUDIO_RESTRICTION_NONE] and other constants.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+value class AudioRestrictionMode internal constructor(val value: Int) {
+    companion object {
+        val AUDIO_RESTRICTION_NONE = AudioRestrictionMode(0)
+        val AUDIO_RESTRICTION_VIBRATION = AudioRestrictionMode(1)
+        val AUDIO_RESTRICTION_VIBRATION_SOUND = AudioRestrictionMode(3)
     }
 }

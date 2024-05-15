@@ -18,7 +18,6 @@ package androidx.compose.animation.core.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.ExperimentalTransitionApi
 import androidx.compose.animation.core.LinearEasing
@@ -50,7 +49,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
@@ -60,6 +61,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -297,7 +299,7 @@ fun DoubleTapToLikeSample() {
 
             // Creates a transition using the TransitionState object that gets recreated at each
             // double tap.
-            val transition = updateTransition(transitionState)
+            val transition = rememberTransition(transitionState)
             // Creates an alpha animation, as a part of the transition.
             val alpha by transition.animateFloat(
                 transitionSpec = {
@@ -440,7 +442,7 @@ enum class DialerState {
 fun TransitionStateIsIdleSample() {
     @Composable
     fun SelectableItem(selectedState: MutableTransitionState<Boolean>) {
-        val transition = updateTransition(selectedState)
+        val transition = rememberTransition(selectedState)
         val cornerRadius by transition.animateDp { selected -> if (selected) 10.dp else 0.dp }
         val backgroundColor by transition.animateColor { selected ->
             if (selected) Color.Red else Color.White
@@ -477,60 +479,92 @@ fun TransitionStateIsIdleSample() {
     }
 }
 
-@OptIn(ExperimentalTransitionApi::class, ExperimentalAnimationApi::class)
+enum class BoxSize {
+    Small,
+    Medium,
+    Large
+}
+
 @Sampled
 @Composable
 fun SeekingAnimationSample() {
     Column {
-        val seekingState = remember { SeekableTransitionState(SquareSize.Small, SquareSize.Large) }
+        val seekingState = remember { SeekableTransitionState(BoxSize.Small) }
         val scope = rememberCoroutineScope()
-        Row {
-            Button(onClick = {
-                scope.launch {
-                    seekingState.animateToCurrentState()
+        Column {
+            Row {
+                Button(onClick = {
+                    scope.launch { seekingState.animateTo(BoxSize.Small) }
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
+                    Text("Animate Small")
                 }
-            }) {
-                Text("Small")
-            }
-            Slider(
-                value = seekingState.fraction,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 10.dp),
-                onValueChange = { value ->
-                    scope.launch {
-                        seekingState.snapToFraction(value)
-                    }
+                Button(onClick = {
+                    scope.launch { seekingState.seekTo(0f, BoxSize.Small) }
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
+                    Text("Seek Small")
                 }
-            )
-            Button(onClick = {
-                scope.launch {
-                    seekingState.animateToTargetState()
+                Button(onClick = {
+                    scope.launch { seekingState.seekTo(0f, BoxSize.Medium) }
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
+                    Text("Seek Medium")
                 }
-            }) {
-                Text("Large")
+                Button(onClick = {
+                    scope.launch { seekingState.seekTo(0f, BoxSize.Large) }
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
+                    Text("Seek Large")
+                }
+                Button(onClick = {
+                    scope.launch { seekingState.animateTo(BoxSize.Large) }
+                },
+                    Modifier
+                        .wrapContentWidth()
+                        .weight(1f)) {
+                    Text("Animate Large")
+                }
             }
         }
-        // enum class SquareSize { Small, Large }
+        Slider(
+            value = seekingState.fraction,
+            modifier = Modifier
+                .systemGestureExclusion()
+                .padding(10.dp),
+            onValueChange = { value ->
+                scope.launch { seekingState.seekTo(fraction = value) }
+            }
+        )
         val transition = rememberTransition(seekingState)
 
-        // Defines a float animation as a child animation the transition. The current animation value
-        // can be read from the returned State<Float>.
         val scale: Float by transition.animateFloat(
-            // Defines a transition spec that uses the same low-stiffness spring for *all*
-            // transitions of this float, no matter what the target is.
             transitionSpec = { tween(easing = LinearEasing) },
             label = "Scale"
         ) { state ->
-            // This code block declares a mapping from state to value.
-            if (state == SquareSize.Large) 3f else 1f
+            when (state) {
+                BoxSize.Small -> 1f
+                BoxSize.Medium -> 2f
+                BoxSize.Large -> 3f
+            }
         }
 
         transition.AnimatedContent(transitionSpec = {
             fadeIn(tween(easing = LinearEasing)) togetherWith fadeOut(tween(easing = LinearEasing))
         }) { state ->
-            if (state == SquareSize.Large) {
-                Box(Modifier.size(50.dp).background(Color.Magenta))
+            if (state == BoxSize.Large) {
+                Box(
+                    Modifier
+                        .size(50.dp)
+                        .background(Color.Magenta))
             } else {
                 Box(Modifier.size(50.dp))
             }
@@ -539,8 +573,49 @@ fun SeekingAnimationSample() {
             Modifier
                 .fillMaxSize()
                 .wrapContentSize(Alignment.Center)
-                .size((100 * scale).dp)
+                .size(100.dp)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
                 .background(Color.Blue)
         )
     }
+}
+
+@Sampled
+@Composable
+@Suppress("UNUSED_VARIABLE")
+fun SeekToSample() {
+    val seekingState = remember { SeekableTransitionState(BoxSize.Small) }
+    LaunchedEffect(seekingState.targetState) {
+        seekingState.seekTo(0f, BoxSize.Large)
+    }
+    val scope = rememberCoroutineScope()
+    Slider(
+        value = seekingState.fraction,
+        modifier = Modifier
+            .systemGestureExclusion()
+            .padding(10.dp),
+        onValueChange = { value ->
+            scope.launch { seekingState.seekTo(fraction = value) }
+        }
+    )
+    val transition = rememberTransition(seekingState)
+    // use the transition
+}
+
+@Sampled
+@Composable
+@Suppress("UNUSED_VARIABLE")
+fun SnapToSample() {
+    val seekingState = remember { SeekableTransitionState(BoxSize.Small) }
+    val scope = rememberCoroutineScope()
+    Button(onClick = {
+        scope.launch { seekingState.snapTo(BoxSize.Large) }
+    }) {
+        Text("Snap to the Small state")
+    }
+    val transition = rememberTransition(seekingState)
+    // use the transition
 }

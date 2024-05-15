@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"일부 선택됨"</string>
-    <string name="on" msgid="8655164131929253426">"켜짐"</string>
-    <string name="off" msgid="875452955155264703">"꺼짐"</string>
+    <string name="state_on" msgid="1490883874751719580">"사용"</string>
+    <string name="state_off" msgid="5834637030682409883">"사용 안함"</string>
     <string name="switch_role" msgid="2561197295334830845">"스위치"</string>
     <string name="selected" msgid="6043586758067023">"선택됨"</string>
     <string name="not_selected" msgid="6610465462668679431">"선택되지 않음"</string>
@@ -31,6 +31,7 @@
     <string name="close_drawer" msgid="406453423630273620">"탐색 메뉴 닫기"</string>
     <string name="close_sheet" msgid="7573152094250666567">"시트 닫기"</string>
     <string name="default_error_message" msgid="8038256446254964252">"입력이 잘못됨"</string>
+    <string name="state_empty" msgid="4139871816613051306">"비어 있음"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"팝업 창"</string>
     <string name="range_start" msgid="7097486360902471446">"범위 시작"</string>
     <string name="range_end" msgid="5941395253238309765">"범위 끝"</string>

@@ -1,4 +1,4 @@
-// The schema version information of a layout.
+// The schema version information of a layout (or an expression).
 syntax = "proto3";
 
 package androidx.wear.protolayout.expression.proto;

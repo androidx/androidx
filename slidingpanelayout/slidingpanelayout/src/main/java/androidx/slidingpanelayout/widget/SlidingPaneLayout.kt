@@ -18,7 +18,6 @@ package androidx.slidingpanelayout.widget
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -29,14 +28,13 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
-import android.view.View.VISIBLE
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.ViewGroup.getChildMeasureSpec
 import android.view.accessibility.AccessibilityEvent
-import android.widget.FrameLayout
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntDef
@@ -50,16 +48,12 @@ import androidx.core.os.HandlerCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
-import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.core.view.forEach
 import androidx.core.view.forEachIndexed
 import androidx.customview.view.AbsSavedState
 import androidx.customview.widget.Openable
 import androidx.customview.widget.ViewDragHelper
 import androidx.slidingpanelayout.R
-import androidx.transition.ChangeBounds
-import androidx.transition.Transition
-import androidx.transition.TransitionManager
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import java.util.concurrent.CopyOnWriteArrayList
@@ -82,32 +76,13 @@ private const val TAG = "SlidingPaneLayout"
  */
 private const val MIN_FLING_VELOCITY = 400 // dips per second
 
+private const val MIN_TOUCH_TARGET_SIZE = 48 // dp
+
 /** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage.  */
 private const val ACCESSIBILITY_CLASS_NAME =
     "androidx.slidingpanelayout.widget.SlidingPaneLayout"
 
 private val edgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29
-
-@Suppress("deprecation") // Remove suppression once b/120984816 is addressed.
-private fun viewIsOpaque(v: View): Boolean {
-    if (v.isOpaque) return true
-
-    // View#isOpaque didn't take all valid opaque scrollbar modes into account
-    // before API 18 (JB-MR2). On newer devices rely solely on isOpaque above and return false
-    // here. On older devices, check the view's background drawable directly as a fallback.
-    if (Build.VERSION.SDK_INT >= 18) return false
-
-    val bg = v.background
-    return if (bg != null) {
-        bg.opacity == PixelFormat.OPAQUE
-    } else false
-}
-
-private fun getMinimumWidth(child: View): Int {
-    return if (child is TouchBlocker) {
-        ViewCompat.getMinimumWidth(child.getChildAt(0))
-    } else ViewCompat.getMinimumWidth(child)
-}
 
 private fun getChildHeightMeasureSpec(
     child: View,
@@ -212,19 +187,19 @@ private class FoldBoundsCalculator {
     }
 }
 
-private class TouchBlocker(view: View) : FrameLayout(view.context) {
-    init {
-        addView(view)
-    }
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        return true
-    }
-
-    override fun onGenericMotionEvent(event: MotionEvent): Boolean {
-        return true
-    }
+/**
+ * Pulls the string interpolation and exception throwing bytecode out of the inlined
+ * [spLayoutParams] property at each call site
+ */
+private fun layoutParamsError(childView: View, layoutParams: LayoutParams?): Nothing {
+    error("SlidingPaneLayout child $childView had unexpected LayoutParams $layoutParams")
 }
+
+private inline val View.spLayoutParams: SlidingPaneLayout.LayoutParams
+    get() = when (val layoutParams = layoutParams) {
+        is SlidingPaneLayout.LayoutParams -> layoutParams
+        else -> layoutParamsError(this, layoutParams)
+    }
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level
@@ -338,7 +313,21 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      */
     private var slideRange = 0
 
+    private val touchTargetMin =
+        (context.resources.displayMetrics.density * MIN_TOUCH_TARGET_SIZE).roundToInt()
+
     private val overlappingPaneHandler = OverlappingPaneHandler()
+    private val draggableDividerHandler = DraggableDividerHandler()
+
+    private val cancelEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
+    private var activeTouchHandler: TouchHandler? = null
+        set(value) {
+            if (field != value) {
+                // Send a cancel event to the outgoing handler to reset it for later
+                field?.onTouchEvent(cancelEvent)
+                field = value
+            }
+        }
 
     /**
      * Stores whether or not the pane was open the last time it was slideable.
@@ -363,6 +352,12 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     internal annotation class LockMode
 
     private var foldingFeature: FoldingFeature? = null
+        set(value) {
+            if (value != field) {
+                field = value
+                requestLayout()
+            }
+        }
 
     /**
      * [Job] that tracks the last launched coroutine running [whileAttachedToVisibleWindow].
@@ -417,12 +412,17 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             return gestureInsets
         }
 
-    private val isLayoutRtlSupport: Boolean
-        get() = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+    private val isLayoutRtl: Boolean
+        get() = layoutDirection == LAYOUT_DIRECTION_RTL
 
     private val windowInfoTracker = WindowInfoTracker.getOrCreate(context)
 
     private var userResizingDividerDrawable: Drawable? = null
+
+    // Reused/preallocated gesture exclusion data
+    private val computedDividerExclusionRect = Rect()
+    private val dividerGestureExclusionRect = Rect()
+    private val gestureExclusionRectsList = listOf(dividerGestureExclusionRect)
 
     /**
      * Set a [Drawable] to display when [isUserResizingEnabled] is `true` and multiple panes are
@@ -440,8 +440,98 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             userResizingDividerDrawable = drawable
             if (drawable != null) {
                 drawable.callback = this
-                if (drawable.isStateful) drawable.setState(drawableState)
+                if (drawable.isStateful) {
+                    drawable.setState(createUserResizingDividerDrawableState(drawableState))
+                }
                 drawable.setVisible(visibility == VISIBLE, false)
+            }
+            // don't just invalidate; layout performs some extra state computation for the divider
+            requestLayout()
+        }
+    }
+
+    /**
+     * Set a [Drawable] by resource id to display when [isUserResizingEnabled] is `true`
+     * and multiple panes are visible without overlapping. This forms the visual touch target
+     * for dragging. This may also be set from the `userResizingDividerDrawable` XML attribute
+     * during view inflation.
+     */
+    fun setUserResizingDividerDrawable(@DrawableRes resId: Int) {
+        setUserResizingDividerDrawable(ContextCompat.getDrawable(context, resId))
+    }
+
+    /**
+     * `true` if the user is currently dragging the [user resizing divider][isUserResizable]
+     */
+    val isDividerDragging: Boolean
+        get() = draggableDividerHandler.isDragging
+
+    /**
+     * Position of the division between split panes when [isSlideable] is `false`.
+     * When the value is < 0 it should be one of the `SPLIT_DIVIDER_POSITION_*` constants,
+     * e.g. [SPLIT_DIVIDER_POSITION_AUTO]. When the value is >= 0 it represents a value in pixels
+     * between 0 and [getWidth]. The default value is [SPLIT_DIVIDER_POSITION_AUTO].
+     *
+     * Changing this property will result in a [requestLayout] and relayout of the contents
+     * of the [SlidingPaneLayout].
+     *
+     * This can be controlled by the user when [isUserResizable] and the setting will be preserved
+     * as part of `savedInstanceState`. The value may be adapted across relayouts or configuration
+     * changes to account for differences in pane sizing constraints.
+     */
+    var splitDividerPosition: Int = SPLIT_DIVIDER_POSITION_AUTO
+        set(value) {
+            if (field != value) {
+                field = value
+                if (!isSlideable) {
+                    requestLayout()
+                }
+            }
+        }
+
+    /**
+     * The center position in the X dimension of the visual divider indicator between panes.
+     * If [isUserResizable] would return `false` this property will return < 0.
+     * If the user is actively dragging the divider this will reflect its current drag position.
+     * If not, it will reflect [splitDividerPosition] if [splitDividerPosition] would return >= 0,
+     * or the automatically determined divider position if [splitDividerPosition] would return
+     * [SPLIT_DIVIDER_POSITION_AUTO].
+     */
+    val visualDividerPosition: Int
+        get() = when {
+            !isUserResizable -> -1
+            isDividerDragging -> draggableDividerHandler.dragPositionX
+            splitDividerPosition >= 0 -> splitDividerPosition
+            else -> {
+                val leftChild: View
+                val rightChild: View
+                if (isLayoutRtl) {
+                    leftChild = getChildAt(1)
+                    rightChild = getChildAt(0)
+                } else {
+                    leftChild = getChildAt(0)
+                    rightChild = getChildAt(1)
+                }
+                (leftChild.right + leftChild.spLayoutParams.rightMargin +
+                    rightChild.left - rightChild.spLayoutParams.leftMargin) / 2
+            }
+        }
+
+    private fun createUserResizingDividerDrawableState(viewState: IntArray): IntArray {
+        if (android.R.attr.state_pressed !in viewState && !isDividerDragging) {
+            return viewState
+        }
+
+        return if (isDividerDragging) {
+            // Add the pressed state for the divider drawable
+            viewState.copyOf(viewState.size + 1).also { stateArray ->
+                stateArray[stateArray.lastIndex] = android.R.attr.state_pressed
+            }
+        } else {
+            var foundPressed = false
+            IntArray(viewState.size - 1) { index ->
+                if (viewState[index] == android.R.attr.state_pressed) foundPressed = true
+                viewState[if (foundPressed) index + 1 else index]
             }
         }
     }
@@ -473,19 +563,97 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     val isUserResizable: Boolean
         get() = !isSlideable && isUserResizingEnabled && userResizingDividerDrawable != null
 
+    /**
+     * `true` if child views are clipped to [visualDividerPosition].
+     */
+    var isChildClippingToResizeDividerEnabled: Boolean = true
+        set(value) {
+            if (value != field) {
+                field = value
+                invalidate()
+            }
+        }
+
+    private var onUserResizingDividerClickListener: OnClickListener? = null
+
+    /**
+     * Set a [View.OnClickListener] that will be invoked if the user clicks/taps on the
+     * resizing divider. The divider is only available to be clicked if [isUserResizable].
+     */
+    fun setOnUserResizingDividerClickListener(listener: OnClickListener?) {
+        onUserResizingDividerClickListener = listener
+    }
+
+    private var userResizeBehavior = USER_RESIZE_RELAYOUT_WHEN_COMPLETE
+
+    /**
+     * Configure the [UserResizeBehavior] that will be used to adjust the [splitDividerPosition]
+     * when [isUserResizable] and the user drags the divider from side to side.
+     *
+     * The default is [USER_RESIZE_RELAYOUT_WHEN_COMPLETE], which will adjust the position to
+     * a freeform position respecting the minimum width of each pane when the user lets go of the
+     * divider. [USER_RESIZE_RELAYOUT_WHEN_MOVED] will resize both panes live as the user drags,
+     * though for complex layouts this can carry negative performance implications.
+     *
+     * This property can be set from layout xml as the `userResizeBehavior` attribute, using
+     * `relayoutWhenComplete` or `relayoutWhenMoved` to set [USER_RESIZE_RELAYOUT_WHEN_COMPLETE]
+     * or [USER_RESIZE_RELAYOUT_WHEN_MOVED], respectively.
+     */
+    fun setUserResizeBehavior(userResizeBehavior: UserResizeBehavior) {
+        this.userResizeBehavior = userResizeBehavior
+    }
+
     init {
         setWillNotDraw(false)
         ViewCompat.setAccessibilityDelegate(this, AccessibilityDelegate())
-        ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
+        setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
 
-        context.withStyledAttributes(attrs, R.styleable.SlidingPaneLayout) {
+        context.withStyledAttributes(
+            attrs,
+            R.styleable.SlidingPaneLayout,
+            defStyleRes = R.style.Widget_SlidingPaneLayout
+        ) {
             isOverlappingEnabled =
                 getBoolean(R.styleable.SlidingPaneLayout_isOverlappingEnabled, true)
             isUserResizingEnabled =
                 getBoolean(R.styleable.SlidingPaneLayout_isUserResizingEnabled, false)
             userResizingDividerDrawable =
                 getDrawable(R.styleable.SlidingPaneLayout_userResizingDividerDrawable)
+            isChildClippingToResizeDividerEnabled = getBoolean(
+                R.styleable.SlidingPaneLayout_isChildClippingToResizeDividerEnabled,
+                true
+            )
+            // Constants used in this `when` are defined in attrs.xml
+            userResizeBehavior = when (
+                val behaviorConstant = getInt(R.styleable.SlidingPaneLayout_userResizeBehavior, 0)
+            ) {
+                // relayoutWhenComplete
+                0 -> USER_RESIZE_RELAYOUT_WHEN_COMPLETE
+                // relayoutWhenMoved
+                1 -> USER_RESIZE_RELAYOUT_WHEN_MOVED
+                else -> error("$behaviorConstant is not a valid userResizeBehavior value")
+            }
         }
+    }
+
+    private fun computeDividerTargetRect(outRect: Rect, dividerPositionX: Int): Rect {
+        val divider = userResizingDividerDrawable
+        if (divider == null) {
+            outRect.setEmpty()
+            return outRect
+        }
+
+        val touchTargetMin = touchTargetMin
+        val dividerWidth = divider.intrinsicWidth
+        val dividerHeight = divider.intrinsicHeight
+        val width = max(dividerWidth, touchTargetMin)
+        val height = max(dividerHeight, touchTargetMin)
+        val left = dividerPositionX - width / 2
+        val right = left + width
+        val top = (this.height - paddingTop - paddingBottom) / 2 + paddingTop - height / 2
+        val bottom = top + height
+        outRect.set(left, top, right, bottom)
+        return outRect
     }
 
     /**
@@ -549,16 +717,8 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         overlappingPaneHandler.dispatchOnPanelSlide(panel, currentSlideOffset)
     }
 
-    private fun dispatchOnPanelOpened(panel: View) {
-        overlappingPaneHandler.dispatchOnPanelOpened(panel)
-    }
-
-    private fun dispatchOnPanelClosed(panel: View) {
-        overlappingPaneHandler.dispatchOnPanelClosed(panel)
-    }
-
     private fun updateObscuredViewsVisibility(panel: View?) {
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val startBound = if (isLayoutRtl) width - paddingRight else paddingLeft
         val endBound = if (isLayoutRtl) paddingLeft else width - paddingRight
         val topBound = paddingTop
@@ -567,7 +727,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         val right: Int
         val top: Int
         val bottom: Int
-        if (panel != null && viewIsOpaque(panel)) {
+        if (panel != null && panel.isOpaque) {
             left = panel.left
             right = panel.right
             top = panel.top
@@ -607,11 +767,45 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
     }
 
+    private fun updateDividerDrawableBounds(dividerPositionX: Int) {
+        // only set the divider up if we have a width/height for the layout
+        if (width > 0 && height > 0) userResizingDividerDrawable?.apply {
+            val layoutCenterY = (height - paddingTop - paddingBottom) / 2 + paddingTop
+            val dividerLeft = dividerPositionX - intrinsicWidth / 2
+            val dividerTop = layoutCenterY - intrinsicHeight / 2
+            setBounds(
+                dividerLeft,
+                dividerTop,
+                dividerLeft + intrinsicWidth,
+                dividerTop + intrinsicHeight
+            )
+        }
+    }
+
+    private fun updateGestureExclusion(dividerPositionX: Int) {
+        if (dividerPositionX < 0) {
+            computedDividerExclusionRect.setEmpty()
+        } else {
+            computeDividerTargetRect(computedDividerExclusionRect, dividerPositionX)
+        }
+
+        // Setting gesture exclusion rects makes the framework do some work; avoid it if we can.
+        if (computedDividerExclusionRect != dividerGestureExclusionRect) {
+            if (computedDividerExclusionRect.isEmpty) {
+                ViewCompat.setSystemGestureExclusionRects(this, emptyList())
+            } else {
+                dividerGestureExclusionRect.set(computedDividerExclusionRect)
+                // dividerGestureExclusionRect is already in gestureExclusionRectsList
+                ViewCompat.setSystemGestureExclusionRects(this, gestureExclusionRectsList)
+            }
+        }
+    }
+
     override fun drawableStateChanged() {
         super.drawableStateChanged()
 
         userResizingDividerDrawable?.apply {
-            if (isStateful && setState(drawableState)) {
+            if (isStateful && setState(createUserResizingDividerDrawableState(drawableState))) {
                 invalidateDrawable(this)
             }
         }
@@ -680,12 +874,6 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             .distinctUntilChanged()
             .collect { nextFeature ->
                 foldingFeature = nextFeature
-                // Start transition animation when folding feature changed
-                val changeBounds: Transition = ChangeBounds()
-                changeBounds.duration = 300L
-                changeBounds.interpolator = PathInterpolatorCompat.create(0.2f, 0f, 0f, 1f)
-                TransitionManager.beginDelayedTransition(this@SlidingPaneLayout, changeBounds)
-                requestLayout()
             }
     }
 
@@ -693,6 +881,12 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         whileAttachedToVisibleWindowJob?.cancel()
         awaitingFirstLayout = true
         super.onDetachedFromWindow()
+    }
+
+    private fun getMinimumChildWidth(child: View): Int {
+        return if (child is TouchBlocker) {
+            child.getChildAt(0).minimumWidth
+        } else child.minimumWidth
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -712,6 +906,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
         var weightSum = 0f
         var canSlide = false
+        val isLayoutRtl = isLayoutRtl
         val widthAvailable = (widthSize - paddingLeft - paddingRight).coerceAtLeast(0)
         var widthRemaining = widthAvailable
         val childCount = childCount
@@ -731,7 +926,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         // Weight will incur a second pass; distributing leftover space in the event of overlap
         // behaves similar to weight and will also incur a second pass.
         forEachIndexed { i, child ->
-            val lp = child.layoutParams as LayoutParams
+            val lp = child.spLayoutParams
             if (child.visibility == GONE) {
                 lp.dimWhenOffset = false
                 return@forEachIndexed
@@ -807,28 +1002,43 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         // distribute the extra width proportionally to weight.
         if (canSlide || weightSum > 0 || skippedChildMeasure) {
             var totalMeasuredWidth = 0
-            forEach { child ->
-                if (child.visibility == GONE) return@forEach
-                val lp = child.layoutParams as LayoutParams
+            forEachIndexed { index, child ->
+                if (child.visibility == GONE) return@forEachIndexed
+                val lp = child.spLayoutParams
                 val skippedFirstPass = !lp.canInfluenceParentSize || lp.weightOnlyWidth
-                val measuredWidth = if (skippedFirstPass) 0 else child.measuredWidth
+                val firstPassMeasuredWidth = if (skippedFirstPass) 0 else child.measuredWidth
                 val newWidth = when {
                     // Child view consumes available space if the combined width cannot fit into
                     // the layout available width.
                     canSlide -> widthAvailable - lp.horizontalMargin
                     lp.weight > 0 -> {
-                        // Distribute the extra width proportionally similar to LinearLayout
-                        val widthToDistribute = widthRemaining.coerceAtLeast(0)
-                        val addedWidth = (lp.weight * widthToDistribute / weightSum).roundToInt()
-                        measuredWidth + addedWidth
+                        val dividerPos = splitDividerPosition
+                        if (canSlide || dividerPos == SPLIT_DIVIDER_POSITION_AUTO) {
+                            // Distribute the extra width proportionally similar to LinearLayout
+                            val widthToDistribute = widthRemaining.coerceAtLeast(0)
+                            val addedWidth =
+                                (lp.weight * widthToDistribute / weightSum).roundToInt()
+                            firstPassMeasuredWidth + addedWidth
+                        } else { // Explicit dividing line is defined
+                            val clampedPos = dividerPos.coerceAtMost(width - paddingRight)
+                                .coerceAtLeast(paddingLeft)
+                            val availableWidthDivider = clampedPos - paddingLeft
+                            if ((index == 0) xor isLayoutRtl) {
+                                availableWidthDivider - lp.horizontalMargin
+                            } else {
+                                // padding accounted for in widthAvailable;
+                                // dividerPos includes left padding
+                                widthAvailable - lp.horizontalMargin - availableWidthDivider
+                            }
+                        }
                     }
                     lp.width == MATCH_PARENT -> {
                         widthAvailable - lp.horizontalMargin - totalMeasuredWidth
                     }
                     lp.width > 0 -> lp.width
-                    else -> measuredWidth
+                    else -> firstPassMeasuredWidth
                 }
-                if (measuredWidth != newWidth) {
+                if (newWidth != child.measuredWidth) {
                     val childWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY)
                     val childHeightSpec = getChildHeightMeasureSpec(
                         child,
@@ -890,11 +1100,11 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                     1 -> rightSplitBounds
                     else -> error("too many children to split")
                 }
-                val lp = child.layoutParams as LayoutParams
+                val lp = child.spLayoutParams
                 // If the child has been given exact width settings, don't make changes
                 if (!lp.canExpandWidth) return false
                 // minimumWidth will always be >= 0 so this coerceAtLeast is safe
-                val minChildWidth = getMinimumWidth(child).coerceAtLeast(lp.width)
+                val minChildWidth = getMinimumChildWidth(child).coerceAtLeast(lp.width)
                 // If the child has a minimum size larger than the area left by the fold's division,
                 // don't make changes
                 if (minChildWidth + lp.horizontalMargin > splitView.width()) return false
@@ -907,7 +1117,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                     1 -> rightSplitBounds
                     else -> error("too many children to split")
                 }
-                val lp = child.layoutParams as LayoutParams
+                val lp = child.spLayoutParams
 
                 val childWidthSpec = MeasureSpec.makeMeasureSpec(
                     (splitView.width() - lp.horizontalMargin).coerceAtLeast(0),
@@ -929,16 +1139,16 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         val foldingFeature = foldingFeature
-        if (!isSlideable) {
-            if (foldingFeature != null) {
-                // We can't determine the position of the screen fold relative to the placed
-                // SlidingPaneLayout until the SlidingPaneLayout is placed, which is complete
-                // when onLayout is called.
-                remeasureForFoldingFeature(foldingFeature)
-            }
+        if (!isSlideable &&
+            splitDividerPosition == SPLIT_DIVIDER_POSITION_AUTO &&
+            foldingFeature != null) {
+            // We can't determine the position of the screen fold relative to the placed
+            // SlidingPaneLayout until the SlidingPaneLayout is placed, which is complete
+            // when onLayout is called.
+            remeasureForFoldingFeature(foldingFeature)
         }
 
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val width = r - l
         val paddingStart = if (isLayoutRtl) paddingRight else paddingLeft
         val paddingEnd = if (isLayoutRtl) paddingLeft else paddingRight
@@ -954,8 +1164,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             if (child.visibility == GONE) {
                 continue
             }
-            val lp =
-                child.layoutParams as LayoutParams
+            val lp = child.spLayoutParams
             val childWidth = child.measuredWidth
             var offset = 0
             if (lp.slideable) {
@@ -996,6 +1205,13 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             }
             nextXStart += child.width + abs(nextXOffset)
         }
+        if (isUserResizable) {
+            updateGestureExclusion(visualDividerPosition)
+            // Force the divider to update and draw
+            invalidate()
+        } else {
+            updateGestureExclusion(-1)
+        }
         if (awaitingFirstLayout) {
             if (isSlideable) {
                 if (parallaxDistance != 0) {
@@ -1022,16 +1238,25 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
     }
 
+    private fun selectActiveTouchHandler(): TouchHandler? {
+        activeTouchHandler = if (isSlideable) {
+            overlappingPaneHandler
+        } else if (isUserResizable) {
+            draggableDividerHandler
+        } else null
+        return activeTouchHandler
+    }
+
     override fun onInterceptTouchEvent(
         @Suppress("InvalidNullabilityOverride") ev: MotionEvent
     ): Boolean {
-        return overlappingPaneHandler.onInterceptTouchEvent(ev)
+        return selectActiveTouchHandler()?.onInterceptTouchEvent(ev) ?: false
     }
 
     override fun onTouchEvent(
         @Suppress("InvalidNullabilityOverride") ev: MotionEvent
     ): Boolean {
-        return overlappingPaneHandler.onTouchEvent(ev)
+        return selectActiveTouchHandler()?.onTouchEvent(ev) ?: false
     }
 
     private fun closePane(initialVelocity: Int): Boolean {
@@ -1127,14 +1352,15 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     }
 
     private fun onPanelDragged(newLeft: Int) {
+        val slideableView = slideableView
         if (slideableView == null) {
             // This can happen if we're aborting motion during layout because everything now fits.
             currentSlideOffset = 0f
             return
         }
-        val isLayoutRtl = isLayoutRtlSupport
-        val lp = slideableView!!.layoutParams as LayoutParams
-        val childWidth = slideableView!!.width
+        val isLayoutRtl = isLayoutRtl
+        val lp = slideableView.spLayoutParams
+        val childWidth = slideableView.width
         val newStart = if (isLayoutRtl) width - newLeft - childWidth else newLeft
         val paddingStart = if (isLayoutRtl) paddingRight else paddingLeft
         val lpMargin = if (isLayoutRtl) lp.rightMargin else lp.leftMargin
@@ -1143,7 +1369,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         if (parallaxDistance != 0) {
             parallaxOtherViews(currentSlideOffset)
         }
-        dispatchOnPanelSlide(slideableView!!)
+        dispatchOnPanelSlide(slideableView)
     }
 
     override fun drawChild(
@@ -1153,7 +1379,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     ): Boolean {
         if (isSlideable) {
             val gestureInsets = systemGestureInsets
-            if (isLayoutRtlSupport xor isOpen) {
+            if (isLayoutRtl xor isOpen) {
                 overlappingPaneHandler.setEdgeTrackingEnabled(
                     ViewDragHelper.EDGE_LEFT,
                     gestureInsets?.left ?: 0
@@ -1167,17 +1393,36 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         } else {
             overlappingPaneHandler.disableEdgeTracking()
         }
-        val lp = child.layoutParams as LayoutParams
+        val lp = child.spLayoutParams
         val save = canvas.save()
         if (isSlideable && !lp.slideable && slideableView != null) {
             // Clip against the slider; no sense drawing what will immediately be covered.
             canvas.getClipBounds(tmpRect)
-            if (isLayoutRtlSupport) {
+            if (isLayoutRtl) {
                 tmpRect.left = max(tmpRect.left, slideableView!!.right)
             } else {
                 tmpRect.right = min(tmpRect.right, slideableView!!.left)
             }
             canvas.clipRect(tmpRect)
+        }
+        if (!isSlideable && isChildClippingToResizeDividerEnabled) {
+            val visualDividerPosition = visualDividerPosition
+            if (visualDividerPosition >= 0) {
+                with(tmpRect) {
+                    if (isLayoutRtl xor (child === getChildAt(0))) {
+                        // left child
+                        left = paddingLeft
+                        right = visualDividerPosition
+                    } else {
+                        // right child
+                        left = visualDividerPosition
+                        right = width - paddingRight
+                    }
+                    top = paddingTop
+                    bottom = height - paddingBottom
+                }
+                canvas.clipRect(tmpRect)
+            }
         }
         return super.drawChild(canvas, child, drawingTime).also {
             canvas.restoreToCount(save)
@@ -1197,8 +1442,8 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             return false
         }
         val slideableView = slideableView ?: return false
-        val isLayoutRtl = isLayoutRtlSupport
-        val lp = slideableView.layoutParams as LayoutParams
+        val isLayoutRtl = isLayoutRtl
+        val lp = slideableView.spLayoutParams
         val x: Int = if (isLayoutRtl) {
             val startBound = paddingRight + lp.rightMargin
             val childWidth = slideableView.width
@@ -1209,7 +1454,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
         if (overlappingPaneHandler.smoothSlideViewTo(slideableView, x, slideableView.top)) {
             setAllChildrenVisible()
-            ViewCompat.postInvalidateOnAnimation(this)
+            postInvalidateOnAnimation()
             return true
         }
         return false
@@ -1284,35 +1529,38 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     override fun draw(c: Canvas) {
         super.draw(c)
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val shadowDrawable: Drawable? = if (isLayoutRtl) {
             shadowDrawableRight
         } else {
             shadowDrawableLeft
         }
         val shadowView = if (childCount > 1) getChildAt(1) else null
-        if (shadowView == null || shadowDrawable == null) {
-            // No need to draw a shadow if we don't have one.
-            return
+        if (shadowView != null && shadowDrawable != null) {
+            val top = shadowView.top
+            val bottom = shadowView.bottom
+            val shadowWidth = shadowDrawable.intrinsicWidth
+            val left: Int
+            val right: Int
+            if (this.isLayoutRtl) {
+                left = shadowView.right
+                right = left + shadowWidth
+            } else {
+                right = shadowView.left
+                left = right - shadowWidth
+            }
+            shadowDrawable.setBounds(left, top, right, bottom)
+            shadowDrawable.draw(c)
         }
-        val top = shadowView.top
-        val bottom = shadowView.bottom
-        val shadowWidth = shadowDrawable.intrinsicWidth
-        val left: Int
-        val right: Int
-        if (isLayoutRtlSupport) {
-            left = shadowView.right
-            right = left + shadowWidth
-        } else {
-            right = shadowView.left
-            left = right - shadowWidth
+
+        userResizingDividerDrawable?.takeIf { isUserResizable }?.let { divider ->
+            updateDividerDrawableBounds(visualDividerPosition)
+            divider.draw(c)
         }
-        shadowDrawable.setBounds(left, top, right, bottom)
-        shadowDrawable.draw(c)
     }
 
     private fun parallaxOtherViews(slideOffset: Float) {
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val childCount = childCount
         for (i in 0 until childCount) {
             val v = getChildAt(i)
@@ -1356,14 +1604,14 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 }
             }
         }
-        return checkV && v.canScrollHorizontally(if (isLayoutRtlSupport) dx else -dx)
+        return checkV && v.canScrollHorizontally(if (isLayoutRtl) dx else -dx)
     }
 
     private fun isDimmed(child: View?): Boolean {
         if (child == null) {
             return false
         }
-        val lp = child.layoutParams as LayoutParams
+        val lp = child.spLayoutParams
         return isSlideable && lp.dimWhenOffset && currentSlideOffset > 0
     }
 
@@ -1387,10 +1635,11 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
-        val ss = SavedState(superState)
-        ss.isOpen = if (isSlideable) isOpen else preservedOpenState
-        ss.lockMode = lockMode
-        return ss
+        val state = SavedState(superState)
+        state.isOpen = if (isSlideable) isOpen else preservedOpenState
+        state.lockMode = lockMode
+        state.splitDividerPosition = splitDividerPosition
+        return state
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
@@ -1406,6 +1655,56 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
         preservedOpenState = state.isOpen
         lockMode = state.lockMode
+        splitDividerPosition = state.splitDividerPosition
+    }
+
+    /**
+     * Interceptor for touch events and generic motion events that will accept those event streams
+     * in the case where the pane view(s) do not. This prevents touch events from passing through
+     * overlapping panes to covered panes below.
+     *
+     * Ideally SlidingPaneLayout would override dispatchTouchEventForChild instead, but that's
+     * not public API. This somewhat breaks the structural contract of child view behavior, but
+     * it's been in place for some time as part of the previous implementation prior to the port
+     * to Kotlin.
+     */
+    private inner class TouchBlocker(view: View) : ViewGroup(view.context) {
+        init {
+            addView(view)
+        }
+
+        override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+            val child = getChildAt(0)
+            child.measure(widthMeasureSpec, heightMeasureSpec)
+            setMeasuredDimension(child.measuredWidth, child.measuredHeight)
+        }
+
+        override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+            getChildAt(0).layout(0, 0, r - l, b - t)
+        }
+
+        override fun getLayoutParams(): LayoutParams = getChildAt(0).layoutParams
+
+        override fun setLayoutParams(lp: LayoutParams) {
+            getChildAt(0).layoutParams = lp
+        }
+
+        override fun checkLayoutParams(p: LayoutParams?): Boolean =
+            this@SlidingPaneLayout.checkLayoutParams(p)
+
+        override fun generateDefaultLayoutParams(): LayoutParams =
+            this@SlidingPaneLayout.generateDefaultLayoutParams()
+
+        override fun generateLayoutParams(p: LayoutParams?): LayoutParams =
+            this@SlidingPaneLayout.generateLayoutParams(p)
+
+        override fun onTouchEvent(event: MotionEvent): Boolean {
+            return isSlideable
+        }
+
+        override fun onGenericMotionEvent(event: MotionEvent): Boolean {
+            return isSlideable
+        }
     }
 
     open class LayoutParams : MarginLayoutParams {
@@ -1453,16 +1752,27 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         @LockMode
         var lockMode = 0
 
+        /**
+         * This saves the raw pixel position of the split, or the AUTO constant.
+         * Using raw pixel position will bias toward the list pane in a list/detail arrangement
+         * remaining stable in size even if the window size changes across configurations.
+         * This does NOT (yet) elegantly handle density changes, or customization of biasing the
+         * resize divider point toward one pane or the other based on a different developer intent.
+         */
+        var splitDividerPosition: Int = SPLIT_DIVIDER_POSITION_AUTO
+
         constructor(superState: Parcelable?) : super(superState!!)
         constructor(parcel: Parcel, loader: ClassLoader?) : super(parcel, loader) {
             isOpen = parcel.readInt() != 0
             lockMode = parcel.readInt()
+            splitDividerPosition = parcel.readInt()
         }
 
         override fun writeToParcel(out: Parcel, flags: Int) {
             super.writeToParcel(out, flags)
             out.writeInt(if (isOpen) 1 else 0)
             out.writeInt(lockMode)
+            out.writeInt(splitDividerPosition)
         }
 
         companion object {
@@ -1497,7 +1807,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             info.className =
                 ACCESSIBILITY_CLASS_NAME
             info.setSource(host)
-            val parent = ViewCompat.getParentForAccessibility(host)
+            val parent = host.getParentForAccessibility()
             if (parent is View) {
                 info.setParent(parent as View)
             }
@@ -1509,9 +1819,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 val child = getChildAt(i)
                 if (!filter(child) && child.visibility == VISIBLE) {
                     // Force importance to "yes" since we can't read the value.
-                    ViewCompat.setImportantForAccessibility(
-                        child, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES
-                    )
+                    child.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES)
                     info.addChild(child)
                 }
             }
@@ -1616,7 +1924,10 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         override fun onPanelClosed(panel: View) {}
     }
 
-    private interface TouchHandler {
+    /**
+     * Used to switch gesture handling modes
+     */
+    internal interface TouchHandler {
         fun onInterceptTouchEvent(ev: MotionEvent): Boolean
         fun onTouchEvent(ev: MotionEvent): Boolean
     }
@@ -1653,7 +1964,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                     dragHelper.abort()
                     return
                 }
-                ViewCompat.postInvalidateOnAnimation(this@SlidingPaneLayout)
+                postInvalidateOnAnimation()
             }
         }
 
@@ -1715,7 +2026,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         override fun tryCaptureView(child: View, pointerId: Int): Boolean {
             return if (!isDraggable) {
                 false
-            } else (child.layoutParams as LayoutParams).slideable
+            } else child.spLayoutParams.slideable
         }
 
         override fun onViewDragStateChanged(state: Int) {
@@ -1748,9 +2059,9 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
-            val lp = releasedChild.layoutParams as LayoutParams
+            val lp = releasedChild.spLayoutParams
             var left: Int
-            if (isLayoutRtlSupport) {
+            if (isLayoutRtl) {
                 var startToRight = paddingRight + lp.rightMargin
                 if (xvel < 0 || xvel == 0f && currentSlideOffset > 0.5f) {
                     startToRight += slideRange
@@ -1773,9 +2084,10 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
             var newLeft = left
-            val lp = slideableView!!.layoutParams as LayoutParams
-            newLeft = if (isLayoutRtlSupport) {
-                val startBound = (width - (paddingRight + lp.rightMargin + slideableView!!.width))
+            val slideableView = checkNotNull(slideableView)
+            val lp = slideableView.spLayoutParams
+            newLeft = if (isLayoutRtl) {
+                val startBound = (width - (paddingRight + lp.rightMargin + slideableView.width))
                 val endBound = startBound - slideRange
                 newLeft.coerceIn(endBound, startBound)
             } else {
@@ -1909,6 +2221,198 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
     }
 
+    private inner class DraggableDividerHandler : AbsDraggableDividerHandler(
+        touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    ) {
+        private val tmpTargetRect = Rect()
+
+        // Implementation note: this doesn't use the drawable bounds directly since drawing
+        // is what configures the bounds; this function may be checked prior to that update step
+        override fun dividerBoundsContains(x: Int, y: Int): Boolean =
+            computeDividerTargetRect(tmpTargetRect, visualDividerPosition).contains(x, y)
+
+        override fun clampDraggingDividerPosition(proposedPositionX: Int): Int {
+            val leftChild: View
+            val rightChild: View
+            if (isLayoutRtl) {
+                leftChild = getChildAt(1)
+                rightChild = getChildAt(0)
+            } else {
+                leftChild = getChildAt(0)
+                rightChild = getChildAt(1)
+            }
+            return proposedPositionX.coerceIn(
+                paddingLeft + leftChild.spLayoutParams.horizontalMargin +
+                    getMinimumChildWidth(leftChild),
+                width - paddingRight - rightChild.spLayoutParams.horizontalMargin -
+                    getMinimumChildWidth(rightChild)
+            )
+        }
+
+        override fun onUserResizeStarted() {
+            userResizeBehavior.onUserResizeStarted(this@SlidingPaneLayout, dragPositionX)
+            drawableStateChanged()
+        }
+
+        override fun onUserResizeProgress() {
+            userResizeBehavior.onUserResizeProgress(this@SlidingPaneLayout, dragPositionX)
+            invalidate()
+        }
+
+        override fun onUserResizeComplete(wasCancelled: Boolean) {
+            if (wasCancelled) {
+                userResizeBehavior.onUserResizeCancelled(this@SlidingPaneLayout, dragPositionX)
+            } else {
+                userResizeBehavior.onUserResizeComplete(this@SlidingPaneLayout, dragPositionX)
+            }
+            invalidate()
+        }
+
+        override fun onDividerClicked() {
+            onUserResizingDividerClickListener?.onClick(this@SlidingPaneLayout)
+        }
+    }
+
+    /**
+     * The state machine for working with divider dragging user input
+     */
+    internal abstract class AbsDraggableDividerHandler(
+        private val touchSlop: Int
+    ) : TouchHandler {
+
+        private var xDown = Float.NaN
+
+        /** `true` if the user is actively dragging */
+        var isDragging: Boolean = false
+            private set
+
+        /** X position of a drag in progress or -1 if no drag in progress */
+        var dragPositionX: Int = -1
+            private set
+
+        /** returns `true` if the divider's visual bounds contain the point `(x, y)` */
+        abstract fun dividerBoundsContains(x: Int, y: Int): Boolean
+
+        open fun clampDraggingDividerPosition(proposedPositionX: Int): Int = proposedPositionX
+
+        /** Called when a user resize begins; [isDragging] has changed from false to true */
+        open fun onUserResizeStarted() {}
+
+        /** Called when [dragPositionX] has changed as a result of user resize */
+        open fun onUserResizeProgress() {}
+
+        /** Called when user resizing has ended; [dragPositionX] represents the end position */
+        open fun onUserResizeComplete(wasCancelled: Boolean) {}
+
+        /** Called when the divider is touched and released without crossing [touchSlop] */
+        open fun onDividerClicked() {}
+
+        private fun commonActionDown(ev: MotionEvent): Boolean = if (
+            dividerBoundsContains(ev.x.roundToInt(), ev.y.roundToInt())
+        ) {
+            xDown = ev.x
+            if (touchSlop == 0) {
+                isDragging = true
+                dragPositionX = clampDraggingDividerPosition(ev.x.roundToInt())
+                onUserResizeStarted()
+            }
+            true
+        } else false
+
+        private fun commonActionMove(ev: MotionEvent): Boolean = if (!xDown.isNaN()) {
+            var startedDrag = false
+            if (!isDragging) {
+                val dx = ev.x - xDown
+                if (abs(dx) >= touchSlop) {
+                    isDragging = true
+                    startedDrag = true
+                }
+            }
+            // Second if instead of else because isDragging can change above
+            if (isDragging) {
+                val newPosition = clampDraggingDividerPosition(ev.x.roundToInt())
+                dragPositionX = newPosition
+                if (startedDrag) onUserResizeStarted()
+                onUserResizeProgress()
+            }
+            true
+        } else false
+
+        final override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_DOWN -> if (commonActionDown(ev) && isDragging) return true
+                MotionEvent.ACTION_MOVE -> if (commonActionMove(ev) && isDragging) return true
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    if (!isDragging) xDown = Float.NaN
+                }
+            }
+            return false
+        }
+
+        final override fun onTouchEvent(
+            ev: MotionEvent
+        ): Boolean = when (val action = ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> commonActionDown(ev)
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> if (!xDown.isNaN()) {
+                xDown = Float.NaN
+                if (isDragging) {
+                    isDragging = false
+                    onUserResizeComplete(wasCancelled = action == MotionEvent.ACTION_CANCEL)
+                    dragPositionX = -1
+                } else if (action == MotionEvent.ACTION_UP &&
+                    dividerBoundsContains(ev.x.roundToInt(), ev.y.roundToInt())) {
+                    onDividerClicked()
+                }
+                true
+            } else false
+            // Moves are only valid if we got the initial down event
+            MotionEvent.ACTION_MOVE -> commonActionMove(ev)
+            else -> false
+        }
+    }
+
+    /**
+     * Policy implementation for user resizing. See [USER_RESIZE_RELAYOUT_WHEN_COMPLETE] or
+     * [USER_RESIZE_RELAYOUT_WHEN_MOVED] for default implementations, or this interface may be
+     * implemented externally to apply additional behaviors such as snapping to predefined
+     * breakpoints.
+     */
+    interface UserResizeBehavior {
+        /**
+         * Called when a user resize begins and the user is now dragging the divider.
+         *
+         * @param slidingPaneLayout the layout being manipulated in case of stateless behaviors
+         * @param dividerPositionX the X coordinate of the divider being dragged in pixels
+         */
+        fun onUserResizeStarted(slidingPaneLayout: SlidingPaneLayout, dividerPositionX: Int)
+
+        /**
+         * Called when a user resize has progressed to a new divider position.
+         *
+         * @param slidingPaneLayout the layout being manipulated in case of stateless behaviors
+         * @param dividerPositionX the X coordinate of the divider being dragged in pixels
+         */
+        fun onUserResizeProgress(slidingPaneLayout: SlidingPaneLayout, dividerPositionX: Int)
+
+        /**
+         * Called when a user resize completed successfully; the user let go of the divider with
+         * intent to reposition it.
+         *
+         * @param slidingPaneLayout the layout being manipulated in case of stateless behaviors
+         * @param dividerPositionX the X coordinate of the divider being dragged in pixels
+         */
+        fun onUserResizeComplete(slidingPaneLayout: SlidingPaneLayout, dividerPositionX: Int)
+
+        /**
+         * Called when a user resize has been cancelled; typically another ancestor view has
+         * intercepted the touch event stream for the gesture.
+         *
+         * @param slidingPaneLayout the layout being manipulated in case of stateless behaviors
+         * @param dividerPositionX the X coordinate of the divider being dragged in pixels
+         */
+        fun onUserResizeCancelled(slidingPaneLayout: SlidingPaneLayout, dividerPositionX: Int)
+    }
+
     companion object {
         /**
          * User can freely swipe between list and detail panes.
@@ -1932,5 +2436,88 @@ open class SlidingPaneLayout @JvmOverloads constructor(
          * detail pane programmatically.
          */
         const val LOCK_MODE_LOCKED = 3
+
+        /**
+         * Value for [splitDividerPosition] indicating that the position should be automatically
+         * determined by other layout policy (e.g. [LayoutParams.weight]) rather than set to
+         * a specific pixel value. [visualDividerPosition] will continue to reflect the currently
+         * displayed position of the divider.
+         */
+        const val SPLIT_DIVIDER_POSITION_AUTO = -1
+
+        /**
+         * [UserResizeBehavior] where the divider can be released at any position respecting the
+         * minimum sizes of each pane view. Relayout occurs only when the divider is released.
+         *
+         * See [setUserResizeBehavior].
+         */
+        @JvmField
+        val USER_RESIZE_RELAYOUT_WHEN_COMPLETE: UserResizeBehavior = object : UserResizeBehavior {
+            override fun onUserResizeStarted(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+
+            override fun onUserResizeProgress(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+
+            override fun onUserResizeComplete(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                slidingPaneLayout.splitDividerPosition = dividerPositionX
+            }
+
+            override fun onUserResizeCancelled(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+        }
+
+        /**
+         * [UserResizeBehavior] where the divider can be released at any position respecting the
+         * minimum sizes of each pane view, but relayout will occur on each frame when the divider
+         * is moved. This setting can have significant performance implications on complex layouts.
+         *
+         * See [setUserResizeBehavior].
+         */
+        @JvmField
+        val USER_RESIZE_RELAYOUT_WHEN_MOVED: UserResizeBehavior = object : UserResizeBehavior {
+            override fun onUserResizeStarted(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+
+            override fun onUserResizeProgress(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                slidingPaneLayout.splitDividerPosition = dividerPositionX
+            }
+
+            override fun onUserResizeComplete(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+
+            override fun onUserResizeCancelled(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+        }
     }
 }

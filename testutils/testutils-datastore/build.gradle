@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -21,7 +28,7 @@ plugins {
 }
 
 androidXMultiplatform {
-    jvm {}
+    jvm()
     mac()
     linux()
     ios()
@@ -38,7 +45,9 @@ androidXMultiplatform {
                 api(libs.okio)
             }
         }
-
+        nativeMain {
+            dependsOn(commonMain)
+        }
         jvmMain {
             dependencies {
                 api(libs.kotlinStdlib)
@@ -55,6 +64,13 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTest)
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
             }
         }
     }

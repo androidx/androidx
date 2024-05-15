@@ -1,3 +1,13 @@
 // Baseline format: 1.0
-RemovedClass: androidx.compose.ui.draganddrop.DragAndDropKt:
-    Removed class androidx.compose.ui.draganddrop.DragAndDropKt
+AddedMethod: androidx.compose.ui.semantics.SemanticsProperties#getIsEditable():
+    Added method androidx.compose.ui.semantics.SemanticsProperties.getIsEditable()
+AddedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#isEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver):
+    Added method androidx.compose.ui.semantics.SemanticsPropertiesKt.isEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver)
+AddedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#setEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean):
+    Added method androidx.compose.ui.semantics.SemanticsPropertiesKt.setEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver,boolean)
+
+
+RemovedMethod: androidx.compose.ui.semantics.SemanticsProperties#getEditable():
+    Removed method androidx.compose.ui.semantics.SemanticsProperties.getEditable()
+RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#editable(androidx.compose.ui.semantics.SemanticsPropertyReceiver):
+    Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.editable(androidx.compose.ui.semantics.SemanticsPropertyReceiver)

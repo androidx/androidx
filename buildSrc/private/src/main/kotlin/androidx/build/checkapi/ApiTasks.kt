@@ -20,26 +20,36 @@ import androidx.build.AndroidXExtension
 import androidx.build.Release
 import androidx.build.RunApiTasks
 import androidx.build.Version
+import androidx.build.binarycompatibilityvalidator.BinaryCompatibilityValidation
+import androidx.build.getSupportRootFolder
 import androidx.build.isWriteVersionedApiFilesEnabled
 import androidx.build.java.JavaCompileInputs
 import androidx.build.metalava.MetalavaTasks
+import androidx.build.multiplatformExtension
 import androidx.build.resources.ResourceTasks
 import androidx.build.stableaidl.setupWithStableAidlPlugin
 import androidx.build.version
-import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.tasks.ProcessLibraryManifest
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.LibraryVariant
+import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.getByType
 
 sealed class ApiTaskConfig
 
-data class LibraryApiTaskConfig(val library: LibraryExtension) : ApiTaskConfig()
+data class LibraryApiTaskConfig(
+    val variant: LibraryVariant
+) : ApiTaskConfig()
 
 object JavaApiTaskConfig : ApiTaskConfig()
 
 object KmpApiTaskConfig : ApiTaskConfig()
+
+object AndroidMultiplatformApiTaskConfig : ApiTaskConfig()
 
 fun AndroidXExtension.shouldConfigureApiTasks(): Boolean {
     if (!project.state.executed) {
@@ -116,7 +126,7 @@ fun AndroidXExtension.shouldConfigureApiTasks(): Boolean {
  * and `<version>.txt`. When set to `false`, only `current.txt` will be written. The default value
  * is `true`.
  */
-private fun Project.shouldWriteVersionedApiFile(): Boolean {
+internal fun Project.shouldWriteVersionedApiFile(): Boolean {
     // Is versioned file writing disabled globally, ex. we're on a downstream branch?
     if (!project.isWriteVersionedApiFilesEnabled()) {
         return false
@@ -151,37 +161,28 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
             }
 
         val javaInputs: JavaCompileInputs
-        val processManifest: ProcessLibraryManifest?
+        val androidManifest: Provider<RegularFile>?
         when (config) {
             is LibraryApiTaskConfig -> {
-                val variant =
-                    config.library.libraryVariants.find {
-                        it.name == Release.DEFAULT_PUBLISH_CONFIG
-                    } ?: return@afterEvaluate
-
-                javaInputs =
-                    JavaCompileInputs.fromLibraryVariant(
-                        variant,
-                        project,
-                        // Note, in addition to androidx, bootClasspath will also include stub jars
-                        // from android { useLibrary "android.foo" } block.
-                        files(config.library.bootClasspath)
-                    )
-                processManifest =
-                    config.library.buildOutputs
-                        .getByName(variant.name)
-                        .processManifestProvider
-                        .get() as ProcessLibraryManifest
+                if (config.variant.name != Release.DEFAULT_PUBLISH_CONFIG) {
+                    return@afterEvaluate
+                }
+                javaInputs = JavaCompileInputs.fromLibraryVariant(config.variant, project)
+                androidManifest = config.variant.artifacts.get(SingleArtifact.MERGED_MANIFEST)
+            }
+            is AndroidMultiplatformApiTaskConfig -> {
+                javaInputs = JavaCompileInputs.fromKmpAndroidTarget(project)
+                androidManifest = null
             }
             is KmpApiTaskConfig -> {
                 javaInputs = JavaCompileInputs.fromKmpJvmTarget(project)
-                processManifest = null
+                androidManifest = null
             }
             is JavaApiTaskConfig -> {
                 val javaExtension = extensions.getByType<JavaPluginExtension>()
                 val mainSourceSet = javaExtension.sourceSets.getByName("main")
                 javaInputs = JavaCompileInputs.fromSourceSet(mainSourceSet, this)
-                processManifest = null
+                androidManifest = null
             }
         }
 
@@ -191,7 +192,7 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
             project,
             javaInputs,
             extension,
-            processManifest,
+            androidManifest,
             baselinesApiLocation,
             builtApiLocation,
             outputApiLocations
@@ -202,10 +203,28 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
         if (config is LibraryApiTaskConfig) {
             ResourceTasks.setupProject(
                 project,
-                Release.DEFAULT_PUBLISH_CONFIG,
+                config.variant.artifacts.get(SingleArtifact.PUBLIC_ANDROID_RESOURCES_LIST),
+                builtApiLocation,
+                outputApiLocations
+            )
+        } else if (config is AndroidMultiplatformApiTaskConfig) {
+            // Android Multiplatform does not currently support resources, so we generate a blank
+            // "api" file to make sure the check task breaks if there were tracked resources before
+            ResourceTasks.setupProject(
+                project,
+                project.provider { BlankApiRegularFile(project) },
                 builtApiLocation,
                 outputApiLocations
             )
         }
+        multiplatformExtension?.let { multiplatformExtension ->
+            BinaryCompatibilityValidation(project, multiplatformExtension)
+                .setupBinaryCompatibilityValidatorTasks()
+        }
     }
+}
+
+internal class BlankApiRegularFile(project: Project) : RegularFile {
+    val file = File(project.getSupportRootFolder(), "buildSrc/blank-res-api/public.txt")
+    override fun getAsFile(): File = file
 }

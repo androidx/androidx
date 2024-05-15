@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.input.motionprediction.common.Configuration;
 import androidx.input.motionprediction.kalman.matrix.DVector2;
 
 import java.util.LinkedList;
@@ -50,7 +51,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private static final float LOW_JANK = 0.02f;
     private static final float HIGH_JANK = 0.2f;
     private static final float ACCURATE_LOW_JANK = 0.1f;
-    private static final float ACCURATE_HIGH_JANK = 0.7f;
+    private static final float ACCURATE_HIGH_JANK = 0.2f;
 
     // Range of pen speed to expect (in dp / ms).
     // Low value will not use prediction, high value will use full prediction.
@@ -70,7 +71,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private final PointerKalmanFilter mKalman = new PointerKalmanFilter(0.01, 1.0);
 
     private final DVector2 mLastPosition = new DVector2();
-    private long mPrevEventTime;
+    private long mLastSeenEventTime;
+    private long mLastPredictEventTime;
     private long mDownEventTime;
     private List<Float> mReportRates = new LinkedList<>();
     private int mExpectedPredictionSampleSize = -1;
@@ -91,6 +93,9 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private double mLastOrientation = 0;
     private double mLastTilt = 0;
 
+    private final boolean mPredictLift;
+    private final int mStrategy;
+
     /**
      * Kalman based predictor, predicting the location of the pen `predictionTarget`
      * milliseconds into the future.
@@ -99,19 +104,22 @@ public class SinglePointerPredictor implements KalmanPredictor {
      * achieving close-to-zero latency, prediction errors can be more visible and the target should
      * be reduced to 20ms.
      */
-    public SinglePointerPredictor(int pointerId, int toolType) {
+    public SinglePointerPredictor(int strategy, int pointerId, int toolType) {
+        mStrategy = strategy;
         mKalman.reset();
-        mPrevEventTime = 0;
+        mLastSeenEventTime = 0;
+        mLastPredictEventTime = 0;
         mDownEventTime = 0;
         mPointerId = pointerId;
         mToolType = toolType;
+        mPredictLift = Configuration.getInstance().predictLift();
     }
 
     private void update(float x, float y, float pressure, float orientation,
             float tilt, long eventTime) {
         if (x == mLastPosition.a1
                 && y == mLastPosition.a2
-                && (eventTime <= (mPrevEventTime + EVENT_TIME_IGNORED_THRESHOLD_MS))) {
+                && (eventTime <= (mLastSeenEventTime + EVENT_TIME_IGNORED_THRESHOLD_MS))) {
             // Reduce Kalman filter jank by ignoring input event with similar coordinates
             // and eventTime as previous input event.
             // This is particularly useful when multiple pointer are on screen as in this case the
@@ -132,8 +140,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
         // provide reliable timestamps and do not report at an even interval, so this is just
         // to be used as an estimate.
         if (mReportRates != null && mReportRates.size() < 20) {
-            if (mPrevEventTime > 0) {
-                float dt = eventTime - mPrevEventTime;
+            if (mLastSeenEventTime > 0) {
+                float dt = eventTime - mLastSeenEventTime;
                 mReportRates.add(dt);
                 float sum = 0;
                 for (float rate : mReportRates) {
@@ -142,7 +150,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
                 mReportRateMs = sum / mReportRates.size();
             }
         }
-        mPrevEventTime = eventTime;
+        mLastSeenEventTime = eventTime;
     }
 
     @Override
@@ -159,7 +167,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
             mKalman.reset();
-            mPrevEventTime = 0;
+            mLastSeenEventTime = 0;
+            mLastPredictEventTime = 0;
             return false;
         }
         int pointerIndex = event.findPointerIndex(mPointerId);
@@ -225,6 +234,11 @@ public class SinglePointerPredictor implements KalmanPredictor {
         double jankFactor = 1.0 - normalizeRange(jankAbs, lowJank, highJank);
         double confidenceFactor = speedFactor * jankFactor;
 
+        if (mStrategy == Configuration.STRATEGY_AGGRESSIVE) {
+            // We are very confident
+            confidenceFactor = 1;
+        }
+
         MotionEvent predictedEvent = null;
         final MotionEvent.PointerProperties[] pointerProperties =
                 new MotionEvent.PointerProperties[1];
@@ -236,13 +250,29 @@ public class SinglePointerPredictor implements KalmanPredictor {
         int predictionTargetInSamples =
                 (int) Math.ceil(predictionTargetMs / mReportRateMs * confidenceFactor);
 
-        // Normally this should always be false as confidenceFactor should be less than 1.0
-        if (mExpectedPredictionSampleSize != -1
-                && predictionTargetInSamples > mExpectedPredictionSampleSize) {
-            predictionTargetInSamples = mExpectedPredictionSampleSize;
+        // Predict at least as far in time as the previous prediction.
+        // Otherwise, it may appear that the coordinates are going backwards.
+        if (mLastPredictEventTime > mLastSeenEventTime) {
+            int minimumPredictionSampleSize = (int) Math.floor(
+                    (mLastPredictEventTime - mLastSeenEventTime) / mReportRateMs
+            );
+            if (predictionTargetInSamples < minimumPredictionSampleSize) {
+                predictionTargetInSamples = minimumPredictionSampleSize;
+            }
+        }
+        if (mExpectedPredictionSampleSize != -1) {
+            // Normally this should always be false as confidenceFactor should be less than 1.0
+            if (predictionTargetInSamples > mExpectedPredictionSampleSize) {
+                predictionTargetInSamples = mExpectedPredictionSampleSize;
+            }
         }
 
-        long nextPredictedEventTime = mPrevEventTime + Math.round(mReportRateMs);
+        if (mStrategy == Configuration.STRATEGY_SAFE) {
+            // Just a single prediction step is very accurate
+            predictionTargetInSamples = Math.max(predictionTargetInSamples, 1);
+        }
+
+        long predictedEventTime = mLastSeenEventTime;
         int i = 0;
         for (; i < predictionTargetInSamples; i++) {
             mAcceleration.a1 += mJank.a1 * JANK_INFLUENCE;
@@ -253,12 +283,22 @@ public class SinglePointerPredictor implements KalmanPredictor {
             mPosition.a2 += mVelocity.a2 * VELOCITY_INFLUENCE;
             mPressure += pressureChange;
 
+            // Ensure it's in the valid range
+            if (mPressure < 0) {
+                mPressure = 0;
+            } else if (mPressure > 1) {
+                mPressure = 1;
+            }
+
+            long nextPredictedEventTime = predictedEventTime + Math.round(mReportRateMs);
+
             // Abort prediction if the pen is to be lifted.
-            if (mPressure < 0.1) {
+            if (mPredictLift
+                    && mPressure < 0.1
+                    && nextPredictedEventTime > mLastPredictEventTime) {
                 //TODO: Should we generate ACTION_UP MotionEvent instead of ACTION_MOVE?
                 break;
             }
-            mPressure = Math.min(mPressure, 1.0f);
 
             MotionEvent.PointerCoords[] coords = {new MotionEvent.PointerCoords()};
             coords[0].x = (float) mPosition.a1;
@@ -286,8 +326,11 @@ public class SinglePointerPredictor implements KalmanPredictor {
             } else {
                 predictedEvent.addBatch(nextPredictedEventTime, coords, 0);
             }
-            nextPredictedEventTime += Math.round(mReportRateMs);
+            predictedEventTime = nextPredictedEventTime;
         }
+
+        // Store the last predicted time
+        mLastPredictEventTime = predictedEventTime;
 
         return predictedEvent;
     }

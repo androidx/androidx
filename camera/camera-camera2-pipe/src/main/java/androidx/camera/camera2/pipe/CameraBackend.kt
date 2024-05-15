@@ -35,9 +35,13 @@ interface CameraStatusMonitor {
     val cameraStatus: Flow<CameraStatus>
 
     abstract class CameraStatus internal constructor() {
-        object CameraPrioritiesChanged : CameraStatus()
+        object CameraPrioritiesChanged : CameraStatus() {
+            override fun toString(): String = "CameraPrioritiesChanged"
+        }
 
-        class CameraAvailable(val cameraId: CameraId) : CameraStatus()
+        class CameraAvailable(val cameraId: CameraId) : CameraStatus() {
+            override fun toString(): String = "CameraAvailable(camera=$cameraId"
+        }
     }
 }
 
@@ -128,6 +132,23 @@ interface CameraBackend {
         graphListener: GraphListener,
         streamGraph: StreamGraph
     ): CameraController
+
+    /** Connects and starts the underlying camera */
+    fun prewarm(cameraId: CameraId)
+
+    /** Disconnects the underlying camera.*/
+    fun disconnect(cameraId: CameraId)
+
+    /**
+     * Disconnects the underlying camera. Once the connection is closed, the returned [Deferred]
+     * should be completed.
+     */
+    fun disconnectAsync(cameraId: CameraId): Deferred<Unit>
+
+    /**
+     * Disconnects all active Cameras.
+     */
+    fun disconnectAll()
 }
 
 /**

@@ -89,7 +89,7 @@ public sealed class LoadState(
      *
      * @param error [Throwable] that caused the load operation to generate this error state.
      *
-     * @see androidx.paging.PagedList.retry
+     * @see androidx.paging.PagedList#retry
      */
     public class Error(
         public val error: Throwable

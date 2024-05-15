@@ -17,6 +17,7 @@
 package androidx.benchmark.junit4
 
 import android.os.Bundle
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.InstrumentationResults
 import androidx.test.internal.runner.listener.InstrumentationRunListener
@@ -27,16 +28,16 @@ import org.junit.runner.Result
  * Used to register files to copy at the end of the entire test run in CI.
  *
  * See [InstrumentationResults.runEndResultBundle]
- *
  */
 @Suppress("unused", "RestrictedApiAndroidX") // referenced by inst arg at runtime
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class InstrumentationResultsRunListener : InstrumentationRunListener() {
+class InstrumentationResultsRunListener : InstrumentationRunListener() {
     override fun instrumentationRunFinished(
         streamResult: PrintStream?,
         resultBundle: Bundle,
         junitResults: Result?
     ) {
+        Log.d("Benchmark", "InstrumentationResultsRunListener#instrumentationRunFinished")
         resultBundle.putAll(InstrumentationResults.runEndResultBundle)
     }
 }

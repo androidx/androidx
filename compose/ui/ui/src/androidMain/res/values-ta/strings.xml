@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"சில மட்டுமே தேர்ந்தெடுக்கப்பட்டுள்ளன"</string>
-    <string name="on" msgid="8655164131929253426">"இயக்கப்பட்டுள்ளது"</string>
-    <string name="off" msgid="875452955155264703">"முடக்கப்பட்டுள்ளது"</string>
+    <string name="state_on" msgid="1490883874751719580">"ஆன்"</string>
+    <string name="state_off" msgid="5834637030682409883">"ஆஃப்"</string>
     <string name="switch_role" msgid="2561197295334830845">"மாற்றுதல்"</string>
     <string name="selected" msgid="6043586758067023">"தேர்ந்தெடுக்கப்பட்டுள்ளது"</string>
     <string name="not_selected" msgid="6610465462668679431">"தேர்ந்தெடுக்கப்படவில்லை"</string>
@@ -31,6 +31,7 @@
     <string name="close_drawer" msgid="406453423630273620">"வழிசெலுத்தல் மெனுவை மூடும்"</string>
     <string name="close_sheet" msgid="7573152094250666567">"ஷீட்டை மூடும்"</string>
     <string name="default_error_message" msgid="8038256446254964252">"தவறான உள்ளீடு"</string>
+    <string name="state_empty" msgid="4139871816613051306">"காலியாக உள்ளது"</string>
     <string name="default_popup_window_title" msgid="6312721426453364202">"பாப்-அப் சாளரம்"</string>
     <string name="range_start" msgid="7097486360902471446">"வரம்பு தொடக்கம்"</string>
     <string name="range_end" msgid="5941395253238309765">"வரம்பு முடிவு"</string>

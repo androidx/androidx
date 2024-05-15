@@ -244,24 +244,31 @@ class XElementTest {
 
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
-                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(
+                    XTypeName.ANY_OBJECT.copy(nullable = true))),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(
+                    XTypeName.ANY_OBJECT.copy(nullable = true)))
             )
             validateMethodElement(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
-                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
-                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(
+                    XTypeName.ANY_OBJECT.copy(nullable = true))),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(
+                    XTypeName.ANY_OBJECT.copy(nullable = true)))
             )
 
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Base"),
-                tTypeName = XTypeName.getTypeVariableName("T", listOf(XTypeName.ANY_OBJECT)),
-                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
+                tTypeName = XTypeName.getTypeVariableName("T", listOf(
+                    XTypeName.ANY_OBJECT.copy(nullable = true))),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(
+                    XTypeName.ANY_OBJECT.copy(nullable = true)))
             )
             validateMethodTypeAsMemberOf(
                 element = it.processingEnv.requireTypeElement("foo.bar.Child"),
-                tTypeName = String::class.asClassName(),
-                rTypeName = XTypeName.getTypeVariableName("R", listOf(XTypeName.ANY_OBJECT))
+                tTypeName = String::class.asClassName().copy(nullable = true),
+                rTypeName = XTypeName.getTypeVariableName("R", listOf(
+                    XTypeName.ANY_OBJECT.copy(nullable = true)))
             )
         }
     }

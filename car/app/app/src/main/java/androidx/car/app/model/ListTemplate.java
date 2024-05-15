@@ -71,23 +71,51 @@ public final class ListTemplate implements Template {
     static final int MAX_MESSAGES_PER_CONVERSATION = 10;
 
     private final boolean mIsLoading;
+    /**
+     * @deprecated use {@link Header.Builder#setTitle(CarText)}; mHeader replaces the need
+     * for this field.
+     */
+    @Deprecated
     @Nullable
     private final CarText mTitle;
+    /**
+     * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
+     * need for this field.
+     */
+    @Deprecated
     @Nullable
     private final Action mHeaderAction;
     @Nullable
     private final ItemList mSingleList;
     private final List<SectionedItemList> mSectionedLists;
+    /**
+     * @deprecated use {@link Header.Builder#addEndHeaderAction(Action)} for each action; mHeader
+     * replaces the need for this field.
+     */
+    @Deprecated
     @Nullable
     private final ActionStrip mActionStrip;
 
     private final List<Action> mActions;
 
     /**
+     * Represents a Header object to set the startHeaderAction, the title and the endHeaderActions
+     *
+     * @see ListTemplate.Builder#setHeader(Header)
+     */
+    @Nullable
+    @RequiresCarApi(7)
+    private final Header mHeader;
+
+
+    /**
      * Returns the title of the template or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
+     *
+     * @deprecated use {@link Header#getTitle()} instead.
      */
+    @Deprecated
     @Nullable
     public CarText getTitle() {
         return mTitle;
@@ -98,7 +126,10 @@ public final class ListTemplate implements Template {
      * {@code null} if not set.
      *
      * @see Builder#setHeaderAction(Action)
+     *
+     * @deprecated use {@link Header#getStartHeaderAction()} instead.
      */
+    @Deprecated
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
@@ -108,7 +139,10 @@ public final class ListTemplate implements Template {
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
      * @see Builder#setActionStrip(ActionStrip)
+     *
+     * @deprecated use {@link Header#getEndHeaderActions()} instead.
      */
+    @Deprecated
     @Nullable
     public ActionStrip getActionStrip() {
         return mActionStrip;
@@ -155,6 +189,37 @@ public final class ListTemplate implements Template {
         return mActions;
     }
 
+    /**
+     * Returns the {@link Header} to display in this template.
+     *
+     * <p>This method was introduced in API 7, but is backwards compatible even if the client is
+     * using API 6 or below. </p>
+     *
+     * @see ListTemplate.Builder#setHeader(Header)
+     */
+    @Nullable
+    public Header getHeader() {
+        if (mHeader != null) {
+            return mHeader;
+        }
+        if (mTitle == null && mHeaderAction == null && mActionStrip == null) {
+            return null;
+        }
+        Header.Builder headerBuilder = new Header.Builder();
+        if (mTitle != null) {
+            headerBuilder.setTitle(mTitle);
+        }
+        if (mHeaderAction != null) {
+            headerBuilder.setStartHeaderAction(mHeaderAction);
+        }
+        if (mActionStrip != null) {
+            for (Action action: mActionStrip.getActions()) {
+                headerBuilder.addEndHeaderAction(action);
+            }
+        }
+        return headerBuilder.build();
+    }
+
     @NonNull
     @Override
     public String toString() {
@@ -164,7 +229,7 @@ public final class ListTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mIsLoading, mTitle, mHeaderAction, mSingleList, mSectionedLists,
-                mActionStrip);
+                mActionStrip, mHeader);
     }
 
     @Override
@@ -183,7 +248,8 @@ public final class ListTemplate implements Template {
                 && Objects.equals(mSingleList, otherTemplate.mSingleList)
                 && Objects.equals(mSectionedLists, otherTemplate.mSectionedLists)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
-                && Objects.equals(mActions, otherTemplate.mActions);
+                && Objects.equals(mActions, otherTemplate.mActions)
+                && Objects.equals(mHeader, otherTemplate.mHeader);
     }
 
     ListTemplate(Builder builder) {
@@ -194,6 +260,7 @@ public final class ListTemplate implements Template {
         mSectionedLists = CollectionUtils.unmodifiableCopy(builder.mSectionedLists);
         mActionStrip = builder.mActionStrip;
         mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
+        mHeader = builder.mHeader;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -205,6 +272,7 @@ public final class ListTemplate implements Template {
         mSectionedLists = Collections.emptyList();
         mActionStrip = null;
         mActions = Collections.emptyList();
+        mHeader = null;
     }
 
     /**
@@ -231,6 +299,8 @@ public final class ListTemplate implements Template {
         boolean mHasSelectableList;
 
         final List<Action> mActions;
+        @Nullable
+        Header mHeader;
 
         /**
          * Sets whether the template is in a loading state.
@@ -263,7 +333,10 @@ public final class ListTemplate implements Template {
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
+         *
+         * @deprecated Use {@link Header.Builder#setStartHeaderAction(Action)}
          */
+        @Deprecated
         @NonNull
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
@@ -282,7 +355,10 @@ public final class ListTemplate implements Template {
          *
          * @throws NullPointerException     if {@code title} is null
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
+         *
+         * @deprecated Use {@link Header.Builder#setTitle(CarText)}
          */
+        @Deprecated
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
@@ -377,7 +453,10 @@ public final class ListTemplate implements Template {
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
+         *
+         * @deprecated Use {@link Header.Builder#addEndHeaderAction(Action) for each action}
          */
+        @Deprecated
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
             ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
@@ -401,6 +480,34 @@ public final class ListTemplate implements Template {
             mActionsCopy.add(requireNonNull(action));
             ActionsConstraints.ACTIONS_CONSTRAINTS_FAB.validateOrThrow(mActionsCopy);
             mActions.add(action);
+            return this;
+        }
+
+        /**
+         * Sets the {@link Header} for this template.
+         *
+         * <p>The end header actions will show up differently inside vs outside of a map template.
+         * See {@link Header.Builder#addEndHeaderAction} for more details.</p>
+         *
+         * @throws NullPointerException if {@code header} is null
+         */
+        @NonNull
+        @RequiresCarApi(7)
+        public Builder setHeader(@NonNull Header header) {
+            if (header.getStartHeaderAction() != null) {
+                mHeaderAction = header.getStartHeaderAction();
+            }
+            if (header.getTitle() != null) {
+                mTitle = header.getTitle();
+            }
+            if (!header.getEndHeaderActions().isEmpty()) {
+                ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
+                for (Action action: header.getEndHeaderActions()) {
+                    actionStripBuilder.addAction(action);
+                }
+                mActionStrip = actionStripBuilder.build();
+            }
+            mHeader = header;
             return this;
         }
 
@@ -470,6 +577,7 @@ public final class ListTemplate implements Template {
 
             mActionStrip = listTemplate.getActionStrip();
             mActions = new ArrayList<>(listTemplate.getActions());
+            mHeader = listTemplate.getHeader();
         }
     }
 
@@ -545,10 +653,15 @@ public final class ListTemplate implements Template {
                     new ConversationItem.Builder(conversationItem);
             int maxMessagesAllowed =
                     Math.min(limit.decrement(), MAX_MESSAGES_PER_CONVERSATION);
+            int originalMessagesSize = conversationItem.getMessages().size();
             int messagesToAdd =
-                    Math.min(conversationItem.getMessages().size(), maxMessagesAllowed);
+                    Math.min(originalMessagesSize, maxMessagesAllowed);
+            // Messages are ordered oldest to the newest in a ConversationItem. Truncation should
+            // remove the oldest messages from the beginning of the list.
             List<CarMessage> truncatedMessagesList =
-                    conversationItem.getMessages().subList(0, messagesToAdd);
+                    conversationItem.getMessages().subList(
+                            originalMessagesSize - messagesToAdd,
+                            originalMessagesSize);
             conversationBuilder.setMessages(truncatedMessagesList);
 
             builder.addItem(conversationBuilder.build());

@@ -3,8 +3,8 @@ package androidx.startup {
 
   public final class AppInitializer {
     method public static androidx.startup.AppInitializer getInstance(android.content.Context);
-    method public <T> T initializeComponent(Class<? extends androidx.startup.Initializer<T!>>);
-    method public boolean isEagerlyInitialized(Class<? extends androidx.startup.Initializer<?>>);
+    method public <T> T initializeComponent(Class<? extends androidx.startup.Initializer<T!>!>);
+    method public boolean isEagerlyInitialized(Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>!>);
   }
 
   public class InitializationProvider extends android.content.ContentProvider {
@@ -19,7 +19,7 @@ package androidx.startup {
 
   public interface Initializer<T> {
     method public T create(android.content.Context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>!>!> dependencies();
   }
 
 }

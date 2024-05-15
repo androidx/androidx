@@ -45,15 +45,16 @@ class PrimitiveColumnTypeAdapter(
         enum class Primitive(
             val typeName: XTypeName,
             val cursorGetter: String,
+            val stmtGetter: String,
             val stmtSetter: String,
         ) {
-            INT(PRIMITIVE_INT, "getInt", "bindLong"),
-            SHORT(PRIMITIVE_SHORT, "getShort", "bindLong"),
-            BYTE(PRIMITIVE_BYTE, "getShort", "bindLong"),
-            LONG(PRIMITIVE_LONG, "getLong", "bindLong"),
-            CHAR(PRIMITIVE_CHAR, "getInt", "bindLong"),
-            FLOAT(PRIMITIVE_FLOAT, "getFloat", "bindDouble"),
-            DOUBLE(PRIMITIVE_DOUBLE, "getDouble", "bindDouble"),
+            INT(PRIMITIVE_INT, "getInt", "getLong", "bindLong"),
+            SHORT(PRIMITIVE_SHORT, "getShort", "getLong", "bindLong"),
+            BYTE(PRIMITIVE_BYTE, "getShort", "getLong", "bindLong"),
+            LONG(PRIMITIVE_LONG, "getLong", "getLong", "bindLong"),
+            CHAR(PRIMITIVE_CHAR, "getInt", "getLong", "bindLong"),
+            FLOAT(PRIMITIVE_FLOAT, "getFloat", "getDouble", "bindDouble"),
+            DOUBLE(PRIMITIVE_DOUBLE, "getDouble", "getDouble", "bindDouble"),
         }
 
         private fun getAffinity(primitive: Primitive) = when (primitive) {
@@ -77,6 +78,7 @@ class PrimitiveColumnTypeAdapter(
     }
 
     private val cursorGetter = primitive.cursorGetter
+    private val stmtGetter = primitive.stmtGetter
     private val stmtSetter = primitive.stmtSetter
 
     override fun bindToStmt(
@@ -123,14 +125,25 @@ class PrimitiveColumnTypeAdapter(
                 scope.language,
                 "%L.%L(%L)",
                 cursorVarName,
-                cursorGetter,
+                if (scope.useDriverApi) stmtGetter else cursorGetter,
                 indexVarName
             ).let {
-                // These primitives don't have an exact cursor getter.
-                val castFunction = when (primitive) {
-                    Primitive.BYTE -> "toByte"
-                    Primitive.CHAR -> "toChar"
-                    else -> null
+                // These primitives don't have an exact cursor / statement getter.
+                val castFunction = if (scope.useDriverApi) {
+                    when (primitive) {
+                        Primitive.INT -> "toInt"
+                        Primitive.SHORT -> "toShort"
+                        Primitive.BYTE -> "toByte"
+                        Primitive.CHAR -> "toChar"
+                        Primitive.FLOAT -> "toFloat"
+                        else -> null
+                    }
+                } else {
+                    when (primitive) {
+                        Primitive.BYTE -> "toByte"
+                        Primitive.CHAR -> "toChar"
+                        else -> null
+                    }
                 } ?: return@let it
                 when (it.language) {
                     // For Java a cast will suffice

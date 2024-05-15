@@ -18,6 +18,7 @@
 
 package androidx.compose.compiler.plugins.kotlin.lower.decoys
 
+import androidx.compose.compiler.plugins.kotlin.FeatureFlags
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
 import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.lower.ModuleLoweringPass
@@ -44,13 +45,15 @@ class RecordDecoySignaturesTransformer(
     override val signatureBuilder: IdSignatureSerializer,
     metrics: ModuleMetrics,
     val mangler: KotlinMangler.IrMangler,
-    stabilityInferencer: StabilityInferencer
+    stabilityInferencer: StabilityInferencer,
+    featureFlags: FeatureFlags,
 ) : AbstractDecoysLowering(
     pluginContext = pluginContext,
     symbolRemapper = symbolRemapper,
     metrics = metrics,
     signatureBuilder = signatureBuilder,
-    stabilityInferencer = stabilityInferencer
+    stabilityInferencer = stabilityInferencer,
+    featureFlags = featureFlags,
 ), ModuleLoweringPass {
 
     override fun lower(module: IrModuleFragment) {

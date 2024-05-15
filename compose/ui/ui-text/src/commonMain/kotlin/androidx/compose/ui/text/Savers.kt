@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("Deprecation")
+
 package androidx.compose.ui.text
 
 import androidx.compose.runtime.saveable.Saver
@@ -21,6 +23,8 @@ import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.isUnspecified
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
@@ -28,7 +32,6 @@ import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
-import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.util.fastMap
 
@@ -52,8 +55,28 @@ internal inline fun <T : Saver<Original, Saveable>, Original, Saveable, reified 
     value: Saveable?,
     saver: T
 ): Result? {
-    if (value == false) return null
+    // Most of the types we save are nullable. However, value classes are usually not but instead
+    // have a special Unspecified value. In that case we delegate handling of the "false"
+    // value restoration to the corresponding saver that will restore "false" as an Unspecified
+    // of the corresponding type.
+    if (value == false && saver !is NonNullValueClassSaver<*, *>) return null
     return value?.let { with(saver) { restore(value) } as Result }
+}
+
+/**
+ * Use for non-null value classes where the Unspecified value needs to be separately handled,
+ * for example as in the [OffsetSaver]
+ */
+private interface NonNullValueClassSaver<Original, Saveable : Any> : Saver<Original, Saveable>
+private fun <Original, Saveable : Any> NonNullValueClassSaver(
+    save: SaverScope.(value: Original) -> Saveable?,
+    restore: (value: Saveable) -> Original?
+): NonNullValueClassSaver<Original, Saveable> {
+    return object : NonNullValueClassSaver<Original, Saveable> {
+        override fun SaverScope.save(value: Original) = save.invoke(this, value)
+
+        override fun restore(value: Saveable) = restore.invoke(value)
+    }
 }
 
 /**
@@ -115,7 +138,9 @@ private enum class AnnotationType {
     Paragraph,
     Span,
     VerbatimTts,
-    Url,
+    Url, // UrlAnnotation
+    Link, // LinkAnnotation.Url
+    Clickable,
     String
 }
 
@@ -127,6 +152,8 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
             is SpanStyle -> AnnotationType.Span
             is VerbatimTtsAnnotation -> AnnotationType.VerbatimTts
             is UrlAnnotation -> AnnotationType.Url
+            is LinkAnnotation.Url -> AnnotationType.Link
+            is LinkAnnotation.Clickable -> AnnotationType.Clickable
             else -> AnnotationType.String
         }
 
@@ -141,6 +168,16 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
             AnnotationType.Url -> save(
                 it.item as UrlAnnotation,
                 UrlAnnotationSaver,
+                this
+            )
+            AnnotationType.Link -> save(
+                it.item as LinkAnnotation.Url,
+                LinkSaver,
+                this
+            )
+            AnnotationType.Clickable -> save(
+                it.item as LinkAnnotation.Clickable,
+                ClickableSaver,
                 this
             )
             AnnotationType.String -> save(it.item)
@@ -179,6 +216,14 @@ private val AnnotationRangeSaver = Saver<AnnotatedString.Range<out Any>, Any>(
                 val item: UrlAnnotation = restore(list[1], UrlAnnotationSaver)!!
                 AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
             }
+            AnnotationType.Link -> {
+                val item: LinkAnnotation.Url = restore(list[1], LinkSaver)!!
+                AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
+            }
+            AnnotationType.Clickable -> {
+                val item: LinkAnnotation.Clickable = restore(list[1], ClickableSaver)!!
+                AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
+            }
             AnnotationType.String -> {
                 val item: String = restore(list[1])!!
                 AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
@@ -196,6 +241,45 @@ private val VerbatimTtsAnnotationSaver = Saver<VerbatimTtsAnnotation, Any>(
 private val UrlAnnotationSaver = Saver<UrlAnnotation, Any>(
     save = { save(it.url) },
     restore = { UrlAnnotation(restore(it)!!) }
+)
+
+private val LinkSaver = Saver<LinkAnnotation.Url, Any>(
+    save = {
+        arrayListOf(
+            save(it.url),
+            save(it.styles, TextLinkStylesSaver, this),
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+
+        val url: String = restore(list[0])!!
+        val stylesOrNull: TextLinkStyles? = restore(list[1], TextLinkStylesSaver)
+        LinkAnnotation.Url(
+            url = url,
+            styles = stylesOrNull
+        )
+    }
+)
+
+private val ClickableSaver = Saver<LinkAnnotation.Clickable, Any>(
+    save = {
+        arrayListOf(
+            save(it.tag),
+            save(it.styles, TextLinkStylesSaver, this),
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+
+        val tag: String = restore(list[0])!!
+        val stylesOrNull: TextLinkStyles? = restore(list[1], TextLinkStylesSaver)
+        LinkAnnotation.Clickable(
+            tag = tag,
+            styles = stylesOrNull,
+            linkInteractionListener = null
+        )
+    }
 )
 
 internal val ParagraphStyleSaver = Saver<ParagraphStyle, Any>(
@@ -254,6 +338,30 @@ internal val SpanStyleSaver = Saver<SpanStyle, Any>(
             background = restore(list[11], Color.Saver)!!,
             textDecoration = restore(list[12], TextDecoration.Saver),
             shadow = restore(list[13], Shadow.Saver)
+        )
+    }
+)
+
+internal val TextLinkStylesSaver = Saver<TextLinkStyles, Any>(
+    save = {
+        arrayListOf(
+            save(it.style, SpanStyleSaver, this),
+            save(it.focusedStyle, SpanStyleSaver, this),
+            save(it.hoveredStyle, SpanStyleSaver, this),
+            save(it.pressedStyle, SpanStyleSaver, this),
+        )
+    },
+    restore = {
+        val list = it as List<Any?>
+        val styleOrNull: SpanStyle? = restore(list[0], SpanStyleSaver)
+        val focusedStyleOrNull: SpanStyle? = restore(list[1], SpanStyleSaver)
+        val hoveredStyleOrNull: SpanStyle? = restore(list[2], SpanStyleSaver)
+        val pressedStyleOrNull: SpanStyle? = restore(list[3], SpanStyleSaver)
+        TextLinkStyles(
+            styleOrNull,
+            focusedStyleOrNull,
+            hoveredStyleOrNull,
+            pressedStyleOrNull
         )
     }
 )
@@ -355,30 +463,41 @@ private val ShadowSaver = Saver<Shadow, Any>(
 internal val Color.Companion.Saver: Saver<Color, Any>
     get() = ColorSaver
 
-private val ColorSaver = Saver<Color, Any>(
-    save = { it.value },
-    restore = { Color(it as ULong) }
+private val ColorSaver = NonNullValueClassSaver<Color, Any>(
+    save = {
+        if (it.isUnspecified) { false } else { it.toArgb() }
+    },
+    restore = {
+        if (it == false) { Color.Unspecified } else { Color(it as Int) }
+    }
 )
 
 internal val TextUnit.Companion.Saver: Saver<TextUnit, Any>
     get() = TextUnitSaver
 
-@OptIn(ExperimentalUnitApi::class)
-private val TextUnitSaver = Saver<TextUnit, Any>(
+private val TextUnitSaver = NonNullValueClassSaver<TextUnit, Any>(
     save = {
-        arrayListOf(save(it.value), save(it.type))
+        if (it == TextUnit.Unspecified) {
+            false
+        } else {
+            arrayListOf(save(it.value), save(it.type))
+        }
     },
     restore = {
-        @Suppress("UNCHECKED_CAST")
-        val list = it as List<Any>
-        TextUnit(restore(list[0])!!, restore(list[1])!!)
+        if (it == false) {
+            TextUnit.Unspecified
+        } else {
+            @Suppress("UNCHECKED_CAST")
+            val list = it as List<Any>
+            TextUnit(restore(list[0])!!, restore(list[1])!!)
+        }
     }
 )
 
 internal val Offset.Companion.Saver: Saver<Offset, Any>
     get() = OffsetSaver
 
-private val OffsetSaver = Saver<Offset, Any>(
+private val OffsetSaver = NonNullValueClassSaver<Offset, Any>(
     save = {
         if (it == Offset.Unspecified) {
             false

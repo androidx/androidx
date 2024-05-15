@@ -66,16 +66,15 @@ import java.util.Map;
  * </ul>
  */
 @RequiresApi(21)
-class SupportedOutputSizesSorter {
+public class SupportedOutputSizesSorter {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final CameraInfoInternal mCameraInfoInternal;
     private final int mSensorOrientation;
     private final int mLensFacing;
     private final Rational mFullFovRatio;
-    private final boolean mIsSensorLandscapeResolution;
     private final SupportedOutputSizesSorterLegacy mSupportedOutputSizesSorterLegacy;
 
-    SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal,
+    public SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal,
             @Nullable Size activeArraySize) {
         mCameraInfoInternal = cameraInfoInternal;
         mSensorOrientation = mCameraInfoInternal.getSensorRotationDegrees();
@@ -83,9 +82,6 @@ class SupportedOutputSizesSorter {
         mFullFovRatio = activeArraySize != null ? calculateFullFovRatioFromActiveArraySize(
                 activeArraySize) : calculateFullFovRatioFromSupportedOutputSizes(
                 mCameraInfoInternal);
-        // Determines the sensor resolution orientation info by the full FOV ratio.
-        mIsSensorLandscapeResolution = mFullFovRatio != null ? mFullFovRatio.getNumerator()
-                >= mFullFovRatio.getDenominator() : true;
         mSupportedOutputSizesSorterLegacy =
                 new SupportedOutputSizesSorterLegacy(cameraInfoInternal, mFullFovRatio);
     }
@@ -124,7 +120,7 @@ class SupportedOutputSizesSorter {
      * will be sorted according to the legacy resolution API settings and logic.
      */
     @NonNull
-    List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
+    public List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
         ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
         List<Size> customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null);
 
@@ -134,42 +130,47 @@ class SupportedOutputSizesSorter {
         }
 
         ResolutionSelector resolutionSelector = imageOutputConfig.getResolutionSelector(null);
+        List<Pair<Integer, Size[]>>  customResolutions =
+                imageOutputConfig.getSupportedResolutions(null);
+        List<Size> candidateSizes = getResolutionCandidateList(customResolutions,
+                useCaseConfig.getInputFormat());
 
         if (resolutionSelector == null) {
             return mSupportedOutputSizesSorterLegacy.sortSupportedOutputSizes(
-                    getResolutionCandidateList(useCaseConfig), useCaseConfig);
+                    candidateSizes, useCaseConfig);
         } else {
-            return sortSupportedOutputSizesByResolutionSelector(useCaseConfig);
+            Size maxResolution = ((ImageOutputConfig) useCaseConfig).getMaxResolution(null);
+            int targetRotation = imageOutputConfig.getTargetRotation(Surface.ROTATION_0);
+            // Applies the high resolution settings onto the resolution candidate list.
+            if (!useCaseConfig.isHigResolutionDisabled(false)) {
+                candidateSizes = applyHighResolutionSettings(candidateSizes,
+                        resolutionSelector, useCaseConfig.getInputFormat());
+            }
+            return sortSupportedOutputSizesByResolutionSelector(
+                    imageOutputConfig.getResolutionSelector(),
+                    candidateSizes,
+                    maxResolution,
+                    targetRotation,
+                    mFullFovRatio,
+                    mSensorOrientation,
+                    mLensFacing);
         }
     }
 
-    /**
-     * Retrieves the customized supported resolutions from the use case config.
-     *
-     * <p>In some cases, the use case might not be able to use all the supported output sizes
-     * retrieved from the stream configuration map. For example, extensions is enabled. These
-     * sizes can be set in the use case config by
-     * {@link ImageOutputConfig.Builder#setSupportedResolutions(List)}. SupportedOutputSizesSorter
-     * should use the customized supported resolutions to run the sort/filter logic if it is set.
-     */
     @Nullable
-    private List<Size> getCustomizedSupportedResolutionsFromConfig(int imageFormat,
-            @NonNull ImageOutputConfig config) {
+    private List<Size> getSizeListByFormat(
+            @Nullable List<Pair<Integer, Size[]>> resolutionsPairList,
+            int imageFormat) {
         Size[] outputSizes = null;
 
-        // Try to retrieve customized supported resolutions from config.
-        List<Pair<Integer, Size[]>> formatResolutionsPairList =
-                config.getSupportedResolutions(null);
-
-        if (formatResolutionsPairList != null) {
-            for (Pair<Integer, Size[]> formatResolutionPair : formatResolutionsPairList) {
+        if (resolutionsPairList != null) {
+            for (Pair<Integer, Size[]> formatResolutionPair : resolutionsPairList) {
                 if (formatResolutionPair.first == imageFormat) {
                     outputSizes = formatResolutionPair.second;
                     break;
                 }
             }
         }
-
         return outputSizes == null ? null : Arrays.asList(outputSizes);
     }
 
@@ -177,10 +178,6 @@ class SupportedOutputSizesSorter {
      * Sorts the resolution candidate list according to the ResolutionSelector API logic.
      *
      * <ol>
-     *   <li>Collects the output sizes
-     *     <ul>
-     *       <li>Applies the high resolution settings
-     *     </ul>
      *   <li>Applies the aspect ratio strategy
      *     <ul>
      *       <li>Applies the aspect ratio strategy fallback rule
@@ -191,35 +188,38 @@ class SupportedOutputSizesSorter {
      *     </ul>
      *   <li>Applies the resolution filter
      * </ol>
-     *
+     * @param resolutionSelector the ResolutionSelector used to sort the candidate
+     *                           sizes.
+     * @param candidateSizes     the candidate sizes after the high resolution processing, which
+     *                           will be sorted by the rule of ResolutionSelector.
+     * @param maxResolution      the max resolutions which sizes larger than it will be removed
+     *                           from candidate sizes.
+     * @param targetRotation     the target rotation to calculate the rotation degrees to the
+     *                           {@link ResolutionFilter}.
+     * @param fullFovRatio       the full FOV's aspect ratio.
+     * @param sensorOrientation  the sensor orientation of the current camera.
+     * @param lensFacing         the lens facing of the current camera
      * @return a size list which has been filtered and sorted by the specified resolution
      * selector settings.
      * @throws IllegalArgumentException if the specified resolution filter returns any size which
      *                                  is not included in the provided supported size list.
      */
     @NonNull
-    private List<Size> sortSupportedOutputSizesByResolutionSelector(
-            @NonNull UseCaseConfig<?> useCaseConfig) {
-        ResolutionSelector resolutionSelector =
-                ((ImageOutputConfig) useCaseConfig).getResolutionSelector();
-
-        // Retrieves the normal supported output sizes.
-        List<Size> resolutionCandidateList = getResolutionCandidateList(useCaseConfig);
-
-        // Applies the high resolution settings onto the resolution candidate list.
-        if (!useCaseConfig.isHigResolutionDisabled(false)) {
-            resolutionCandidateList = applyHighResolutionSettings(resolutionCandidateList,
-                    resolutionSelector, useCaseConfig.getInputFormat());
-        }
+    public static List<Size> sortSupportedOutputSizesByResolutionSelector(
+            @NonNull ResolutionSelector resolutionSelector,
+            @NonNull List<Size> candidateSizes,
+            @Nullable Size maxResolution,
+            int targetRotation,
+            @NonNull Rational fullFovRatio,
+            int sensorOrientation,
+            int lensFacing) {
 
         // Applies the aspect ratio strategy onto the resolution candidate list.
         LinkedHashMap<Rational, List<Size>> aspectRatioSizeListMap =
-                applyAspectRatioStrategy(resolutionCandidateList,
-                        resolutionSelector.getAspectRatioStrategy());
-
+                applyAspectRatioStrategy(candidateSizes,
+                        resolutionSelector.getAspectRatioStrategy(), fullFovRatio);
 
         // Applies the max resolution setting
-        Size maxResolution = ((ImageOutputConfig) useCaseConfig).getMaxResolution(null);
         if (maxResolution != null) {
             applyMaxResolutionRestriction(aspectRatioSizeListMap, maxResolution);
         }
@@ -241,7 +241,7 @@ class SupportedOutputSizesSorter {
 
         // Applies the resolution filter onto the resolution candidate list.
         return applyResolutionFilter(resultList, resolutionSelector.getResolutionFilter(),
-                ((ImageOutputConfig) useCaseConfig).getTargetRotation(Surface.ROTATION_0));
+                targetRotation, sensorOrientation, lensFacing);
     }
 
     /**
@@ -253,12 +253,10 @@ class SupportedOutputSizesSorter {
      * @return the resolution candidate list sorted in descending order.
      */
     @NonNull
-    private List<Size> getResolutionCandidateList(@NonNull UseCaseConfig<?> useCaseConfig) {
-        int imageFormat = useCaseConfig.getInputFormat();
-        ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
+    private List<Size> getResolutionCandidateList(
+            @Nullable List<Pair<Integer, Size[]>> customResolutions, int imageFormat) {
         // Tries to get the custom supported resolutions list if it is set
-        List<Size> resolutionCandidateList = getCustomizedSupportedResolutionsFromConfig(
-                imageFormat, imageOutputConfig);
+        List<Size> resolutionCandidateList = getSizeListByFormat(customResolutions, imageFormat);
 
         // Tries to get the supported output sizes from the CameraInfoInternal if both custom
         // ordered and supported resolutions lists are not set.
@@ -319,15 +317,17 @@ class SupportedOutputSizesSorter {
      * is applied and is sorted against the preferred aspect ratio.
      */
     @NonNull
-    private LinkedHashMap<Rational, List<Size>> applyAspectRatioStrategy(
+    private static LinkedHashMap<Rational, List<Size>> applyAspectRatioStrategy(
             @NonNull List<Size> resolutionCandidateList,
-            @NonNull AspectRatioStrategy aspectRatioStrategy) {
+            @NonNull AspectRatioStrategy aspectRatioStrategy,
+            Rational fullFovRatio) {
         // Group output sizes by aspect ratio.
         Map<Rational, List<Size>> aspectRatioSizeListMap =
                 groupSizesByAspectRatio(resolutionCandidateList);
 
         // Applies the aspect ratio fallback rule
-        return applyAspectRatioStrategyFallbackRule(aspectRatioSizeListMap, aspectRatioStrategy);
+        return applyAspectRatioStrategyFallbackRule(
+                aspectRatioSizeListMap, aspectRatioStrategy, fullFovRatio);
     }
 
     /**
@@ -339,17 +339,21 @@ class SupportedOutputSizesSorter {
      * @return an aspect ratio to size list linked hash map which the aspect ratio fallback rule
      * is applied and is sorted against the preferred aspect ratio.
      */
-    private LinkedHashMap<Rational, List<Size>> applyAspectRatioStrategyFallbackRule(
+    private static LinkedHashMap<Rational, List<Size>> applyAspectRatioStrategyFallbackRule(
             @NonNull Map<Rational, List<Size>> sizeGroupsMap,
-            @NonNull AspectRatioStrategy aspectRatioStrategy) {
+            @NonNull AspectRatioStrategy aspectRatioStrategy,
+            Rational fullFovRatio) {
+        // Determines the sensor resolution orientation info by the full FOV ratio.
+        boolean isSensorLandscapeResolution = fullFovRatio != null ? fullFovRatio.getNumerator()
+                >= fullFovRatio.getDenominator() : true;
         Rational aspectRatio = getTargetAspectRatioRationalValue(
-                aspectRatioStrategy.getPreferredAspectRatio(), mIsSensorLandscapeResolution);
+                aspectRatioStrategy.getPreferredAspectRatio(), isSensorLandscapeResolution);
 
         // Remove items of all other aspect ratios if the fallback rule is AspectRatioStrategy
         // .FALLBACK_RULE_NONE
         if (aspectRatioStrategy.getFallbackRule() == AspectRatioStrategy.FALLBACK_RULE_NONE) {
             Rational preferredAspectRatio = getTargetAspectRatioRationalValue(
-                    aspectRatioStrategy.getPreferredAspectRatio(), mIsSensorLandscapeResolution);
+                    aspectRatioStrategy.getPreferredAspectRatio(), isSensorLandscapeResolution);
             for (Rational ratio : new ArrayList<>(sizeGroupsMap.keySet())) {
                 if (!ratio.equals(preferredAspectRatio)) {
                     sizeGroupsMap.remove(ratio);
@@ -361,7 +365,7 @@ class SupportedOutputSizesSorter {
         List<Rational> aspectRatios = new ArrayList<>(sizeGroupsMap.keySet());
         Collections.sort(aspectRatios,
                 new AspectRatioUtil.CompareAspectRatiosByMappingAreaInFullFovAspectRatioSpace(
-                        aspectRatio, mFullFovRatio));
+                        aspectRatio, fullFovRatio));
 
         // Stores the size groups into LinkedHashMap to keep the order
         LinkedHashMap<Rational, List<Size>> sortedAspectRatioSizeListMap = new LinkedHashMap<>();
@@ -481,9 +485,11 @@ class SupportedOutputSizesSorter {
      *                                  is not included in the provided supported size list.
      */
     @NonNull
-    private List<Size> applyResolutionFilter(@NonNull List<Size> sizeList,
+    private static List<Size> applyResolutionFilter(@NonNull List<Size> sizeList,
             @Nullable ResolutionFilter resolutionFilter,
-            @ImageOutputConfig.RotationValue int targetRotation) {
+            @ImageOutputConfig.RotationValue int targetRotation,
+            int sensorOrientation,
+            int lensFacing) {
         if (resolutionFilter == null) {
             return sizeList;
         }
@@ -494,8 +500,8 @@ class SupportedOutputSizesSorter {
                 targetRotation);
         int rotationDegrees =
                 CameraOrientationUtil.getRelativeImageRotation(destRotationDegrees,
-                        mSensorOrientation,
-                        mLensFacing == CameraSelector.LENS_FACING_BACK);
+                        sensorOrientation,
+                        lensFacing == CameraSelector.LENS_FACING_BACK);
         List<Size> filteredResultList = resolutionFilter.filter(new ArrayList<>(sizeList),
                 rotationDegrees);
         if (sizeList.containsAll(filteredResultList)) {

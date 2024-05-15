@@ -62,7 +62,7 @@ public class WebViewWebMessageListenerTest {
             + "    </script>"
             + "</body></html>";
 
-    private static final String REPLY_PROXY = "<!DOCTYPE html><html><body>"
+    private static final String REPLY_PROXY_STORE_GLOBAL = "<!DOCTYPE html><html><body>"
             + "    <script>"
             + "        myWebMessageListener.onmessage = function(event) {"
             + "             window.replyReceived = event.data;"
@@ -71,7 +71,7 @@ public class WebViewWebMessageListenerTest {
             + "    </script>"
             + "</body></html>";
 
-    private static final String REPLY_PROXY_ARRAY_BUFFER = "<!DOCTYPE html><html><body>"
+    private static final String REPLY_PROXY_POST_BACK = "<!DOCTYPE html><html><body>"
             + "    <script>"
             + "        myWebMessageListener.onmessage = function(event) {"
             + "             myWebMessageListener.postMessage(event.data);"
@@ -245,14 +245,42 @@ public class WebViewWebMessageListenerTest {
 
         // REPLY_PROXY html page will set myWebMessageListener.onmessage to save the message to
         // window.replyReceived and call myWebMessageListener.postMessage('hello'); in JavaScript.
-        loadHtmlSync(REPLY_PROXY);
+        loadHtmlSync(REPLY_PROXY_STORE_GLOBAL);
+        TestWebMessageListener.Data data = mListener.waitForOnPostMessage();
+        Assert.assertEquals("hello", data.mMessage.getData());
+
+        final String message = "reply from Java";
+        WebkitUtils.onMainThreadSync(() -> {
+            // Whilst postMessage _can_ be called from any thread, calling from other threads will
+            // just post to the Chromium-internal browser thread task runner, which could get
+            // re-ordered with tasks posted directly to the main looper (as is done below by
+            // mWebViewOnUiThread.evaluateJavascriptSync).
+            //
+            // Calling directly from the UI thread will instead execute the task immediately
+            // (without posting) and thus be observable by any subsequent evaluation. (Both
+            // postMessage and evaluateJavascript use the same IPC channel and should execute in
+            // order.)
+            data.mReplyProxy.postMessage(message);
+        });
+        Assert.assertEquals("\"" + message + "\"",
+                mWebViewOnUiThread.evaluateJavascriptSync("window.replyReceived"));
+    }
+
+    @Test
+    public void testJavaScriptReplyProxyPostStringFromNonUiThread() throws Exception {
+        mWebViewOnUiThread.addWebMessageListener(JS_OBJECT_NAME, MATCH_EXAMPLE_COM, mListener);
+
+        loadHtmlSync(REPLY_PROXY_POST_BACK);
         TestWebMessageListener.Data data = mListener.waitForOnPostMessage();
         Assert.assertEquals("hello", data.mMessage.getData());
 
         final String message = "reply from Java";
         data.mReplyProxy.postMessage(message);
-        Assert.assertEquals("\"" + message + "\"",
-                mWebViewOnUiThread.evaluateJavascriptSync("window.replyReceived"));
+        // evaluateJavascript cannot be used reliably when doing postMessage from outside the UI
+        // thread, as it may get reordered, so we check the message flow via the message listener
+        // instead.
+        Assert.assertEquals(message,
+                mListener.waitForOnPostMessage().mMessage.getData());
     }
 
     private void verifyJavaScriptReplyProxyArrayBuffer(byte[] arrayBuffer) throws Exception {
@@ -260,7 +288,7 @@ public class WebViewWebMessageListenerTest {
 
         // REPLY_PROXY_ARRAY_BUFFER html page will echo back message with
         // myWebMessageListener.postMessage(); in JavaScript.
-        loadHtmlSync(REPLY_PROXY_ARRAY_BUFFER);
+        loadHtmlSync(REPLY_PROXY_POST_BACK);
         TestWebMessageListener.Data data = mListener.waitForOnPostMessage();
         Assert.assertEquals("hello", data.mMessage.getData());
 

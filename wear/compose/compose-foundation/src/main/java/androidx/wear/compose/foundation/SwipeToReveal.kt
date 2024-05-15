@@ -98,19 +98,22 @@ public value class RevealValue private constructor(val value: Int) {
     companion object {
         /**
          * The default first value which generally represents the state where the revealable
-         * actions have not been revealed yet.
+         * actions have not been revealed yet. In this state, none of the actions have been
+         * triggered or performed yet.
          */
         val Covered = RevealValue(0)
 
         /**
          * The value which represents the state in which all the actions are revealed and the
-         * top content is not being swiped.
+         * top content is not being swiped. In this state, none of the actions have been
+         *  triggered or performed yet.
          */
         val Revealing = RevealValue(1)
 
         /**
          * The value which represents the state in which the whole revealable content is fully
-         * revealed.
+         * revealed. This also represents the state in which one of the actions has been
+         * triggered/performed.
          */
         val Revealed = RevealValue(2)
     }
@@ -162,7 +165,7 @@ public value class RevealActionType private constructor(val value: Int) {
 @ExperimentalWearFoundationApi
 public fun createAnchors(
     coveredAnchor: Float = 0f,
-    revealingAnchor: Float = 0.7f,
+    revealingAnchor: Float = SwipeToRevealDefaults.revealingRatio,
     revealedAnchor: Float = 1f
 ): Map<RevealValue, Float> {
     return mapOf(
@@ -304,14 +307,16 @@ public class RevealState internal constructor(
     }
 
     /**
-     * Resets last state if a different SwipeToReveal is being moved to new anchor.
+     * Resets last state if a different SwipeToReveal is being moved to new anchor and the
+     * last state is in [RevealValue.Revealing] mode which represents no action has been performed
+     * yet. In [RevealValue.Revealed], the action has been performed and it will not be reset.
      */
     private suspend fun resetLastState(
         currentState: RevealState
     ) {
         val oldState = SingleSwipeCoordinator.lastUpdatedState.getAndSet(currentState)
-        if (currentState != oldState) {
-            oldState?.animateTo(RevealValue.Covered)
+        if (currentState != oldState && oldState?.currentValue == RevealValue.Revealing) {
+            oldState.animateTo(RevealValue.Covered)
         }
     }
 
@@ -344,7 +349,7 @@ public fun rememberRevealState(
     animationSpec: AnimationSpec<Float> = SwipeToRevealDefaults.animationSpec,
     confirmValueChange: (RevealValue) -> Boolean = { true },
     positionalThreshold: Density.(totalDistance: Float) -> Float =
-        SwipeToRevealDefaults.defaultThreshold(),
+        SwipeToRevealDefaults.positionalThreshold,
     anchors: Map<RevealValue, Float> = createAnchors(),
 ): RevealState {
     val coroutineScope = rememberCoroutineScope()
@@ -613,14 +618,32 @@ private class RevealScopeImpl constructor(
  */
 @OptIn(ExperimentalWearFoundationApi::class)
 internal object SwipeToRevealDefaults {
-
+    /**
+     * Default animation spec used when moving between states.
+     */
     internal val animationSpec = SwipeableV2Defaults.AnimationSpec
 
+    /**
+     * Default padding space between action slots.
+     */
     internal val padding = 2.dp
 
-    internal const val threshold = 0.5f
+    /**
+     * Default ratio of the content displayed when in [RevealValue.Revealing] state, i.e. all the
+     * actions are revealed and the top content is not being swiped. For example, a value of 0.7
+     * means that 70% of the width is used to place the actions.
+     */
+    internal const val revealingRatio = 0.7f
 
-    internal fun defaultThreshold() = fractionalPositionalThreshold(threshold)
+    /**
+     * Default position threshold that needs to be swiped in order to transition to the next state.
+     * Used in conjunction with [revealingRatio]; for example, a threshold of 0.5 with a revealing
+     * ratio of 0.7 means that the user needs to swipe at least 35% (0.5 * 0.7) of the component
+     * width to go from [RevealValue.Covered] to [RevealValue.Revealing] and at least 85%
+     * (0.7 + 0.5 * (1 - 0.7)) of the component width to go from [RevealValue.Revealing] to
+     * [RevealValue.Revealed].
+     */
+    internal val positionalThreshold = fractionalPositionalThreshold(0.5f)
 }
 
 @OptIn(ExperimentalWearFoundationApi::class)

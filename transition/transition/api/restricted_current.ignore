@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedMethod: androidx.transition.Transition#createAnimators(android.view.ViewGroup, androidx.transition.TransitionValuesMaps, androidx.transition.TransitionValuesMaps, java.util.ArrayList<androidx.transition.TransitionValues>, java.util.ArrayList<androidx.transition.TransitionValues>):
-    Removed method androidx.transition.Transition.createAnimators(android.view.ViewGroup,androidx.transition.TransitionValuesMaps,androidx.transition.TransitionValuesMaps,java.util.ArrayList<androidx.transition.TransitionValues>,java.util.ArrayList<androidx.transition.TransitionValues>)

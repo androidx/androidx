@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -23,7 +30,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    implementation(project(":core:core"))
+    implementation("androidx.core:core:1.13.0")
     implementation("androidx.collection:collection:1.1.0")
     implementation("androidx.tracing:tracing:1.0.0")
 
@@ -33,7 +40,7 @@ dependencies {
 
 androidx {
     name = "Animation"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_ANIMATION
     inceptionYear = "2018"
     description = "This library provides functionalities for creating and manipulating animations for API 14 and above."

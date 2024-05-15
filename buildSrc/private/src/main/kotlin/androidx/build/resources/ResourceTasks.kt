@@ -23,8 +23,9 @@ import androidx.build.checkapi.ApiLocation
 import androidx.build.checkapi.getRequiredCompatibilityApiLocation
 import androidx.build.metalava.UpdateApiTask
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
-import java.util.Locale
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 
 object ResourceTasks {
     private const val GENERATE_RESOURCE_API_TASK = "generateResourceApi"
@@ -34,20 +35,10 @@ object ResourceTasks {
 
     fun setupProject(
         project: Project,
-        variantName: String,
+        builtApiFile: Provider<RegularFile>,
         builtApiLocation: ApiLocation,
         outputApiLocations: List<ApiLocation>
     ) {
-        val packageResTask =
-            project.tasks.named(
-                "package${variantName.replaceFirstChar {
-                    if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                }}Resources"
-            )
-        val builtApiFile =
-            packageResTask.flatMap { task ->
-                (task as com.android.build.gradle.tasks.MergeResources).publicFile
-            }
 
         val outputApiFiles = outputApiLocations.map { location -> location.resourceFile }
 

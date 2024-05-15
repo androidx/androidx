@@ -7,20 +7,24 @@ package androidx.appsearch.playservicesstorage {
   }
 
   public static final class PlayServicesStorage.GlobalSearchContext {
+    method public java.util.concurrent.Executor getWorkerExecutor();
   }
 
   public static final class PlayServicesStorage.GlobalSearchContext.Builder {
     ctor public PlayServicesStorage.GlobalSearchContext.Builder(android.content.Context);
     method public androidx.appsearch.playservicesstorage.PlayServicesStorage.GlobalSearchContext build();
+    method public androidx.appsearch.playservicesstorage.PlayServicesStorage.GlobalSearchContext.Builder setWorkerExecutor(java.util.concurrent.Executor);
   }
 
   public static final class PlayServicesStorage.SearchContext {
     method public String getDatabaseName();
+    method public java.util.concurrent.Executor getWorkerExecutor();
   }
 
   public static final class PlayServicesStorage.SearchContext.Builder {
     ctor public PlayServicesStorage.SearchContext.Builder(android.content.Context, String);
     method public androidx.appsearch.playservicesstorage.PlayServicesStorage.SearchContext build();
+    method public androidx.appsearch.playservicesstorage.PlayServicesStorage.SearchContext.Builder setWorkerExecutor(java.util.concurrent.Executor);
   }
 
 }

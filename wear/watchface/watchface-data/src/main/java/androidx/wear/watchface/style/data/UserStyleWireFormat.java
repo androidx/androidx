@@ -34,9 +34,9 @@ import java.util.Map;
 @VersionedParcelize(allowSerialization = true)
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class UserStyleWireFormat implements VersionedParcelable, Parcelable {
+    /** Map from user style setting id to user style option id. */
     @ParcelField(1)
     @NonNull
-    /** Map from user style setting id to user style option id. */
     public Map<String, byte[]> mUserStyle = new HashMap<>();
 
     UserStyleWireFormat() {}

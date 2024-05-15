@@ -16,11 +16,10 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDecay
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,12 +28,12 @@ import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.BringIntoViewSpec.Companion.DefaultBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation.Horizontal
+import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.relocation.BringIntoViewResponderNode
 import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
@@ -52,29 +51,29 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Drag
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Fling
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.Wheel
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.SideEffect
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource.Companion.UserInput
 import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
-import androidx.compose.ui.modifier.ModifierLocalMap
-import androidx.compose.ui.modifier.ModifierLocalModifierNode
-import androidx.compose.ui.modifier.modifierLocalMapOf
-import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.SemanticsModifierNode
+import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.node.requireDensity
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.scrollBy
+import androidx.compose.ui.semantics.scrollByOffset
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -83,7 +82,6 @@ import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -159,10 +157,12 @@ fun Modifier.scrollable(
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  * drag events when this scrollable is being dragged.
  * @param bringIntoViewSpec The configuration that this scrollable should use to perform
- * scrolling when scroll requests are received from the focus system.
+ * scrolling when scroll requests are received from the focus system. If null is provided the
+ * system will use the behavior provided by [LocalBringIntoViewSpec] which by default has a
+ * platform dependent implementation.
  *
  * Note: This API is experimental as it brings support for some experimental features:
- * [overscrollEffect] and [bringIntoViewScroller].
+ * [overscrollEffect] and [bringIntoViewSpec].
  */
 @Stable
 @ExperimentalFoundationApi
@@ -174,7 +174,7 @@ fun Modifier.scrollable(
     reverseDirection: Boolean = false,
     flingBehavior: FlingBehavior? = null,
     interactionSource: MutableInteractionSource? = null,
-    bringIntoViewSpec: BringIntoViewSpec = ScrollableDefaults.bringIntoViewSpec()
+    bringIntoViewSpec: BringIntoViewSpec? = null
 ) = this then ScrollableElement(
     state,
     orientation,
@@ -195,16 +195,16 @@ private class ScrollableElement(
     val reverseDirection: Boolean,
     val flingBehavior: FlingBehavior?,
     val interactionSource: MutableInteractionSource?,
-    val bringIntoViewSpec: BringIntoViewSpec
+    val bringIntoViewSpec: BringIntoViewSpec?
 ) : ModifierNodeElement<ScrollableNode>() {
     override fun create(): ScrollableNode {
         return ScrollableNode(
             state,
-            orientation,
             overscrollEffect,
+            flingBehavior,
+            orientation,
             enabled,
             reverseDirection,
-            flingBehavior,
             interactionSource,
             bringIntoViewSpec
         )
@@ -261,29 +261,39 @@ private class ScrollableElement(
         properties["reverseDirection"] = reverseDirection
         properties["flingBehavior"] = flingBehavior
         properties["interactionSource"] = interactionSource
-        properties["scrollableBringIntoViewConfig"] = bringIntoViewSpec
+        properties["bringIntoViewSpec"] = bringIntoViewSpec
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 private class ScrollableNode(
-    private var state: ScrollableState,
-    private var orientation: Orientation,
+    state: ScrollableState,
     private var overscrollEffect: OverscrollEffect?,
-    private var enabled: Boolean,
-    private var reverseDirection: Boolean,
     private var flingBehavior: FlingBehavior?,
-    private var interactionSource: MutableInteractionSource?,
-    bringIntoViewSpec: BringIntoViewSpec
-) : DelegatingNode(), ObserverModifierNode, CompositionLocalConsumerModifierNode,
-    FocusPropertiesModifierNode, KeyInputModifierNode {
+    orientation: Orientation,
+    enabled: Boolean,
+    reverseDirection: Boolean,
+    interactionSource: MutableInteractionSource?,
+    bringIntoViewSpec: BringIntoViewSpec?
+) : DragGestureNode(
+    canDrag = CanDragCalculation,
+    enabled = enabled,
+    interactionSource = interactionSource,
+    orientationLock = orientation
+), ObserverModifierNode, CompositionLocalConsumerModifierNode,
+    FocusPropertiesModifierNode, KeyInputModifierNode, SemanticsModifierNode {
 
-    val nestedScrollDispatcher = NestedScrollDispatcher()
+    override val shouldAutoInvalidate: Boolean = false
+
+    private val nestedScrollDispatcher = NestedScrollDispatcher()
+
+    private val scrollableContainerNode =
+        delegate(ScrollableContainerNode(enabled))
 
     // Place holder fling behavior, we'll initialize it when the density is available.
-    val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(UnityDensity))
+    private val defaultFlingBehavior = DefaultFlingBehavior(splineBasedDecay(UnityDensity))
 
-    val scrollingLogic = ScrollingLogic(
+    private val scrollingLogic = ScrollingLogic(
         scrollableState = state,
         orientation = orientation,
         overscrollEffect = overscrollEffect,
@@ -292,19 +302,24 @@ private class ScrollableNode(
         nestedScrollDispatcher = nestedScrollDispatcher,
     )
 
-    val nestedScrollConnection =
+    private val nestedScrollConnection =
         ScrollableNestedScrollConnection(enabled = enabled, scrollingLogic = scrollingLogic)
 
-    val contentInViewNode =
+    private val contentInViewNode =
         delegate(
             ContentInViewNode(
                 orientation,
-                state,
+                scrollingLogic,
                 reverseDirection,
                 bringIntoViewSpec
             )
         )
-    val scrollableContainer = delegate(ModifierLocalScrollableContainerProvider(enabled))
+
+    // Need to wait until onAttach to read the scroll config. Currently this is static, so we
+    // don't need to worry about observation / updating this over time.
+    private var scrollConfig: ScrollConfig? = null
+    private var scrollByAction: ((x: Float, y: Float) -> Boolean)? = null
+    private var scrollByOffsetAction: (suspend (Offset) -> Offset)? = null
 
     init {
         /**
@@ -320,18 +335,32 @@ private class ScrollableNode(
         delegate(FocusedBoundsObserverNode { contentInViewNode.onFocusBoundsChanged(it) })
     }
 
-    /**
-     * Pointer gesture handling
-     */
-    val scrollableGesturesNode = delegate(
-        ScrollableGesturesNode(
-            interactionSource = interactionSource,
-            orientation = orientation,
-            enabled = enabled,
-            nestedScrollDispatcher = nestedScrollDispatcher,
-            scrollLogic = scrollingLogic
-        )
-    )
+    override suspend fun drag(
+        forEachDelta: suspend ((dragDelta: DragEvent.DragDelta) -> Unit) -> Unit
+    ) {
+        with(scrollingLogic) {
+            scroll(scrollPriority = MutatePriority.UserInput) {
+                forEachDelta {
+                    scrollByWithOverscroll(
+                        it.delta.singleAxisOffset(),
+                        source = UserInput
+                    )
+                }
+            }
+        }
+    }
+
+    override fun onDragStarted(startedPosition: Offset) {}
+
+    override fun onDragStopped(velocity: Velocity) {
+        nestedScrollDispatcher.coroutineScope.launch {
+            scrollingLogic.onDragStopped(velocity)
+        }
+    }
+
+    override fun startDragImmediately(): Boolean {
+        return scrollingLogic.shouldScrollImmediately()
+    }
 
     fun update(
         state: ScrollableState,
@@ -341,17 +370,18 @@ private class ScrollableNode(
         reverseDirection: Boolean,
         flingBehavior: FlingBehavior?,
         interactionSource: MutableInteractionSource?,
-        bringIntoViewSpec: BringIntoViewSpec
+        bringIntoViewSpec: BringIntoViewSpec?
     ) {
-
+        var shouldInvalidateSemantics = false
         if (this.enabled != enabled) { // enabled changed
             nestedScrollConnection.enabled = enabled
-            scrollableContainer.enabled = enabled
+            scrollableContainerNode.update(enabled)
+            shouldInvalidateSemantics = true
         }
         // a new fling behavior was set, change the resolved one.
         val resolvedFlingBehavior = flingBehavior ?: defaultFlingBehavior
 
-        scrollingLogic.update(
+        val resetPointerInputHandling = scrollingLogic.update(
             scrollableState = state,
             orientation = orientation,
             overscrollEffect = overscrollEffect,
@@ -360,32 +390,33 @@ private class ScrollableNode(
             nestedScrollDispatcher = nestedScrollDispatcher
         )
 
-        scrollableGesturesNode.update(
-            interactionSource = interactionSource,
-            orientation = orientation,
-            enabled = enabled
-        )
-
         contentInViewNode.update(
             orientation,
-            state,
             reverseDirection,
             bringIntoViewSpec
         )
 
-        this.state = state
-        this.orientation = orientation
         this.overscrollEffect = overscrollEffect
-        this.enabled = enabled
-        this.reverseDirection = reverseDirection
         this.flingBehavior = flingBehavior
-        this.interactionSource = interactionSource
+
+        // update DragGestureNode
+        update(
+            canDrag = CanDragCalculation,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            orientationLock = if (scrollingLogic.isVertical()) Vertical else Horizontal,
+            shouldResetPointerInputHandling = resetPointerInputHandling
+        )
+
+        if (shouldInvalidateSemantics) {
+            clearScrollSemanticsActions()
+            invalidateSemantics()
+        }
     }
 
-    @Suppress("SuspiciousCompositionLocalModifierRead")
     override fun onAttach() {
         updateDefaultFlingBehavior()
-        observeReads { currentValueOf(LocalDensity) } // monitor change in Density
+        scrollConfig = platformScrollConfig()
     }
 
     override fun onObservedReadsChanged() {
@@ -394,8 +425,11 @@ private class ScrollableNode(
     }
 
     private fun updateDefaultFlingBehavior() {
-        val density = currentValueOf(LocalDensity)
-        defaultFlingBehavior.flingDecay = splineBasedDecay(density)
+        // monitor change in Density
+        observeReads {
+            val density = currentValueOf(LocalDensity)
+            defaultFlingBehavior.flingDecay = splineBasedDecay(density)
+        }
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
@@ -408,40 +442,42 @@ private class ScrollableNode(
             (event.key == Key.PageDown || event.key == Key.PageUp) &&
             (event.type == KeyEventType.KeyDown) &&
             (!event.isCtrlPressed)
-            ) {
-            with(scrollingLogic) {
-                val scrollAmount: Offset = if (orientation == Orientation.Vertical) {
-                    val viewportHeight = contentInViewNode.viewportSize.height
+        ) {
 
-                    val yAmount = if (event.key == Key.PageUp) {
-                        viewportHeight.toFloat()
-                    } else {
-                        -viewportHeight.toFloat()
-                    }
+            val scrollAmount: Offset = if (scrollingLogic.isVertical()) {
+                val viewportHeight = contentInViewNode.viewportSize.height
 
-                    Offset(0f, yAmount)
+                val yAmount = if (event.key == Key.PageUp) {
+                    viewportHeight.toFloat()
                 } else {
-                    val viewportWidth = contentInViewNode.viewportSize.width
-
-                    val xAmount = if (event.key == Key.PageUp) {
-                        viewportWidth.toFloat()
-                    } else {
-                        -viewportWidth.toFloat()
-                    }
-
-                    Offset(xAmount, 0f)
+                    -viewportHeight.toFloat()
                 }
 
-                // A coroutine is launched for every individual scroll event in the
-                // larger scroll gesture. If we see degradation in the future (that is,
-                // a fast scroll gesture on a slow device causes UI jank [not seen up to
-                // this point), we can switch to a more efficient solution where we
-                // lazily launch one coroutine (with the first event) and use a Channel
-                // to communicate the scroll amount to the UI thread.
-                coroutineScope.launch {
-                    scrollableState.scroll(MutatePriority.UserInput) {
-                        dispatchScroll(scrollAmount, Wheel)
-                    }
+                Offset(0f, yAmount)
+            } else {
+                val viewportWidth = contentInViewNode.viewportSize.width
+
+                val xAmount = if (event.key == Key.PageUp) {
+                    viewportWidth.toFloat()
+                } else {
+                    -viewportWidth.toFloat()
+                }
+
+                Offset(xAmount, 0f)
+            }
+
+            // A coroutine is launched for every individual scroll event in the
+            // larger scroll gesture. If we see degradation in the future (that is,
+            // a fast scroll gesture on a slow device causes UI jank [not seen up to
+            // this point), we can switch to a more efficient solution where we
+            // lazily launch one coroutine (with the first event) and use a Channel
+            // to communicate the scroll amount to the UI thread.
+            coroutineScope.launch {
+                scrollingLogic.scroll(scrollPriority = MutatePriority.UserInput) {
+                    scrollBy(
+                        offset = scrollAmount,
+                        source = UserInput
+                    )
                 }
             }
             true
@@ -451,77 +487,70 @@ private class ScrollableNode(
     }
 
     override fun onPreKeyEvent(event: KeyEvent) = false
-}
 
-/**
- * The configuration of how a scrollable reacts to bring into view requests.
- *
- * Note: API shape and naming are still being refined, therefore API is marked as experimental.
- */
-@ExperimentalFoundationApi
-@Stable
-interface BringIntoViewSpec {
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        super.onPointerEvent(pointerEvent, pass, bounds)
+        if (pass == PointerEventPass.Main && pointerEvent.type == PointerEventType.Scroll) {
+            processMouseWheelEvent(pointerEvent, bounds)
+        }
+    }
+
+    override fun SemanticsPropertyReceiver.applySemantics() {
+        if (enabled && (scrollByAction == null || scrollByOffsetAction == null)) {
+            setScrollSemanticsActions()
+        }
+
+        scrollByAction?.let {
+            scrollBy(action = it)
+        }
+
+        scrollByOffsetAction?.let {
+            scrollByOffset(action = it)
+        }
+    }
+
+    private fun setScrollSemanticsActions() {
+        scrollByAction = { x, y ->
+            coroutineScope.launch {
+                scrollingLogic.semanticsScrollBy(Offset(x, y))
+            }
+            true
+        }
+
+        scrollByOffsetAction = { offset -> scrollingLogic.semanticsScrollBy(offset) }
+    }
+
+    private fun clearScrollSemanticsActions() {
+        scrollByAction = null
+        scrollByOffsetAction = null
+    }
 
     /**
-     * A retargetable Animation Spec to be used as the animation to run to fulfill the
-     * BringIntoView requests.
+     * Mouse wheel
      */
-    val scrollAnimationSpec: AnimationSpec<Float> get() = DefaultScrollAnimationSpec
-
-    /**
-     * Calculate the offset needed to bring one of the scrollable container's child into view.
-     *
-     * @param offset from the side closest to the origin (For the x-axis this is 'left',
-     * for the y-axis this is 'top').
-     * @param size is the child size.
-     * @param containerSize Is the main axis size of the scrollable container.
-     *
-     * All distances above are represented in pixels.
-     *
-     * @return The necessary amount to scroll to satisfy the bring into view request.
-     * Returning zero from here means that the request was satisfied and the scrolling animation
-     * should stop.
-     *
-     * This will be called for every frame of the scrolling animation. This means that, as the
-     * animation progresses, the offset will naturally change to fulfill the scroll request.
-     */
-    fun calculateScrollDistance(
-        offset: Float,
-        size: Float,
-        containerSize: Float
-    ): Float
-
-    companion object {
-
-        /**
-         * The default animation spec used by [Modifier.scrollable] to run Bring Into View requests.
-         */
-        val DefaultScrollAnimationSpec: AnimationSpec<Float> = spring()
-
-        internal val DefaultBringIntoViewSpec = object : BringIntoViewSpec {
-
-            override val scrollAnimationSpec: AnimationSpec<Float> = DefaultScrollAnimationSpec
-
-            override fun calculateScrollDistance(
-                offset: Float,
-                size: Float,
-                containerSize: Float
-            ): Float {
-                val trailingEdge = offset + size
-                val leadingEdge = offset
-                return when {
-
-                    // If the item is already visible, no need to scroll.
-                    leadingEdge >= 0 && trailingEdge <= containerSize -> 0f
-
-                    // If the item is visible but larger than the parent, we don't scroll.
-                    leadingEdge < 0 && trailingEdge > containerSize -> 0f
-
-                    // Find the minimum scroll needed to make one of the edges coincide with the parent's
-                    // edge.
-                    abs(leadingEdge) < abs(trailingEdge - containerSize) -> leadingEdge
-                    else -> trailingEdge - containerSize
+    private fun processMouseWheelEvent(event: PointerEvent, size: IntSize) {
+        if (event.changes.fastAll { !it.isConsumed }) {
+            with(scrollConfig!!) {
+                val scrollAmount = requireDensity().calculateMouseWheelScroll(event, size)
+                // A coroutine is launched for every individual scroll event in the
+                // larger scroll gesture. If we see degradation in the future (that is,
+                // a fast scroll gesture on a slow device causes UI jank [not seen up to
+                // this point), we can switch to a more efficient solution where we
+                // lazily launch one coroutine (with the first event) and use a Channel
+                // to communicate the scroll amount to the UI thread.
+                coroutineScope.launch {
+                    scrollingLogic.scroll(scrollPriority = MutatePriority.UserInput) {
+                        scrollBy(
+                            offset = scrollAmount,
+                            source = UserInput
+                        )
+                    }
                 }
+                event.changes.fastForEach { it.consume() }
             }
         }
     }
@@ -583,6 +612,13 @@ object ScrollableDefaults {
      * A default implementation for [BringIntoViewSpec] that brings a child into view
      * using the least amount of effort.
      */
+    @Deprecated(
+        "This has been replaced by composition locals LocalBringIntoViewSpec",
+        replaceWith = ReplaceWith(
+            "LocalBringIntoView.current",
+            "androidx.compose.foundation.gestures.LocalBringIntoViewSpec"
+        )
+    )
     @ExperimentalFoundationApi
     fun bringIntoViewSpec(): BringIntoViewSpec = DefaultBringIntoViewSpec
 }
@@ -593,130 +629,23 @@ internal interface ScrollConfig {
 
 internal expect fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig
 
-/**
- * A node that detects and processes all scrollable gestures.
- */
-private class ScrollableGesturesNode(
-    val scrollLogic: ScrollingLogic,
-    val orientation: Orientation,
-    val enabled: Boolean,
-    val nestedScrollDispatcher: NestedScrollDispatcher,
-    val interactionSource: MutableInteractionSource?
-) : DelegatingNode() {
-    init { delegate(MouseWheelScrollNode(scrollLogic)) }
-
-    val draggableState = ScrollDraggableState(scrollLogic)
-    private val startDragImmediately = { scrollLogic.shouldScrollImmediately() }
-    private val onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit = { velocity ->
-        nestedScrollDispatcher.coroutineScope.launch {
-            scrollLogic.onDragStopped(velocity)
-        }
-    }
-
-    val draggableGesturesNode = delegate(
-        DraggableNode(
-            draggableState,
-            orientation = orientation,
-            enabled = enabled,
-            interactionSource = interactionSource,
-            reverseDirection = false,
-            startDragImmediately = startDragImmediately,
-            onDragStopped = onDragStopped,
-            canDrag = CanDragCalculation,
-            onDragStarted = NoOpOnDragStarted
-        )
-    )
-
-    fun update(
-        orientation: Orientation,
-        enabled: Boolean,
-        interactionSource: MutableInteractionSource?,
-    ) {
-
-        // update draggable node
-        draggableGesturesNode.update(
-            draggableState,
-            orientation = orientation,
-            enabled = enabled,
-            interactionSource = interactionSource,
-            reverseDirection = false,
-            startDragImmediately = startDragImmediately,
-            onDragStarted = NoOpOnDragStarted,
-            onDragStopped = onDragStopped,
-            canDrag = CanDragCalculation
-        )
-    }
-}
-
 private val CanDragCalculation: (PointerInputChange) -> Boolean =
-    { down -> down.type != PointerType.Mouse }
-
-private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
-
-private class MouseWheelScrollNode(
-    private val scrollingLogic: ScrollingLogic
-) : DelegatingNode(), CompositionLocalConsumerModifierNode {
-    // Need to wait until onAttach to read the scroll config. Currently this is static, so we
-    // don't need to worry about observation / updating this over time.
-    var scrollConfig: ScrollConfig? = null
-
-    override fun onAttach() {
-        scrollConfig = platformScrollConfig()
-    }
-
-    init {
-        delegate(SuspendingPointerInputModifierNode {
-            awaitPointerEventScope {
-                while (true) {
-                    val event = awaitScrollEvent()
-                    if (event.changes.fastAll { !it.isConsumed }) {
-                        with(scrollConfig!!) {
-                            val scrollAmount = calculateMouseWheelScroll(event, size)
-
-                            with(scrollingLogic) {
-                                // A coroutine is launched for every individual scroll event in the
-                                // larger scroll gesture. If we see degradation in the future (that is,
-                                // a fast scroll gesture on a slow device causes UI jank [not seen up to
-                                // this point), we can switch to a more efficient solution where we
-                                // lazily launch one coroutine (with the first event) and use a Channel
-                                // to communicate the scroll amount to the UI thread.
-                                coroutineScope.launch {
-                                    scrollableState.scroll(MutatePriority.UserInput) {
-                                        dispatchScroll(scrollAmount, Wheel)
-                                    }
-                                }
-                                event.changes.fastForEach { it.consume() }
-                            }
-                        }
-                    }
-                }
-            }
-        })
-    }
-}
-
-private suspend fun AwaitPointerEventScope.awaitScrollEvent(): PointerEvent {
-    var event: PointerEvent
-    do {
-        event = awaitPointerEvent()
-    } while (event.type != PointerEventType.Scroll)
-    return event
-}
+    { change -> change.type != PointerType.Mouse }
 
 /**
  * Holds all scrolling related logic: controls nested scrolling, flinging, overscroll and delta
  * dispatching.
  */
 @OptIn(ExperimentalFoundationApi::class)
-private class ScrollingLogic(
-    var scrollableState: ScrollableState,
-    private var orientation: Orientation,
+internal class ScrollingLogic(
+    private var scrollableState: ScrollableState,
     private var overscrollEffect: OverscrollEffect?,
-    private var reverseDirection: Boolean,
     private var flingBehavior: FlingBehavior,
+    private var orientation: Orientation,
+    private var reverseDirection: Boolean,
     private var nestedScrollDispatcher: NestedScrollDispatcher,
 ) {
-    private val isNestedFlinging = mutableStateOf(false)
+
     fun Float.toOffset(): Offset = when {
         this == 0f -> Offset.Zero
         orientation == Horizontal -> Offset(this, 0f)
@@ -729,56 +658,68 @@ private class ScrollingLogic(
     fun Offset.toFloat(): Float =
         if (orientation == Horizontal) this.x else this.y
 
-    fun Velocity.toFloat(): Float =
+    private fun Velocity.toFloat(): Float =
         if (orientation == Horizontal) this.x else this.y
 
-    fun Velocity.singleAxisVelocity(): Velocity =
+    private fun Velocity.singleAxisVelocity(): Velocity =
         if (orientation == Horizontal) copy(y = 0f) else copy(x = 0f)
 
-    fun Velocity.update(newValue: Float): Velocity =
+    private fun Velocity.update(newValue: Float): Velocity =
         if (orientation == Horizontal) copy(x = newValue) else copy(y = newValue)
 
     fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
 
     fun Offset.reverseIfNeeded(): Offset = if (reverseDirection) this * -1f else this
 
-    /**
-     * @return the amount of scroll that was consumed
-     */
-    fun ScrollScope.dispatchScroll(
-        initialAvailableDelta: Offset,
-        source: NestedScrollSource
-    ): Offset {
-        val performScroll: (Offset) -> Offset = { delta ->
-            val consumedByPreScroll = nestedScrollDispatcher.dispatchPreScroll(delta, source)
+    private var latestScrollSource = UserInput
+    private var outerStateScope = NoOpScrollScope
 
-            val scrollAvailableAfterPreScroll = delta - consumedByPreScroll
-
-            val singleAxisDeltaForSelfScroll =
-                scrollAvailableAfterPreScroll.singleAxisOffset().reverseIfNeeded().toFloat()
-
-            // Consume on a single axis
-            val consumedBySelfScroll =
-                scrollBy(singleAxisDeltaForSelfScroll).toOffset().reverseIfNeeded()
-
-            val deltaAvailableAfterScroll = scrollAvailableAfterPreScroll - consumedBySelfScroll
-            val consumedByPostScroll = nestedScrollDispatcher.dispatchPostScroll(
-                consumedBySelfScroll,
-                deltaAvailableAfterScroll,
-                source
-            )
-            consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
+    private val nestedScrollScope = object : NestedScrollScope {
+        override fun scrollBy(offset: Offset, source: NestedScrollSource): Offset {
+            return with(outerStateScope) {
+                performScroll(offset, source)
+            }
         }
 
-        val overscroll = overscrollEffect
-
-        return if (source == Wheel) {
-            performScroll(initialAvailableDelta)
-        } else if (overscroll != null && shouldDispatchOverscroll) {
-            overscroll.applyToScroll(initialAvailableDelta, source, performScroll)
-        } else {
-            performScroll(initialAvailableDelta)
+        override fun scrollByWithOverscroll(offset: Offset, source: NestedScrollSource): Offset {
+            latestScrollSource = source
+            val overscroll = overscrollEffect
+            return if (overscroll != null && shouldDispatchOverscroll) {
+                overscroll.applyToScroll(offset, latestScrollSource, performScrollForOverscroll)
+            } else {
+                with(outerStateScope) {
+                    performScroll(offset, source)
+                }
+            }
         }
+    }
+
+    private val performScrollForOverscroll: (Offset) -> Offset = { delta ->
+        with(outerStateScope) {
+            performScroll(delta, latestScrollSource)
+        }
+    }
+
+    private fun ScrollScope.performScroll(delta: Offset, source: NestedScrollSource): Offset {
+        val consumedByPreScroll =
+            nestedScrollDispatcher.dispatchPreScroll(delta, source)
+
+        val scrollAvailableAfterPreScroll = delta - consumedByPreScroll
+
+        val singleAxisDeltaForSelfScroll =
+            scrollAvailableAfterPreScroll.singleAxisOffset().reverseIfNeeded().toFloat()
+
+        // Consume on a single axis.
+        val consumedBySelfScroll =
+            scrollBy(singleAxisDeltaForSelfScroll).toOffset().reverseIfNeeded()
+
+        val deltaAvailableAfterScroll = scrollAvailableAfterPreScroll - consumedBySelfScroll
+        val consumedByPostScroll = nestedScrollDispatcher.dispatchPostScroll(
+            consumedBySelfScroll,
+            deltaAvailableAfterScroll,
+            source
+        )
+        return consumedByPreScroll + consumedBySelfScroll + consumedByPostScroll
     }
 
     private val shouldDispatchOverscroll
@@ -794,9 +735,6 @@ private class ScrollingLogic(
     }
 
     suspend fun onDragStopped(initialVelocity: Velocity) {
-        // Self started flinging, set
-        registerNestedFling(true)
-
         val availableVelocity = initialVelocity.singleAxisVelocity()
 
         val performFling: suspend (Velocity) -> Velocity = { velocity ->
@@ -821,24 +759,21 @@ private class ScrollingLogic(
         } else {
             performFling(availableVelocity)
         }
-
-        // Self stopped flinging, reset
-        registerNestedFling(false)
     }
 
     suspend fun doFlingAnimation(available: Velocity): Velocity {
         var result: Velocity = available
-        scrollableState.scroll {
-            val outerScopeScroll: (Offset) -> Offset = { delta ->
-                dispatchScroll(delta.reverseIfNeeded(), Fling).reverseIfNeeded()
-            }
-            val scope = object : ScrollScope {
+        scroll(scrollPriority = MutatePriority.Default) {
+            val nestedScrollScope = this
+            val reverseScope = object : ScrollScope {
                 override fun scrollBy(pixels: Float): Float {
-                    return outerScopeScroll.invoke(pixels.toOffset()).toFloat()
+                    return nestedScrollScope.scrollByWithOverscroll(
+                        offset = pixels.toOffset().reverseIfNeeded(),
+                        source = SideEffect
+                    ).toFloat().reverseIfNeeded()
                 }
             }
-
-            with(scope) {
+            with(reverseScope) {
                 with(flingBehavior) {
                     result = result.update(
                         performFling(available.toFloat().reverseIfNeeded()).reverseIfNeeded()
@@ -850,14 +785,26 @@ private class ScrollingLogic(
     }
 
     fun shouldScrollImmediately(): Boolean {
-        return scrollableState.isScrollInProgress || isNestedFlinging.value ||
+        return scrollableState.isScrollInProgress ||
             overscrollEffect?.isInProgress ?: false
     }
 
-    fun registerNestedFling(isFlinging: Boolean) {
-        isNestedFlinging.value = isFlinging
+    /**
+     * Opens a scrolling session with nested scrolling and overscroll support.
+     */
+    suspend fun scroll(
+        scrollPriority: MutatePriority = MutatePriority.Default,
+        block: suspend NestedScrollScope.() -> Unit
+    ) {
+        scrollableState.scroll(scrollPriority) {
+            outerStateScope = this
+            block.invoke(nestedScrollScope)
+        }
     }
 
+    /**
+     * @return true if the pointer input should be reset
+     */
     fun update(
         scrollableState: ScrollableState,
         orientation: Orientation,
@@ -865,39 +812,27 @@ private class ScrollingLogic(
         reverseDirection: Boolean,
         flingBehavior: FlingBehavior,
         nestedScrollDispatcher: NestedScrollDispatcher,
-    ) {
-        this.scrollableState = scrollableState
-        this.orientation = orientation
+    ): Boolean {
+        var resetPointerInputHandling = false
+        if (this.scrollableState != scrollableState) {
+            this.scrollableState = scrollableState
+            resetPointerInputHandling = true
+        }
         this.overscrollEffect = overscrollEffect
-        this.reverseDirection = reverseDirection
+        if (this.orientation != orientation) {
+            this.orientation = orientation
+            resetPointerInputHandling = true
+        }
+        if (this.reverseDirection != reverseDirection) {
+            this.reverseDirection = reverseDirection
+            resetPointerInputHandling = true
+        }
         this.flingBehavior = flingBehavior
         this.nestedScrollDispatcher = nestedScrollDispatcher
-    }
-}
-
-private class ScrollDraggableState(
-    var scrollLogic: ScrollingLogic
-) : DraggableState, DragScope {
-    var latestScrollScope: ScrollScope = NoOpScrollScope
-
-    override fun dragBy(pixels: Float) {
-        with(scrollLogic) {
-            with(latestScrollScope) {
-                dispatchScroll(pixels.toOffset(), Drag)
-            }
-        }
+        return resetPointerInputHandling
     }
 
-    override suspend fun drag(dragPriority: MutatePriority, block: suspend DragScope.() -> Unit) {
-        scrollLogic.scrollableState.scroll(dragPriority) {
-            latestScrollScope = this
-            block()
-        }
-    }
-
-    override fun dispatchRawDelta(delta: Float) {
-        with(scrollLogic) { performRawScroll(delta.toOffset()) }
-    }
+    fun isVertical(): Boolean = orientation == Vertical
 }
 
 private val NoOpScrollScope: ScrollScope = object : ScrollScope {
@@ -908,13 +843,6 @@ private class ScrollableNestedScrollConnection(
     val scrollingLogic: ScrollingLogic,
     var enabled: Boolean
 ) : NestedScrollConnection {
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-        // child will fling, set
-        if (source == Fling) {
-            scrollingLogic.registerNestedFling(true)
-        }
-        return Offset.Zero
-    }
 
     override fun onPostScroll(
         consumed: Offset,
@@ -935,9 +863,6 @@ private class ScrollableNestedScrollConnection(
             available - velocityLeft
         } else {
             Velocity.Zero
-        }.also {
-            // Flinging child finished flinging, reset
-            scrollingLogic.registerNestedFling(false)
         }
     }
 }
@@ -982,34 +907,29 @@ internal class DefaultFlingBehavior(
     }
 }
 
-// TODO: b/203141462 - make this public and move it to ui
-/**
- * Whether this modifier is inside a scrollable container, provided by [Modifier.scrollable].
- * Defaults to false.
- */
-internal val ModifierLocalScrollableContainer = modifierLocalOf { false }
-
-internal val NoOpFlingBehavior = object : FlingBehavior {
-    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float = 0f
-}
-
 private const val DefaultScrollMotionDurationScaleFactor = 1f
 internal val DefaultScrollMotionDurationScale = object : MotionDurationScale {
     override val scaleFactor: Float
         get() = DefaultScrollMotionDurationScaleFactor
 }
 
-private class ModifierLocalScrollableContainerProvider(var enabled: Boolean) :
-    ModifierLocalModifierNode,
-    Modifier.Node() {
-    private val modifierLocalMap =
-        modifierLocalMapOf(entry = ModifierLocalScrollableContainer to true)
-    override val providedValues: ModifierLocalMap
-        get() = if (enabled) {
-            modifierLocalMap
-        } else {
-            modifierLocalMapOf()
-        }
+/**
+ * (b/311181532): This could not be flattened so we moved it to TraversableNode, but ideally
+ * ScrollabeNode should be the one to be travesable.
+ */
+internal class ScrollableContainerNode(enabled: Boolean) :
+    Modifier.Node(),
+    TraversableNode {
+    override val traverseKey: Any = TraverseKey
+
+    var enabled: Boolean = enabled
+        private set
+
+    companion object TraverseKey
+
+    fun update(enabled: Boolean) {
+        this.enabled = enabled
+    }
 }
 
 private val UnityDensity = object : Density {
@@ -1017,4 +937,39 @@ private val UnityDensity = object : Density {
         get() = 1f
     override val fontScale: Float
         get() = 1f
+}
+
+/**
+ * A scroll scope for nested scrolling and overscroll support.
+ */
+internal interface NestedScrollScope {
+    fun scrollBy(
+        offset: Offset,
+        source: NestedScrollSource
+    ): Offset
+
+    fun scrollByWithOverscroll(
+        offset: Offset,
+        source: NestedScrollSource
+    ): Offset
+}
+
+/**
+ * Scroll deltas originating from the semantics system. Should be dispatched as an animation
+ * driven event.
+ */
+private suspend fun ScrollingLogic.semanticsScrollBy(offset: Offset): Offset {
+    var previousValue = 0f
+    scroll(scrollPriority = MutatePriority.Default) {
+        animate(0f, offset.toFloat()) { currentValue, _ ->
+            val delta = currentValue - previousValue
+            val consumed =
+                scrollBy(
+                    offset = delta.reverseIfNeeded().toOffset(),
+                    source = UserInput
+                ).toFloat().reverseIfNeeded()
+            previousValue += consumed
+        }
+    }
+    return previousValue.toOffset()
 }

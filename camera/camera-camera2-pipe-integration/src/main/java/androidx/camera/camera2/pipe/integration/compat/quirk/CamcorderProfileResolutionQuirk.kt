@@ -19,14 +19,13 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
-import android.os.Build
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.core.impl.ImageFormatConstants
-import androidx.camera.core.impl.quirk.ProfileResolutionQuirk
+import androidx.camera.core.impl.Quirk
 
 /**
  * Quirk that should validate the video resolution of [EncoderProfilesProviderAdapter] on legacy
@@ -48,11 +47,9 @@ import androidx.camera.core.impl.quirk.ProfileResolutionQuirk
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class CamcorderProfileResolutionQuirk(
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat
-) :
-    ProfileResolutionQuirk {
+) : Quirk {
 
     private val supportedResolution: List<Size> by lazy {
         val sizes = streamConfigurationMapCompat
@@ -64,7 +61,7 @@ class CamcorderProfileResolutionQuirk(
     }
 
     /** Returns the supported video resolutions.  */
-    override fun getSupportedResolutions(): List<Size> {
+    fun getSupportedResolutions(): List<Size> {
         return supportedResolution.toList()
     }
 

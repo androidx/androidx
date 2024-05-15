@@ -18,7 +18,6 @@ package androidx.leanback.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.View;
 
 import androidx.annotation.RestrictTo;
@@ -29,15 +28,10 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class BackgroundHelper {
     public static void setBackgroundPreservingAlpha(View view, Drawable drawable) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            if (view.getBackground() != null) {
-                drawable.setAlpha(view.getBackground().getAlpha());
-            }
-            view.setBackground(drawable);
-        } else {
-            // Cannot query drawable alpha
-            view.setBackground(drawable);
+        if (view.getBackground() != null) {
+            drawable.setAlpha(view.getBackground().getAlpha());
         }
+        view.setBackground(drawable);
     }
 
     private BackgroundHelper() {

@@ -18,15 +18,25 @@ package androidx.benchmark
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlin.test.assertFailsWith
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-public class MetricResultTest {
+class MetricResultTest {
     @Test
-    public fun repeat() {
+    fun constructorThrowsIfEmpty() {
+        val exception = assertFailsWith<IllegalArgumentException> {
+            MetricResult("test", emptyList())
+        }
+
+        assertEquals("At least one result is necessary, 0 found for test.", exception.message!!)
+    }
+
+    @Test
+    fun repeat() {
         val metricResult = MetricResult("test", listOf(10.0, 10.0, 10.0, 10.0))
         assertEquals(10.0, metricResult.min, 0.0)
         assertEquals(10.0, metricResult.max, 0.0)
@@ -39,7 +49,7 @@ public class MetricResultTest {
     }
 
     @Test
-    public fun one() {
+    fun one() {
         val metricResult = MetricResult("test", listOf(10.0))
         assertEquals(10.0, metricResult.min, 0.0)
         assertEquals(10.0, metricResult.max, 0.0)
@@ -52,7 +62,7 @@ public class MetricResultTest {
     }
 
     @Test
-    public fun simple() {
+    fun simple() {
         val metricResult = MetricResult("test", (0..100).map { it.toDouble() })
         assertEquals(50.0, metricResult.median, 0.0)
         assertEquals(100.0, metricResult.max, 0.0)
@@ -65,7 +75,7 @@ public class MetricResultTest {
     }
 
     @Test
-    public fun lerp() {
+    fun lerp() {
         assertEquals(MetricResult.lerp(0.0, 1000.0, 0.5), 500.0, 0.0)
         assertEquals(MetricResult.lerp(0.0, 1000.0, 0.75), 750.0, 0.0)
         assertEquals(MetricResult.lerp(0.0, 1000.0, 0.25), 250.0, 0.0)
@@ -73,7 +83,7 @@ public class MetricResultTest {
     }
 
     @Test
-    public fun getPercentile() {
+    fun getPercentile() {
         (0..100).forEach {
             assertEquals(
                 it.toDouble(),

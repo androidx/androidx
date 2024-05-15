@@ -14,7 +14,7 @@
 # the License.
 #
 
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.22.1)
 
 project(tracing_perfetto)
 
@@ -29,3 +29,4 @@ find_library(android-lib android)
 find_library(log-lib log)
 
 target_link_libraries(tracing_perfetto ${android-lib} ${log-lib} perfetto ${CMAKE_THREAD_LIBS_INIT})
+target_link_options(tracing_perfetto PRIVATE "-Wl,-z,max-page-size=16384")

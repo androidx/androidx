@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
@@ -63,7 +62,6 @@ import org.junit.Rule
 import org.junit.Test
 
 @Suppress("WrapUnaryOperator")
-@OptIn(ExperimentalTestApi::class)
 class ScrollbarTest {
     @get:Rule
     val rule = createComposeRule()

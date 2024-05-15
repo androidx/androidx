@@ -53,7 +53,6 @@ import org.mockito.ArgumentCaptor;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = 19)
 public class EmojiInputFilterTest {
 
     private EmojiInputFilter mInputFilter;
@@ -240,7 +239,6 @@ public class EmojiInputFilterTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void initCallback_doesntCrashWhenNotAttached() {
         Context context = InstrumentationRegistry.getInstrumentation().getContext();
         EditText editText = new EditText(context);

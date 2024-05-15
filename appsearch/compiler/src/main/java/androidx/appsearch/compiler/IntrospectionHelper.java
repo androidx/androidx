@@ -22,6 +22,9 @@ import static java.util.stream.Collectors.toCollection;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.DocumentPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
 
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
@@ -38,6 +41,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -92,6 +96,12 @@ public class IntrospectionHelper {
     static final ClassName DOCUMENT_CLASS_FACTORY_CLASS =
             ClassName.get(APPSEARCH_PKG, "DocumentClassFactory");
 
+    static final ClassName RESTRICT_TO_ANNOTATION_CLASS =
+            ClassName.get("androidx.annotation", "RestrictTo");
+
+    static final ClassName RESTRICT_TO_SCOPE_CLASS =
+            RESTRICT_TO_ANNOTATION_CLASS.nestedClass("Scope");
+
     public final TypeMirror mStringType;
     public final TypeMirror mLongPrimitiveType;
     public final TypeMirror mIntPrimitiveType;
@@ -112,6 +122,7 @@ public class IntrospectionHelper {
     final TypeMirror mBytePrimitiveType;
     private final ProcessingEnvironment mEnv;
     private final Types mTypeUtils;
+    private final Elements mElementUtils;
 
     private final WeakHashMap<TypeElement, LinkedHashSet<ExecutableElement>> mAllMethodsCache =
             new WeakHashMap<>();
@@ -119,27 +130,27 @@ public class IntrospectionHelper {
     IntrospectionHelper(ProcessingEnvironment env) {
         mEnv = env;
 
-        Elements elementUtil = env.getElementUtils();
+        mElementUtils = env.getElementUtils();
         mTypeUtils = env.getTypeUtils();
-        mCollectionType = elementUtil.getTypeElement(Collection.class.getName()).asType();
-        mListType = elementUtil.getTypeElement(List.class.getName()).asType();
-        mStringType = elementUtil.getTypeElement(String.class.getName()).asType();
-        mIntegerBoxType = elementUtil.getTypeElement(Integer.class.getName()).asType();
+        mCollectionType = mElementUtils.getTypeElement(Collection.class.getName()).asType();
+        mListType = mElementUtils.getTypeElement(List.class.getName()).asType();
+        mStringType = mElementUtils.getTypeElement(String.class.getName()).asType();
+        mIntegerBoxType = mElementUtils.getTypeElement(Integer.class.getName()).asType();
         mIntPrimitiveType = mTypeUtils.unboxedType(mIntegerBoxType);
-        mLongBoxType = elementUtil.getTypeElement(Long.class.getName()).asType();
+        mLongBoxType = mElementUtils.getTypeElement(Long.class.getName()).asType();
         mLongPrimitiveType = mTypeUtils.unboxedType(mLongBoxType);
-        mFloatBoxType = elementUtil.getTypeElement(Float.class.getName()).asType();
+        mFloatBoxType = mElementUtils.getTypeElement(Float.class.getName()).asType();
         mFloatPrimitiveType = mTypeUtils.unboxedType(mFloatBoxType);
-        mDoubleBoxType = elementUtil.getTypeElement(Double.class.getName()).asType();
+        mDoubleBoxType = mElementUtils.getTypeElement(Double.class.getName()).asType();
         mDoublePrimitiveType = mTypeUtils.unboxedType(mDoubleBoxType);
-        mBooleanBoxType = elementUtil.getTypeElement(Boolean.class.getName()).asType();
+        mBooleanBoxType = mElementUtils.getTypeElement(Boolean.class.getName()).asType();
         mBooleanPrimitiveType = mTypeUtils.unboxedType(mBooleanBoxType);
-        mByteBoxType = elementUtil.getTypeElement(Byte.class.getName()).asType();
+        mByteBoxType = mElementUtils.getTypeElement(Byte.class.getName()).asType();
         mByteBoxArrayType = mTypeUtils.getArrayType(mByteBoxType);
         mBytePrimitiveType = mTypeUtils.unboxedType(mByteBoxType);
         mBytePrimitiveArrayType = mTypeUtils.getArrayType(mBytePrimitiveType);
         mGenericDocumentType =
-                elementUtil.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType();
+                mElementUtils.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType();
     }
 
     /**
@@ -149,11 +160,58 @@ public class IntrospectionHelper {
     @Nullable
     public static AnnotationMirror getDocumentAnnotation(@NonNull Element element) {
         Objects.requireNonNull(element);
-        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            String annotationFq = annotation.getAnnotationType().toString();
-            if (IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName().equals(
-                    annotationFq)) {
-                return annotation;
+        List<? extends AnnotationMirror> annotations = getAnnotations(element,
+                DOCUMENT_ANNOTATION_CLASS);
+        if (annotations.isEmpty()) {
+            return null;
+        } else {
+            return annotations.get(0);
+        }
+    }
+
+    /**
+     * Returns a list of annotations of a given kind from the input element's annotations,
+     * specified by the annotation's class name. Returns null if no annotation of such kind is
+     * found.
+     */
+    @NonNull
+    public static List<? extends AnnotationMirror> getAnnotations(@NonNull Element element,
+            @NonNull ClassName className) {
+        Objects.requireNonNull(element);
+        Objects.requireNonNull(className);
+        return element.getAnnotationMirrors()
+                .stream()
+                .filter(annotation -> annotation.getAnnotationType().toString()
+                        .equals(className.canonicalName()))
+                .toList();
+    }
+
+    /**
+     * Returns the document property annotation that matches the given property name from a given
+     * class or interface element.
+     *
+     * <p>Returns null if the property cannot be found in the class or interface, or if the
+     * property matching the property name is not a document property.
+     */
+    @Nullable
+    public DocumentPropertyAnnotation getDocumentPropertyAnnotation(
+            @NonNull TypeElement clazz, @NonNull String propertyName) throws ProcessingException {
+        Objects.requireNonNull(clazz);
+        Objects.requireNonNull(propertyName);
+        for (Element enclosedElement : clazz.getEnclosedElements()) {
+            AnnotatedGetterOrField getterOrField =
+                    AnnotatedGetterOrField.tryCreateFor(enclosedElement, mEnv);
+            if (getterOrField == null || !(getterOrField.getAnnotation().getPropertyKind()
+                    == PropertyAnnotation.Kind.DATA_PROPERTY)) {
+                continue;
+            }
+            if (((DataPropertyAnnotation) getterOrField.getAnnotation()).getDataPropertyKind()
+                    == DataPropertyAnnotation.Kind.DOCUMENT_PROPERTY) {
+                DocumentPropertyAnnotation documentPropertyAnnotation =
+                        (DocumentPropertyAnnotation) getterOrField.getAnnotation();
+                if (documentPropertyAnnotation.getName().equals(propertyName)) {
+                    return documentPropertyAnnotation;
+                }
             }
         }
         return null;
@@ -346,13 +404,62 @@ public class IntrospectionHelper {
     }
 
     /**
-     * Whether the method returns the specified type.
+     * A method's type and element (i.e. declaration).
+     *
+     * <p>Note: The parameter and return types may differ between the type and the element.
+     * For example,
+     *
+     * <pre>
+     * {@code
+     * public class StringSet implements Set<String> {...}
+     * }
+     * </pre>
+     *
+     * <p>Here, the type of {@code StringSet.add()} is {@code (String) -> boolean} and the element
+     * points to the generic declaration within {@code Set<T>} with a return type of
+     * {@code boolean} and a single parameter of type {@code T}.
+     */
+    public static class MethodTypeAndElement {
+        private final ExecutableType mType;
+        private final ExecutableElement mElement;
+
+        public MethodTypeAndElement(
+                @NonNull ExecutableType type, @NonNull ExecutableElement element) {
+            mType = type;
+            mElement = element;
+        }
+
+        @NonNull
+        public ExecutableType getType() {
+            return mType;
+        }
+
+        @NonNull
+        public ExecutableElement getElement() {
+            return mElement;
+        }
+    }
+
+    /**
+     * Returns a stream of all the methods (including inherited) within a {@link DeclaredType}.
+     *
+     * <p>Does not include constructors.
+     */
+    @NonNull
+    public Stream<MethodTypeAndElement> getAllMethods(@NonNull DeclaredType type) {
+        return mElementUtils.getAllMembers((TypeElement) type.asElement()).stream()
+                .filter(el -> el.getKind() == ElementKind.METHOD)
+                .map(el -> new MethodTypeAndElement(
+                        (ExecutableType) mTypeUtils.asMemberOf(type, el),
+                        (ExecutableElement) el));
+    }
+
+    /**
+     * Whether the method returns the specified type (or subtype).
      */
     public boolean isReturnTypeMatching(
-            @NonNull ExecutableElement method, @NonNull TypeMirror type) {
-        TypeMirror target = method.getKind() == ElementKind.CONSTRUCTOR
-                ? method.getEnclosingElement().asType() : method.getReturnType();
-        return mTypeUtils.isSameType(type, target);
+            @NonNull ExecutableType method, @NonNull TypeMirror type) {
+        return mTypeUtils.isAssignable(method.getReturnType(), type);
     }
 
     /**

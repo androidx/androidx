@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TileUpdateRequestData extends ProtoParcelable {
     public static final int VERSION_PLACEHOLDER = 1;
+
     public static final Creator<TileUpdateRequestData> CREATOR =
             newCreator(TileUpdateRequestData.class, TileUpdateRequestData::new);
 

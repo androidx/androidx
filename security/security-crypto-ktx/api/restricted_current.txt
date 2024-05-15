@@ -2,15 +2,15 @@
 package androidx.security.crypto {
 
   public final class EncryptedFileKt {
-    method public static androidx.security.crypto.EncryptedFile EncryptedFile(android.content.Context context, java.io.File file, androidx.security.crypto.MasterKey masterKey, optional androidx.security.crypto.EncryptedFile.FileEncryptionScheme fileEncryptionScheme, optional String? keysetPrefName, optional String? keysetAlias);
+    method @Deprecated public static androidx.security.crypto.EncryptedFile EncryptedFile(android.content.Context context, java.io.File file, androidx.security.crypto.MasterKey masterKey, optional androidx.security.crypto.EncryptedFile.FileEncryptionScheme fileEncryptionScheme, optional String? keysetPrefName, optional String? keysetAlias);
   }
 
   public final class EncryptedSharedPreferencesKt {
-    method public static android.content.SharedPreferences EncryptedSharedPreferences(android.content.Context context, String fileName, androidx.security.crypto.MasterKey masterKey, optional androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme prefKeyEncryptionScheme, optional androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme prefValueEncryptionScheme);
+    method @Deprecated public static android.content.SharedPreferences EncryptedSharedPreferences(android.content.Context context, String fileName, androidx.security.crypto.MasterKey masterKey, optional androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme prefKeyEncryptionScheme, optional androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme prefValueEncryptionScheme);
   }
 
   public final class MasterKeyKt {
-    method public static androidx.security.crypto.MasterKey MasterKey(android.content.Context context, optional String keyAlias, optional androidx.security.crypto.MasterKey.KeyScheme keyScheme, optional boolean authenticationRequired, optional int userAuthenticationValidityDurationSeconds, optional boolean requestStrongBoxBacked);
+    method @Deprecated public static androidx.security.crypto.MasterKey MasterKey(android.content.Context context, optional String keyAlias, optional androidx.security.crypto.MasterKey.KeyScheme keyScheme, optional boolean authenticationRequired, optional int userAuthenticationValidityDurationSeconds, optional boolean requestStrongBoxBacked);
   }
 
 }

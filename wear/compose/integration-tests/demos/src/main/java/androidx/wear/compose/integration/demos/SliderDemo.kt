@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.InlineSlider
 import androidx.wear.compose.material.InlineSliderColors
@@ -48,7 +49,7 @@ fun InlineSliderDemo() {
     var valueWithSegments by remember { mutableFloatStateOf(2f) }
     var enabled by remember { mutableStateOf(true) }
 
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 4.dp,
@@ -104,7 +105,7 @@ fun InlineSliderWithIntegersDemo() {
     var valueWithoutSegments by remember { mutableIntStateOf(5) }
     var valueWithSegments by remember { mutableIntStateOf(2) }
 
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 4.dp,
@@ -166,7 +167,7 @@ fun InlineSliderSegmented() {
     var numberOfSegments by remember { mutableFloatStateOf(5f) }
     var progress by remember { mutableFloatStateOf(10f) }
 
-    ScalingLazyColumnWithRSB(
+    ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 4.dp,

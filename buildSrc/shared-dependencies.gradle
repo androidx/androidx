@@ -19,11 +19,18 @@ dependencies {
     implementation(libs.androidToolsSdkCommon) // com.android.ide.common for Stable AIDL plugin
     implementation(libs.kotlinGradlePluginz)
     implementation(libs.spdxGradlePluginz)
+    implementation(libs.androidKotlinMultiplatform)
     implementation(libs.kotlinCompilerEmbeddable) // for clang compiler
+    implementation(libs.binaryCompatibilityValidator)
 
-    // variety of json parsers
+    // For Room Gradle Plugin
+    implementation(libs.kspGradlePluginz)
+
+    // Force jsoup upgrade on spdx (b/309773103)
+    implementation(libs.jsoup)
+
+    // json parser
     implementation(libs.gson)
-    implementation(libs.jsonSimple)
 
     // XML parsers used in MavenUploadHelper.kt
     implementation(libs.dom4j) {
@@ -38,7 +45,6 @@ dependencies {
     implementation(libs.apacheAnt) // used in AarManifestTransformerTask.kt for unziping
     implementation(libs.toml)
     implementation(libs.apacheCommonIo) // used in CheckApiEquivalenceTask.kt
-    implementation(libs.dexMemberList) // used in ReportLibraryMetricsTask.kt
 
     implementation(libs.protobufGradlePlugin) // needed to compile inspection plugin
     implementation(libs.kotlinPoet) // needed to compile material-icon-generator
@@ -51,7 +57,5 @@ dependencies {
     // root project doesn't need to re-resolve them and their dependencies on every build
     runtimeOnly(libs.hiltAndroidGradlePluginz)
     runtimeOnly(libs.javapoet) // for hiltAndroidGradlePluginz to workaround https://github.com/google/dagger/issues/3068
-    runtimeOnly(libs.kspGradlePluginz)
     runtimeOnly(libs.wireGradlePluginz)
-    runtimeOnly(libs.roomGradlePlugin)
 }

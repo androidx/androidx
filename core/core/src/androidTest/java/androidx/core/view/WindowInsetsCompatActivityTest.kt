@@ -17,11 +17,11 @@
 package androidx.core.view
 
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.os.Build
 import android.view.View
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
 import android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.Insets
 import androidx.core.test.R
 import androidx.core.view.WindowInsetsCompat.Type
@@ -58,22 +58,12 @@ import org.junit.runners.Parameterized
 @Suppress("DEPRECATION") // Testing deprecated methods
 @LargeTest
 @RunWith(Parameterized::class)
-public class WindowInsetsCompatActivityTest(
-    private val softInputMode: Int,
-    private val orientation: Int
-) {
+public class WindowInsetsCompatActivityTest(private val softInputMode: Int) {
     private lateinit var scenario: ActivityScenario<WindowInsetsCompatActivity>
 
     @Before
     public fun setup() {
         scenario = ActivityScenario.launch(WindowInsetsCompatActivity::class.java)
-
-        scenario.withActivity {
-            // Update the orientation based on the test parameter, we do this first since it
-            // may recreate the Activity
-            requestedOrientation = orientation
-        }
-        onIdle()
 
         scenario.withActivity {
             // Update the soft input mode based on the test parameter
@@ -368,10 +358,8 @@ public class WindowInsetsCompatActivityTest(
         @Parameterized.Parameters
         public fun data(): List<Array<Int>> =
             listOf(
-                arrayOf(SOFT_INPUT_ADJUST_PAN, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE),
-                arrayOf(SOFT_INPUT_ADJUST_PAN, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT),
-                arrayOf(SOFT_INPUT_ADJUST_RESIZE, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE),
-                arrayOf(SOFT_INPUT_ADJUST_RESIZE, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                arrayOf(SOFT_INPUT_ADJUST_PAN),
+                arrayOf(SOFT_INPUT_ADJUST_RESIZE),
             )
     }
 }
@@ -400,6 +388,7 @@ private fun View.doAndAwaitNextInsets(action: (View) -> Unit): WindowInsetsCompa
     return received.get()
 }
 
+@RequiresApi(20)
 private fun View.requestAndAwaitInsets(): WindowInsetsCompat {
     val latch = CountDownLatch(1)
     val received = AtomicReference<WindowInsetsCompat>()

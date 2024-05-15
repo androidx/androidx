@@ -17,14 +17,12 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CameraExtensionCharacteristics
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
 
 /** Utility class for providing fake metadata for tests. */
-@RequiresApi(21)
 class FakeCameraMetadataProvider(
     private val fakeMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
     private val fakeExtensionMetadata: Map<CameraId, CameraExtensionMetadata> = emptyMap()

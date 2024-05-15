@@ -116,10 +116,10 @@ package androidx.wear.compose.foundation {
 
   public final class CurvedDrawKt {
     method public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color> colors, optional int cap);
-    method public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional int cap);
+    method public static androidx.wear.compose.foundation.CurvedModifier angularGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[] colorStops, optional int cap);
     method public static androidx.wear.compose.foundation.CurvedModifier background(androidx.wear.compose.foundation.CurvedModifier, long color, optional int cap);
     method public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, java.util.List<androidx.compose.ui.graphics.Color> colors, optional int cap);
-    method public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>![] colorStops, optional int cap);
+    method public static androidx.wear.compose.foundation.CurvedModifier radialGradientBackground(androidx.wear.compose.foundation.CurvedModifier, kotlin.Pair<java.lang.Float,androidx.compose.ui.graphics.Color>[] colorStops, optional int cap);
   }
 
   public final class CurvedLayoutKt {
@@ -145,7 +145,7 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedParentDataKt {
-    method public static androidx.wear.compose.foundation.CurvedModifier parentDataModifier(androidx.wear.compose.foundation.CurvedModifier, kotlin.jvm.functions.Function1<java.lang.Object,?> modifyParentData);
+    method public static androidx.wear.compose.foundation.CurvedModifier parentDataModifier(androidx.wear.compose.foundation.CurvedModifier, kotlin.jvm.functions.Function1<java.lang.Object?,? extends java.lang.Object?> modifyParentData);
     method public static androidx.wear.compose.foundation.CurvedModifier weight(androidx.wear.compose.foundation.CurvedModifier, @FloatRange(from=0.0, fromInclusive=false) float weight);
   }
 
@@ -210,6 +210,11 @@ package androidx.wear.compose.foundation {
     method public void setExpanded(boolean);
     property public final float expandProgress;
     property public final boolean expanded;
+    field public static final androidx.wear.compose.foundation.ExpandableState.Companion Companion;
+  }
+
+  public static final class ExpandableState.Companion {
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.foundation.ExpandableState,java.lang.Boolean> saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> expandAnimationSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> collapseAnimationSpec);
   }
 
   @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public final class ExpandableStateMapping<T> {
@@ -307,15 +312,11 @@ package androidx.wear.compose.foundation {
   }
 
   public enum SwipeToDismissKeys {
-    method public static androidx.wear.compose.foundation.SwipeToDismissKeys valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.compose.foundation.SwipeToDismissKeys[] values();
     enum_constant public static final androidx.wear.compose.foundation.SwipeToDismissKeys Background;
     enum_constant public static final androidx.wear.compose.foundation.SwipeToDismissKeys Content;
   }
 
   public enum SwipeToDismissValue {
-    method public static androidx.wear.compose.foundation.SwipeToDismissValue valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.wear.compose.foundation.SwipeToDismissValue[] values();
     enum_constant public static final androidx.wear.compose.foundation.SwipeToDismissValue Default;
     enum_constant public static final androidx.wear.compose.foundation.SwipeToDismissValue Dismissed;
   }
@@ -341,11 +342,12 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   public final class ScalingLazyColumnKt {
-    method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.ScalingLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.lazy.ScalingParams scalingParams, optional int anchorType, optional androidx.wear.compose.foundation.lazy.AutoCenteringParams? autoCentering, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.ScalingLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.lazy.ScalingParams scalingParams, optional int anchorType, optional androidx.wear.compose.foundation.lazy.AutoCenteringParams? autoCentering, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit> content);
+    method @Deprecated @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.ScalingLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.lazy.ScalingParams scalingParams, optional int anchorType, optional androidx.wear.compose.foundation.lazy.AutoCenteringParams? autoCentering, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit> content);
     method public static inline <T> void items(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
-    method public static inline <T> void items(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void items(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T[] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
-    method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.ScalingLazyListScope, T[] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScalingLazyListAnchorType {
@@ -424,7 +426,7 @@ package androidx.wear.compose.foundation.lazy {
     method public int getCenterItemScrollOffset();
     method public androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
-    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public boolean canScrollBackward;
     property public boolean canScrollForward;
@@ -463,6 +465,36 @@ package androidx.wear.compose.foundation.lazy {
     property @FloatRange(from=0.0, to=1.0) public abstract float minElementHeight;
     property @FloatRange(from=0.0, to=1.0) public abstract float minTransitionArea;
     property public abstract androidx.compose.animation.core.Easing scaleInterpolator;
+  }
+
+}
+
+package androidx.wear.compose.foundation.rotary {
+
+  public interface RotaryScrollableBehavior {
+    method public suspend Object? performScroll(kotlinx.coroutines.CoroutineScope, long timestampMillis, float delta, int inputDeviceId, androidx.compose.foundation.gestures.Orientation orientation, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public final class RotaryScrollableDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional boolean hapticFeedbackEnabled);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider layoutInfoProvider, optional float snapOffset, optional boolean hapticFeedbackEnabled);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollableState, optional float snapOffset, optional boolean hapticFeedbackEnabled);
+    field public static final androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults INSTANCE;
+  }
+
+  public final class RotaryScrollableKt {
+    method public static androidx.compose.ui.Modifier rotaryScrollable(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior, androidx.compose.ui.focus.FocusRequester focusRequester, optional boolean reverseDirection);
+  }
+
+  public interface RotarySnapLayoutInfoProvider {
+    method public float getAverageItemSize();
+    method public int getCurrentItemIndex();
+    method public float getCurrentItemOffset();
+    method public int getTotalItemCount();
+    property public abstract float averageItemSize;
+    property public abstract int currentItemIndex;
+    property public abstract float currentItemOffset;
+    property public abstract int totalItemCount;
   }
 
 }

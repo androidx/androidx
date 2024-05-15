@@ -20,9 +20,8 @@
 #include "compiler.h"
 
 #include <cmath>            // for std:: namespace
+#include <cstdint>
 
-#include <math.h>
-#include <stdint.h>
 #include <sys/types.h>
 
 namespace filament {

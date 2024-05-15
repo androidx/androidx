@@ -7,21 +7,19 @@ AutoBoxing: androidx.paging.PagingState#getAnchorPosition():
 
 ExecutorRegistration: androidx.paging.DataSource#addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
     Registration methods should have overload that accepts delivery Executor: `addInvalidatedCallback`
-ExecutorRegistration: androidx.paging.PagedList#addWeakCallback(androidx.paging.PagedList.Callback):
-    Registration methods should have overload that accepts delivery Executor: `addWeakCallback`
 
 
-GetterSetterNames: field LoadState.endOfPaginationReached:
+GetterSetterNames: androidx.paging.LoadState#endOfPaginationReached:
     Invalid name for boolean property `endOfPaginationReached`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PagingSource.LoadParams.placeholdersEnabled:
-    Invalid name for boolean property `placeholdersEnabled`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PagingSource.invalid:
+GetterSetterNames: androidx.paging.PagingSource#invalid:
     Invalid name for boolean property `invalid`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PagingSource.jumpingSupported:
+GetterSetterNames: androidx.paging.PagingSource#jumpingSupported:
     Invalid name for boolean property `jumpingSupported`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field PagingSource.keyReuseSupported:
+GetterSetterNames: androidx.paging.PagingSource#keyReuseSupported:
     Invalid name for boolean property `keyReuseSupported`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: field RemoteMediator.MediatorResult.Success.endOfPaginationReached:
+GetterSetterNames: androidx.paging.PagingSource.LoadParams#placeholdersEnabled:
+    Invalid name for boolean property `placeholdersEnabled`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.paging.RemoteMediator.MediatorResult.Success#endOfPaginationReached:
     Invalid name for boolean property `endOfPaginationReached`. Should start with one of `has`, `can`, `should`, `is`.
 
 
@@ -33,25 +31,3 @@ KotlinDefaultParameterOrder: androidx.paging.PagingDataTransforms#insertHeaderIt
     Parameter `terminalSeparatorType` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.paging.PagingDataTransforms#insertSeparators(androidx.paging.PagingData<T>, androidx.paging.TerminalSeparatorType, java.util.concurrent.Executor, kotlin.jvm.functions.Function2<? super T,? super T,? extends R>) parameter #1:
     Parameter `terminalSeparatorType` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
-
-
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>):
-    androidx.paging.PagedList does not declare a `getBoundaryCallback()` method matching method androidx.paging.PagedList.Builder.setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setCoroutineScope(kotlinx.coroutines.CoroutineScope):
-    androidx.paging.PagedList does not declare a `getCoroutineScope()` method matching method androidx.paging.PagedList.Builder.setCoroutineScope(kotlinx.coroutines.CoroutineScope)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setFetchDispatcher(kotlinx.coroutines.CoroutineDispatcher):
-    androidx.paging.PagedList does not declare a `getFetchDispatcher()` method matching method androidx.paging.PagedList.Builder.setFetchDispatcher(kotlinx.coroutines.CoroutineDispatcher)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setInitialKey(Key):
-    androidx.paging.PagedList does not declare a `getInitialKey()` method matching method androidx.paging.PagedList.Builder.setInitialKey(Key)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Builder#setNotifyDispatcher(kotlinx.coroutines.CoroutineDispatcher):
-    androidx.paging.PagedList does not declare a `getNotifyDispatcher()` method matching method androidx.paging.PagedList.Builder.setNotifyDispatcher(kotlinx.coroutines.CoroutineDispatcher)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setEnablePlaceholders(boolean):
-    androidx.paging.PagedList.Config does not declare a `isEnablePlaceholders()` method matching method androidx.paging.PagedList.Config.Builder.setEnablePlaceholders(boolean)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setInitialLoadSizeHint(int):
-    androidx.paging.PagedList.Config does not declare a `getInitialLoadSizeHint()` method matching method androidx.paging.PagedList.Config.Builder.setInitialLoadSizeHint(int)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setMaxSize(int):
-    androidx.paging.PagedList.Config does not declare a `getMaxSize()` method matching method androidx.paging.PagedList.Config.Builder.setMaxSize(int)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setPageSize(int):
-    androidx.paging.PagedList.Config does not declare a `getPageSize()` method matching method androidx.paging.PagedList.Config.Builder.setPageSize(int)
-MissingGetterMatchingBuilder: androidx.paging.PagedList.Config.Builder#setPrefetchDistance(int):
-    androidx.paging.PagedList.Config does not declare a `getPrefetchDistance()` method matching method androidx.paging.PagedList.Config.Builder.setPrefetchDistance(int)

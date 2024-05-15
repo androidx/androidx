@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -46,6 +52,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":internal-testutils-paging"))
+    androidTestImplementation(project(":paging:paging-testing"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
@@ -56,15 +63,14 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.multidex)
-
-    samples(project(":paging:paging-samples"))
 }
 
 androidx {
     name = "Paging-Runtime"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Paging-Runtime"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(project(":paging:paging-samples"))
 }

@@ -17,7 +17,6 @@
 package androidx.leanback.widget.picker;
 
 import android.content.res.Resources;
-import android.os.Build;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
@@ -29,9 +28,6 @@ import java.util.Locale;
  */
 class PickerUtility {
 
-    // Whether the API version supports the use of {@link DateFormat#getBestDateTimePattern()}
-    static final boolean SUPPORTS_BEST_DATE_TIME_PATTERN =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2;
     public static class DateConstant {
         public final Locale locale;
         public final String[] months;

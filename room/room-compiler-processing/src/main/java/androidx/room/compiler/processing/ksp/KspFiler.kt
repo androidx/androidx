@@ -86,7 +86,7 @@ internal class KspFiler(
             "Source file extension must be either 'java' or 'kt', but was: $extension"
         }
         val kspFilerOriginatingElements = originatingElements
-            .mapNotNull { it.originatingElementForPoet() }
+            .map { it.originatingElementForPoet() }
             .toOriginatingElements()
         return createNewFile(
             originatingElements = kspFilerOriginatingElements,
@@ -107,7 +107,7 @@ internal class KspFiler(
                 "neither '.java' nor '.kt', but was: $filePath"
         }
         val kspFilerOriginatingElements = originatingElements
-            .mapNotNull { it.originatingElementForPoet() }
+            .map { it.originatingElementForPoet() }
             .toOriginatingElements()
         return createNewFile(
             originatingElements = kspFilerOriginatingElements,

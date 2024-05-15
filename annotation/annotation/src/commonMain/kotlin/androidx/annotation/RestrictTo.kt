@@ -91,7 +91,7 @@ public expect annotation class RestrictTo(
         @Deprecated(
             message = "Use @RestrictTo(LIBRARY_GROUP_PREFIX) instead",
             replaceWith =
-                ReplaceWith(
+                kotlin.ReplaceWith(
                     "LIBRARY_GROUP_PREFIX",
                     "androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX"
                 )

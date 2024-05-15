@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -28,9 +34,11 @@ dependencies {
     api(project(":wear:protolayout:protolayout-expression"))
     api(libs.guavaListenableFuture)
 
-    implementation("androidx.annotation:annotation-experimental:1.3.1")
+    compileOnly files("../../wear_sdk/wear-sdk.jar")
+
+    implementation("androidx.annotation:annotation-experimental:1.4.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation(project(path: ":wear:tiles:tiles-proto"))
+    implementation(project(":wear:tiles:tiles-proto"))
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
@@ -48,7 +56,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
 
@@ -60,7 +68,6 @@ android {
 androidx {
     name = "Android Wear Tiles"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Wear Tiles"
     metalavaK2UastEnabled = true

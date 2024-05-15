@@ -34,6 +34,10 @@ import java.util.Set;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GetPasswordOptionJavaTest {
+
+    private static final int EXPECTED_PASSWORD_PRIORITY =
+            CredentialOption.PRIORITY_PASSWORD_OR_SIMILAR;
+
     @Test
     public void emptyConstructor_success() {
         GetPasswordOption option = new GetPasswordOption();
@@ -41,6 +45,7 @@ public class GetPasswordOptionJavaTest {
         assertThat(option.isAutoSelectAllowed()).isFalse();
         assertThat(option.getAllowedUserIds()).isEmpty();
         assertThat(option.getAllowedProviders()).isEmpty();
+        assertThat(option.getTypePriorityHint()).isEqualTo(EXPECTED_PASSWORD_PRIORITY);
     }
 
     @Test
@@ -63,6 +68,13 @@ public class GetPasswordOptionJavaTest {
     }
 
     @Test
+    public void getter_defaultPriorityHint_success() {
+        GetPasswordOption option = new GetPasswordOption();
+
+        assertThat(option.getTypePriorityHint()).isEqualTo(EXPECTED_PASSWORD_PRIORITY);
+    }
+
+    @Test
     public void getter_frameworkProperties() {
         Set<String> expectedAllowedUserIds = ImmutableSet.of("id1", "id2", "id3");
         Set<ComponentName> expectedAllowedProviders = ImmutableSet.of(
@@ -70,6 +82,7 @@ public class GetPasswordOptionJavaTest {
                 new ComponentName("pkg2", "cls2")
         );
         boolean expectedIsAutoSelectAllowed = true;
+        int expectedPriorityCategoryValue = EXPECTED_PASSWORD_PRIORITY;
 
         GetPasswordOption option = new GetPasswordOption(expectedAllowedUserIds,
                 expectedIsAutoSelectAllowed, expectedAllowedProviders);
@@ -85,9 +98,16 @@ public class GetPasswordOptionJavaTest {
         assertThat(option.getCandidateQueryData().getStringArrayList(
                 GetPasswordOption.BUNDLE_KEY_ALLOWED_USER_IDS))
                 .containsExactlyElementsIn(expectedAllowedUserIds);
+        assertThat(option.getRequestData().getInt(CredentialOption.BUNDLE_KEY_TYPE_PRIORITY_VALUE))
+                .isEqualTo(expectedPriorityCategoryValue);
+        assertThat(option.getCandidateQueryData().getInt(CredentialOption
+                .BUNDLE_KEY_TYPE_PRIORITY_VALUE))
+                .isEqualTo(expectedPriorityCategoryValue);
         assertThat(option.isSystemProviderRequired()).isFalse();
         assertThat(option.getAllowedProviders())
                 .containsExactlyElementsIn(expectedAllowedProviders);
+        assertThat(option.getTypePriorityHint()).isEqualTo(
+                EXPECTED_PASSWORD_PRIORITY);
     }
 
     @Test
@@ -111,7 +131,6 @@ public class GetPasswordOptionJavaTest {
         Boolean customCandidateQueryDataValue = true;
         candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue);
 
-
         CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), requestData, candidateQueryData,
                 option.isSystemProviderRequired(), option.getAllowedProviders());
@@ -127,5 +146,7 @@ public class GetPasswordOptionJavaTest {
                 .isEqualTo(customRequestDataValue);
         assertThat(convertedOption.getCandidateQueryData().getBoolean(customCandidateQueryDataKey))
                 .isEqualTo(customCandidateQueryDataValue);
+        assertThat(convertedOption.getTypePriorityHint()).isEqualTo(
+                EXPECTED_PASSWORD_PRIORITY);
     }
 }

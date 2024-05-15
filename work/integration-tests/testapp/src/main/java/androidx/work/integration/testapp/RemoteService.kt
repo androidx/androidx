@@ -21,6 +21,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.concurrent.futures.await
 import androidx.lifecycle.LifecycleService
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -29,7 +30,6 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkQuery
-import androidx.work.await
 import androidx.work.multiprocess.RemoteWorkManager
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineScope

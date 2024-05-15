@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.testing
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStream
@@ -30,7 +29,6 @@ import androidx.camera.camera2.pipe.StreamFormat
  * Fake CameraGraph configuration that can be used for more complicated tests that need a realistic
  * configuration for tests.
  */
-@RequiresApi(21)
 internal object FakeGraphConfigs {
     private val camera1 = CameraId("TestCamera-1")
     private val camera2 = CameraId("TestCamera-2")
@@ -146,7 +144,7 @@ internal object FakeGraphConfigs {
                 sharedStreamConfig1,
                 sharedStreamConfig2
             ),
-            streamSharingGroups = listOf(listOf(streamConfig1, streamConfig2)),
+            exclusiveStreamGroups = listOf(listOf(streamConfig1, streamConfig2)),
             defaultParameters = mapOf(CaptureRequest.JPEG_THUMBNAIL_QUALITY to 24),
             requiredParameters = mapOf(CaptureRequest.JPEG_THUMBNAIL_QUALITY to 42)
         )

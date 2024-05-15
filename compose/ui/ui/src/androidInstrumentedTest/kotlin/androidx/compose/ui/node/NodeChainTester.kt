@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.node
 
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -26,8 +28,10 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
+import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -389,6 +393,8 @@ private class MockOwner(
         get() = TODO("Not yet implemented")
     override val accessibilityManager: AccessibilityManager
         get() = TODO("Not yet implemented")
+    override val graphicsContext: GraphicsContext
+        get() = TODO("Not yet implemented")
     override val textToolbar: TextToolbar
         get() = TODO("Not yet implemented")
     override val textInputService: TextInputService
@@ -414,6 +420,18 @@ private class MockOwner(
     override suspend fun textInputSession(
         session: suspend PlatformTextInputSessionScope.() -> Nothing
     ): Nothing { TODO("Not yet implemented") }
+
+    override fun screenToLocal(positionOnScreen: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localPosition: Offset): Offset {
+        TODO("Not yet implemented")
+    }
+
+    override fun localToScreen(localTransform: Matrix) {
+        TODO("Not yet implemented")
+    }
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
         replaceWith = ReplaceWith("fontFamilyResolver")
@@ -466,8 +484,9 @@ private class MockOwner(
         TODO("Not yet implemented")
     }
     override fun createLayer(
-        drawBlock: (Canvas) -> Unit,
-        invalidateParentLayer: () -> Unit
+        drawBlock: (Canvas, GraphicsLayer?) -> Unit,
+        invalidateParentLayer: () -> Unit,
+        explicitLayer: GraphicsLayer?
     ): OwnedLayer {
         val transform = Matrix()
         val inverseTransform = Matrix()
@@ -475,7 +494,9 @@ private class MockOwner(
             override fun isInLayer(position: Offset) = true
             override fun move(position: IntOffset) {}
             override fun resize(size: IntSize) {}
-            override fun drawLayer(canvas: Canvas) { drawBlock(canvas) }
+            override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
+                drawBlock(canvas, parentLayer)
+            }
             override fun updateDisplayList() {}
             override fun invalidate() { invalidatedLayers.add(this) }
             override fun destroy() {}
@@ -484,14 +505,10 @@ private class MockOwner(
             override fun inverseTransform(matrix: Matrix) { matrix.timesAssign(inverseTransform) }
             override fun mapOffset(point: Offset, inverse: Boolean) = point
             override fun reuseLayer(
-                drawBlock: (Canvas) -> Unit,
+                drawBlock: (Canvas, GraphicsLayer?) -> Unit,
                 invalidateParentLayer: () -> Unit
             ) {}
-            override fun updateLayerProperties(
-                scope: ReusableGraphicsLayerScope,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ) {
+            override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
                 transform.reset()
                 // This is not expected to be 100% accurate
                 transform.scale(scope.scaleX, scope.scaleY)

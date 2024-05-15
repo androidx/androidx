@@ -36,11 +36,18 @@ class ProjectDependencyGraph {
      * A map of project path to a set of project paths referenced directly by this project.
      */
     private Map<String, Set<String>> projectReferences = new HashMap<String, Set<String>>()
+
+    /**
+     * A map of project path to a set of project paths that directly depend on the key project.
+     */
+    private Map<String, Set<String>> projectConsumers = new HashMap<String, Set<String>>()
+
+    private Set<String> publishedLibraryProjects = new HashSet<>()
+
     /**
      * A map of all project paths to their project directory.
      */
     private Map<String, File> allProjects = new HashMap<String, File>()
-    private Set<String> publishedLibraryProjects = new HashSet<>()
 
     ProjectDependencyGraph(Settings settings, boolean isPlayground, boolean constraintsEnabled) {
         this.settings = settings
@@ -66,6 +73,31 @@ class ProjectDependencyGraph {
         allProjects[projectPath] = projectDir
         Set<String> parsedDependencies = extractReferencesFromBuildFile(projectPath, projectDir)
         projectReferences[projectPath] = parsedDependencies
+        parsedDependencies.forEach { dependency ->
+            def reverseLookupSet = projectConsumers[dependency] ?: new HashSet<String>()
+            reverseLookupSet.add(projectPath)
+            projectConsumers[dependency] = reverseLookupSet
+        }
+    }
+
+    /**
+     * Returns a set of project path that includes the given `projectPath` as well as any other project
+     * that directly or indirectly depends on `projectPath`
+     */
+    Set<String> findAllProjectsDependingOn(String projectPath) {
+        Set<String> result = new HashSet<String>()
+        ArrayDeque<String> toBeTraversed = new ArrayDeque<String>()
+        toBeTraversed.add(projectPath)
+        while (toBeTraversed.size() > 0) {
+            def path = toBeTraversed.removeFirst()
+            if (result.add(path)) {
+                def dependants = projectConsumers[path]
+                if (dependants != null) {
+                    toBeTraversed.addAll(dependants)
+                }
+            }
+        }
+        return result
     }
 
     /**
@@ -108,7 +140,7 @@ class ProjectDependencyGraph {
                     "and update the project dependencies.")
         }
         def implicitReferences = findImplicitReferences(projectPath)
-                def constraintReferences = findConstraintReferences(projectPath)
+        def constraintReferences = findConstraintReferences(projectPath)
         return references + implicitReferences + constraintReferences
     }
 
@@ -234,10 +266,6 @@ class ProjectDependencyGraph {
                     links.add(":compose:compiler:compiler")
                     links.add(":compose:lint:internal-lint-checks")
                 }
-                if (paparazziPlugin.matcher(line).find()) {
-                    links.add(":test:screenshot:screenshot-proto")
-                    links.add(":internal-testutils-paparazzi")
-                }
                 if (iconGenerator.matcher(line).find()) {
                     links.add(":compose:material:material:icons:generator")
                 }
@@ -265,10 +293,9 @@ class ProjectDependencyGraph {
     private static Pattern multilineProjectReference = Pattern.compile("project\\(\$")
     private static Pattern inspection = Pattern.compile("packageInspector\\(project, \"(.*)\"\\)")
     private static Pattern composePlugin = Pattern.compile("id\\(\"AndroidXComposePlugin\"\\)")
-    private static Pattern paparazziPlugin = Pattern.compile("id\\(\"AndroidXPaparazziPlugin\"\\)")
     private static Pattern iconGenerator = Pattern.compile("IconGenerationTask\\.register")
-        private static Pattern publishedLibrary = Pattern.compile(
-            "(type = LibraryType\\.(PUBLISHED_LIBRARY|GRADLE_PLUGIN|ANNOTATION_PROCESSOR|PUBLISHED_KOTLIN_ONLY_LIBRARY)|" +
+    private static Pattern publishedLibrary = Pattern.compile(
+            "(type = LibraryType\\.(PUBLISHED_LIBRARY|GRADLE_PLUGIN|ANNOTATION_PROCESSOR|PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS)|" +
                     "publish = Publish\\.SNAPSHOT_AND_RELEASE)"
     )
 }

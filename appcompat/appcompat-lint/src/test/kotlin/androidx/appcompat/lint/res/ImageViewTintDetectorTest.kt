@@ -58,7 +58,7 @@ res/layout/image_view.xml:10: Error: Must use app:tint instead of android:tint [
             )
             .expectFixDiffs(
                 """
-Fix for res/layout/image_view.xml line 10: Set tint="#FF0000":
+Fix for res/layout/image_view.xml line 10: Use `app:tint` instead of `android:tint`:
 @@ -3 +3
 +     xmlns:app="http://schemas.android.com/apk/res-auto"
 @@ -11 +12

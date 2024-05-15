@@ -16,21 +16,22 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter.isBackwardCompatible
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.InitializationException
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode
 import androidx.camera.core.impl.CameraInternal
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraCoordinatorAdapter(
     private var cameraPipe: CameraPipe?,
     cameraDevices: CameraDevices,
@@ -54,12 +55,24 @@ class CameraCoordinatorAdapter(
     var concurrentModeOn = false
 
     init {
-        concurrentCameraIdsSet = cameraDevices.awaitConcurrentCameraIds()!!.toMutableSet()
-        for (cameraIdSet in concurrentCameraIdsSet) {
+        val concurrentCameraIds = cameraDevices.awaitConcurrentCameraIds()!!.toMutableSet()
+        for (cameraIdSet in concurrentCameraIds) {
             val cameraIdsList = cameraIdSet.toList()
             if (cameraIdsList.size >= 2) {
                 val cameraId1: String = cameraIdsList[0].value
                 val cameraId2: String = cameraIdsList[1].value
+                var isBackwardCompatible = false
+                try {
+                    isBackwardCompatible = isBackwardCompatible(cameraId1, cameraDevices) &&
+                        isBackwardCompatible(cameraId2, cameraDevices)
+                } catch (e: InitializationException) {
+                    Log.debug { "Concurrent camera id pair: " +
+                        "($cameraId1, $cameraId2) is not backward compatible" }
+                }
+                if (!isBackwardCompatible) {
+                    continue
+                }
+                concurrentCameraIdsSet.add(cameraIdSet)
                 if (!concurrentCameraIdMap.containsKey(cameraId1)) {
                     concurrentCameraIdMap[cameraId1] = mutableListOf()
                 }

@@ -404,7 +404,7 @@ class TextToggleButtonTest {
             status = Status.Enabled,
             checked = false,
             colors = { TextButtonDefaults.textToggleButtonColors() },
-            containerColor = { MaterialTheme.colorScheme.surface },
+            containerColor = { MaterialTheme.colorScheme.surfaceContainer },
             contentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
         )
 
@@ -415,7 +415,7 @@ class TextToggleButtonTest {
             status = Status.Disabled,
             checked = false,
             colors = { TextButtonDefaults.textToggleButtonColors() },
-            containerColor = { MaterialTheme.colorScheme.surface.toDisabledColor() },
+            containerColor = { MaterialTheme.colorScheme.surfaceContainer.toDisabledColor() },
             contentColor = { MaterialTheme.colorScheme.onSurfaceVariant.toDisabledColor() }
         )
 
@@ -497,7 +497,7 @@ class TextToggleButtonTest {
                     uncheckedContentColor = override
                 )
             },
-            containerColor = { MaterialTheme.colorScheme.surface },
+            containerColor = { MaterialTheme.colorScheme.surfaceContainer },
             contentColor = { override }
         )
     }
@@ -584,7 +584,7 @@ class TextToggleButtonTest {
             },
             contentColor = { override },
             containerColor = {
-                MaterialTheme.colorScheme.surface.toDisabledColor()
+                MaterialTheme.colorScheme.surfaceContainer.toDisabledColor()
             }
         )
     }
@@ -671,6 +671,7 @@ class TextToggleButtonTest {
             }
         )
     }
+
     @RequiresApi(Build.VERSION_CODES.O)
     private fun ComposeContentTestRule.isShape(
         shape: Shape = CircleShape,
@@ -725,13 +726,13 @@ class TextToggleButtonTest {
                 if (status.enabled() || !applyAlphaForDisabled) {
                     expectedContainerColor()
                 } else {
-                    expectedContainerColor().copy(ContentAlpha.disabled)
+                    expectedContainerColor().copy(DisabledContentAlpha)
                 }.compositeOver(testBackgroundColor)
             finalExpectedContent =
                 if (status.enabled() || !applyAlphaForDisabled) {
                     expectedContentColor()
                 } else {
-                    expectedContentColor().copy(ContentAlpha.disabled)
+                    expectedContentColor().copy(DisabledContentAlpha)
                 }
             Box(
                 Modifier

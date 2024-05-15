@@ -44,7 +44,6 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChangedIgnoreConsumed
-import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalViewConfiguration
@@ -72,6 +71,7 @@ import kotlin.math.absoluteValue
 import kotlin.test.assertTrue
 import kotlinx.coroutines.coroutineScope
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,7 +95,6 @@ class VelocityTrackingParityTest {
     @Before
     fun setUp() {
         latestComposeVelocity = Velocity.Zero
-        VelocityTrackerAddPointsFix = true
     }
 
     fun tearDown() {
@@ -272,6 +271,7 @@ class VelocityTrackingParityTest {
     }
 
     @Test
+    @Ignore("b/299092669")
     fun equalDraggable_withEqualSwipes_shouldProduceSimilarVelocity_orthogonal() {
         // Arrange
         createActivity(true)

@@ -20,17 +20,12 @@ import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.MotionEvent;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.Nullable;
 
 public class VerticalScrollTestActivity extends Activity {
-
-    private GestureDetector mGestureDetector;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,17 +41,5 @@ public class VerticalScrollTestActivity extends Activity {
         // Set up the scrolling layout whose height is two times of the screen height.
         RelativeLayout layout = findViewById(R.id.relative_layout);
         layout.setLayoutParams(new FrameLayout.LayoutParams(displaySize.x, displaySize.y * 2));
-
-        mGestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {
-            @Override
-            public boolean onDown(MotionEvent event) {
-                return true;
-            }
-        });
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        return mGestureDetector.onTouchEvent(event);
     }
 }

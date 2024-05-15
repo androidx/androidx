@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk
 
 /**
@@ -36,7 +35,6 @@ import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQ
  * - Device(s):   Samsung Galaxy S7 (SM-G930T and SM-G930V variants), Alps k61v1_basic_ref
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class JpegHalCorruptImageQuirk : SoftwareJpegEncodingPreferredQuirk {
     companion object {
         private val KNOWN_AFFECTED_DEVICES = listOf(

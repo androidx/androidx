@@ -38,7 +38,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +46,6 @@ import org.mockito.stubbing.Answer;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-@SdkSuppress(minSdkVersion = 19)
 public class CompatPermissionManagerTest {
 
     private final Context mContext = ApplicationProvider.getApplicationContext();

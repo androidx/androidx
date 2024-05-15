@@ -16,7 +16,6 @@
 package androidx.camera.camera2.pipe.integration.internal
 
 import android.hardware.camera2.CameraCharacteristics
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.DoNotDisturbException
@@ -33,7 +32,6 @@ import androidx.camera.core.impl.CameraInfoInternal
  * The [CameraSelectionOptimizer] is responsible for determining available camera Ids based on
  * passed CameraSelector
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class CameraSelectionOptimizer {
     companion object {
 

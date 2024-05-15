@@ -16,12 +16,17 @@
 
 package androidx.navigation
 
+import android.net.Uri
 import androidx.annotation.IdRes
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.reflect.KType
 import kotlin.test.assertFailsWith
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -60,6 +65,48 @@ class NavDestinationTest {
     }
 
     @Test
+    fun navDestinationKClass() {
+        @Serializable
+        class TestClass
+
+        val destination = provider.navDestination<TestClass> { }
+        assertWithMessage("NavDestination should have route set")
+            .that(destination.route)
+            .isEqualTo(
+                "androidx.navigation.NavDestinationTest.navDestinationKClass.TestClass"
+            )
+        assertWithMessage("NavDestination should have id set")
+            .that(destination.id)
+            .isEqualTo(serializer<TestClass>().hashCode())
+    }
+
+    @Test
+    fun navDestinationKClassArguments() {
+        @Serializable
+        @SerialName(DESTINATION_ROUTE)
+        class TestClass(val arg: Int, val arg2: String = "123")
+
+        val destination = provider.navDestination<TestClass> { }
+        assertWithMessage("NavDestination should have route set")
+            .that(destination.route)
+            .isEqualTo(
+                "$DESTINATION_ROUTE/{arg}?arg2={arg2}"
+            )
+        assertWithMessage("NavDestination should have id set")
+            .that(destination.id)
+            .isEqualTo(serializer<TestClass>().hashCode())
+        assertWithMessage("NavDestination should have argument added")
+            .that(destination.arguments["arg"])
+            .isNotNull()
+        assertWithMessage("NavArgument should have not have known default value added")
+            .that(destination.arguments["arg2"]?.isDefaultValuePresent)
+            .isTrue()
+        assertWithMessage("NavArgument should have unknown default value added")
+            .that(destination.arguments["arg2"]?.isDefaultValueUnknown)
+            .isTrue()
+    }
+
+    @Test
     fun navDestinationDefaultArguments() {
         val destination = provider.navDestination(DESTINATION_ID) {
             argument("testArg") {
@@ -69,6 +116,7 @@ class NavDestinationTest {
             argument("testArg2") {
                 type = NavType.StringType
             }
+            argument("testArg3", NavArgument.Builder().setDefaultValue("123").build())
         }
         assertWithMessage("NavDestination should have default arguments set")
             .that(destination.arguments.get("testArg")?.defaultValue)
@@ -76,6 +124,9 @@ class NavDestinationTest {
         assertWithMessage("NavArgument shouldn't have a default value")
             .that(destination.arguments.get("testArg2")?.isDefaultValuePresent)
             .isFalse()
+        assertWithMessage("NavDestination should have implicit default arguments set")
+            .that(destination.arguments.get("testArg3")?.defaultValue)
+            .isEqualTo("123")
     }
 
     @Test
@@ -140,6 +191,183 @@ class NavDestinationTest {
             }
         }
     }
+
+    @Test
+    fun navDestinationUnknownDefaultValuePresent() {
+        val destination = provider.navDestination(DESTINATION_ID) {
+            argument("arg1") {
+                type = NavType.StringType
+                unknownDefaultValuePresent = true
+            }
+            argument("arg2") {
+                type = NavType.StringType
+                unknownDefaultValuePresent = false
+            }
+        }
+        val arg1 = destination.arguments["arg1"]
+        assertThat(arg1?.isDefaultValuePresent).isTrue()
+        assertThat(arg1?.isDefaultValueUnknown).isTrue()
+
+        val arg2 = destination.arguments["arg2"]
+        assertThat(arg2?.isDefaultValuePresent).isFalse()
+        assertThat(arg2?.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun navDestinationDeepLinkKClass() {
+        @Serializable
+        class Destination
+        @Serializable
+        class TestDeepLink
+
+        val destination = provider.navDestination<Destination> {
+            deepLink<TestDeepLink>("example.com")
+        }
+        assertThat(destination.hasDeepLink(
+            Uri.parse("https://example.com"))
+        ).isTrue()
+    }
+
+    @Test
+    fun navDestinationDeepLinkBuilderKClass() {
+        @Serializable
+        class Destination
+        @Serializable
+        class TestDeepLink
+
+        val destination = provider.navDestination<Destination> {
+            deepLink<TestDeepLink>("example.com") {
+                action = "action"
+            }
+        }
+        val request = NavDeepLinkRequest(
+            Uri.parse("https://example.com"),
+            "action",
+            null
+        )
+        assertThat(destination.hasDeepLink(request)).isTrue()
+    }
+
+    @Test
+    fun navDestinationDeepLinkKClassArgs() {
+        @Serializable
+        class Destination(val arg: Int, val arg2: Boolean = false)
+        @Serializable
+        class DeepLink(val arg: Int, val arg2: Boolean = false)
+
+        val destination = provider.navDestination<Destination> {
+            deepLink<DeepLink>("example.com")
+        }
+        assertThat(destination.hasDeepLink(
+            Uri.parse("https://example.com/1?arg2=true"))
+        ).isTrue()
+    }
+
+    @Test
+    fun navDestinationDeepLinkKClassArgsSameClass() {
+        @Serializable
+        class Destination(val arg: Int, val arg2: Boolean = false)
+
+        val destination = provider.navDestination<Destination> {
+            deepLink<Destination>("example.com")
+        }
+        assertThat(destination.hasDeepLink(
+            Uri.parse("https://example.com/1?arg2=true"))
+        ).isTrue()
+    }
+
+    @Test
+    fun navDestinationDeepLinkKClassWrongUriPattern() {
+        @Serializable
+        class Destination(val arg: Int, val arg2: Boolean = false)
+        @Serializable
+        class DeepLink(val arg: Int, val arg2: Boolean = false)
+
+        val destination = provider.navDestination<Destination> {
+            deepLink<DeepLink>("example.com")
+        }
+        assertThat(destination.hasDeepLink(
+            Uri.parse("https://wrong.com/1?arg2=true"))
+        ).isFalse()
+    }
+
+    @Test
+    fun navDestinationDeepLinkKClassWithNonKClassDestination() {
+        @Serializable
+        class DeepLink
+
+        val exception = assertFailsWith<IllegalStateException> {
+            provider.navDestination("route") {
+                deepLink<DeepLink>("example.com")
+            }
+        }
+        assertThat(exception.message).isEqualTo(
+            "Cannot add deeplink from KClass [class androidx.navigation." +
+                "NavDestinationTest\$navDestinationDeepLinkKClassWithNonKClassDestination" +
+                "\$DeepLink (Kotlin reflection is not available)]. Use the NavDestinationBuilder " +
+                "constructor that takes a KClass with the same arguments."
+        )
+    }
+
+    @Test
+    fun navDestinationDeepLinkKClassMissingArgument() {
+        @Serializable
+        class Destination(val arg: Int)
+        @Serializable
+        class DeepLink
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            provider.navDestination<Destination> {
+                deepLink<DeepLink>("example.com")
+            }
+        }
+        assertThat(exception.message).isEqualTo(
+            "Deep link example.com can't be used to open destination " +
+                "NavDestination(0x0).\nFollowing required arguments are missing: [arg]"
+        )
+    }
+
+    @Test
+    fun navDestinationDeepLinkKClassExtraArgument() {
+        @Serializable
+        class Destination
+        @Serializable
+        class DeepLink(val arg: Int)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            provider.navDestination<Destination> {
+                deepLink<DeepLink>("example.com")
+            }
+        }
+        assertThat(exception.message).isEqualTo(
+            "Cannot add deeplink from KClass [class androidx.navigation" +
+                ".NavDestinationTest\$navDestinationDeepLinkKClassExtraArgument" +
+                "\$DeepLink (Kotlin reflection is not available)]. DeepLink contains unknown " +
+                "argument [arg]. Ensure deeplink arguments matches the destination's route " +
+                "from KClass"
+        )
+    }
+
+    @Test
+    fun navDestinationDeepLinkKClassDifferentArgumentType() {
+        @Serializable
+        class Destination(val arg: String)
+        @Serializable
+        class DeepLink(val arg: Int)
+
+        val exception = assertFailsWith<IllegalArgumentException> {
+            provider.navDestination<Destination> {
+                deepLink<DeepLink>("example.com")
+            }
+        }
+        assertThat(exception.message).isEqualTo(
+            "Cannot add deeplink from KClass [class androidx.navigation" +
+                ".NavDestinationTest\$navDestinationDeepLinkKClassDifferentArgumentType" +
+                "\$DeepLink (Kotlin reflection is not available)]. DeepLink contains unknown " +
+                "argument [arg]. Ensure deeplink arguments matches the destination's route " +
+                "from KClass"
+        )
+    }
 }
 
 private const val DESTINATION_ID = 1
@@ -170,3 +398,14 @@ fun NavigatorProvider.navDestination(
     builder: NavDestinationBuilder<NavDestination>.() -> Unit
 ): NavDestination =
     NavDestinationBuilder(this[NoOpNavigator::class], route = route).apply(builder).build()
+
+/**
+ * Instead of constructing a NavGraph from the NavigatorProvider, construct
+ * a NavDestination directly to allow for testing NavDestinationBuilder in
+ * isolation.
+ */
+inline fun <reified T : Any> NavigatorProvider.navDestination(
+    typeMap: Map<KType, NavType<*>> = emptyMap(),
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+): NavDestination =
+    NavDestinationBuilder(this[NoOpNavigator::class], T::class, typeMap).apply(builder).build()

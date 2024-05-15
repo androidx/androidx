@@ -20,10 +20,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
-import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.util.fastFirstOrNull
@@ -33,12 +31,12 @@ internal class LazyStaggeredGridScrollPosition(
     initialIndices: IntArray,
     initialOffsets: IntArray,
     private val fillIndices: (targetIndex: Int, laneCount: Int) -> IntArray
-) : SnapshotMutationPolicy<IntArray> {
-    var indices by mutableStateOf(initialIndices, this)
+) {
+    var indices = initialIndices
         private set
     var index by mutableIntStateOf(calculateFirstVisibleIndex(initialIndices))
         private set
-    var scrollOffsets by mutableStateOf(initialOffsets, this)
+    var scrollOffsets = initialOffsets
         private set
     var scrollOffset by mutableIntStateOf(
         calculateFirstVisibleScrollOffset(initialIndices, initialOffsets)
@@ -118,7 +116,7 @@ internal class LazyStaggeredGridScrollPosition(
      * c) there will be not enough items to fill the viewport after the requested index, so we
      * would have to compose few elements before the asked index, changing the first visible item.
      */
-    fun requestPosition(index: Int, scrollOffset: Int) {
+    fun requestPositionAndForgetLastKnownKey(index: Int, scrollOffset: Int) {
         val newIndices = fillIndices(index, indices.size)
         val newOffsets = IntArray(newIndices.size) { scrollOffset }
         update(newIndices, newOffsets)
@@ -145,7 +143,7 @@ internal class LazyStaggeredGridScrollPosition(
         )
         return if (newIndex !in indices) {
             nearestRangeState.update(newIndex)
-            val newIndices = fillIndices(newIndex, indices.size)
+            val newIndices = Snapshot.withoutReadObservation { fillIndices(newIndex, indices.size) }
             this.indices = newIndices
             this.index = calculateFirstVisibleIndex(newIndices)
             newIndices
@@ -160,9 +158,6 @@ internal class LazyStaggeredGridScrollPosition(
         this.scrollOffsets = offsets
         this.scrollOffset = calculateFirstVisibleScrollOffset(indices, offsets)
     }
-
-    // mutation policy for int arrays
-    override fun equivalent(a: IntArray, b: IntArray) = a.contentEquals(b)
 }
 
 /**

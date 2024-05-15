@@ -118,9 +118,11 @@ fun ComposeBenchmarkRule.measureModifier(
         }
     }
     runBenchmarkFor({ ModifierTestCase(mfn) }) {
-        doFramesUntilNoChangesPending()
+        runOnUiThread {
+            doFramesUntilNoChangesPending()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 getTestCase().toggleState()
             }

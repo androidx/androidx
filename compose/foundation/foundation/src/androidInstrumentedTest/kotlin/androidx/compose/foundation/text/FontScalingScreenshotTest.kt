@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -41,7 +40,6 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.LineHeightStyle.Alignment
 import androidx.compose.ui.text.style.LineHeightStyle.Trim
-import androidx.compose.ui.unit.DisableNonLinearFontScalingInCompose
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -58,7 +56,6 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-@OptIn(ExperimentalComposeUiApi::class)
 class FontScalingScreenshotTest {
     @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
@@ -71,7 +68,6 @@ class FontScalingScreenshotTest {
     @After
     fun teardown() {
         AndroidFontScaleHelper.resetSystemFontScale(rule.activityRule.scenario)
-        DisableNonLinearFontScalingInCompose = false
     }
 
     @Test
@@ -182,40 +178,6 @@ class FontScalingScreenshotTest {
         rule.onNodeWithTag(containerTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "fontScaling2x_drawText")
-    }
-
-    @Test
-    fun fontScaling2x_DisableNonLinearFontScalingFlag_lineHeightDoubleSp() {
-        DisableNonLinearFontScalingInCompose = true
-        AndroidFontScaleHelper.setSystemFontScale(2f, rule.activityRule.scenario)
-        rule.waitForIdle()
-
-        rule.setContent {
-            TestLayout(lineHeight = 28.sp)
-        }
-        rule.onNodeWithTag(containerTag)
-            .captureToImage()
-            .assertAgainstGolden(
-                screenshotRule,
-                "fontScaling2x_DisableNonLinearFontScalingFlag_lineHeightDoubleSp"
-            )
-    }
-
-    @Test
-    fun fontScaling2x_DisableNonLinearFontScalingFlag_drawText() {
-        DisableNonLinearFontScalingInCompose = true
-        AndroidFontScaleHelper.setSystemFontScale(2f, rule.activityRule.scenario)
-        rule.waitForIdle()
-
-        rule.setContent {
-            TestDrawTextLayout()
-        }
-        rule.onNodeWithTag(containerTag)
-            .captureToImage()
-            .assertAgainstGolden(
-                screenshotRule,
-                "fontScaling2x_DisableNonLinearFontScalingFlag_drawText"
-            )
     }
 
     @Composable

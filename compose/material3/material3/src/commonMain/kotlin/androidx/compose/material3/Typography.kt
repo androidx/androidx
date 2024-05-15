@@ -18,7 +18,9 @@ package androidx.compose.material3
 
 import androidx.compose.material3.tokens.TypographyKeyTokens
 import androidx.compose.material3.tokens.TypographyTokens
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 
@@ -185,7 +187,7 @@ class Typography(
 /**
  * Helper function for component typography tokens.
  */
-internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
+private fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     return when (value) {
         TypographyKeyTokens.DisplayLarge -> displayLarge
         TypographyKeyTokens.DisplayMedium -> displayMedium
@@ -204,5 +206,10 @@ internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
         TypographyKeyTokens.LabelSmall -> labelSmall
     }
 }
+
+internal val TypographyKeyTokens.value: TextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.typography.fromToken(this)
 
 internal val LocalTypography = staticCompositionLocalOf { Typography() }

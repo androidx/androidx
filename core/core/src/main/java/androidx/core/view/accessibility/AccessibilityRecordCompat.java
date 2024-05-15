@@ -17,17 +17,14 @@
 package androidx.core.view.accessibility;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Parcelable;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityRecord;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.util.List;
 
@@ -139,12 +136,13 @@ public class AccessibilityRecordCompat {
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param root The root of the virtual subtree.
      * @param virtualDescendantId The id of the virtual descendant.
+     * @deprecated Call {@link AccessibilityRecord#setSource()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.setSource(root, virtualDescendantId)")
     public static void setSource(@NonNull AccessibilityRecord record, @Nullable View root,
             int virtualDescendantId) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setSource(record, root, virtualDescendantId);
-        }
+        record.setSource(root, virtualDescendantId);
     }
 
     /**
@@ -484,13 +482,12 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @return The max scroll.
+     * @deprecated Call {@link AccessibilityRecord#getMaxScrollX()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.getMaxScrollX()")
     public static int getMaxScrollX(@NonNull AccessibilityRecord record) {
-        if (Build.VERSION.SDK_INT >= 15) {
-            return Api15Impl.getMaxScrollX(record);
-        } else {
-            return 0;
-        }
+        return record.getMaxScrollX();
     }
 
     /**
@@ -510,11 +507,12 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param maxScrollX The max scroll.
+     * @deprecated Call {@link AccessibilityRecord#setMaxScrollX()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.setMaxScrollX(maxScrollX)")
     public static void setMaxScrollX(@NonNull AccessibilityRecord record, int maxScrollX) {
-        if (Build.VERSION.SDK_INT >= 15) {
-            Api15Impl.setMaxScrollX(record, maxScrollX);
-        }
+        record.setMaxScrollX(maxScrollX);
     }
 
     /**
@@ -534,13 +532,12 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @return The max scroll.
+     * @deprecated Call {@link AccessibilityRecord#getMaxScrollY()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.getMaxScrollY()")
     public static int getMaxScrollY(@NonNull AccessibilityRecord record) {
-        if (Build.VERSION.SDK_INT >= 15) {
-            return Api15Impl.getMaxScrollY(record);
-        } else {
-            return 0;
-        }
+        return record.getMaxScrollY();
     }
 
     /**
@@ -560,11 +557,12 @@ public class AccessibilityRecordCompat {
      *
      * @param record The {@link AccessibilityRecord} instance to use.
      * @param maxScrollY The max scroll.
+     * @deprecated Call {@link AccessibilityRecord#setMaxScrollY()} directly.
      */
+    @Deprecated
+    @androidx.annotation.ReplaceWith(expression = "record.setMaxScrollY(maxScrollY)")
     public static void setMaxScrollY(@NonNull AccessibilityRecord record, int maxScrollY) {
-        if (Build.VERSION.SDK_INT >= 15) {
-            Api15Impl.setMaxScrollY(record, maxScrollY);
-        }
+        record.setMaxScrollY(maxScrollY);
     }
 
     /**
@@ -778,46 +776,5 @@ public class AccessibilityRecordCompat {
             return other.mRecord == null;
         }
         return mRecord.equals(other.mRecord);
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setSource(AccessibilityRecord accessibilityRecord, View root,
-                int virtualDescendantId) {
-            accessibilityRecord.setSource(root, virtualDescendantId);
-        }
-
-    }
-
-    @RequiresApi(15)
-    static class Api15Impl {
-        private Api15Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static int getMaxScrollX(AccessibilityRecord accessibilityRecord) {
-            return accessibilityRecord.getMaxScrollX();
-        }
-
-        @DoNotInline
-        static void setMaxScrollX(AccessibilityRecord accessibilityRecord, int maxScrollX) {
-            accessibilityRecord.setMaxScrollX(maxScrollX);
-        }
-
-        @DoNotInline
-        static int getMaxScrollY(AccessibilityRecord accessibilityRecord) {
-            return accessibilityRecord.getMaxScrollY();
-        }
-
-        @DoNotInline
-        static void setMaxScrollY(AccessibilityRecord accessibilityRecord, int maxScrollY) {
-            accessibilityRecord.setMaxScrollY(maxScrollY);
-        }
     }
 }

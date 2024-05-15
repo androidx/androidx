@@ -1,0 +1,27 @@
+// Signature format: 4.0
+package androidx.paging.compose {
+
+  public final class LazyFoundationExtensionsKt {
+    method public static <T> kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object?> itemContentType(androidx.paging.compose.LazyPagingItems<T>, optional kotlin.jvm.functions.Function1<T,?>? contentType);
+    method public static <T> kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object> itemKey(androidx.paging.compose.LazyPagingItems<T>, optional kotlin.jvm.functions.Function1<T,?>? key);
+  }
+
+  public final class LazyPagingItems<T> {
+    method public operator T? get(int index);
+    method public int getItemCount();
+    method public androidx.paging.ItemSnapshotList<T> getItemSnapshotList();
+    method public androidx.paging.CombinedLoadStates getLoadState();
+    method public T? peek(int index);
+    method public void refresh();
+    method public void retry();
+    property public final int itemCount;
+    property public final androidx.paging.ItemSnapshotList<T> itemSnapshotList;
+    property public final androidx.paging.CombinedLoadStates loadState;
+  }
+
+  public final class LazyPagingItemsKt {
+    method @androidx.compose.runtime.Composable public static <T> androidx.paging.compose.LazyPagingItems<T> collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, optional kotlin.coroutines.CoroutineContext context);
+  }
+
+}
+

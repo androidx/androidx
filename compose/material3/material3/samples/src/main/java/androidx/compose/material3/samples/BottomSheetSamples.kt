@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,7 +33,6 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -42,6 +40,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -71,8 +71,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ModalBottomSheetSample() {
     var openBottomSheet by rememberSaveable { mutableStateOf(false) }
-    var skipPartiallyExpanded by remember { mutableStateOf(false) }
-    var edgeToEdgeEnabled by remember { mutableStateOf(false) }
+    var skipPartiallyExpanded by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = skipPartiallyExpanded
@@ -80,9 +79,8 @@ fun ModalBottomSheetSample() {
 
     // App content
     Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Row(
             Modifier.toggleable(
@@ -95,31 +93,20 @@ fun ModalBottomSheetSample() {
             Spacer(Modifier.width(16.dp))
             Text("Skip partially expanded State")
         }
-        Row(
-            Modifier.toggleable(
-                value = edgeToEdgeEnabled,
-                role = Role.Checkbox,
-                onValueChange = { checked -> edgeToEdgeEnabled = checked }
-            )
+        Button(
+            onClick = { openBottomSheet = !openBottomSheet },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Checkbox(checked = edgeToEdgeEnabled, onCheckedChange = null)
-            Spacer(Modifier.width(16.dp))
-            Text("Toggle edge to edge enabled.")
-        }
-        Button(onClick = { openBottomSheet = !openBottomSheet }) {
             Text(text = "Show Bottom Sheet")
         }
     }
 
     // Sheet content
     if (openBottomSheet) {
-        val windowInsets = if (edgeToEdgeEnabled)
-            WindowInsets(0) else BottomSheetDefaults.windowInsets
 
         ModalBottomSheet(
             onDismissRequest = { openBottomSheet = false },
             sheetState = bottomSheetState,
-            windowInsets = windowInsets
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Button(
@@ -137,9 +124,14 @@ fun ModalBottomSheetSample() {
                 }
             }
             var text by remember { mutableStateOf("") }
-            OutlinedTextField(value = text, onValueChange = { text = it })
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                modifier = Modifier.padding(horizontal = 16.dp),
+                label = { Text("Text field") }
+            )
             LazyColumn {
-                items(50) {
+                items(25) {
                     ListItem(
                         headlineContent = { Text("Item $it") },
                         leadingContent = {
@@ -147,7 +139,10 @@ fun ModalBottomSheetSample() {
                                 Icons.Default.Favorite,
                                 contentDescription = "Localized description"
                             )
-                        }
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                        ),
                     )
                 }
             }
@@ -167,32 +162,35 @@ fun SimpleBottomSheetScaffoldSample() {
         scaffoldState = scaffoldState,
         sheetPeekHeight = 128.dp,
         sheetContent = {
+            Column(
+                Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(128.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Swipe up to expand sheet")
+                }
+                Text("Sheet content")
+                Button(
+                    modifier = Modifier.padding(bottom = 64.dp),
+                    onClick = {
+                        scope.launch { scaffoldState.bottomSheetState.partialExpand() }
+                    }
+                ) {
+                    Text("Click to collapse sheet")
+                }
+            }
+        }) { innerPadding ->
         Box(
-            Modifier
-                .fillMaxWidth()
-                .height(128.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
             contentAlignment = Alignment.Center
         ) {
-            Text("Swipe up to expand sheet")
-        }
-        Column(
-            Modifier
-                .fillMaxWidth()
-                .padding(64.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text("Sheet content")
-            Spacer(Modifier.height(20.dp))
-            Button(
-                onClick = {
-                    scope.launch { scaffoldState.bottomSheetState.partialExpand() }
-                }
-            ) {
-                Text("Click to collapse sheet")
-            }
-        }
-    }) { innerPadding ->
-        Box(Modifier.padding(innerPadding)) {
             Text("Scaffold Content")
         }
     }
@@ -225,7 +223,10 @@ fun BottomSheetScaffoldNestedScrollSample() {
                                 Icons.Default.Favorite,
                                 contentDescription = "Localized description"
                             )
-                        }
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                        ),
                     )
                 }
             }

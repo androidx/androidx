@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -34,9 +41,11 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
 
-                api(project(":compose:ui:ui"))
+                api("androidx.compose.ui:ui:1.6.0")
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation("androidx.collection:collection:1.4.0")
+                implementation(project(":compose:ui:ui-unit"))
             }
         }
 
@@ -51,11 +60,11 @@ androidXMultiplatform {
             }
         }
 
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
                 api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation-experimental:1.4.0")
                 implementation("androidx.core:core:1.7.0")
                 implementation("androidx.compose.animation:animation-core:1.2.1")
             }
@@ -65,9 +74,6 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
-
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
             }
         }
 
@@ -109,10 +115,11 @@ androidXMultiplatform {
 
 androidx {
     name = "Compose Layouts"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Compose layout implementations"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
 }
 
 android {

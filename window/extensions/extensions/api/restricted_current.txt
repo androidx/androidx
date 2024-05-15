@@ -18,6 +18,7 @@ package androidx.window.extensions.area {
 
   public interface ExtensionWindowAreaPresentation {
     method public android.content.Context getPresentationContext();
+    method public default android.view.Window getWindow();
     method public void setPresentationView(android.view.View);
   }
 

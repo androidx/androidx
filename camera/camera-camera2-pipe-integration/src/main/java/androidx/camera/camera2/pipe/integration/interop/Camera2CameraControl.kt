@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.interop
 
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
@@ -31,6 +30,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.async
 
 /**
  * An class that provides ability to interoperate with the [android.hardware.camera2] APIs.
@@ -43,7 +43,6 @@ import com.google.common.util.concurrent.ListenableFuture
  * CameraX internally. The options from Camera2CameraControl will override, which may result in
  * unexpected behavior depends on the options being applied.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @SuppressWarnings("HiddenSuperclass")
 @ExperimentalCamera2Interop
 class Camera2CameraControl
@@ -151,7 +150,9 @@ private constructor(
 
     private fun updateAsync(tag: String): ListenableFuture<Void?> =
         Futures.nonCancellationPropagating(
-            compat.applyAsync(useCaseCamera).asListenableFuture(tag)
+            threads.sequentialScope.async {
+                compat.applyAsync(useCaseCamera).await()
+            }.asListenableFuture(tag)
         )
 
     companion object {

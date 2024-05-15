@@ -56,6 +56,11 @@ class StringNodes {
         @Override
         @UiThread
         public void destroy() {}
+
+        @Override
+        public int getCost() {
+            return FIXED_NODE_COST;
+        }
     }
 
     /** Dynamic string node that gets a value from integer. */

@@ -16,7 +16,6 @@
 
 package androidx.work
 
-import android.app.Notification
 import android.content.Context
 import android.os.Build
 import android.util.Log
@@ -26,24 +25,22 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.impl.utils.SynchronousExecutor
-import androidx.work.impl.utils.WorkForegroundRunnable
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.impl.utils.workForeground
+import androidx.work.worker.TestForegroundWorker
 import androidx.work.worker.TestWorker
+import com.google.common.truth.Truth.assertThat
+import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import java.util.concurrent.Executor
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
 
 @RunWith(AndroidJUnit4::class)
 public class WorkForegroundRunnableTest : DatabaseTest() {
@@ -51,7 +48,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
     private lateinit var configuration: Configuration
     private lateinit var executor: Executor
     private lateinit var progressUpdater: ProgressUpdater
-    private lateinit var foregroundUpdater: ForegroundUpdater
+    private lateinit var foregroundUpdater: CapturingForegroundUpdater
     private lateinit var taskExecutor: TaskExecutor
 
     @Before
@@ -63,7 +60,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
             .setExecutor(executor)
             .build()
         progressUpdater = mock(ProgressUpdater::class.java)
-        foregroundUpdater = mock(ForegroundUpdater::class.java)
+        foregroundUpdater = CapturingForegroundUpdater()
         taskExecutor = InstantWorkTaskExecutor()
     }
 
@@ -75,52 +72,50 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
             .build()
 
         insertWork(work)
-        val worker = getWorkerSpy(work)
-        val runnable = getWorkForegroundRunnable(work, worker)
-        runnable.run()
-        assertThat(runnable.future.isDone, `is`(equalTo(true)))
-        verifyNoMoreInteractions(foregroundUpdater)
+        val worker = getWorker(work)
+        runBlocking {
+            workForeground(work, worker)
+        }
+        assertThat(foregroundUpdater.calledParams).isNull()
     }
 
     @Test
     @MediumTest
-    public fun callGetForeground_forExpeditedWork1() {
+    public fun callGetForeground_forExpeditedWorkFailure() {
         if (Build.VERSION.SDK_INT >= 31) {
             return
         }
         val work = getExpeditedRequest<TestWorker>()
         insertWork(work)
-        val worker = getWorkerSpy(work)
-        val runnable = getWorkForegroundRunnable(work, worker)
-        runnable.run()
-        verify(worker).foregroundInfoAsync
-        assertThat(runnable.future.isDone, `is`(equalTo(true)))
+        val worker = getWorker(work)
+        try {
+            runBlocking {
+                workForeground(work, worker)
+            }
+            fail("Worker should have thrown an IllegalStateException at the `foregroundInfo` call.")
+        } catch (ise: IllegalStateException) {
+            // Nothing to do here. Test succeeded.
+        }
     }
 
     @Test
     @SmallTest
-    public fun callGetForeground_forExpeditedWork2() {
+    public fun callGetForeground_forExpeditedWork() {
         if (Build.VERSION.SDK_INT >= 31) {
             return
         }
 
-        val work = getExpeditedRequest<TestWorker>()
+        val work = getExpeditedRequest<TestForegroundWorker>()
         insertWork(work)
-        val worker = getWorkerSpy(work)
-        val foregroundInfo = getForegroundInfo()
-        doReturn(foregroundInfo).`when`(worker).getForegroundInfo()
-        val runnable = getWorkForegroundRunnable(work, worker)
-        runnable.run()
-        verify(worker).getForegroundInfo()
-        verify(worker).foregroundInfoAsync
-        verify(foregroundUpdater).setForegroundAsync(context, work.id, foregroundInfo)
-        assertThat(runnable.future.isDone, `is`(equalTo(true)))
-    }
+        val worker = getWorker(work)
 
-    private fun getForegroundInfo(): ForegroundInfo {
-        val notification = mock(Notification::class.java)
-        val id = 10
-        return ForegroundInfo(id, notification)
+        runBlocking {
+            workForeground(work, worker)
+        }
+        val (id, foregroundInfo) = foregroundUpdater.calledParams
+            ?: throw AssertionError("setForegroundAsync must be called")
+        assertThat(id).isEqualTo(work.id)
+        assertThat(foregroundInfo.notificationId).isEqualTo(TestForegroundWorker.NotificationId)
     }
 
     @SmallTest
@@ -131,10 +126,10 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
 
         val work = getExpeditedRequest<TestWorker>()
         insertWork(work)
-        val worker = getWorkerSpy(work)
+        val worker = getWorker(work)
 
         try {
-         worker.getForegroundInfo() // should throw expected exception here
+            worker.getForegroundInfo() // should throw expected exception here
         } catch (ise: IllegalStateException) {
             // Nothing to do here. Test succeeded.
             return
@@ -148,18 +143,17 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
             .build()
     }
 
-    private fun getWorkerSpy(work: OneTimeWorkRequest) = spy(
+    private fun getWorker(work: OneTimeWorkRequest) =
         configuration.workerFactory.createWorkerWithDefaultFallback(
             context,
             work.workSpec.workerClassName,
             newWorkerParams(work)
         ) as Worker
-    )
 
-    private fun getWorkForegroundRunnable(
+    private suspend fun workForeground(
         work: OneTimeWorkRequest,
         worker: Worker
-    ) = WorkForegroundRunnable(
+    ) = workForeground(
         context,
         work.workSpec,
         worker,
@@ -175,9 +169,22 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         1,
         0,
         executor,
+        Dispatchers.Default,
         taskExecutor,
         configuration.workerFactory,
         progressUpdater,
         foregroundUpdater
     )
+}
+
+private class CapturingForegroundUpdater : ForegroundUpdater {
+    var calledParams: Pair<UUID, ForegroundInfo>? = null
+    override fun setForegroundAsync(
+        context: Context,
+        id: UUID,
+        foregroundInfo: ForegroundInfo
+    ): ListenableFuture<Void?> {
+        calledParams = id to foregroundInfo
+        return launchFuture { null }
+    }
 }

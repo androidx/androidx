@@ -18,7 +18,7 @@ package androidx.credentials
 
 import android.graphics.drawable.Icon
 import androidx.credentials.CreateCredentialRequest.DisplayInfo
-import androidx.credentials.CreateCredentialRequest.DisplayInfo.Companion.parseFromCredentialDataBundle
+import androidx.credentials.CreateCredentialRequest.DisplayInfo.Companion.createFrom
 import androidx.credentials.internal.FrameworkImplHelper.Companion.getFinalCreateCredentialData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -113,13 +113,13 @@ class CreateCredentialRequestDisplayInfoTest {
         val expectedUserId = "userId"
         val request = CreatePasswordRequest(expectedUserId, "password")
 
-        val displayInfo = parseFromCredentialDataBundle(
+        val displayInfo = createFrom(
             getFinalCreateCredentialData(
                 request, mContext
             )
         )
 
-        assertThat(displayInfo!!.userId).isEqualTo(expectedUserId)
+        assertThat(displayInfo.userId).isEqualTo(expectedUserId)
         assertThat(displayInfo.userDisplayName).isNull()
         assertThat(displayInfo.credentialTypeIcon?.resId).isEqualTo(
             R.drawable.ic_password

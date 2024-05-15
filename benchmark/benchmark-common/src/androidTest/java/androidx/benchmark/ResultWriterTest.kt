@@ -17,8 +17,10 @@
 package androidx.benchmark
 
 import android.os.Build
+import androidx.benchmark.json.BenchmarkData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import kotlin.test.assertContains
 import kotlin.test.assertTrue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -28,9 +30,9 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-public class ResultWriterTest {
+class ResultWriterTest {
     @get:Rule
-    public val tempFolder: TemporaryFolder = TemporaryFolder()
+    val tempFolder: TemporaryFolder = TemporaryFolder()
 
     private val metricResults = listOf(
         MetricResult(
@@ -47,30 +49,29 @@ public class ResultWriterTest {
         )
     )
 
-    private val reportA = BenchmarkResult(
-        testName = "MethodA",
+    private val reportA = BenchmarkData.TestResult(
+        name = "MethodA",
         className = "package.Class1",
         totalRunTimeNs = 900000000,
         metrics = metricResults,
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
-        warmupIterations = 8000
+        warmupIterations = 8000,
+        profilerOutputs = null
     )
-    private val reportB = BenchmarkResult(
-        testName = "MethodB",
+    private val reportB = BenchmarkData.TestResult(
+        name = "MethodB",
         className = "package.Class2",
         totalRunTimeNs = 900000000,
-        metrics = BenchmarkResult.Measurements(
-            singleMetrics = metricResults,
-            sampledMetrics = sampledMetricResults
-        ),
+        metrics = metricResults + sampledMetricResults,
         repeatIterations = 100000,
         thermalThrottleSleepSeconds = 90000000,
-        warmupIterations = 8000
+        warmupIterations = 8000,
+        profilerOutputs = null
     )
 
     @Test
-    public fun shouldClearExistingContent() {
+    fun shouldClearExistingContent() {
         val tempFile = tempFolder.newFile()
 
         val fakeText = "This text should not be in the final output"
@@ -81,12 +82,13 @@ public class ResultWriterTest {
     }
 
     @Test
-    public fun validateJson() {
+    fun validateJson() {
         val tempFile = tempFolder.newFile()
 
         val sustainedPerformanceModeInUse = IsolationActivity.sustainedPerformanceModeInUse
 
         ResultWriter.writeReport(tempFile, listOf(reportA, reportB))
+        val context = BenchmarkData.Context()
         assertEquals(
             """
             {
@@ -95,8 +97,11 @@ public class ResultWriterTest {
                         "brand": "${Build.BRAND}",
                         "device": "${Build.DEVICE}",
                         "fingerprint": "${Build.FINGERPRINT}",
+                        "id": "${Build.ID}",
                         "model": "${Build.MODEL}",
+                        "type": "${Build.TYPE}",
                         "version": {
+                            "codename": "${Build.VERSION.CODENAME}",
                             "sdk": ${Build.VERSION.SDK_INT}
                         }
                     },
@@ -104,7 +109,9 @@ public class ResultWriterTest {
                     "cpuLocked": ${CpuInfo.locked},
                     "cpuMaxFreqHz": ${CpuInfo.maxFreqHz},
                     "memTotalBytes": ${MemInfo.memTotalBytes},
-                    "sustainedPerformanceModeEnabled": $sustainedPerformanceModeInUse
+                    "sustainedPerformanceModeEnabled": $sustainedPerformanceModeInUse,
+                    "artMainlineVersion": ${context.artMainlineVersion},
+                    "osCodenameAbbreviated": "${context.osCodenameAbbreviated}"
                 },
                 "benchmarks": [
                     {
@@ -177,44 +184,94 @@ public class ResultWriterTest {
     }
 
     @Test
-    public fun validateJsonWithParams() {
-        val reportWithParams = BenchmarkResult(
-            testName = "MethodWithParams[number=2,primeNumber=true]",
+    fun validateJsonWithProfilingResults() {
+        val reportWithParams = BenchmarkData.TestResult(
+            name = "MethodWithProfilingResults",
             className = "package.Class",
             totalRunTimeNs = 900000000,
             metrics = metricResults,
             repeatIterations = 100000,
             thermalThrottleSleepSeconds = 90000000,
-            warmupIterations = 8000
+            warmupIterations = 8000,
+            profilerOutputs = listOf(
+                Profiler.ResultFile.ofPerfettoTrace(
+                    label = "Trace",
+                    absolutePath = Outputs.outputDirectory.absolutePath + "/trace.perfetto-trace"
+                ),
+                Profiler.ResultFile.of(
+                    label = "Method Trace",
+                    type = BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
+                    outputRelativePath = "trace.trace",
+                    source = MethodTracing
+                )
+            ).map {
+                BenchmarkData.TestResult.ProfilerOutput(it)
+            }
         )
 
         val tempFile = tempFolder.newFile()
         ResultWriter.writeReport(tempFile, listOf(reportWithParams))
         val reportText = tempFile.readText()
 
-        assertTrue {
-            reportText.contains(
-                """
+        assertContains(
+            reportText,
+            """
+                |            "profilerOutputs": [
+                |                {
+                |                    "type": "PerfettoTrace",
+                |                    "label": "Trace",
+                |                    "filename": "trace.perfetto-trace"
+                |                },
+                |                {
+                |                    "type": "MethodTrace",
+                |                    "label": "Method Trace",
+                |                    "filename": "trace.trace"
+                |                }
+                |            ]
+                """.trimMargin()
+        )
+    }
+
+    @Test
+    fun validateJsonWithParams() {
+        val reportWithParams = BenchmarkData.TestResult(
+            name = "MethodWithParams[number=2,primeNumber=true]",
+            className = "package.Class",
+            totalRunTimeNs = 900000000,
+            metrics = metricResults,
+            repeatIterations = 100000,
+            thermalThrottleSleepSeconds = 90000000,
+            warmupIterations = 8000,
+            profilerOutputs = null
+        )
+
+        val tempFile = tempFolder.newFile()
+        ResultWriter.writeReport(tempFile, listOf(reportWithParams))
+        val reportText = tempFile.readText()
+
+        assertContains(
+            reportText,
+            """
                 |            "name": "MethodWithParams[number=2,primeNumber=true]",
                 |            "params": {
                 |                "number": "2",
                 |                "primeNumber": "true"
                 |            },
                 """.trimMargin()
-            )
-        }
+        )
     }
 
     @Test
-    public fun validateJsonWithInvalidParams() {
-        val reportWithInvalidParams = BenchmarkResult(
-            testName = "MethodWithParams[number=2,=true,]",
+    fun validateJsonWithInvalidParams() {
+        val reportWithInvalidParams = BenchmarkData.TestResult(
+            name = "MethodWithParams[number=2,=true,]",
             className = "package.Class",
             totalRunTimeNs = 900000000,
             metrics = metricResults,
             repeatIterations = 100000,
             thermalThrottleSleepSeconds = 90000000,
-            warmupIterations = 8000
+            warmupIterations = 8000,
+            profilerOutputs = null
         )
 
         val tempFile = tempFolder.newFile()

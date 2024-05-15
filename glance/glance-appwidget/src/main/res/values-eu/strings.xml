@@ -19,4 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance aplikazioaren widgetaren errorea"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033">"Errore zehatza ikusteko, erabili "<b><tt>"adb logcat"</tt></b>" bertan "<b><tt>"GlanceAppWidget"</tt></b>" bilatzeko"</string>
+    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"Ezin da erakutsi edukia"</string>
 </resources>

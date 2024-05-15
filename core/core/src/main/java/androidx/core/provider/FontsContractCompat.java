@@ -34,7 +34,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.res.ResourcesCompat;
@@ -110,7 +109,7 @@ public class FontsContractCompat {
      * @param request A {@link FontRequest} object that identifies the provider and query for the
      *                request. May not be null.
      * @param callback A callback that will be triggered when results are obtained. May not be null.
-     * @param handler A handler to be processed the font fetching.
+     * @param handler A handler for running font fetch tasks on.
      */
     public static void requestFont(
             final @NonNull Context context,
@@ -570,7 +569,6 @@ public class FontsContractCompat {
      */
     @Deprecated // unused
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @RequiresApi(19)
     public static Map<Uri, ByteBuffer> prepareFontData(
             Context context,
             FontInfo[] fonts,

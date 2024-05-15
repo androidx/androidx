@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -26,10 +33,9 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    implementation(projectOrArtifact(":annotation:annotation"))
+    implementation("androidx.annotation:annotation:1.8.0")
     implementation(projectOrArtifact(":core:core"))
     implementation(projectOrArtifact(":media:media"))
-    samples(project(":core:haptics:haptics-samples"))
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -47,4 +53,5 @@ androidx {
     description = "Core Haptics Libraries to help navigate different device and Android SDK " +
             "functionalities and create reliable haptic effects across all of Android."
     metalavaK2UastEnabled = true
+    samples(project(":core:haptics:haptics-samples"))
 }

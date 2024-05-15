@@ -220,7 +220,9 @@ class CoreTextInlineContentTest {
     }
 
     private fun expectInlineContentPosition(left: Int, right: Int) {
-        val (boxLeft, boxRight) = with(rule.onNodeWithTag("box").fetchSemanticsNode()) {
+        val (boxLeft, boxRight) = with(
+            rule.onNodeWithTag("box", useUnmergedTree = true).fetchSemanticsNode()
+        ) {
             Pair(positionInRoot.x, positionInRoot.x + size.width)
         }
         val (textLeft, textRight) = with(rule.onNodeWithTag("text").fetchSemanticsNode()) {

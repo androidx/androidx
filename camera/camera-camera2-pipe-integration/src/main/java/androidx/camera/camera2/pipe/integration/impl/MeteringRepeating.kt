@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.graphics.ImageFormat
@@ -26,12 +24,10 @@ import android.os.Build
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.error
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.compat.workaround.getSupportedRepeatingSurfaceSizes
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -57,7 +53,6 @@ private val DEFAULT_PREVIEW_SIZE = Size(0, 0)
  * enabled, since taking a picture may require a repeating surface to perform pre-capture checks,
  * mainly around 3A.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class MeteringRepeating(
     private val cameraProperties: CameraProperties,
     config: MeteringRepeatingConfig,
@@ -217,8 +212,6 @@ class MeteringRepeating(
 
         override fun setTargetName(targetName: String) = this
 
-        override fun setUseCaseEventCallback(eventCallback: EventCallback) = this
-
         override fun setDefaultSessionConfig(sessionConfig: SessionConfig) = this
 
         override fun setDefaultCaptureConfig(captureConfig: CaptureConfig) = this
@@ -228,8 +221,6 @@ class MeteringRepeating(
         override fun setCaptureOptionUnpacker(optionUnpacker: CaptureConfig.OptionUnpacker) = this
 
         override fun setSurfaceOccupancyPriority(priority: Int) = this
-
-        override fun setCameraSelector(cameraSelector: CameraSelector) = this
 
         override fun setZslDisabled(disabled: Boolean) = this
 

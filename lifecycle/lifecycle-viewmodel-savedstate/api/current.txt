@@ -9,7 +9,7 @@ package androidx.lifecycle {
 
   public final class SavedStateHandle {
     ctor public SavedStateHandle();
-    ctor public SavedStateHandle(java.util.Map<java.lang.String,?> initialState);
+    ctor public SavedStateHandle(java.util.Map<java.lang.String,? extends java.lang.Object?> initialState);
     method @MainThread public void clearSavedStateProvider(String key);
     method @MainThread public operator boolean contains(String key);
     method @MainThread public operator <T> T? get(String key);

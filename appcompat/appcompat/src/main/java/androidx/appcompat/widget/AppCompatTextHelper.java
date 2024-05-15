@@ -113,16 +113,13 @@ class AppCompatTextHelper {
             mDrawableBottomTint = createTintInfo(context, drawableManager,
                     a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableBottom, 0));
         }
-
-        if (Build.VERSION.SDK_INT >= 17) {
-            if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableStart)) {
-                mDrawableStartTint = createTintInfo(context, drawableManager,
-                        a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableStart, 0));
-            }
-            if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableEnd)) {
-                mDrawableEndTint = createTintInfo(context, drawableManager,
-                        a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableEnd, 0));
-            }
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableStart)) {
+            mDrawableStartTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableStart, 0));
+        }
+        if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableEnd)) {
+            mDrawableEndTint = createTintInfo(context, drawableManager,
+                    a.getResourceId(R.styleable.AppCompatTextHelper_android_drawableEnd, 0));
         }
 
         a.recycle();
@@ -243,7 +240,7 @@ class AppCompatTextHelper {
             } else if (Build.VERSION.SDK_INT >= 21) {
                 @SuppressWarnings("StringSplitter")
                 final String firstLanTag = localeListString.split(",")[0];
-                Api17Impl.setTextLocale(mView, Api21Impl.forLanguageTag(firstLanTag));
+                mView.setTextLocale(Api21Impl.forLanguageTag(firstLanTag));
             }
         }
 
@@ -458,7 +455,7 @@ class AppCompatTextHelper {
             mFontTypeface = typeface;
             final TextView textView = textViewWeak.get();
             if (textView != null) {
-                if (ViewCompat.isAttachedToWindow(textView)) {
+                if (textView.isAttachedToWindow()) {
                     final int style = mStyle;
                     textView.post(new Runnable() {
                         @Override
@@ -548,12 +545,10 @@ class AppCompatTextHelper {
             applyCompoundDrawableTint(compoundDrawables[2], mDrawableRightTint);
             applyCompoundDrawableTint(compoundDrawables[3], mDrawableBottomTint);
         }
-        if (Build.VERSION.SDK_INT >= 17) {
-            if (mDrawableStartTint != null || mDrawableEndTint != null) {
-                final Drawable[] compoundDrawables = Api17Impl.getCompoundDrawablesRelative(mView);
-                applyCompoundDrawableTint(compoundDrawables[0], mDrawableStartTint);
-                applyCompoundDrawableTint(compoundDrawables[2], mDrawableEndTint);
-            }
+        if (mDrawableStartTint != null || mDrawableEndTint != null) {
+            final Drawable[] compoundDrawables = mView.getCompoundDrawablesRelative();
+            applyCompoundDrawableTint(compoundDrawables[0], mDrawableStartTint);
+            applyCompoundDrawableTint(compoundDrawables[2], mDrawableEndTint);
         }
     }
 
@@ -685,24 +680,23 @@ class AppCompatTextHelper {
             Drawable drawableRight, Drawable drawableBottom, Drawable drawableStart,
             Drawable drawableEnd) {
         // Mirror TextView logic: if start/end drawables supplied, ignore left/right
-        if (Build.VERSION.SDK_INT >= 17 && (drawableStart != null || drawableEnd != null)) {
-            final Drawable[] existingRel = Api17Impl.getCompoundDrawablesRelative(mView);
-            Api17Impl.setCompoundDrawablesRelativeWithIntrinsicBounds(mView,
-                    drawableStart != null ? drawableStart : existingRel[0],
-                    drawableTop != null ? drawableTop : existingRel[1],
-                    drawableEnd != null ? drawableEnd : existingRel[2],
+        if (drawableStart != null || drawableEnd != null) {
+            final Drawable[] existingRel = mView.getCompoundDrawablesRelative();
+            Drawable start = drawableStart != null ? drawableStart : existingRel[0];
+            Drawable top = drawableTop != null ? drawableTop : existingRel[1];
+            Drawable end = drawableEnd != null ? drawableEnd : existingRel[2];
+            mView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end,
                     drawableBottom != null ? drawableBottom : existingRel[3]);
         } else if (drawableLeft != null || drawableTop != null
                 || drawableRight != null || drawableBottom != null) {
             // If have non-compat relative drawables, then ignore leftCompat/rightCompat
-            if (Build.VERSION.SDK_INT >= 17) {
-                final Drawable[] existingRel = Api17Impl.getCompoundDrawablesRelative(mView);
-                if (existingRel[0] != null || existingRel[2] != null) {
-                    Api17Impl.setCompoundDrawablesRelativeWithIntrinsicBounds(mView, existingRel[0],
-                            drawableTop != null ? drawableTop : existingRel[1], existingRel[2],
-                            drawableBottom != null ? drawableBottom : existingRel[3]);
-                    return;
-                }
+            final Drawable[] existingRel = mView.getCompoundDrawablesRelative();
+            if (existingRel[0] != null || existingRel[2] != null) {
+                Drawable top = drawableTop != null ? drawableTop : existingRel[1];
+                Drawable bottom = drawableBottom != null ? drawableBottom : existingRel[3];
+                mView.setCompoundDrawablesRelativeWithIntrinsicBounds(existingRel[0], top,
+                        existingRel[2], bottom);
+                return;
             }
             // No relative drawables, so just set any compat drawables
             final Drawable[] existingAbs = mView.getCompoundDrawables();
@@ -781,29 +775,6 @@ class AppCompatTextHelper {
         @DoNotInline
         static LocaleList forLanguageTags(String list) {
             return LocaleList.forLanguageTags(list);
-        }
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setTextLocale(TextView textView, Locale locale) {
-            textView.setTextLocale(locale);
-        }
-
-        @DoNotInline
-        static void setCompoundDrawablesRelativeWithIntrinsicBounds(TextView textView,
-                Drawable start, Drawable top, Drawable end, Drawable bottom) {
-            textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
-        }
-
-        @DoNotInline
-        static Drawable[] getCompoundDrawablesRelative(TextView textView) {
-            return textView.getCompoundDrawablesRelative();
         }
     }
 

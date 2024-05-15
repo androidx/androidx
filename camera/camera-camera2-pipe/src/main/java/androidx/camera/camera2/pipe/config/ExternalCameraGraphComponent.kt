@@ -16,11 +16,9 @@
 
 // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @file:Suppress("DEPRECATION")
-@file:RequiresApi(21)
 
 package androidx.camera.camera2.pipe.config
 
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraContext
@@ -94,6 +92,22 @@ internal class ExternalCameraGraphConfigModule(
             graphListener: GraphListener,
             streamGraph: StreamGraph
         ): CameraController {
+            throwUnsupportedOperationException()
+        }
+
+        override fun prewarm(cameraId: CameraId) {
+            throwUnsupportedOperationException()
+        }
+
+        override fun disconnect(cameraId: CameraId) {
+            throwUnsupportedOperationException()
+        }
+
+        override fun disconnectAsync(cameraId: CameraId): Deferred<Unit> {
+            throwUnsupportedOperationException()
+        }
+
+        override fun disconnectAll() {
             throwUnsupportedOperationException()
         }
 

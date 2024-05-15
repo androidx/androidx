@@ -15,5 +15,6 @@
 # libproto uses reflection to deserialize a Proto, which Proguard can't accurately detect.
 # Keep all the class members of any generated messages to ensure we can deserialize properly inside
 # these classes.
--if class * extends androidx.core.location.altitude.impl.proto.GeneratedMessageLite
--keepclasseswithmembers
+-keepclassmembers class * extends androidx.core.location.altitude.impl.proto.GeneratedMessageLite {
+  <fields>;
+}

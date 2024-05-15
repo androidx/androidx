@@ -66,20 +66,26 @@ class MultiTargetNativeCompilation(
     fun configureEachTarget(
         action: Action<NativeTargetCompilation>
     ) {
-        nativeTargets.configureEach {
-            action.execute(it)
-        }
+        nativeTargets.configureEach(action)
     }
 
     /**
      * Returns a [RegularFile] provider that points to the shared library output for the given
      * [konanTarget].
      */
-    internal fun sharedObjectOutputFor(
+    fun sharedObjectOutputFor(
         konanTarget: KonanTarget
     ): Provider<RegularFile> {
         return nativeTargets.named(konanTarget.name).flatMap { nativeTargetCompilation ->
             nativeTargetCompilation.sharedLibTask.flatMap { it.clangParameters.outputFile }
+        }
+    }
+
+    fun sharedArchiveOutputFor(
+        konanTarget: KonanTarget
+    ): Provider<RegularFile> {
+        return nativeTargets.named(konanTarget.name).flatMap { nativeTargetCompilation ->
+            nativeTargetCompilation.archiveTask.flatMap { it.llvmArchiveParameters.outputFile }
         }
     }
 
@@ -102,7 +108,10 @@ class MultiTargetNativeCompilation(
         val nativeTarget = if (nativeTargets.names.contains(konanTarget.name)) {
             nativeTargets.named(konanTarget.name)
         } else {
-            nativeTargets.register(konanTarget.name)
+            nativeTargets.register(konanTarget.name).also {
+                // force evaluation of target so that tasks are registered b/325518502
+                nativeTargets.getByName(konanTarget.name)
+            }
         }
         if (action != null) {
             nativeTarget.configure(action)
@@ -113,7 +122,26 @@ class MultiTargetNativeCompilation(
      * Returns a provider for the given konan target and throws an exception if it is not
      * registered.
      */
-    fun targetProvider(konanTarget: KonanTarget) = nativeTargets.named(konanTarget.name)
+    fun targetProvider(
+        konanTarget: KonanTarget
+    ): Provider<NativeTargetCompilation> = nativeTargets.named(konanTarget.name)
+
+    /**
+     * Returns a provider that contains the list of [NativeTargetCompilation]s that matches the
+     * given [predicate].
+     *
+     * You can use this provider to obtain the compilation for targets needed without forcing
+     * the creation of all other targets.
+     */
+    internal fun targetsProvider(
+        predicate: (KonanTarget) -> Boolean
+    ): Provider<List<NativeTargetCompilation>> = project.provider {
+        nativeTargets.names.filter {
+            predicate(SerializableKonanTarget(it).asKonanTarget)
+        }.map {
+            nativeTargets.getByName(it)
+        }
+    }
 
     /**
      * Returns true if the given [konanTarget] is configured as a compilation target.
@@ -126,6 +154,7 @@ class MultiTargetNativeCompilation(
      * This is equal to calling [configureTarget] for each given [konanTargets].
      */
     @Suppress("unused") // used in build.gradle
+    @JvmOverloads
     fun configureTargets(
         konanTargets: List<KonanTarget>,
         action: Action<NativeTargetCompilation>? = null

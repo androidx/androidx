@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
@@ -49,7 +48,10 @@ import androidx.compose.ui.unit.dp
 
 /**
  * A [ToggleChip] is a specialized type of [Chip] that includes a slot for a bi-state toggle control
- * such as a radio button, toggle or checkbox.
+ * such as a toggle or checkbox. This overload provides suitable accessibility semantics
+ * for a toggleable control like [Checkbox] and [Switch]. For selectable controls
+ * like [RadioButton], use [SelectableChip] in order to provide the correct semantics for
+ * accessibility.
  *
  * The Wear Material [ToggleChip] offers four slots and a specific layout for an application icon, a
  * label, a secondaryLabel and toggle control. The application icon and secondaryLabel are optional.
@@ -74,15 +76,12 @@ import androidx.compose.ui.unit.dp
  * guide.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked/selected status changes
+ * @param onCheckedChange Callback to be invoked when this button's checked status changes
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
- * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
- * expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize]. Three built-in types of toggle control are supported and
- * [ImageVector]s can be obtained from [ToggleChipDefaults.switchIcon], [ToggleChipDefaults.radioIcon] and
- * [ToggleChipDefaults.checkboxIcon]. In order to correctly render when the Chip is not enabled the
- * icon must set its alpha value to [LocalContentAlpha].
+ * @param toggleControl A slot for providing the chip's toggle control. Two built-in types
+ * of toggle control are supported - [Checkbox] and [Switch]. For [RadioButton],
+ * use [SelectableChip], in order to provide the correct semantics for accessibility.
  * @param modifier Modifier to be applied to the chip
  * @param appIcon An optional slot for providing an icon to indicate the purpose of the chip. The
  * contents are expected to be a horizontally and vertically centre aligned icon of size
@@ -96,10 +95,10 @@ import androidx.compose.ui.unit.dp
  * [ToggleChipDefaults.toggleChipColors].
  * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
  * be clickable
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this chip's "toggleable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Chip in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this chip's "toggleable" tap area. You can use this to change the
+ * chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
@@ -116,7 +115,7 @@ public fun ToggleChip(
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     colors: ToggleChipColors = ToggleChipDefaults.toggleChipColors(),
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    interactionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
 ) = androidx.wear.compose.materialcore.ToggleButton(
@@ -127,10 +126,11 @@ public fun ToggleChip(
         textStyle = MaterialTheme.typography.button,
         content = label
     ),
-    selectionControl = provideContent(
+    toggleControl = provideContent(
         contentColor = colors.toggleControlColor(enabled, checked),
         content = toggleControl
     ),
+    selectionControl = null,
     modifier = modifier
         .defaultMinSize(minHeight = ToggleChipDefaults.Height)
         .height(IntrinsicSize.Min),
@@ -155,14 +155,22 @@ public fun ToggleChip(
     interactionSource = interactionSource,
     contentPadding = contentPadding,
     shape = shape,
-    selectionControlHeight = TOGGLE_CONTROL_HEIGHT,
-    selectionControlWidth = TOGGLE_CONTROL_WIDTH
+    toggleControlHeight = TOGGLE_CONTROL_HEIGHT,
+    toggleControlWidth = TOGGLE_CONTROL_WIDTH,
+    labelSpacerSize = 0.dp,
+    toggleControlSpacing = TOGGLE_CONTROL_SPACING,
+    iconSpacing = ICON_SPACING,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**
  * A [SplitToggleChip] is a specialized type of [Chip] that includes a slot for a toggle control,
- * such as a radio button, toggle or checkbox. The [SplitToggleChip] differs from the
+ * such as a toggle or checkbox. The [SplitToggleChip] differs from the
  * [ToggleChip] by having two "tappable" areas, one clickable and one toggleable.
+ *
+ * This overload provides suitable accessibility semantics for a toggleable control like
+ * [Checkbox] and [Switch]. For selectable controls like [RadioButton],
+ * use [SelectableChip] instead.
  *
  * The Wear Material [SplitToggleChip] offers three slots and a specific layout for a label,
  * secondaryLabel and toggle control. The secondaryLabel is optional. The items are laid out
@@ -194,15 +202,15 @@ public fun ToggleChip(
  * guide.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
+ * @param onCheckedChange Callback to be invoked when this buttons checked status is
  * changed.
  * @param label A slot for providing the chip's main label. The contents are expected to be text
  * which is "start" aligned.
  * @param onClick Click listener called when the user clicks the main body of the chip, the area
  * behind the labels.
- * @param toggleControl A slot for providing the chip's toggle controls(s). The contents are
- * expected to be a horizontally and vertically centre aligned icon of size
- * [ToggleChipDefaults.IconSize]. Three built-in types of toggle control are supported and
+ * @param toggleControl A slot for providing the chip's toggle controls(s). Two built-in types
+ * of toggle control are supported, see [Checkbox] and [Switch]. For [RadioButton],
+ * use [SelectableChip] instead.
  * [ImageVector]s can be obtained from [ToggleChipDefaults.switchIcon], [ToggleChipDefaults.radioIcon]
  * and [ToggleChipDefaults.checkboxIcon]. In order to correctly render when the Chip is not enabled the
  * icon must set its alpha value to [LocalContentAlpha].
@@ -215,14 +223,14 @@ public fun ToggleChip(
  * [ToggleChipDefaults.splitToggleChipColors].
  * @param enabled Controls the enabled state of the chip. When `false`, this chip will not
  * be clickable
- * @param checkedInteractionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this chip's "toggleable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Chip in different [Interaction]s.
- * @param clickInteractionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this chip's "clickable" tap area. You can create and pass in your own
- * remembered [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this Chip in different [Interaction]s.
+ * @param checkedInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this chip's "toggleable" tap area. You can use this to change the
+ * chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
+ * @param clickInteractionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this chip's "clickable" tap area. You can use this to change the
+ * chip's appearance or preview the chip in different states. Note that if `null` is provided,
+ * interactions will still happen internally.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the chip's shape. It is strongly recommended to use the default as this
@@ -239,8 +247,8 @@ public fun SplitToggleChip(
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     colors: SplitToggleChipColors = ToggleChipDefaults.splitToggleChipColors(),
     enabled: Boolean = true,
-    checkedInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    clickInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    checkedInteractionSource: MutableInteractionSource? = null,
+    clickInteractionSource: MutableInteractionSource? = null,
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.large,
 ) = androidx.wear.compose.materialcore.SplitToggleButton(
@@ -252,10 +260,11 @@ public fun SplitToggleChip(
         content = label
     ),
     onClick = onClick,
-    selectionControl = provideScopeContent(
+    toggleControl = provideScopeContent(
         contentColor = colors.toggleControlColor(enabled = enabled, checked = checked),
         content = toggleControl
     ),
+    selectionControl = null,
     modifier = modifier
         .defaultMinSize(minHeight = ToggleChipDefaults.Height)
         .height(IntrinsicSize.Min),
@@ -275,7 +284,9 @@ public fun SplitToggleChip(
     checkedInteractionSource = checkedInteractionSource,
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
-    shape = shape
+    shape = shape,
+    labelSpacerSize = 0.dp,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**
@@ -286,11 +297,11 @@ public fun SplitToggleChip(
 public interface ToggleChipColors {
     /**
      * Represents the background treatment for this chip, depending on the [enabled] and [checked]
-     * properties. Backgrounds are typically a linear gradient when the chip is checked/selected
+     * properties. Backgrounds are typically a linear gradient when the chip is checked
      * and solid when it is not.
      *
      * @param enabled Whether the chip is enabled
-     * @param checked Whether the chip is currently checked/selected or unchecked/not selected
+     * @param checked Whether the chip is currently checked or unchecked
      */
     @Composable
     public fun background(enabled: Boolean, checked: Boolean): State<Painter>
@@ -300,7 +311,7 @@ public interface ToggleChipColors {
      * properties.
      *
      * @param enabled Whether the chip is enabled
-     * @param checked Whether the chip is currently checked/selected or unchecked/not selected
+     * @param checked Whether the chip is currently checked or unchecked
      */
     @Composable
     public fun contentColor(enabled: Boolean, checked: Boolean): State<Color>
@@ -310,7 +321,7 @@ public interface ToggleChipColors {
      * [checked] properties.
      *
      * @param enabled Whether the chip is enabled
-     * @param checked Whether the chip is currently checked/selected or unchecked/not selected
+     * @param checked Whether the chip is currently checked or unchecked
      */
     @Composable
     public fun secondaryContentColor(enabled: Boolean, checked: Boolean): State<Color>
@@ -320,7 +331,7 @@ public interface ToggleChipColors {
      * [enabled] and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
-     * @param checked Whether the chip is currently checked/selected or unchecked/not selected
+     * @param checked Whether the chip is currently checked or unchecked
      */
     @Composable
     public fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color>
@@ -360,7 +371,7 @@ public interface SplitToggleChipColors {
      * [enabled] and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
-     * @param checked Whether the chip is currently checked/selected or unchecked/not selected
+     * @param checked Whether the chip is currently checked or unchecked
      */
     @Composable
     public fun toggleControlColor(enabled: Boolean, checked: Boolean): State<Color>
@@ -371,7 +382,7 @@ public interface SplitToggleChipColors {
      * area under the toggle control, depending on the [enabled] and [checked] properties.
      *
      * @param enabled Whether the chip is enabled
-     * @param checked Whether the chip is currently checked/selected or unchecked/not selected
+     * @param checked Whether the chip is currently checked or unchecked
      */
     @Composable
     public fun splitBackgroundOverlay(enabled: Boolean, checked: Boolean): State<Color>
@@ -385,30 +396,30 @@ public object ToggleChipDefaults {
     /**
      * Creates a [ToggleChipColors] for use in a [ToggleChip].
      * [ToggleChip]s are expected to have a linear gradient background when
-     * checked/selected, similar to a [ChipDefaults.gradientBackgroundChipColors] and a solid
-     * neutral background when not checked/selected (similar to a
+     * checked, similar to a [ChipDefaults.gradientBackgroundChipColors] and a solid
+     * neutral background when not checked (similar to a
      * [ChipDefaults.secondaryChipColors])
      *
      * @param checkedStartBackgroundColor The background color used at the start of the gradient of
-     * a [ToggleChip] when enabled and checked/selected.
+     * a [ToggleChip] when enabled and checked.
      * @param checkedEndBackgroundColor The background color used at the end of the gradient of a
-     * [ToggleChip] when enabled and checked/selected.
+     * [ToggleChip] when enabled and checked.
      * @param checkedContentColor The content color of a [ToggleChip] when enabled and
-     * checked/selected.
+     * checked.
      * @param checkedSecondaryContentColor The secondary content color of this [ToggleChip] when
-     * enabled and checked/selected, used for secondaryLabel content
+     * enabled and checked, used for secondaryLabel content
      * @param checkedToggleControlColor The toggle control color of this [ToggleChip] when enabled
-     * and checked/selected, used for toggleControl content
+     * and checked, used for toggleControl content
      * @param uncheckedStartBackgroundColor The background color used at the start of the gradient
-     * of a [ToggleChip] when enabled and unchecked/not selected.
+     * of a [ToggleChip] when enabled and unchecked.
      * @param uncheckedEndBackgroundColor The background color used at the end of the gradient of a
-     * [ToggleChip] when enabled and unchecked/not selected.
+     * [ToggleChip] when enabled and unchecked.
      * @param uncheckedContentColor The content color of a [ToggleChip] when enabled and
-     * checked/selected.
+     * checked.
      * @param uncheckedSecondaryContentColor The secondary content color of this [ToggleChip] when
-     * enabled and unchecked/not selected, used for secondaryLabel content
+     * enabled and unchecked, used for secondaryLabel content
      * @param uncheckedToggleControlColor The toggle control color of this [ToggleChip] when enabled
-     * and unchecked/not selected.
+     * and unchecked.
      * @param gradientDirection Whether the chips gradient should be start to end (indicated by
      * [LayoutDirection.Ltr]) or end to start (indicated by [LayoutDirection.Rtl]).
      */
@@ -559,7 +570,7 @@ public object ToggleChipDefaults {
     }
 
     /**
-     * The Wear Material UX recommended color to use for an unselected switch icon.
+     * The Wear Material UX recommended color to use for an unchecked switch icon.
      */
     public val SwitchUncheckedIconColor: Color
         @Composable get() = MaterialTheme.colors.onSurface.copy(0.6f)
@@ -627,18 +638,6 @@ public object ToggleChipDefaults {
      * [SplitToggleChip].
      */
     public val IconSize: Dp = 24.dp
-
-    /**
-     * The default size of the spacing between an icon and a text when they are used inside a
-     * [ToggleChip] or [SplitToggleChip].
-     */
-    internal val IconSpacing = 6.dp
-
-    /**
-     * The default size of the spacing between a toggle control and text when they are used
-     * inside a [ToggleChip] or [SplitToggleChip].
-     */
-    internal val ToggleControlSpacing = 4.dp
 
     private val SwitchOn: ImageVector
         get() {
@@ -1069,3 +1068,5 @@ private class DefaultSplitToggleChipColors(
 
 private val TOGGLE_CONTROL_HEIGHT = 24.dp
 private val TOGGLE_CONTROL_WIDTH = 24.dp
+private val TOGGLE_CONTROL_SPACING = 4.dp
+private val ICON_SPACING = 6.dp

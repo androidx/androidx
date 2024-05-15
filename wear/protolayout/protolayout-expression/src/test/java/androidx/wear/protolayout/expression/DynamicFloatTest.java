@@ -18,6 +18,8 @@ package androidx.wear.protolayout.expression;
 
 import static androidx.wear.protolayout.expression.AnimationParameterBuilders.REPEAT_MODE_REVERSE;
 
+import static androidx.wear.protolayout.expression.DynamicBuilders.dynamicFloatFromProto;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -28,6 +30,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
+import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -297,5 +300,28 @@ public final class DynamicFloatTest {
 
         assertThat(from.toDynamicFloatByteArray(new byte[100]))
                 .isEqualTo(from.toDynamicFloatByteArray().length);
+    }
+
+    @Test
+    public void serializing_deserializing_withFingerprint() {
+        DynamicFloat from = DynamicFloat.constant(CONSTANT_VALUE);
+        NodeFingerprint fingerprint = from.getFingerprint().toProto();
+
+        DynamicProto.DynamicFloat to = from.toDynamicFloatProto(true);
+        assertThat(to.getFingerprint()).isEqualTo(fingerprint);
+
+        DynamicFloat back = dynamicFloatFromProto(to);
+        assertThat(back.getFingerprint().toProto()).isEqualTo(fingerprint);
+    }
+
+    @Test
+    public void toByteArray_fromByteArray_withFingerprint() {
+        DynamicFloat from = DynamicFloat.constant(CONSTANT_VALUE);
+        byte[] buffer = from.toDynamicFloatByteArray();
+        DynamicProto.DynamicFloat toProto =
+                DynamicFloat.fromByteArray(buffer).toDynamicFloatProto(true);
+
+        assertThat(toProto.getFixed().getValue()).isEqualTo(CONSTANT_VALUE);
+        assertThat(toProto.getFingerprint()).isEqualTo(from.getFingerprint().toProto());
     }
 }

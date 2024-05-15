@@ -151,9 +151,10 @@ public class ColorNodesTest {
                         .setFromArgb(FROM_COLOR)
                         .setToArgb(TO_COLOR)
                         .build();
+        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedColorNode node =
                 new AnimatableFixedColorNode(
-                        protoNode, new AddToListCallback<>(results), quotaManager);
+                        protoNode, addToListCallback, quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -163,6 +164,7 @@ public class ColorNodesTest {
         assertThat(results.size()).isGreaterThan(2);
         assertThat(results.get(0)).isEqualTo(FROM_COLOR);
         assertThat(Iterables.getLast(results)).isEqualTo(TO_COLOR);
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -174,9 +176,10 @@ public class ColorNodesTest {
                         .setFromArgb(FROM_COLOR)
                         .setToArgb(TO_COLOR)
                         .build();
+        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedColorNode node =
                 new AnimatableFixedColorNode(
-                        protoNode, new AddToListCallback<>(results), quotaManager);
+                        protoNode, addToListCallback, quotaManager);
         node.setVisibility(false);
 
         node.preInit();
@@ -185,6 +188,7 @@ public class ColorNodesTest {
 
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(TO_COLOR);
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -221,9 +225,10 @@ public class ColorNodesTest {
                                         .setColorVal(
                                                 FixedColor.newBuilder().setArgb(FROM_COLOR).build())
                                         .build()));
+        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         DynamicAnimatedColorNode colorNode =
                 new DynamicAnimatedColorNode(
-                        new AddToListCallback<>(results),
+                        addToListCallback,
                         AnimationSpec.getDefaultInstance(),
                         quotaManager);
         colorNode.setVisibility(true);
@@ -247,6 +252,7 @@ public class ColorNodesTest {
         assertThat(results.get(0)).isEqualTo(FROM_COLOR);
         assertThat(Iterables.getLast(results)).isEqualTo(TO_COLOR);
         assertThat(results.size()).isGreaterThan(2);
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test

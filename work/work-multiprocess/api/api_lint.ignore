@@ -7,7 +7,5 @@ AsyncSuffixFuture: androidx.work.multiprocess.RemoteListenableWorker#startWork()
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
 
 
-InvalidNullabilityOverride: androidx.work.multiprocess.RemoteWorkerService#onBind(android.content.Intent):
-    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.work.multiprocess.RemoteWorkerService#onBind(android.content.Intent) parameter #0:
     Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

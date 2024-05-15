@@ -130,7 +130,10 @@ private class ImageReaderOutput : RenderOutput<Image>() {
 
     override val imageFlow = callbackFlow {
         val listener = ImageReader.OnImageAvailableListener {
-            trySend(it.acquireLatestImage())
+            val image = it.acquireLatestImage()
+            if (image != null) {
+                trySend(image)
+            }
         }
         imageReader.setOnImageAvailableListener(listener, handler)
         awaitClose { imageReader.setOnImageAvailableListener({}, Handler(Looper.getMainLooper())) }

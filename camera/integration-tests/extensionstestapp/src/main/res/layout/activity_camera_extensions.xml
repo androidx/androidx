@@ -64,6 +64,17 @@
         app:layout_constraintVertical_bias="1.0"/>
 
     <Button
+        android:id="@+id/record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:text="@string/button_record_start"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/Picture"
+        app:layout_constraintEnd_toEndOf="@+id/Picture"
+        app:layout_constraintStart_toStartOf="@+id/Picture" />
+
+    <Button
         android:id="@+id/PhotoToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -82,6 +93,17 @@
         android:text="Switch"
         app:layout_constraintEnd_toStartOf="@+id/Picture"
         app:layout_constraintTop_toTopOf="@+id/Picture" />
+
+    <ToggleButton
+        android:id="@+id/videoToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:textOff="@string/toggle_video_off"
+        android:textOn="@string/toggle_video_on"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PhotoToggle" />
 
     <ImageButton
         android:id="@+id/ExtensionToggle"
@@ -121,7 +143,7 @@
         />
 
     <TextView
-        android:id="@+id/frameInfo"
+        android:id="@+id/infoBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:shadowColor="#000000"

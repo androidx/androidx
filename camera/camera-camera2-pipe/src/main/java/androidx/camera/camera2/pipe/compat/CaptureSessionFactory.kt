@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.compat
 
 import android.annotation.SuppressLint
@@ -89,9 +87,6 @@ internal object Camera2CaptureSessionsModule {
             return androidMProvider.get()
         }
 
-        check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            "CameraPipe is not supported below Android L"
-        }
         check(graphConfig.input == null) { "Reprocessing is not supported on Android L" }
 
         return androidLProvider.get()
@@ -253,11 +248,13 @@ constructor(
 
         val operatingMode =
             when (graphConfig.sessionMode) {
-                CameraGraph.OperatingMode.NORMAL -> SessionConfigData.SESSION_TYPE_REGULAR
-                CameraGraph.OperatingMode.HIGH_SPEED -> SessionConfigData.SESSION_TYPE_HIGH_SPEED
-                else -> throw IllegalArgumentException(
+                CameraGraph.OperatingMode.NORMAL -> Camera2SessionTypes.SESSION_TYPE_REGULAR
+                CameraGraph.OperatingMode.HIGH_SPEED -> Camera2SessionTypes.SESSION_TYPE_HIGH_SPEED
+                CameraGraph.OperatingMode.EXTENSION -> throw IllegalArgumentException(
                     "Unsupported session mode: ${graphConfig.sessionMode}"
                 )
+
+                else -> graphConfig.sessionMode.mode
             }
 
         val outputs = buildOutputConfigurations(
@@ -319,6 +316,7 @@ internal fun buildOutputConfigurations(
 ): OutputConfigurations {
     val allOutputs = arrayListOf<OutputConfigurationWrapper>()
     val deferredOutputs = mutableMapOf<StreamId, OutputConfigurationWrapper>()
+    var postviewOutput: OutputConfigurationWrapper? = null
 
     for (outputConfig in streamGraph.outputConfigs) {
         val outputSurfaces = outputConfig.streams.mapNotNull { surfaces[it.id] }
@@ -350,6 +348,7 @@ internal fun buildOutputConfigurations(
                 timestampBase = outputConfig.timestampBase,
                 dynamicRangeProfile = outputConfig.dynamicRangeProfile,
                 streamUseCase = outputConfig.streamUseCase,
+                sensorPixelModes = outputConfig.sensorPixelModes,
                 surfaceSharing = outputConfig.surfaceSharing,
                 surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
                 physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
@@ -383,6 +382,7 @@ internal fun buildOutputConfigurations(
             timestampBase = outputConfig.timestampBase,
             dynamicRangeProfile = outputConfig.dynamicRangeProfile,
             streamUseCase = outputConfig.streamUseCase,
+            sensorPixelModes = outputConfig.sensorPixelModes,
             size = outputConfig.size,
             surfaceSharing = outputConfig.surfaceSharing,
             surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
@@ -401,10 +401,22 @@ internal fun buildOutputConfigurations(
         for (surface in outputSurfaces.drop(1)) {
             output.addSurface(surface)
         }
-        allOutputs.add(output)
+        if (graphConfig.postviewStream != null) {
+            val postviewStream = streamGraph[graphConfig.postviewStream]
+            checkNotNull(postviewStream) {
+                "Postview Stream in StreamGraph cannot be null for reprocessing request"
+            }
+            if (postviewOutput == null && outputConfig.streams.contains(postviewStream)) {
+                postviewOutput = output
+            } else {
+                allOutputs.add(output)
+            }
+        } else {
+            allOutputs.add(output)
+        }
     }
 
-    return OutputConfigurations(allOutputs, deferredOutputs)
+    return OutputConfigurations(allOutputs, deferredOutputs, postviewOutput)
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
@@ -423,12 +435,11 @@ constructor(
     ): Map<StreamId, OutputConfigurationWrapper> {
         val operatingMode =
             when (graphConfig.sessionMode) {
-                CameraGraph.OperatingMode.EXTENSION -> SessionConfigData.SESSION_TYPE_EXTENSION
+                CameraGraph.OperatingMode.EXTENSION -> Camera2SessionTypes.SESSION_TYPE_EXTENSION
                 else -> throw IllegalArgumentException(
                     "Unsupported session mode: ${graphConfig.sessionMode} for Extension CameraGraph"
                 )
             }
-
         val extensionMode = checkNotNull(
             graphConfig.sessionParameters
                 [CameraPipeKeys.camera2ExtensionMode] as? Int
@@ -446,6 +457,16 @@ constructor(
                 "extensions are ${supportedExtensions.stream()}"
         }
 
+        if (graphConfig.postviewStream != null) {
+            val cameraExtensionMetadata = cameraMetadata.awaitExtensionMetadata(extensionMode)
+            check(cameraExtensionMetadata.isPostviewSupported) {
+                "$cameraDevice does not support Postview streams"
+            }
+            check(graphConfig.postviewStream.outputs.size == 1) {
+                "Postview streams can only have one OutputStream.config object"
+            }
+        }
+
         val outputs = buildOutputConfigurations(
             graphConfig,
             streamGraph,
@@ -453,6 +474,7 @@ constructor(
             camera2MetadataProvider,
             cameraDevice.cameraId
         )
+
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
             captureSessionState.onSessionFinalized()
@@ -464,16 +486,16 @@ constructor(
         val extensionSessionState = ExtensionSessionState(captureSessionState)
 
         val sessionConfig =
-            SessionConfigData(
+            ExtensionSessionConfigData(
                 operatingMode,
-                graphConfig.input,
                 outputs.all,
                 threads.camera2Executor,
                 captureSessionState,
                 graphConfig.sessionTemplate.value,
                 graphConfig.sessionParameters,
                 extensionMode,
-                extensionSessionState
+                extensionSessionState,
+                outputs.postviewOutput
             )
 
         if (!cameraDevice.createExtensionSession(sessionConfig)) {
@@ -490,5 +512,6 @@ constructor(
 
 internal data class OutputConfigurations(
     val all: List<OutputConfigurationWrapper>,
-    val deferred: Map<StreamId, OutputConfigurationWrapper>
+    val deferred: Map<StreamId, OutputConfigurationWrapper>,
+    val postviewOutput: OutputConfigurationWrapper?
 )

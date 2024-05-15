@@ -19,6 +19,7 @@ package androidx.wear.compose.materialcore
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -34,7 +35,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,12 +73,13 @@ import androidx.compose.ui.unit.dp
  * content
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
+ * @param ripple Ripple used for this card
  * @param content A main slot for a content of this card
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -91,8 +92,9 @@ public fun Card(
     enabled: Boolean,
     contentPadding: PaddingValues,
     shape: Shape,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     role: Role?,
+    ripple: Indication,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -108,7 +110,7 @@ public fun Card(
                 enabled = enabled,
                 onClick = onClick,
                 role = role,
-                indication = rememberRipple(),
+                indication = ripple,
                 interactionSource = interactionSource,
             )
             .then(
@@ -155,12 +157,13 @@ public fun Card(
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param containerPainter A Painter which is used for background drawing.
- * @param interactionSource The [MutableInteractionSource] representing the stream of
- * [Interaction]s for this card. You can create and pass in your own remembered
- * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
- * appearance / behavior of this card in different [Interaction]s.
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ * emitting [Interaction]s for this card. You can use this to change the card's appearance
+ * or preview the card in different states. Note that if `null` is provided, interactions will
+ * still happen internally.
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme
+ * @param ripple Ripple used for this card
  * @param appImage A slot for a small [Image] associated with the application.
  * @param appName A slot for displaying the application name, expected to be a single line of start
  * aligned text.
@@ -179,8 +182,9 @@ public fun AppCard(
     border: BorderStroke?,
     contentPadding: PaddingValues,
     containerPainter: Painter,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     shape: Shape,
+    ripple: Indication,
     appImage: @Composable (RowScope.() -> Unit)?,
     appName: @Composable RowScope.() -> Unit,
     time: @Composable (RowScope.() -> Unit)?,
@@ -196,7 +200,8 @@ public fun AppCard(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         role = null,
-        shape = shape
+        shape = shape,
+        ripple = ripple
     ) {
         Column {
             Row(

@@ -23,7 +23,6 @@ import android.hardware.camera2.CaptureResult
 import android.os.Build
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -37,7 +36,6 @@ import kotlin.reflect.KClass
  * that are either expensive to create and access, or that only exist on newer versions of the OS.
  * This allows all fields to be accessed and return reasonable values on all OS versions.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CameraMetadata(
     override val camera: CameraId,
     override val isRedacted: Boolean,
@@ -176,12 +174,12 @@ internal class Camera2CameraMetadata(
     private val _keys: Lazy<Set<CameraCharacteristics.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
-                Debug.trace("Camera-${camera.value}#keys") {
+                Debug.trace("$camera#keys") {
                     characteristics.keys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {
                 Log.warn(e) {
-                    "Failed to getKeys from Camera-${camera.value}"
+                    "Failed to getKeys from $camera}"
                 }
                 emptySet()
             }
@@ -190,12 +188,12 @@ internal class Camera2CameraMetadata(
     private val _requestKeys: Lazy<Set<CaptureRequest.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
-                Debug.trace("Camera-${camera.value}#availableCaptureRequestKeys") {
+                Debug.trace("$camera#availableCaptureRequestKeys") {
                     characteristics.availableCaptureRequestKeys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {
                 Log.warn(e) {
-                    "Failed to getAvailableCaptureRequestKeys from Camera-${camera.value}"
+                    "Failed to getAvailableCaptureRequestKeys from $camera"
                 }
                 emptySet()
             }
@@ -204,12 +202,12 @@ internal class Camera2CameraMetadata(
     private val _resultKeys: Lazy<Set<CaptureResult.Key<*>>> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
             try {
-                Debug.trace("Camera-${camera.value}#availableCaptureResultKeys") {
+                Debug.trace("$camera#availableCaptureResultKeys") {
                     characteristics.availableCaptureResultKeys.orEmpty().toSet()
                 }
             } catch (e: AssertionError) {
                 Log.warn(e) {
-                    "Failed to getAvailableCaptureResultKeys from Camera-${camera.value}"
+                    "Failed to getAvailableCaptureResultKeys from $camera"
                 }
                 emptySet()
             }
@@ -221,7 +219,7 @@ internal class Camera2CameraMetadata(
                 emptySet()
             } else {
                 try {
-                    Debug.trace("Camera-${camera.value}#physicalCameraIds") {
+                    Debug.trace("$camera#physicalCameraIds") {
                         val ids = Api28Compat.getPhysicalCameraIds(characteristics)
                         Log.info { "Loaded physicalCameraIds from $camera: $ids" }
 
@@ -231,10 +229,10 @@ internal class Camera2CameraMetadata(
                             .toSet()
                     }
                 } catch (e: AssertionError) {
-                    Log.warn(e) { "Failed to getPhysicalCameraIds from Camera-${camera.value}" }
+                    Log.warn(e) { "Failed to getPhysicalCameraIds from $camera" }
                     emptySet()
                 } catch (e: NullPointerException) {
-                    Log.warn(e) { "Failed to getPhysicalCameraIds from Camera-${camera.value}" }
+                    Log.warn(e) { "Failed to getPhysicalCameraIds from $camera" }
                     emptySet()
                 }
             }

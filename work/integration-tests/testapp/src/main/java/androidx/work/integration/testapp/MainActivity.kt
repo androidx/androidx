@@ -21,6 +21,8 @@ import android.app.job.JobInfo
 import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Intent
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -55,6 +57,7 @@ import androidx.work.integration.testapp.RemoteService.Companion.queryWorkInfoIn
 import androidx.work.integration.testapp.RemoteService.Companion.updateUniquePeriodicIntent
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity
+import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
 import androidx.work.multiprocess.RemoteWorkerService
 import androidx.work.workDataOf
@@ -232,7 +235,8 @@ class MainActivity : AppCompatActivity() {
             workManager.enqueue(request)
         }
         findViewById<View>(R.id.run_constraint_tracking_worker).setOnClickListener {
-            val inputData = workDataOf(ARGUMENT_CLASS_NAME to ForegroundWorker::class.java.name)
+            val inputData = workDataOf(
+                CONSTRAINT_WORKER_ARGUMENT_CLASS_NAME to ForegroundWorker::class.java.name)
 
             val request = OneTimeWorkRequest.Builder(ConstraintTrackingWorker::class.java)
                 .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
@@ -250,6 +254,25 @@ class MainActivity : AppCompatActivity() {
                 OneTimeWorkRequest.Builder(ForegroundWorker::class.java).setInputData(inputData)
                     .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                     .setConstraints(Constraints(requiredNetworkType = NetworkType.CONNECTED))
+                    .build()
+            lastForegroundWorkRequest = request
+            workManager.enqueue(request)
+        }
+        findViewById<View>(R.id.run_foreground_worker_network_request).setOnClickListener {
+            lastNotificationId += 1
+            val inputData = workDataOf(ForegroundWorker.InputNotificationId to lastNotificationId)
+            val networkRequest = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build()
+            val constraints = Constraints.Builder().setRequiredNetworkRequest(
+                networkRequest, NetworkType.CONNECTED
+            ).build()
+
+            val request =
+                OneTimeWorkRequest.Builder(ForegroundWorker::class.java).setInputData(inputData)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .setConstraints(constraints)
                     .build()
             lastForegroundWorkRequest = request
             workManager.enqueue(request)
@@ -318,6 +341,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.enqueue_infinite_work_charging).setOnClickListener {
             queueLotsOfWorkers(workManager)
         }
+        findViewById<View>(R.id.enqueue_network_request).setOnClickListener {
+            enqueueWithNetworkRequest(workManager)
+        }
         val hundredJobExceptionButton = findViewById<Button>(R.id.create_hundred_job_exception)
         // 100 Job limits are only enforced on API 24+.
         if (Build.VERSION.SDK_INT >= 24) {
@@ -354,11 +380,30 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+@SuppressLint("ClassVerificationFailure")
+private fun enqueueWithNetworkRequest(workManager: WorkManager) {
+    if (Build.VERSION.SDK_INT < 21) {
+        Log.w(TAG, "Ignoring enqueueWithNetworkRequest on old API levels")
+        return
+    }
+    val networkRequest = NetworkRequest.Builder()
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        .build()
+    val constraints = Constraints.Builder().setRequiredNetworkRequest(
+        networkRequest, NetworkType.UNMETERED
+    ).build()
+    val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+        .setConstraints(constraints)
+        .build()
+    workManager.enqueue(request)
+}
+
 private const val PACKAGE_NAME = "androidx.work.integration.testapp"
 private const val TAG = "MainActivity"
 private const val CONSTRAINT_TRACKING_TAG = "ConstraintTrackingWorker"
 private const val UNIQUE_WORK_NAME = "importantUniqueWork"
 private const val REPLACE_COMPLETED_WORK = "replaceCompletedWork"
 private const val NUM_WORKERS = 150
-private const val ARGUMENT_CLASS_NAME =
+private const val CONSTRAINT_WORKER_ARGUMENT_CLASS_NAME =
     "androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME"

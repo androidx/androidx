@@ -148,7 +148,9 @@ class NodeInfo implements TreeNode {
     @VisibleForTesting
     @SuppressWarnings("RestrictTo")
     int size() {
-        return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
+        return mActiveBoundTypes.stream()
+                .mapToInt(BoundDynamicType::getDynamicNodeCount)
+                .sum();
     }
 
     /** Play the animation with the given trigger type. */
@@ -241,10 +243,10 @@ class NodeInfo implements TreeNode {
                         + mResolvedAvds.stream().filter(avd -> avd.mDrawable.isRunning()).count());
     }
 
-    /** Returns how many expression nodes evaluated. */
+    /** Returns the cost of evaluated expression nodes. */
     @VisibleForTesting
-    public int getExpressionNodesCount() {
-        return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
+    public int getExpressionDynamicNodesCost() {
+        return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCost).sum();
     }
 
     /** Stores the {@link AnimatedVisibility} associated with this node. */

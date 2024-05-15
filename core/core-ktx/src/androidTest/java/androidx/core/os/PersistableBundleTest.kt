@@ -42,6 +42,7 @@ class PersistableBundleTest {
             "long" to 1L,
 
             "string" to "hey",
+            "persistableBundle" to persistableBundleOf(),
 
             "doubleArray" to doubleArrayOf(1.0, 2.0, 3.0),
             "intArray" to intArrayOf(1, 2, 3),
@@ -50,7 +51,7 @@ class PersistableBundleTest {
             "stringArray" to arrayOf("hey")
         )
 
-        assertEquals(9, bundle.size())
+        assertEquals(10, bundle.size())
 
         assertNull(bundle["null"])
 
@@ -84,13 +85,17 @@ class PersistableBundleTest {
             persistableBundleOf(
                 "nope" to View(ApplicationProvider.getApplicationContext() as Context)
             )
-        }.hasMessageThat().isEqualTo("Illegal value type android.view.View for key \"nope\"")
+        }.hasMessageThat().isEqualTo(
+            "Unsupported value type android.view.View for key \"nope\""
+        )
 
         assertThrows<IllegalArgumentException> {
             persistableBundleOf(
                 "nopes" to arrayOf(View(ApplicationProvider.getApplicationContext() as Context))
             )
-        }.hasMessageThat().isEqualTo("Illegal value array type android.view.View for key \"nopes\"")
+        }.hasMessageThat().isEqualTo(
+            "Unsupported value array type android.view.View for key \"nopes\""
+        )
     }
 
     @Test fun persistableBundleOfEmpty() {

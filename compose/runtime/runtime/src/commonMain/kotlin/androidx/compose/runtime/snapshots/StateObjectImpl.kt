@@ -49,5 +49,6 @@ internal value class ReaderKind(val mask: Int = 0) {
     internal companion object {
         inline val Composition get() = ReaderKind(mask = 1 shl 0)
         inline val SnapshotStateObserver get() = ReaderKind(mask = 1 shl 1)
+        inline val SnapshotFlow get() = ReaderKind(mask = 1 shl 2)
     }
 }

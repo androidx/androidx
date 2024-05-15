@@ -44,7 +44,7 @@ class OneDimensionalFocusSearchNextTest {
     @Test
     fun moveFocus_noFocusableItem() {
         // Arrange.
-        rule.setContentWithInitialRootFocus {}
+        rule.setContentForTest {}
 
         // Act.
         val movedFocusSuccessfully = rule.runOnIdle { focusManager.moveFocus(Next) }
@@ -57,7 +57,7 @@ class OneDimensionalFocusSearchNextTest {
     fun moveFocus_oneDisabledFocusableItem() {
         // Arrange.
         val isItemFocused = mutableStateOf(false)
-        rule.setContentWithInitialRootFocus {
+        rule.setContentForTest {
             FocusableBox(isItemFocused, 0, 0, 10, 10, deactivated = true)
         }
 
@@ -72,7 +72,7 @@ class OneDimensionalFocusSearchNextTest {
     fun initialFocus_oneItem() {
         // Arrange.
         val isItemFocused = mutableStateOf(false)
-        rule.setContentWithInitialRootFocus {
+        rule.setContentForTest {
             FocusableBox(isItemFocused, 0, 0, 10, 10)
         }
 
@@ -90,7 +90,7 @@ class OneDimensionalFocusSearchNextTest {
     fun initialFocus_skipsDeactivatedItem() {
         // Arrange.
         val (firstItem, secondItem) = List(2) { mutableStateOf(false) }
-        rule.setContentWithInitialRootFocus {
+        rule.setContentForTest {
             Column {
                 FocusableBox(firstItem, 0, 0, 10, 10, deactivated = true)
                 FocusableBox(secondItem, 0, 0, 10, 10)
@@ -112,7 +112,7 @@ class OneDimensionalFocusSearchNextTest {
     fun initialFocus_firstItemInCompositionOrderGetsFocus() {
         // Arrange.
         val (firstItem, secondItem) = List(2) { mutableStateOf(false) }
-        rule.setContentWithInitialRootFocus {
+        rule.setContentForTest {
             FocusableBox(firstItem, 10, 10, 10, 10)
             FocusableBox(secondItem, 0, 0, 10, 10)
         }
@@ -131,7 +131,7 @@ class OneDimensionalFocusSearchNextTest {
     fun initialFocus_firstParentInCompositionOrderGetsFocus() {
         // Arrange.
         val (parent1, parent2, child1, child2) = List(4) { mutableStateOf(false) }
-        rule.setContentWithInitialRootFocus {
+        rule.setContentForTest {
             FocusableBox(parent1, 10, 10, 10, 10) {
                 FocusableBox(child1, 10, 10, 10, 10)
             }
@@ -154,7 +154,7 @@ class OneDimensionalFocusSearchNextTest {
     fun initialFocus_firstItemInCompositionOrderGetsFocus_evenIfAnotherNonParentIsPresent() {
         // Arrange.
         val (parent1, child1, item2) = List(3) { mutableStateOf(false) }
-        rule.setContentWithInitialRootFocus {
+        rule.setContentForTest {
             FocusableBox(parent1, 10, 10, 10, 10) {
                 FocusableBox(child1, 10, 10, 10, 10)
             }
@@ -175,7 +175,7 @@ class OneDimensionalFocusSearchNextTest {
     fun initialFocus_firstItemInCompositionOrderGetsFocus_evenIfThereIsAParentAtTheRoot() {
         // Arrange.
         val (parent1, child1, item1) = List(3) { mutableStateOf(false) }
-        rule.setContentWithInitialRootFocus {
+        rule.setContentForTest {
             FocusableBox(item1, 0, 0, 10, 10)
             FocusableBox(parent1, 10, 10, 10, 10) {
                 FocusableBox(child1, 10, 10, 10, 10)
@@ -196,7 +196,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusMovesToSecondItem() {
         // Arrange.
         val (item1, item2, item3) = List(3) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10, initialFocus)
             FocusableBox(item2, 10, 0, 10, 10)
             FocusableBox(item3, 20, 0, 10, 10)
@@ -216,7 +216,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusMovesToThirdItem_skipsDeactivatedItem() {
         // Arrange.
         val (item1, item2, item3, item4) = List(4) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10, initialFocus)
             FocusableBox(item2, 10, 0, 10, 10, deactivated = true)
             FocusableBox(item3, 10, 0, 10, 10)
@@ -237,7 +237,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusMovesToThirdItem() {
         // Arrange.
         val (item1, item2, item3) = List(3) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10)
             FocusableBox(item2, 10, 0, 10, 10, initialFocus)
             FocusableBox(item3, 20, 0, 10, 10)
@@ -257,7 +257,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusMovesToFourthItem() {
         // Arrange.
         val (item1, item2, item3, item4) = List(4) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10)
             FocusableBox(item2, 0, 0, 10, 10, deactivated = true)
             FocusableBox(item3, 10, 0, 10, 10, initialFocus)
@@ -278,7 +278,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusWrapsAroundToFirstItem() {
         // Arrange.
         val (item1, item2, item3) = List(3) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10)
             FocusableBox(item2, 10, 0, 10, 10)
             FocusableBox(item3, 20, 0, 10, 10, initialFocus)
@@ -298,7 +298,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusWrapsAroundToFirstItem_skippingLastDeactivatedItem() {
         // Arrange.
         val (item1, item2, item3, item4) = List(4) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10)
             FocusableBox(item2, 10, 0, 10, 10)
             FocusableBox(item3, 20, 0, 10, 10, initialFocus)
@@ -319,7 +319,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusWrapsAroundToFirstItem_skippingFirstDeactivatedItem() {
         // Arrange.
         val (item1, item2, item3, item4) = List(4) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 10, 0, 10, 10, deactivated = true)
             FocusableBox(item2, 0, 0, 10, 10)
             FocusableBox(item3, 10, 0, 10, 10)
@@ -340,7 +340,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusMovesToChildOfDeactivatedItem() {
         // Arrange.
         val (item1, item2, item3, child) = List(4) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10, initialFocus)
             FocusableBox(item2, 10, 0, 10, 10, deactivated = true) {
                 FocusableBox(child, 10, 0, 10, 10)
@@ -362,7 +362,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusMovesToGrandChildOfDeactivatedItem() {
         // Arrange.
         val (item1, item2, item3, child, grandchild) = List(5) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10, initialFocus)
             FocusableBox(item2, 10, 0, 10, 10, deactivated = true) {
                 FocusableBox(child, 10, 0, 10, 10, deactivated = true) {
@@ -386,7 +386,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusMovesToNextSiblingOfDeactivatedItem_evenThoughThereIsACloserNonSibling() {
         // Arrange.
         val (item1, item2, item3, child1, child2) = List(5) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             FocusableBox(item1, 0, 0, 10, 10)
             FocusableBox(item2, 10, 0, 10, 10, deactivated = true) {
                 FocusableBox(child1, 10, 0, 10, 10, initialFocus)
@@ -409,7 +409,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusNextOrderAmongChildrenOfMultipleParents() {
         // Arrange.
         val focusState = List(12) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             Column {
                 Row {
                     FocusableBox(focusState[0], 0, 0, 10, 10, initialFocus)
@@ -446,7 +446,7 @@ class OneDimensionalFocusSearchNextTest {
     fun focusNextOrderAmongChildrenAtMultipleLevels() {
         // Arrange.
         val focusState = List(14) { mutableStateOf(false) }
-        rule.setContentForTest {
+        rule.setContentForTest(initializeFocus = true) {
             Column {
                 FocusableBox(focusState[0], 0, 0, 10, 10, initialFocus)
                 FocusableBox(focusState[1], 0, 10, 10, 10)
@@ -488,7 +488,7 @@ class OneDimensionalFocusSearchNextTest {
         val (parent3, child6) = List(2) { mutableStateOf(false) }
         val (parent4, child7, child8, child9, child10) = List(5) { mutableStateOf(false) }
         val (parent5, child11) = List(2) { mutableStateOf(false) }
-        rule.setContentWithInitialRootFocus {
+        rule.setContentForTest {
             FocusableBox(parent1, 0, 0, 10, 10) {
                 FocusableBox(child1, 0, 0, 10, 10)
                 FocusableBox(child2, 20, 0, 10, 10)
@@ -553,25 +553,16 @@ class OneDimensionalFocusSearchNextTest {
         rule.runOnIdle { assertThat(parent1.value).isTrue() }
     }
 
-    private fun ComposeContentTestRule.setContentForTest(composable: @Composable () -> Unit) {
-        setContent {
-            focusManager = LocalFocusManager.current
-            composable()
-        }
-        rule.runOnIdle { initialFocus.requestFocus() }
-    }
-
-    private fun ComposeContentTestRule.setContentWithInitialRootFocus(
+    private fun ComposeContentTestRule.setContentForTest(
+        initializeFocus: Boolean = false,
         composable: @Composable () -> Unit
     ) {
         setContent {
             focusManager = LocalFocusManager.current
             composable()
         }
-        rule.runOnIdle {
-            with(focusManager as FocusOwner) {
-                focusTransactionManager.withNewTransaction { takeFocus() }
-            }
+        if (initializeFocus) {
+            rule.runOnIdle { initialFocus.requestFocus() }
         }
     }
 }

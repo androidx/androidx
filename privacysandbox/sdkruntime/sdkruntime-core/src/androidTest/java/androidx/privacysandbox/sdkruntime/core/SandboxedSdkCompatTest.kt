@@ -18,16 +18,11 @@ package androidx.privacysandbox.sdkruntime.core
 import android.app.sdksandbox.SandboxedSdk
 import android.content.pm.SharedLibraryInfo
 import android.os.Binder
-import android.os.Build.VERSION_CODES.TIRAMISU
-import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume.assumeFalse
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -50,12 +45,8 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    @SdkSuppress(minSdkVersion = TIRAMISU)
+    @SdkSuppress(minSdkVersion = 34)
     fun toSandboxedSdk_whenCreatedFromBinder_returnsSandboxedSdkWithSameBinder() {
-        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
-
         val binder = Binder()
 
         val toSandboxedSdkResult = SandboxedSdkCompat(binder).toSandboxedSdk()
@@ -65,12 +56,8 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    @SdkSuppress(minSdkVersion = TIRAMISU)
+    @SdkSuppress(minSdkVersion = 34)
     fun toSandboxedSdk_whenCreatedFromSandboxedSdk_returnsSameSandboxedSdk() {
-        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
-
         val binder = Binder()
         val sandboxedSdk = SandboxedSdk(binder)
 
@@ -98,38 +85,12 @@ class SandboxedSdkCompatTest {
     }
 
     @Test
-    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    @SdkSuppress(minSdkVersion = TIRAMISU)
-    fun getSdkInfo_whenCreatedFromSandboxedSdkAndNoSharedLibraryInfo_returnsNull() {
-        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
-        assumeFalse(
-            "Requires SharedLibraryInfo not available",
-            isSharedLibraryInfoAvailable()
-        )
-
-        val binder = Binder()
-        val sandboxedSdk = SandboxedSdk(binder)
-        val sandboxedSdkCompat = SandboxedSdkCompat(sandboxedSdk)
-
-        assertThat(sandboxedSdkCompat.getSdkInfo()).isNull()
-    }
-
-    @Test
-    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-    @SdkSuppress(minSdkVersion = TIRAMISU)
-    fun getSdkInfo_whenCreatedFromSandboxedSdkAndSharedLibraryInfoAvailable_returnsSdkInfo() {
-        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
-        assumeTrue(
-            "Requires SharedLibraryInfo available",
-            isSharedLibraryInfoAvailable()
-        )
-
+    @SdkSuppress(minSdkVersion = 34)
+    fun getSdkInfo_whenCreatedFromSandboxedSdk_returnsSdkInfo() {
         val sdkName = "sdkName"
         val sdkVersion = 1L
-        val sharedLibraryInfo = ApiAdServicesV5.mockSharedLibraryInfo(sdkName, sdkVersion)
-        val sandboxedSdk = ApiAdServicesV5.mockSandboxedSdkWithSharedLibraryInfo(sharedLibraryInfo)
+        val sharedLibraryInfo = Api34Impl.mockSharedLibraryInfo(sdkName, sdkVersion)
+        val sandboxedSdk = Api34Impl.mockSandboxedSdkWithSharedLibraryInfo(sharedLibraryInfo)
 
         val sandboxedSdkCompat = SandboxedSdkCompat(sandboxedSdk)
         val sdkInfo = sandboxedSdkCompat.getSdkInfo()
@@ -142,7 +103,7 @@ class SandboxedSdkCompatTest {
         )
     }
 
-    private object ApiAdServicesV5 {
+    private object Api34Impl {
         @RequiresApi(28)
         fun mockSharedLibraryInfo(
             sdkName: String,
@@ -155,7 +116,7 @@ class SandboxedSdkCompatTest {
             return sharedLibraryInfo
         }
 
-        @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
+        @RequiresApi(34)
         fun mockSandboxedSdkWithSharedLibraryInfo(
             sharedLibraryInfo: SharedLibraryInfo
         ): SandboxedSdk {
@@ -167,10 +128,4 @@ class SandboxedSdkCompatTest {
             return sandboxedSdkSpy
         }
     }
-
-    private fun isSandboxApiAvailable() =
-        AdServicesInfo.isAtLeastV4()
-
-    private fun isSharedLibraryInfoAvailable() =
-        AdServicesInfo.isAtLeastV5()
 }

@@ -113,16 +113,16 @@ class TextFieldCursorTest : FocusedWindowTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun textFieldFocused_cursorRendered() = with(rule.density) {
+    fun textFieldFocused_cursorRendered() {
         rule.setTextFieldTestContent {
-                BasicTextField(
-                    value = "",
-                    onValueChange = {},
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
+            BasicTextField(
+                value = "",
+                onValueChange = {},
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -138,7 +138,7 @@ class TextFieldCursorTest : FocusedWindowTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun textFieldFocused_cursorWithBrush() = with(rule.density) {
+    fun textFieldFocused_cursorWithBrush() {
         rule.setTextFieldTestContent {
             BasicTextField(
                 value = "",
@@ -351,16 +351,16 @@ class TextFieldCursorTest : FocusedWindowTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun cursorBlinkingAnimation() = with(rule.density) {
+    fun cursorBlinkingAnimation() {
         rule.setTextFieldTestContent {
-                BasicTextField(
-                    value = "",
-                    onValueChange = {},
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
+            BasicTextField(
+                value = "",
+                onValueChange = {},
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -390,18 +390,18 @@ class TextFieldCursorTest : FocusedWindowTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun cursorBlinkingAnimation_whenSystemDisablesAnimations() = with(rule.density) {
+    fun cursorBlinkingAnimation_whenSystemDisablesAnimations() {
         motionDurationScale.scaleFactor = 0f
 
         rule.setTextFieldTestContent {
-                BasicTextField(
-                    value = "",
-                    onValueChange = {},
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
+            BasicTextField(
+                value = "",
+                onValueChange = {},
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -429,15 +429,15 @@ class TextFieldCursorTest : FocusedWindowTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun cursorUnsetColor_noCursor() = with(rule.density) {
+    fun cursorUnsetColor_noCursor() {
         rule.setTextFieldTestContent {
-                BasicTextField(
-                    value = "",
-                    onValueChange = {},
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(Color.Unspecified)
-                )
+            BasicTextField(
+                value = "",
+                onValueChange = {},
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(Color.Unspecified)
+            )
         }
 
         focusAndWait()
@@ -469,17 +469,17 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Ignore // b/271927667
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun cursorNotBlinking_whileTyping() = with(rule.density) {
+    fun cursorNotBlinking_whileTyping() {
         rule.setTextFieldTestContent {
-                val text = remember { mutableStateOf("test") }
-                BasicTextField(
-                    value = text.value,
-                    onValueChange = { text.value = it },
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
+            val text = remember { mutableStateOf("test") }
+            BasicTextField(
+                value = text.value,
+                onValueChange = { text.value = it },
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -506,18 +506,18 @@ class TextFieldCursorTest : FocusedWindowTest {
     @Test
     @FlakyTest(bugId = 283292820)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun selectionChanges_cursorNotBlinking() = with(rule.density) {
+    fun selectionChanges_cursorNotBlinking() {
         rule.mainClock.autoAdvance = false
         val textValue = mutableStateOf(TextFieldValue("test", selection = TextRange(2)))
         rule.setTextFieldTestContent {
-                BasicTextField(
-                    value = textValue.value,
-                    onValueChange = { textValue.value = it },
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = SolidColor(cursorColor),
-                    onTextLayout = onTextLayout
-                )
+            BasicTextField(
+                value = textValue.value,
+                onValueChange = { textValue.value = it },
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -545,17 +545,17 @@ class TextFieldCursorTest : FocusedWindowTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun brushChanged_doesntResetTimer() {
+    fun brushChanged_doesNotResetTimer() {
         var cursorBrush by mutableStateOf(SolidColor(cursorColor))
         rule.setTextFieldTestContent {
-                BasicTextField(
-                    value = "",
-                    onValueChange = {},
-                    textStyle = textStyle,
-                    modifier = textFieldModifier,
-                    cursorBrush = cursorBrush,
-                    onTextLayout = onTextLayout
-                )
+            BasicTextField(
+                value = "",
+                onValueChange = {},
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = cursorBrush,
+                onTextLayout = onTextLayout
+            )
         }
 
         focusAndWait()
@@ -575,7 +575,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             )
     }
 
-    @Ignore("b/308895081")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun cursorNotBlinking_whenWindowLostFocus() {
@@ -618,7 +617,6 @@ class TextFieldCursorTest : FocusedWindowTest {
             .assertDoesNotContainColor(cursorColor)
     }
 
-    @Ignore("b/308895081")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun focusedTextField_resumeBlinking_whenWindowRegainsFocus() {

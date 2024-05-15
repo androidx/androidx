@@ -679,7 +679,7 @@ class PageFetcherTest {
         @OptIn(ExperimentalStdlibApi::class)
         val job = launch {
             pager.flow.collectLatest { pagingData ->
-                TestPagingDataDiffer<Int>(testScope.coroutineContext[CoroutineDispatcher]!!)
+                TestPagingDataPresenter<Int>(testScope.coroutineContext[CoroutineDispatcher]!!)
                     .collectFrom(pagingData)
             }
         }
@@ -723,7 +723,7 @@ class PageFetcherTest {
         @OptIn(ExperimentalStdlibApi::class)
         val job = launch {
             pager.flow.collectLatest { pagingData ->
-                TestPagingDataDiffer<Int>(testScope.coroutineContext[CoroutineDispatcher]!!)
+                TestPagingDataPresenter<Int>(testScope.coroutineContext[CoroutineDispatcher]!!)
                     .collectFrom(pagingData)
             }
         }
