@@ -104,23 +104,65 @@ public class FontsContractCompat {
      * Create a typeface object given a font request. The font will be asynchronously fetched,
      * therefore the result is delivered to the given callback. See {@link FontRequest}.
      * Only one of the methods in callback will be invoked, depending on whether the request
-     * succeeds or fails. These calls will happen on the caller thread.
+     * succeeds or fails. These calls will happen on the main thread.
+     *
+     * @deprecated due to the non-standard pattern of taking a handler for a non-UI thread - leading
+     * to both easily passing an incorrect handler and requiring all callers spin up an extra
+     * thread.
+     *
+     * @see this#requestFont(Context, FontRequest, int, Executor, Executor, FontRequestCallback)
+     *
      * @param context A context to be used for fetching from font provider.
      * @param request A {@link FontRequest} object that identifies the provider and query for the
      *                request. May not be null.
      * @param callback A callback that will be triggered when results are obtained. May not be null.
      * @param handler A handler for running font fetch tasks on.
      */
+    // Deprecating this to direct developers to use Executor based loading/callback, but no
+    // intention to remove this from binary since it's a very old method.
+    @Deprecated // deprecated in 1.14.0-alpha02
     public static void requestFont(
             final @NonNull Context context,
             final @NonNull FontRequest request,
             final @NonNull FontRequestCallback callback,
             final @NonNull Handler handler
     ) {
-        CallbackWithHandler callbackWrapper = new CallbackWithHandler(callback);
+        CallbackWrapper callbackWrapper = new CallbackWrapper(callback);
         Executor executor = RequestExecutor.createHandlerExecutor(handler);
         FontRequestWorker.requestFontAsync(context.getApplicationContext(), request,
                 Typeface.NORMAL, executor, callbackWrapper);
+    }
+
+    /**
+     * Request a font async as specified with {@link FontRequest}
+     *
+     * Loading may take several seconds, and the {@code loadingExecutor} passed should be available
+     * to run blocking requests for several seconds. Results will be returned via
+     * {@code callbackExecutor}.
+     *
+     * @param context A context to be used for fetching from font provider
+     * @param request A {@link FontRequest} object that identifies the provider and query for the
+     *                request.
+     * @param style Typeface Style such as {@link Typeface#NORMAL}, {@link Typeface#BOLD}
+     *              {@link Typeface#ITALIC}, {@link Typeface#BOLD_ITALIC}.
+     * @param loadingExecutor executor to load font on. Loading may take several _seconds_. If
+     *                       {@code null}, a default executor shared with other null-requests will
+     *                        be used.
+     * @param callbackExecutor Used to dispatch callback
+     * @param callback A callback that will be triggered when results are obtained.
+     */
+    public static void requestFont(
+            @NonNull Context context,
+            @NonNull FontRequest request,
+            int style,
+            @Nullable Executor loadingExecutor,
+            @NonNull Executor callbackExecutor,
+            @NonNull FontRequestCallback callback
+    ) {
+        CallbackWrapper callbacKWrapper = new CallbackWrapper(callback, callbackExecutor);
+        Context applicationContext = context.getApplicationContext();
+        FontRequestWorker.requestFontAsync(applicationContext, request, style, loadingExecutor,
+                callbacKWrapper);
     }
 
     /**
@@ -146,7 +188,7 @@ public class FontsContractCompat {
      * sync request.
      *
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
     public static Typeface requestFont(
             @NonNull final Context context,
@@ -157,7 +199,8 @@ public class FontsContractCompat {
             @NonNull final Handler handler,
             @NonNull final FontRequestCallback callback
     ) {
-        CallbackWithHandler callbackWrapper = new CallbackWithHandler(callback, handler);
+        CallbackWrapper callbackWrapper = new CallbackWrapper(
+                callback, RequestExecutor.createHandlerExecutor(handler));
 
         if (isBlockingFetch) {
             return FontRequestWorker.requestFontSync(context, request, callbackWrapper, style,
