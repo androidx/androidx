@@ -40,7 +40,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import org.junit.Assert
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -264,10 +263,9 @@ class ResizingComposeViewTest {
         awaitDrawAndAssertSizes()
     }
 
-    @Ignore // b/284402894
     @Test
     fun whenForceRemeasureCalledAndSizeChanged() {
-        var childHeight by mutableStateOf(10)
+        var childHeight = 10
         val parent = RequestLayoutTrackingFrameLayout(rule.activity)
         var remeasurement: Remeasurement? = null
         rule.runOnUiThread {
@@ -322,6 +320,9 @@ class ResizingComposeViewTest {
     private fun awaitDrawAndAssertSizes() {
         Assert.assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         // size assertion is done inside Modifier.drawBehind() which calls countDown() on the latch
+
+        // await for the ui thread to be idle
+        rule.runOnUiThread { }
     }
 
     @Composable

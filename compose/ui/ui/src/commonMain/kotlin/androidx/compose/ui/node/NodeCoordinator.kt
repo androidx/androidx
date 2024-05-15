@@ -222,7 +222,10 @@ internal abstract class NodeCoordinator(
         if (layer != null) {
             layer.resize(IntSize(width, height))
         } else {
-            wrappedBy?.invalidateLayer()
+            // if the node is not placed then this change will not be visible
+            if (layoutNode.isPlaced) {
+                wrappedBy?.invalidateLayer()
+            }
         }
         measuredSize = IntSize(width, height)
         if (layerBlock != null) {

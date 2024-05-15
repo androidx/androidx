@@ -1073,7 +1073,8 @@ internal class LayoutNode(
      */
     internal fun requestRemeasure(
         forceRequest: Boolean = false,
-        scheduleMeasureAndLayout: Boolean = true
+        scheduleMeasureAndLayout: Boolean = true,
+        invalidateIntrinsics: Boolean = true
     ) {
         if (!ignoreRemeasureRequests && !isVirtual) {
             val owner = owner ?: return
@@ -1082,7 +1083,9 @@ internal class LayoutNode(
                 forceRequest = forceRequest,
                 scheduleMeasureAndLayout = scheduleMeasureAndLayout
             )
-            measurePassDelegate.invalidateIntrinsicsParent(forceRequest)
+            if (invalidateIntrinsics) {
+                measurePassDelegate.invalidateIntrinsicsParent(forceRequest)
+            }
         }
     }
 
@@ -1092,7 +1095,8 @@ internal class LayoutNode(
      */
     internal fun requestLookaheadRemeasure(
         forceRequest: Boolean = false,
-        scheduleMeasureAndLayout: Boolean = true
+        scheduleMeasureAndLayout: Boolean = true,
+        invalidateIntrinsics: Boolean = true
     ) {
         checkPrecondition(lookaheadRoot != null) {
             "Lookahead measure cannot be requested on a node that is not a part of the" +
@@ -1106,7 +1110,9 @@ internal class LayoutNode(
                 forceRequest = forceRequest,
                 scheduleMeasureAndLayout = scheduleMeasureAndLayout
             )
-            lookaheadPassDelegate!!.invalidateIntrinsicsParent(forceRequest)
+            if (invalidateIntrinsics) {
+                lookaheadPassDelegate!!.invalidateIntrinsicsParent(forceRequest)
+            }
         }
     }
 
