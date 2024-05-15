@@ -18,6 +18,7 @@ package androidx.core.telecom.internal
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelUuid
+import android.telecom.CallException
 import android.telecom.Connection
 import android.telecom.ConnectionRequest
 import android.telecom.ConnectionService
@@ -30,13 +31,11 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.CallsManager.Companion.CALL_CREATION_FAILURE_MSG
 import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 
 @OptIn(ExperimentalAppActions::class)
@@ -62,7 +61,7 @@ internal class JetpackConnectionService : ConnectionService() {
         val callAttributes: CallAttributesCompat,
         val callChannel: CallChannels,
         val coroutineContext: CoroutineContext,
-        val completableDeferred: CompletableDeferred<CallSessionLegacy>?,
+        val completableDeferred: CompletableDeferred<AddCallResult>?,
         val onAnswer: suspend (callType: Int) -> Unit,
         val onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         val onSetActive: suspend () -> Unit,
@@ -85,7 +84,7 @@ internal class JetpackConnectionService : ConnectionService() {
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
     fun createConnectionRequest(
-        telecomManager: TelecomManager,
+        telecomManager: TelecomManagerAdapter,
         pendingConnectionRequest: PendingConnectionRequest,
     ) {
         Log.i(TAG, "CreationConnectionRequest:" +
@@ -157,11 +156,9 @@ internal class JetpackConnectionService : ConnectionService() {
         }
         val pendingRequest: PendingConnectionRequest? = getPendingConnectionRequest(request)
         mPendingConnectionRequests.remove(pendingRequest)
-        // Immediately throw a CancellationException out to the client to inform the Voip app that
-        // that call session cannot be created INSTEAD of waiting for the timeout. Otherwise, if the
-        // request is null, a timeout exception will be thrown.
-        pendingRequest?.completableDeferred?.cancel(
-            CancellationException(CALL_CREATION_FAILURE_MSG))
+        // Immediately complete the CompletableDeferred and throw a CallException out to the client
+        // to indicate this addCall request failed!
+        completeAddCallRequestWithException(pendingRequest)
     }
 
     /**
@@ -203,11 +200,9 @@ internal class JetpackConnectionService : ConnectionService() {
         }
         val pendingRequest: PendingConnectionRequest? = getPendingConnectionRequest(request)
         mPendingConnectionRequests.remove(pendingRequest)
-        // Immediately throw a CancellationException out to the client to inform the Voip app that
-        // that call session cannot be created INSTEAD of waiting for the timeout. Otherwise, if the
-        // request is null, a timeout exception will be thrown.
-        pendingRequest?.completableDeferred?.cancel(
-            CancellationException(CALL_CREATION_FAILURE_MSG))
+        // Immediately complete the CompletableDeferred and throw a CallException out to the client
+        // to indicate this addCall request failed!
+        completeAddCallRequestWithException(pendingRequest)
     }
 
     /**
@@ -281,7 +276,10 @@ internal class JetpackConnectionService : ConnectionService() {
         // Explicitly set voip audio mode on connection side
         jetpackConnection.audioModeIsVoip = true
 
-        targetRequest.completableDeferred?.complete(jetpackConnection)
+        targetRequest.completableDeferred?.complete(
+            AddCallResult.SuccessCallSessionLegacy(jetpackConnection)
+        )
+
         mPendingConnectionRequests.remove(targetRequest)
         return jetpackConnection
     }
@@ -328,5 +326,14 @@ internal class JetpackConnectionService : ConnectionService() {
             }
         }
         return null
+    }
+
+    /**
+     * This method should be called when the platform failed to add the ConnectionRequest
+     */
+    private fun completeAddCallRequestWithException(pendingRequest: PendingConnectionRequest?) {
+        pendingRequest?.completableDeferred?.complete(
+            AddCallResult.Error(CallException.CODE_ERROR_UNKNOWN)
+        )
     }
 }
