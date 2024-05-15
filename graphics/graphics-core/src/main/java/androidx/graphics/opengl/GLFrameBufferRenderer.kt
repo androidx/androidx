@@ -474,8 +474,8 @@ class GLFrameBufferRenderer internal constructor(
      * the [GLFrameBufferRenderer] is in an invalid state and can no longer handle rendering
      * content.
      *
-     * @param cancelPending Flag to indicate that in process requests should be completed before
-     * the [GLFrameBufferRenderer] is released.
+     * @param cancelPending If true, pending render requests are cancelled immediately. If false,
+     * pending render requests are completed before releasing the renderer.
      * @param onReleaseCallback Optional callback to be invoked on the underlying OpenGL thread when
      * releasing resources has been completed
      */

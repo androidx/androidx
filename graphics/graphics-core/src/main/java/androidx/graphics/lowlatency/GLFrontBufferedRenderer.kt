@@ -686,14 +686,14 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
 
     /**
      * Releases the [GLFrontBufferedRenderer] and provides an optional callback that is invoked when
-     * the [GLFrontBufferedRenderer] is fully torn down. If the [cancelPending] flag is true, all
+     * the [GLFrontBufferedRenderer] is fully torn down. If the [cancelPending] flag is false, all
      * pending requests to render into the front or multi buffered layers will be processed before
-     * the [GLFrontBufferedRenderer] is torn down. Otherwise all in process requests are ignored.
+     * the [GLFrontBufferedRenderer] is torn down. Otherwise, all in progress requests are ignored.
      * If the [GLFrontBufferedRenderer] is already released, that is [isValid] returns `false`, this
      * method does nothing.
      *
-     * @param cancelPending Flag indicating that requests to render should be processed before
-     * the [GLFrontBufferedRenderer] is released
+     * @param cancelPending If true, pending render requests are cancelled immediately. If false,
+     * pending render requests are completed before releasing the renderer.
      * @param onReleaseComplete Optional callback invoked when the [GLFrontBufferedRenderer] has
      * been released. This callback is invoked on the backing GLThread
      */
