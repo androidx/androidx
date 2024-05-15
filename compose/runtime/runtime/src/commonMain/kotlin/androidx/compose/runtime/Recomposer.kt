@@ -1306,7 +1306,6 @@ class Recomposer(
                     "Unsupported concurrent change during composition. A state object was " +
                         "modified by composition as well as being modified outside composition."
                 )
-                // TODO(chuckj): Consider lifting this restriction by forcing a recompose
             }
         } finally {
             snapshot.dispose()
