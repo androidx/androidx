@@ -95,7 +95,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     static AtomicInteger sLastOutputConfigId = new AtomicInteger(0);
     @GuardedBy("mLock")
     private final Map<CaptureRequest.Key<?>, Object> mParameters = new LinkedHashMap<>();
-    private final List<CaptureResult.Key> mSupportedResultKeys;
     @GuardedBy("mLock")
     private final Map<Integer, Long> mCaptureStartedTimestampMap = new HashMap<>();
     private OnEnableDisableSessionDurationCheck mOnEnableDisableSessionDurationCheck =
@@ -103,19 +102,19 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @Nullable
     private OutputSurface mPostviewOutputSurface;
     private final VendorExtender mVendorExtender;
+    private final boolean mWillReceiveOnCaptureCompleted;
 
     public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
             @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
             @NonNull List<CaptureRequest.Key> supportedRequestKeys,
-            @NonNull List<CaptureResult.Key> supportedResultKeys,
             @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
         super(supportedRequestKeys);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
-        mSupportedResultKeys = supportedResultKeys;
         mContext = context;
         mVendorExtender = vendorExtender;
+        mWillReceiveOnCaptureCompleted = mVendorExtender.willReceiveOnCaptureCompleted();
     }
 
     @NonNull
@@ -374,20 +373,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         return map;
     }
 
-
-    Map<CaptureResult.Key, Object> getCaptureResultKeyMaps(TotalCaptureResult captureResult) {
-        Map<CaptureResult.Key, Object> map = new HashMap<>();
-        for (CaptureResult.Key supportedResultKey : mSupportedResultKeys) {
-            @SuppressWarnings("unchecked")
-            Object value = captureResult.get(supportedResultKey);
-            if (value != null) {
-                map.put(supportedResultKey, value);
-            }
-        }
-        return map;
-    }
-
-
     @Override
     public int startRepeating(@NonNull TagBundle tagBundle,
             @NonNull CaptureCallback captureCallback) {
@@ -497,6 +482,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     @Override
     public int startCapture(boolean postviewEnabled, @NonNull TagBundle tagBundle,
             @NonNull CaptureCallback captureCallback) {
+        Logger.d(TAG, "startCapture postviewEnabled = " + postviewEnabled
+                + " mWillReceiveOnCaptureCompleted = " + mWillReceiveOnCaptureCompleted);
         int captureSequenceId = mNextCaptureSequenceId.getAndIncrement();
 
         if (mRequestProcessor == null || mIsCapturing) {
@@ -607,8 +594,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                         public void onNextImageAvailable(int outputStreamId, long timestampNs,
                                 @NonNull ImageReference imageReference,
                                 @Nullable String physicalCameraId) {
-                            Logger.d(TAG,
-                                    "onNextImageAvailable  outputStreamId=" + outputStreamId);
+                            Logger.d(TAG, "onNextImageAvailable  outputStreamId=" + outputStreamId);
                             if (mStillCaptureProcessor != null) {
                                 mStillCaptureProcessor.notifyImage(imageReference);
                             } else {
@@ -625,11 +611,10 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                     new StillCaptureProcessor.OnCaptureResultCallback() {
                         @Override
                         public void onProcessCompleted() {
-                            if (ExtensionVersion.isMaximumCompatibleVersion(Version.VERSION_1_2)) {
-                                // For OEM implementing v1.2 and below, there is no
-                                // OnCaptureResultCallback being invoked so we finish the
-                                // callback sequence here. the timestamp is fetched from the
-                                // onCaptureStarted callback of the camera2 request.
+                            if (!mWillReceiveOnCaptureCompleted) {
+                                // If ProcessResultImpl.onCaptureCompleted won't be invoked,
+                                // We finish the capture sequence using the timestamp retrieved at
+                                // onCaptureStarted when the process() completed.
                                 long timestamp = getCaptureStartedTimestamp(captureSequenceId);
                                 if (timestamp == INVALID_TIMESTAMP) {
                                     Logger.e(TAG, "Cannot get timestamp for the capture result");
@@ -656,12 +641,9 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                         }
 
                         @Override
-                        public void onCaptureResult(long shutterTimestamp,
+                        public void onCaptureCompleted(long shutterTimestamp,
                                 @NonNull List<Pair<CaptureResult.Key, Object>> result) {
-                            if (ExtensionVersion.isMinimumCompatibleVersion(
-                                    Version.VERSION_1_3)) {
-                                // For OEMs implementing 1.3 or above, onCaptureResult is
-                                // guaranteed.
+                            if (mWillReceiveOnCaptureCompleted) {
                                 captureCallback.onCaptureCompleted(shutterTimestamp,
                                         captureSequenceId,
                                         new KeyValueMapCameraCaptureResult(
@@ -670,7 +652,6 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                                 captureCallback.onCaptureSequenceCompleted(
                                         captureSequenceId);
                             }
-
                         }
 
                         @Override

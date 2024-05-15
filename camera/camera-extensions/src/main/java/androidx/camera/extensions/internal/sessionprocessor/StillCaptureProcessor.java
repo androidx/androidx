@@ -103,7 +103,7 @@ class StillCaptureProcessor {
     interface OnCaptureResultCallback {
         void onProcessCompleted();
 
-        void onCaptureResult(long shutterTimestamp,
+        void onCaptureCompleted(long shutterTimestamp,
                 @NonNull List<Pair<CaptureResult.Key, Object>> result);
 
         void onError(@NonNull Exception e);
@@ -189,7 +189,7 @@ class StillCaptureProcessor {
                                             long shutterTimestamp,
                                             @NonNull List<Pair<CaptureResult.Key,
                                                     Object>> result) {
-                                        onCaptureResultCallback.onCaptureResult(
+                                        onCaptureResultCallback.onCaptureCompleted(
                                                 shutterTimestamp, result);
                                     }
 
@@ -213,7 +213,7 @@ class StillCaptureProcessor {
                                             long shutterTimestamp,
                                             @NonNull List<Pair<CaptureResult.Key,
                                                     Object>> result) {
-                                        onCaptureResultCallback.onCaptureResult(
+                                        onCaptureResultCallback.onCaptureCompleted(
                                                 shutterTimestamp, result);
                                     }
 

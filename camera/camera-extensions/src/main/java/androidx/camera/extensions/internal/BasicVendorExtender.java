@@ -333,7 +333,8 @@ public class BasicVendorExtender implements VendorExtender {
     }
 
     @NonNull
-    private List<CaptureResult.Key> getSupportedCaptureResultKeys() {
+    @Override
+    public List<CaptureResult.Key> getSupportedCaptureResultKeys() {
         if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
             try {
                 List<CaptureResult.Key> keys =
@@ -402,7 +403,6 @@ public class BasicVendorExtender implements VendorExtender {
         return new BasicExtenderSessionProcessor(
                 mPreviewExtenderImpl, mImageCaptureExtenderImpl,
                 getSupportedParameterKeys(context),
-                getSupportedCaptureResultKeys(),
                 this,
                 context);
     }

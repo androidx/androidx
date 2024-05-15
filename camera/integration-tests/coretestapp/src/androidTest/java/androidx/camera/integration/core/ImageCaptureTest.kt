@@ -64,6 +64,7 @@ import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
@@ -1719,7 +1720,11 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
             val cameraSelector =
-                getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
+                getCameraSelectorWithSessionProcessor(
+                    BACK_SELECTOR,
+                    sessionProcessor,
+                    outputYuvformatInCapture = true
+                )
             camera =
                 cameraProvider.bindToLifecycle(
                     fakeLifecycleOwner,
@@ -1809,9 +1814,27 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         canTakeImages(ImageCapture.Builder().apply { setBufferFormat(ImageFormat.YUV_420_888) })
     }
 
+    @kotlin.OptIn(
+        androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class,
+    )
+    @OptIn(ExperimentalCamera2Interop::class)
+    private fun getOutputSizes(cameraSelector: CameraSelector, format: Int): Array<Size> {
+        val cameraInfo = cameraProvider.getCameraInfo(cameraSelector)
+        return if (implName == CameraPipeConfig::class.simpleName) {
+            androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(cameraInfo)
+                .getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                .getOutputSizes(format)
+        } else {
+            androidx.camera.camera2.interop.Camera2CameraInfo.from(cameraInfo)
+                .getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                .getOutputSizes(format)!!
+        }
+    }
+
     private fun getCameraSelectorWithSessionProcessor(
         cameraSelector: CameraSelector,
-        sessionProcessor: SessionProcessor
+        sessionProcessor: SessionProcessor,
+        outputYuvformatInCapture: Boolean = false
     ): CameraSelector {
         val identifier = Identifier.create("idStr")
         ExtendedCameraConfigProviderStore.addConfig(identifier) { _, _ ->
@@ -1833,6 +1856,38 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
                 override fun getSessionProcessor(): SessionProcessor {
                     return sessionProcessor
                 }
+
+                override fun getUseCaseConfigFactory(): UseCaseConfigFactory =
+                    object : UseCaseConfigFactory {
+                        override fun getConfig(
+                            captureType: UseCaseConfigFactory.CaptureType,
+                            captureMode: Int
+                        ): Config? {
+                            if (captureType == UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE) {
+                                val builder = ImageCapture.Builder()
+                                builder.setHighResolutionDisabled(true)
+                                val supportedResolutions = mutableListOf<Pair<Int, Array<Size>>>()
+                                if (outputYuvformatInCapture) {
+                                    supportedResolutions.add(
+                                        Pair(
+                                            ImageFormat.YUV_420_888,
+                                            getOutputSizes(cameraSelector, ImageFormat.YUV_420_888)
+                                        )
+                                    )
+                                } else {
+                                    supportedResolutions.add(
+                                        Pair(
+                                            ImageFormat.JPEG,
+                                            getOutputSizes(cameraSelector, ImageFormat.JPEG)
+                                        )
+                                    )
+                                }
+                                builder.setSupportedResolutions(supportedResolutions)
+                                return builder.useCaseConfig
+                            }
+                            return null
+                        }
+                    }
             }
         }
 

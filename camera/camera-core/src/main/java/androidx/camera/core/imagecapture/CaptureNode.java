@@ -253,6 +253,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
 
     private void propagatePostviewImage(@NonNull ImageProxy imageProxy) {
         if (mCurrentRequest == null) {
+            Logger.w(TAG, "Postview image is closed due to request completed or aborted");
             imageProxy.close();
             return;
         }

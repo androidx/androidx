@@ -180,7 +180,7 @@ class StillCaptureProcessorTest {
                     deferredCaptureCompleted.completeExceptionally(e)
                 }
 
-                override fun onCaptureResult(
+                override fun onCaptureCompleted(
                     shutterTimestamp: Long,
                     result: MutableList<android.util.Pair<CaptureResult.Key<Any>, Any>>
                 ) {}
@@ -355,7 +355,7 @@ class StillCaptureProcessorTest {
                     deferredCapture.completeExceptionally(e)
                 }
 
-                override fun onCaptureResult(
+                override fun onCaptureCompleted(
                     shutterTimestamp: Long,
                     result: MutableList<android.util.Pair<CaptureResult.Key<Any>, Any>>
                 ) {}
@@ -483,7 +483,7 @@ class StillCaptureProcessorTest {
         }
 
         override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-            imageWriter = ImageWriter.newInstance(surface, 2)
+            imageWriter = ImageWriter.newInstance(surface, 2, imageFormat)
         }
 
         override fun onResolutionUpdate(size: Size) {}

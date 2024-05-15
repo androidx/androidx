@@ -185,7 +185,6 @@ class BasicExtenderSessionProcessorTest(
                 fakePreviewExtenderImpl,
                 fakeCaptureExtenderImpl,
                 emptyList(),
-                emptyList(),
                 basicVendorExtender,
                 context
             )
@@ -221,6 +220,28 @@ class BasicExtenderSessionProcessorTest(
 
     @Test
     fun canOutputCorrectly(): Unit = runBlocking {
+        val preview = Preview.Builder().build()
+        val imageCapture = ImageCapture.Builder().build()
+        val previewSemaphore = Semaphore(0)
+        verifyUseCasesOutput(preview, imageCapture, previewSemaphore)
+    }
+
+    @Test
+    fun canOutputCorrectly_NotInvokeOnCaptureCompletedInCaptureProcessor(): Unit = runBlocking {
+        assumeTrue(hasCaptureProcessor)
+        fakeCaptureExtenderImpl =
+            FakeImageCaptureExtenderImpl(hasCaptureProcessor, invokeOnCaptureCompleted = false)
+        basicVendorExtender = BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl)
+        basicVendorExtender.init(cameraProvider.getCameraInfo(cameraSelector))
+        basicExtenderSessionProcessor =
+            BasicExtenderSessionProcessor(
+                fakePreviewExtenderImpl,
+                fakeCaptureExtenderImpl,
+                emptyList(),
+                basicVendorExtender,
+                context
+            )
+
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
         val previewSemaphore = Semaphore(0)
@@ -322,7 +343,6 @@ class BasicExtenderSessionProcessorTest(
             BasicExtenderSessionProcessor(
                 fakePreviewExtenderImpl,
                 fakeCaptureExtenderImpl,
-                emptyList(),
                 emptyList(),
                 BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
                 context
@@ -432,7 +452,6 @@ class BasicExtenderSessionProcessorTest(
             BasicExtenderSessionProcessor(
                 fakePreviewExtenderImpl,
                 fakeCaptureExtenderImpl,
-                emptyList(),
                 emptyList(),
                 BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
                 context
@@ -1027,11 +1046,12 @@ class BasicExtenderSessionProcessorTest(
 
     private open class FakeImageCaptureExtenderImpl(
         private val hasCaptureProcessor: Boolean = false,
-        private val throwErrorOnProcess: Boolean = false
+        private val throwErrorOnProcess: Boolean = false,
+        val invokeOnCaptureCompleted: Boolean = true
     ) : ImageCaptureExtenderImpl, FakeExtenderStateListener() {
         val fakeCaptureProcessorImpl: FakeCaptureProcessorImpl? by lazy {
             if (hasCaptureProcessor) {
-                FakeCaptureProcessorImpl(throwErrorOnProcess)
+                FakeCaptureProcessorImpl(throwErrorOnProcess, invokeOnCaptureCompleted)
             } else {
                 null
             }
@@ -1072,9 +1092,12 @@ class BasicExtenderSessionProcessorTest(
             return mutableListOf()
         }
 
-        override fun getAvailableCaptureResultKeys(): MutableList<CaptureResult.Key<Any>> {
-            return mutableListOf()
-        }
+        @Suppress("UNCHECKED_CAST")
+        override fun getAvailableCaptureResultKeys(): List<CaptureResult.Key<Any>> =
+            if (invokeOnCaptureCompleted)
+            // return a non-empty list to ensure onCaptureCompleted is invoked.
+            listOf(CaptureResult.JPEG_QUALITY as CaptureResult.Key<Any>)
+            else emptyList()
 
         override fun onDeInit() {
             fakeCaptureProcessorImpl?.close()
@@ -1104,8 +1127,10 @@ class BasicExtenderSessionProcessorTest(
         }
     }
 
-    private class FakeCaptureProcessorImpl(val throwErrorOnProcess: Boolean = false) :
-        CaptureProcessorImpl {
+    private class FakeCaptureProcessorImpl(
+        val throwErrorOnProcess: Boolean = false,
+        val invokeOnCaptureCompleted: Boolean = true
+    ) : CaptureProcessorImpl {
         private var imageWriter: ImageWriter? = null
 
         override fun process(results: MutableMap<Int, Pair<Image, TotalCaptureResult>>) {
@@ -1122,12 +1147,15 @@ class BasicExtenderSessionProcessorTest(
             }
             val image = imageWriter!!.dequeueInputImage()
             val captureResult = results[0]!!.second
-            image.timestamp = captureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!
+            val timestamp = captureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!
+            image.timestamp = timestamp
             imageWriter!!.queueInputImage(image)
 
-            resultCallback?.let {
-                val invokeExecutor = executor ?: Executor { it.run() }
-                invokeExecutor.execute { it.onCaptureCompleted(0L, emptyList()) }
+            if (invokeOnCaptureCompleted) {
+                resultCallback?.let {
+                    val invokeExecutor = executor ?: Executor { it.run() }
+                    invokeExecutor.execute { it.onCaptureCompleted(timestamp, emptyList()) }
+                }
             }
         }
 
@@ -1140,7 +1168,7 @@ class BasicExtenderSessionProcessorTest(
         }
 
         override fun onOutputSurface(surface: Surface, imageFormat: Int) {
-            imageWriter = ImageWriter.newInstance(surface, 2)
+            imageWriter = ImageWriter.newInstance(surface, 2, imageFormat)
         }
 
         override fun onResolutionUpdate(size: Size) {}

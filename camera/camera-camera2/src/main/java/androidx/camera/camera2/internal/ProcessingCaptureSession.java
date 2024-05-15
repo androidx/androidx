@@ -373,6 +373,11 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         switch (mProcessorState) {
             case UNINITIALIZED:
             case SESSION_INITIALIZED:
+                if (mPendingCaptureConfigs != null) {
+                    cancelRequests(captureConfigs);
+                    Logger.d(TAG, "cancel the request because are pending un-submitted request");
+                    break;
+                }
                 mPendingCaptureConfigs = captureConfigs;
                 break;
             case ON_CAPTURE_SESSION_STARTED:
@@ -422,6 +427,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     private static class CaptureCallbackAdapter implements SessionProcessor.CaptureCallback {
         private List<CameraCaptureCallback> mCameraCaptureCallbacks;
         private final int mCaptureConfigId;
+        private CameraCaptureResult mCaptureResult = null;
 
         private CaptureCallbackAdapter(int captureConfigId,
                 List<CameraCaptureCallback> cameraCaptureCallbacks) {
@@ -446,10 +452,17 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         }
 
         @Override
+        public void onCaptureCompleted(long timestamp, int captureSequenceId,
+                @NonNull CameraCaptureResult captureResult) {
+            mCaptureResult = captureResult;
+        }
+
+        @Override
         public void onCaptureSequenceCompleted(int captureSequenceId) {
+            CameraCaptureResult cameraCaptureResult = mCaptureResult != null
+                    ? mCaptureResult : new CameraCaptureResult.EmptyCameraCaptureResult();
             for (CameraCaptureCallback cameraCaptureCallback : mCameraCaptureCallbacks) {
-                cameraCaptureCallback.onCaptureCompleted(mCaptureConfigId,
-                        new CameraCaptureResult.EmptyCameraCaptureResult());
+                cameraCaptureCallback.onCaptureCompleted(mCaptureConfigId, cameraCaptureResult);
             }
         }
 

@@ -134,6 +134,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         inputEdge.getPostviewEdge().setListener(
                 inputPacket ->  {
                     if (inputPacket.getProcessingRequest().isAborted()) {
+                        Logger.w(TAG,
+                                "The postview image is closed due to request aborted");
                         // No-ops if the request is aborted.
                         inputPacket.getImageProxy().close();
                         return;

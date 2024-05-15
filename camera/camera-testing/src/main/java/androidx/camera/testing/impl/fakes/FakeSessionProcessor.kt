@@ -16,14 +16,17 @@
 
 package androidx.camera.testing.impl.fakes
 
+import android.graphics.ImageFormat
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.media.ImageWriter
 import android.os.SystemClock
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProcessingUtil
 import androidx.camera.core.ImageReaderProxys
 import androidx.camera.core.impl.CameraCaptureFailure
@@ -101,6 +104,7 @@ class FakeSessionProcessor(
         failStillCaptureImmediately = failedImmediately
     }
 
+    @OptIn(ExperimentalGetImage::class)
     override fun initSession(
         cameraInfo: CameraInfo,
         outputSurfaceConfig: OutputSurfaceConfiguration
@@ -131,8 +135,9 @@ class FakeSessionProcessor(
 
             intermediaPreviewImageReader!!.setOnImageAvailableListener(
                 {
-                    it.acquireNextImage().use {
+                    it.acquireNextImage().use { imageProxy ->
                         val imageDequeued = intermediaPreviewImageWriter!!.dequeueInputImage()
+                        imageDequeued.timestamp = imageProxy!!.imageInfo.timestamp
                         intermediaPreviewImageWriter!!.queueInputImage(imageDequeued)
                     }
                 },
@@ -167,12 +172,19 @@ class FakeSessionProcessor(
             intermediaCaptureImageReader!!.setOnImageAvailableListener(
                 {
                     it.acquireNextImage().use { imageProxy ->
-                        ImageProcessingUtil.convertYuvToJpegBytesIntoSurface(
-                            imageProxy!!,
-                            jpegQuality,
-                            rotationDegrees,
-                            imageCaptureSurfaceConfig.surface
-                        )
+                        if (imageCaptureSurfaceConfig.imageFormat == ImageFormat.JPEG) {
+                            ImageProcessingUtil.convertYuvToJpegBytesIntoSurface(
+                                imageProxy!!,
+                                jpegQuality,
+                                rotationDegrees,
+                                imageCaptureSurfaceConfig.surface
+                            )
+                        } else {
+                            val imageWriter =
+                                ImageWriter.newInstance(imageCaptureSurfaceConfig.surface, 2)
+                            imageWriter.queueInputImage(imageProxy!!.image)
+                            imageWriter.close()
+                        }
                     }
                 },
                 CameraXExecutors.ioExecutor()
@@ -275,7 +287,14 @@ class FakeSessionProcessor(
                     request: RequestProcessor.Request,
                     captureResult: CameraCaptureResult
                 ) {
-                    callback.onCaptureSequenceCompleted(1)
+                    callback.onCaptureCompleted(
+                        captureResult.timestamp,
+                        FAKE_CAPTURE_SEQUENCE_ID,
+                        object : CameraCaptureResult by captureResult {
+                            override fun getTagBundle() = tagBundle
+                        }
+                    )
+                    callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
                 }
 
                 override fun onCaptureFailed(
@@ -331,6 +350,13 @@ class FakeSessionProcessor(
                     request: RequestProcessor.Request,
                     captureResult: CameraCaptureResult
                 ) {
+                    callback.onCaptureCompleted(
+                        captureResult.timestamp,
+                        FAKE_CAPTURE_SEQUENCE_ID,
+                        object : CameraCaptureResult by captureResult {
+                            override fun getTagBundle() = tagBundle
+                        }
+                    )
                     callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
                 }
 
@@ -374,6 +400,13 @@ class FakeSessionProcessor(
         callback: SessionProcessor.CaptureCallback
     ): Int {
         startTriggerCalled.complete(config)
+        callback.onCaptureCompleted(
+            1L,
+            FAKE_CAPTURE_SEQUENCE_ID,
+            object : CameraCaptureResult by CameraCaptureResult.EmptyCameraCaptureResult() {
+                override fun getTagBundle() = tagBundle
+            }
+        )
         callback.onCaptureSequenceCompleted(FAKE_CAPTURE_SEQUENCE_ID)
         return FAKE_CAPTURE_SEQUENCE_ID
     }

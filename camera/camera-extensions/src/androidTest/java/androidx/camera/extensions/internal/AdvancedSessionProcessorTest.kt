@@ -111,6 +111,10 @@ class AdvancedSessionProcessorTest {
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
+    companion object {
+        const val TIMESTAMP = 1000L
+    }
+
     @Before
     fun setUp() = runBlocking {
         // Pixel lacks some Extensions-Interface methods / classes which cause the test failure.
@@ -174,31 +178,55 @@ class AdvancedSessionProcessorTest {
     }
 
     @Test
-    fun useCasesCanWork_directlyUseOutputSurface() = runBlocking {
-        val fakeSessionProcessImpl =
-            FakeSessionProcessImpl(
-                // Directly use output surface
-                previewConfigBlock = { outputSurfaceImpl ->
-                    Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface!!)
-                        .build()
-                },
-                // Directly use output surface
-                captureConfigBlock = { outputSurfaceImpl ->
-                    Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface!!)
-                        .build()
-                },
-                // Directly use output surface
-                analysisConfigBlock = { outputSurfaceImpl ->
-                    Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface!!)
-                        .build()
+    fun useCasesCanWork_directlyUseOutputSurface_invokeOnCaptureCompleted() = runBlocking {
+        verifyUseCasesCanWork_directlyUseOutputSurface(invokeOnCaptureCompleted = true)
+    }
+
+    @Test
+    fun useCasesCanWork_directlyUseOutputSurface_notInvokeOnCaptureCompleted() = runBlocking {
+        verifyUseCasesCanWork_directlyUseOutputSurface(invokeOnCaptureCompleted = false)
+    }
+
+    private fun verifyUseCasesCanWork_directlyUseOutputSurface(invokeOnCaptureCompleted: Boolean) =
+        runBlocking {
+            val fakeSessionProcessImpl =
+                FakeSessionProcessImpl(
+                    invokeOnCaptureCompleted = invokeOnCaptureCompleted,
+                    // Directly use output surface
+                    previewConfigBlock = { outputSurfaceImpl ->
+                        Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface!!)
+                            .build()
+                    },
+                    // Directly use output surface
+                    captureConfigBlock = { outputSurfaceImpl ->
+                        Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface!!)
+                            .build()
+                    },
+                    // Directly use output surface
+                    analysisConfigBlock = { outputSurfaceImpl ->
+                        Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface!!)
+                            .build()
+                    }
+                )
+
+            val preview = Preview.Builder().build()
+            val imageCapture = ImageCapture.Builder().build()
+            val imageAnalysis = ImageAnalysis.Builder().build()
+            verifyUseCasesOutput(
+                fakeSessionProcessImpl,
+                preview,
+                imageCapture,
+                imageAnalysis,
+                object : VendorExtender {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun getSupportedCaptureResultKeys(): List<CaptureResult.Key<Any>> =
+                        if (invokeOnCaptureCompleted)
+                        // return a non-empty list to ensure onCaptureCompleted is invoked.
+                        listOf(CaptureResult.JPEG_QUALITY as CaptureResult.Key<Any>)
+                        else emptyList()
                 }
             )
-
-        val preview = Preview.Builder().build()
-        val imageCapture = ImageCapture.Builder().build()
-        val imageAnalysis = ImageAnalysis.Builder().build()
-        verifyUseCasesOutput(fakeSessionProcessImpl, preview, imageCapture, imageAnalysis)
-    }
+        }
 
     @Test
     fun canInvokeStartTrigger() = runBlocking {
@@ -476,14 +504,38 @@ class AdvancedSessionProcessorTest {
         }
 
     @Test
-    fun startCapture_tagBundleIsReturnedCorrectly(): Unit = runBlocking {
-        val fakeSessionProcessImpl =
-            object : SessionProcessorImpl by FakeSessionProcessImpl() {
-                override fun startCapture(callback: SessionProcessorImpl.CaptureCallback): Int {
-                    callback.onCaptureCompleted(-1, 1, mapOf())
-                    return 1
+    fun startCapture_tagBundleAndTimestampIsReturnedCorrectly_onCaptureCompletedInvoked() {
+        startCapture_tagBundleAndTimestampCorrectly(
+            fakeSessionProcessImpl =
+                object : SessionProcessorImpl by FakeSessionProcessImpl() {
+                    override fun startCapture(callback: SessionProcessorImpl.CaptureCallback): Int {
+                        callback.onCaptureStarted(1, TIMESTAMP)
+                        callback.onCaptureCompleted(TIMESTAMP, 1, mapOf())
+                        callback.onCaptureSequenceCompleted(1)
+                        return 1
+                    }
                 }
-            }
+        )
+    }
+
+    @Test
+    fun startCapture_tagBundleAndTimestampIsReturnedCorrectly_onCaptureCompletedNotInvoked() {
+        startCapture_tagBundleAndTimestampCorrectly(
+            fakeSessionProcessImpl =
+                object : SessionProcessorImpl by FakeSessionProcessImpl() {
+                    override fun startCapture(callback: SessionProcessorImpl.CaptureCallback): Int {
+                        callback.onCaptureStarted(1, TIMESTAMP)
+                        // do not invoke onCaptureCompleted
+                        callback.onCaptureSequenceCompleted(1)
+                        return 1
+                    }
+                }
+        )
+    }
+
+    private fun startCapture_tagBundleAndTimestampCorrectly(
+        fakeSessionProcessImpl: SessionProcessorImpl
+    ): Unit = runBlocking {
         val advancedSessionProcessor =
             AdvancedSessionProcessor(
                 fakeSessionProcessImpl,
@@ -508,8 +560,9 @@ class AdvancedSessionProcessorTest {
                 }
             }
         )
-        assertThat(deferredCameraCaptureResult.awaitWithTimeout(2000).tagBundle)
-            .isSameInstanceAs(tagBundle)
+        val captureResult = deferredCameraCaptureResult.awaitWithTimeout(2000)
+        assertThat(captureResult.tagBundle).isSameInstanceAs(tagBundle)
+        assertThat(captureResult.timestamp).isEqualTo(TIMESTAMP)
     }
 
     @Test
@@ -665,6 +718,8 @@ class AdvancedSessionProcessorTest {
     @SdkSuppress(minSdkVersion = 28) // physical camera id is supported in API28+
     @Test
     fun useCasesCanWork_setPhysicalCameraId() = runBlocking {
+        // OnePlus doesn't support physical camera well.
+        assumeFalse("oneplus".equals(Build.BRAND, ignoreCase = true))
         assumeAllowsSharedSurface()
         val physicalCameraIdList = getPhysicalCameraId(cameraSelector)
         assumeTrue(physicalCameraIdList.isNotEmpty())
@@ -848,13 +903,14 @@ class AdvancedSessionProcessorTest {
         fakeSessionProcessImpl: FakeSessionProcessImpl,
         preview: Preview,
         imageCapture: ImageCapture,
-        imageAnalysis: ImageAnalysis? = null
+        imageAnalysis: ImageAnalysis? = null,
+        vendorExtender: VendorExtender? = null
     ) {
         val advancedSessionProcessor =
             AdvancedSessionProcessor(
                 fakeSessionProcessImpl,
                 emptyList(),
-                object : VendorExtender {},
+                vendorExtender ?: object : VendorExtender {},
                 context
             )
         val latchPreviewFrame = CountDownLatch(1)
@@ -933,7 +989,8 @@ class FakeSessionProcessImpl(
         Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface!!).build()
     },
     var analysisConfigBlock: ((OutputSurfaceImpl) -> Camera2OutputConfigImpl)? = null,
-    var onCaptureSessionStarted: ((RequestProcessorImpl) -> Unit)? = null
+    var onCaptureSessionStarted: ((RequestProcessorImpl) -> Unit)? = null,
+    val invokeOnCaptureCompleted: Boolean = true
 ) : SessionProcessorImpl {
     private var requestProcessor: RequestProcessorImpl? = null
     private var nextSequenceId = 0
@@ -1004,7 +1061,9 @@ class FakeSessionProcessImpl(
         val timestamp = nextTimestamp++
         val sequenceId = nextSequenceId++
         callback.onCaptureStarted(sequenceId, timestamp)
-        callback.onCaptureCompleted(timestamp, sequenceId, emptyMap())
+        if (invokeOnCaptureCompleted) {
+            callback.onCaptureCompleted(timestamp, sequenceId, emptyMap())
+        }
         callback.onCaptureSequenceCompleted(sequenceId)
         return sequenceId
     }
@@ -1053,11 +1112,13 @@ class FakeSessionProcessImpl(
                     totalCaptureResult: TotalCaptureResult
                 ) {
                     callback.onCaptureProcessStarted(currentSequenceId)
-                    callback.onCaptureCompleted(
-                        totalCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!,
-                        currentSequenceId,
-                        mapOf()
-                    )
+                    if (invokeOnCaptureCompleted) {
+                        callback.onCaptureCompleted(
+                            totalCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!,
+                            currentSequenceId,
+                            mapOf()
+                        )
+                    }
                     callback.onCaptureSequenceCompleted(currentSequenceId)
                 }
 
@@ -1113,11 +1174,13 @@ class FakeSessionProcessImpl(
                     request: RequestProcessorImpl.Request,
                     totalCaptureResult: TotalCaptureResult
                 ) {
-                    callback.onCaptureCompleted(
-                        totalCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!,
-                        currentSequenceId,
-                        mapOf()
-                    )
+                    if (invokeOnCaptureCompleted) {
+                        callback.onCaptureCompleted(
+                            totalCaptureResult.get(CaptureResult.SENSOR_TIMESTAMP)!!,
+                            currentSequenceId,
+                            mapOf()
+                        )
+                    }
                 }
 
                 override fun onCaptureFailed(
