@@ -73,21 +73,12 @@
                 android:layout_marginTop="16dp"
                 android:background="#FF0000" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/mediation_switch"
-                android:layout_width="wrap_content"
+            <Spinner
+                android:id="@+id/mediation_dropdown_menu"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/mediation_switch"
-                android:checked="false" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/app_owned_mediatee_switch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:text="@string/app_owned_mediatee_switch"
-                android:checked="false" />
+                android:background="@android:drawable/btn_dropdown"
+                android:spinnerMode="dropdown" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
