@@ -109,6 +109,7 @@ class FocusMeteringControl @Inject constructor(
     private var updateSignal: CompletableDeferred<FocusMeteringResult>? = null
     private var cancelSignal: CompletableDeferred<Result3A?>? = null
 
+    private var focusTimeoutJob: Job? = null
     private var autoCancelJob: Job? = null
 
     fun startFocusAndMetering(
@@ -119,6 +120,7 @@ class FocusMeteringControl @Inject constructor(
 
         useCaseCamera?.let { useCaseCamera ->
             threads.sequentialScope.launch {
+                focusTimeoutJob?.cancel()
                 autoCancelJob?.cancel()
                 cancelSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
                 updateSignal?.setCancelException("Cancelled by another startFocusAndMetering()")
@@ -224,6 +226,11 @@ class FocusMeteringControl @Inject constructor(
                     shouldTriggerAf = afRectangles.isNotEmpty(),
                 )
 
+                // camera-pipe core layer invokes timeout when there is a new frame result from
+                // camera, this is not precise enough for CameraX since it may allow auto-cancel to
+                // be triggered first for same or very close timeout values
+                triggerFocusTimeout(autoFocusTimeoutMs, signal)
+
                 if (action.isAutoCancelEnabled) {
                     triggerAutoCancel(action.autoCancelDurationInMillis, signal, useCaseCamera)
                 }
@@ -244,10 +251,26 @@ class FocusMeteringControl @Inject constructor(
     ) {
         autoCancelJob?.cancel()
 
-        autoCancelJob = threads.scope.launch {
+        autoCancelJob = threads.sequentialScope.launch {
             delay(delayMillis)
             debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
             cancelFocusAndMeteringNowAsync(useCaseCamera, resultToCancel)
+        }
+    }
+
+    private fun triggerFocusTimeout(
+        delayMillis: Long,
+        resultToComplete: CompletableDeferred<FocusMeteringResult>,
+    ) {
+        focusTimeoutJob?.cancel()
+
+        focusTimeoutJob = threads.sequentialScope.launch {
+            delay(delayMillis)
+            debug {
+                "triggerFocusTimeout:" +
+                    " completing with focus result unsuccessful after $delayMillis ms"
+            }
+            resultToComplete.complete(FocusMeteringResult.create(false))
         }
     }
 
@@ -329,6 +352,7 @@ class FocusMeteringControl @Inject constructor(
         val signal = CompletableDeferred<Result3A?>()
         useCaseCamera?.let { useCaseCamera ->
             threads.sequentialScope.launch {
+                focusTimeoutJob?.cancel()
                 autoCancelJob?.cancel()
                 cancelSignal?.setCancelException("Cancelled by another cancelFocusAndMetering()")
                 cancelSignal = signal
