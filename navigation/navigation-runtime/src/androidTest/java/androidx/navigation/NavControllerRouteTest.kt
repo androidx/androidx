@@ -2280,6 +2280,39 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testClearBackStackNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            navigation(route = "nested", startDestination = "nestedStart") {
+                test("nestedStart")
+            }
+            test("second")
+        }
+
+        navController.navigate("nestedStart")
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo("nestedStart")
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        // make sure we are popping and clearing the nested destination directly, instead of
+        // popping/clearing the nested graph itself
+        val popped = navController.popBackStack("nestedStart", true, true)
+        assertThat(popped).isTrue()
+
+        val cleared = navController.clearBackStack("nestedStart")
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
     fun testClearBackStack_multiArgs() {
         val navController = createNavController()
         navController.graph = nav_multiArg_graph
@@ -2593,6 +2626,39 @@ class NavControllerRouteTest {
         assertThat(popped).isTrue()
 
         val cleared = navController.clearBackStack<TestClassPathArg>()
+        assertThat(cleared).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testClearBackStackWithKClassNested() {
+        val navController = createNavController()
+        navController.graph = navController.createGraph(startDestination = "start") {
+            test("start")
+            // a sibling graph with nested KClass destination
+            navigation<TestGraph>(startDestination = TestClass::class) {
+                test<TestClass>()
+            }
+            test("second")
+        }
+
+        navController.navigate(TestClass())
+
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo(
+            TEST_CLASS_ROUTE
+        )
+
+        navController.navigate("second")
+
+        assertThat(navigator.backStack.size).isEqualTo(3)
+        assertThat(navController.currentBackStackEntry?.destination?.route).isEqualTo("second")
+
+        val popped = navController.popBackStack<TestClass>(true, true)
+        assertThat(popped).isTrue()
+
+        val cleared = navController.clearBackStack<TestClass>()
         assertThat(cleared).isTrue()
     }
 
@@ -3236,6 +3302,40 @@ class NavControllerRouteTest {
         assertThat(navigator.backStack.size).isEqualTo(3)
         // Save state should be called on the navigator exactly once
         assertThat(navigator.saveStateCount).isEqualTo(1)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSaveRestoreFromSiblingGraph() {
+        val navController = createNavController()
+        val graph = createNavController().createGraph(route = "root", startDestination = "graphA") {
+            navigation(route = "graphA", startDestination = "A1") {
+                test("A1")
+                test("A2")
+                test("A3")
+            }
+            navigation(route = "graphB", startDestination = "B1") {
+                test("B1")
+            }
+        }
+        navController.graph = graph
+        navController.navigate("A2")
+        navController.navigate("A3")
+
+        assertThat(navController.currentDestination?.route).isEqualTo("A3")
+
+        navController.navigate("graphB") {
+            popUpTo("A2") {
+                inclusive = true
+                saveState = true
+            }
+        }
+
+        navController.navigate("A2") {
+            restoreState = true
+        }
+        // the popped stack [A2, A3] should be restored
+        assertThat(navController.currentDestination?.route).isEqualTo("A3")
     }
 
     @UiThreadTest
