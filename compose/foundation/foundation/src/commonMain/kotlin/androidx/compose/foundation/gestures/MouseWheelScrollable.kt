@@ -35,7 +35,6 @@ import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
@@ -43,7 +42,6 @@ import kotlin.coroutines.coroutineContext
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sign
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
@@ -55,7 +53,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 internal class MouseWheelScrollNode(
     private val scrollingLogic: ScrollingLogic,
-    private val onScrollStopped: suspend CoroutineScope.(velocity: Float) -> Unit,
+    private val onScrollStopped: suspend (velocity: Float) -> Unit,
     private var enabled: Boolean,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode {
     private lateinit var mouseWheelScrollConfig: ScrollConfig
@@ -276,7 +274,7 @@ internal class MouseWheelScrollNode(
         }
         val velocityPxInMs = minOf(abs(targetValue) / MaxAnimationDuration, speed)
         val velocity = sign(targetValue).reverseIfNeeded() * velocityPxInMs * 1000
-        coroutineScope.onScrollStopped(velocity)
+        onScrollStopped(velocity)
     }
 
     private suspend fun ScrollScope.animateMouseWheelScroll(
