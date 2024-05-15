@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
@@ -107,17 +108,20 @@ class HorizontalPageIndicatorScreenshotTest {
     private fun between_pages(isRound: Boolean) {
         rule.setContentWithTheme {
             DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
-                HorizontalPageIndicator(
+                Box(
                     modifier = Modifier
                         .testTag(TEST_TAG)
-                        .size(200.dp),
-                    pageCount = PAGE_COUNT,
-                    currentPage = SELECTED_PAGE_INDEX,
-                    currentPageOffsetFraction = { 0.5f },
-                    selectedColor = Color.Yellow,
-                    unselectedColor = Color.Red,
-                    indicatorSize = 15.dp
-                )
+                        .size(200.dp)
+                ) {
+                    HorizontalPageIndicator(
+                        pageCount = PAGE_COUNT,
+                        currentPage = SELECTED_PAGE_INDEX,
+                        currentPageOffsetFraction = { 0.5f },
+                        selectedColor = Color.Yellow,
+                        unselectedColor = Color.Red,
+                        indicatorSize = 15.dp
+                    )
+                }
             }
         }
         rule.waitForIdle()
@@ -130,17 +134,20 @@ class HorizontalPageIndicatorScreenshotTest {
     @Composable
     private fun defaultHorizontalPageIndicator(isRound: Boolean) {
         DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isRound)) {
-            HorizontalPageIndicator(
+            Box(
                 modifier = Modifier
                     .testTag(TEST_TAG)
-                    .size(200.dp),
-                pageCount = PAGE_COUNT,
-                currentPage = SELECTED_PAGE_INDEX,
-                currentPageOffsetFraction = { 0.0f },
-                selectedColor = Color.Yellow,
-                unselectedColor = Color.Red,
-                indicatorSize = 15.dp
-            )
+                    .size(200.dp)
+            ) {
+                HorizontalPageIndicator(
+                    pageCount = PAGE_COUNT,
+                    currentPage = SELECTED_PAGE_INDEX,
+                    currentPageOffsetFraction = { 0.0f },
+                    selectedColor = Color.Yellow,
+                    unselectedColor = Color.Red,
+                    indicatorSize = 15.dp
+                )
+            }
         }
     }
 }
