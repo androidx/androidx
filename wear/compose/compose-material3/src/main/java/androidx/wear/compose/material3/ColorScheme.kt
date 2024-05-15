@@ -227,6 +227,9 @@ class ColorScheme(
     internal var defaultFilledTonalTextButtonColorsCached: TextButtonColors? = null
     internal var defaultOutlinedTextButtonColorsCached: TextButtonColors? = null
 
+    // Text Toggle Button
+    internal var defaultTextToggleButtonColorsCached: ToggleButtonColors? = null
+
     // Card
     internal var defaultCardColorsCached: CardColors? = null
     internal var defaultOutlinedCardColorsCached: CardColors? = null
