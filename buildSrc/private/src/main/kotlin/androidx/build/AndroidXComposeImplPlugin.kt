@@ -247,8 +247,12 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             compile.inputs.property("composeReportsEnabled", enableReports)
 
             compile.pluginClasspath.from(kotlinPluginProvider.get())
-            compile.enableFeatureFlag(ComposeFeatureFlag.StrongSkipping)
-            compile.enableFeatureFlag(ComposeFeatureFlag.OptimizeNonSkippingGroups)
+
+            // todo(b/291587160): enable when Compose compiler 2.0 is merged
+            // compile.enableFeatureFlag(ComposeFeatureFlag.StrongSkipping)
+            // compile.enableFeatureFlag(ComposeFeatureFlag.OptimizeNonSkippingGroups)
+            compile.addPluginOption(ComposeCompileOptions.StrongSkipping, "true")
+            compile.addPluginOption(ComposeCompileOptions.NonSkippingGroupOptimization, "true")
             if (shouldPublish) {
                 compile.addPluginOption(ComposeCompileOptions.SourceOption, "true")
             }
@@ -348,6 +352,8 @@ private const val ComposePluginId = "androidx.compose.compiler.plugins.kotlin"
 
 private enum class ComposeCompileOptions(val pluginId: String, val key: String) {
     SourceOption(ComposePluginId, "sourceInformation"),
+    StrongSkipping(ComposePluginId, "strongSkipping"),
+    NonSkippingGroupOptimization(ComposePluginId, "nonSkippingGroupOptimization"),
     MetricsOption(ComposePluginId, "metricsDestination"),
     ReportsOption(ComposePluginId, "reportsDestination"),
     FeatureFlagOption(ComposePluginId, "featureFlag"),

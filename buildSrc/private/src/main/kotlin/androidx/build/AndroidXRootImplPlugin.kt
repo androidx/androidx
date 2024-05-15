@@ -151,7 +151,11 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                                 val requested = dep.requested
                                 if (requested is ModuleComponentSelector) {
                                     val module = requested.group + ":" + requested.module
-                                    if (projectModules.containsKey(module)) {
+                                    if (
+                                        // todo(b/331800231): remove compiler exception.
+                                        requested.group != "androidx.compose.compiler" &&
+                                            projectModules.containsKey(module)
+                                    ) {
                                         dep.useTarget(project(projectModules[module]!!))
                                     }
                                 }
