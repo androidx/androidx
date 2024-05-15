@@ -181,7 +181,10 @@ internal class InteractiveWatchFaceImpl(
                 runBlocking {
                     try {
                         withContext(uiThreadCoroutineScope.coroutineContext) {
-                            engine?.let { it.deferredWatchFaceImpl.await() }
+                            engine?.let {
+                                it.deferredWatchFaceImpl.await()
+                                it.unpauseAnimation()
+                            }
                             InteractiveInstanceManager.releaseInstance(instanceId)
                         }
                     } catch (e: Exception) {
@@ -328,6 +331,12 @@ internal class InteractiveWatchFaceImpl(
         aidlMethod(TAG, "overrideComplicationData") {
             engine?.onEditSessionFinished()
         }
+
+    override fun pauseAnimation(binder: IBinder): Unit =
+        aidlMethod(TAG, "pauseAnimation") { engine?.pauseAnimation(binder) }
+
+    override fun unpauseAnimation(): Unit =
+        aidlMethod(TAG, "unpauseAnimation") { engine?.unpauseAnimation() }
 
     fun onDestroy() {
         // Note this is almost certainly called on the ui thread, from release() above.

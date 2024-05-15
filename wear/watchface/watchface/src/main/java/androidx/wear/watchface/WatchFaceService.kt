@@ -28,6 +28,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import android.os.Process
@@ -1364,6 +1365,8 @@ public abstract class WatchFaceService : WallpaperService() {
         private var lastPreviewImageNeedsUpdateRequest: String? = null
         private var overriddenComplications: HashMap<Int, ComplicationData>? = null
         private val complicationSlotsToClearAfterEditing = HashSet<Int>()
+        private var pauseAnimationDeathRecipient: PauseAnimationDeathRecipient? = null
+        private var privIsVisible = true
 
         /**
          * Returns the [WatchFaceImpl] if [deferredWatchFaceImpl] has completed successfully or
@@ -1763,6 +1766,36 @@ public abstract class WatchFaceService : WallpaperService() {
                 }
 
                 overriddenComplications = null
+            }
+        }
+
+        /** Used to keep track of whether the client has died while animation is paused. */
+        private inner class PauseAnimationDeathRecipient(
+            val binder: IBinder
+        ) : IBinder.DeathRecipient {
+            override fun binderDied() {
+                synchronized(lock) {
+                    // Remove the isVisible override. Typically privIsVisible will be true.
+                    mutableWatchState.isVisible.value = privIsVisible
+                    binder.unlinkToDeath(this, 0)
+                    pauseAnimationDeathRecipient = null
+                }
+            }
+        }
+
+        @AnyThread
+        internal fun pauseAnimation(binder: IBinder) {
+            synchronized(lock) {
+                pauseAnimationDeathRecipient = PauseAnimationDeathRecipient(binder)
+                binder.linkToDeath(pauseAnimationDeathRecipient!!, 0)
+                // By overriding visibility to false, we stop animation.
+                mutableWatchState.isVisible.value = false
+            }
+        }
+
+        internal fun unpauseAnimation() {
+            synchronized(lock) {
+                pauseAnimationDeathRecipient?.binderDied()
             }
         }
 
@@ -2630,11 +2663,21 @@ public abstract class WatchFaceService : WallpaperService() {
                     }
                 }
 
-                mutableWatchState.isVisible.value = visible || forceIsVisibleForTesting()
+                var isVisible = visible
+
+                synchronized(lock) {
+                    privIsVisible = isVisible
+                    // If animation is paused then continue to pretend we're not visible.
+                    if (pauseAnimationDeathRecipient != null) {
+                        isVisible = false
+                    }
+                }
+
+                mutableWatchState.isVisible.value = isVisible || forceIsVisibleForTesting()
                 wslFlow.pendingVisibilityChanged = null
 
                 try {
-                    getWatchFaceImplOrNull()?.onVisibility(visible)
+                    getWatchFaceImplOrNull()?.onVisibility(isVisible)
                 } catch (e: Exception) {
                     Log.e(TAG, "WatchfaceImpl.onVisibility failed", e)
                 }
@@ -3015,6 +3058,8 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("lastComplications=${complicationsFlow.value}")
             writer.println("pendingUpdateTime=${pendingUpdateTime.isPending()}")
             writer.println("Resource only package name $resourceOnlyWatchFacePackageName")
+            writer.println("privIsVisible=$privIsVisible")
+            writer.println("pauseAnimationDeathRecipient=$pauseAnimationDeathRecipient")
 
             synchronized(lock) {
                 writer.println("overriddenComplications=$overriddenComplications")

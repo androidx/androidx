@@ -37,12 +37,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 29
+    // Next Id: 31
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 13;
+    const int API_VERSION = 14;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -271,4 +271,19 @@ interface IInteractiveWatchFace {
      */
     void updateWatchfaceInstanceSync(
             in String newInstanceId, in UserStyleWireFormat userStyle) = 28;
+
+    /**
+     * Pauses all watch face animation (including time updates) until either the binder dies or
+     * unpauseAnimation is called.
+     *
+     * @since API version 14.
+     */
+    void pauseAnimation(in IBinder binder) = 29;
+
+    /**
+     * Unpauses watch face animation.
+     *
+     * @since API version 14.
+     */
+    void unpauseAnimation() = 30;
 }

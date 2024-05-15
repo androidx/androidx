@@ -112,6 +112,7 @@ internal class TestExampleCanvasAnalogWatchFaceService(
     private var surfaceHolderOverride: SurfaceHolder
 ) : ExampleCanvasAnalogWatchFaceService() {
     internal lateinit var watchFace: WatchFace
+    lateinit var lastWatchState: WatchState
 
     init {
         attachBaseContext(testContext)
@@ -125,6 +126,7 @@ internal class TestExampleCanvasAnalogWatchFaceService(
         complicationSlotsManager: ComplicationSlotsManager,
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
+        lastWatchState = watchState
         watchFace =
             super.createWatchFace(
                 surfaceHolder,

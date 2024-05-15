@@ -44,6 +44,7 @@ import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationDisplayPolicy
 import androidx.wear.watchface.complications.data.toApiComplicationText
 import androidx.wear.watchface.control.IInteractiveWatchFace
+import androidx.wear.watchface.control.IPauseAnimationWatchdog
 import androidx.wear.watchface.control.IWatchfaceListener
 import androidx.wear.watchface.control.IWatchfaceReadyListener
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -158,6 +159,20 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     public fun clearComplicationDataOverride() {}
 
     /**
+     * Pauses all animation on the watch face (including time ticks) until either [unpauseAnimation]
+     * or [close] is called or the client process exits. Requires a compatible watchface, does
+     * nothing on an older watch face.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun pauseAnimation() {}
+
+    /**
+     * Restarts animations paused by [pauseAnimation].
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun unpauseAnimation() {}
+
+    /**
      * Renders the watchface to a shared memory backed [Bitmap] with the given settings. Note this
      * will be fairly slow since either software canvas or glReadPixels will be invoked.
      *
@@ -238,7 +253,9 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
     /**
      * Renames this instance to [newInstanceId] (must be unique, usually this would be different
      * from the old ID but that's not a requirement). Sets the current [UserStyle] represented as a
-     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side effect of enabling or disabling complicationSlots, which will be visible via [ComplicationSlotState.isEnabled].
+     * [UserStyleData> and clears any complication data. Setting the new UserStyle may have a side
+     * effect of enabling or disabling complicationSlots, which will be visible via
+     * [ComplicationSlotState.isEnabled].
      */
     @Throws(RemoteException::class)
     public fun updateWatchFaceInstance(newInstanceId: String, userStyle: UserStyleData)
@@ -883,7 +900,22 @@ internal constructor(
 
     override fun isComplicationDisplayPolicySupported() = apiVersion >= 8
 
+    override fun pauseAnimation() {
+        if (apiVersion >= 14) {
+            iInteractiveWatchFace.pauseAnimation(PauseAnimationWatchdog())
+        }
+    }
+
+    override fun unpauseAnimation() {
+        if (apiVersion >= 14) {
+            iInteractiveWatchFace.unpauseAnimation()
+        }
+    }
+
     companion object {
         private const val TAG = "InteractiveWatchFaceClientImpl"
     }
 }
+
+/** Trivial AIDL binder used by the WatchFaceService to detect if the client service has died. */
+internal class PauseAnimationWatchdog : IPauseAnimationWatchdog.Stub()
