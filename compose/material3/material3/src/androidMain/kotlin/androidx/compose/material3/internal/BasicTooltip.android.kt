@@ -45,7 +45,10 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
@@ -157,6 +160,9 @@ private fun Modifier.handleGestures(
         this.pointerInput(state) {
             coroutineScope {
                 awaitEachGesture {
+                    // Long press will finish before or after show so keep track of it, in a
+                    // flow to handle both cases
+                    val isLongPressedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
                     val longPressTimeout = viewConfiguration.longPressTimeoutMillis
                     val pass = PointerEventPass.Initial
 
@@ -172,39 +178,50 @@ private fun Modifier.handleGestures(
                             }
                         } catch (_: PointerEventTimeoutCancellationException) {
                             // handle long press - Show the tooltip
-                            launch { state.show(MutatePriority.UserInput) }
+                            launch(start = CoroutineStart.UNDISPATCHED) {
+                                try {
+                                    isLongPressedFlow.tryEmit(true)
+                                    state.show(MutatePriority.PreventUserInput)
+                                } finally {
+                                    isLongPressedFlow.collectLatest { isLongPressed ->
+                                        if (!isLongPressed) { state.dismiss() }
+                                    }
+                                }
+                            }
 
                             // consume the children's click handling
-                            val changes = awaitPointerEvent(pass = pass).changes
-                            for (i in 0 until changes.size) { changes[i].consume() }
+                            // Long press may still be in progress
+                            val upEvent = waitForUpOrCancellation(pass = pass)
+                            upEvent?.consume()
+                        } finally {
+                            isLongPressedFlow.tryEmit(false)
                         }
                     }
                 }
             }
-        }
-            .pointerInput(state) {
-                coroutineScope {
-                    awaitPointerEventScope {
-                        val pass = PointerEventPass.Main
+        }.pointerInput(state) {
+            coroutineScope {
+                awaitPointerEventScope {
+                    val pass = PointerEventPass.Main
 
-                        while (true) {
-                            val event = awaitPointerEvent(pass)
-                            val inputType = event.changes[0].type
-                            if (inputType == PointerType.Mouse) {
-                                when (event.type) {
-                                    PointerEventType.Enter -> {
-                                        launch { state.show(MutatePriority.UserInput) }
-                                    }
+                    while (true) {
+                        val event = awaitPointerEvent(pass)
+                        val inputType = event.changes[0].type
+                        if (inputType == PointerType.Mouse) {
+                            when (event.type) {
+                                PointerEventType.Enter -> {
+                                    launch { state.show(MutatePriority.UserInput) }
+                                }
 
-                                    PointerEventType.Exit -> {
-                                        state.dismiss()
-                                    }
+                                PointerEventType.Exit -> {
+                                    state.dismiss()
                                 }
                             }
                         }
                     }
                 }
             }
+        }
     } else this
 
 private fun Modifier.anchorSemantics(
