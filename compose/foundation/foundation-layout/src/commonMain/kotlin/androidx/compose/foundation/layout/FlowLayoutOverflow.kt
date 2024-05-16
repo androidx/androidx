@@ -702,11 +702,11 @@ internal data class FlowLayoutOverflowState internal constructor(
     internal val minLinesToShowCollapse: Int,
     internal val minCrossAxisSizeToShowCollapse: Int
 ) {
-    internal val noOfItemsShown: Int
+    internal val shownItemCount: Int
         get() {
             if (itemShown == -1) {
                 throw IllegalStateException(
-                    "Accessing noOfItemsShown before it is set. " +
+                    "Accessing shownItemCount before it is set. " +
                         "Are you calling this in the Composition phase, " +
                         "rather than in the draw phase? " +
                         "Consider our samples on how to use it during the draw phase " +
@@ -768,7 +768,7 @@ internal data class FlowLayoutOverflowState internal constructor(
                 var ellipsisSize: IntIntPair?
                 if (hasNext) {
                     measurable = getOverflowMeasurable?.invoke(
-                        /* isExpandable */ true, noOfItemsShown
+                        /* isExpandable */ true, shownItemCount
                     ) ?: seeMoreMeasurable
                     ellipsisSize = seeMoreSize
                     if (getOverflowMeasurable == null) {
@@ -779,7 +779,7 @@ internal data class FlowLayoutOverflowState internal constructor(
                         totalCrossAxisSize >= (minCrossAxisSizeToShowCollapse)
                      ) {
                         measurable = getOverflowMeasurable?.invoke(
-                            /* isExpandable */ false, noOfItemsShown
+                            /* isExpandable */ false, shownItemCount
                         ) ?: collapseMeasurable
                     }
                     ellipsisSize = collapseSize
