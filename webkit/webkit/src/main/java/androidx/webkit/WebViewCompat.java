@@ -1040,7 +1040,8 @@ public class WebViewCompat {
      * <p>The app is responsible for adding the X-Client-Data header to any request that may use
      * variations metadata, such as requests to Google web properties. The returned string will be a
      * base64 encoded ClientVariations proto:
-     * https://source.chromium.org/chromium/chromium/src/+/main:components/variations/proto/client_variations.proto
+     * <a href="https://source.chromium.org/chromium/chromium/src/+/main:components/variations/proto/client_variations.proto">
+     * https://source.chromium.org/chromium/chromium/src/+/main:components/variations/proto/client_variations.proto</a>
      *
      * @return the variations header. The string may be empty if the header is not available.
      * @see WebView#loadUrl(String, java.util.Map<String, String>)
