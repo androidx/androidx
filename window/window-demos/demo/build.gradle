@@ -48,7 +48,7 @@ android {
         }
     }
     buildTypes {
-        all {
+        configureEach {
             signingConfig signingConfigs.config
         }
         release {

@@ -179,7 +179,7 @@ androidXMultiplatform {
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
-    targets.all { target ->
+    targets.configureEach { target ->
         if (target.platformType == KotlinPlatformType.native) {
             // Configure this native target to the SQLite compilation.
             // This list likely only adds the iOS targets when they are enabled as the desktop
@@ -221,7 +221,7 @@ androidXMultiplatform {
                 implementation(project(":sqlite:sqlite-framework"))
             }
         }
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     dependsOn(nativeMain)
