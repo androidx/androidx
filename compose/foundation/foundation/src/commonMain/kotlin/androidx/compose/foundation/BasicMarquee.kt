@@ -27,10 +27,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.FixedMotionDurationScale.scaleFactor
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
-import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeIterations
-import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeRepeatDelayMillis
-import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeSpacing
-import androidx.compose.foundation.MarqueeDefaults.DefaultMarqueeVelocity
+import androidx.compose.foundation.MarqueeDefaults.DefaultIterations
+import androidx.compose.foundation.MarqueeDefaults.DefaultRepeatDelayMillis
+import androidx.compose.foundation.MarqueeDefaults.DefaultSpacing
+import androidx.compose.foundation.MarqueeDefaults.DefaultVelocity
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -81,26 +81,26 @@ object MarqueeDefaults {
      */
     // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=736;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
     @Suppress("MayBeConstant")
-    val DefaultMarqueeIterations: Int = 3
+    val DefaultIterations: Int = 3
 
     /**
      * Default value for the `repeatDelayMillis` parameter to [basicMarquee].
      */
     // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13979;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
     @Suppress("MayBeConstant")
-    val DefaultMarqueeRepeatDelayMillis: Int = 1_200
+    val DefaultRepeatDelayMillis: Int = 1_200
 
     /**
      * Default value for the `spacing` parameter to [basicMarquee].
      */
     // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=14088;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-    val DefaultMarqueeSpacing: MarqueeSpacing = MarqueeSpacing.fractionOfContainer(1f / 3f)
+    val DefaultSpacing: MarqueeSpacing = MarqueeSpacing.fractionOfContainer(1f / 3f)
 
     /**
      * Default value for the `velocity` parameter to [basicMarquee].
      */
     // From https://cs.android.com/android/platform/superproject/+/master:frameworks/base/core/java/android/widget/TextView.java;l=13980;drc=6d97d6d7215fef247d1a90e05545cac3676f9212
-    val DefaultMarqueeVelocity: Dp = 30.dp
+    val DefaultVelocity: Dp = 30.dp
 }
 
 /**
@@ -142,13 +142,13 @@ object MarqueeDefaults {
  */
 @Stable
 fun Modifier.basicMarquee(
-    iterations: Int = DefaultMarqueeIterations,
+    iterations: Int = DefaultIterations,
     animationMode: MarqueeAnimationMode = Immediately,
     // TODO(aosp/2339066) Consider taking an AnimationSpec instead of specific configuration params.
-    repeatDelayMillis: Int = DefaultMarqueeRepeatDelayMillis,
+    repeatDelayMillis: Int = DefaultRepeatDelayMillis,
     initialDelayMillis: Int = if (animationMode == Immediately) repeatDelayMillis else 0,
-    spacing: MarqueeSpacing = DefaultMarqueeSpacing,
-    velocity: Dp = DefaultMarqueeVelocity
+    spacing: MarqueeSpacing = DefaultSpacing,
+    velocity: Dp = DefaultVelocity
 ): Modifier = this then MarqueeModifierElement(
     iterations = iterations,
     animationMode = animationMode,
