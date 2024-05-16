@@ -367,7 +367,7 @@ public class WebViewCompat {
             try {
                 return getLoadedWebViewPackageInfo();
             } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException
-                     | NoSuchMethodException  e) {
+                     | NoSuchMethodException ignored) {
             }
         }
         return null;
@@ -406,13 +406,8 @@ public class WebViewCompat {
                 webviewPackageName = (String) webviewUpdateServiceClass.getMethod(
                         "getCurrentWebViewPackageName").invoke(null);
             }
-        } catch (ClassNotFoundException e) {
-            return null;
-        } catch (IllegalAccessException e) {
-            return null;
-        } catch (InvocationTargetException e) {
-            return null;
-        } catch (NoSuchMethodException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException
+                 | NoSuchMethodException e) {
             return null;
         }
         if (webviewPackageName == null) return null;
@@ -1182,11 +1177,7 @@ public class WebViewCompat {
                 // WebView.checkThread() performs some logging and potentially throws an exception
                 // if WebView is used on the wrong thread.
                 checkThreadMethod.invoke(webview);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
         }
