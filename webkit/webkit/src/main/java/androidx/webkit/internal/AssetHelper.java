@@ -136,7 +136,7 @@ public class AssetHelper {
 
     /**
      * Resolves the given relative child string path against the given parent directory.
-     *
+     * <p>
      * It resolves the given child path and creates a {@link File} object using the canonical path
      * of that file if its canonical path starts with the canonical path of the parent directory.
      *
@@ -159,7 +159,7 @@ public class AssetHelper {
     /**
      * Returns the canonical path for the given directory with a {@code "/"} at the end if doesn't
      * have one.
-     *
+     * <p>
      * Having a slash {@code "/"} at the end of a directory path is important when checking if a
      * directory is a parent of another child directory or a file.
      * E.g: the directory {@code "/some/path/to"} is not a parent of "/some/path/to_file". However,

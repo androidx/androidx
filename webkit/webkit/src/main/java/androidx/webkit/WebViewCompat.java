@@ -525,7 +525,7 @@ public class WebViewCompat {
      *
      * <table>
      * <tr><th>Rule</th><th>Description</th><th>Example</th></tr>
-     *
+     * <p>
      * <tr>
      * <td>http/https with hostname</td>
      * <td>{@code SCHEME} is http or https; {@code HOSTNAME_PATTERN} is a regular hostname; {@code
@@ -538,7 +538,7 @@ public class WebViewCompat {
      * is www.example.com.</li>
      * </ul></td>
      * </tr>
-     *
+     * <p>
      * <tr>
      * <td>http/https with pattern matching</td>
      * <td>{@code SCHEME} is http or https; {@code HOSTNAME_PATTERN} is a sub-domain matching
@@ -551,7 +551,7 @@ public class WebViewCompat {
      * <li>{@code https://*.example.com:8080} - Matches https://calendar.example.com:8080</li>
      * </ul></td>
      * </tr>
-     *
+     * <p>
      * <tr>
      * <td>http/https with IP literal</td>
      * <td>{@code SCHEME} is https or https; {@code HOSTNAME_PATTERN} is IP literal; {@code PORT} is
@@ -566,7 +566,7 @@ public class WebViewCompat {
      * <li>{@code https://[::1]:99} - Matches any https:// URL to the IPv6 loopback on port 99.</li>
      * </ul></td>
      * </tr>
-     *
+     * <p>
      * <tr>
      * <td>Custom scheme</td>
      * <td>{@code SCHEME} is a custom scheme; {@code HOSTNAME_PATTERN} and {@code PORT} must not be
@@ -575,7 +575,7 @@ public class WebViewCompat {
      * <li>{@code my-app-scheme://} - Matches any my-app-scheme:// URL.</li>
      * </ul></td>
      * </tr>
-     *
+     * <p>
      * <tr><td>{@code *}</td>
      * <td>Wildcard rule, matches any origin.</td>
      * <td><ul><li>{@code *}</li></ul></td>
@@ -601,18 +601,18 @@ public class WebViewCompat {
      * // message needs to be a JavaScript String or ArrayBuffer, MessagePorts is an optional
      * // parameter.
      * myObject.postMessage(message[, MessagePorts])
-     *
+     * <p>
      * // To receive messages posted from the app side, assign a function to the "onmessage"
      * // property. This function should accept a single "event" argument. "event" has a "data"
      * // property, which is the message String or ArrayBuffer from the app side.
      * myObject.onmessage = function(event) { ... }
-     *
+     * <p>
      * // To be compatible with DOM EventTarget's addEventListener, it accepts type and listener
      * // parameters, where type can be only "message" type and listener can only be a JavaScript
      * // function for myObject. An event object will be passed to listener with a "data" property,
      * // which is the message String or ArrayBuffer from the app side.
      * myObject.addEventListener(type, listener)
-     *
+     * <p>
      * // To be compatible with DOM EventTarget's removeEventListener, it accepts type and listener
      * // parameters, where type can be only "message" type and listener can only be a JavaScript
      * // function for myObject.

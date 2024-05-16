@@ -223,10 +223,10 @@ public class WebViewClientCompat extends WebViewClient implements WebViewClientB
 
     /**
      * Notify the host application that a loading URL has been flagged by Safe Browsing.
-     *
+     * <p>
      * The application must invoke the callback to indicate the preferred response. The default
      * behavior is to show an interstitial to the user, with the reporting checkbox visible.
-     *
+     * <p>
      * If the application needs to show its own custom interstitial UI, the callback can be invoked
      * asynchronously with {@link SafeBrowsingResponseCompat#backToSafety} or {@link
      * SafeBrowsingResponseCompat#proceed}, depending on user response.

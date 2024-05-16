@@ -133,10 +133,10 @@ public class WebViewMediaIntegrityApiStatusConfig {
         /**
          * Set all required override rules at once using a map of origin patterns to
          * desired API statuses. This overwrites existing rules.
-         *
+         * <p>
          * If two or more origin patterns match a given origin site, the least permissive option
          * will be chosen.
-         *
+         * <p>
          * This is only meant for internal use within the library.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
