@@ -25,7 +25,8 @@ import androidx.annotation.Nullable;
  * Used to receive callbacks on {@link WebView} renderer events.
  *
  * WebViewRenderProcessClient instances may be set or retrieved via {@link
- * WebViewCompat#setWebViewRenderProcessClient(WebView,Executor,WebViewRenderProcessClient)}
+ * WebViewCompat#setWebViewRenderProcessClient(WebView, java.util.concurrent.Executor,
+ * WebViewRenderProcessClient)}
  * and {@link WebViewCompat#getWebViewRenderProcessClient(WebView)}.
  *
  * Instances may be attached to multiple WebViews, and thus a single renderer event may cause

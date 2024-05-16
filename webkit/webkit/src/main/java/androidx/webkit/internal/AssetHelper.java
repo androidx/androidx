@@ -191,10 +191,10 @@ public class AssetHelper {
 
     /**
      * Use {@link MimeUtil#getMimeFromFileName} to guess MIME type or return the
-     * {@link DEFAULT_MIME_TYPE} if it can't guess.
+     * {@link AssetHelper#DEFAULT_MIME_TYPE} if it can't guess.
      *
      * @param filePath path of the file to guess its MIME type.
-     * @return MIME type guessed from file extension or {@link DEFAULT_MIME_TYPE}.
+     * @return MIME type guessed from file extension or {@link AssetHelper#DEFAULT_MIME_TYPE}.
      */
     @NonNull
     public static String guessMimeType(@NonNull String filePath) {

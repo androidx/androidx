@@ -1044,7 +1044,7 @@ public class WebViewCompat {
      * https://source.chromium.org/chromium/chromium/src/+/main:components/variations/proto/client_variations.proto</a>
      *
      * @return the variations header. The string may be empty if the header is not available.
-     * @see WebView#loadUrl(String, java.util.Map<String, String>)
+     * @see WebView#loadUrl(String, java.util.Map)
      */
     @RequiresFeature(
             name = WebViewFeature.GET_VARIATIONS_HEADER,

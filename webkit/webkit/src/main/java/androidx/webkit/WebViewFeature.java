@@ -602,7 +602,7 @@ public class WebViewFeature {
      * device, and the WebView APK on the device.
      *
      * <p class="note"><b>Note:</b> This method is different from
-     * {@link #isStartupFeatureSupported(String, Context)} and this method only accepts
+     * {@link WebViewFeature#isStartupFeatureSupported(Context, String)} and this method only accepts
      * certain features. Please verify that the correct feature checking method is used for a
      * particular feature.
      *
