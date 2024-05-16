@@ -45,7 +45,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -210,7 +209,39 @@ internal class BasicTextFieldImmIntegrationTest {
     }
 
     @Test
-    fun immUpdated_whenFilterChangesText_fromInputConnection() {
+    fun immUpdated_whenFilterChangesText_withComposition_fromInputConnection() {
+        val state = TextFieldState()
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                state = state,
+                modifier = Modifier.testTag(Tag),
+                inputTransformation = {
+                    // Force the selection not to change.
+                    val initialSelection = selection
+                    append("world")
+                    selection = initialSelection
+                }
+            )
+        }
+        requestFocus(Tag)
+        inputMethodInterceptor.withInputConnection {
+            // TODO move this before withInputConnection?
+            imm.resetCalls()
+
+            setComposingText("hello", 1)
+
+            @Suppress("SpellCheckingInspection")
+            assertThat(state.text.toString()).isEqualTo("helloworld")
+        }
+
+        rule.runOnIdle {
+            imm.expectCall("restartInput")
+            imm.expectNoMoreCalls()
+        }
+    }
+
+    @Test
+    fun immNotUpdated_whenFilterChangesText_withoutComposition_fromInputConnection() {
         val state = TextFieldState()
         inputMethodInterceptor.setTextFieldTestContent {
             BasicTextField(
@@ -236,13 +267,12 @@ internal class BasicTextFieldImmIntegrationTest {
         }
 
         rule.runOnIdle {
-            imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
     }
 
     @Test
-    fun immUpdated_whenFilterChangesText_fromKeyEvent() {
+    fun immNotUpdated_whenFilterChangesText_withoutComposition_fromKeyEvent() {
         val state = TextFieldState()
         inputMethodInterceptor.setContent {
             BasicTextField(
@@ -261,12 +291,10 @@ internal class BasicTextFieldImmIntegrationTest {
         rule.onNodeWithTag(Tag).performKeyInput { pressKey(Key.A) }
 
         rule.runOnIdle {
-            imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
     }
 
-    @FlakyTest(bugId = 290927588)
     @Test
     fun immUpdated_whenFilterChangesSelection_fromInputConnection() {
         val state = TextFieldState()
@@ -284,13 +312,14 @@ internal class BasicTextFieldImmIntegrationTest {
         }
 
         rule.runOnIdle {
-            imm.expectCall("updateSelection(0, 5, 0, 5)")
+            // nullify composition since selection has been changed programmatically
+            imm.expectCall("updateSelection(0, 5, -1, -1)")
             imm.expectNoMoreCalls()
         }
     }
 
     @Test
-    fun immUpdated_whenEditChangesText() {
+    fun immNotUpdated_whenEditOnlyChangesText() {
         val state = TextFieldState()
         inputMethodInterceptor.setContent {
             BasicTextField(state, Modifier.testTag(Tag))
@@ -306,7 +335,6 @@ internal class BasicTextFieldImmIntegrationTest {
         }
 
         rule.runOnIdle {
-            imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
     }
@@ -350,7 +378,6 @@ internal class BasicTextFieldImmIntegrationTest {
 
         rule.runOnIdle {
             imm.expectCall("updateSelection(5, 5, -1, -1)")
-            imm.expectCall("restartInput")
             imm.expectNoMoreCalls()
         }
     }
