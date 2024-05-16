@@ -71,6 +71,7 @@ class State3AControl @Inject constructor(
     }
 
     private val lock = Any()
+    private val invalidateLock = Any()
 
     @GuardedBy("lock")
     private val updateSignals = mutableSetOf<CompletableDeferred<Unit>>()
@@ -98,6 +99,12 @@ class State3AControl @Inject constructor(
     private fun <T> updateOnPropertyChange(
         initialValue: T
     ) = object : ObservableProperty<T>(initialValue) {
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+            synchronized(invalidateLock) {
+                super.setValue(thisRef, property, value)
+            }
+        }
+
         override fun afterChange(property: KProperty<*>, oldValue: T, newValue: T) {
             if (newValue != oldValue) {
                 invalidate()
@@ -133,28 +140,30 @@ class State3AControl @Inject constructor(
     fun invalidate() {
         // TODO(b/276779600): Refactor and move the setting of these parameter to
         //  CameraGraph.Config(requiredParameters = mapOf(....)).
-        val preferAeMode = getFinalPreferredAeMode()
-        val preferAfMode = preferredFocusMode ?: getDefaultAfMode()
+        synchronized(invalidateLock) {
+            val preferAeMode = getFinalPreferredAeMode()
+            val preferAfMode = preferredFocusMode ?: getDefaultAfMode()
 
-        val parameters: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
-            CaptureRequest.CONTROL_AE_MODE to cameraProperties.metadata.getSupportedAeMode(
-                preferAeMode
-            ),
-            CaptureRequest.CONTROL_AF_MODE to cameraProperties.metadata.getSupportedAfMode(
-                preferAfMode
-            ),
-            CaptureRequest.CONTROL_AWB_MODE to cameraProperties.metadata.getSupportedAwbMode(
-                CaptureRequest.CONTROL_AWB_MODE_AUTO
+            val parameters: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
+                CaptureRequest.CONTROL_AE_MODE to cameraProperties.metadata.getSupportedAeMode(
+                    preferAeMode
+                ),
+                CaptureRequest.CONTROL_AF_MODE to cameraProperties.metadata.getSupportedAfMode(
+                    preferAfMode
+                ),
+                CaptureRequest.CONTROL_AWB_MODE to cameraProperties.metadata.getSupportedAwbMode(
+                    CaptureRequest.CONTROL_AWB_MODE_AUTO
+                )
             )
-        )
 
-        preferredAeFpsRange?.let {
-            parameters[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = it
-        }
+            preferredAeFpsRange?.let {
+                parameters[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = it
+            }
 
-        useCaseCamera?.requestControl?.addParametersAsync(
-            values = parameters
-        )?.apply {
+            useCaseCamera?.requestControl?.addParametersAsync(
+                values = parameters
+            )
+        }?.apply {
             toCompletableDeferred().also { signal ->
                 synchronized(lock) {
                     updateSignals.add(signal)
