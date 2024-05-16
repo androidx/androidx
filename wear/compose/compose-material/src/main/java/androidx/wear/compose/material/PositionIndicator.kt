@@ -28,9 +28,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -45,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
@@ -57,13 +54,7 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -75,6 +66,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListAnchorType
 import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
 import androidx.wear.compose.foundation.lazy.ScalingLazyListLayoutInfo
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.materialcore.BoundsLimiter
 import androidx.wear.compose.materialcore.isRoundDevice
 import kotlin.math.PI
 import kotlin.math.asin
@@ -1547,54 +1539,6 @@ private fun ContentDrawScope.drawStraightIndicator(
 }
 
 internal fun Float.toDegrees() = this * 180f / PI.toFloat()
-
-// Make the content believe it's using the full dimensions of the parent, but limit it
-// to the given bounds. This is used to limit the space used on screen for "full-screen" components
-// like PositionIndicator, so it doesn't interfere with a11y on the whole screen.
-@Composable
-private fun BoundsLimiter(
-    offset: Density.() -> IntOffset,
-    size: Density.() -> IntSize,
-    modifier: Modifier = Modifier,
-    onSizeChanged: (IntSize) -> Unit = { },
-    content: @Composable BoxScope.() -> Unit
-) = Box(
-    modifier = Modifier
-        .fillMaxSize()
-        .onSizeChanged(onSizeChanged)
-        .absoluteOffset(offset),
-    // We handle layout direction the main PositionIndicator function, according to the position
-    // parameter.
-    contentAlignment = AbsoluteAlignment.TopLeft
-) {
-    // This Box has the position and size we need, so any modifiers passed in should be applied
-    // here. We set the size using a custom modifier (that passes the constraints transparently to
-    // the content), and add a negative offset to make the content believe is drawing at the top
-    // left (position 0, 0).
-    Box(
-        modifier
-            .transparentSizeModifier(size)
-            .absoluteOffset { -offset() }, content = content,
-        contentAlignment = AbsoluteAlignment.TopLeft
-    )
-}
-
-// Sets the size of this element, but lets the child measure using the constraints
-// of the element containing this.
-private fun Modifier.transparentSizeModifier(size: Density.() -> IntSize): Modifier = this.then(
-    object : LayoutModifier {
-        override fun MeasureScope.measure(
-            measurable: Measurable,
-            constraints: Constraints
-        ): MeasureResult {
-            val placeable = measurable.measure(constraints)
-            val actualSize = size()
-            return layout(actualSize.width, actualSize.height) {
-                placeable.place(0, 0)
-            }
-        }
-    }
-)
 
 private fun sqr(x: Float) = x * x
 
