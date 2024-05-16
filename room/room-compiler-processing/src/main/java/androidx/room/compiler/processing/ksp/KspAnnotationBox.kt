@@ -187,15 +187,20 @@ private fun <R> Any.readAs(returnType: Class<R>): R? {
 }
 
 private fun <R> Any.readAsEnum(enumClass: Class<R>): R? {
-    // TODO: https://github.com/google/ksp/issues/429
-    // If the enum value is from compiled code KSP gives us the actual value an not the KSType,
-    // so return it instead of using valueOf() to get an instance of the entry.
-    if (enumClass.isAssignableFrom(this::class.java)) {
-        return enumClass.cast(this)
+    val enumValue = if (this is KSClassDeclaration) {
+        // In KSP2 a KSClassDeclaration is returned for enum entries
+        this.simpleName.asString()
+    } else {
+        // TODO: https://github.com/google/ksp/issues/429
+        // If the enum value is from compiled code KSP gives us the actual value an not the KSType,
+        // so return it instead of using valueOf() to get an instance of the entry.
+        if (enumClass.isAssignableFrom(this::class.java)) {
+            return enumClass.cast(this)
+        }
+        val ksType = this as? KSType ?: return null
+        val classDeclaration = ksType.declaration as? KSClassDeclaration ?: return null
+        classDeclaration.simpleName.asString()
     }
-    val ksType = this as? KSType ?: return null
-    val classDeclaration = ksType.declaration as? KSClassDeclaration ?: return null
-    val enumValue = classDeclaration.simpleName.asString()
     // get the instance from the valueOf function.
     @Suppress("UNCHECKED_CAST", "BanUncheckedReflection")
     return enumClass.getDeclaredMethod("valueOf", String::class.java)
