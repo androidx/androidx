@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,22 @@ package androidx.window.layout.adapter.extensions
 import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
+import androidx.window.RequiresWindowSdkExtension
+import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import androidx.window.layout.WindowLayoutInfo
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /**
- * A [Consumer] that handles multicasting to multiple [Consumer]s downstream.
+ * A [Consumer] that handles multicasting to multiple [Consumer]s downstream. Implements the
+ * [androidx.window.extensions.core.util.function.Consumer] interface for compatibility with
+ * extensions.
  */
-internal class MulticastConsumer(
+@RequiresWindowSdkExtension(2)
+internal class MulticastConsumerApi2(
     private val context: Context
-) : Consumer<OEMWindowLayoutInfo> {
+) : Consumer<OEMWindowLayoutInfo>, OEMConsumer<OEMWindowLayoutInfo> {
     private val globalLock = ReentrantLock()
 
     @GuardedBy("globalLock")

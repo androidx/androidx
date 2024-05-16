@@ -31,9 +31,9 @@ plugins {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation("androidx.annotation:annotation:1.6.0")
 
+    testApi(libs.kotlinStdlib)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinTestAnnotationsCommon)
 }
