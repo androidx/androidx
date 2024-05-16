@@ -59,12 +59,12 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependencies {
                 implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
-                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+                implementation(projectOrArtifact(":compose:ui:ui-test"))
                 implementation(project(":compose:test-utils"))
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
             }
         }
     }
