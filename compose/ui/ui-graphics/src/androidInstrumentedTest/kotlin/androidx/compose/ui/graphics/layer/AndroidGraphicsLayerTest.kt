@@ -204,6 +204,25 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
+    fun testPersistenceDrawAfterHwuiDiscardsDisplaylists() {
+        // Layer persistence calls should not fail even if the DisplayList is discarded beforehand
+        // This differs from testDrawAfterDiscard as this invokes the internal discardDisplaylist
+        // call in order to mirror the corresponding system call made to cull out displaylists
+        // without updating GraphicsLayer internal state
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                graphicsContext.createGraphicsLayer().apply {
+                    assertEquals(IntSize.Zero, this.size)
+                    record {
+                        drawRect(Color.Red)
+                    }
+                    this.impl.discardDisplayList()
+                }
+            }
+        )
+    }
+
+    @Test
     fun testRecordLayerWithSize() {
         graphicsLayerTest(
             block = { graphicsContext ->
