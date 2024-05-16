@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.layer.GraphicsLayerImpl.Companion.DefaultDrawBlock
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -48,7 +49,7 @@ import androidx.compose.ui.util.fastRoundToInt
 
 @Suppress("NotCloseable")
 actual class GraphicsLayer internal constructor(
-    private val impl: GraphicsLayerImpl,
+    internal val impl: GraphicsLayerImpl,
     private val layerManager: LayerManager
 ) {
     private var density = DefaultDensity
@@ -475,6 +476,18 @@ actual class GraphicsLayer internal constructor(
     }
 
     internal fun drawForPersistence(canvas: Canvas) {
+        if (!impl.hasDisplayList) {
+            // Always ensure there is a valid displaylist when we are drawing for persistence
+            // purposes. Attempts to re-render for persistence after trim memory callbacks may
+            // end up with displaylists not being available at this point as HWUI would discard them
+            // so do a placeholder record if necessary
+            // Call setPosition on the implementation to ensure at least a 1x1 backed displaylist
+            // However, reset the size to zero so that subsequent calls to record will update
+            // GraphicsLayer properties accordingly
+            impl.setPosition(topLeft, size = IntSize(1, 1) /** intentionally 1 x 1 */)
+            impl.record(density, layoutDirection, this, DefaultDrawBlock)
+            this.size = IntSize.Zero
+        }
         impl.draw(canvas)
     }
 
