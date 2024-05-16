@@ -66,8 +66,7 @@ public class AssetHelper {
 
     private int getFieldId(@NonNull String resourceType, @NonNull String resourceName) {
         String packageName = mContext.getPackageName();
-        int id = mContext.getResources().getIdentifier(resourceName, resourceType, packageName);
-        return id;
+        return mContext.getResources().getIdentifier(resourceName, resourceType, packageName);
     }
 
     private int getValueType(int fieldId) {
