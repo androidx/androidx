@@ -457,10 +457,10 @@ private data class FlowMeasureLazyPolicy(
         overflow.setOverflowMeasurables(
             this@FlowMeasureLazyPolicy,
             constraints
-        ) { canExpand, noOfItemsShown ->
+        ) { canExpand, shownItemCount ->
             val composableIndex = if (canExpand) 0 else 1
             overflowComposables.getOrNull(composableIndex)?.run {
-                this@measure.subcompose("$canExpand$itemCount$noOfItemsShown",
+                this@measure.subcompose("$canExpand$itemCount$shownItemCount",
                     this
                 ).getOrNull(0)
             }

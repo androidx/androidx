@@ -297,7 +297,7 @@ internal class FlowRowOverflowScopeImpl(
         get() = state.itemCount
 
     override val shownItemCount: Int
-        get() = state.noOfItemsShown
+        get() = state.shownItemCount
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -308,7 +308,7 @@ internal class FlowColumnOverflowScopeImpl(
         get() = state.itemCount
 
     override val shownItemCount: Int
-        get() = state.noOfItemsShown
+        get() = state.shownItemCount
 }
 
 @OptIn(ExperimentalLayoutApi::class)

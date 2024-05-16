@@ -253,14 +253,14 @@ fun SimpleFlowRowMaxLinesDynamicSeeMore() {
 internal fun DynamicSeeMoreForDrawText(
     isHorizontal: Boolean,
     totalCount: Int,
-    noOfItemsShown: () -> Int?,
+    shownItemCount: () -> Int?,
     onExpand: () -> Unit,
     onShrink: () -> Unit,
 ) {
     Box(
         Modifier
             .clickable(onClick = {
-                val remainingItems = noOfItemsShown()?.let { totalCount - it }
+                val remainingItems = shownItemCount()?.let { totalCount - it }
                 if (remainingItems == 0) {
                     onShrink()
                 } else {
@@ -303,7 +303,7 @@ internal fun DynamicSeeMoreForDrawText(
                 }) {
             // This happens during draw phase.
             val collapseText = if (isHorizontal) "^" else "<"
-            val remainingItems = noOfItemsShown()?.let { totalCount - it }
+            val remainingItems = shownItemCount()?.let { totalCount - it }
             var textLayoutResult: TextLayoutResult = textMeasurer.measure(
                 text = if (remainingItems == 0) collapseText else "+$remainingItems",
                 style = TextStyle(fontSize = 18.sp)
