@@ -20,40 +20,31 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
-import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
-@LargeTest
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
 class LifecycleEffectTest {
 
     private lateinit var lifecycleOwner: TestLifecycleOwner
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
-
-    @Before
+    @BeforeTest
     fun setup() {
         lifecycleOwner = TestLifecycleOwner()
     }
 
     @Test
-    fun lifecycleEventEffectTest_noEvent() {
+    fun lifecycleEventEffectTest_noEvent() = runComposeUiTest {
         var stopCount = 0
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
                     stopCount++
@@ -61,7 +52,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should not have been stopped")
                 .that(stopCount)
                 .isEqualTo(0)
@@ -69,12 +60,12 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleEventEffectTest_localLifecycleOwner() {
+    fun lifecycleEventEffectTest_localLifecycleOwner() = runComposeUiTest {
         val expectedEvent = Lifecycle.Event.ON_STOP
         var stopCount = 0
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleEventEffect(expectedEvent) {
                     stopCount++
@@ -82,7 +73,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             lifecycleOwner.handleLifecycleEvent(expectedEvent)
             assertWithMessage("Lifecycle should have been stopped")
                 .that(stopCount)
@@ -91,18 +82,18 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleEventEffectTest_customLifecycleOwner() {
+    fun lifecycleEventEffectTest_customLifecycleOwner() = runComposeUiTest {
         val expectedEvent = Lifecycle.Event.ON_STOP
         var stopCount = 0
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             LifecycleEventEffect(expectedEvent, lifecycleOwner) {
                 stopCount++
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             lifecycleOwner.handleLifecycleEvent(expectedEvent)
             assertWithMessage("Lifecycle should have been stopped")
                 .that(stopCount)
@@ -111,13 +102,13 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleStartEffectTest() {
+    fun lifecycleStartEffectTest() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         var startCount = 0
         var stopCount = 0
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleStartEffect(key1 = null) {
                     startCount++
@@ -129,7 +120,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should not be started (or stopped)")
                 .that(startCount)
                 .isEqualTo(0)
@@ -147,15 +138,15 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleStartEffectTest_disposal() {
+    fun lifecycleStartEffectTest_disposal() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         var startCount = 0
         var stopCount = 0
         var disposalCount = 0
         lateinit var state: MutableState<Boolean>
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 state = remember { mutableStateOf(true) }
                 if (state.value) {
@@ -174,7 +165,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should not yet be started (or stopped)")
                 .that(startCount)
                 .isEqualTo(0)
@@ -190,7 +181,7 @@ class LifecycleEffectTest {
             state.value = false
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("ON_START effect work should have been cleaned up")
                 .that(disposalCount)
                 .isEqualTo(1)
@@ -206,15 +197,15 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleStartEffectTest_disposal_onKeyChange() {
+    fun lifecycleStartEffectTest_disposal_onKeyChange() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         val key = mutableStateOf(true)
         var startCount = 0
         var stopCount = 0
         var disposalCount = 0
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleStartEffect(key.value) {
                     startCount++
@@ -230,7 +221,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should not yet be started (or stopped)")
                 .that(startCount)
                 .isEqualTo(0)
@@ -246,7 +237,7 @@ class LifecycleEffectTest {
             key.value = false
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("ON_START effect work should have been cleaned up")
                 .that(disposalCount)
                 .isEqualTo(1)
@@ -262,14 +253,14 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleStartEffectTest_disposal_onLifecycleOwner() {
+    fun lifecycleStartEffectTest_disposal_onLifecycleOwner() = runComposeUiTest {
         val secondLifecycleOwner = TestLifecycleOwner()
         val ownerToUse = mutableStateOf("first")
         val startedLifecycles = mutableListOf<Lifecycle>()
         val stoppedLifecycles = mutableListOf<Lifecycle>()
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides
                 if (ownerToUse.value == "first") lifecycleOwner else secondLifecycleOwner) {
                 LifecycleStartEffect(key1 = null) {
@@ -282,7 +273,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should be started")
                 .that(startedLifecycles)
                 .containsExactly(lifecycleOwner.lifecycle)
@@ -290,7 +281,7 @@ class LifecycleEffectTest {
             ownerToUse.value = "second"
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Swapped out LifecycleOwner should be stopped")
                 .that(stoppedLifecycles)
                 .containsExactly(lifecycleOwner.lifecycle)
@@ -303,12 +294,12 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleStartEffectTest_effectsLambdaUpdate() {
+    fun lifecycleStartEffectTest_effectsLambdaUpdate() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         val state = mutableStateOf("default")
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleStartEffect(key1 = null) {
                     state.value += " started"
@@ -324,7 +315,7 @@ class LifecycleEffectTest {
             state.value = "updated"
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
 
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -334,12 +325,12 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleStartEffectTest_effectsLambdaAndKeyChange() {
+    fun lifecycleStartEffectTest_effectsLambdaAndKeyChange() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         var state = mutableStateOf("default")
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleStartEffect(key1 = state) {
                     state.value += " started"
@@ -355,7 +346,7 @@ class LifecycleEffectTest {
             state = mutableStateOf("changed")
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_START)
 
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -365,12 +356,12 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleResumeEffectTest() {
+    fun lifecycleResumeEffectTest() = runComposeUiTest {
         var resumeCount = 0
         var pauseCount = 0
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleResumeEffect(key1 = null) {
                     resumeCount++
@@ -382,7 +373,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should not be resumed (or paused)")
                 .that(resumeCount)
                 .isEqualTo(0)
@@ -400,15 +391,15 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleResumeEffectTest_disposal() {
+    fun lifecycleResumeEffectTest_disposal() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         var resumeCount = 0
         var pauseCount = 0
         var disposalCount = 0
         lateinit var state: MutableState<Boolean>
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 state = remember { mutableStateOf(true) }
                 if (state.value) {
@@ -427,7 +418,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should not be resumed (or paused)")
                 .that(resumeCount)
                 .isEqualTo(0)
@@ -443,7 +434,7 @@ class LifecycleEffectTest {
             state.value = false
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("ON_RESUME effect work should have been cleaned up")
                 .that(disposalCount)
                 .isEqualTo(1)
@@ -459,15 +450,15 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleResumeEffectTest_disposal_onKeyChange() {
+    fun lifecycleResumeEffectTest_disposal_onKeyChange() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         val key = mutableStateOf(true)
         var resumeCount = 0
         var pauseCount = 0
         var disposalCount = 0
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleResumeEffect(key.value) {
                     resumeCount++
@@ -483,7 +474,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should not yet be resumed (or paused)")
                 .that(resumeCount)
                 .isEqualTo(0)
@@ -499,7 +490,7 @@ class LifecycleEffectTest {
             key.value = false
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("ON_RESUME effect work should have been cleaned up")
                 .that(disposalCount)
                 .isEqualTo(1)
@@ -515,15 +506,15 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleResumeEffectTest_disposal_onLifecycleOwnerChange() {
+    fun lifecycleResumeEffectTest_disposal_onLifecycleOwnerChange() = runComposeUiTest {
         lifecycleOwner.currentState = Lifecycle.State.RESUMED
         val secondLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val ownerToUse = mutableStateOf("first")
         val resumedLifecycles = mutableListOf<Lifecycle>()
         val pausedLifecycles = mutableListOf<Lifecycle>()
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides
                 if (ownerToUse.value == "first") lifecycleOwner else secondLifecycleOwner) {
                 LifecycleResumeEffect(key1 = null) {
@@ -536,7 +527,7 @@ class LifecycleEffectTest {
             }
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Lifecycle should be resumed")
                 .that(resumedLifecycles)
                 .containsExactly(lifecycleOwner.lifecycle)
@@ -544,7 +535,7 @@ class LifecycleEffectTest {
             ownerToUse.value = "second"
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Swapped out LifecycleOwner should be paused")
                 .that(pausedLifecycles)
                 .containsExactly(lifecycleOwner.lifecycle)
@@ -557,12 +548,12 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleResumeEffectTest_effectsLambdaUpdate() {
+    fun lifecycleResumeEffectTest_effectsLambdaUpdate() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         val state = mutableStateOf("default")
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleResumeEffect(key1 = null) {
                     state.value += " resumed"
@@ -578,7 +569,7 @@ class LifecycleEffectTest {
             state.value = "updated"
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -588,12 +579,12 @@ class LifecycleEffectTest {
     }
 
     @Test
-    fun lifecycleResumeEffectTest_effectsLambdaAndKeyChange() {
+    fun lifecycleResumeEffectTest_effectsLambdaAndKeyChange() = runComposeUiTest {
         lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         var state = mutableStateOf("default")
 
-        composeTestRule.waitForIdle()
-        composeTestRule.setContent {
+        waitForIdle()
+        setContent {
             CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
                 LifecycleResumeEffect(key1 = state) {
                     state.value += " resumed"
@@ -609,7 +600,7 @@ class LifecycleEffectTest {
             state = mutableStateOf("changed")
         }
 
-        composeTestRule.runOnIdle {
+        runOnIdle {
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
 
             lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
