@@ -406,7 +406,6 @@ class MediaRoute2Provider extends MediaRouteProvider {
     }
 
     private class TransferCallback extends MediaRouter2.TransferCallback {
-        TransferCallback() {}
 
         @Override
         public void onTransfer(@NonNull MediaRouter2.RoutingController oldController,
