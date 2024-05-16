@@ -47,7 +47,7 @@ public class WebViewRenderProcessImpl extends WebViewRenderProcess {
     }
 
     /**
-     * Get a support library WebViewRenderProcess object that is 1:1 with the webview object.
+     * Get a support library WebViewRenderProcess object that is 1:1 with the WebView object.
      */
     public static @NonNull WebViewRenderProcessImpl forInvocationHandler(
             @NonNull InvocationHandler invocationHandler) {

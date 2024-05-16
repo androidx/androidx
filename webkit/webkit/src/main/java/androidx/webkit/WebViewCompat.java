@@ -1133,10 +1133,10 @@ public class WebViewCompat {
     }
 
     /**
-     * Mute or unmute this WebView.
+     * Mute or un-mute this WebView.
      *
      * @param webView the WebView for which to control muting.
-     * @param mute true to mute the WebView; false to unmute the WebView.
+     * @param mute true to mute the WebView; false to un-mute the WebView.
      */
     @RequiresFeature(name = WebViewFeature.MUTE_AUDIO,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

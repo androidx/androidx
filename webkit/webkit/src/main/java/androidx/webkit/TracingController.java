@@ -74,7 +74,7 @@ public abstract class TracingController {
     }
 
     /**
-     * Starts tracing all webviews. Depending on the trace mode in traceConfig
+     * Starts tracing all WebViews. Depending on the trace mode in traceConfig
      * specifies how the trace events are recorded.
      *
      * <p>

@@ -678,7 +678,7 @@ public class WebSettingsCompat {
      * discontinued.
      * <p>
      * Apps can use this method to restore the legacy behavior for servers that still rely on
-     * the deprecated header, but it should not be used to identify the webview to first-party
+     * the deprecated header, but it should not be used to identify the WebView to first-party
      * servers under the control of the app developer.
      * <p>
      * The format of the strings in the allow-list follows the origin rules of

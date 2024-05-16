@@ -35,7 +35,7 @@ import java.util.zip.GZIPInputStream;
 /**
   * A Utility class for opening resources, assets and files for
   * {@link androidx.webkit.WebViewAssetLoader}.
-  * Forked from the chromuim project org.chromium.android_webview.AndroidProtocolHandler
+  * Forked from the chromium project org.chromium.android_webview.AndroidProtocolHandler
   */
 public class AssetHelper {
 

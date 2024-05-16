@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Enum-like class to represent features that are supported by the AndroidX webview API.
+ * Enum-like class to represent features that are supported by the AndroidX WebView API.
  *
  * Features that have framework support should be represented by the appropriate subclass
  * matching the SDK version where the feature became available, which allows static analysis to
