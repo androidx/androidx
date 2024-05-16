@@ -37,7 +37,7 @@ internal open class ExtensionWindowBackendApi2(
     private val globalLock = ReentrantLock()
 
     @GuardedBy("globalLock")
-    private val contextToListeners = mutableMapOf<Context, MulticastConsumer>()
+    private val contextToListeners = mutableMapOf<Context, MulticastConsumerApi2>()
 
     @GuardedBy("globalLock")
     private val listenerToContext = mutableMapOf<Consumer<WindowLayoutInfo>, Context>()
@@ -62,7 +62,7 @@ internal open class ExtensionWindowBackendApi2(
                 listener.addListener(callback)
                 listenerToContext[callback] = context
             } ?: run {
-                val consumer = MulticastConsumer(context)
+                val consumer = MulticastConsumerApi2(context)
                 contextToListeners[context] = consumer
                 listenerToContext[callback] = context
                 consumer.addListener(callback)

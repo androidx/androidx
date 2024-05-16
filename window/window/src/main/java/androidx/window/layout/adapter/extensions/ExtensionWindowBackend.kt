@@ -46,11 +46,32 @@ internal class ExtensionWindowBackend(
         ): WindowBackend {
             val safeVendorApiLevel = ExtensionsUtil.safeVendorApiLevel
             return when {
-                safeVendorApiLevel >= 6 -> ExtensionWindowBackendApi6(component, adapter)
-                safeVendorApiLevel >= 2 -> ExtensionWindowBackendApi2(component, adapter)
-                safeVendorApiLevel == 1 -> ExtensionWindowBackendApi1(component, adapter)
+                safeVendorApiLevel >= 6 -> extensions6(component, adapter)
+                safeVendorApiLevel >= 2 -> extensions2(component, adapter)
+                safeVendorApiLevel == 1 -> extensions1(component, adapter)
                 else -> ExtensionWindowBackendApi0()
             }
+        }
+
+        private fun extensions6(
+            component: WindowLayoutComponent,
+            adapter: ConsumerAdapter
+        ): ExtensionWindowBackendApi6 {
+            return ExtensionWindowBackendApi6(component, adapter)
+        }
+
+        private fun extensions2(
+            component: WindowLayoutComponent,
+            adapter: ConsumerAdapter
+        ): ExtensionWindowBackendApi2 {
+            return ExtensionWindowBackendApi2(component, adapter)
+        }
+
+        private fun extensions1(
+            component: WindowLayoutComponent,
+            adapter: ConsumerAdapter
+        ): ExtensionWindowBackendApi1 {
+            return ExtensionWindowBackendApi1(component, adapter)
         }
     }
 }
