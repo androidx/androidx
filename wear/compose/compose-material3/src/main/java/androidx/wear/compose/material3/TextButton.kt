@@ -324,6 +324,15 @@ object TextButtonDefaults {
      * - by default, a colored background with a contrasting content color.
      * If the button is disabled, then the colors will have an alpha ([DisabledContainerAlpha]
      * or [DisabledContentAlpha]) value applied.
+     */
+    @Composable
+    fun textToggleButtonColors() = MaterialTheme.colorScheme.defaultTextToggleButtonColors
+
+    /**
+     * Creates a [ToggleButtonColors] for a [TextToggleButton]
+     * - by default, a colored background with a contrasting content color.
+     * If the button is disabled, then the colors will have an alpha ([DisabledContainerAlpha]
+     * or [DisabledContentAlpha]) value applied.
      *
      * @param checkedContainerColor the container color of this [TextToggleButton] when enabled
      * and checked
@@ -344,38 +353,24 @@ object TextButtonDefaults {
      */
     @Composable
     fun textToggleButtonColors(
-        checkedContainerColor: Color = TextToggleButtonTokens.CheckedContainerColor.value,
-        checkedContentColor: Color = TextToggleButtonTokens.CheckedContentColor.value,
-        uncheckedContainerColor: Color = TextToggleButtonTokens.UncheckedContainerColor.value,
-        uncheckedContentColor: Color = TextToggleButtonTokens.UncheckedContentColor.value,
-        disabledCheckedContainerColor: Color =
-            TextToggleButtonTokens.DisabledCheckedContainerColor.value.toDisabledColor(
-                disabledAlpha = TextToggleButtonTokens.DisabledCheckedContainerOpacity
-            ),
-        disabledCheckedContentColor: Color =
-            TextToggleButtonTokens.DisabledCheckedContentColor.value.toDisabledColor(
-                disabledAlpha = TextToggleButtonTokens.DisabledCheckedContentOpacity
-            ),
-        disabledUncheckedContainerColor: Color =
-            TextToggleButtonTokens.DisabledUncheckedContainerColor.value.toDisabledColor(
-                disabledAlpha = TextToggleButtonTokens.DisabledUncheckedContainerOpacity
-            ),
-        disabledUncheckedContentColor: Color =
-            TextToggleButtonTokens.DisabledUncheckedContentColor.value.toDisabledColor(
-                disabledAlpha = TextToggleButtonTokens.DisabledUncheckedContentOpacity
-            ),
-    ): ToggleButtonColors {
-        return ToggleButtonColors(
-            checkedContainerColor = checkedContainerColor,
-            checkedContentColor = checkedContentColor,
-            uncheckedContainerColor = uncheckedContainerColor,
-            uncheckedContentColor = uncheckedContentColor,
-            disabledCheckedContainerColor = disabledCheckedContainerColor,
-            disabledCheckedContentColor = disabledCheckedContentColor,
-            disabledUncheckedContainerColor = disabledUncheckedContainerColor,
-            disabledUncheckedContentColor = disabledUncheckedContentColor,
-        )
-    }
+        checkedContainerColor: Color = Color.Unspecified,
+        checkedContentColor: Color = Color.Unspecified,
+        uncheckedContainerColor: Color = Color.Unspecified,
+        uncheckedContentColor: Color = Color.Unspecified,
+        disabledCheckedContainerColor: Color = Color.Unspecified,
+        disabledCheckedContentColor: Color = Color.Unspecified,
+        disabledUncheckedContainerColor: Color = Color.Unspecified,
+        disabledUncheckedContentColor: Color = Color.Unspecified,
+    ): ToggleButtonColors = MaterialTheme.colorScheme.defaultTextToggleButtonColors.copy(
+        checkedContainerColor = checkedContainerColor,
+        checkedContentColor = checkedContentColor,
+        uncheckedContainerColor = uncheckedContainerColor,
+        uncheckedContentColor = uncheckedContentColor,
+        disabledCheckedContainerColor = disabledCheckedContainerColor,
+        disabledCheckedContentColor = disabledCheckedContentColor,
+        disabledUncheckedContainerColor = disabledUncheckedContainerColor,
+        disabledUncheckedContentColor = disabledUncheckedContentColor,
+    )
 
     /**
      * Recommended text style for a given text button size.
@@ -460,6 +455,34 @@ object TextButtonDefaults {
                 disabledContentColor = fromToken(TextButtonTokens.DisabledContentColor)
                     .toDisabledColor(disabledAlpha = TextButtonTokens.DisabledContentOpacity)
             ).also { defaultTextButtonColorsCached = it }
+        }
+
+    private val ColorScheme.defaultTextToggleButtonColors: ToggleButtonColors
+        get() {
+            return defaultTextToggleButtonColorsCached ?: ToggleButtonColors(
+                checkedContainerColor = fromToken(TextToggleButtonTokens.CheckedContainerColor),
+                checkedContentColor = fromToken(TextToggleButtonTokens.CheckedContentColor),
+                uncheckedContainerColor = fromToken(TextToggleButtonTokens.UncheckedContainerColor),
+                uncheckedContentColor = fromToken(TextToggleButtonTokens.UncheckedContentColor),
+                disabledCheckedContainerColor =
+                fromToken(TextToggleButtonTokens.DisabledCheckedContainerColor).toDisabledColor(
+                    disabledAlpha = TextToggleButtonTokens.DisabledCheckedContainerOpacity
+                ),
+                disabledCheckedContentColor =
+                fromToken(TextToggleButtonTokens.DisabledCheckedContentColor).toDisabledColor(
+                    disabledAlpha = TextToggleButtonTokens.DisabledCheckedContentOpacity
+                ),
+                disabledUncheckedContainerColor =
+                fromToken(TextToggleButtonTokens.DisabledUncheckedContainerColor)
+                    .toDisabledColor(
+                        disabledAlpha = TextToggleButtonTokens.DisabledUncheckedContainerOpacity
+                    ),
+                disabledUncheckedContentColor =
+                fromToken(TextToggleButtonTokens.DisabledUncheckedContentColor)
+                    .toDisabledColor(
+                        disabledAlpha = TextToggleButtonTokens.DisabledUncheckedContentOpacity
+                    ),
+            ).also { defaultTextToggleButtonColorsCached = it }
         }
 }
 
