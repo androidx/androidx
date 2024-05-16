@@ -148,7 +148,7 @@ public final class WebViewAssetLoader {
      * Handler class to open a file from assets directory in the application APK.
      */
     public static final class AssetsPathHandler implements PathHandler {
-        private AssetHelper mAssetHelper;
+        private final AssetHelper mAssetHelper;
 
         /**
          * @param context {@link Context} used to resolve assets.
@@ -199,7 +199,7 @@ public final class WebViewAssetLoader {
      * Handler class to open a file from resources directory in the application APK.
      */
     public static final class ResourcesPathHandler implements PathHandler {
-        private AssetHelper mAssetHelper;
+        private final AssetHelper mAssetHelper;
 
         /**
          * @param context {@link Context} used to resolve resources.

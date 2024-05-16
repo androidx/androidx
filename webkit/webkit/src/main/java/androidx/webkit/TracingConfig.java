@@ -117,9 +117,9 @@ public class TracingConfig {
      */
     public static final int RECORD_CONTINUOUSLY = android.webkit.TracingConfig.RECORD_CONTINUOUSLY;
 
-    private @PredefinedCategories int mPredefinedCategories;
+    private final @PredefinedCategories int mPredefinedCategories;
     private final List<String> mCustomIncludedCategories = new ArrayList<>();
-    private @TracingMode int mTracingMode;
+    private final @TracingMode int mTracingMode;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public TracingConfig(@PredefinedCategories int predefinedCategories,

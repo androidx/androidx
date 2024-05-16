@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
  */
 @SuppressWarnings("JavadocReference") // WebViewProvider is hidden.
 public class WebViewProviderAdapter {
-    WebViewProviderBoundaryInterface mImpl;
+    final WebViewProviderBoundaryInterface mImpl;
 
     public WebViewProviderAdapter(@NonNull WebViewProviderBoundaryInterface impl) {
         mImpl = impl;

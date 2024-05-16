@@ -29,7 +29,7 @@ import java.util.Objects;
  * Internal implementation of {@link androidx.webkit.JavaScriptReplyProxy}.
  */
 public class JavaScriptReplyProxyImpl extends JavaScriptReplyProxy {
-    private JsReplyProxyBoundaryInterface mBoundaryInterface;
+    private final JsReplyProxyBoundaryInterface mBoundaryInterface;
 
     public JavaScriptReplyProxyImpl(@NonNull JsReplyProxyBoundaryInterface boundaryInterface) {
         mBoundaryInterface = boundaryInterface;

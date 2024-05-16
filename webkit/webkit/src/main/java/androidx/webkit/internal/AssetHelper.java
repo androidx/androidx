@@ -44,7 +44,7 @@ public class AssetHelper {
      */
     public static final String DEFAULT_MIME_TYPE = "text/plain";
 
-    @NonNull private Context mContext;
+    @NonNull private final Context mContext;
 
     public AssetHelper(@NonNull Context context) {
         this.mContext = context;
