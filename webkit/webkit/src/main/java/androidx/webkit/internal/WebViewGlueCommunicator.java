@@ -72,10 +72,6 @@ public class WebViewGlueCommunicator {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @NonNull
     static WebViewProviderFactory createGlueProviderFactory() {
-        // We do not support pre-L devices since their WebView APKs cannot be updated.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return new IncompatibleApkWebViewProviderFactory();
-        }
         InvocationHandler invocationHandler;
         try {
             invocationHandler = fetchGlueProviderFactoryImpl();

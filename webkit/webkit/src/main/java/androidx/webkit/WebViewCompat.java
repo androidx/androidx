@@ -345,12 +345,6 @@ public class WebViewCompat {
     // this feature is not dependent on the WebView APK.
     @Nullable
     public static PackageInfo getCurrentWebViewPackage(@NonNull Context context) {
-        // There was no WebView Package before Lollipop, the WebView code was part of the framework
-        // back then.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return null;
-        }
-
         PackageInfo info = getCurrentLoadedWebViewPackage();
         if (info != null) return info;
 
@@ -367,12 +361,6 @@ public class WebViewCompat {
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static PackageInfo getCurrentLoadedWebViewPackage() {
-        // There was no WebView Package before Lollipop, the WebView code was part of the framework
-        // back then.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return null;
-        }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return ApiHelperForO.getCurrentWebViewPackage();
         } else { // L-N
@@ -407,8 +395,7 @@ public class WebViewCompat {
     private static PackageInfo getNotYetLoadedWebViewPackageInfo(Context context) {
         String webviewPackageName;
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                    && Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
                 Class<?> webViewFactoryClass = Class.forName("android.webkit.WebViewFactory");
 
                 webviewPackageName = (String) webViewFactoryClass.getMethod(
@@ -1178,7 +1165,7 @@ public class WebViewCompat {
 
     @SuppressWarnings({"JavaReflectionMemberAccess", "PrivateApi"})
     private static void checkThread(WebView webview) {
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             Looper webViewLooper = ApiHelperForP.getWebViewLooper(webview);
             if (webViewLooper != Looper.myLooper()) {
                 throw new RuntimeException("A WebView method was called on thread '"
