@@ -25,7 +25,6 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationHandler;
 import java.util.WeakHashMap;
-import java.util.concurrent.Callable;
 
 /**
  * Implementation of {@link WebViewRenderProcess}.
@@ -61,12 +60,7 @@ public class WebViewRenderProcessImpl extends WebViewRenderProcess {
         // Ask WebView to either call us back to create the wrapper object, or
         // to return a previously created wrapper object.
         return (WebViewRenderProcessImpl) boundaryInterface.getOrCreatePeer(
-                new Callable<Object>() {
-                    @Override
-                    public Object call() {
-                        return new WebViewRenderProcessImpl(boundaryInterface);
-                    }
-                });
+                () -> new WebViewRenderProcessImpl(boundaryInterface));
     }
 
     /**

@@ -80,12 +80,7 @@ public class WebViewRenderProcessClientAdapter implements WebViewRendererClientB
         if (mExecutor == null) {
             client.onRenderProcessUnresponsive(view, rendererObject);
         } else {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    client.onRenderProcessUnresponsive(view, rendererObject);
-                }
-            });
+            mExecutor.execute(() -> client.onRenderProcessUnresponsive(view, rendererObject));
         }
     }
 
@@ -103,12 +98,7 @@ public class WebViewRenderProcessClientAdapter implements WebViewRendererClientB
         if (mExecutor == null) {
             client.onRenderProcessResponsive(view, rendererObject);
         } else {
-            mExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    client.onRenderProcessResponsive(view, rendererObject);
-                }
-            });
+            mExecutor.execute(() -> client.onRenderProcessResponsive(view, rendererObject));
         }
     }
 }
