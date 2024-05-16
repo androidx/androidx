@@ -256,6 +256,15 @@ abstract class WatchFaceControlClientTestBase {
         interactiveInstance.sendTouchEvent(leftClickX, leftClickY, TapType.DOWN)
         interactiveInstance.sendTouchEvent(leftClickX, leftClickY, TapType.UP)
     }
+
+    protected fun waitForWatchFaceInstanceReady(interactiveInstance: InteractiveWatchFaceClient) {
+        val wfReady = CompletableDeferred<Unit>()
+        interactiveInstance.addOnWatchFaceReadyListener(
+            { runnable -> runnable.run() },
+            { wfReady.complete(Unit) }
+        )
+        awaitWithTimeout(wfReady)
+    }
 }
 
 fun rangedValueComplicationBuilder() =
@@ -1410,6 +1419,56 @@ class WatchFaceControlClientTest : WatchFaceControlClientTestBase() {
             null
         )
         assertThat(wallpaperService.lastComplicationType).isEqualTo(ComplicationType.RANGED_VALUE)
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    fun pauseAnimation() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+            return
+        }
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+        waitForWatchFaceInstanceReady(interactiveInstance)
+
+        interactiveInstance.pauseAnimation()
+
+        // Not visible means paused.
+        assertThat(wallpaperService.lastWatchState.isVisible.value).isFalse()
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    fun unpauseAnimation() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+            return
+        }
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+        waitForWatchFaceInstanceReady(interactiveInstance)
+        interactiveInstance.pauseAnimation()
+
+        interactiveInstance.unpauseAnimation()
+
+        // Visible means unpaused.
+        assertThat(wallpaperService.lastWatchState.isVisible.value).isTrue()
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
+    fun closing_instance_unpausesAnimation() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1) {
+            return
+        }
+        val wallpaperService = TestExampleCanvasAnalogWatchFaceService(context, surfaceHolder)
+        val interactiveInstance = getOrCreateTestSubject(wallpaperService)
+        waitForWatchFaceInstanceReady(interactiveInstance)
+        interactiveInstance.pauseAnimation()
+
+        interactiveInstance.close()
+
+        // Visible means unpaused.
+        assertThat(wallpaperService.lastWatchState.isVisible.value).isTrue()
     }
 }
 
