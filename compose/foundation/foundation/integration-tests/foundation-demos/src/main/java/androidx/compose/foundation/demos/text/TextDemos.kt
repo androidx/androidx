@@ -35,6 +35,7 @@ import androidx.compose.foundation.demos.text2.SwapFieldSameStateDemo
 import androidx.compose.foundation.demos.text2.TextFieldCursorNotBlinkingInUnfocusedWindowDemo
 import androidx.compose.foundation.demos.text2.TextFieldLineLimitsDemos
 import androidx.compose.foundation.demos.text2.TextFieldReceiveContentDemo
+import androidx.compose.foundation.layout.samples.windowInsetsNestedScrollDemo
 import androidx.compose.foundation.samples.BasicTextFieldUndoSample
 import androidx.compose.foundation.samples.HandwritingDetectorSample
 import androidx.compose.integration.demos.common.ComposableDemo
@@ -214,6 +215,7 @@ val TextDemos = DemoCategory(
         ),
         ComposableDemo("\uD83D\uDD17 Hyperlinks") { Hyperlinks() },
         ComposableDemo("Text Pointer Icon") { TextPointerIconDemo() },
-        ComposableDemo("Html") { AnnotatedStringFromHtml() }
+        ComposableDemo("Html") { AnnotatedStringFromHtml() },
+        ComposableDemo("Show/hide keyboard via scroll") { windowInsetsNestedScrollDemo() },
     )
 )
