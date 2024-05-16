@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ProcessGlobalConfig {
     private static final AtomicReference<HashMap<String, Object>> sProcessGlobalConfig =
-            new AtomicReference<HashMap<String, Object>>();
+            new AtomicReference<>();
     private static final Object sLock = new Object();
     @GuardedBy("sLock")
     private static boolean sApplyCalled = false;
@@ -223,7 +223,7 @@ public class ProcessGlobalConfig {
             }
             sApplyCalled = true;
         }
-        HashMap<String, Object> configMap = new HashMap<String, Object>();
+        HashMap<String, Object> configMap = new HashMap<>();
         if (webViewCurrentlyLoaded()) {
             throw new IllegalStateException("WebView has already been loaded in the current "
                     + "process, so any attempt to apply the settings in ProcessGlobalConfig will "
