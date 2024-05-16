@@ -290,7 +290,7 @@ private fun AutoCenteringRow(
  */
 private fun Modifier.scrollablePicker(
     pickerState: PickerState
-) = Modifier.composed {
+) = composed {
     this.scrollable(
         state = pickerState,
         orientation = Orientation.Vertical,

@@ -37,14 +37,20 @@ import java.util.EnumSet
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.calls.KtCall
 import org.jetbrains.kotlin.analysis.api.calls.KtCallableMemberCall
+import org.jetbrains.kotlin.analysis.api.calls.KtImplicitReceiverValue
 import org.jetbrains.kotlin.analysis.api.calls.singleCallOrNull
+import org.jetbrains.kotlin.analysis.api.symbols.KtFunctionSymbol
+import org.jetbrains.kotlin.analysis.api.symbols.KtReceiverParameterSymbol
+import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
+import org.jetbrains.kotlin.psi.KtDeclaration
 import org.jetbrains.kotlin.psi.KtDeclarationWithBody
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtPropertyAccessor
+import org.jetbrains.kotlin.psi.KtThisExpression
 import org.jetbrains.kotlin.psi.KtUserType
 import org.jetbrains.kotlin.psi.psiUtil.containingClassOrObject
 import org.jetbrains.uast.UCallExpression
@@ -225,43 +231,64 @@ private fun UMethod.checkReceiver(context: JavaContext) {
  * See [ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver]
  */
 private fun UMethod.ensureReceiverIsReferenced(context: JavaContext) {
+    val factoryMethod = this
     var isReceiverReferenced = false
     accept(object : AbstractUastVisitor() {
         /**
-         * If there is no receiver on the call, but the call has a Modifier receiver
-         * type, then the call is implicitly using the Modifier receiver
-         * TODO: consider checking for nested receivers, in case the implicit
-         *  receiver is an inner scope, and not the outer Modifier receiver
+         * Checks for calls to functions with an implicit receiver (member / extension function)
+         * that use the Modifier receiver from the outer factory function.
          */
         override fun visitCallExpression(node: UCallExpression): Boolean {
-            // We account for a receiver of `this` in `visitThisExpression`
-            if (node.receiver == null) {
-                val ktCallExpression = node.sourcePsi as? KtCallExpression
-                    ?: return isReceiverReferenced
-                analyze(ktCallExpression) {
-                    val ktCall = ktCallExpression.resolveCall()?.singleCallOrNull<KtCall>()
-                    val callee = (ktCall as? KtCallableMemberCall<*, *>)?.partiallyAppliedSymbol
-                    val receiver = callee?.extensionReceiver ?: callee?.dispatchReceiver
-                    val receiverClass = receiver?.type?.expandedClassSymbol?.classIdIfNonLocal
-                    if (receiverClass?.asFqNameString() == Names.Ui.Modifier.javaFqn) {
-                        isReceiverReferenced = true
-                        // no further tree traversal, since we found receiver usage.
-                        return true
-                    }
+            val ktCallExpression = node.sourcePsi as? KtCallExpression
+                ?: return isReceiverReferenced
+            analyze(ktCallExpression) {
+                val ktCall = ktCallExpression.resolveCall()?.singleCallOrNull<KtCall>()
+                val callee = (ktCall as? KtCallableMemberCall<*, *>)?.partiallyAppliedSymbol
+                val receiver = (callee?.extensionReceiver ?: callee?.dispatchReceiver)
+                    // Explicit receivers of `this` are handled separately in visitThisExpression -
+                    // that lets us be more defensive and avoid warning for cases like passing
+                    // `this` as a parameter to a function / class where we may run into false
+                    // positives if we only account for explicit receivers in a call expression.
+                    as? KtImplicitReceiverValue ?: return isReceiverReferenced
+                val symbol = receiver.symbol as? KtReceiverParameterSymbol
+                // The symbol of the enclosing factory method
+                val enclosingMethodSymbol = (factoryMethod.sourcePsi as? KtDeclaration)
+                    ?.getSymbol() as? KtFunctionSymbol
+                // If the receiver parameter symbol matches the outer modifier factory's
+                // symbol, then that means that the receiver for this call is the
+                // factory method, and not some other declaration that provides a modifier
+                // receiver.
+                if (symbol == enclosingMethodSymbol?.receiverParameter) {
+                    isReceiverReferenced = true
+                    // no further tree traversal, since we found receiver usage.
+                    return true
                 }
             }
             return isReceiverReferenced
         }
 
         /**
-         * If `this` is explicitly referenced, no error.
-         * TODO: consider checking for nested receivers, in case `this` refers to an
-         * inner scope, and not the outer Modifier receiver
+         * If `this` is explicitly referenced, and points to the receiver of the outer factory
+         * function, no error.
          */
         override fun visitThisExpression(node: UThisExpression): Boolean {
-            isReceiverReferenced = true
-            // no further tree traversal, since we found receiver usage.
-            return true
+            val ktThisExpression = node.sourcePsi as? KtThisExpression
+                ?: return isReceiverReferenced
+            analyze(ktThisExpression) {
+                val symbol = ktThisExpression.instanceReference.mainReference.resolveToSymbol()
+                // The symbol of the enclosing factory method
+                val enclosingMethodSymbol = (factoryMethod.sourcePsi as? KtDeclaration)
+                    ?.getSymbol() as? KtFunctionSymbol
+                // If the symbol `this` points to matches the enclosing factory method, then we
+                // consider the modifier receiver referenced. If the symbols do not match, `this`
+                // might point to an inner scope
+                if (symbol == enclosingMethodSymbol) {
+                    isReceiverReferenced = true
+                    // no further tree traversal, since we found receiver usage.
+                    return true
+                }
+            }
+            return isReceiverReferenced
         }
     })
     if (!isReceiverReferenced) {
