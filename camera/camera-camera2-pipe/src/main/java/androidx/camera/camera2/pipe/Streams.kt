@@ -497,12 +497,10 @@ interface InputStream {
     val maxImages: Int
     val format: StreamFormat
 
-    // TODO: b/330594328 - Remove `format` and make `streamFormat` required.
     class Config(
         val stream: CameraStream.Config,
         val maxImages: Int,
-        var format: Int? = null,
-        var streamFormat: StreamFormat? = null
+        var streamFormat: StreamFormat
     )
 }
 
