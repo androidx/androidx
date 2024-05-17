@@ -241,6 +241,7 @@ public class BiometricPrompt {
         @Nullable private final Mac mMac;
         @Nullable private final android.security.identity.IdentityCredential mIdentityCredential;
         @Nullable private final android.security.identity.PresentationSession mPresentationSession;
+        private final long mOperationHandle;
 
         /**
          * Creates a crypto object that wraps the given signature object.
@@ -253,6 +254,7 @@ public class BiometricPrompt {
             mMac = null;
             mIdentityCredential = null;
             mPresentationSession = null;
+            mOperationHandle = 0;
         }
 
         /**
@@ -266,6 +268,7 @@ public class BiometricPrompt {
             mMac = null;
             mIdentityCredential = null;
             mPresentationSession = null;
+            mOperationHandle = 0;
         }
 
         /**
@@ -279,6 +282,7 @@ public class BiometricPrompt {
             mMac = mac;
             mIdentityCredential = null;
             mPresentationSession = null;
+            mOperationHandle = 0;
         }
 
         /**
@@ -295,6 +299,7 @@ public class BiometricPrompt {
             mMac = null;
             mIdentityCredential = identityCredential;
             mPresentationSession = null;
+            mOperationHandle = 0;
         }
 
         /**
@@ -311,7 +316,25 @@ public class BiometricPrompt {
             mMac = null;
             mIdentityCredential = null;
             mPresentationSession = presentationSession;
+            mOperationHandle = 0;
         }
+
+        /**
+         * Create from an operation handle.
+         * @see CryptoObject#getOperationHandle()
+         *
+         * @param operationHandle the operation handle associated with this object.
+         */
+        @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+        public CryptoObject(long operationHandle) {
+            mSignature = null;
+            mCipher = null;
+            mMac = null;
+            mIdentityCredential = null;
+            mPresentationSession = null;
+            mOperationHandle = operationHandle;
+        }
+
 
         /**
          * Gets the signature object associated with this crypto object.
@@ -363,6 +386,34 @@ public class BiometricPrompt {
         @Nullable
         public android.security.identity.PresentationSession getPresentationSession() {
             return mPresentationSession;
+        }
+
+        /**
+         * Returns the {@code operationHandle} associated with this object or 0 if none.
+         * The {@code operationHandle} is the underlying identifier associated with
+         * the {@code CryptoObject}.
+         *
+         * <p> The {@code operationHandle} can be used to reconstruct a {@code CryptoObject}
+         * instance. This is useful for any cross-process communication as the {@code CryptoObject}
+         * class is not {@link android.os.Parcelable}. Hence, if the {@code CryptoObject} is
+         * constructed in one process, and needs to be propagated to another process,
+         * before calling the {@code authenticate()} API in the second process, the
+         * recommendation is to retrieve the {@code operationHandle} using this API, and then
+         * reconstruct the {@code CryptoObject}using the constructor that takes in an {@code
+         * operationHandle}, and pass that in to the {@code authenticate} API mentioned above.
+         */
+        @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+        public long getOperationHandle() {
+            return CryptoObjectUtils.getOperationHandle(this);
+        }
+
+        /**
+         * Returns the {@code operationHandle} from the constructor. This is only for wrapping
+         * this {@link androidx.biometric.BiometricPrompt.CryptoObject} to
+         * {@link android.hardware.biometrics.BiometricPrompt}.
+         */
+        long getOperationHandleCryptoObject() {
+            return mOperationHandle;
         }
     }
 

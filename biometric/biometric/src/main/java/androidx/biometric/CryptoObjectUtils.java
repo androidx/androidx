@@ -112,6 +112,17 @@ class CryptoObjectUtils {
             }
         }
 
+        // Operation handle is only supported on API 35 and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            // This should be the bottom one and only be reachable when cryptoObject was
+            // constructed with operation handle. cryptoObject from other constructors should
+            // already be unwrapped and returned above.
+            final long operationHandle = Api35Impl.getOperationHandle(cryptoObject);
+            if (operationHandle != 0) {
+                return new BiometricPrompt.CryptoObject(operationHandle);
+            }
+        }
+
         return null;
     }
 
@@ -164,7 +175,36 @@ class CryptoObjectUtils {
             }
         }
 
+        // Operation handle is only supported on API 35 and above.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            final long operationHandle = cryptoObject.getOperationHandleCryptoObject();
+            if (operationHandle != 0) {
+                return Api35Impl.create(operationHandle);
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * Get the {@code operationHandle} associated with this object or 0 if none. This needs to be
+     * achieved by getting the corresponding
+     * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} and then get its
+     * operation handle.
+     *
+     * @param cryptoObject An instance of {@link androidx.biometric.BiometricPrompt.CryptoObject}.
+     * @return The {@code operationHandle} associated with this object or 0 if none.
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    static long getOperationHandle(@Nullable BiometricPrompt.CryptoObject cryptoObject) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            final android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCryptoObject =
+                    CryptoObjectUtils.wrapForBiometricPrompt(cryptoObject);
+            if (wrappedCryptoObject != null) {
+                return Api35Impl.getOperationHandle(wrappedCryptoObject);
+            }
+        }
+        return 0;
     }
 
     /**
@@ -250,6 +290,11 @@ class CryptoObjectUtils {
             return null;
         }
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            Log.e(TAG, "Operation handle is not supported by FingerprintManager.");
+            return null;
+        }
+
         return null;
     }
 
@@ -294,6 +339,41 @@ class CryptoObjectUtils {
                 | UnrecoverableKeyException | IOException | NoSuchProviderException e) {
             Log.w(TAG, "Failed to create fake crypto object.", e);
             return null;
+        }
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 15.0 (API 35).
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private static class Api35Impl {
+        // Prevent instantiation.
+        private Api35Impl() {}
+
+        /**
+         * Creates an instance of the framework class
+         * {@link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given
+         * operation handle.
+         *
+         * @param operationHandle The operation handle to be wrapped.
+         * @return An instance of {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         */
+        @NonNull
+        static android.hardware.biometrics.BiometricPrompt.CryptoObject create(
+                long operationHandle) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(operationHandle);
+        }
+
+        /**
+         * Gets the operation handle associated with the given crypto object, if any.
+         *
+         * @param crypto An instance of
+         *               {@link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         * @return The wrapped operation handle object, or {@code null}.
+         */
+        static long getOperationHandle(
+                @NonNull android.hardware.biometrics.BiometricPrompt.CryptoObject crypto) {
+            return crypto.getOperationHandle();
         }
     }
 
