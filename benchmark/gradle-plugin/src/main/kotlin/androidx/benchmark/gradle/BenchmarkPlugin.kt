@@ -16,7 +16,9 @@
 
 package androidx.benchmark.gradle
 
+import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.AppExtension
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.TestedExtension
@@ -29,6 +31,12 @@ import org.gradle.api.tasks.TaskContainer
 private const val ADDITIONAL_TEST_OUTPUT_KEY = "android.enableAdditionalTestOutput"
 
 class BenchmarkPlugin : Plugin<Project> {
+
+    companion object {
+
+        private const val PROP_FORCE_AOT_COMPILATION = "androidx.benchmark.forceaotcompilation"
+    }
+
     private var foundAndroidPlugin = false
 
     override fun apply(project: Project) {
@@ -191,6 +199,26 @@ class BenchmarkPlugin : Plugin<Project> {
                             androidx.benchmark.junit4.AndroidBenchmarkRunner."""
                             .trimIndent()
                     )
+                }
+            }
+        }
+
+        // Enables experimental property `android.experimental.force-aot-compilation` if AGP
+        // version is at least 8.4.0. and `androidx.benchmark.forceaotcompilation` is `true`.
+        // By default this property is `true`.
+        val forceAotCompilation =
+            project.providers
+                .gradleProperty(PROP_FORCE_AOT_COMPILATION)
+                .map { it.toBoolean() }
+                .getOrElse(true)
+        if (forceAotCompilation) {
+            project.extensions.findByType(LibraryAndroidComponentsExtension::class.java)?.let {
+                if (it.pluginVersion < AndroidPluginVersion(8, 4, 0)) {
+                    return@let
+                }
+                it.onVariants { v ->
+                    @Suppress("UnstableApiUsage") // usage of experimentalProperties
+                    v.experimentalProperties.put("android.experimental.force-aot-compilation", true)
                 }
             }
         }

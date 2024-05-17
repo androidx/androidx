@@ -38,6 +38,24 @@ private val PLUGINS_HEADER =
 """
         .trimIndent()
 
+private val REGISTER_ON_VARIANT_PRINT_PROPERTIES =
+    """
+    abstract class PrintMapPropertiesForVariantTask extends DefaultTask {
+        @Input abstract MapProperty<String, Object> getProps()
+        @TaskAction void exec() {
+            props.get().forEach { k,v -> logger.warn( k + "=" + v)  }
+        }
+    }
+    androidComponents {
+        onVariants(selector()) { variant ->
+            tasks.register(variant.name + "Props", PrintMapPropertiesForVariantTask) { t ->
+                t.props.set(variant.experimentalProperties)
+            }
+        }
+    }
+"""
+        .trimIndent()
+
 @RunWith(JUnit4::class)
 class BenchmarkPluginTest {
 
@@ -383,5 +401,71 @@ class BenchmarkPluginTest {
                 .lines()
                 .contains("BenchmarkPluginTestKt_applyPluginSigningConfig_debug")
         )
+    }
+}
+
+@RunWith(JUnit4::class)
+class BenchmarkPluginWithCurrentAgpTest {
+
+    companion object {
+        private val DEFAULT_BUILD_GRADLE =
+            """
+            android {
+                defaultConfig {
+                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                }
+                namespace = "com.example"
+            }
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark-junit4:1.0.0"
+            }
+            $REGISTER_ON_VARIANT_PRINT_PROPERTIES
+        """
+                .trimIndent()
+    }
+
+    @get:Rule val projectSetup = ProjectSetupRule()
+
+    private lateinit var gradleRunner: GradleRunner
+
+    @Before
+    fun setUp() {
+        File("src/test/test-data", "app-project").copyRecursively(projectSetup.rootDir)
+        gradleRunner = GradleRunner.create().withProjectDir(projectSetup.rootDir)
+        projectSetup.testProjectDir
+            .newFile("settings.gradle")
+            .writeText(
+                """
+            buildscript {
+                repositories {
+                    ${projectSetup.allRepositoryPaths.joinToString("\n") { """ maven { url "$it" } """ }}
+                }
+                dependencies {
+                    classpath "com.android.tools.build:gradle:8.5.0-alpha06"
+                    classpath "androidx.benchmark:androidx.benchmark.gradle.plugin:+"
+                }
+            }
+        """
+                    .trimIndent()
+            )
+    }
+
+    @Test
+    fun enableAotForMicroBenchmarks() {
+        projectSetup.writeDefaultBuildGradle(prefix = PLUGINS_HEADER, suffix = DEFAULT_BUILD_GRADLE)
+        gradleRunner.withArguments("releaseProps").build().output.lines().apply {
+            assertTrue(contains("android.experimental.force-aot-compilation=true"))
+        }
+    }
+
+    @Test
+    fun disableAotForMicroBenchmarksWhenPropertyIsFalse() {
+        projectSetup.writeDefaultBuildGradle(prefix = PLUGINS_HEADER, suffix = DEFAULT_BUILD_GRADLE)
+        gradleRunner
+            .withArguments("releaseProps", "-Pandroidx.benchmark.forceaotcompilation=false")
+            .build()
+            .output
+            .lines()
+            .apply { assertFalse(contains("android.experimental.force-aot-compilation=true")) }
     }
 }
