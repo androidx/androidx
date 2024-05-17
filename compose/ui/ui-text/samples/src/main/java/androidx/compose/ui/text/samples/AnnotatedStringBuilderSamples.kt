@@ -177,7 +177,12 @@ fun AnnotatedStringWithLinkSample() {
     BasicText(
         buildAnnotatedString {
             append("Build better apps faster with ")
-            withLink(LinkAnnotation.Url("https://developer.android.com/jetpack/compose")) {
+            withLink(
+                LinkAnnotation.Url(
+                    "https://developer.android.com/jetpack/compose",
+                    TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                )
+            ) {
                 append("Jetpack Compose")
             }
         }
@@ -194,6 +199,7 @@ fun AnnotatedStringWithHoveredLinkStylingSample() {
             val link = LinkAnnotation.Url(
                 "https://developer.android.com/jetpack/compose",
                 TextLinkStyles(
+                    style = SpanStyle(color = Color.Blue),
                     hoveredStyle = SpanStyle(textDecoration = TextDecoration.Underline)
                 )
             )
@@ -212,7 +218,8 @@ fun AnnotatedStringWithListenerSample() {
         buildAnnotatedString {
             append("Build better apps faster with ")
             val link = LinkAnnotation.Url(
-                "https://developer.android.com/jetpack/compose"
+                "https://developer.android.com/jetpack/compose",
+                TextLinkStyles(SpanStyle(color = Color.Blue))
             ) {
                 val url = (it as LinkAnnotation.Url).url
                 // log some metrics
