@@ -689,14 +689,6 @@ public class SearchSpecCtsTest {
         assertThat(searchSpec.getDefaultEmbeddingSearchMetricType()).isEqualTo(
                 SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT);
         assertThat(searchSpec.getSearchEmbeddings()).containsExactly(embedding1, embedding2);
-
-        // Check that copy constructor works.
-        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
-        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
-        assertThat(searchSpec.isEmbeddingSearchEnabled()).isTrue();
-        assertThat(searchSpecCopy.getDefaultEmbeddingSearchMetricType()).isEqualTo(
-                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT);
-        assertThat(searchSpecCopy.getSearchEmbeddings()).containsExactly(embedding1, embedding2);
     }
 
     @Test
@@ -776,28 +768,23 @@ public class SearchSpecCtsTest {
                 .build();
         assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
         assertThat(searchSpec.isListFilterTokenizeFunctionEnabled()).isTrue();
-
-        // Check that copy constructor works.
-        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
-        assertThat(searchSpecCopy.isListFilterQueryLanguageEnabled()).isTrue();
-        assertThat(searchSpecCopy.isListFilterTokenizeFunctionEnabled()).isTrue();
     }
 
     @Test
-    public void testListFilterTokenizeFunction_toFalse() {
-        SearchSpec searchSpec = new SearchSpec.Builder()
+    public void testSetFeatureEnabledToFalse_tokenizeFunction() {
+        SearchSpec.Builder builder = new SearchSpec.Builder();
+        SearchSpec searchSpec = builder
                 .setListFilterQueryLanguageEnabled(true)
                 .setListFilterTokenizeFunctionEnabled(true)
                 .build();
         assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
         assertThat(searchSpec.isListFilterTokenizeFunctionEnabled()).isTrue();
 
-        // Check that copy constructor works.
-        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec)
+        searchSpec = builder
                 .setListFilterTokenizeFunctionEnabled(false)
                 .build();
-        assertThat(searchSpecCopy.isListFilterQueryLanguageEnabled()).isTrue();
-        assertThat(searchSpecCopy.isListFilterTokenizeFunctionEnabled()).isFalse();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterTokenizeFunctionEnabled()).isFalse();
     }
 
     @Test
