@@ -154,11 +154,10 @@ constructor(
             }
         }
         inputs = graphConfig.input?.map {
-            val streamFormat = it.streamFormat ?: StreamFormat(checkNotNull(it.format))
             InputStreamImpl(
                 nextInputId(),
                 it.maxImages,
-                streamFormat,
+                it.streamFormat,
             )
         } ?: emptyList()
 
