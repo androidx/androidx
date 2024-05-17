@@ -2942,6 +2942,7 @@ package androidx.compose.ui.platform {
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.Autofill?> getLocalAutofill();
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.AutofillTree> getLocalAutofillTree();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ClipboardManager> getLocalClipboardManager();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalCursorBlinkEnabled();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Density> getLocalDensity();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.focus.FocusManager> getLocalFocusManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.font.FontFamily.Resolver> getLocalFontFamilyResolver();
@@ -2960,6 +2961,7 @@ package androidx.compose.ui.platform {
     property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.Autofill?> LocalAutofill;
     property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.autofill.AutofillTree> LocalAutofillTree;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ClipboardManager> LocalClipboardManager;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalCursorBlinkEnabled;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.Density> LocalDensity;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.focus.FocusManager> LocalFocusManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.font.FontFamily.Resolver> LocalFontFamilyResolver;

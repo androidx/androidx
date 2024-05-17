@@ -37,6 +37,7 @@ import androidx.compose.integration.demos.common.Demo
 import androidx.compose.integration.demos.common.DemoCategory
 import androidx.compose.integration.demos.common.FragmentDemo
 import androidx.compose.integration.demos.common.allLaunchableDemos
+import androidx.compose.integration.demos.settings.CursorBlinkSetting
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -63,6 +64,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalCursorBlinkEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -131,7 +133,11 @@ private fun DemoContent(
                     onNavigate = onNavigate
                 )
             } else {
-                DisplayDemo(demo, onNavigate, onNavigateUp)
+                CompositionLocalProvider(
+                    LocalCursorBlinkEnabled provides CursorBlinkSetting.asState().value
+                ) {
+                    DisplayDemo(demo, onNavigate, onNavigateUp)
+                }
             }
         }
     }

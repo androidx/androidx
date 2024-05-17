@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -163,6 +164,9 @@ internal val LocalProvidableScrollCaptureInProgress = compositionLocalOf { false
  */
 val LocalScrollCaptureInProgress: CompositionLocal<Boolean>
     get() = LocalProvidableScrollCaptureInProgress
+
+/** Configure the blink timeout, after interaction, for text cursors. */
+val LocalCursorBlinkEnabled: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
 
 @ExperimentalComposeUiApi
 @Composable
