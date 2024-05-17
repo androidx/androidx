@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 
 /**
  * BasicTooltipBox that wraps a composable with a tooltip.
@@ -53,13 +54,18 @@ actual fun BasicTooltipBox(
     enableUserInput: Boolean,
     content: @Composable () -> Unit
 ) {
+    // TODO: Reuse android implementation - there is no platform specifics here.
+    //  Use expect/actual only for string resources
     Box(modifier = modifier) {
         content()
         if (state.isVisible) {
             Popup(
                 popupPositionProvider = positionProvider,
                 onDismissRequest = { state.dismiss() },
-                focusable = focusable
+                properties = PopupProperties(
+                    // TODO(b/326167778): focusable = true cannot work with mouse
+                    focusable = false
+                )
             ) { tooltip() }
         }
     }
