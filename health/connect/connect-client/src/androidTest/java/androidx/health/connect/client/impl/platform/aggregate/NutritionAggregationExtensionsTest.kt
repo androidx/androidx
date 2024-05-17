@@ -69,6 +69,15 @@ class NutritionAggregationExtensionsTest {
     }
 
     @Test
+    fun aggregateNutritionTransFatTotal_noData() = runTest {
+        val aggregationResult =
+            healthConnectClient.aggregateNutritionTransFatTotal(TimeRangeFilter.none(), emptySet())
+
+        assertThat(NutritionRecord.TRANS_FAT_TOTAL in aggregationResult).isFalse()
+        assertThat(aggregationResult.dataOrigins).isEmpty()
+    }
+
+    @Test
     fun aggregateNutritionTransFatTotal_noFilters() = runTest {
         healthConnectClient.insertRecords(
             listOf(
