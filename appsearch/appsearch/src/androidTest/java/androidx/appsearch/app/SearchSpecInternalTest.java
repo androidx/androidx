@@ -124,6 +124,30 @@ public class SearchSpecInternalTest {
     }
 
     @Test
+    public void testSearchSpecBuilderCopyConstructor_embeddingSearch() {
+        EmbeddingVector embedding1 = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+        EmbeddingVector embedding2 = new EmbeddingVector(
+                new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(embedding1, embedding2)
+                .build();
+
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactlyElementsIn(
+                searchSpec.getEnabledFeatures());
+        assertThat(searchSpecCopy.getDefaultEmbeddingSearchMetricType()).isEqualTo(
+                searchSpec.getDefaultEmbeddingSearchMetricType());
+        assertThat(searchSpecCopy.getSearchEmbeddings()).containsExactlyElementsIn(
+                searchSpec.getSearchEmbeddings());
+    }
+
+    @Test
     public void testSearchSpecBuilderCopyConstructor_informationalRankingExpressions() {
         assumeTrue(Flags.enableInformationalRankingExpressions());
 
