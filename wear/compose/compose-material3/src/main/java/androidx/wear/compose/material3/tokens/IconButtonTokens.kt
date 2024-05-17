@@ -27,10 +27,10 @@ internal object IconButtonTokens {
   val ContainerLargeSize = 60.0.dp
   val ContainerShape = ShapeKeyTokens.CornerFull
   val ContainerSmallSize = 48.0.dp
-  val ContentColor = ColorSchemeKeyTokens.OnBackground
+  val ContentColor = ColorSchemeKeyTokens.OnSurface
   val DisabledContentColor = ColorSchemeKeyTokens.OnSurface
   val DisabledContentOpacity = 0.38f
   val IconDefaultSize = 26.0.dp
-  val IconLargeSize = 30.0.dp
+  val IconLargeSize = 32.0.dp
   val IconSmallSize = 24.0.dp
 }

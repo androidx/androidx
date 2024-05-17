@@ -199,7 +199,9 @@ class IconButtonTest {
         rule.setContentWithTheme {
             IconButton(
                 onClick = {},
-                modifier = Modifier.testTag(TEST_TAG).semantics { role = overrideRole }
+                modifier = Modifier
+                    .testTag(TEST_TAG)
+                    .semantics { role = overrideRole }
             ) {
                 TestImage()
             }
@@ -349,7 +351,7 @@ class IconButtonTest {
             status = Status.Enabled,
             colors = { IconButtonDefaults.iconButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onBackground }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
         )
     }
 
@@ -425,7 +427,7 @@ class IconButtonTest {
             status = Status.Enabled,
             colors = { IconButtonDefaults.outlinedIconButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.primary }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
         )
     }
 
@@ -464,7 +466,7 @@ class IconButtonTest {
         val status = Status.Disabled
         rule.verifyButtonBorderColor(
             expectedBorderColor = {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledBorderAlpha)
+                MaterialTheme.colorScheme.outline.copy(alpha = DisabledBorderAlpha)
             },
             content = { modifier: Modifier ->
                 OutlinedIconButton(

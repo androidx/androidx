@@ -1282,7 +1282,8 @@ object ButtonDefaults {
             return defaultButtonColorsCached ?: ButtonColors(
                 containerColor = fromToken(FilledButtonTokens.ContainerColor),
                 contentColor = fromToken(FilledButtonTokens.LabelColor),
-                secondaryContentColor = fromToken(FilledButtonTokens.SecondaryLabelColor),
+                secondaryContentColor = fromToken(FilledButtonTokens.SecondaryLabelColor)
+                    .copy(alpha = FilledButtonTokens.SecondaryLabelOpacity),
                 iconColor = fromToken(FilledButtonTokens.IconColor),
                 disabledContainerColor = fromToken(FilledButtonTokens.DisabledContainerColor)
                     .toDisabledColor(disabledAlpha = FilledButtonTokens.DisabledContainerOpacity),
