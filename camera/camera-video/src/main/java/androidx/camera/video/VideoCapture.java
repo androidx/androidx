@@ -1620,6 +1620,14 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             return new VideoCaptureConfig<>(OptionsBundle.from(mMutableConfig));
         }
 
+        /** Sets the associated {@link VideoOutput}. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder<T> setVideoOutput(@NonNull VideoOutput videoOutput) {
+            getMutableConfig().insertOption(OPTION_VIDEO_OUTPUT, videoOutput);
+            return this;
+        }
+
         @NonNull
         Builder<T> setVideoEncoderInfoFinder(
                 @NonNull Function<VideoEncoderConfig, VideoEncoderInfo> videoEncoderInfoFinder) {

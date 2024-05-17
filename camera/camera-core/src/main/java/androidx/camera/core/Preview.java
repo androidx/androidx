@@ -446,6 +446,16 @@ public final class Preview extends UseCase {
         }
     }
 
+    /** Gets the {@link SurfaceProvider} associated with the preview. */
+    @VisibleForTesting
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @UiThread
+    @Nullable
+    public SurfaceProvider getSurfaceProvider() {
+        checkMainThread();
+        return mSurfaceProvider;
+    }
+
     private void sendSurfaceRequest() {
         // App receives TransformationInfo when 1) the listener is set or 2) the info is sent. We
         // should send the info before the listen is set so the app only receives once.

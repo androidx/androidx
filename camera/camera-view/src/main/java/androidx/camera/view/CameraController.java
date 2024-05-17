@@ -371,7 +371,7 @@ public abstract class CameraController {
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
         mImageAnalysis = new ImageAnalysis.Builder().build();
-        mVideoCapture = createNewVideoCapture();
+        mVideoCapture = createVideoCapture();
 
         // Wait for camera to be initialized before binding use cases.
         mInitializationFuture = transform(
@@ -680,6 +680,9 @@ public abstract class CameraController {
         setTargetOutputSize(builder, mPreviewTargetSize);
         setResolutionSelector(builder, mPreviewResolutionSelector);
         mPreview = builder.build();
+        if (mSurfaceProvider != null) {
+            mPreview.setSurfaceProvider(mSurfaceProvider);
+        }
     }
 
     // ----------------------
@@ -1060,7 +1063,9 @@ public abstract class CameraController {
         if (mImageCaptureIoExecutor != null) {
             builder.setIoExecutor(mImageCaptureIoExecutor);
         }
+        int flashMode = mImageCapture.getFlashMode();
         mImageCapture = builder.build();
+        setImageCaptureFlashMode(flashMode);
     }
 
     // -----------------
@@ -1857,10 +1862,10 @@ public abstract class CameraController {
         if (isCameraInitialized()) {
             mCameraProvider.unbind(mVideoCapture);
         }
-        mVideoCapture = createNewVideoCapture();
+        mVideoCapture = createVideoCapture();
     }
 
-    private VideoCapture<Recorder> createNewVideoCapture() {
+    private VideoCapture<Recorder> createVideoCapture() {
         Recorder videoRecorder = new Recorder.Builder().setQualitySelector(
                 mVideoCaptureQualitySelector).build();
         return new VideoCapture.Builder<>(videoRecorder)

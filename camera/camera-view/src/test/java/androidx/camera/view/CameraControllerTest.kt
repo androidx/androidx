@@ -31,9 +31,11 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.MirrorMode
+import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.TorchState
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.ImageAnalysisConfig
@@ -592,5 +594,32 @@ class CameraControllerTest {
         Assert.assertThrows(IllegalStateException::class.java) {
             controller.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         }
+    }
+
+    @UiThreadTest
+    @Test
+    fun preview_surfaceProviderIsPreserved_afterRebind() {
+        // Arrange.
+        val surfaceProvider = SurfaceProvider { }
+        controller.attachPreviewSurface(surfaceProvider, fakeViewPort)
+
+        // Act: Setting a different resolution selector triggers a rebinding.
+        controller.previewResolutionSelector = resolutionSelector
+
+        // Assert.
+        assertThat(controller.mPreview.surfaceProvider).isSameInstanceAs(surfaceProvider)
+    }
+
+    @UiThreadTest
+    @Test
+    fun imageCapture_flashModeIsPreserved_afterRebind() {
+        // Arrange.
+        controller.imageCaptureFlashMode = FLASH_MODE_ON
+
+        // Act: Setting a different resolution selector triggers a rebinding.
+        controller.imageCaptureResolutionSelector = resolutionSelector
+
+        // Assert.
+        assertThat(controller.imageCaptureFlashMode).isEqualTo(FLASH_MODE_ON)
     }
 }
