@@ -268,9 +268,8 @@ package androidx.wear.protolayout.material.layouts {
   }
 
   public class LayoutDefaults {
+    field public static final androidx.wear.protolayout.DimensionBuilders.DpProp DEFAULT_LARGE_VERTICAL_SPACER_HEIGHT;
     field public static final androidx.wear.protolayout.DimensionBuilders.DpProp DEFAULT_VERTICAL_SPACER_HEIGHT;
-    field public static final androidx.wear.protolayout.DimensionBuilders.DpProp EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
-    field public static final androidx.wear.protolayout.DimensionBuilders.DpProp EDGE_CONTENT_LAYOUT_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
     field public static final float EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
     field public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
     field @Deprecated public static final int MULTI_BUTTON_MAX_NUMBER = 7; // 0x7
