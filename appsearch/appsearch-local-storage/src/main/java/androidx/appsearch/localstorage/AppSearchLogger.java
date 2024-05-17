@@ -31,7 +31,7 @@ import androidx.appsearch.stats.SchemaMigrationStats;
  * An interface for implementing client-defined logging AppSearch operations stats.
  *
  * <p>Any implementation needs to provide general information on how to log all the stats types.
- * (e.g. {@link CallStats})
+ * (for example {@link CallStats})
  *
  * <p>All implementations of this interface must be thread safe.
  *

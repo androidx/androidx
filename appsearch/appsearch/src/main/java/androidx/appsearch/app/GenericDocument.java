@@ -1247,8 +1247,8 @@ public class GenericDocument {
         /**
          * Creates a new {@link GenericDocument.Builder} from the given GenericDocument.
          *
-         * <p>The GenericDocument is deep copied, i.e. changes to the new GenericDocument
-         * returned by this function will NOT affect the original GenericDocument.
+         * <p>The GenericDocument is deep copied, that is, it changes to a new GenericDocument
+         * returned by this function and will NOT affect the original GenericDocument.
          */
         @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_COPY_CONSTRUCTOR)
         public Builder(@NonNull GenericDocument document) {
