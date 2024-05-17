@@ -262,8 +262,8 @@ public final class PutDocumentsRequest {
          *
          *          <li>resultRankInBlock: LONG, the rank of the {@link SearchResult} document among
          *          the user-defined block.
-         *          <p>The client can define its own custom definition for block, e.g. corpus name,
-         *          group, etc.
+         *          <p>The client can define its own custom definition for block, for example,
+         *          corpus name, group, etc.
          *          <p>For example, a client defines the block as corpus, and AppSearch returns 5
          *          documents with corpus = ["corpus1", "corpus1", "corpus2", "corpus3", "corpus2"].
          *          Then the block ranks of them = [1, 2, 1, 1, 2].
