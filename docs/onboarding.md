@@ -35,6 +35,9 @@ following should work with `bash` as well.
 export PATH=~/bin:$PATH
 ```
 
+> NOTE: When using quotes (`"~/bin"`), `~` does not expand and the path is
+> invalid. (Possibly `bash` only?)
+
 Next, add the following lines to `~/.zshrc` (or `~/.bash_profile` if using
 `bash`) aliasing the `repo` command to run with `python3`:
 
