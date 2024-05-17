@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -167,7 +168,7 @@ fun SliderWithCustomThumbSample() {
                     label = {
                         PlainTooltip(
                             modifier = Modifier
-                                .requiredSize(45.dp, 25.dp)
+                                .sizeIn(45.dp, 25.dp)
                                 .wrapContentWidth()
                         ) {
                             Text("%.2f".format(sliderPosition))
@@ -396,7 +397,7 @@ fun RangeSliderWithCustomComponents() {
                     label = {
                         PlainTooltip(
                             modifier = Modifier
-                                .requiredSize(45.dp, 25.dp)
+                                .sizeIn(45.dp, 25.dp)
                                 .wrapContentWidth()
                         ) {
                             Text("%.2f".format(rangeSliderState.activeRangeStart))
