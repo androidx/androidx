@@ -58,10 +58,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.collapse
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -162,8 +163,7 @@ fun ModalBottomSheet(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .imePadding(),
-            propagateMinConstraints = false
+                .imePadding()
         ) {
             Scrim(
                 color = scrimColor,
@@ -217,6 +217,7 @@ internal fun BoxScope.ModalBottomSheetContent(
 
     Surface(
         modifier = modifier
+            .align(Alignment.TopCenter)
             .widthIn(max = sheetMaxWidth)
             .fillMaxWidth()
             .graphicsLayer {
@@ -230,8 +231,6 @@ internal fun BoxScope.ModalBottomSheetContent(
                         TransformOrigin(0.5f, (sheetOffset + sheetHeight) / sheetHeight)
                 }
             }
-            .align(Alignment.TopCenter)
-            .semantics { paneTitle = bottomSheetPaneTitle }
             .nestedScroll(
                 remember(sheetState) {
                     ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
@@ -275,7 +274,8 @@ internal fun BoxScope.ModalBottomSheetContent(
                 enabled = sheetState.isVisible,
                 startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
                 onDragStopped = { settleToDismiss(it) }
-            ),
+            )
+            .semantics { paneTitle = bottomSheetPaneTitle },
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
@@ -420,14 +420,16 @@ private fun Scrim(
             targetValue = if (visible) 1f else 0f,
             animationSpec = TweenSpec()
         )
+        val closeSheet = getString(Strings.CloseSheet)
         val dismissSheet = if (visible) {
             Modifier
-                .pointerInput(onDismissRequest) {
-                    detectTapGestures {
-                        onDismissRequest()
+                .pointerInput(onDismissRequest) { detectTapGestures { onDismissRequest() } }
+                .semantics(mergeDescendants = true) {
+                    contentDescription = closeSheet
+                    onClick {
+                        onDismissRequest(); true
                     }
                 }
-                .clearAndSetSemantics {}
         } else {
             Modifier
         }
