@@ -56,9 +56,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Canvas
 
-// TODO: This val should not be public!
-//  Upstream current state of [ComposeScene] from JetBrains fork
-val LocalComposeScene = staticCompositionLocalOf<ComposeScene> {
+internal val LocalComposeScene = staticCompositionLocalOf<ComposeScene> {
     error("CompositionLocal LocalComposeScene not provided")
 }
 
