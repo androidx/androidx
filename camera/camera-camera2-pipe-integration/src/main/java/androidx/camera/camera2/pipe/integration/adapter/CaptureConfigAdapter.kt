@@ -54,6 +54,12 @@ class CaptureConfigAdapter @Inject constructor(
         CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
     ] == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
 
+    /**
+     * Maps [CaptureConfig] to [Request].
+     *
+     * @throws IllegalStateException When CaptureConfig does not have any surface or a CaptureConfig
+     *          surface is not recognized in [UseCaseGraphConfig.surfaceToStreamMap]
+     */
     @OptIn(ExperimentalGetImage::class)
     fun mapToRequest(
         captureConfig: CaptureConfig,
@@ -68,7 +74,7 @@ class CaptureConfigAdapter @Inject constructor(
 
         val streamIdList = surfaces.map {
             checkNotNull(useCaseGraphConfig.surfaceToStreamMap[it]) {
-                "Attempted to issue a capture with an unrecognized surface."
+                "Attempted to issue a capture with an unrecognized surface: $it"
             }
         }
 

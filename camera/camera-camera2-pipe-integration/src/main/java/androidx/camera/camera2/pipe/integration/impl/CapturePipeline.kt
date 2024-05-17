@@ -404,46 +404,66 @@ class CapturePipelineImpl @Inject constructor(
         }
         debug { "CapturePipeline#submitRequestInternal; Submitting $configs with CameraPipe" }
         val deferredList = mutableListOf<CompletableDeferred<Void?>>()
-        val requests = configs.map {
+        val requests = configs.mapNotNull {
             val completeSignal = CompletableDeferred<Void?>().also { deferredList.add(it) }
-            configAdapter.mapToRequest(
-                it, requestTemplate, sessionConfigOptions,
-                listOf(object : Request.Listener {
-                    override fun onAborted(request: Request) {
-                        completeSignal.completeExceptionally(
-                            ImageCaptureException(
-                                ERROR_CAMERA_CLOSED,
-                                "Capture request is cancelled because camera is closed",
-                                null
+            try {
+                configAdapter.mapToRequest(
+                    it, requestTemplate, sessionConfigOptions,
+                    listOf(object : Request.Listener {
+                        override fun onAborted(request: Request) {
+                            completeSignal.completeExceptionally(
+                                ImageCaptureException(
+                                    ERROR_CAMERA_CLOSED,
+                                    "Capture request is cancelled because camera is closed",
+                                    null
+                                )
                             )
-                        )
-                    }
+                        }
 
-                    override fun onTotalCaptureResult(
-                        requestMetadata: RequestMetadata,
-                        frameNumber: FrameNumber,
-                        totalCaptureResult: FrameInfo,
-                    ) {
-                        completeSignal.complete(null)
-                    }
+                        override fun onTotalCaptureResult(
+                            requestMetadata: RequestMetadata,
+                            frameNumber: FrameNumber,
+                            totalCaptureResult: FrameInfo,
+                        ) {
+                            completeSignal.complete(null)
+                        }
 
-                    @SuppressLint("ClassVerificationFailure")
-                    override fun onFailed(
-                        requestMetadata: RequestMetadata,
-                        frameNumber: FrameNumber,
-                        requestFailure: RequestFailure
-                    ) {
-                        completeSignal.completeExceptionally(
-                            ImageCaptureException(
-                                ERROR_CAPTURE_FAILED,
-                                "Capture request failed with reason " +
-                                    requestFailure.reason,
-                                null
+                        @SuppressLint("ClassVerificationFailure")
+                        override fun onFailed(
+                            requestMetadata: RequestMetadata,
+                            frameNumber: FrameNumber,
+                            requestFailure: RequestFailure
+                        ) {
+                            completeSignal.completeExceptionally(
+                                ImageCaptureException(
+                                    ERROR_CAPTURE_FAILED,
+                                    "Capture request failed with reason " +
+                                        requestFailure.reason,
+                                    null
+                                )
                             )
-                        )
-                    }
-                })
-            )
+                        }
+                    })
+                )
+            } catch (e: IllegalStateException) {
+                info(e) {
+                    "CapturePipeline#submitRequestInternal: configAdapter.mapToRequest failed!"
+                }
+                completeSignal.completeExceptionally(
+                    ImageCaptureException(
+                        ERROR_CAPTURE_FAILED,
+                        "Capture request failed with reason " + e.message,
+                        e
+                    )
+                )
+                null
+            }
+        }
+
+        if (requests.isEmpty()) {
+            // requests can be empty due to configAdapter.mapToRequest throwing exception, all the
+            // deferred instances in the list should already be completed exceptionally.
+            return deferredList
         }
 
         threads.sequentialScope.launch {
