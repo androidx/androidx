@@ -55,7 +55,7 @@ package androidx.car.app {
     method public int getCarAppApiLevel();
     method public <T> T getCarService(Class<T!>);
     method public Object getCarService(String);
-    method public String getCarServiceName(Class<?>);
+    method public String getCarServiceName(Class<? extends java.lang.Object!>);
     method public androidx.car.app.HostInfo? getHostInfo();
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public boolean isDarkMode();

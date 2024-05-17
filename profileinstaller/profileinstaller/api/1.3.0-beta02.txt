@@ -41,10 +41,10 @@ package androidx.profileinstaller {
     method public void onResultReceived(int, Object?);
   }
 
-  public class ProfileInstallerInitializer implements androidx.startup.Initializer<androidx.profileinstaller.ProfileInstallerInitializer.Result> {
+  public class ProfileInstallerInitializer implements androidx.startup.Initializer<androidx.profileinstaller.ProfileInstallerInitializer.Result!> {
     ctor public ProfileInstallerInitializer();
     method public androidx.profileinstaller.ProfileInstallerInitializer.Result create(android.content.Context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<? extends java.lang.Object!>!>!> dependencies();
   }
 
   public static class ProfileInstallerInitializer.Result {
