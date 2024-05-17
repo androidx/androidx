@@ -26,6 +26,7 @@ import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.health.connect.client.readRecord
+import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -40,6 +41,8 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
+import androidx.health.connect.client.units.grams
+import androidx.health.connect.client.units.millimetersOfMercury
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -405,19 +408,47 @@ class HealthConnectClientUpsideDownImplTest {
                     startZoneOffset = ZoneOffset.UTC,
                     endTime = START_TIME + 1.minutes,
                     endZoneOffset = ZoneOffset.UTC,
-                    transFat = Mass.grams(0.5)
+                    transFat = 0.5.grams
+                ),
+                BloodPressureRecord(
+                    time = START_TIME,
+                    zoneOffset = ZoneOffset.UTC,
+                    systolic = 120.millimetersOfMercury,
+                    diastolic = 80.millimetersOfMercury
                 )
             )
         )
 
         val aggregateResponse = healthConnectClient.aggregate(
             AggregateRequest(
-                setOf(NutritionRecord.TRANS_FAT_TOTAL),
+                setOf(
+                    BloodPressureRecord.DIASTOLIC_AVG,
+                    BloodPressureRecord.DIASTOLIC_MAX,
+                    BloodPressureRecord.DIASTOLIC_MIN,
+                    BloodPressureRecord.SYSTOLIC_AVG,
+                    BloodPressureRecord.SYSTOLIC_MAX,
+                    BloodPressureRecord.SYSTOLIC_MIN,
+                    NutritionRecord.TRANS_FAT_TOTAL
+                ),
                 TimeRangeFilter.none()
             )
         )
 
-        assertThat(aggregateResponse[NutritionRecord.TRANS_FAT_TOTAL]).isEqualTo(Mass.grams(0.5))
+        assertEquals(
+            aggregateResponse[NutritionRecord.TRANS_FAT_TOTAL] to 0.5.grams,
+            aggregateResponse[BloodPressureRecord.SYSTOLIC_AVG] to
+                120.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.SYSTOLIC_MAX] to
+                120.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.SYSTOLIC_MIN] to
+                120.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.DIASTOLIC_AVG] to
+                80.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.DIASTOLIC_MAX] to
+                80.millimetersOfMercury,
+            aggregateResponse[BloodPressureRecord.DIASTOLIC_MIN] to
+                80.millimetersOfMercury,
+        )
     }
 
     @Ignore("b/314092270")
@@ -734,6 +765,10 @@ class HealthConnectClientUpsideDownImplTest {
     fun getGrantedPermissions() = runTest {
         assertThat(healthConnectClient.permissionController.getGrantedPermissions())
             .containsExactlyElementsIn(allHealthPermissions)
+    }
+
+    private fun <A, E> assertEquals(vararg assertions: Pair<A, E>) {
+        assertions.forEach { (actual, expected) -> assertThat(actual).isEqualTo(expected) }
     }
 
     private val Int.seconds: Duration

@@ -48,45 +48,55 @@ import kotlinx.coroutines.flow.flow
 // Max buffer to account for overlapping records that have startTime < timeRangeFilter.startTime
 val RECORD_START_TIME_BUFFER: Duration = Duration.ofDays(1)
 
+private val AGGREGATION_FALLBACK_RECORD_TYPES = setOf(
+    BloodPressureRecord::class,
+    CyclingPedalingCadenceRecord::class,
+    NutritionRecord::class,
+    SpeedRecord::class,
+    StepsCadenceRecord::class
+)
+
 internal suspend fun HealthConnectClient.aggregateFallback(request: AggregateRequest):
     AggregationResult {
-    return request.fallbackMetrics
-        .fold(emptyAggregationResult()) { currentAggregateResult, metric ->
-            currentAggregateResult + aggregate(
-                metric,
-                request.timeRangeFilter,
-                request.dataOriginFilter
-            )
-        }
+    var aggregationResult = emptyAggregationResult()
+
+    for (recordType in AGGREGATION_FALLBACK_RECORD_TYPES) {
+        aggregationResult += aggregate(
+            recordType,
+            request.fallbackMetrics,
+            request.timeRangeFilter,
+            request.dataOriginFilter
+        )
+    }
+
+    return aggregationResult
 }
 
-private suspend fun <T : Any> HealthConnectClient.aggregate(
-    metric: AggregateMetric<T>,
+private suspend fun <T : Record> HealthConnectClient.aggregate(
+    recordType: KClass<T>,
+    metrics: Set<AggregateMetric<*>>,
     timeRangeFilter: TimeRangeFilter,
     dataOriginFilter: Set<DataOrigin>
 ): AggregationResult {
-    return when (metric) {
-        NutritionRecord.TRANS_FAT_TOTAL -> aggregateNutritionTransFatTotal(
+    val dataTypeName = recordType.simpleName!!.replace("Record", "")
+    val recordTypeMetrics = metrics.filter { it.dataTypeName == dataTypeName }.toSet()
+
+    if (recordTypeMetrics.isEmpty()) {
+        return emptyAggregationResult()
+    }
+
+    return when (recordType) {
+        BloodPressureRecord::class -> aggregateBloodPressure(
+            recordTypeMetrics,
             timeRangeFilter,
             dataOriginFilter
         )
 
-        BloodPressureRecord.DIASTOLIC_AVG -> TODO(reason = "b/326414908")
-        BloodPressureRecord.DIASTOLIC_MAX -> TODO(reason = "b/326414908")
-        BloodPressureRecord.DIASTOLIC_MIN -> TODO(reason = "b/326414908")
-        BloodPressureRecord.SYSTOLIC_AVG -> TODO(reason = "b/326414908")
-        BloodPressureRecord.SYSTOLIC_MAX -> TODO(reason = "b/326414908")
-        BloodPressureRecord.SYSTOLIC_MIN -> TODO(reason = "b/326414908")
-        CyclingPedalingCadenceRecord.RPM_AVG -> TODO(reason = "b/326414908")
-        CyclingPedalingCadenceRecord.RPM_MAX -> TODO(reason = "b/326414908")
-        CyclingPedalingCadenceRecord.RPM_MIN -> TODO(reason = "b/326414908")
-        SpeedRecord.SPEED_AVG -> TODO(reason = "b/326414908")
-        SpeedRecord.SPEED_MAX -> TODO(reason = "b/326414908")
-        SpeedRecord.SPEED_MIN -> TODO(reason = "b/326414908")
-        StepsCadenceRecord.RATE_AVG -> TODO(reason = "b/326414908")
-        StepsCadenceRecord.RATE_MAX -> TODO(reason = "b/326414908")
-        StepsCadenceRecord.RATE_MIN -> TODO(reason = "b/326414908")
-        else -> error("Invalid fallback aggregation type ${metric.metricKey}")
+        CyclingPedalingCadenceRecord::class -> TODO(reason = "b/326414908")
+        NutritionRecord::class -> aggregateNutritionTransFatTotal(timeRangeFilter, dataOriginFilter)
+        SpeedRecord::class -> TODO(reason = "b/326414908")
+        StepsCadenceRecord::class -> TODO(reason = "b/326414908")
+        else -> error("Invalid record type for aggregation fallback: $recordType")
     }
 }
 
@@ -165,7 +175,7 @@ internal fun sliceFactor(record: NutritionRecord, timeRangeFilter: TimeRangeFilt
 internal fun emptyAggregationResult() =
     AggregationResult(longValues = mapOf(), doubleValues = mapOf(), dataOrigins = setOf())
 
-internal data class AggregatedData<T>(
+class AggregatedData<T>(
     var value: T,
     var dataOrigins: MutableSet<DataOrigin> = mutableSetOf()
 )
