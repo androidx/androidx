@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.layer.GraphicsLayerImpl.Companion.DefaultDrawBlock
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -478,29 +477,13 @@ actual class GraphicsLayer internal constructor(
     }
 
     internal fun drawForPersistence(canvas: Canvas) {
-        if (!impl.hasDisplayList) {
-            // Always ensure there is a valid displaylist when we are drawing for persistence
-            // purposes. Attempts to re-render for persistence after trim memory callbacks may
-            // end up with displaylists not being available at this point as HWUI would discard them
-            // so do a placeholder record if necessary
-            // Call setPosition on the implementation to ensure at least a 1x1 backed displaylist
-            // However, reset the size to zero so that subsequent calls to record will update
-            // GraphicsLayer properties accordingly
-            impl.setPosition(topLeft, size = IntSize(1, 1) /** intentionally 1 x 1 */)
-            impl.record(density, layoutDirection, this, DefaultDrawBlock)
-            this.size = IntSize.Zero
+        if (canvas.nativeCanvas.isHardwareAccelerated || impl.supportsSoftwareRendering) {
+            recreateDisplayListIfNeeded()
+            impl.draw(canvas)
         }
-        impl.draw(canvas)
     }
 
-    /**
-     * Draw the contents of this [GraphicsLayer] into the specified [Canvas]
-     */
-    internal actual fun draw(canvas: Canvas, parentLayer: GraphicsLayer?) {
-        if (isReleased) {
-            return
-        }
-
+    private fun recreateDisplayListIfNeeded() {
         // If the displaylist has been discarded from underneath us, attempt to recreate it.
         // This can happen if the application resumes from a background state after a trim memory
         // callback has been invoked with a level greater than or equal to hidden. During which
@@ -519,6 +502,17 @@ actual class GraphicsLayer internal constructor(
                 // NO-OP
             }
         }
+    }
+
+    /**
+     * Draw the contents of this [GraphicsLayer] into the specified [Canvas]
+     */
+    internal actual fun draw(canvas: Canvas, parentLayer: GraphicsLayer?) {
+        if (isReleased) {
+            return
+        }
+
+        recreateDisplayListIfNeeded()
 
         if (pivotOffset.isUnspecified) {
             impl.pivotOffset = Offset(size.width / 2f, size.height / 2f)

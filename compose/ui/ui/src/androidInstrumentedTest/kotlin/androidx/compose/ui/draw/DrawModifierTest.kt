@@ -133,6 +133,57 @@ class DrawModifierTest {
         assertTrue(graphicsLayer!!.isReleased)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testGraphicsLayerRecordAfterPersisted() {
+        var graphicsLayer: GraphicsLayer? = null
+        var recordCalls = 0
+        var doRecord by mutableStateOf(false)
+        var shouldDraw by mutableStateOf(false)
+        val tag = "testTag"
+        rule.setContent {
+            graphicsLayer = rememberGraphicsLayer()
+            Box(modifier = Modifier.testTag(tag).size(100.dp).background(Color.Red).drawWithCache {
+                if (doRecord) {
+                    graphicsLayer!!.record {
+                        recordCalls++
+                        drawRect(Color.Blue)
+                    }
+                }
+                onDrawWithContent {
+                    if (shouldDraw) {
+                        drawLayer(graphicsLayer!!)
+                    }
+                }
+            })
+        }
+
+        rule.runOnIdle {
+            assertNotNull(graphicsLayer)
+            doRecord = true
+            shouldDraw = true
+        }
+
+        rule.runOnIdle {
+            assertThat(recordCalls).isEqualTo(1)
+            // we stop drawing to verify that the persistence logic will keep the content.
+            shouldDraw = false
+        }
+
+        rule.onNodeWithTag(tag).captureToImage().assertPixels { Color.Red }
+
+        rule.runOnIdle {
+            shouldDraw = true
+        }
+
+        rule.onNodeWithTag(tag).captureToImage().assertPixels { Color.Blue }
+
+        rule.runOnIdle {
+            // we also make sure we didn't have to re-record to display the content
+            assertThat(recordCalls).isEqualTo(1)
+        }
+    }
+
     @Test
     fun testObtainGraphicsLayerReleasedAfterModifierDetached() {
         var graphicsLayer: GraphicsLayer? = null
