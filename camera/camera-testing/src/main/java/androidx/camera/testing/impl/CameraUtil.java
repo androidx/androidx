@@ -1209,6 +1209,84 @@ public final class CameraUtil {
     }
 
     /**
+     * A {@link CameraManager.AvailabilityCallback} implementation to observe the availability of a
+     * specific camera device.
+     */
+    static class CameraAvailability extends CameraManager.AvailabilityCallback {
+        private final Object mLock = new Object();
+        private final String mCameraId;
+
+        @GuardedBy("mLock")
+        private boolean mCameraAvailable = false;
+        @GuardedBy("mLock")
+        private CallbackToFutureAdapter.Completer<Void> mCompleter;
+
+        /**
+         * Creates a new instance of {@link CameraAvailability}.
+         *
+         * @param cameraId The ID of the camera to observe.
+         */
+        CameraAvailability(@NonNull String cameraId) {
+            mCameraId = cameraId;
+        }
+
+        /**
+         * Returns a{@link ListenableFuture} that represents the availability of the camera.
+         *
+         * <p>If the camera is already available, the future will return immediately. Otherwise, the
+         * future will complete when the camera becomes available.
+         *
+         * @return A {@link ListenableFuture} that represents the availability of the camera.
+         */
+        ListenableFuture<Void> observeAvailable() {
+            synchronized (mLock) {
+                if (mCameraAvailable) {
+                    return Futures.immediateFuture(null);
+                }
+                return CallbackToFutureAdapter.getFuture(
+                        completer -> {
+                            synchronized (mLock) {
+                                if (mCompleter != null) {
+                                    mCompleter.setCancelled();
+                                }
+                                mCompleter = completer;
+                            }
+                            return "observeCameraAvailable_" + mCameraId;
+                        });
+            }
+        }
+
+        @Override
+        public void onCameraAvailable(@NonNull String cameraId) {
+            Logger.d(LOG_TAG, "Camera id " + cameraId + " onCameraAvailable callback");
+            if (!mCameraId.equals(cameraId)) {
+                // Ignore availability for other cameras
+                return;
+            }
+
+            synchronized (mLock) {
+                Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraAvailable");
+                mCameraAvailable = true;
+                if (mCompleter != null) {
+                    mCompleter.set(null);
+                }
+            }
+        }
+
+        @Override
+        public void onCameraUnavailable(@NonNull String cameraId) {
+            if (!mCameraId.equals(cameraId)) {
+                // Ignore availability for other cameras
+                return;
+            }
+            synchronized (mLock) {
+                Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraUnavailable");
+                mCameraAvailable = false;
+            }
+        }
+    }
+
+    /**
      * Helper to verify the camera can be opened or not.
      *
      * <p>Call {@link #openWithRetry(int, long)} to start the test on the camera.
@@ -1297,67 +1375,6 @@ public final class CameraUtil {
             getCameraManager().unregisterAvailabilityCallback(mCameraAvailability);
             mHandlerThread.quitSafely();
         }
-
-        static class CameraAvailability extends CameraManager.AvailabilityCallback {
-            private final Object mLock = new Object();
-            private final String mCameraId;
-
-            @GuardedBy("mLock")
-            private boolean mCameraAvailable = false;
-            @GuardedBy("mLock")
-            private CallbackToFutureAdapter.Completer<Void> mCompleter;
-
-            CameraAvailability(@NonNull String cameraId) {
-                mCameraId = cameraId;
-            }
-
-            ListenableFuture<Void> observeAvailable() {
-                synchronized (mLock) {
-                    if (mCameraAvailable) {
-                        return Futures.immediateFuture(null);
-                    }
-                    return CallbackToFutureAdapter.getFuture(
-                            completer -> {
-                                synchronized (mLock) {
-                                    if (mCompleter != null) {
-                                        mCompleter.setCancelled();
-                                    }
-                                    mCompleter = completer;
-                                }
-                                return "observeCameraAvailable_" + mCameraId;
-                            });
-                }
-            }
-
-            @Override
-            public void onCameraAvailable(@NonNull String cameraId) {
-                Logger.d(LOG_TAG, "Camera id " + cameraId + " onCameraAvailable callback");
-                if (!mCameraId.equals(cameraId)) {
-                    // Ignore availability for other cameras
-                    return;
-                }
-
-                synchronized (mLock) {
-                    Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraAvailable");
-                    mCameraAvailable = true;
-                    if (mCompleter != null) {
-                        mCompleter.set(null);
-                    }
-                }
-            }
-
-            @Override
-            public void onCameraUnavailable(@NonNull String cameraId) {
-                if (!mCameraId.equals(cameraId)) {
-                    // Ignore availability for other cameras
-                    return;
-                }
-                synchronized (mLock) {
-                    Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraUnavailable");
-                    mCameraAvailable = false;
-                }
-            }
-        }
     }
 
     /**
@@ -1425,6 +1442,77 @@ public final class CameraUtil {
                         // Ignore the test, throw the AssumptionViolatedException.
                         throw new AssumptionViolatedException("Ignore the test since the camera "
                                 + "id list failed, on test " + description.getDisplayName());
+                    }
+                }
+            };
+        }
+    }
+
+    /**
+     * Waits for the camera to be available after test.
+     *
+     * <p>Try to open the camera with the front and back lensFacing. It throws an exception when
+     * the test is running in the CameraX lab, or ignore the test otherwise.
+     */
+    public static class PostTestCameraAvailability implements TestRule {
+        private int mTimeoutMillis = 5000;
+        private final List<@CameraSelector.LensFacing Integer> mLensFacings;
+
+        public PostTestCameraAvailability(
+                @NonNull List<@CameraSelector.LensFacing Integer> lensFacings) {
+            mLensFacings = lensFacings;
+        }
+
+        public PostTestCameraAvailability(
+                @NonNull List<@CameraSelector.LensFacing Integer> lensFacings,
+                int timeoutPerCameraMillis) {
+            mLensFacings = lensFacings;
+            mTimeoutMillis = timeoutPerCameraMillis;
+        }
+
+        @NonNull
+        @Override
+        public Statement apply(@NonNull Statement base, @NonNull Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    base.evaluate();
+
+                    for (int lensFacing : mLensFacings) {
+                        String cameraId = getCameraIdWithLensFacing(lensFacing);
+                        Logger.d(LOG_TAG, "PostTestCameraAvailability: lensFacing = " + lensFacing
+                                + ", cameraId = " + cameraId);
+                        if (cameraId == null) {
+                            return;
+                        }
+
+                        CameraAvailability cameraAvailability = new CameraAvailability(cameraId);
+
+                        HandlerThread handlerThread = new HandlerThread(
+                                String.format("CameraThread-%s", cameraId));
+                        handlerThread.start();
+
+                        getCameraManager().registerAvailabilityCallback(cameraAvailability,
+                                new Handler(handlerThread.getLooper()));
+
+                        try {
+                            Logger.d(LOG_TAG,
+                                    "PostTestCameraAvailability: Waiting for camera["
+                                            + cameraId + "] to be available!");
+                            cameraAvailability.observeAvailable().get(mTimeoutMillis,
+                                    TimeUnit.MILLISECONDS);
+                            Logger.d(LOG_TAG,
+                                    "PostTestCameraAvailability: camera[" + cameraId
+                                            + "] is now available!");
+                        } catch (Exception e) {
+                            Logger.d(LOG_TAG,
+                                    "PostTestCameraAvailability: observeAvailable failed for "
+                                            + "lensFacing = " + lensFacing + ", cameraId = "
+                                            + cameraId, e);
+                        } finally {
+                            getCameraManager().unregisterAvailabilityCallback(cameraAvailability);
+                            handlerThread.quitSafely();
+                        }
                     }
                 }
             };
