@@ -178,7 +178,13 @@ class CapturePipelineImpl @Inject constructor(
                 if (isFlashRequired) CHECK_3A_WITH_FLASH_TIMEOUT_IN_NS else CHECK_3A_TIMEOUT_IN_NS
 
             if (isFlashRequired || captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
-                aePreCaptureApplyCapture(configs, requestTemplate, sessionConfigOptions, timeout)
+                aePreCaptureApplyCapture(
+                    configs,
+                    requestTemplate,
+                    sessionConfigOptions,
+                    timeout,
+                    captureMode
+                )
             } else {
                 defaultNoFlashCapture(configs, requestTemplate, sessionConfigOptions, captureMode)
             }
@@ -274,12 +280,16 @@ class CapturePipelineImpl @Inject constructor(
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
         timeLimitNs: Long,
+        @CaptureMode captureMode: Int,
     ): List<Deferred<Void?>> {
         debug { "CapturePipeline#aePreCaptureApplyCapture" }
         debug { "CapturePipeline#aePreCaptureApplyCapture: Acquiring session for locking 3A" }
         graph.acquireSession().use {
             debug { "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture" }
-            it.lock3AForCapture(timeLimitNs = timeLimitNs).join()
+            it.lock3AForCapture(
+                timeLimitNs = timeLimitNs,
+                triggerAf = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY
+            ).join()
             debug { "CapturePipeline#aePreCaptureApplyCapture: Locking 3A for capture done" }
         }
 
@@ -300,7 +310,7 @@ class CapturePipelineImpl @Inject constructor(
                 graph.acquireSession().use {
                     debug { "CapturePipeline#aePreCaptureApplyCapture: Unlocking 3A" }
                     @Suppress("DeferredResultUnused")
-                    it.unlock3APostCapture()
+                    it.unlock3APostCapture(cancelAf = captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY)
                     debug { "CapturePipeline#aePreCaptureApplyCapture: Unlocking 3A done" }
                 }
             }
