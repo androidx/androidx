@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.room.DatabaseConfiguration#sqliteOpenHelperFactory:
+    Attempted to change nullability of androidx.sqlite.db.SupportSQLiteOpenHelper.Factory (from NONNULL to NULLABLE) in field androidx.room.DatabaseConfiguration.sqliteOpenHelperFactory

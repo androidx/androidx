@@ -132,7 +132,7 @@ package androidx.test.uiautomator {
     method public void sendStatus(int, android.os.Bundle);
   }
 
-  public abstract class SearchCondition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.Searchable,U> {
+  public abstract class SearchCondition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.Searchable!,U!> {
     ctor public SearchCondition();
   }
 
@@ -356,7 +356,7 @@ package androidx.test.uiautomator {
     method public <U> U! wait(androidx.test.uiautomator.UiObject2Condition<U!>, long);
   }
 
-  public abstract class UiObject2Condition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.UiObject2,U> {
+  public abstract class UiObject2Condition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.UiObject2!,U!> {
     ctor public UiObject2Condition();
   }
 

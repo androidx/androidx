@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.recyclerview.selection {
 
   public abstract class BandPredicate {
@@ -12,7 +12,7 @@ package androidx.recyclerview.selection {
   }
 
   public static final class BandPredicate.NonDraggableArea extends androidx.recyclerview.selection.BandPredicate {
-    ctor public BandPredicate.NonDraggableArea(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup<?>);
+    ctor public BandPredicate.NonDraggableArea(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.selection.ItemDetailsLookup<? extends java.lang.Object!>);
     method public boolean canInitiate(android.view.MotionEvent);
   }
 
@@ -49,7 +49,7 @@ package androidx.recyclerview.selection {
   @IntDef({androidx.recyclerview.selection.ItemKeyProvider.SCOPE_MAPPED, androidx.recyclerview.selection.ItemKeyProvider.SCOPE_CACHED}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ItemKeyProvider.Scope {
   }
 
-  public final class MutableSelection<K> extends androidx.recyclerview.selection.Selection<K> {
+  public final class MutableSelection<K> extends androidx.recyclerview.selection.Selection<K!> {
     ctor public MutableSelection();
     method public boolean add(K);
     method public void clear();
@@ -80,7 +80,7 @@ package androidx.recyclerview.selection {
     method public void onChanged();
   }
 
-  public class Selection<K> implements java.lang.Iterable<K> {
+  public class Selection<K> implements java.lang.Iterable<K!> {
     method public boolean contains(K?);
     method public boolean isEmpty();
     method public java.util.Iterator<K!> iterator();
@@ -139,7 +139,7 @@ package androidx.recyclerview.selection {
     method public abstract boolean canSetStateForKey(K, boolean);
   }
 
-  public final class StableIdKeyProvider extends androidx.recyclerview.selection.ItemKeyProvider<java.lang.Long> {
+  public final class StableIdKeyProvider extends androidx.recyclerview.selection.ItemKeyProvider<java.lang.Long!> {
     ctor public StableIdKeyProvider(androidx.recyclerview.widget.RecyclerView);
     method public Long? getKey(int);
     method public int getPosition(Long);

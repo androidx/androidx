@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 4.0
 package androidx.security.crypto {
 
   public final class EncryptedFile {
@@ -21,7 +21,7 @@ package androidx.security.crypto {
     method public boolean contains(String?);
     method public static android.content.SharedPreferences create(String, String, android.content.Context, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme) throws java.security.GeneralSecurityException, java.io.IOException;
     method public android.content.SharedPreferences.Editor edit();
-    method public java.util.Map<java.lang.String!,?> getAll();
+    method public java.util.Map<java.lang.String!,? extends java.lang.Object!> getAll();
     method public boolean getBoolean(String?, boolean);
     method public float getFloat(String?, float);
     method public int getInt(String?, int);

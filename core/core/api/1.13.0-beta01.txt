@@ -170,7 +170,7 @@ package androidx.core.app {
   @Deprecated public abstract class JobIntentService extends android.app.Service {
     ctor @Deprecated public JobIntentService();
     method @Deprecated public static void enqueueWork(android.content.Context, android.content.ComponentName, int, android.content.Intent);
-    method @Deprecated public static void enqueueWork(android.content.Context, Class<?>, int, android.content.Intent);
+    method @Deprecated public static void enqueueWork(android.content.Context, Class<? extends java.lang.Object!>, int, android.content.Intent);
     method @Deprecated public boolean isStopped();
     method @Deprecated public android.os.IBinder! onBind(android.content.Intent);
     method @Deprecated protected abstract void onHandleWork(android.content.Intent);
@@ -195,7 +195,7 @@ package androidx.core.app {
   public final class NavUtils {
     method public static android.content.Intent? getParentActivityIntent(android.app.Activity);
     method public static android.content.Intent? getParentActivityIntent(android.content.Context, android.content.ComponentName) throws android.content.pm.PackageManager.NameNotFoundException;
-    method public static android.content.Intent? getParentActivityIntent(android.content.Context, Class<?>) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public static android.content.Intent? getParentActivityIntent(android.content.Context, Class<? extends java.lang.Object!>) throws android.content.pm.PackageManager.NameNotFoundException;
     method public static String? getParentActivityName(android.app.Activity);
     method public static String? getParentActivityName(android.content.Context, android.content.ComponentName) throws android.content.pm.PackageManager.NameNotFoundException;
     method public static void navigateUpFromSameTask(android.app.Activity);
@@ -1065,7 +1065,7 @@ package androidx.core.app {
     method public androidx.core.app.TaskStackBuilder addNextIntentWithParentStack(android.content.Intent);
     method public androidx.core.app.TaskStackBuilder addParentStack(android.app.Activity);
     method public androidx.core.app.TaskStackBuilder addParentStack(android.content.ComponentName);
-    method public androidx.core.app.TaskStackBuilder addParentStack(Class<?>);
+    method public androidx.core.app.TaskStackBuilder addParentStack(Class<? extends java.lang.Object!>);
     method public static androidx.core.app.TaskStackBuilder create(android.content.Context);
     method public android.content.Intent? editIntentAt(int);
     method @Deprecated public static androidx.core.app.TaskStackBuilder! from(android.content.Context!);
@@ -1116,7 +1116,7 @@ package androidx.core.content {
     method public static java.io.File![] getObbDirs(android.content.Context);
     method public static String getString(android.content.Context, int);
     method public static <T> T? getSystemService(android.content.Context, Class<T!>);
-    method public static String? getSystemServiceName(android.content.Context, Class<?>);
+    method public static String? getSystemServiceName(android.content.Context, Class<? extends java.lang.Object!>);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
     method public static android.content.Intent? registerReceiver(android.content.Context, android.content.BroadcastReceiver?, android.content.IntentFilter, int);
     method public static android.content.Intent? registerReceiver(android.content.Context, android.content.BroadcastReceiver?, android.content.IntentFilter, String?, android.os.Handler?, int);
@@ -1179,7 +1179,7 @@ package androidx.core.content {
     method public androidx.core.content.IntentSanitizer.Builder allowData(androidx.core.util.Predicate<android.net.Uri!>);
     method public androidx.core.content.IntentSanitizer.Builder allowDataWithAuthority(String);
     method public androidx.core.content.IntentSanitizer.Builder allowExtra(String, androidx.core.util.Predicate<java.lang.Object!>);
-    method public androidx.core.content.IntentSanitizer.Builder allowExtra(String, Class<?>);
+    method public androidx.core.content.IntentSanitizer.Builder allowExtra(String, Class<? extends java.lang.Object!>);
     method public <T> androidx.core.content.IntentSanitizer.Builder allowExtra(String, Class<T!>, androidx.core.util.Predicate<T!>);
     method public androidx.core.content.IntentSanitizer.Builder allowExtraOutput(androidx.core.util.Predicate<android.net.Uri!>);
     method public androidx.core.content.IntentSanitizer.Builder allowExtraOutput(String);
