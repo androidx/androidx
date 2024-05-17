@@ -161,12 +161,12 @@ class ExportToFramework:
 
         # Apply in-place replacements
         contents = (contents
-            # replace fake flag imports with real ones
-            .replace('androidx.appsearch.annotation.FlaggedApi', 'android.annotation.FlaggedApi')
             .replace('androidx.appsearch.app', 'android.app.appsearch')
             .replace(
                     'androidx.appsearch.localstorage.',
                     'com.android.server.appsearch.external.localstorage.')
+            .replace('androidx.appsearch.flags.FlaggedApi', 'android.annotation.FlaggedApi')
+            .replace('androidx.appsearch.flags.Flags', 'com.android.appsearch.flags.Flags')
             .replace('androidx.appsearch', 'android.app.appsearch')
             .replace(
                     'androidx.annotation.GuardedBy',
@@ -209,6 +209,15 @@ class ExportToFramework:
 
     def _TransformTestCode(self, contents):
         contents = (contents
+            .replace(
+                    'androidx.appsearch.flags.CheckFlagsRule',
+                    'android.platform.test.flag.junit.CheckFlagsRule')
+            .replace(
+                    'androidx.appsearch.flags.DeviceFlagsValueProvider',
+                    'android.platform.test.flag.junit.DeviceFlagsValueProvider')
+            .replace(
+                    'androidx.appsearch.flags.RequiresFlagsEnabled',
+                    'android.platform.test.annotations.RequiresFlagsEnabled')
             .replace('androidx.appsearch.testutil.', 'android.app.appsearch.testutil.')
             .replace(
                     'package androidx.appsearch.testutil;',

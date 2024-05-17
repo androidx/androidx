@@ -15,14 +15,14 @@
  */
 // @exportToFramework:skipFile()
 
-package androidx.appsearch.cts.app.usagereporting;
+package androidx.appsearch.cts.usagereporting;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.usagereporting.ActionConstants;
-import androidx.appsearch.app.usagereporting.ClickAction;
-import androidx.appsearch.app.usagereporting.TakenAction;
+import androidx.appsearch.usagereporting.ActionConstants;
+import androidx.appsearch.usagereporting.ClickAction;
+import androidx.appsearch.usagereporting.TakenAction;
 
 import org.junit.Test;
 

@@ -20,9 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.usagereporting.ActionConstants;
 import androidx.appsearch.localstorage.stats.ClickStats;
 import androidx.appsearch.localstorage.stats.SearchIntentStats;
+import androidx.appsearch.usagereporting.ActionConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;

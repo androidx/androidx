@@ -23,14 +23,13 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.app.PackageIdentifier;
+import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.core.util.Preconditions;
 
 import java.util.Arrays;
 import java.util.Objects;
-
 
 /**
  * Holds data for a {@link PackageIdentifier}.

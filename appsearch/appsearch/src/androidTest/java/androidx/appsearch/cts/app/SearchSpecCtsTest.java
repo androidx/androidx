@@ -22,19 +22,22 @@ import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENI
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assume.assumeTrue;
 
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -43,6 +46,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class SearchSpecCtsTest {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     @Test
     public void testBuildSearchSpecWithoutTermMatch() {
         SearchSpec searchSpec = new SearchSpec.Builder().addFilterSchemas("testSchemaType").build();
@@ -672,6 +678,7 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch() {
         EmbeddingVector embedding1 = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -692,6 +699,7 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testRebuild_embeddingSearch() {
         EmbeddingVector embedding1 = new EmbeddingVector(
                 new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
@@ -726,6 +734,7 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testBuildSearchSpec_embeddingSearch() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setNumericSearchEnabled(true)
@@ -743,6 +752,7 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testSetFeatureEnabledToFalse_embeddingSearch() {
         SearchSpec.Builder builder = new SearchSpec.Builder();
         SearchSpec searchSpec = builder
@@ -761,6 +771,7 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION)
     public void testListFilterTokenizeFunction() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setListFilterQueryLanguageEnabled(true)
@@ -771,6 +782,7 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION)
     public void testSetFeatureEnabledToFalse_tokenizeFunction() {
         SearchSpec.Builder builder = new SearchSpec.Builder();
         SearchSpec searchSpec = builder
@@ -788,9 +800,8 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
     public void testInformationalRankingExpressions() {
-        assumeTrue(Flags.enableInformationalRankingExpressions());
-
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setOrder(SearchSpec.ORDER_ASCENDING)
                 .setRankingStrategy("this.documentScore()")
@@ -806,9 +817,8 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
     public void testRebuild_informationalRankingExpressions() {
-        assumeTrue(Flags.enableInformationalRankingExpressions());
-
         SearchSpec.Builder searchSpecBuilder =
                 new SearchSpec.Builder().addInformationalRankingExpressions(
                         "this.relevanceScore()");

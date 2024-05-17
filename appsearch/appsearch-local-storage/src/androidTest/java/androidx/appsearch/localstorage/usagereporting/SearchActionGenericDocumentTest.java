@@ -21,8 +21,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.usagereporting.ActionConstants;
-import androidx.appsearch.app.usagereporting.SearchAction;
+import androidx.appsearch.usagereporting.ActionConstants;
+import androidx.appsearch.usagereporting.SearchAction;
 
 import org.junit.Test;
 

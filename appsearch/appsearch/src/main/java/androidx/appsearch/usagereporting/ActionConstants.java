@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app.usagereporting;
+package androidx.appsearch.usagereporting;
 
 import androidx.annotation.RestrictTo;
 

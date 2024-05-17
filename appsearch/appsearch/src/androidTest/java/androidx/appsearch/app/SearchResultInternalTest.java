@@ -18,10 +18,6 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeTrue;
-
-import androidx.appsearch.flags.Flags;
-
 import org.junit.Test;
 
 public class SearchResultInternalTest {
@@ -64,8 +60,6 @@ public class SearchResultInternalTest {
 
     @Test
     public void testSearchResultBuilderCopyConstructor_informationalRankingSignal() {
-        assumeTrue(Flags.enableInformationalRankingExpressions());
-
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace", "id", "schemaType").build();
         SearchResult searchResult = new SearchResult.Builder("package", "database")

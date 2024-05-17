@@ -18,10 +18,6 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeTrue;
-
-import androidx.appsearch.flags.Flags;
-
 import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
@@ -149,8 +145,6 @@ public class SearchSpecInternalTest {
 
     @Test
     public void testSearchSpecBuilderCopyConstructor_informationalRankingExpressions() {
-        assumeTrue(Flags.enableInformationalRankingExpressions());
-
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setRankingStrategy("advancedExpression")
                 .addInformationalRankingExpressions("this.relevanceScore()")

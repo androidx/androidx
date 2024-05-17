@@ -26,14 +26,22 @@ import androidx.appsearch.app.AppSearchSchema.LongPropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.PropertyPath;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 import androidx.appsearch.testutil.AppSearchEmail;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
 
 public class AppSearchSchemaCtsTest {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
+
     @Test
     public void testInvalidEnums() {
         StringPropertyConfig.Builder builder = new StringPropertyConfig.Builder("test");
@@ -434,6 +442,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
     public void testEquals_failure_differentDescription() {
         AppSearchSchema.Builder schemaBuilder =
                 new AppSearchSchema.Builder("Email")
@@ -453,6 +462,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
     public void testEquals_failure_differentPropertyDescription() {
         AppSearchSchema schema1 =
                 new AppSearchSchema.Builder("Email")
@@ -538,6 +548,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_APP_FUNCTIONS)  // setDescription
     public void testAppSearchSchema_toString() {
         AppSearchSchema schema =
                 new AppSearchSchema.Builder("testSchema")
@@ -846,6 +857,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingPropertyConfig() {
         AppSearchSchema schema =
                 new AppSearchSchema.Builder("Test")
@@ -936,6 +948,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingPropertyConfig_defaultValues() {
         AppSearchSchema.EmbeddingPropertyConfig builder =
                 new AppSearchSchema.EmbeddingPropertyConfig.Builder("test").build();
@@ -946,6 +959,7 @@ public class AppSearchSchemaCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingPropertyConfig_setIndexingType() {
         assertThrows(IllegalArgumentException.class, () ->
                 new AppSearchSchema.EmbeddingPropertyConfig.Builder("titleEmbedding")

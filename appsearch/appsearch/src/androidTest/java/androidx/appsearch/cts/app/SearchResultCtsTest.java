@@ -19,16 +19,21 @@ package androidx.appsearch.cts.app;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assume.assumeTrue;
 
 import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchResult;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 import androidx.appsearch.testutil.AppSearchEmail;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 public class SearchResultCtsTest {
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     @Test
     public void testBuildSearchResult() {
@@ -176,9 +181,8 @@ public class SearchResultCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
     public void testBuildSearchResult_informationalRankingSignals() {
-        assumeTrue(Flags.enableInformationalRankingExpressions());
-
         AppSearchEmail email = new AppSearchEmail.Builder("namespace1", "id1")
                 .setBody("Hello World.")
                 .build();
@@ -195,9 +199,8 @@ public class SearchResultCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
     public void testRebuild_informationalRankingSignals() {
-        assumeTrue(Flags.enableInformationalRankingExpressions());
-
         AppSearchEmail email = new AppSearchEmail.Builder("namespace1", "id1")
                 .setBody("Hello World.")
                 .build();

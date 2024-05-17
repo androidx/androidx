@@ -21,10 +21,10 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
-import androidx.appsearch.annotation.FlaggedApi;
-import androidx.appsearch.app.usagereporting.TakenAction;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.usagereporting.TakenAction;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
