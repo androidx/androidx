@@ -18,7 +18,8 @@
         "memTotalBytes": 1903734784,
         "sustainedPerformanceModeEnabled": false,
         "osCodenameAbbreviated": "V",
-        "artMainlineVersion": 350090000
+        "artMainlineVersion": 350090000,
+        "compilationMode": "verify"
     },
     "benchmarks": [
         {

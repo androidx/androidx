@@ -419,6 +419,26 @@ class ShellTest {
         }
     }
 
+    @Test
+    fun getCompilationMode() {
+        val status = Shell.getCompilationMode(Packages.TEST)
+        assertTrue(
+            actual =
+                status in
+                    listOf(
+                        // Api 21-23
+                        "speed",
+                        // Api 24-25
+                        "interpret-only",
+                        // Api 26-27
+                        "quicken",
+                        // Api 28 and above
+                        "run-from-apk"
+                    ),
+            message = "Unexpected status value: $status",
+        )
+    }
+
     @RequiresApi(21)
     private fun pidof(packageName: String): Int? {
         return Shell.getPidsForProcess(packageName).firstOrNull()
