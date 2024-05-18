@@ -16,10 +16,9 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.AtomicInt
-import androidx.compose.runtime.AtomicReference
+import androidx.compose.runtime.internal.AtomicInt
+import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.postIncrement
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 import kotlin.random.Random
@@ -76,3 +75,5 @@ class SnapshotTestsJvm {
         assertNull(exception.get())
     }
 }
+
+private fun AtomicInt.postIncrement(): Int = add(1) - 1

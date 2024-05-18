@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,37 +14,25 @@
  * limitations under the License.
  */
 
+@file:JvmName("ActualAndroid_androidKt")
+@file:JvmMultifileClass
+
 package androidx.compose.runtime
 
 import android.os.Looper
-import android.util.Log
 import android.view.Choreographer
-import androidx.compose.runtime.snapshots.SnapshotMutableState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 
-internal actual object Trace {
-    actual fun beginSection(name: String): Any? {
-        android.os.Trace.beginSection(name)
-        return null
-    }
-
-    actual fun endSection(token: Any?) {
-        android.os.Trace.endSection()
-    }
-}
-
-internal actual typealias CheckResult = androidx.annotation.CheckResult
-
 /**
  * This is an inaccurate implementation that will only be used when running linked against
  * Android SDK stubs in host-side tests. A real implementation should synchronize with the
  * device's default display's vsync rate.
  */
-private object SdkStubsFallbackFrameClock : MonotonicFrameClock {
+private object FallbackFrameClock : MonotonicFrameClock {
     private const val DefaultFrameDelay = 16L // milliseconds
 
     override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
@@ -84,42 +72,5 @@ actual val DefaultMonotonicFrameClock: MonotonicFrameClock by lazy {
     // Looper.getMainLooper() that will never return null on a real device will return null.
     // This branch offers an alternative solution.
     if (Looper.getMainLooper() != null) DefaultChoreographerFrameClock
-    else SdkStubsFallbackFrameClock
+    else FallbackFrameClock
 }
-
-internal actual fun <T> createSnapshotMutableState(
-    value: T,
-    policy: SnapshotMutationPolicy<T>
-): SnapshotMutableState<T> = ParcelableSnapshotMutableState(value, policy)
-
-internal actual fun createSnapshotMutableIntState(
-    value: Int
-): MutableIntState = ParcelableSnapshotMutableIntState(value)
-
-internal actual fun createSnapshotMutableLongState(
-    value: Long
-): MutableLongState = ParcelableSnapshotMutableLongState(value)
-
-internal actual fun createSnapshotMutableFloatState(
-    value: Float
-): MutableFloatState = ParcelableSnapshotMutableFloatState(value)
-
-internal actual fun createSnapshotMutableDoubleState(
-    value: Double
-): MutableDoubleState = ParcelableSnapshotMutableDoubleState(value)
-
-private const val LogTag = "ComposeInternal"
-
-internal actual fun logError(message: String, e: Throwable) {
-    Log.e(LogTag, message, e)
-}
-
-internal actual val MainThreadId: Long =
-    try {
-        Looper.getMainLooper().thread.id
-    } catch (e: Exception) {
-        // When linked against Android SDK stubs and running host-side tests, APIs such as
-        // Looper.getMainLooper() can throw or return null
-        // This branch intercepts that exception and returns default value for such cases.
-        -1
-    }

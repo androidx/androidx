@@ -16,8 +16,9 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.AtomicInt
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.internal.AtomicInt
+import kotlin.jvm.JvmInline
 
 /**
  * A [StateObject] that allows to record reader type when observed to optimize recording of

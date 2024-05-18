@@ -16,8 +16,10 @@
 
 @file:JvmName("SnapshotIntStateKt")
 @file:JvmMultifileClass
+
 package androidx.compose.runtime
 
+import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.snapshots.AutoboxingStateValueProperty
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotMutableState
@@ -27,6 +29,8 @@ import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.overwritable
 import androidx.compose.runtime.snapshots.readable
 import androidx.compose.runtime.snapshots.withCurrent
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 import kotlin.reflect.KProperty
 
 /**

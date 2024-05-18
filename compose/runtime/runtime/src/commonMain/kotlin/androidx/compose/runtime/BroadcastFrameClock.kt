@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.internal.AtomicInt
 import androidx.compose.runtime.snapshots.fastForEach
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resumeWithException
@@ -43,7 +44,7 @@ class BroadcastFrameClock(
         }
     }
 
-    private val lock = Any()
+    private val lock = SynchronizedObject()
     private var failureCause: Throwable? = null
     private var awaiters = mutableListOf<FrameAwaiter<*>>()
     private var spareList = mutableListOf<FrameAwaiter<*>>()

@@ -117,3 +117,15 @@ val CoroutineContext.monotonicFrameClock: MonotonicFrameClock
         "A MonotonicFrameClock is not available in this CoroutineContext. Callers should supply " +
             "an appropriate MonotonicFrameClock using withContext."
     )
+
+/**
+ * The [MonotonicFrameClock] used by [withFrameNanos] and [withFrameMillis] if one is not present
+ * in the calling [kotlin.coroutines.CoroutineContext].
+ *
+ * This value is no longer used by compose runtime.
+ */
+@Deprecated(
+    "MonotonicFrameClocks are not globally applicable across platforms. " +
+        "Use an appropriate local clock."
+)
+expect val DefaultMonotonicFrameClock: MonotonicFrameClock

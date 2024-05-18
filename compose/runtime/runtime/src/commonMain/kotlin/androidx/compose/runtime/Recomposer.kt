@@ -22,6 +22,9 @@ import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.collection.wrapIntoSet
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
+import androidx.compose.runtime.internal.AtomicReference
+import androidx.compose.runtime.internal.logError
+import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.snapshots.MutableSnapshot
 import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.Snapshot
@@ -201,7 +204,7 @@ class Recomposer(
         PendingWork
     }
 
-    private val stateLock = Any()
+    private val stateLock = SynchronizedObject()
 
     // Begin properties guarded by stateLock
     private var runnerJob: Job? = null
@@ -1579,7 +1582,7 @@ private class ProduceFrameSignal {
      * [FramePending] state which must be acknowledged by a call to [takeFrameRequestLocked]
      * once all data that will be used to produce the frame has been claimed.
      */
-    suspend fun awaitFrameRequest(lock: Any) {
+    suspend fun awaitFrameRequest(lock: SynchronizedObject) {
         synchronized(lock) {
             if (pendingFrameContinuation === ProduceAnotherFrame) {
                 pendingFrameContinuation = FramePending

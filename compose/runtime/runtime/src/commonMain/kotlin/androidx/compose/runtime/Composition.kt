@@ -23,6 +23,8 @@ import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
+import androidx.compose.runtime.internal.AtomicReference
+import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.fastAll
@@ -460,7 +462,7 @@ internal class CompositionImpl(
     private val pendingModifications = AtomicReference<Any?>(null)
 
     // Held when making changes to self or composer
-    private val lock = Any()
+    private val lock = SynchronizedObject()
 
     /**
      * A set of remember observers that were potentially abandoned between [composeContent] or

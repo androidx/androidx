@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.internal
 
 internal expect object Trace {
     /**
