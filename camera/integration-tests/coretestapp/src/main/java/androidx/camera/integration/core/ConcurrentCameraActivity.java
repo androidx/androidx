@@ -46,8 +46,10 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ConcurrentCamera;
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
+import androidx.camera.core.ExperimentalMirrorMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration;
@@ -274,7 +276,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     }
 
     @SuppressLint("NullAnnotationGroup")
-    @OptIn(markerClass = {ExperimentalCamera2Interop.class,
+    @OptIn(markerClass = {ExperimentalCamera2Interop.class, ExperimentalMirrorMode.class,
             androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class})
     private void bindToLifecycleForConcurrentCamera(
             @NonNull ProcessCameraProvider cameraProvider,
@@ -329,6 +331,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                             .build(),
                     lifecycleOwner);
             Preview previewBack = new Preview.Builder()
+                    .setMirrorMode(MirrorMode.MIRROR_MODE_OFF)
                     .build();
             previewBack.setSurfaceProvider(backPreviewView.getSurfaceProvider());
             SingleCameraConfig secondary = new SingleCameraConfig(

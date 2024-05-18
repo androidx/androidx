@@ -19,6 +19,7 @@ package androidx.camera.camera2.internal.compat.params;
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.params.DynamicRangeProfiles;
+import android.hardware.camera2.params.OutputConfiguration;
 import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
@@ -80,6 +81,16 @@ class OutputConfigurationCompatBaseImpl implements
     @Override
     public String getPhysicalCameraId() {
         return ((OutputConfigurationParamsApi21) mObject).mPhysicalCameraId;
+    }
+
+    @Override
+    public void setMirrorMode(int mirrorMode) {
+        //No-op
+    }
+
+    @Override
+    public int getMirrorMode() {
+        return OutputConfiguration.MIRROR_MODE_AUTO;
     }
 
     /**

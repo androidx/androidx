@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.DynamicRangeProfiles;
+import android.hardware.camera2.params.OutputConfiguration;
 import android.os.Build;
 import android.view.Surface;
 
@@ -44,6 +45,7 @@ import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -389,6 +391,14 @@ final class CaptureSession implements CaptureSessionInterface {
         } else {
             outputConfiguration.setPhysicalCameraId(
                     outputConfig.getPhysicalCameraId());
+        }
+
+        // No need to map MIRROR_MODE_ON_FRONT_ONLY to MIRROR_MODE_AUTO
+        // since its default value in framework
+        if (outputConfig.getMirrorMode() == MirrorMode.MIRROR_MODE_OFF) {
+            outputConfiguration.setMirrorMode(OutputConfiguration.MIRROR_MODE_NONE);
+        } else if (outputConfig.getMirrorMode() == MirrorMode.MIRROR_MODE_ON) {
+            outputConfiguration.setMirrorMode(OutputConfiguration.MIRROR_MODE_H);
         }
 
         if (!outputConfig.getSharedSurfaces().isEmpty()) {

@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_UNSPECIFIED;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
@@ -442,7 +443,7 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @MirrorMode.Mirror
     protected int getMirrorModeInternal() {
-        return ((ImageOutputConfig) mCurrentConfig).getMirrorMode(MIRROR_MODE_OFF);
+        return ((ImageOutputConfig) mCurrentConfig).getMirrorMode(MIRROR_MODE_UNSPECIFIED);
     }
 
     /**
@@ -453,6 +454,7 @@ public abstract class UseCase {
     public boolean isMirroringRequired(@NonNull CameraInternal camera) {
         int mirrorMode = getMirrorModeInternal();
         switch (mirrorMode) {
+            case MIRROR_MODE_UNSPECIFIED:
             case MIRROR_MODE_OFF:
                 return false;
             case MIRROR_MODE_ON:

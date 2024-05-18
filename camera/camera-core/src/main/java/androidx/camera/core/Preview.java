@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_UNSPECIFIED;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
@@ -54,6 +55,7 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.media.MediaCodec;
+import android.os.Build;
 import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
@@ -332,7 +334,8 @@ public final class Preview extends UseCase {
         if (mSurfaceProvider != null) {
             sessionConfigBuilder.addSurface(mSessionDeferrableSurface,
                     streamSpec.getDynamicRange(),
-                    getPhysicalCameraId());
+                    getPhysicalCameraId(),
+                    getMirrorModeInternal());
         }
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
@@ -846,7 +849,11 @@ public final class Preview extends UseCase {
 
             setCaptureType(UseCaseConfigFactory.CaptureType.PREVIEW);
             setTargetClass(Preview.class);
-            mutableConfig.insertOption(OPTION_MIRROR_MODE, Defaults.DEFAULT_MIRROR_MODE);
+
+            if (mutableConfig.retrieveOption(
+                    OPTION_MIRROR_MODE, MIRROR_MODE_UNSPECIFIED) == MIRROR_MODE_UNSPECIFIED) {
+                mutableConfig.insertOption(OPTION_MIRROR_MODE, Defaults.DEFAULT_MIRROR_MODE);
+            }
         }
 
         /**
@@ -1024,13 +1031,30 @@ public final class Preview extends UseCase {
         }
 
         /**
-         * setMirrorMode is not supported on Preview.
+         * Sets the mirror mode.
+         *
+         * <p>Valid values include: {@link MirrorMode#MIRROR_MODE_OFF},
+         * {@link MirrorMode#MIRROR_MODE_ON} and {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+         * If not set, it defaults to {@link MirrorMode#MIRROR_MODE_ON_FRONT_ONLY}.
+         *
+         * <p>For API 33 and above, it will change the mirroring behavior for Preview use case.
+         * It is calling
+         * {@link android.hardware.camera2.params.OutputConfiguration#setMirrorMode(int)}.
+         *
+         * <p> For API 32 and below, it will be no-op.
+         *
+         * @param mirrorMode The mirror mode of the intended target.
+         * @return The current Builder.
+         * @see android.hardware.camera2.params.OutputConfiguration#setMirrorMode(int)
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        @ExperimentalMirrorMode
         @NonNull
         @Override
         public Builder setMirrorMode(@MirrorMode.Mirror int mirrorMode) {
-            throw new UnsupportedOperationException("setMirrorMode is not supported.");
+            if (Build.VERSION.SDK_INT >= 33) {
+                getMutableConfig().insertOption(OPTION_MIRROR_MODE, mirrorMode);
+            }
+            return this;
         }
 
         /**
