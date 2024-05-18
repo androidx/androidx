@@ -19,5 +19,5 @@ package androidx.privacysandbox.ui.integration.testaidl;
 import android.os.Bundle;
 
 interface IMediateeSdkApi {
-    Bundle loadTestAdWithWaitInsideOnDraw(int count);
+    Bundle loadTestAdWithWaitInsideOnDraw(String text);
 }
