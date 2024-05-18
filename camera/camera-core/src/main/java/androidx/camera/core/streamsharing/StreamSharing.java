@@ -45,6 +45,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.MirrorMode;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
@@ -277,7 +278,10 @@ public class StreamSharing extends UseCase {
 
         propagateChildrenCamera2Interop(streamSpec.getResolution(), builder);
 
-        builder.addSurface(mCameraEdge.getDeferrableSurface(), streamSpec.getDynamicRange(), null);
+        builder.addSurface(mCameraEdge.getDeferrableSurface(),
+                streamSpec.getDynamicRange(),
+                null,
+                MirrorMode.MIRROR_MODE_UNSPECIFIED);
         builder.addRepeatingCameraCaptureCallback(
                 mVirtualCameraAdapter.getParentMetadataCallback());
         if (streamSpec.getImplementationOptions() != null) {

@@ -356,7 +356,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      */
     @MirrorMode.Mirror
     public int getMirrorMode() {
-        return getMirrorModeInternal();
+        int mirrorMode = getMirrorModeInternal();
+        if (mirrorMode == MirrorMode.MIRROR_MODE_UNSPECIFIED) {
+            return MirrorMode.MIRROR_MODE_OFF;
+        }
+        return mirrorMode;
     }
 
     @SuppressWarnings("unchecked")
@@ -903,7 +907,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         DynamicRange dynamicRange = streamSpec.getDynamicRange();
         if (!isStreamError && mDeferrableSurface != null) {
             if (isStreamActive) {
-                sessionConfigBuilder.addSurface(mDeferrableSurface, dynamicRange, null);
+                sessionConfigBuilder.addSurface(mDeferrableSurface,
+                        dynamicRange,
+                        null,
+                        MirrorMode.MIRROR_MODE_UNSPECIFIED);
             } else {
                 sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface, dynamicRange);
             }

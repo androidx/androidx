@@ -25,6 +25,7 @@ import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
+import androidx.camera.core.MirrorMode.MIRROR_MODE_UNSPECIFIED
 import androidx.camera.core.UseCase.snapToSurfaceRotation
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.Config
@@ -265,7 +266,7 @@ class UseCaseTest {
     @Test
     fun defaultMirrorModeIsOff() {
         val fakeUseCase = createFakeUseCase()
-        assertThat(fakeUseCase.mirrorModeInternal).isEqualTo(MIRROR_MODE_OFF)
+        assertThat(fakeUseCase.mirrorModeInternal).isEqualTo(MIRROR_MODE_UNSPECIFIED)
     }
 
     @Test
