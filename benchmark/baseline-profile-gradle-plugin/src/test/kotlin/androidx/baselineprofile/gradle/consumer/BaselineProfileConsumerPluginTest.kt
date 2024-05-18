@@ -1452,6 +1452,57 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
             assertThat(notFound).isEmpty()
         }
     }
+
+    @Test
+    fun testSuppressWarningMaxAgpVersion() {
+        val requiredLines = listOf(
+            "This version of the Baseline Profile Gradle Plugin was tested with versions below",
+            // We skip the lines in between because they may contain changing version numbers.
+            "baselineProfile {",
+            "    warnings {",
+            "        maxAgpVersion = false",
+            "    }",
+            "}"
+        )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+        )
+
+        // Setup with default warnings
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN
+        )
+        projectSetup
+            .consumer
+            .gradleRunner
+            .build(
+                "generateBaselineProfile",
+                "-Pandroidx.benchmark.test.maxagpversion=1.0.0"
+            ) {
+                val notFound = it.lines().requireInOrder(*requiredLines.toTypedArray())
+                assertThat(notFound).isEmpty()
+            }
+
+        // Setup turning off warning
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_APPLICATION_PLUGIN,
+            baselineProfileBlock = """
+                warnings {
+                    maxAgpVersion = false
+                }
+            """.trimIndent()
+        )
+        projectSetup
+            .consumer
+            .gradleRunner
+            .build(
+                "generateBaselineProfile",
+                "-Pandroidx.benchmark.test.maxagpversion=1.0.0"
+            ) {
+                val notFound = it.lines().requireInOrder(*requiredLines.toTypedArray())
+                assertThat(notFound).isEqualTo(requiredLines)
+            }
+    }
 }
 
 @RunWith(JUnit4::class)
