@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"ប៉ះ​ឧបករណ៍​ចាប់ស្នាម​ម្រាមដៃ"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"ប៉ះ​សេនស័រចាប់ស្នាមម្រាមដៃ"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"មិនអាចសម្គាល់បានទេ"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"មិន​អាច​ប្រើហាតវែរ​ស្នាមម្រាមដៃបាន​ទេ។"</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"មិន​មាន​ការ​ថតបញ្ចូល​ស្នាម​ម្រាមដៃទេ។"</string>
