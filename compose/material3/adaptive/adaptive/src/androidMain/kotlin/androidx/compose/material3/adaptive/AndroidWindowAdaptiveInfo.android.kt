@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.adaptive
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -73,15 +72,9 @@ fun currentWindowSize(): IntSize {
 fun collectFoldingFeaturesAsState(): State<List<FoldingFeature>> {
     val context = LocalContext.current
     return remember(context) {
-        if (context is Activity) {
-            // TODO(b/284347941) remove the instance check after the test bug is fixed.
-            WindowInfoTracker
-                .getOrCreate(context)
-                .windowLayoutInfo(context)
-        } else {
-            WindowInfoTracker
-                .getOrCreate(context)
-                .windowLayoutInfo(context)
-        }.map { it.displayFeatures.filterIsInstance<FoldingFeature>() }
+        WindowInfoTracker
+            .getOrCreate(context)
+            .windowLayoutInfo(context)
+            .map { it.displayFeatures.filterIsInstance<FoldingFeature>() }
     }.collectAsState(emptyList())
 }
