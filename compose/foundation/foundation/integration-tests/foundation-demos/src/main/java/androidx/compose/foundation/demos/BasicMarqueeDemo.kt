@@ -24,7 +24,7 @@ import android.widget.TextView
 import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.Immediately
 import androidx.compose.foundation.MarqueeAnimationMode.Companion.WhileFocused
-import androidx.compose.foundation.MarqueeDefaults.DefaultVelocity
+import androidx.compose.foundation.MarqueeDefaults.Velocity
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -96,7 +96,7 @@ fun BasicMarqueeDemo() {
         MarqueeText(
             "backwards animation",
             Modifier.width(80.dp),
-            velocity = -DefaultVelocity
+            velocity = -Velocity
         )
         MarqueeWithClickable()
         Row {
@@ -177,7 +177,7 @@ private fun MarqueeText(
     text: String,
     modifier: Modifier = Modifier,
     animationMode: MarqueeAnimationMode = Immediately,
-    velocity: Dp = DefaultVelocity
+    velocity: Dp = Velocity
 ) {
     var isFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
