@@ -58,7 +58,7 @@ fun ListDetailPaneScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldDirective = directive,
         scaffoldValue = value,
-        paneOrder = ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
+        paneOrder = ListDetailPaneScaffoldDefaults.PaneOrder,
         secondaryPane = listPane,
         tertiaryPane = extraPane,
         primaryPane = detailPane
@@ -87,6 +87,17 @@ object ListDetailPaneScaffoldDefaults {
             listPaneAdaptStrategy,
             extraPaneAdaptStrategy
         )
+
+    /**
+     * Denotes [ThreePaneScaffold] to use the list-detail pane-order to arrange its panes
+     * horizontally, which allocates panes in the order of secondary, primary, and tertiary from
+     * start to end.
+     */
+    internal val PaneOrder = ThreePaneScaffoldHorizontalOrder(
+        ThreePaneScaffoldRole.Secondary,
+        ThreePaneScaffoldRole.Primary,
+        ThreePaneScaffoldRole.Tertiary
+    )
 }
 
 /**

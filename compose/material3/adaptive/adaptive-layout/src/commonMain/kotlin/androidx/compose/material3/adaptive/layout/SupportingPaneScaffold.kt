@@ -52,7 +52,7 @@ fun SupportingPaneScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldDirective = directive,
         scaffoldValue = value,
-        paneOrder = ThreePaneScaffoldDefaults.SupportingPaneLayoutPaneOrder,
+        paneOrder = SupportingPaneScaffoldDefaults.PaneOrder,
         secondaryPane = supportingPane,
         tertiaryPane = extraPane,
         primaryPane = mainPane
@@ -81,6 +81,17 @@ object SupportingPaneScaffoldDefaults {
             supportingPaneAdaptStrategy,
             extraPaneAdaptStrategy
         )
+
+    /**
+     * Denotes [ThreePaneScaffold] to use the supporting-pane pane-order to arrange its panes
+     * horizontally, which allocates panes in the order of primary, secondary, and tertiary from
+     * start to end.
+     */
+    internal val PaneOrder = ThreePaneScaffoldHorizontalOrder(
+        ThreePaneScaffoldRole.Primary,
+        ThreePaneScaffoldRole.Secondary,
+        ThreePaneScaffoldRole.Tertiary
+    )
 }
 
 /**
