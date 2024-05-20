@@ -382,14 +382,15 @@ public class Int32NodesTest {
                         .setSourceNamespace(PlatformHealthSources.Keys.DAILY_STEPS.getNamespace())
                         .build();
         List<Integer> results = new ArrayList<>();
+        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         StateInt32SourceNode dailyStepsSourceNode =
-                new StateInt32SourceNode(
-                        platformDataStore, dailyStepsSource, new AddToListCallback<>(results));
+                new StateInt32SourceNode(platformDataStore, dailyStepsSource, addToListCallback);
 
         dailyStepsSourceNode.preInit();
         dailyStepsSourceNode.init();
 
         assertThat(results).containsExactly(70);
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test

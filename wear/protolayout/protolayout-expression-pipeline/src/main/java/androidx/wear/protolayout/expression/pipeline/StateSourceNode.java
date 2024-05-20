@@ -50,7 +50,7 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void preInit() {
-        this.onPreUpdate();
+        mDownstream.onPreUpdate();
     }
 
     @Override
@@ -82,6 +82,13 @@ class StateSourceNode<T>
 
     @Override
     public void onPreUpdate() {
+        if (!mInitialDataSent) {
+            // Some PlatformDataProviders push a new data as soon as they are registered with
+            // PlatformDataStore in {@link #init()}. This means we might end up calling onPreUpdate
+            // twice. The only preUpdate before the first data should be trigged by {@link
+            // #preInit()}
+            return;
+        }
         mDownstream.onPreUpdate();
     }
 
