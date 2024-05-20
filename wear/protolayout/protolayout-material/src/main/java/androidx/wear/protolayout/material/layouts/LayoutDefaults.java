@@ -128,25 +128,6 @@ public class LayoutDefaults {
             ProgressIndicatorDefaults.DEFAULT_PADDING.getValue();
 
     /**
-     * The default spacer width that should be between main content and secondary label if set in
-     * the {@link EdgeContentLayout}.
-     *
-     * <p>It is recommended to use this on smaller screen sizes or when there's a lot of content in
-     * the layout.
-     */
-    @NonNull public static final DpProp EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP =
-        dp(8);
-
-    /**
-     * The default spacer width that should be between main content and secondary label if set in
-     * the {@link EdgeContentLayout}.
-     *
-     * <p>It is recommended to use this on larger screen sizes (screen sizes above 225dp).
-     */
-    @NonNull public static final DpProp
-        EDGE_CONTENT_LAYOUT_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP = dp(12);
-
-    /**
      * The default spacing below primary label in the {@link EdgeContentLayout} to ensure that inner
      * content is not too high up and not near the primary label.
      */
@@ -167,8 +148,32 @@ public class LayoutDefaults {
     /** The default spacer width for slots in a {@link MultiSlotLayout}. */
     @NonNull public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
 
-    /** The recommended space between the main content and additional labels in layouts. */
+    /**
+     * The default spacer height that should be between main content and secondary label if set in
+     * the {@link EdgeContentLayout} or {@link PrimaryLayout}. It's not applicable to other layouts.
+     *
+     * <p>It is recommended to use this on smaller screen sizes or when there's a lot of content in
+     * the layout.
+     *
+     * <p>This spacing can be customized by calling
+     * {@link EdgeContentLayout.Builder#setContentAndSecondaryLabelSpacing} or
+     * {@link PrimaryLayout.Builder#setVerticalSpacerHeight}.
+     */
     @NonNull public static final DpProp DEFAULT_VERTICAL_SPACER_HEIGHT = dp(8);
+
+    /**
+     * The default spacer height that should be between main content and secondary label if set in
+     * the {@link EdgeContentLayout} or {@link PrimaryLayout}. It's not applicable to other layouts.
+     *
+     * <p>It is recommended to use this on larger screen sizes (screen sizes above 225dp).
+     *
+     * <p>This spacing can be customized by calling
+     * {@link EdgeContentLayout.Builder#setContentAndSecondaryLabelSpacing} or
+     * {@link PrimaryLayout.Builder#setVerticalSpacerHeight}.
+     */
+    @NonNull public static final DpProp
+            DEFAULT_LARGE_VERTICAL_SPACER_HEIGHT = dp(12);
+
 
     /**
      * The maximum number of button that can be added to the {@link MultiButtonLayout}.

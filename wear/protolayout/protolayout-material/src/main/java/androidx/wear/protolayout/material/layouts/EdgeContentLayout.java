@@ -21,7 +21,7 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
+import static androidx.wear.protolayout.material.layouts.LayoutDefaults.DEFAULT_VERTICAL_SPACER_HEIGHT;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP;
@@ -181,7 +181,7 @@ public class EdgeContentLayout implements LayoutElement {
         @Nullable private Float mEdgeContentThickness = null;
         @NonNull
         private DpProp mVerticalSpacerHeight =
-                EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
+                DEFAULT_VERTICAL_SPACER_HEIGHT;
 
         /**
          * Creates a builder for the {@link EdgeContentLayout}. Custom content inside of it can
@@ -307,7 +307,7 @@ public class EdgeContentLayout implements LayoutElement {
         /**
          * Sets the space size between the additional content and secondary label if there is any.
          * If one of those is not present, spacer is not used. If not set,
-         * {@link LayoutDefaults#EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP} will
+         * {@link LayoutDefaults#DEFAULT_VERTICAL_SPACER_HEIGHT} will
          * be used.
          *
          * <p>Note that, this method should be used together with
@@ -668,7 +668,7 @@ public class EdgeContentLayout implements LayoutElement {
     @Dimension(unit = Dimension.DP)
     public float getContentAndSecondaryLabelSpacing() {
         if (!isResponsiveContentInsetEnabled()) {
-            return EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP.getValue();
+            return DEFAULT_VERTICAL_SPACER_HEIGHT.getValue();
         }
 
         List<LayoutElement> innerColumnContents = getInnerColumnContentsForResponsive();
@@ -683,7 +683,7 @@ public class EdgeContentLayout implements LayoutElement {
                 }
             }
         }
-        return EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP.getValue();
+        return DEFAULT_VERTICAL_SPACER_HEIGHT.getValue();
     }
 
     /** Returns the edge content from this layout. */
