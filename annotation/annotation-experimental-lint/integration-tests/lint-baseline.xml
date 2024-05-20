@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.5.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.0-alpha06)" variant="all" version="8.5.0-alpha06">
 
     <issue
         id="ExperimentalAnnotationRetention"
@@ -962,6 +962,78 @@
         errorLine2="                                                                 ~~~~~">
         <location
             file="src/main/java/sample/optin/UseJavaExperimentalMultipleMarkersFromJava.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Don&apos;t use this API, it&apos;s experimental"
+        errorLine1="        AnnotatedJavaClassWithMessage experimentalObject = new AnnotatedJavaClassWithMessage();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalWithMessageFromJava.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Don&apos;t use this API, it&apos;s experimental"
+        errorLine1="        AnnotatedJavaClassWithMessage experimentalObject = new AnnotatedJavaClassWithMessage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalWithMessageFromJava.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Don&apos;t use this API, it&apos;s experimental"
+        errorLine1="        return experimentalObject.field;"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalWithMessageFromJava.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Don&apos;t use this API, it&apos;s experimental"
+        errorLine1="        AnnotatedJavaClassWithMessage experimentalObject = new AnnotatedJavaClassWithMessage();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalWithMessageFromJava.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Don&apos;t use this API, it&apos;s experimental"
+        errorLine1="        AnnotatedJavaClassWithMessage experimentalObject = new AnnotatedJavaClassWithMessage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalWithMessageFromJava.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Don&apos;t use this API, it&apos;s experimental"
+        errorLine1="        return experimentalObject.method();"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalWithMessageFromJava.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Don&apos;t use this API, it&apos;s experimental"
+        errorLine1="        return AnnotatedJavaClassWithMessage.FIELD_STATIC;"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalWithMessageFromJava.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="Don&apos;t use this API, it&apos;s experimental"
+        errorLine1="        return AnnotatedJavaClassWithMessage.methodStatic();"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/sample/optin/UseJavaExperimentalWithMessageFromJava.java"/>
     </issue>
 
     <issue
