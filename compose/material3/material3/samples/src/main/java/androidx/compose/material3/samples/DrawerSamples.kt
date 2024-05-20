@@ -104,7 +104,7 @@ fun ModalNavigationDrawerSample() {
                     items.forEach { item ->
                         NavigationDrawerItem(
                             icon = { Icon(item, contentDescription = null) },
-                            label = { Text(item.name) },
+                            label = { Text(item.name.substringAfterLast(".")) },
                             selected = item == selectedItem.value,
                             onClick = {
                                 scope.launch { drawerState.close() }
@@ -167,7 +167,7 @@ fun PermanentNavigationDrawerSample() {
                     items.forEach { item ->
                         NavigationDrawerItem(
                             icon = { Icon(item, contentDescription = null) },
-                            label = { Text(item.name) },
+                            label = { Text(item.name.substringAfterLast(".")) },
                             selected = item == selectedItem.value,
                             onClick = {
                                 selectedItem.value = item
@@ -229,7 +229,7 @@ fun DismissibleNavigationDrawerSample() {
                     items.forEach { item ->
                         NavigationDrawerItem(
                             icon = { Icon(item, contentDescription = null) },
-                            label = { Text(item.name) },
+                            label = { Text(item.name.substringAfterLast(".")) },
                             selected = item == selectedItem.value,
                             onClick = {
                                 scope.launch { drawerState.close() }
