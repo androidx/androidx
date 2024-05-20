@@ -29,18 +29,20 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
-import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -50,7 +52,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalMaterial3Api::class)
 class NavigationDrawerItemTest {
 
     @get:Rule
@@ -74,7 +75,27 @@ class NavigationDrawerItemTest {
 
         rule.onNodeWithTag(DrawerItemTag)
             .assertWidthIsEqualTo(264.dp)
-            .assertHeightIsAtLeast(NavigationDrawerTokens.ActiveIndicatorHeight)
+            .assertHeightIsEqualTo(NavigationDrawerTokens.ActiveIndicatorHeight)
+    }
+
+    @Test
+    fun navigationDrawerItem_size_withLargeContent() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Column(Modifier.width(264.dp)) {
+                NavigationDrawerItem(
+                    icon = {},
+                    label = { Text("Multi \nline \nlabel \nis \ntall") },
+                    selected = true,
+                    onClick = {},
+                    modifier = Modifier.testTag(DrawerItemTag)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(DrawerItemTag).assertWidthIsEqualTo(264.dp)
+        rule.onNodeWithTag(DrawerItemTag).getUnclippedBoundsInRoot().let {
+            assertThat(it.height).isGreaterThan(NavigationDrawerTokens.ActiveIndicatorHeight)
+        }
     }
 
     @Test
