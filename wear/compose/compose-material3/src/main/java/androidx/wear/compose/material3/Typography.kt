@@ -22,6 +22,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.wear.compose.material3.tokens.TypographyKeyTokens
 import androidx.wear.compose.material3.tokens.TypographyTokens
 
@@ -80,22 +81,22 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
  * or sans serif typeface is recommended.
  */
 @Immutable
-public class Typography internal constructor(
-    public val displayLarge: TextStyle,
-    public val displayMedium: TextStyle,
-    public val displaySmall: TextStyle,
-    public val titleLarge: TextStyle,
-    public val titleMedium: TextStyle,
-    public val titleSmall: TextStyle,
-    public val labelLarge: TextStyle,
-    public val labelMedium: TextStyle,
-    public val labelSmall: TextStyle,
-    public val bodyLarge: TextStyle,
-    public val bodyMedium: TextStyle,
-    public val bodySmall: TextStyle,
-    public val bodyExtraSmall: TextStyle
+ class Typography internal constructor(
+    val displayLarge: TextStyle,
+    val displayMedium: TextStyle,
+    val displaySmall: TextStyle,
+    val titleLarge: TextStyle,
+    val titleMedium: TextStyle,
+    val titleSmall: TextStyle,
+    val labelLarge: TextStyle,
+    val labelMedium: TextStyle,
+    val labelSmall: TextStyle,
+    val bodyLarge: TextStyle,
+    val bodyMedium: TextStyle,
+    val bodySmall: TextStyle,
+    val bodyExtraSmall: TextStyle
 ) {
-    public constructor (
+    constructor (
         defaultFontFamily: FontFamily = FontFamily.Default,
         displayLarge: TextStyle = TypographyTokens.DisplayLarge,
         displayMedium: TextStyle = TypographyTokens.DisplayMedium,
@@ -129,7 +130,7 @@ public class Typography internal constructor(
     /**
      * Returns a copy of this Typography, optionally overriding some of the values.
      */
-    public fun copy(
+    fun copy(
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
         displaySmall: TextStyle = this.displaySmall,
@@ -216,13 +217,19 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
 
 private const val DefaultIncludeFontPadding = false
 
+internal val DefaultLineHeightStyle = LineHeightStyle(
+    alignment = LineHeightStyle.Alignment.Center,
+    trim = LineHeightStyle.Trim.None,
+)
+
 /**
  * Returns theme default [TextStyle] with default [PlatformTextStyle].
  */
 internal val DefaultTextStyle = TextStyle.Default.copy(
     platformStyle = PlatformTextStyle(
         includeFontPadding = DefaultIncludeFontPadding
-    )
+    ),
+    lineHeightStyle = DefaultLineHeightStyle,
 )
 
 /**
