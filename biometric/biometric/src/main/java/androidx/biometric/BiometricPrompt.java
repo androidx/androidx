@@ -165,6 +165,11 @@ public class BiometricPrompt {
     public static final int ERROR_SECURITY_UPDATE_REQUIRED = 15;
 
     /**
+     * The user pressed the more options button on prompt content.
+     */
+    public static final int ERROR_MORE_OPTIONS_BUTTON = 16;
+
+    /**
      * An error code that may be returned during authentication.
      */
     @IntDef({
@@ -180,7 +185,8 @@ public class BiometricPrompt {
         ERROR_NO_BIOMETRICS,
         ERROR_HW_NOT_PRESENT,
         ERROR_NEGATIVE_BUTTON,
-        ERROR_NO_DEVICE_CREDENTIAL
+        ERROR_NO_DEVICE_CREDENTIAL,
+        ERROR_MORE_OPTIONS_BUTTON
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)

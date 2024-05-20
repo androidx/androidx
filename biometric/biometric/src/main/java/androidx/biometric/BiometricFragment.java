@@ -83,13 +83,20 @@ public class BiometricFragment extends Fragment {
     static final int CANCELED_FROM_CLIENT = 3;
 
     /**
+     * Authentication was canceled by the user by pressing the more options button on the prompt
+     * content.
+     */
+    static final int CANCELED_FROM_MORE_OPTIONS_BUTTON = 4;
+
+    /**
      * Where authentication was canceled from.
      */
     @IntDef({
         CANCELED_FROM_INTERNAL,
         CANCELED_FROM_USER,
         CANCELED_FROM_NEGATIVE_BUTTON,
-        CANCELED_FROM_CLIENT
+        CANCELED_FROM_CLIENT,
+        CANCELED_FROM_MORE_OPTIONS_BUTTON
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface CanceledFrom {}
@@ -354,6 +361,15 @@ public class BiometricFragment extends Fragment {
                     }
                 });
 
+        mViewModel.isMoreOptionsButtonPressPending().observe(this,
+                moreOptionsButtonPressPending -> {
+                    if (moreOptionsButtonPressPending) {
+                        onMoreOptionsButtonPressed();
+                        mViewModel.setMoreOptionsButtonPressPending(false);
+                    }
+                }
+        );
+
         mViewModel.isFingerprintDialogCancelPending().observe(this,
                 fingerprintDialogCancelPending -> {
                     if (fingerprintDialogCancelPending) {
@@ -522,7 +538,9 @@ public class BiometricFragment extends Fragment {
             final Bitmap logoBitmap = mViewModel.getLogoBitmap();
             final String logoDescription = mViewModel.getLogoDescription();
             final android.hardware.biometrics.PromptContentView contentView =
-                    PromptContentViewUtils.wrapForBiometricPrompt(mViewModel.getContentView());
+                    PromptContentViewUtils.wrapForBiometricPrompt(mViewModel.getContentView(),
+                            mViewModel.getClientExecutor(),
+                            mViewModel.getMoreOptionsButtonListener());
             if (logoRes != -1) {
                 Api35Impl.setLogoRes(builder, logoRes);
             }
@@ -799,6 +817,16 @@ public class BiometricFragment extends Fragment {
                         : getString(R.string.default_error_msg));
 
         cancelAuthentication(BiometricFragment.CANCELED_FROM_NEGATIVE_BUTTON);
+    }
+
+    /**
+     * Callback that is run when the view model reports that the more options button has been
+     * pressed on the prompt content.
+     */
+    void onMoreOptionsButtonPressed() {
+        sendErrorAndDismiss(BiometricPrompt.ERROR_MORE_OPTIONS_BUTTON,
+                "More options button in the content view is clicked.");
+        cancelAuthentication(BiometricFragment.CANCELED_FROM_MORE_OPTIONS_BUTTON);
     }
 
     /**
