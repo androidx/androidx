@@ -23,5 +23,6 @@ package androidx.compose.ui.text
  */
 actual fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
+    linkStyles: TextLinkStyles?,
     linkInteractionListener: LinkInteractionListener?
 ): AnnotatedString = AnnotatedString(htmlString)

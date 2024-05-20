@@ -38,7 +38,6 @@ abstract class LinkAnnotation private constructor() {
         override val styles: TextLinkStyles? = null,
         override val linkInteractionListener: LinkInteractionListener? = null
     ) : LinkAnnotation() {
-
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Url) return false
@@ -68,11 +67,10 @@ abstract class LinkAnnotation private constructor() {
      */
     class Clickable(
         val tag: String,
-        // nullable for the save/restore purposes
         override val styles: TextLinkStyles? = null,
+        // nullable for the save/restore purposes
         override val linkInteractionListener: LinkInteractionListener?
     ) : LinkAnnotation() {
-
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Clickable) return false

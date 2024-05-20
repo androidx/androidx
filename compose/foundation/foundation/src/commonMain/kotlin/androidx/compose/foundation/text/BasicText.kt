@@ -543,7 +543,7 @@ private fun LayoutWithLinksAndInlineContent(
     // only adds additional span styles to the existing link annotations, doesn't semantically
     // change the text
     val styledText: () -> AnnotatedString = if (text.hasLinks()) {
-        remember(text, textScope, style) {
+        remember(text, textScope) {
             { textScope?.applyAnnotators() ?: text }
         }
     } else { { text } }
@@ -565,7 +565,7 @@ private fun LayoutWithLinksAndInlineContent(
 
     Layout(
         content = {
-            textScope?.LinksComposables(style)
+            textScope?.LinksComposables()
             inlineComposables?.let {
                 InlineChildren(text = text, inlineContents = it)
             }

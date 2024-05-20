@@ -1086,7 +1086,7 @@ internal abstract class TextFieldSelectionGesturesTest<T> : AbstractSelectionGes
     }
 
     @Test
-    open fun whenReadOnly_touchLongPress_startsSelection() {
+    fun whenReadOnly_touchLongPress_startsSelection() {
         readOnly = true
         rule.waitForIdle()
 
