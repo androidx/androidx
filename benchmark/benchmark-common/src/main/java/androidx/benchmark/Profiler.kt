@@ -231,19 +231,15 @@ internal object StackSamplingLegacy : Profiler() {
 internal object MethodTracing : Profiler() {
     override fun start(traceUniqueName: String): ResultFile {
         hasBeenUsed = true
-        inMemoryTrace("startMethodTrace") {
-            return startRuntimeMethodTracing(
-                traceFileName = traceName(traceUniqueName, "methodTracing"),
-                sampled = false,
-                profiler = this
-            )
-        }
+        return startRuntimeMethodTracing(
+            traceFileName = traceName(traceUniqueName, "methodTracing"),
+            sampled = false,
+            profiler = this
+        )
     }
 
     override fun stop() {
-        inMemoryTrace("stopMethodTrace") {
-            stopRuntimeMethodTracing()
-        }
+        stopRuntimeMethodTracing()
     }
 
     override val requiresSingleMeasurementIteration: Boolean = true

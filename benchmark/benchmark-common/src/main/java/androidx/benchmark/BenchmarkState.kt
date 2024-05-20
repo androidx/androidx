@@ -256,8 +256,12 @@ class BenchmarkState internal constructor(
         check(phaseIndex < phases.size)
 
         if (phaseIndex >= 0) {
-            currentPhase.profiler?.stop()
-            InMemoryTracing.endSection()
+            currentPhase.profiler?.run {
+                inMemoryTrace("profiler.stop()") {
+                    stop()
+                }
+            }
+            InMemoryTracing.endSection() // end phase
             thermalThrottleSleepSeconds += currentPhase.thermalThrottleSleepSeconds
             if (currentPhase.loopMode.warmupManager == null) {
                 // Save captured metrics except during warmup, where we intentionally discard
@@ -307,7 +311,9 @@ class BenchmarkState internal constructor(
                 )
                 null
             } else {
-                start(traceUniqueName)
+                inMemoryTrace("start profiling") {
+                    start(traceUniqueName)
+                }
             }
         }
         if (phaseProfilerResult != null) {
@@ -354,7 +360,9 @@ class BenchmarkState internal constructor(
                 // failed capture (due to thermal throttling), restart profiler and metrics
                 currentPhase.profiler?.apply {
                     stop()
-                    profilerResult = start(traceUniqueName)
+                    profilerResult = inMemoryTrace("start profiling") {
+                        start(traceUniqueName)
+                    }
                 }
                 currentMetrics.captureInit()
                 currentMeasurement = 0
@@ -424,7 +432,11 @@ class BenchmarkState internal constructor(
             Log.d(TAG, "aborting and cancelling benchmark")
             // current phase cancelled, complete current phase cleanup (trace event and profiling)
             InMemoryTracing.endSection()
-            currentPhase.profiler?.stop()
+            currentPhase.profiler?.run {
+                inMemoryTrace("profiling stop") {
+                    stop()
+                }
+            }
 
             // for safety, set other state to done and do broader cleanup
             phaseIndex = phases.size

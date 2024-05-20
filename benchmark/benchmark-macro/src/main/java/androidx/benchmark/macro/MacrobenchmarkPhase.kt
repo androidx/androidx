@@ -146,25 +146,37 @@ internal fun PerfettoTraceProcessor.runPhase(
                     useStackSamplingConfig = true
                 ),
                 perfettoSdkConfig = perfettoSdkConfig,
-                inMemoryTracingLabel = "Macrobenchmark"
+                // Macrobench avoids in-memory tracing, as it doesn't want to either the parsing
+                // errors from out of order events, or risk the memory cost of full ordering during
+                // trace analysis. If in-memory tracing would be useful, this full ordering cost
+                // should be evaluated.
+                inMemoryTracingLabel = null
             ) {
                 try {
                     trace("start metrics") {
                         metrics.forEach {
                             it.start()
                         }
-                        profiler?.start()
-                        trace("measureBlock") {
-                            measureBlock(scope)
+                    }
+                    profiler?.let {
+                        trace("start profiler") {
+                            it.start()
                         }
                     }
+                    trace("measureBlock") {
+                        measureBlock(scope)
+                    }
                 } finally {
+                    profiler?.let {
+                        trace("stop profiler") {
+                            // Keep track of Profiler Results.
+                            profilerResultFiles += it.stop()
+                        }
+                    }
                     trace("stop metrics") {
                         metrics.forEach {
                             it.stop()
                         }
-                        // Keep track of Profiler Results.
-                        profilerResultFiles += profiler?.stop() ?: emptyList()
                     }
                 }
             }!!
