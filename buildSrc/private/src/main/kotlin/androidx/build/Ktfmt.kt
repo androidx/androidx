@@ -41,7 +41,10 @@ import org.intellij.lang.annotations.Language
 
 fun Project.configureKtfmt() {
     tasks.register("ktFormat", KtfmtFormatTask::class.java)
-    tasks.register("ktCheck", KtfmtCheckTask::class.java) { task -> task.cacheEvenIfNoOutputs() }
+    tasks.register("ktCheck", KtfmtCheckTask::class.java) { task ->
+        task.cacheEvenIfNoOutputs()
+        task.runAfterKotlinCompileTasks()
+    }
 }
 
 private val ExcludedDirectories =
