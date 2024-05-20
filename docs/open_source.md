@@ -28,9 +28,15 @@ they **must** move to open-source.
 
 #### Closed-source dependencies
 
-In specific cases, libraries *may* include closed-source dependencies. See the
+In specific cases, libraries *may* include closed-source dependencies; however,
+we **strongly recommend** that closed-source dependencies like Play Services be
+paired with an open-source alternative provided directly in Jetpack, in the
+Android SDK, or as part of a Mainline module.
+
+See the
 [Open-source compatibility](/docs/api_guidelines/index.md#dependencies-aosp)
-section of the API Guidelines for implementation details.
+section of the API Guidelines for details on integrating closed-source
+components.
 
 ### Examples of products that are _not_ open-source
 
