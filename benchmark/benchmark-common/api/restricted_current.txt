@@ -69,8 +69,8 @@ package androidx.benchmark {
 
   public static final class ProfilerConfig.MethodTracing extends androidx.benchmark.ProfilerConfig {
     ctor public ProfilerConfig.MethodTracing();
+    field public static final boolean AFFECTS_MEASUREMENTS_ON_THIS_DEVICE;
     field public static final androidx.benchmark.ProfilerConfig.MethodTracing.Companion Companion;
-    field public static final boolean affectsMeasurementOnThisDevice;
   }
 
   public static final class ProfilerConfig.MethodTracing.Companion {
