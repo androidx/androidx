@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.appsearch.annotation;
-
-import androidx.annotation.RestrictTo;
+// @exportToFramework:skipFile()
+package androidx.appsearch.flags;
 
 /**
- * Indicates an API is part of a feature that is guarded by an aconfig flag in the framework, and
- * only available if the flag is enabled.
+ * Shim for real DeviceFlagsValueProvider defined in Framework.
  *
- * <p>Our own Jetpack version is created here for code sync purpose.
+ * <p>In Jetpack, this shim does nothing and exists only for code sync purpose.
  */
-// @exportToFramework:skipFile()
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public @interface FlaggedApi {
-    String value();
+public final class DeviceFlagsValueProvider {
+    private DeviceFlagsValueProvider() {}
+
+    /** Provides a shim rule that can be used to check the status of flags on device */
+    public static CheckFlagsRule createCheckFlagsRule() {
+        return new CheckFlagsRule();
+    }
 }

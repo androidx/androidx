@@ -29,11 +29,11 @@ import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.usagereporting.ClickAction;
-import androidx.appsearch.app.usagereporting.SearchAction;
-import androidx.appsearch.app.usagereporting.TakenAction;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.appsearch.usagereporting.ClickAction;
+import androidx.appsearch.usagereporting.SearchAction;
+import androidx.appsearch.usagereporting.TakenAction;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableSet;

@@ -27,9 +27,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
-import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.exceptions.IllegalSchemaException;
+import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
@@ -1693,6 +1693,7 @@ public final class AppSearchSchema extends AbstractSafeParcelable {
         }
 
         /** Builder for {@link EmbeddingPropertyConfig}. */
+        @FlaggedApi(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
         public static final class Builder {
             private final String mPropertyName;
             private String mDescription = "";

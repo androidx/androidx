@@ -24,13 +24,13 @@ import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.usagereporting.ActionConstants;
+import androidx.appsearch.usagereporting.ActionConstants;
 import androidx.core.util.Preconditions;
 
 /**
  * Wrapper class for
  *  <!--@exportToFramework:ifJetpack()-->
- *  {@link androidx.appsearch.app.usagereporting.SearchAction}
+ *  {@link androidx.appsearch.usagereporting.SearchAction}
  *  <!--@exportToFramework:else()
  *  search action
  *  -->

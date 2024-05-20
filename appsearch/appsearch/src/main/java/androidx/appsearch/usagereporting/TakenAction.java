@@ -15,7 +15,7 @@
  */
 // @exportToFramework:skipFile()
 
-package androidx.appsearch.app.usagereporting;
+package androidx.appsearch.usagereporting;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;

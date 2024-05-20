@@ -22,7 +22,12 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Objects;
@@ -42,6 +47,9 @@ public class GenericDocumentCtsTest {
             .Builder<>("namespace", "sDocumentProperties2", "sDocumentPropertiesSchemaType2")
             .setCreationTimestampMillis(6789L)
             .build();
+
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     @Test
     @SuppressWarnings("deprecation")
@@ -962,6 +970,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentEquals_identicalWithEmbeddingValues() {
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
@@ -988,6 +997,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentEquals_differentOrderWithEmbeddingValues() {
         GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1")
@@ -1014,6 +1024,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentGetEmbeddingValue() {
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setCreationTimestampMillis(5L)
@@ -1056,6 +1067,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentGetArrayEmbeddingValues() {
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setCreationTimestampMillis(5L)
@@ -1081,6 +1093,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocument_setEmptyEmbeddingValues() {
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setPropertyBoolean("booleanKey")
@@ -1101,6 +1114,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentInvalid_setNullEmbeddingValues() {
         GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "id1",
                 "schemaType1");
@@ -1112,6 +1126,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocument_toBuilderWithEmbeddingValues() {
         GenericDocument document1 = new GenericDocument.Builder<>(
                 /*namespace=*/"", "id1", "schemaType1")
@@ -1156,6 +1171,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testDocumentGetPropertyNamesWithEmbeddingValue() {
         GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
                 .setCreationTimestampMillis(5L)
@@ -1172,6 +1188,7 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingValuesCannotBeEmpty() {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> new EmbeddingVector(new float[]{}, "my_model"));

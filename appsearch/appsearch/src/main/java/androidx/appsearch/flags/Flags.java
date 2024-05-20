@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// @exportToFramework:skipFile()
 package androidx.appsearch.flags;
 
 
@@ -26,8 +27,6 @@ import java.util.Collection;
  * Flags to control different features.
  *
  * <p>In Jetpack, those values can't be changed during runtime.
- *
- * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class Flags {
