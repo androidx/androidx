@@ -39,7 +39,6 @@ import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.namedOrNull
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
-import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.ApplicationVariantBuilder
 import com.android.build.api.variant.Variant
@@ -152,9 +151,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         )
     }
 
-    override fun onFinalizeDsl(extension: AndroidComponentsExtension<*, *, *>) {
-        setWarnings(baselineProfileExtension.warnings)
-    }
+    override fun getWarnings() = baselineProfileExtension.warnings
 
     override fun onApplicationBeforeVariants(variantBuilder: ApplicationVariantBuilder) {
 
