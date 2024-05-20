@@ -49,6 +49,17 @@ internal abstract class AgpPlugin(
     private val maxAgpVersionExclusive: AndroidPluginVersion,
 ) {
 
+    // Properties that can be specified by cmd line using -P<property_name> when invoking gradle.
+    val testMaxAgpVersion by lazy {
+        project.properties["androidx.benchmark.test.maxagpversion"]
+            ?.let { str ->
+                val parts = str.toString().split(".").map { it.toInt() }
+                return@lazy AndroidPluginVersion(parts[0], parts[1], parts[2])
+            }
+            ?: return@lazy null
+    }
+
+    // Logger
     protected val logger = BaselineProfilePluginLogger(project.logger)
 
     // Defines a list of block to be executed after all the onVariants callback
@@ -63,6 +74,8 @@ internal abstract class AgpPlugin(
         OnVariantBlockScheduler<LibraryVariant>("library")
     private val onTestVariantBlockScheduler =
         OnVariantBlockScheduler<TestVariant>("test")
+
+    private var checkedAgpVersion = false
 
     fun onApply() {
 
@@ -94,7 +107,14 @@ internal abstract class AgpPlugin(
         onBeforeFinalizeDsl()
 
         testAndroidComponentExtension()?.let { testComponent ->
-            testComponent.finalizeDsl { onTestFinalizeDsl(it) }
+            testComponent.finalizeDsl {
+                onTestFinalizeDsl(it)
+
+                // This can be done only here, since warnings may depend on user configuration
+                // that is ready only after `finalizeDsl`.
+                getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
+                checkAgpVersion()
+            }
             testComponent.beforeVariants { onTestBeforeVariants(it) }
             testComponent.onVariants {
                 onTestVariantBlockScheduler.onVariant(it)
@@ -103,7 +123,14 @@ internal abstract class AgpPlugin(
         }
 
         applicationAndroidComponentsExtension()?.let { applicationComponent ->
-            applicationComponent.finalizeDsl { onApplicationFinalizeDsl(it) }
+            applicationComponent.finalizeDsl {
+                onApplicationFinalizeDsl(it)
+
+                // This can be done only here, since warnings may depend on user configuration
+                // that is ready only after `finalizeDsl`.
+                getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
+                checkAgpVersion()
+            }
             applicationComponent.beforeVariants { onApplicationBeforeVariants(it) }
             applicationComponent.onVariants {
                 onAppVariantBlockScheduler.onVariant(it)
@@ -112,7 +139,14 @@ internal abstract class AgpPlugin(
         }
 
         libraryAndroidComponentsExtension()?.let { libraryComponent ->
-            libraryComponent.finalizeDsl { onLibraryFinalizeDsl(it) }
+            libraryComponent.finalizeDsl {
+                onLibraryFinalizeDsl(it)
+
+                // This can be done only here, since warnings may depend on user configuration
+                // that is ready only after `finalizeDsl`.
+                getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
+                checkAgpVersion()
+            }
             libraryComponent.beforeVariants { onLibraryBeforeVariants(it) }
             libraryComponent.onVariants {
                 onLibraryVariantBlockScheduler.onVariant(it)
@@ -121,12 +155,14 @@ internal abstract class AgpPlugin(
         }
 
         androidComponentsExtension()?.let { commonComponent ->
-            commonComponent.finalizeDsl { onFinalizeDsl(commonComponent) }
+            commonComponent.finalizeDsl {
+                onFinalizeDsl(commonComponent)
 
-            // Note that check agp version can be performed only here, because one of the plugins
-            // may set suppress warning option.
-            checkAgpVersion()
-
+                // This can be done only here, since warnings may depend on user configuration
+                // that is ready only after `finalizeDsl`.
+                getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
+                checkAgpVersion()
+            }
             commonComponent.beforeVariants { onBeforeVariants(it) }
             commonComponent.onVariants {
                 onVariantBlockScheduler.onVariant(it)
@@ -205,9 +241,7 @@ internal abstract class AgpPlugin(
 
     protected fun isGradleSyncRunning() = project.isGradleSyncRunning()
 
-    protected fun setWarnings(warnings: Warnings) {
-        logger.setWarnings(warnings)
-    }
+    protected open fun getWarnings(): Warnings? = null
 
     protected fun afterVariants(block: () -> (Unit)) = afterVariantsBlocks.add(block)
 
@@ -237,6 +271,12 @@ internal abstract class AgpPlugin(
     protected fun agpVersion() = project.agpVersion()
 
     private fun checkAgpVersion() {
+
+        // According to which callbacks are implemented by the user, this function may be called
+        // more than once but we want to check only once.
+        if (checkedAgpVersion) return
+        checkedAgpVersion = true
+
         val agpVersion = project.agpVersion()
         if (agpVersion.previewType == "dev") {
             return // Skip version check for androidx-studio-integration branch
@@ -250,7 +290,7 @@ internal abstract class AgpPlugin(
             """.trimIndent()
             )
         }
-        if (agpVersion >= maxAgpVersionExclusive) {
+        if (agpVersion >= (testMaxAgpVersion ?: maxAgpVersionExclusive)) {
             logger.warn(
                 property = { maxAgpVersion },
                 propertyName = "maxAgpVersion",
