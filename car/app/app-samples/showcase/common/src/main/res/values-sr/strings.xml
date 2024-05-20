@@ -238,7 +238,7 @@
     <string name="search_hint" msgid="978495498991026792">"Претражујте овде"</string>
     <string name="additional_text" msgid="5755100726890686184">"Прегледајте "<annotation link="terms_of_service">"услове коришћења услуге"</annotation></string>
     <string name="google_sign_in" msgid="6556259799319701727">"Пријављивање на Google"</string>
-    <string name="use_pin" msgid="7850893299484337431">"Користите PIN"</string>
+    <string name="use_pin" msgid="7850893299484337431">"Користи PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR кôд"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Хост не подржава шаблон за пријављивање"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Некомпатибилан хост"</string>
