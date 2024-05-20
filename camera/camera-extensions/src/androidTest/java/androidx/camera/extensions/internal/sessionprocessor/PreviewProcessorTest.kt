@@ -61,7 +61,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PreviewProcessorTest {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
     private lateinit var cameraDevice: Api21Impl.CameraDeviceWrapper

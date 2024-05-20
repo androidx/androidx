@@ -1063,12 +1063,37 @@ public final class CameraUtil {
      * (1) Grant the camera permission.
      * (2) Check if there is at least one camera on the device alive. If not, it will ignore
      * the test.
-     * (3) Ensure the camera can be opened successfully before the test. If not, it will ignore
-     * the test.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure the default rear and front cameras (if device has them) are available again
+     * after test.
      */
     @NonNull
-    public static TestRule grantCameraPermissionAndPreTest() {
-        return grantCameraPermissionAndPreTest(new PreTestCamera(), new PreTestCameraIdList());
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest() {
+        return grantCameraPermissionAndPreTestAndPostTest(new PreTestCamera(),
+                new PreTestCameraIdList(), new PostTestCameraAvailability(
+                        Arrays.asList(CameraSelector.LENS_FACING_BACK,
+                                CameraSelector.LENS_FACING_FRONT)));
+    }
+
+    /**
+     * Grant the camera permission and test the camera.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device alive. If not, it will ignore
+     * the test.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure default cameras for provided {@code lensFacings} (if device has them) are
+     * available again after test.
+     */
+    @NonNull
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
+            @NonNull List<Integer> lensFacings
+    ) {
+        return grantCameraPermissionAndPreTestAndPostTest(new PreTestCamera(),
+                new PreTestCameraIdList(), new PostTestCameraAvailability(lensFacings));
     }
 
     /**
@@ -1080,25 +1105,100 @@ public final class CameraUtil {
      * If the test uses fake CameraXConfig or doesn't initialize CameraX, i.e. doesn't uses
      * {@link androidx.camera.lifecycle.ProcessCameraProvider} or {@link CameraXUtil#initialize} to
      * initialize CameraX for testing, you can use
-     * {@link CameraUtil#grantCameraPermissionAndPreTest()} instead.
+     * {@link CameraUtil#grantCameraPermissionAndPreTestAndPostTest()} instead.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device alive. If not, it will ignore
+     * the test. This is based on the {@link PreTestCameraIdList} parameter, which is intended to be
+     * based on a {@link CameraXConfig} as mentioned earlier.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure the default rear and front cameras (if device has them) are available again
+     * after test.
      */
     @NonNull
-    public static TestRule grantCameraPermissionAndPreTest(
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
             @Nullable PreTestCameraIdList cameraIdListTestRule) {
-        return grantCameraPermissionAndPreTest(new PreTestCamera(), cameraIdListTestRule);
+
+        return grantCameraPermissionAndPreTestAndPostTest(new PreTestCamera(), cameraIdListTestRule,
+                new PostTestCameraAvailability(Arrays.asList(CameraSelector.LENS_FACING_BACK,
+                        CameraSelector.LENS_FACING_FRONT)));
     }
 
     /**
      * Grant the camera permission and test the camera.
      *
-     * @param cameraTestRule       to check if camera can be opened.
-     * @param cameraIdListTestRule to check if camera characteristic reports correct information
-     *                             that includes the supported camera devices that shows in the
-     *                             system.
+     * <p>This method is mainly required to be used when running the test with
+     * Camera2Config/CameraPipeConfig. Please create a PreTestCameraIdList with the CameraXConfig
+     * that is used in the test.
+     * If the test uses fake CameraXConfig or doesn't initialize CameraX, i.e. doesn't uses
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider} or {@link CameraXUtil#initialize} to
+     * initialize CameraX for testing, you can use
+     * {@link CameraUtil#grantCameraPermissionAndPreTestAndPostTest()} instead.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device alive. If not, it will ignore
+     * the test. This is based on the {@link PreTestCameraIdList} parameter, which is intended to be
+     * based on a {@link CameraXConfig} as mentioned earlier.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure default cameras for provided {@code lensFacings} (if device has them) are
+     * available again after test.
      */
     @NonNull
-    public static TestRule grantCameraPermissionAndPreTest(@Nullable PreTestCamera cameraTestRule,
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
+            @Nullable PreTestCamera cameraTestRule,
             @Nullable PreTestCameraIdList cameraIdListTestRule) {
+        return grantCameraPermissionAndPreTestAndPostTest(cameraTestRule, cameraIdListTestRule,
+                new PostTestCameraAvailability(Arrays.asList(CameraSelector.LENS_FACING_BACK,
+                        CameraSelector.LENS_FACING_FRONT)));
+    }
+
+    /**
+     * Grant the camera permission and test the camera.
+     *
+     * <p>This method is mainly required to be used when running the test with
+     * Camera2Config/CameraPipeConfig. Please create a PreTestCameraIdList with the CameraXConfig
+     * that is used in the test.
+     * If the test uses fake CameraXConfig or doesn't initialize CameraX, i.e. doesn't uses
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider} or {@link CameraXUtil#initialize} to
+     * initialize CameraX for testing, you can use
+     * {@link CameraUtil#grantCameraPermissionAndPreTestAndPostTest()} instead.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device alive. If not, it will ignore
+     * the test. This is based on the {@link PreTestCameraIdList} parameter, which is intended to be
+     * based on a {@link CameraXConfig} as mentioned earlier.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure default cameras for provided {@code lensFacings} (if device has them) are
+     * available again after test.
+     */
+    @NonNull
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
+            @Nullable PreTestCameraIdList cameraIdListTestRule,
+            @NonNull List<Integer> lensFacings) {
+        return grantCameraPermissionAndPreTestAndPostTest(new PreTestCamera(), cameraIdListTestRule,
+                new PostTestCameraAvailability(lensFacings));
+    }
+
+    /**
+     * Grant the camera permission and test the camera.
+     *
+     * @param cameraTestRule                to check if camera can be opened.
+     * @param cameraIdListTestRule          to check if camera characteristic reports correct
+     *                                      information that includes the supported camera devices
+     *                                      that shows in the system.
+     * @param postTestCameraAvailability    to check if camera is available again after test end.
+     */
+    @NonNull
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
+            @Nullable PreTestCamera cameraTestRule,
+            @Nullable PreTestCameraIdList cameraIdListTestRule,
+            @Nullable PostTestCameraAvailability postTestCameraAvailability) {
         RuleChain rule = RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA));
         rule = rule.around(new IgnoreProblematicDeviceRule());
         if (cameraIdListTestRule != null) {
@@ -1106,6 +1206,9 @@ public final class CameraUtil {
         }
         if (cameraTestRule != null) {
             rule = rule.around(cameraTestRule);
+        }
+        if (postTestCameraAvailability != null) {
+            rule = rule.around(postTestCameraAvailability);
         }
         rule = rule.around((base, description) -> new Statement() {
             @Override

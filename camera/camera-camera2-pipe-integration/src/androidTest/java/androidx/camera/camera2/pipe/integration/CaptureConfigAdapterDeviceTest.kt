@@ -65,7 +65,7 @@ private const val DEFAULT_LENS_FACING_SELECTOR = CameraSelector.LENS_FACING_BACK
 class CaptureConfigAdapterDeviceTest {
 
     @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     private var cameraControl: CameraControlAdapter? = null
     private var camera: CameraUseCaseAdapter? = null

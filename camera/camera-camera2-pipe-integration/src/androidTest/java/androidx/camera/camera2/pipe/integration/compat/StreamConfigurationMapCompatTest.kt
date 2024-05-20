@@ -47,7 +47,7 @@ import org.junit.runner.RunWith
 class StreamConfigurationMapCompatTest {
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     private val lensFacing = CameraSelector.LENS_FACING_BACK
     private lateinit var streamConfigurationMap: StreamConfigurationMap

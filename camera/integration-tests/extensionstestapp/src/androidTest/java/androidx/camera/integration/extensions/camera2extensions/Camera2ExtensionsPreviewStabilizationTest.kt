@@ -67,7 +67,7 @@ import org.junit.runners.Parameterized
 class Camera2ExtensionsPreviewStabilizationTest(private val cameraId: String) {
     @get:Rule
     val useCamera =
-        CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 

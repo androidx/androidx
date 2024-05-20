@@ -67,7 +67,7 @@ class OpenCloseCaptureSessionStressTest(private val config: CameraXExtensionTest
     )
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(config.cameraXConfig)
     )
 

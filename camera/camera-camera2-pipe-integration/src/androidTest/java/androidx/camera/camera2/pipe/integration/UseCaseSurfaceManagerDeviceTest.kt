@@ -73,7 +73,7 @@ import org.junit.runner.RunWith
 class UseCaseSurfaceManagerDeviceTest {
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(CameraPipeConfig.defaultConfig())
     )
 

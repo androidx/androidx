@@ -65,7 +65,7 @@ class PreviewViewStreamStateTest(
     private lateinit var cameraProvider: ProcessCameraProvider
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(cameraConfig)
     )
 

@@ -62,7 +62,7 @@ class CameraDisconnectTest(
     )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(cameraConfig)
     )
 

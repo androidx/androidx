@@ -91,7 +91,7 @@ class Camera2CameraControlDeviceTest {
     private lateinit var comboListener: ComboRequestListener
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     @Before
     fun setUp() {

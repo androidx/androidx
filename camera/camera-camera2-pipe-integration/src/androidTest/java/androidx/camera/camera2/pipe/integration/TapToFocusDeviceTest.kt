@@ -59,7 +59,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 21)
 class TapToFocusDeviceTest {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(CameraPipeConfig.defaultConfig())
     )
 

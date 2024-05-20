@@ -62,7 +62,7 @@ class PreviewViewFragmentTest(
     )
 
     @get:Rule
-    var useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    var useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(cameraConfig)
     )
 
