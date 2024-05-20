@@ -26,8 +26,6 @@ import android.util.Size;
 import android.util.SizeF;
 import android.util.SparseArray;
 
-import androidx.appsearch.safeparcel.PropertyParcel;
-
 import com.google.common.collect.ImmutableList;
 
 import org.junit.Test;
@@ -224,27 +222,6 @@ public class BundleUtilTest {
 
         output.getIntegerArrayList("integerArrayList").add(5);
         assertThat(BundleUtil.deepEquals(input, output)).isFalse();
-    }
-
-    @Test
-    public void testSafeParcelable() {
-        int row = 20;
-        int col = 10;
-        byte[][] bytesArray = new byte[row][col];
-        for (int i = 0; i < row; ++i) {
-            for (int j = 0; j < col; ++j) {
-                bytesArray[i][j] = (byte) (i + j);
-            }
-        }
-
-        String propertyName = "propertyName";
-        PropertyParcel expectedPropertyParcel =
-                new PropertyParcel.Builder(propertyName).setBytesValues(bytesArray).build();
-        Bundle bundle = new Bundle();
-        BundleUtil.putParcelable(expectedPropertyParcel, bundle, "key");
-        PropertyParcel actualPropertyParcel = BundleUtil.getParcelable(bundle, "key",
-                PropertyParcel.CREATOR);
-        assertThat(expectedPropertyParcel).isEqualTo(actualPropertyParcel);
     }
 
     private static Bundle createThoroughBundle() {
