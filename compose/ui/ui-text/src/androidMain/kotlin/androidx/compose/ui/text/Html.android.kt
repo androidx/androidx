@@ -52,6 +52,7 @@ import org.xml.sax.XMLReader
 
 actual fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
+    linkStyles: TextLinkStyles?,
     linkInteractionListener: LinkInteractionListener?
 ): AnnotatedString {
     // Check ContentHandlerReplacementTag kdoc for more details
@@ -62,21 +63,27 @@ actual fun AnnotatedString.Companion.fromHtml(
         null,
         TagHandler
     )
-    return spanned.toAnnotatedString(linkInteractionListener)
+    return spanned.toAnnotatedString(linkStyles, linkInteractionListener)
 }
 
 @VisibleForTesting
 internal fun Spanned.toAnnotatedString(
+    linkStyles: TextLinkStyles? = null,
     linkInteractionListener: LinkInteractionListener? = null
 ): AnnotatedString {
     return AnnotatedString.Builder(capacity = length)
         .append(this)
-        .also { it.addSpans(this, linkInteractionListener) }
+        .also { it.addSpans(
+            this,
+            linkStyles,
+            linkInteractionListener
+        ) }
         .toAnnotatedString()
 }
 
 private fun AnnotatedString.Builder.addSpans(
     spanned: Spanned,
+    linkStyles: TextLinkStyles?,
     linkInteractionListener: LinkInteractionListener?
 ) {
     spanned.getSpans(0, length, Any::class.java).forEach { span ->
@@ -85,6 +92,7 @@ private fun AnnotatedString.Builder.addSpans(
             span,
             range.start,
             range.end,
+            linkStyles,
             linkInteractionListener
         )
     }
@@ -94,6 +102,7 @@ private fun AnnotatedString.Builder.addSpan(
     span: Any,
     start: Int,
     end: Int,
+    linkStyles: TextLinkStyles?,
     linkInteractionListener: LinkInteractionListener?
 ) {
     when (span) {
@@ -136,8 +145,9 @@ private fun AnnotatedString.Builder.addSpan(
         is URLSpan -> {
             span.url?.let { url ->
                 val link = LinkAnnotation.Url(
-                    url = url,
-                    linkInteractionListener = linkInteractionListener
+                    url,
+                    linkStyles,
+                    linkInteractionListener
                 )
                 addLink(link, start, end)
             }

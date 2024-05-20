@@ -360,6 +360,12 @@ internal class TextFieldDecoratorModifierNode(
     private val isFocused: Boolean get() = isElementFocused && windowInfo?.isWindowFocused == true
 
     /**
+     * We observe text changes to show/hide text toolbar and cursor handles. This job is only run
+     * when [isFocused] is true, and cancels when focus is lost.
+     */
+    private var observeChangesJob: Job? = null
+
+    /**
      * Manages key events. These events often are sourced by a hardware keyboard but it's also
      * possible that IME or some other platform system simulates a KeyEvent.
      */
@@ -591,7 +597,7 @@ internal class TextFieldDecoratorModifierNode(
             return
         }
         isElementFocused = focusState.isFocused
-        textFieldSelectionState.isFocused = this.isFocused
+        onFocusChange()
 
         if (focusState.isFocused) {
             // Deselect when losing focus even if readonly.
@@ -603,6 +609,23 @@ internal class TextFieldDecoratorModifierNode(
             textFieldState.collapseSelectionToMax()
         }
         stylusHandwritingNode.onFocusEvent(focusState)
+    }
+
+    /**
+     * Should be called when either [isElementFocused] or [WindowInfo.isWindowFocused] change since
+     * they are used in evaluation of [isFocused].
+     */
+    private fun onFocusChange() {
+        textFieldSelectionState.isFocused = this.isFocused
+        if (isFocused && observeChangesJob == null) {
+            // only start a new job is there's not an ongoing one.
+            observeChangesJob = coroutineScope.launch {
+                textFieldSelectionState.observeChanges()
+            }
+        } else if (!isFocused) {
+            observeChangesJob?.cancel()
+            observeChangesJob = null
+        }
     }
 
     override fun onAttach() {
@@ -658,7 +681,7 @@ internal class TextFieldDecoratorModifierNode(
     override fun onObservedReadsChanged() {
         observeReads {
             windowInfo = currentValueOf(LocalWindowInfo)
-            textFieldSelectionState.isFocused = this.isFocused
+            onFocusChange()
             startInputSessionOnWindowFocusChange()
         }
     }
@@ -672,11 +695,6 @@ internal class TextFieldDecoratorModifierNode(
             // This will automatically cancel the previous session, if any, so we don't need to
             // cancel the inputSessionJob ourselves.
             establishTextInputSession {
-                // Re-start observing changes in case our TextFieldState instance changed.
-                launch(start = CoroutineStart.UNDISPATCHED) {
-                    textFieldSelectionState.observeChanges()
-                }
-
                 platformSpecificTextInputSession(
                     state = textFieldState,
                     layoutState = textLayoutState,

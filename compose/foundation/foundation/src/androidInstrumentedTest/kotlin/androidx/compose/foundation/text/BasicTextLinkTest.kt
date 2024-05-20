@@ -466,44 +466,6 @@ class BasicTextLinkTest {
             .assertContainsColor(Color.Red)
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun links_textStyleLinkStyling_respectsStyleInLinkAnnotation() {
-        rule.setContent {
-            BasicText(
-                buildAnnotatedString {
-                    append("link")
-                    addLink(Url("url", TextLinkStyles(SpanStyle(color = Color.Green))), 0, 4)
-                },
-                style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(Color.Blue)))
-            )
-        }
-
-        rule.onNode(hasClickAction(), useUnmergedTree = true)
-            .captureToImage()
-            .assertContainsColor(Color.Green)
-            .assertDoesNotContainColor(Color.Blue)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
-    fun links_textStyleLinkStyling_mergedIntoStyleInLinkAnnotation() {
-        rule.setContent {
-            BasicText(
-                buildAnnotatedString {
-                    append("link")
-                    addLink(Url("url", TextLinkStyles(SpanStyle(color = Color.Green))), 0, 4)
-                },
-                style = TextStyle(linkStyles = TextLinkStyles(SpanStyle(background = Color.Blue)))
-            )
-        }
-
-        rule.onNode(hasClickAction(), useUnmergedTree = true)
-            .captureToImage()
-            .assertContainsColor(Color.Blue)
-            .assertContainsColor(Color.Green)
-    }
-
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_withinOtherStyle_styleFromAnnotationUsed() {
