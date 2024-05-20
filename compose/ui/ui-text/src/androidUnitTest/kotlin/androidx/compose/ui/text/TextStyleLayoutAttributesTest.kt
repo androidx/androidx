@@ -373,7 +373,6 @@ class TextStyleLayoutAttributesTest {
             getProperty("hyphens"),
             getProperty("lineBreak"),
             getProperty("textMotion"),
-            getProperty("linkStyles"),
             // deprecated properties kept for binary compatibility
             getProperty("deprecated_boxing_textAlign"),
             getProperty("deprecated_boxing_textDirection"),
