@@ -671,11 +671,27 @@ constructor(
      * SurfaceControl instances
      */
     internal fun detachTargets(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
+        // If we're not cancelling the pending renders, dispatch requested but deferred renders
+        // immediately so they end up run before the thread is actually canceled.
+        if (!cancelPending) {
+            // This is the count of pending commits including an already-in-flight one, so update
+            // first to count and commit the remaining ones.
+            while (mCommitCount.updateAndGet { value -> max(value - 1, 0) } > 0) {
+                commitInternal()
+            }
+            // This is the count of deferred front-layer renders, so we update after to get the
+            // current count. Note that if there was a deferred commit, any deferred front-layer
+            // renders are preempted; the call to commitInternal sets mPendingRenderCount to 0.
+            while (mPendingRenderCount.getAndUpdate { value -> max(value - 1, 0) } > 0) {
+                mFrontBufferedRenderer?.render()
+            }
+        }
         mMultiBufferedRenderer?.release(cancelPending)
         mFrontBufferedRenderer?.release(cancelPending)
         val frontSc = mFrontBufferedLayerSurfaceControl
         val parentSc = mMultiBufferedLayerSurfaceControl
         mGLRenderer.execute {
+            // This is deferred until all the GL callbacks not canceled by release are complete.
             clearParamQueues()
             if (frontSc != null && frontSc.isValid() && parentSc != null && parentSc.isValid()) {
                 SurfaceControlCompat.Transaction()
@@ -741,7 +757,9 @@ constructor(
 
     private fun clearParamQueues() {
         mActiveSegment.clear()
+        mCommitCount.set(0)
         mSegments.clear()
+        mPendingRenderCount.set(0)
     }
 
     internal companion object {

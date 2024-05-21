@@ -26,6 +26,7 @@ import android.opengl.Matrix
 import android.os.Build
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
@@ -41,10 +42,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -1943,6 +1946,446 @@ class GLFrontBufferedRendererTest {
                 assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
             }
         }
+    }
+
+    @Test
+    fun stillOneDrawOnSurfaceCreationAfterDestroySurfaceWithPendingCommit() {
+        val multiBufferDraws: ConcurrentLinkedQueue<List<String>> = ConcurrentLinkedQueue()
+        var afterSurfaceDestroyedMultiBufferDraws: List<List<String>>? = null
+        val latchToCountDownOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val latchToAwaitOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val callbacks =
+            object : GLFrontBufferedRenderer.Callback<String> {
+
+                override fun onDrawFrontBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    param: String
+                ) {}
+
+                override fun onDrawMultiBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    params: Collection<String>
+                ) {
+                    multiBufferDraws.add(params.toList())
+                    latchToCountDownOnMultiLayerDraw.get()?.countDown()
+                    latchToAwaitOnMultiLayerDraw.get()?.await(3, TimeUnit.SECONDS)
+                }
+            }
+        verifyGLFrontBufferedRenderer(
+            callbacks,
+        ) { _, renderer, surfaceView ->
+            val untilSurfaceDestroyed = CountDownLatch(1)
+            val untilSurfaceCreated = CountDownLatch(1)
+            val untilFirstDrawAfterSurfaceCreated = CountDownLatch(1)
+            surfaceView.holder.addCallback(
+                object : SurfaceHolder.Callback {
+                    override fun surfaceCreated(holder: SurfaceHolder) {
+                        untilSurfaceCreated.countDown()
+                        latchToCountDownOnMultiLayerDraw.set(untilFirstDrawAfterSurfaceCreated)
+                    }
+
+                    override fun surfaceChanged(
+                        holder: SurfaceHolder,
+                        format: Int,
+                        width: Int,
+                        height: Int
+                    ) {}
+
+                    override fun surfaceDestroyed(holder: SurfaceHolder) {
+                        untilSurfaceDestroyed.countDown()
+                    }
+                }
+            )
+
+            // This draw is still ongoing when the view is hidden and the surface destroyed.
+            val untilInitialDraw = CountDownLatch(1)
+            latchToCountDownOnMultiLayerDraw.set(untilInitialDraw)
+            latchToAwaitOnMultiLayerDraw.set(untilSurfaceCreated)
+            renderer.renderFrontBufferedLayer("FIRST")
+            renderer.commit()
+
+            // This draw doesn't happen because pending callbacks are cancelled when the surface
+            // is destroyed.
+            renderer.renderFrontBufferedLayer("SECOND")
+            renderer.commit()
+            untilInitialDraw.await(3, TimeUnit.SECONDS)
+
+            // When the view is hidden and restored, the initial draw of the surface should call
+            // onDrawMultiBufferedLayer once, passing an empty list of params.
+            surfaceView.post { surfaceView.setVisibility(View.INVISIBLE) }
+            untilSurfaceDestroyed.await(3, TimeUnit.SECONDS)
+            afterSurfaceDestroyedMultiBufferDraws = multiBufferDraws.toList()
+
+            surfaceView.post { surfaceView.setVisibility(View.VISIBLE) }
+            untilFirstDrawAfterSurfaceCreated.await(3, TimeUnit.SECONDS)
+
+            // At the end of this block, renderer.release(false) is called to complete
+            // in-progress renders.
+        }
+        assertEquals(listOf(listOf(), listOf("FIRST")), afterSurfaceDestroyedMultiBufferDraws)
+        assertEquals(
+            // The draw with empty parameter list at the end happens when the surface is created.
+            // Before this fix, that incorrectly happened a second time.
+            listOf(listOf(), listOf("FIRST"), listOf()),
+            multiBufferDraws.toList()
+        )
+    }
+
+    @Test
+    fun noFrontDrawOnSurfaceCreationAfterDestroySurfaceWithPendingCommit() {
+        val frontDrawParams = ConcurrentLinkedQueue<String>()
+        val frontDrawCompleteCount = AtomicInteger(0)
+        var afterSurfaceDestroyedFrontDrawParams: List<String>? = null
+        var afterSurfaceDestroyedFrontDrawCount: Int? = null
+        val latchToCountDownOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val latchToAwaitOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val callbacks =
+            object : GLFrontBufferedRenderer.Callback<String> {
+
+                override fun onDrawFrontBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    param: String
+                ) {
+                    frontDrawParams.add(param)
+                }
+
+                override fun onFrontBufferedLayerRenderComplete(
+                    frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                    transaction: SurfaceControlCompat.Transaction
+                ) {
+                    // This one is a little more awkward to record because the
+                    // onDrawFrontBufferedLayer
+                    // is in a block passed to ParamQueue.next, which doesn't run when the
+                    // ParamQueue
+                    // is actually empty. onFrontBufferedLayerRenderComplete gets called
+                    // unconditionally
+                    // so examine that instead.
+                    frontDrawCompleteCount.incrementAndGet()
+                }
+
+                override fun onDrawMultiBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    params: Collection<String>
+                ) {
+                    latchToCountDownOnMultiLayerDraw.get()?.countDown()
+                    latchToAwaitOnMultiLayerDraw.get()?.await(3, TimeUnit.SECONDS)
+                }
+            }
+        verifyGLFrontBufferedRenderer(
+            callbacks,
+        ) { _, renderer, surfaceView ->
+            val untilSurfaceDestroyed = CountDownLatch(1)
+            val untilSurfaceCreated = CountDownLatch(1)
+            val untilFirstDrawAfterSurfaceCreated = CountDownLatch(1)
+            surfaceView.holder.addCallback(
+                object : SurfaceHolder.Callback {
+                    override fun surfaceCreated(holder: SurfaceHolder) {
+                        untilSurfaceCreated.countDown()
+                        latchToCountDownOnMultiLayerDraw.set(untilFirstDrawAfterSurfaceCreated)
+                    }
+
+                    override fun surfaceChanged(
+                        holder: SurfaceHolder,
+                        format: Int,
+                        width: Int,
+                        height: Int
+                    ) {}
+
+                    override fun surfaceDestroyed(holder: SurfaceHolder) {
+                        untilSurfaceDestroyed.countDown()
+                    }
+                }
+            )
+
+            // This draw is still ongoing when the view is hidden and the surface destroyed.
+            val untilInitialDraw = CountDownLatch(1)
+            latchToCountDownOnMultiLayerDraw.set(untilInitialDraw)
+            latchToAwaitOnMultiLayerDraw.set(untilSurfaceCreated)
+            renderer.commit()
+
+            // This draw doesn't happen because pending callbacks are cancelled when the surface
+            // is destroyed.
+            renderer.renderFrontBufferedLayer("TOSSED")
+            untilInitialDraw.await(3, TimeUnit.SECONDS)
+
+            // When the view is hidden and restored, the initial draw of the surface should call
+            // onDrawMultiBufferedLayer once, passing an empty list of params.
+            surfaceView.post { surfaceView.setVisibility(View.INVISIBLE) }
+            untilSurfaceDestroyed.await(3, TimeUnit.SECONDS)
+            afterSurfaceDestroyedFrontDrawParams = frontDrawParams.toList()
+            afterSurfaceDestroyedFrontDrawCount = frontDrawCompleteCount.get()
+
+            surfaceView.post { surfaceView.setVisibility(View.VISIBLE) }
+            untilFirstDrawAfterSurfaceCreated.await(3, TimeUnit.SECONDS)
+
+            // At the end of this block, renderer.release(false) is called to complete
+            // in-progress renders.
+        }
+        assertTrue(afterSurfaceDestroyedFrontDrawParams!!.isEmpty())
+        assertEquals(0, afterSurfaceDestroyedFrontDrawCount)
+        assertTrue(frontDrawParams.isEmpty())
+        // Before this fix, this would be 1, as the underlying render request would happen
+        // (even though the user onDrawFrontBufferedLayer callback would not).
+        assertEquals(0, frontDrawCompleteCount.get())
+    }
+
+    @Test
+    fun stillOneDrawAfterClearWithPendingCommit() {
+        val multiBufferDraws: ConcurrentLinkedQueue<List<String>> = ConcurrentLinkedQueue()
+        var beforeClearMultiBufferDraws: List<List<String>>? = null
+        val latchToCountDownOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val latchToAwaitOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val callbacks =
+            object : GLFrontBufferedRenderer.Callback<String> {
+
+                override fun onDrawFrontBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    param: String
+                ) {}
+
+                override fun onDrawMultiBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    params: Collection<String>
+                ) {
+                    multiBufferDraws.add(params.toList())
+                    latchToCountDownOnMultiLayerDraw.get()?.countDown()
+                    latchToAwaitOnMultiLayerDraw.get()?.await(3, TimeUnit.SECONDS)
+                }
+            }
+        verifyGLFrontBufferedRenderer(callbacks) { _, renderer, _ ->
+            val untilInitialDraw = CountDownLatch(1)
+            val untilAfterClear = CountDownLatch(1)
+            latchToCountDownOnMultiLayerDraw.set(untilInitialDraw)
+            latchToAwaitOnMultiLayerDraw.set(untilAfterClear)
+            renderer.renderFrontBufferedLayer("STALLED")
+            renderer.commit() // This draw is still in progress on clear
+            renderer.renderFrontBufferedLayer("TOSSED")
+            renderer.commit() // This draw is deferred on clear and never happens
+
+            untilInitialDraw.await(3, TimeUnit.SECONDS)
+            beforeClearMultiBufferDraws = multiBufferDraws.toList()
+            renderer.clear()
+            untilAfterClear.countDown()
+
+            // At the end of this block, renderer.release(false) is called to complete
+            // in-progress renders.
+        }
+        assertEquals(listOf(listOf(), listOf("STALLED")), beforeClearMultiBufferDraws)
+        assertEquals(
+            // The draw with empty parameter list at the end happens on clear.
+            // Before this fix, that incorrectly happened a second time.
+            listOf(listOf(), listOf("STALLED"), listOf()),
+            multiBufferDraws.toList()
+        )
+    }
+
+    @Test
+    fun noFrontDrawAfterClearWithPendingCommit() {
+        val frontDrawParams = ConcurrentLinkedQueue<String>()
+        val frontDrawCompleteCount = AtomicInteger(0)
+        var beforeClearFrontDrawParams: List<String>? = null
+        var beforeClearFrontDrawCompleteCount: Int? = null
+        val latchToCountDownOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val latchToAwaitOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val callbacks =
+            object : GLFrontBufferedRenderer.Callback<String> {
+
+                override fun onDrawFrontBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    param: String
+                ) {
+                    frontDrawParams.add(param)
+                }
+
+                override fun onFrontBufferedLayerRenderComplete(
+                    frontBufferedLayerSurfaceControl: SurfaceControlCompat,
+                    transaction: SurfaceControlCompat.Transaction
+                ) {
+                    // This one is a little more awkward to record because the
+                    // onDrawFrontBufferedLayer
+                    // is in a block passed to ParamQueue.next, which doesn't run when the
+                    // ParamQueue
+                    // is actually empty. onFrontBufferedLayerRenderComplete gets called
+                    // unconditionally
+                    // so examine that instead.
+                    frontDrawCompleteCount.incrementAndGet()
+                }
+
+                override fun onDrawMultiBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    params: Collection<String>
+                ) {
+                    latchToCountDownOnMultiLayerDraw.get()?.countDown()
+                    latchToAwaitOnMultiLayerDraw.get()?.await(3, TimeUnit.SECONDS)
+                }
+            }
+        verifyGLFrontBufferedRenderer(
+            callbacks,
+        ) { _, renderer, _ ->
+            val untilInitialDraw = CountDownLatch(1)
+            val untilAfterClear = CountDownLatch(1)
+            latchToCountDownOnMultiLayerDraw.set(untilInitialDraw)
+            latchToAwaitOnMultiLayerDraw.set(untilAfterClear)
+            renderer.commit() // This draw is still in progress on clear
+
+            // This draw doesn't happen because pending draws are cancelled on clear.
+            renderer.renderFrontBufferedLayer("TOSSED")
+            untilInitialDraw.await(3, TimeUnit.SECONDS)
+            beforeClearFrontDrawParams = frontDrawParams.toList()
+            beforeClearFrontDrawCompleteCount = frontDrawCompleteCount.get()
+            renderer.clear()
+            untilAfterClear.countDown()
+
+            // At the end of this block, renderer.release(false) is called to complete
+            // in-progress renders.
+        }
+        assertTrue(beforeClearFrontDrawParams!!.isEmpty())
+        assertEquals(0, beforeClearFrontDrawCompleteCount)
+        assertTrue(frontDrawParams.isEmpty())
+        // Before this fix, this would be 1, as the underlying render request would happen
+        // (even though the user onDrawFrontBufferedLayer callback would not).
+        assertEquals(0, frontDrawCompleteCount.get())
+    }
+
+    @Test
+    fun deferredCommitsAreCompletedOnReleaseIfCancelPendingIsFalse() {
+        val multiBufferDraws: ConcurrentLinkedQueue<List<String>> = ConcurrentLinkedQueue()
+        var beforeStallMultiBufferDraws: List<List<String>>? = null
+        val latchToCountDownOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val latchToAwaitOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val callbacks =
+            object : GLFrontBufferedRenderer.Callback<String> {
+
+                override fun onDrawFrontBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    param: String
+                ) {}
+
+                override fun onDrawMultiBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    params: Collection<String>
+                ) {
+                    multiBufferDraws.add(params.toList())
+                    latchToCountDownOnMultiLayerDraw.get()?.countDown()
+                    latchToAwaitOnMultiLayerDraw.get()?.await(3, TimeUnit.SECONDS)
+                }
+            }
+        verifyGLFrontBufferedRenderer(callbacks) { _, renderer, _ ->
+            val untilInitialDraw = CountDownLatch(1)
+            val untilAllRendersRequested = CountDownLatch(1)
+            latchToCountDownOnMultiLayerDraw.set(untilInitialDraw)
+            latchToAwaitOnMultiLayerDraw.set(untilAllRendersRequested)
+            renderer.renderFrontBufferedLayer("STALLED")
+            renderer.commit() // This draw gets stuck until the end of the block.
+            untilInitialDraw.await(3, TimeUnit.SECONDS)
+            renderer.renderFrontBufferedLayer("DEFERRED")
+            renderer.commit() // This draw is deferred.
+
+            // At the end of this block, renderer.release(false) is called to complete
+            // in-progress renders.
+            beforeStallMultiBufferDraws = multiBufferDraws.toList()
+            untilAllRendersRequested.countDown()
+        }
+        assertEquals(listOf(listOf(), listOf("STALLED")), beforeStallMultiBufferDraws)
+        assertEquals(
+            listOf(listOf(), listOf("STALLED"), listOf("DEFERRED")),
+            multiBufferDraws.toList()
+        )
+    }
+
+    @Test
+    fun deferredFrontBufferedRendersAreCompletedOnReleaseIfCancelPendingIsFalse() {
+        val frontBufferDraws: ConcurrentLinkedQueue<String> = ConcurrentLinkedQueue()
+        val latchToCountDownOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        val latchToAwaitOnMultiLayerDraw = AtomicReference<CountDownLatch?>()
+        var beforeStallEndsFrontDraws: List<String>? = null
+        val callbacks =
+            object : GLFrontBufferedRenderer.Callback<String> {
+
+                override fun onDrawFrontBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    param: String
+                ) {
+                    frontBufferDraws.add(param)
+                }
+
+                override fun onDrawMultiBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    params: Collection<String>
+                ) {
+                    latchToCountDownOnMultiLayerDraw.get()?.countDown()
+                    latchToAwaitOnMultiLayerDraw.get()?.await(3, TimeUnit.SECONDS)
+                }
+            }
+        verifyGLFrontBufferedRenderer(
+            callbacks,
+        ) { _, renderer, _ ->
+            val untilAllRendersRequested = CountDownLatch(1)
+            val untilInitialDraw = CountDownLatch(1)
+            latchToCountDownOnMultiLayerDraw.set(untilInitialDraw)
+            latchToAwaitOnMultiLayerDraw.set(untilAllRendersRequested)
+            renderer.commit() // This draw gets stuck until the end of the block.
+            untilInitialDraw.await(3, TimeUnit.SECONDS)
+            renderer.renderFrontBufferedLayer("FIRST")
+            renderer.renderFrontBufferedLayer("SECOND")
+
+            // At the end of this block, renderer.release(false) is called to complete
+            // in-progress renders.
+            beforeStallEndsFrontDraws = frontBufferDraws.toList()
+            untilAllRendersRequested.countDown()
+        }
+        // The assertion is here instead of above because if assert leaves the GL Thread stalled
+        // the error is confusing.
+        assertTrue(beforeStallEndsFrontDraws!!.isEmpty())
+        assertEquals(listOf("FIRST", "SECOND"), frontBufferDraws.toList())
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
