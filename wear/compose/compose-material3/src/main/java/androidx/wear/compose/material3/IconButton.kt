@@ -344,20 +344,23 @@ object IconButtonDefaults {
      *
      * @param size The size of the icon button
      */
-    fun iconSizeFor(size: Dp): Dp = max(SmallIconSize, size / 2f)
+    fun iconSizeFor(size: Dp): Dp = if (size >= LargeButtonSize) {
+        LargeIconSize
+    } else {
+        max(SmallIconSize, size / 2f)
+    }
 
     /**
-    * Creates a [ButtonColors] with the colors for [FilledIconButton] - by default,
-    * a colored background with a contrasting icon color.
-    * If the icon button is disabled then the colors will default to
-    * the MaterialTheme onSurface color with suitable alpha values applied.
-    *
-    */
+     * Creates a [IconButtonColors] with the colors for [FilledIconButton] - by default,
+     * a colored background with a contrasting icon color.
+     * If the icon button is disabled then the colors will default to
+     * the MaterialTheme onSurface color with suitable alpha values applied.
+     */
     @Composable
     fun filledIconButtonColors() = MaterialTheme.colorScheme.defaultFilledIconButtonColors
 
     /**
-     * Creates a [ButtonColors] with the colors for [FilledIconButton] - by default,
+     * Creates a [IconButtonColors] with the colors for [FilledIconButton] - by default,
      * a colored background with a contrasting icon color.
      * If the icon button is disabled then the colors will default to
      * the MaterialTheme onSurface color with suitable alpha values applied.
@@ -381,7 +384,7 @@ object IconButtonDefaults {
     )
 
     /**
-     * Creates a [ButtonColors] with the colors for [FilledTonalIconButton]- by default,
+     * Creates a [IconButtonColors] with the colors for [FilledTonalIconButton]- by default,
      * a muted colored background with a contrasting icon color.
      * If the icon button is disabled then the colors will default to
      * the MaterialTheme onSurface color with suitable alpha values applied.
@@ -390,7 +393,7 @@ object IconButtonDefaults {
     fun filledTonalIconButtonColors() = MaterialTheme.colorScheme.defaultFilledTonalIconButtonColors
 
     /**
-     * Creates a [ButtonColors] with the colors for [FilledTonalIconButton]- by default,
+     * Creates a [IconButtonColors] with the colors for [FilledTonalIconButton]- by default,
      * a muted colored background with a contrasting icon color.
      * If the icon button is disabled then the colors will default to
      * the MaterialTheme onSurface color with suitable alpha values applied.
@@ -414,7 +417,7 @@ object IconButtonDefaults {
     )
 
     /**
-     * Creates a [ButtonColors] with the colors for [OutlinedIconButton]- by default,
+     * Creates a [IconButtonColors] with the colors for [OutlinedIconButton]- by default,
      * a transparent background with contrasting icon color.
      * If the icon button is disabled then the colors will default to
      * the MaterialTheme onSurface color with suitable alpha values applied.
@@ -423,7 +426,7 @@ object IconButtonDefaults {
     fun outlinedIconButtonColors() = MaterialTheme.colorScheme.defaultOutlinedIconButtonColors
 
     /**
-     * Creates a [ButtonColors] with the colors for [OutlinedIconButton]- by default,
+     * Creates a [IconButtonColors] with the colors for [OutlinedIconButton]- by default,
      * a transparent background with contrasting icon color.
      * If the icon button is disabled then the colors will default to
      * the MaterialTheme onSurface color with suitable alpha values applied.
@@ -443,7 +446,7 @@ object IconButtonDefaults {
     )
 
     /**
-     * Creates a [ButtonColors] with the colors for [IconButton] - by default,
+     * Creates a [IconButtonColors] with the colors for [IconButton] - by default,
      * a transparent background with a contrasting icon color.
      * If the icon button is disabled then the colors will default to
      * the MaterialTheme onSurface color with suitable alpha values applied.
@@ -452,7 +455,7 @@ object IconButtonDefaults {
     fun iconButtonColors() = MaterialTheme.colorScheme.defaultIconButtonColors
 
     /**
-     * Creates a [ButtonColors] with the colors for [IconButton] - by default,
+     * Creates a [IconButtonColors] with the colors for [IconButton] - by default,
      * a transparent background with a contrasting icon color.
      * If the icon button is disabled then the colors will default to
      * the MaterialTheme onSurface color with suitable alpha values applied.

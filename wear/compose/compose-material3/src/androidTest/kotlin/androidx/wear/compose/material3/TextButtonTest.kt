@@ -229,7 +229,9 @@ class TextButtonTest {
         rule.setContentWithTheme {
             TextButton(
                 onClick = {},
-                modifier = Modifier.testTag(TEST_TAG).semantics { role = overrideRole }
+                modifier = Modifier
+                    .testTag(TEST_TAG)
+                    .semantics { role = overrideRole }
             ) {
                 Text("Test")
             }
@@ -338,7 +340,7 @@ class TextButtonTest {
             status = Status.Enabled,
             colors = { TextButtonDefaults.textButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onBackground }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
         )
     }
 
@@ -388,7 +390,7 @@ class TextButtonTest {
             status = Status.Enabled,
             colors = { TextButtonDefaults.filledTonalTextButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.surfaceContainer },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
         )
     }
 
@@ -414,7 +416,7 @@ class TextButtonTest {
             status = Status.Enabled,
             colors = { TextButtonDefaults.outlinedTextButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onBackground }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
         )
     }
 
@@ -455,7 +457,7 @@ class TextButtonTest {
         val status = Status.Disabled
         rule.verifyButtonBorderColor(
             expectedBorderColor = {
-                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledBorderAlpha)
+                MaterialTheme.colorScheme.outline.copy(alpha = DisabledBorderAlpha)
             },
             content = { modifier: Modifier ->
                 TextButton(

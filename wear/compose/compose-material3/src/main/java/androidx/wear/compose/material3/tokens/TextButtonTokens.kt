@@ -26,7 +26,7 @@ internal object TextButtonTokens {
     val ContainerLargeSize = 60.0.dp
     val ContainerShape = ShapeKeyTokens.CornerFull
     val ContainerSmallSize = 48.0.dp
-    val ContentColor = ColorSchemeKeyTokens.OnBackground
+    val ContentColor = ColorSchemeKeyTokens.OnSurface
     val ContentFont = TypographyKeyTokens.LabelMedium
     val DisabledContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledContentOpacity = 0.38f
