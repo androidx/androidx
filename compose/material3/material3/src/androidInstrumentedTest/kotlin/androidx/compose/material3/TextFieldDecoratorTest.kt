@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.TextFieldDefaults.indicatorLine
 import androidx.compose.material3.internal.TextFieldPadding
 import androidx.compose.runtime.Composable
@@ -48,7 +50,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -66,7 +67,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalMaterial3Api::class)
-class TextFieldDecorationBoxTest {
+class TextFieldDecoratorTest {
     @get:Rule val rule = createComposeRule()
 
     private val Density = Density(1f)
@@ -345,40 +346,39 @@ class TextFieldDecorationBoxTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides Density) {
                 val interactionSource = remember { MutableInteractionSource() }
-                val singleLine = true
+                val lineLimits = TextFieldLineLimits.SingleLine
                 val colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.Red)
+                val state = rememberTextFieldState(value)
                 BasicTextField(
-                    value = value,
-                    onValueChange = {},
+                    state = state,
                     modifier =
                         Modifier.size(
                             with(Density) { textFieldWidth.toDp() },
                             with(Density) { textFieldHeight.toDp() }
                         ),
-                    singleLine = singleLine,
-                    interactionSource = interactionSource
-                ) {
-                    OutlinedTextFieldDefaults.DecorationBox(
-                        value = value,
-                        innerTextField = it,
-                        enabled = true,
-                        visualTransformation = VisualTransformation.None,
-                        interactionSource = interactionSource,
-                        singleLine = singleLine,
-                        container = {
-                            OutlinedTextFieldDefaults.Container(
-                                enabled = true,
-                                isError = false,
-                                colors = colors,
-                                interactionSource = interactionSource,
-                                shape = RectangleShape,
-                                unfocusedBorderThickness = with(Density) { borderWidth.toDp() }
-                            )
-                        },
-                        colors = colors,
-                        contentPadding = PaddingValues(0.dp)
-                    )
-                }
+                    lineLimits = lineLimits,
+                    interactionSource = interactionSource,
+                    decorator =
+                        OutlinedTextFieldDefaults.decorator(
+                            state = state,
+                            enabled = true,
+                            outputTransformation = null,
+                            interactionSource = interactionSource,
+                            lineLimits = lineLimits,
+                            container = {
+                                OutlinedTextFieldDefaults.Container(
+                                    enabled = true,
+                                    isError = false,
+                                    colors = colors,
+                                    interactionSource = interactionSource,
+                                    shape = RectangleShape,
+                                    unfocusedBorderThickness = with(Density) { borderWidth.toDp() }
+                                )
+                            },
+                            colors = colors,
+                            contentPadding = PaddingValues(0.dp),
+                        )
+                )
             }
         }
 
@@ -405,11 +405,11 @@ class TextFieldDecorationBoxTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides Density) {
                 val interactionSource = remember { MutableInteractionSource() }
-                val singleLine = true
+                val lineLimits = TextFieldLineLimits.SingleLine
                 val colors = TextFieldDefaults.colors(unfocusedIndicatorColor = Color.Red)
+                val state = rememberTextFieldState(value)
                 BasicTextField(
-                    value = value,
-                    onValueChange = {},
+                    state = state,
                     modifier =
                         Modifier.indicatorLine(
                                 enabled = true,
@@ -423,20 +423,19 @@ class TextFieldDecorationBoxTest {
                                 with(Density) { textFieldWidth.toDp() },
                                 with(Density) { textFieldHeight.toDp() }
                             ),
-                    singleLine = singleLine,
-                    interactionSource = interactionSource
-                ) {
-                    TextFieldDefaults.DecorationBox(
-                        value = value,
-                        innerTextField = it,
-                        enabled = true,
-                        visualTransformation = VisualTransformation.None,
-                        interactionSource = interactionSource,
-                        singleLine = singleLine,
-                        colors = colors,
-                        contentPadding = PaddingValues(0.dp)
-                    )
-                }
+                    lineLimits = lineLimits,
+                    interactionSource = interactionSource,
+                    decorator =
+                        TextFieldDefaults.decorator(
+                            state = state,
+                            enabled = true,
+                            outputTransformation = null,
+                            interactionSource = interactionSource,
+                            lineLimits = lineLimits,
+                            colors = colors,
+                            contentPadding = PaddingValues(0.dp)
+                        )
+                )
             }
         }
 
@@ -465,25 +464,24 @@ class TextFieldDecorationBoxTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides Density) {
                 val interactionSource = remember { MutableInteractionSource() }
-                val singleLine = false
+                val lineLimits = TextFieldLineLimits.Default
+                val state = rememberTextFieldState(value)
                 BasicTextField(
-                    value = value,
-                    onValueChange = {},
+                    state = state,
                     modifier = Modifier.onSizeChanged { size = it },
-                    singleLine = singleLine,
-                    interactionSource = interactionSource
-                ) {
-                    TextFieldDefaults.DecorationBox(
-                        value = value,
-                        innerTextField = it,
-                        enabled = true,
-                        visualTransformation = VisualTransformation.None,
-                        interactionSource = interactionSource,
-                        singleLine = singleLine,
-                        placeholder = { Spacer(Modifier.size(placeholderDimension)) },
-                        contentPadding = PaddingValues(vertical = verticalPadding)
-                    )
-                }
+                    lineLimits = lineLimits,
+                    interactionSource = interactionSource,
+                    decorator =
+                        TextFieldDefaults.decorator(
+                            state = state,
+                            enabled = true,
+                            outputTransformation = null,
+                            interactionSource = interactionSource,
+                            lineLimits = lineLimits,
+                            placeholder = { Spacer(Modifier.size(placeholderDimension)) },
+                            contentPadding = PaddingValues(vertical = verticalPadding)
+                        )
+                )
             }
         }
 
@@ -629,45 +627,49 @@ class TextFieldDecorationBoxTest {
                 Box(Modifier.onSizeChanged { size = it }) {
                     val value = "Text"
                     val interactionSource = remember { MutableInteractionSource() }
+                    val state = rememberTextFieldState(value)
+                    val lineLimits =
+                        if (singleLine) TextFieldLineLimits.SingleLine
+                        else TextFieldLineLimits.Default
                     BasicTextField(
-                        value = value,
-                        onValueChange = {},
+                        state = state,
                         modifier = Modifier.focusRequester(focusRequester),
-                        singleLine = singleLine,
-                        interactionSource = interactionSource
-                    ) {
-                        val innerTextField: @Composable () -> Unit = {
-                            Box(
-                                Modifier.size(InnerTextFieldWidth, InnerTextFieldHeight)
-                                    .onGloballyPositioned { position = it.positionInRoot() }
-                            ) {
-                                it()
+                        lineLimits = lineLimits,
+                        interactionSource = interactionSource,
+                        decorator = {
+                            val innerTextField: @Composable () -> Unit = {
+                                Box(
+                                    Modifier.size(InnerTextFieldWidth, InnerTextFieldHeight)
+                                        .onGloballyPositioned { position = it.positionInRoot() }
+                                ) {
+                                    it()
+                                }
+                            }
+                            if (isOutlined) {
+                                OutlinedTextFieldDefaults.decorator(
+                                        state = state,
+                                        enabled = true,
+                                        lineLimits = lineLimits,
+                                        outputTransformation = null,
+                                        interactionSource = interactionSource,
+                                        contentPadding = padding,
+                                        label = label
+                                    )
+                                    .Decoration(innerTextField)
+                            } else {
+                                TextFieldDefaults.decorator(
+                                        state = state,
+                                        enabled = true,
+                                        lineLimits = lineLimits,
+                                        outputTransformation = null,
+                                        interactionSource = interactionSource,
+                                        contentPadding = padding,
+                                        label = label
+                                    )
+                                    .Decoration(innerTextField)
                             }
                         }
-                        if (isOutlined) {
-                            OutlinedTextFieldDefaults.DecorationBox(
-                                value = value,
-                                innerTextField = innerTextField,
-                                enabled = true,
-                                singleLine = singleLine,
-                                visualTransformation = VisualTransformation.None,
-                                interactionSource = interactionSource,
-                                contentPadding = padding,
-                                label = label
-                            )
-                        } else {
-                            TextFieldDefaults.DecorationBox(
-                                value = value,
-                                innerTextField = innerTextField,
-                                enabled = true,
-                                singleLine = singleLine,
-                                visualTransformation = VisualTransformation.None,
-                                interactionSource = interactionSource,
-                                contentPadding = padding,
-                                label = label
-                            )
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -694,22 +696,21 @@ class TextFieldDecorationBoxTest {
 
     @Test
     fun testTextFields_TextDecoration_noCrashConstraintsInfinity() {
-
         rule.setMaterialContent(lightColorScheme()) {
             Column(
                 modifier =
                     Modifier.height(IntrinsicSize.Min).horizontalScroll(rememberScrollState())
             ) {
-                TextFieldDefaults.DecorationBox(
-                    value = "Hats",
-                    innerTextField = { Text("Cats") },
-                    enabled = true,
-                    singleLine = true,
-                    visualTransformation = VisualTransformation.None,
-                    interactionSource = remember { MutableInteractionSource() },
-                    suffix = { Text("Rats") },
-                    colors = TextFieldDefaults.colors(),
-                )
+                TextFieldDefaults.decorator(
+                        state = rememberTextFieldState("Hats"),
+                        enabled = true,
+                        lineLimits = TextFieldLineLimits.SingleLine,
+                        outputTransformation = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                        suffix = { Text("Rats") },
+                        colors = TextFieldDefaults.colors(),
+                    )
+                    .Decoration { Text("Cats") }
             }
         }
 
