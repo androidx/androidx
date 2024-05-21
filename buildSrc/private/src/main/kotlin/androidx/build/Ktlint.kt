@@ -23,6 +23,7 @@ import java.nio.file.Paths
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileTree
@@ -41,6 +42,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.process.ExecOperations
 import org.gradle.process.JavaExecSpec
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val bundlingAttribute: Attribute<String> =
     Attribute.of("org.gradle.dependency.bundling", String::class.java)
@@ -48,6 +50,17 @@ val bundlingAttribute: Attribute<String> =
 /** JVM Args needed to run it on JVM 17+ */
 private fun JavaExecSpec.addKtlintJvmArgs() {
     this.jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+}
+
+// Workaround for https://github.com/gradle/gradle/issues/29205
+fun Task.runAfterKotlinCompileTasks() {
+    val thisTask = this
+    // Our ktlint tasks declare "src" as an input, while our KotlinCompile tasks use something like src/main/java as an inpt
+    // Currently Gradle can sometimes get confused when loading a parent and child directory at
+    // the same time, so we ask Gradle to avoid running both tasks in parallel
+    thisTask.mustRunAfter(
+        project.tasks.withType(KotlinCompile::class.java)
+    )
 }
 
 private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
@@ -114,6 +127,7 @@ fun Project.configureKtlint() {
         tasks.register("ktlint", KtlintCheckTask::class.java) { task ->
             task.report.set(layout.buildDirectory.file("reports/ktlint/report.xml"))
             task.ktlintClasspath.from(getKtlintConfiguration())
+            task.runAfterKotlinCompileTasks()
         }
     tasks.register("ktlintFormat", KtlintFormatTask::class.java) { task ->
         task.report.set(layout.buildDirectory.file("reports/ktlint/format-report.xml"))
