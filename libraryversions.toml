@@ -77,6 +77,7 @@ HEIFWRITER = "1.1.0-alpha03"
 HILT = "1.2.0-rc01"
 HILT_NAVIGATION = "1.2.0-rc01"
 HILT_NAVIGATION_COMPOSE = "1.2.0-rc01"
+INK = "1.0.0-alpha01"
 INPUT_MOTIONPREDICTION = "1.0.0-beta04"
 INSPECTION = "1.0.0"
 INTERPOLATOR = "1.1.0-alpha01"
@@ -235,6 +236,7 @@ HEALTH = { group = "androidx.health" }
 HEALTH_CONNECT = { group = "androidx.health.connect", atomicGroupVersion = "versions.HEALTH_CONNECT" }
 HEIFWRITER = { group = "androidx.heifwriter", atomicGroupVersion = "versions.HEIFWRITER" }
 HILT = { group = "androidx.hilt" }
+INK = { group = "androidx.ink", atomicGroupVersion = "versions.INK" }
 INPUT = { group = "androidx.input" }
 INSPECTION = { group = "androidx.inspection", atomicGroupVersion = "versions.INSPECTION" }
 INSPECTION_EXTENSIONS = { group = "androidx.inspection.extensions", atomicGroupVersion = "versions.SQLITE_INSPECTOR", overrideInclude = [ ":sqlite:sqlite-inspection" ] }
