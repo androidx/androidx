@@ -1,19 +1,19 @@
 // Baseline format: 1.0
-AddedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultIterations():
-    Added method androidx.compose.foundation.MarqueeDefaults.getDefaultIterations()
-AddedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultRepeatDelayMillis():
-    Added method androidx.compose.foundation.MarqueeDefaults.getDefaultRepeatDelayMillis()
-AddedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultSpacing():
-    Added method androidx.compose.foundation.MarqueeDefaults.getDefaultSpacing()
-AddedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultVelocity():
-    Added method androidx.compose.foundation.MarqueeDefaults.getDefaultVelocity()
+AddedMethod: androidx.compose.foundation.MarqueeDefaults#getIterations():
+    Added method androidx.compose.foundation.MarqueeDefaults.getIterations()
+AddedMethod: androidx.compose.foundation.MarqueeDefaults#getRepeatDelayMillis():
+    Added method androidx.compose.foundation.MarqueeDefaults.getRepeatDelayMillis()
+AddedMethod: androidx.compose.foundation.MarqueeDefaults#getSpacing():
+    Added method androidx.compose.foundation.MarqueeDefaults.getSpacing()
+AddedMethod: androidx.compose.foundation.MarqueeDefaults#getVelocity():
+    Added method androidx.compose.foundation.MarqueeDefaults.getVelocity()
 
 
-RemovedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultMarqueeIterations():
-    Removed method androidx.compose.foundation.MarqueeDefaults.getDefaultMarqueeIterations()
-RemovedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultMarqueeRepeatDelayMillis():
-    Removed method androidx.compose.foundation.MarqueeDefaults.getDefaultMarqueeRepeatDelayMillis()
-RemovedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultMarqueeSpacing():
-    Removed method androidx.compose.foundation.MarqueeDefaults.getDefaultMarqueeSpacing()
-RemovedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultMarqueeVelocity():
-    Removed method androidx.compose.foundation.MarqueeDefaults.getDefaultMarqueeVelocity()
+RemovedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultIterations():
+    Removed method androidx.compose.foundation.MarqueeDefaults.getDefaultIterations()
+RemovedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultRepeatDelayMillis():
+    Removed method androidx.compose.foundation.MarqueeDefaults.getDefaultRepeatDelayMillis()
+RemovedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultSpacing():
+    Removed method androidx.compose.foundation.MarqueeDefaults.getDefaultSpacing()
+RemovedMethod: androidx.compose.foundation.MarqueeDefaults#getDefaultVelocity():
+    Removed method androidx.compose.foundation.MarqueeDefaults.getDefaultVelocity()
