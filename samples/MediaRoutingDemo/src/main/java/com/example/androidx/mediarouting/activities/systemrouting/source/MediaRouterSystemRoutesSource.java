@@ -94,10 +94,15 @@ public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
         return out;
     }
 
+    @Override
+    public boolean select(@NonNull SystemRouteItem item) {
+        throw new UnsupportedOperationException();
+    }
+
     @NonNull
-    private static SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
+    private SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
         SystemRouteItem.Builder builder =
-                new SystemRouteItem.Builder(/* id= */ routeInfo.getName().toString())
+                new SystemRouteItem.Builder(getSourceId(), /* id= */ routeInfo.getName().toString())
                         .setName(routeInfo.getName().toString());
 
         CharSequence description = routeInfo.getDescription();

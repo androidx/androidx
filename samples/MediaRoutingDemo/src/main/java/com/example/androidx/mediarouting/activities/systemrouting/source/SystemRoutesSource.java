@@ -50,6 +50,12 @@ public abstract class SystemRoutesSource {
         // Empty on purpose.
     }
 
+    /** Returns a string that uniquely identifies this source. */
+    @NonNull
+    public final String getSourceId() {
+        return getClass().getSimpleName();
+    }
+
     /**
      * Gets a source item containing source type.
      */
@@ -61,4 +67,13 @@ public abstract class SystemRoutesSource {
      */
     @NonNull
     public abstract List<SystemRouteItem> fetchSourceRouteItems();
+
+    /**
+     * Selects the route that corresponds to the given item.
+     *
+     * @param item An item with {@link SystemRouteItem#mSelectionSupportState} {@link
+     *     SystemRouteItem.SelectionSupportState#SELECTABLE}.
+     * @return Whether the selection was successful.
+     */
+    public abstract boolean select(@NonNull SystemRouteItem item);
 }

@@ -102,10 +102,15 @@ public final class BluetoothManagerSystemRoutesSource extends SystemRoutesSource
         return out;
     }
 
+    @Override
+    public boolean select(@NonNull SystemRouteItem item) {
+        throw new UnsupportedOperationException();
+    }
+
     @NonNull
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
-    private static SystemRouteItem createRouteItemFor(@NonNull BluetoothDevice device) {
-        return new SystemRouteItem.Builder(/* id= */ device.getAddress())
+    private SystemRouteItem createRouteItemFor(@NonNull BluetoothDevice device) {
+        return new SystemRouteItem.Builder(getSourceId(), /* id= */ device.getAddress())
                 .setName(device.getName())
                 .setAddress(device.getAddress())
                 .build();

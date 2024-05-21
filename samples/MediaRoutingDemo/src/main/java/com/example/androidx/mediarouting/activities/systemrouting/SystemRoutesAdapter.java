@@ -16,6 +16,9 @@
 
 package com.example.androidx.mediarouting.activities.systemrouting;
 
+import static com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem.SelectionSupportState.SELECTABLE;
+import static com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem.SelectionSupportState.UNSUPPORTED;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -25,7 +28,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.AsyncListDiffer;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
@@ -34,17 +39,19 @@ import com.example.androidx.mediarouting.R;
 
 import java.util.List;
 
-/**
- * @link RecyclerView.Adapter} for showing system route sources and the routes discovered by each
- * source.
- */
-class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+/** {@link RecyclerView.Adapter} for showing system route sources and their corresponding routes. */
+/* package */ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int VIEW_TYPE_HEADER = 0;
     private static final int VIEW_TYPE_ITEM = 1;
 
     private final AsyncListDiffer<SystemRoutesAdapterItem> mListDiffer =
             new AsyncListDiffer<>(this, new ItemCallback());
+    private final Consumer<SystemRouteItem> mRouteItemClickedListener;
+
+    /* package */ SystemRoutesAdapter(Consumer<SystemRouteItem> routeItemClickListener) {
+        mRouteItemClickedListener = routeItemClickListener;
+    }
 
     public void setItems(@NonNull List<SystemRoutesAdapterItem> newItems) {
         mListDiffer.submitList(newItems);
@@ -110,7 +117,7 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    static class ItemViewHolder extends RecyclerView.ViewHolder {
+    private class ItemViewHolder extends RecyclerView.ViewHolder {
 
         private final AppCompatTextView mRouteNameTextView;
         private final AppCompatTextView mRouteIdTextView;
@@ -119,6 +126,7 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         private final AppCompatTextView mSuitabilityStatusTextView;
         private final AppCompatTextView mTransferInitiatedBySelfTextView;
         private final AppCompatTextView mTransferReasonTextView;
+        private final AppCompatButton mSelectionButton;
 
         ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -131,6 +139,7 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             mTransferInitiatedBySelfTextView =
                     itemView.findViewById(R.id.route_transfer_initiated_by_self);
             mTransferReasonTextView = itemView.findViewById(R.id.route_transfer_reason);
+            mSelectionButton = itemView.findViewById(R.id.route_selection_button);
         }
 
         void bind(SystemRouteItem systemRouteItem) {
@@ -149,6 +158,19 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                             ? "transfer reason: " + systemRouteItem.mTransferReason
                             : null;
             setTextOrHide(mTransferReasonTextView, transferReasonText);
+
+            if (systemRouteItem.mSelectionSupportState == UNSUPPORTED) {
+                mSelectionButton.setVisibility(View.GONE);
+            } else {
+                mSelectionButton.setVisibility(View.VISIBLE);
+                String text =
+                        systemRouteItem.mSelectionSupportState == SELECTABLE
+                                ? "Select"
+                                : "Reselect";
+                mSelectionButton.setText(text);
+                mSelectionButton.setOnClickListener(
+                        view -> mRouteItemClickedListener.accept(systemRouteItem));
+            }
         }
     }
 
