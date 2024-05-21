@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
+import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
 import androidx.health.connect.client.impl.platform.div
 import androidx.health.connect.client.impl.platform.duration
 import androidx.health.connect.client.impl.platform.minus
@@ -78,7 +79,7 @@ private suspend fun <T : Record> HealthConnectClient.aggregate(
     timeRangeFilter: TimeRangeFilter,
     dataOriginFilter: Set<DataOrigin>
 ): AggregationResult {
-    val dataTypeName = recordType.simpleName!!.replace("Record", "")
+    val dataTypeName = RECORDS_CLASS_NAME_MAP[recordType]
     val recordTypeMetrics = metrics.filter { it.dataTypeName == dataTypeName }.toSet()
 
     if (recordTypeMetrics.isEmpty()) {
