@@ -19,13 +19,11 @@ package androidx.webkit;
 import static androidx.webkit.WebViewFeature.isFeatureSupported;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.SystemClock;
 import android.webkit.WebSettings;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -46,7 +44,6 @@ import okhttp3.mockwebserver.RecordedRequest;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ServiceWorkerWebSettingsCompatTest {
 
     public static final String TEST_APK_NAME = "androidx.webkit.instrumentation.test";

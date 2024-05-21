@@ -16,18 +16,15 @@
 
 package androidx.webkit;
 
-import android.os.Build;
 import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -42,8 +39,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class WebViewRenderProcessClientTest {
     WebViewOnUiThread mWebViewOnUiThread;
 

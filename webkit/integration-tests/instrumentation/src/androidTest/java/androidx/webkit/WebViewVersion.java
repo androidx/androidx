@@ -18,11 +18,9 @@ package androidx.webkit;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.Arrays;
@@ -33,7 +31,6 @@ import java.util.regex.Pattern;
  * Represents a WebView version. Is comparable. This supports version numbers following the
  * scheme outlined at https://www.chromium.org/developers/version-numbers.
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class WebViewVersion implements Comparable<WebViewVersion> {
     private static final Pattern CHROMIUM_VERSION_REGEX =
             Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)$");

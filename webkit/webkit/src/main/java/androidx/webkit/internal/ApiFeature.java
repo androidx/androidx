@@ -18,7 +18,6 @@ package androidx.webkit.internal;
 
 import android.os.Build;
 
-import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 
@@ -82,12 +81,7 @@ public abstract class ApiFeature implements ConditionallySupportedFeature {
 
     /**
      * Return whether this {@link ApiFeature} is supported by the current WebView APK.
-     *
-     * <p>WebView updates were only supported starting in Android L and the preinstalled WebView in
-     * earlier OS versions is not compatible with this library. If this returns true, then that
-     * implies we're on Android L or above.
      */
-    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.LOLLIPOP)
     public boolean isSupportedByWebView() {
         return BoundaryInterfaceReflectionUtil.containsFeature(LAZY_HOLDER.WEBVIEW_APK_FEATURES,
                 mInternalFeatureValue);

@@ -24,7 +24,6 @@ import android.os.Build;
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,7 +33,6 @@ import org.junit.runner.RunWith;
  */
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebSettingsCompatLightThemeTest extends
         WebSettingsCompatDarkModeTestBase<WebViewLightThemeTestActivity> {
     public WebSettingsCompatLightThemeTest() {

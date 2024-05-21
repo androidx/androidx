@@ -65,7 +65,6 @@ import okhttp3.mockwebserver.RecordedRequest;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebViewCompatTest {
     WebViewOnUiThread mWebViewOnUiThread;
 

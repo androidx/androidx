@@ -18,18 +18,15 @@ package androidx.webkit;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -51,8 +48,6 @@ import okhttp3.mockwebserver.RecordedRequest;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class WebViewClientCompatTest {
     private WebViewOnUiThread mWebViewOnUiThread;
     private MockWebServer mWebServer;
