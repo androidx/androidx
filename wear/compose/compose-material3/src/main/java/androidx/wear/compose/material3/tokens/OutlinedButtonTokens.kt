@@ -26,7 +26,7 @@ internal object OutlinedButtonTokens {
     val ContainerBorderWidth = 1.0.dp
     val ContainerHeight = 52.0.dp
     val ContainerShape = ShapeKeyTokens.CornerLarge
-    val DisabledContainerBorderColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledContainerBorderColor = ColorSchemeKeyTokens.Outline
     val DisabledContainerBorderOpacity = 0.2f
     val DisabledContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledContentOpacity = 0.38f

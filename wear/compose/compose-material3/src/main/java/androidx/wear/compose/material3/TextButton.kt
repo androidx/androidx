@@ -293,6 +293,11 @@ object TextButtonDefaults {
         disabledContentColor = disabledContentColor
     )
 
+    /**
+     * Creates a [TextButtonColors] for a text button - by default, a transparent
+     * background with contrasting content color. If the button is disabled
+     * then the colors default to [ColorScheme.onSurface] with suitable alpha values applied.
+     */
     @Composable
     fun textButtonColors() = MaterialTheme.colorScheme.defaultTextButtonColors
 
