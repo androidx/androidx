@@ -128,6 +128,7 @@ class ComponentActivityCallbacksTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun onTrimMemory() {
        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
@@ -145,6 +146,7 @@ class ComponentActivityCallbacksTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun onTrimMemoryRemove() {
        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
@@ -170,6 +172,7 @@ class ComponentActivityCallbacksTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun onTrimMemoryRemoveReentrant() {
        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
