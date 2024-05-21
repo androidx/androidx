@@ -45,6 +45,14 @@ internal class EndpointUtils {
            return endpoint.type == CallEndpointCompat.TYPE_EARPIECE
         }
 
+        fun isWiredHeadsetOrBtEndpoint(endpoint: CallEndpointCompat?): Boolean {
+            if (endpoint == null) {
+                return false
+            }
+            return endpoint.type == CallEndpointCompat.TYPE_BLUETOOTH ||
+                endpoint.type == CallEndpointCompat.TYPE_WIRED_HEADSET
+        }
+
         fun toCallEndpointCompat(state: CallAudioState): CallEndpointCompat {
             val type: Int = mapRouteToType(state.route)
             return if (type == CallEndpointCompat.TYPE_BLUETOOTH && SDK_INT >= P) {
