@@ -178,6 +178,7 @@ private fun ftraceDataSource(
             ),
             atrace_categories = listOf(
                 AtraceTag.ActivityManager,
+                AtraceTag.Aidl,
                 AtraceTag.Audio,
                 AtraceTag.BinderDriver,
                 AtraceTag.Camera,
