@@ -20,8 +20,11 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.getValue
@@ -31,8 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
@@ -44,11 +50,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -238,6 +246,45 @@ class SearchBarTest {
             assertThat(searchBarSize.value?.width).isEqualTo(totalWidth.roundToPx())
             assertThat(searchBarSize.value?.height).isEqualTo(totalHeight.roundToPx())
         }
+    }
+
+    @Test
+    fun searchBar_usesAndConsumesWindowInsets() {
+        val parentTopInset = 10
+        val searchBarTopInset = 25
+
+        val position = Ref<Offset>()
+        lateinit var density: Density
+        lateinit var childConsumedInsets: WindowInsets
+
+        rule.setMaterialContent(lightColorScheme()) {
+            density = LocalDensity.current
+            Box(Modifier.windowInsetsPadding(WindowInsets(top = parentTopInset))) {
+                SearchBar(
+                    modifier = Modifier.onGloballyPositioned {
+                        position.value = it.positionInRoot()
+                    },
+                    windowInsets = WindowInsets(top = searchBarTopInset),
+                    inputField = {
+                        SearchBarDefaults.InputField(
+                            query = "",
+                            onQueryChange = {},
+                            onSearch = {},
+                            expanded = true,
+                            onExpandedChange = {},
+                            placeholder = { Text("Hint") },
+                        )
+                    },
+                    expanded = true,
+                    onExpandedChange = {},
+                ) {
+                    Box(Modifier.onConsumedWindowInsetsChanged { childConsumedInsets = it })
+                }
+            }
+        }
+
+        assertThat(position.value!!.y.roundToInt()).isEqualTo(parentTopInset)
+        assertThat(childConsumedInsets.getTop(density)).isEqualTo(searchBarTopInset)
     }
 
     @Test
