@@ -168,7 +168,7 @@ class BinaryCompatibilityCheckerTest {
     }
 
     @Test
-    fun changeVariance() {
+    fun changeVarianceForTypeParam() {
         val beforeText = """
         final class <#A: kotlin/Any?> my.lib/MyClass { // my.lib/MyClass|null[0]
             constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
@@ -181,6 +181,35 @@ class BinaryCompatibilityCheckerTest {
         """
         val expectedErrorMessages = listOf(
             "variance changed from INVARIANT to OUT for type param A on"
+        )
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            expectedErrorMessages
+        )
+    }
+
+    @Test
+    fun changeTypeArg() {
+        val beforeText = """
+        final class my.lib/MySubClass : my.lib/MyClass<kotlin/Int> { // my.lib/MySubClass|null[0]
+            constructor <init>() // my.lib/MySubClass.<init>|<init>(){}[0]
+        }
+        open class <#A: kotlin/Any?> my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+        }
+        """
+        val afterText = """
+        final class my.lib/MySubClass : my.lib/MyClass<kotlin/String> { // my.lib/MySubClass|null[0]
+            constructor <init>() // my.lib/MySubClass.<init>|<init>(){}[0]
+        }
+        open class <#A: kotlin/Any?> my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+        }
+        """
+        val expectedErrorMessages = listOf(
+            "Removed typeArgument kotlin/Int from my.lib/MySubClass",
+            "Added typeArgument kotlin/String to my.lib/MySubClass",
         )
         testBeforeAndAfterIsIncompatible(
             beforeText,
@@ -428,26 +457,40 @@ class BinaryCompatibilityCheckerTest {
         final class my.lib/MyClass { // my.lib/MyClass|null[0]
             constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
             final fun myFun(): kotlin/String // my.lib/MyClass.myFun|myFun(){}[0]
-            final val myProperty // my.lib/MyClass.myProperty|{}myProperty[0]
-                final fun <get-myProperty>(): kotlin/String // my.lib/MyClass.myProperty.<get-myProperty>|<get-myProperty>(){}[0]
-        }
-        open annotation class my.lib/MyAnnotation : kotlin/Annotation { // my.lib/MyAnnotation|null[0]
-            constructor <init>() // my.lib/MyAnnotation.<init>|<init>(){}[0]
         }
         """
         val afterText = """
         final class my.lib/MyClass { // my.lib/MyClass|null[0]
             constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
             final fun myFun(): kotlin/Boolean // my.lib/MyClass.myFun|myFun(){}[0]
-            final val myProperty // my.lib/MyClass.myProperty|{}myProperty[0]
-                final fun <get-myProperty>(): kotlin/String // my.lib/MyClass.myProperty.<get-myProperty>|<get-myProperty>(){}[0]
-        }
-        open annotation class my.lib/MyAnnotation : kotlin/Annotation { // my.lib/MyAnnotation|null[0]
-            constructor <init>() // my.lib/MyAnnotation.<init>|<init>(){}[0]
         }
         """
         val expectedErrorMessages = listOf(
-            "Return type changed from kotlin/String to kotlin/Boolean"
+            "Return type changed from kotlin/String to kotlin/Boolean for my.lib/MyClass.myFun"
+        )
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            expectedErrorMessages
+        )
+    }
+
+    @Test
+    fun changedReturnTypeNullability() {
+        val beforeText = """
+        final class my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+            final fun myFun(): kotlin/String? // my.lib/MyClass.myFun|myFun(){}[0]
+        }
+        """
+        val afterText = """
+        final class my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+            final fun myFun(): kotlin/String // my.lib/MyClass.myFun|myFun(){}[0]
+        }
+        """
+        val expectedErrorMessages = listOf(
+            "Return type nullability did not match for my.lib/MyClass.myFun"
         )
         testBeforeAndAfterIsIncompatible(
             beforeText,
@@ -771,6 +814,21 @@ class BinaryCompatibilityCheckerTest {
     }
 
     @Test
+    fun addValueParam() {
+        val beforeText = """
+        final fun my.lib/myFun(): kotlin/Int // my.lib/myFun|myFun(){}[0]
+        """
+        val afterText = """
+        final fun my.lib/myFun(kotlin/Int): kotlin/Int // my.lib/myFun|myFun(kotlin/Int){}[0]
+        """
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            listOf("Removed declaration my.lib/myFun() from androidx:library")
+        )
+    }
+
+    @Test
     fun changeClassKindToInterface() {
         val beforeText = """
         abstract class my.lib/MyClass { // my.lib/MyClass|null[0]
@@ -1018,6 +1076,45 @@ class BinaryCompatibilityCheckerTest {
     }
 
     @Test
+    fun interfaceFromFunctionalInterface() {
+        val beforeText = """
+        abstract fun interface my.lib/MyInterface { // my.lib/MyInterface|null[0]
+            abstract fun run() // my.lib/MyInterface.run|run(){}[0]
+        }
+        """
+        val afterText = """
+        abstract interface my.lib/MyInterface { // my.lib/MyInterface|null[0]
+            abstract fun run() // my.lib/MyInterface.run|run(){}[0]
+        }
+        """
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            listOf("isFunction changed from true to false for my.lib/MyInterface")
+        )
+    }
+
+    @Test
+    fun classToValueClass() {
+        val beforeText = """
+        final class my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+        }
+        """
+        val afterText = """
+        final value class my.lib/MyClass { // my.lib/MyClass|null[0]
+            constructor <init>() // my.lib/MyClass.<init>|<init>(){}[0]
+            final fun myFun(): kotlin/Int // my.lib/MyClass.myFun|myFun(){}[0]
+        }
+        """
+        testBeforeAndAfterIsIncompatible(
+            beforeText,
+            afterText,
+            listOf("isValue changed from false to true for my.lib/MyClass")
+        )
+    }
+
+    @Test
     fun sealedToOpen() {
         val beforeText = """
         sealed class my.lib/MyClass { // my.lib/MyClass|null[0]
@@ -1144,6 +1241,19 @@ class BinaryCompatibilityCheckerTest {
         testBeforeAndAfterIsCompatible(beforeText, afterText)
     }
 
+    @Test
+    fun removedTargets() {
+        val beforeText = createDumpText("", listOf("iosX64", "linuxX64"))
+        val afterText = createDumpText("", listOf("linuxX64"))
+        val beforeLibs = KlibDumpParser(beforeText).parse()
+        val afterLibs = KlibDumpParser(afterText).parse()
+
+        val e = assertFailsWith<ValidationException> {
+            BinaryCompatibilityChecker.checkAllBinariesAreCompatible(afterLibs, beforeLibs)
+        }
+        assertThat(e.message).contains("Removed targets [iosX64]")
+    }
+
     private fun testBeforeAndAfterIsCompatible(before: String, after: String) {
         runBeforeAndAfter(before, after)
     }
@@ -1169,10 +1279,13 @@ class BinaryCompatibilityCheckerTest {
         BinaryCompatibilityChecker.checkAllBinariesAreCompatible(afterLibs, beforeLibs)
     }
 
-    private fun createDumpText(content: String) =
+    private fun createDumpText(
+        content: String,
+        targets: List<String> = listOf("iosX64", "linuxX64")
+    ) =
         """
         // KLib ABI Dump
-        // Targets: [iosX64, linuxX64]
+        // Targets: [${targets.joinToString(", ")}]
         // Rendering settings:
         // - Signature version: 2
         // - Show manifest properties: true
