@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Process Global Configuration for WebView.
- *
+ * <p>
  * WebView has some process-global configuration parameters that cannot be changed once WebView has
  * been loaded. This class allows apps to set these parameters.
  * <p>
@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ProcessGlobalConfig {
     private static final AtomicReference<HashMap<String, Object>> sProcessGlobalConfig =
-            new AtomicReference<HashMap<String, Object>>();
+            new AtomicReference<>();
     private static final Object sLock = new Object();
     @GuardedBy("sLock")
     private static boolean sApplyCalled = false;
@@ -77,7 +77,7 @@ public class ProcessGlobalConfig {
 
     /**
      * Define the directory used to store WebView data for the current process.
-     *
+     * <p>
      * The provided suffix will be used when constructing data and cache
      * directory paths. If this API is not called, no suffix will be used.
      * Each directory can be used by only one process in the application. If more
@@ -132,7 +132,7 @@ public class ProcessGlobalConfig {
 
     /**
      * Set the base directories that WebView will use for the current process.
-     *
+     * <p>
      * If this method is not used, WebView uses the default base paths defined by the Android
      * framework.
      * <p>
@@ -192,7 +192,7 @@ public class ProcessGlobalConfig {
 
     /**
      * Applies the configuration to be used by WebView on loading.
-     *
+     * <p>
      * This method can only be called once.
      * <p>
      * Calling this method will not cause WebView to be loaded and will not block the calling
@@ -223,7 +223,7 @@ public class ProcessGlobalConfig {
             }
             sApplyCalled = true;
         }
-        HashMap<String, Object> configMap = new HashMap<String, Object>();
+        HashMap<String, Object> configMap = new HashMap<>();
         if (webViewCurrentlyLoaded()) {
             throw new IllegalStateException("WebView has already been loaded in the current "
                     + "process, so any attempt to apply the settings in ProcessGlobalConfig will "
