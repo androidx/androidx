@@ -30,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -48,9 +47,15 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.DrawModifierNode
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.invalidateDraw
+import androidx.compose.ui.node.observeReads
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
-import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
@@ -142,7 +147,8 @@ public class PlaceholderState internal constructor(
      */
     internal val placeholderWipeOffProgression: Float by derivedStateOf {
         val absoluteProgression = ((frameMillis.longValue - startOfWipeOffAnimation).coerceAtMost(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).toFloat() /
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS
+        ).toFloat() /
             PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS).coerceAtMost(1f)
         val easedProgression = wipeOffInterpolator.transform(absoluteProgression)
         lerp(-maxScreenDimension * 1.75f, maxScreenDimension * 0.75f, easedProgression)
@@ -163,7 +169,8 @@ public class PlaceholderState internal constructor(
     @ExperimentalWearMaterialApi
     internal val placeholderWipeOffAlpha: Float by derivedStateOf {
         val absoluteProgression = ((frameMillis.longValue - startOfWipeOffAnimation).coerceAtMost(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).toFloat() /
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS
+        ).toFloat() /
             PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS).coerceAtMost(1f)
 
         val alpha =
@@ -291,7 +298,8 @@ public class PlaceholderState internal constructor(
                     // Reset
                     if (startOfResetAnimation != 0L) {
                         if (frameMillis.longValue - startOfResetAnimation >=
-                            PLACEHOLDER_RESET_ANIMATION_DURATION) {
+                            PLACEHOLDER_RESET_ANIMATION_DURATION
+                        ) {
                             startOfResetAnimation = 0L
                             field = PlaceholderStage.ShowPlaceholder
                         }
@@ -394,7 +402,6 @@ public fun rememberPlaceholderState(
  * @param shape the shape to apply to the placeholder
  * @param color the color of the placeholder.
  */
-@Suppress("ComposableModifierFactory", "DEPRECATION")
 @ExperimentalWearMaterialApi
 @Composable
 public fun Modifier.placeholder(
@@ -403,20 +410,17 @@ public fun Modifier.placeholder(
     color: Color =
         MaterialTheme.colors.onSurface.copy(alpha = 0.1f)
             .compositeOver(MaterialTheme.colors.surface)
-): Modifier = inspectable(
+): Modifier = this then PlaceholderElement(
+    placeholderState = placeholderState,
+    color = color,
+    shape = shape,
     inspectorInfo = debugInspectorInfo {
         name = "placeholder"
         properties["placeholderState"] = placeholderState
         properties["shape"] = shape
         properties["color"] = color
     }
-) {
-    PlaceholderModifier(
-        placeholderState = placeholderState,
-        color = color,
-        shape = shape
-    )
-}
+)
 
 /**
  * Modifier to draw a placeholder shimmer over a component. The placeholder shimmer is a 45 degree
@@ -444,8 +448,6 @@ public fun Modifier.placeholder(
  * @param shape the shape of the component.
  * @param color the color to use in the shimmer.
  */
-
-@Suppress("ComposableModifierFactory", "DEPRECATION")
 @ExperimentalWearMaterialApi
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
@@ -453,24 +455,23 @@ public fun Modifier.placeholderShimmer(
     placeholderState: PlaceholderState,
     shape: Shape = MaterialTheme.shapes.small,
     color: Color = MaterialTheme.colors.onSurface,
-): Modifier = inspectable(
-    inspectorInfo = debugInspectorInfo {
-        name = "placeholderShimmer"
-        properties["placeholderState"] = placeholderState
-        properties["shape"] = shape
-        properties["color"] = color
-    }
-) {
+): Modifier = this.then(
     if (LocalReduceMotion.current.enabled()) {
         Modifier
     } else {
-        PlaceholderShimmerModifier(
+        PlaceholderShimmerElement(
             placeholderState = placeholderState,
             color = color,
-            shape = shape
+            shape = shape,
+            inspectorInfo = debugInspectorInfo {
+                name = "placeholderShimmer"
+                properties["placeholderState"] = placeholderState
+                properties["shape"] = shape
+                properties["color"] = color
+            }
         )
     }
-}
+)
 
 /**
  * Contains the default values used for providing placeholders.
@@ -509,7 +510,7 @@ public object PlaceholderDefaults {
         placeholderState: PlaceholderState,
         color: Color = MaterialTheme.colors.surface
     ): ChipColors {
-        return if (! placeholderState.isShowContent) {
+        return if (!placeholderState.isShowContent) {
             ChipDefaults.chipColors(
                 backgroundPainter = PlaceholderBackgroundPainter(
                     painter = originalChipColors.background(enabled = true).value,
@@ -591,7 +592,7 @@ public object PlaceholderDefaults {
         painter: Painter,
         color: Color = MaterialTheme.colors.surface,
     ): Painter {
-        return if (! placeholderState.isShowContent) {
+        return if (!placeholderState.isShowContent) {
             PlaceholderBackgroundPainter(
                 painter = painter,
                 placeholderState = placeholderState,
@@ -788,19 +789,33 @@ internal class PlaceholderBackgroundPainter(
     override val intrinsicSize: Size = painter?.intrinsicSize ?: Size.Unspecified
 }
 
-private abstract class AbstractPlaceholderModifier(
+private abstract class AbstractPlaceholderModifierNode(
     private val alpha: Float = 1.0f,
     private val shape: Shape
-) : DrawModifier, OnGloballyPositionedModifier {
+) : DrawModifierNode, Modifier.Node(), GlobalPositionAwareModifierNode, ObserverModifierNode {
 
     private var offset by mutableStateOf(Offset.Zero)
+
     // naive cache outline calculation if size is the same
-    private var lastSize: Size? = null
+    private var lastSize: Size = Size.Unspecified
     private var lastLayoutDirection: LayoutDirection? = null
     private var lastOutline: Outline? = null
+    private var lastShape: Shape? = null
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         offset = coordinates.positionInRoot()
+    }
+
+    override fun onObservedReadsChanged() {
+        // Reset cached properties
+        lastOutline = null
+        lastSize = Size.Unspecified
+        lastLayoutDirection = null
+        lastShape = null
+
+        // Invalidate draw so we build the cache again - this is needed because observeReads within
+        // the draw scope obscures the state reads from the draw scope's observer.
+        invalidateDraw()
     }
 
     abstract fun generateBrush(offset: Offset): Brush?
@@ -820,53 +835,58 @@ private abstract class AbstractPlaceholderModifier(
     }
 
     private fun ContentDrawScope.drawOutline(brush: Brush) {
-        val outline =
-            if (size == lastSize && layoutDirection == lastLayoutDirection) {
-                lastOutline!!
-            } else {
-                shape.createOutline(size, layoutDirection, this)
+        var outline: Outline? = null
+        if (size == lastSize && layoutDirection == lastLayoutDirection && lastShape == shape) {
+            outline = lastOutline!!
+        } else {
+            // Manually observe reads so we can directly invalidate the outline when it changes
+            observeReads {
+                outline = shape.createOutline(size, layoutDirection, this)
             }
-        drawOutline(outline, brush = brush, alpha = alpha)
+        }
+        drawOutline(outline!!, brush = brush, alpha = alpha)
         lastOutline = outline
         lastSize = size
+        lastLayoutDirection = layoutDirection
+        lastShape = shape
     }
 }
 
 @ExperimentalWearMaterialApi
-private class PlaceholderModifier constructor(
+private class PlaceholderElement(
     private val placeholderState: PlaceholderState,
     private val color: Color,
-    alpha: Float = 1.0f,
-    val shape: Shape
-) : AbstractPlaceholderModifier(alpha, shape) {
-    override fun generateBrush(offset: Offset): Brush? {
-        return when (placeholderState.placeholderStage) {
-            PlaceholderStage.ShowPlaceholder, PlaceholderStage.ResetContent -> {
-                SolidColor(color.copy(
-                    alpha =
-                    if (placeholderState.placeholderStage == PlaceholderStage.ResetContent) {
-                        placeholderState.resetPlaceholderFadeInAlpha * color.alpha
-                    } else color.alpha
-                ))
-            }
-            PlaceholderStage.WipeOff -> {
-                wipeOffBrush(color, offset, placeholderState)
-            }
-            else -> {
-                null
-            }
-        }
+    private val shape: Shape,
+    private val alpha: Float = 1.0f,
+    private val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<PlaceholderModifierNode>() {
+
+    override fun create(): PlaceholderModifierNode {
+        return PlaceholderModifierNode(placeholderState, color, shape, alpha)
+    }
+
+    override fun update(node: PlaceholderModifierNode) {
+        node.placeholderState = placeholderState
+        node.color = color
+        node.shape = shape
+        node.alpha = alpha
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other == null) return false
+        if (this::class != other::class) return false
 
-        other as PlaceholderModifier
+        other as PlaceholderElement
 
         if (placeholderState != other.placeholderState) return false
         if (color != other.color) return false
         if (shape != other.shape) return false
+        if (alpha != other.alpha) return false
 
         return true
     }
@@ -875,21 +895,103 @@ private class PlaceholderModifier constructor(
         var result = placeholderState.hashCode()
         result = 31 * result + color.hashCode()
         result = 31 * result + shape.hashCode()
+        result = 31 * result + alpha.hashCode()
         return result
     }
 }
 
 @ExperimentalWearMaterialApi
-private class PlaceholderShimmerModifier constructor(
+private class PlaceholderModifierNode(
+    var placeholderState: PlaceholderState,
+    var color: Color,
+    var shape: Shape,
+    var alpha: Float,
+) : AbstractPlaceholderModifierNode(alpha, shape) {
+    override fun generateBrush(offset: Offset): Brush? {
+        return when (placeholderState.placeholderStage) {
+            PlaceholderStage.ShowPlaceholder, PlaceholderStage.ResetContent -> {
+                SolidColor(
+                    color.copy(
+                        alpha =
+                        if (placeholderState.placeholderStage == PlaceholderStage.ResetContent) {
+                            placeholderState.resetPlaceholderFadeInAlpha * color.alpha
+                        } else color.alpha
+                    )
+                )
+            }
+
+            PlaceholderStage.WipeOff -> {
+                wipeOffBrush(color, offset, placeholderState)
+            }
+
+            else -> {
+                null
+            }
+        }
+    }
+}
+
+@ExperimentalWearMaterialApi
+private class PlaceholderShimmerElement(
     private val placeholderState: PlaceholderState,
     private val color: Color,
-    alpha: Float = 1.0f,
-    val shape: Shape
-) : AbstractPlaceholderModifier(alpha, shape) {
+    private val shape: Shape,
+    private val alpha: Float = 1.0f,
+    private val inspectorInfo: InspectorInfo.() -> Unit
+) : ModifierNodeElement<PlaceholderShimmerModifierNode>() {
+
+    override fun create(): PlaceholderShimmerModifierNode {
+        return PlaceholderShimmerModifierNode(placeholderState, color, shape, alpha)
+    }
+
+    override fun update(node: PlaceholderShimmerModifierNode) {
+        node.placeholderState = placeholderState
+        node.color = color
+        node.shape = shape
+        node.alpha = alpha
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null) return false
+        if (this::class != other::class) return false
+
+        other as PlaceholderShimmerElement
+
+        if (placeholderState != other.placeholderState) return false
+        if (color != other.color) return false
+        if (shape != other.shape) return false
+        if (alpha != other.alpha) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = placeholderState.hashCode()
+        result = 31 * result + color.hashCode()
+        result = 31 * result + shape.hashCode()
+        result = 31 * result + alpha.hashCode()
+        return result
+    }
+}
+
+@ExperimentalWearMaterialApi
+private class PlaceholderShimmerModifierNode(
+    var placeholderState: PlaceholderState,
+    var color: Color,
+    var shape: Shape,
+    var alpha: Float,
+) : AbstractPlaceholderModifierNode(alpha, shape) {
+
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
         placeholderState.backgroundOffset = coordinates.positionInRoot()
         super.onGloballyPositioned(coordinates)
     }
+
     override fun generateBrush(offset: Offset): Brush? {
         return if (placeholderState.placeholderStage == PlaceholderStage.ShowPlaceholder) {
             val halfGradientWidth = placeholderState.gradientXYWidth / 2f
@@ -911,26 +1013,6 @@ private class PlaceholderShimmerModifier constructor(
         } else {
             null
         }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as PlaceholderShimmerModifier
-
-        if (placeholderState != other.placeholderState) return false
-        if (color != other.color) return false
-        if (shape != other.shape) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = placeholderState.hashCode()
-        result = 31 * result + color.hashCode()
-        result = 31 * result + shape.hashCode()
-        return result
     }
 }
 
