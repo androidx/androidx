@@ -289,7 +289,6 @@ internal class GraphicsLayerOwnerLayer(
         val context = requireNotNull(context) {
             "currently reuse is only supported when we manage the layer lifecycle"
         }
-        require(graphicsLayer.isReleased) { "layer should have been released before reuse" }
 
         // recreate a layer
         graphicsLayer = context.createGraphicsLayer()
