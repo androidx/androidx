@@ -30,41 +30,20 @@ import org.jetbrains.annotations.VisibleForTesting
  * @property errorCode the error code denoting what kind of error
  * was encountered while the biometric prompt flow failed, must
  * be one of the error codes defined in
- * [android.hardware.biometrics.BiometricPrompt] such as
- * [android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE]
+ * [androidx.biometric.BiometricPrompt] such as
+ * [androidx.biometric.BiometricPrompt.ERROR_HW_UNAVAILABLE]
  * or
- * [android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE]
+ * [androidx.biometric.BiometricPrompt.ERROR_TIMEOUT]
  * @property errorMsg the message associated with the [errorCode] in the
  * form that can be displayed on a UI.
+ *
+ * @see AuthenticationErrorTypes
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class AuthenticationError internal constructor(
+class AuthenticationError @JvmOverloads constructor(
+    val errorCode: @AuthenticationErrorTypes Int,
     val errorMsg: CharSequence? = null,
-    val errorCode: Int,
 ) {
-
-    /**
-     * Error returned from the Biometric Prompt flow that is executed
-     * by [androidx.credentials.CredentialManager] after the user
-     * makes a selection on the Credential Manager account selector.
-     *
-     * @param errorCode the error code denoting what kind of error
-     * was encountered while the biometric prompt flow failed, must
-     * be one of the error codes defined in
-     * [android.hardware.biometrics.BiometricPrompt] such as
-     * [android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE]
-     * or
-     * [android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_HW_UNAVAILABLE]
-     * @param errorMsg the message associated with the [errorCode] in the
-     * form that can be displayed on a UI.
-     */
-    @JvmOverloads @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
-        errorCode: Int,
-        errorMsg: CharSequence? = null
-    ) : this(
-        errorMsg, // Must remain un-named to avoid overloaded error
-        errorCode = convertFrameworkBiometricErrorToJetpack(errorCode),
-    )
 
     companion object {
 
@@ -121,6 +100,34 @@ class AuthenticationError internal constructor(
                 frameworkCode
             }
         }
+
+        /**
+         * Generates an instance of this class, to be called by an UI consumer that calls
+         * [BiometricPrompt] API and needs the result to be wrapped by this class. The caller of
+         * this API must specify whether the framework [android.hardware.biometrics.BiometricPrompt]
+         * API or the jetpack [androidx.biometric.BiometricPrompt] API is used through
+         * [isFrameworkBiometricPrompt].
+         *
+         * @param uiErrorCode the error code used to create this error instance, typically using
+         * the [androidx.biometric.BiometricPrompt]'s constants if conversion isn't desired, or
+         * [android.hardware.biometrics.BiometricPrompt]'s constants if conversion *is* desired.
+         * @param uiErrorMessage the message associated with the [uiErrorCode] in the
+         * form that can be displayed on a UI.
+         * @param isFrameworkBiometricPrompt the bit indicating whether or not this error code
+         * requires conversion or not, set to true by default
+         * @return an authentication error that has properly handled conversion of the err code
+         */
+        @JvmOverloads @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        internal fun createFrom(
+            uiErrorCode: Int,
+            uiErrorMessage: CharSequence,
+            isFrameworkBiometricPrompt: Boolean = true,
+        ): AuthenticationError =
+            AuthenticationError(
+                errorCode = if (isFrameworkBiometricPrompt)
+                    convertFrameworkBiometricErrorToJetpack(uiErrorCode) else uiErrorCode,
+                errorMsg = uiErrorMessage,
+            )
     }
 
     override fun equals(other: Any?): Boolean {

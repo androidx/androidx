@@ -62,13 +62,64 @@ class PendingIntentHandlerTest {
     }
 
     @Test
-    fun test_retrieveProviderCreateCredReqWithFailureBpAuth_correctlyConvertedError() {
-        for (frameworkError in AuthenticationError.biometricFrameworkToJetpackErrorMap.keys) {
+    fun test_retrieveProviderCreateCredReqWithFailureBpAuthJetpack_retrieveJetpackError() {
+        for (jetpackError in AuthenticationError.biometricFrameworkToJetpackErrorMap.values) {
             val biometricPromptResult =
                 BiometricPromptResult(
                     AuthenticationError(
-                        frameworkError,
+                        jetpackError,
                         BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+                    )
+                )
+            val request = setUpCreatePasswordRequest()
+            val intent = prepareIntentWithCreateRequest(
+                request, biometricPromptResult
+            )
+
+            val retrievedRequest = PendingIntentHandler
+                .retrieveProviderCreateCredentialRequest(intent)
+
+            Assert.assertNotNull(retrievedRequest)
+            equals(request, retrievedRequest!!)
+            Assert.assertNotNull(retrievedRequest.biometricPromptResult!!.authenticationError)
+            Assert.assertEquals(
+                retrievedRequest.biometricPromptResult!!.authenticationError!!.errorCode,
+                jetpackError
+            )
+        }
+    }
+
+    @Test
+    fun test_retrieveProviderGetCredReqWithFailureBpAuthJetpack_retrieveJetpackError() {
+        for (jetpackError in AuthenticationError.biometricFrameworkToJetpackErrorMap.values) {
+            val biometricPromptResult = BiometricPromptResult(
+                AuthenticationError(
+                    jetpackError,
+                    BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+                )
+            )
+            val intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST, biometricPromptResult)
+
+            val retrievedRequest = PendingIntentHandler.retrieveProviderGetCredentialRequest(intent)
+
+            Assert.assertNotNull(retrievedRequest)
+            equals(GET_CREDENTIAL_REQUEST, retrievedRequest!!)
+            Assert.assertNotNull(retrievedRequest.biometricPromptResult!!.authenticationError)
+            Assert.assertEquals(
+                retrievedRequest.biometricPromptResult!!.authenticationError!!.errorCode,
+                jetpackError
+            )
+        }
+    }
+
+    @Test
+    fun test_retrieveProviderCreateCredReqWithFailureBpAuthFramework_correctlyConvertedError() {
+        for (frameworkError in AuthenticationError.biometricFrameworkToJetpackErrorMap.keys) {
+            val biometricPromptResult =
+                BiometricPromptResult(
+                    AuthenticationError.createFrom(uiErrorCode = frameworkError,
+                        uiErrorMessage = BIOMETRIC_AUTHENTICATOR_ERROR_MSG,
+                        isFrameworkBiometricPrompt = true
                     )
                 )
             val expectedErrorCode = AuthenticationError
@@ -91,12 +142,12 @@ class PendingIntentHandlerTest {
     }
 
     @Test
-    fun test_retrieveProviderGetCredReqWithFailureBpAuth_correctlyConvertedError() {
+    fun test_retrieveProviderGetCredReqWithFailureBpAuthFramework_correctlyConvertedError() {
         for (frameworkError in AuthenticationError.biometricFrameworkToJetpackErrorMap.keys) {
             val biometricPromptResult = BiometricPromptResult(
-                AuthenticationError(
-                    frameworkError,
-                    BIOMETRIC_AUTHENTICATOR_ERROR_MSG
+                AuthenticationError.createFrom(uiErrorCode = frameworkError,
+                    uiErrorMessage = BIOMETRIC_AUTHENTICATOR_ERROR_MSG,
+                    isFrameworkBiometricPrompt = true
                 )
             )
             val expectedErrorCode = AuthenticationError
