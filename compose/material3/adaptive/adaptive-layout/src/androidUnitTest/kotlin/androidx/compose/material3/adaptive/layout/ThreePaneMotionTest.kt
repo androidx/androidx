@@ -353,5 +353,5 @@ class ThreePaneMotionTest {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal val PaneOrder = ThreePaneScaffoldDefaults.SupportingPaneLayoutPaneOrder
+internal val PaneOrder = SupportingPaneScaffoldDefaults.PaneOrder
 internal const val SpacerSize = 123

@@ -317,7 +317,7 @@ private fun SampleThreePaneScaffold(scaffoldValue: ThreePaneScaffoldValue) {
     SampleThreePaneScaffold(
         MockScaffoldDirective,
         scaffoldValue,
-        ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
+        ListDetailPaneScaffoldDefaults.PaneOrder
     )
 }
 

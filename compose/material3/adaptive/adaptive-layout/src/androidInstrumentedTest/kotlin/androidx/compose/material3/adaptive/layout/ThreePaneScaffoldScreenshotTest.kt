@@ -462,7 +462,7 @@ private fun SampleThreePaneScaffoldStandardMode() {
     SampleThreePaneScaffold(
         scaffoldDirective,
         scaffoldValue,
-        ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
+        ListDetailPaneScaffoldDefaults.PaneOrder
     )
 }
 
@@ -480,7 +480,7 @@ private fun SampleThreePaneScaffoldDenseMode() {
     SampleThreePaneScaffold(
         scaffoldDirective,
         scaffoldValue,
-        ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
+        ListDetailPaneScaffoldDefaults.PaneOrder
     )
 }
 
@@ -501,7 +501,7 @@ internal fun SampleThreePaneScaffoldWithPaneExpansion(
     SampleThreePaneScaffold(
         scaffoldDirective = scaffoldDirective,
         scaffoldValue = scaffoldValue,
-        paneOrder = ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
+        paneOrder = ListDetailPaneScaffoldDefaults.PaneOrder,
         paneExpansionState = paneExpansionState,
         paneExpansionDragHandle = paneExpansionDragHandle
     )
