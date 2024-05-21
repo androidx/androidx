@@ -871,30 +871,6 @@ private class ThreePaneScaffoldScopeImpl(
  */
 @ExperimentalMaterial3AdaptiveApi
 internal object ThreePaneScaffoldDefaults {
-    /**
-     * Denotes [ThreePaneScaffold] to use the list-detail pane-order to arrange its panes
-     * horizontally, which allocates panes in the order of secondary, primary, and tertiary from
-     * start to end.
-     */
-    // TODO(conradchen/sgibly): Consider moving this to the ListDetailPaneScaffoldDefaults
-    val ListDetailLayoutPaneOrder = ThreePaneScaffoldHorizontalOrder(
-        ThreePaneScaffoldRole.Secondary,
-        ThreePaneScaffoldRole.Primary,
-        ThreePaneScaffoldRole.Tertiary
-    )
-
-    /**
-     * Denotes [ThreePaneScaffold] to use the supporting-pane pane-order to arrange its panes
-     * horizontally, which allocates panes in the order of primary, secondary, and tertiary from
-     * start to end.
-     */
-    // TODO(conradchen/sgibly): Consider moving this to the SupportingPaneScaffoldDefaults
-    val SupportingPaneLayoutPaneOrder = ThreePaneScaffoldHorizontalOrder(
-        ThreePaneScaffoldRole.Primary,
-        ThreePaneScaffoldRole.Secondary,
-        ThreePaneScaffoldRole.Tertiary
-    )
-
     // TODO(conradchen): consider declaring a value class for priority
     const val PrimaryPanePriority = 10
     const val SecondaryPanePriority = 5
