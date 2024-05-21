@@ -32,6 +32,11 @@ internal enum class AtraceTag(
     val tag: String
 ) {
     ActivityManager("am"),
+    Aidl("aidl") {
+        override fun supported(api: Int, rooted: Boolean): Boolean {
+            return api >= 28
+        }
+    },
     Audio("audio") {
         override fun supported(api: Int, rooted: Boolean): Boolean {
             return api >= 23
