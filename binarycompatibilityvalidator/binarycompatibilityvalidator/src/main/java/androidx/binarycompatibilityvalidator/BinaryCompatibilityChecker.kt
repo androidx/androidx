@@ -101,7 +101,7 @@ class BinaryCompatibilityChecker(
         // generally make sure that doesn't happen, but if it does we fail early.
         if (this::class.java != oldDeclaration::class.java) {
             errors.add(
-                "type changed  from ${this::class.simpleName} to " +
+                "type changed from ${this::class.simpleName} to " +
                 "${oldDeclaration::class.simpleName} for $qualifiedName"
             )
             return
@@ -428,7 +428,7 @@ private fun AbiType?.isBinaryCompatibleWith(
     if (valueAsString != otherType.valueAsString) {
         errors.add(
             "$kind changed from ${otherType.valueAsString} to " +
-                "$valueAsString"
+                "$valueAsString for $parentQualifiedName"
         )
         return
     }
@@ -465,13 +465,13 @@ private fun AbiType.Simple.isBinaryCompatible(
         errors.add("$kind did not match for $parentQualifiedName")
         return
     }
-    if (nullability != otherType.nullability) { // is this ever okay?
+    if (nullability != otherType.nullability) {
         errors.add("$kind nullability did not match for $parentQualifiedName")
         return
     }
     arguments.isBinaryCompatibleWith(
         otherType.arguments,
-        entityName = "typeParameter",
+        entityName = "typeArgument",
         isAllowedAddition = { false },
         uniqueId = AbiTypeArgument::asString,
         isBinaryCompatibleWith = AbiTypeArgument::isBinaryCompatibleWith,
@@ -489,7 +489,7 @@ private fun AbiTypeArgument.isBinaryCompatibleWith(
         return
     }
     if (this !is TypeProjection || otherTypeArgument !is TypeProjection) {
-        errors.add("Start projection and type projection don't match")
+        errors.add("Star projection and type projection don't match")
         return
     }
     if (variance != otherTypeArgument.variance) {

@@ -17,6 +17,7 @@
 package androidx.binarycompatibilityvalidator
 
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertFailsWith
 import org.jetbrains.kotlin.library.abi.AbiClassKind
 import org.jetbrains.kotlin.library.abi.AbiCompoundName
 import org.jetbrains.kotlin.library.abi.AbiModality
@@ -71,6 +72,17 @@ class KlibDumpParserTest {
         parsed.typeParameters.forEach {
             assertThat(it.upperBounds.single().className?.toString()).isEqualTo("kotlin/Any")
         }
+    }
+
+    @Test
+    fun parseAClassWithATypeArg() {
+        val input = "final class my.lib/MySubClass : my.lib/MyClass<kotlin/Int>"
+        val parsed = KlibDumpParser(input).parseClass()
+
+        assertThat(parsed.typeParameters).isEmpty()
+        assertThat(parsed.superTypes).hasSize(1)
+        val superType = parsed.superTypes.single()
+        assertThat(superType.arguments?.single()?.type?.classNameOrTag).isEqualTo("kotlin/Int")
     }
 
     @Test
@@ -204,6 +216,19 @@ class KlibDumpParserTest {
         assertThat(parsed.qualifiedName.toString()).isEqualTo(
             "androidx.annotation/RestrictTo.Scope.GROUP_ID"
         )
+    }
+
+    @Test
+    fun parseAnInvalidDeclaration() {
+        val input = """
+            final class my.lib/MyClass {
+                invalid
+            }
+        """.trimIndent()
+        val e = assertFailsWith<ParseException> {
+            KlibDumpParser(input).parse()
+        }
+        assertThat(e.message).isEqualTo("Unknown declaration 2: invalid")
     }
 
     @Test
