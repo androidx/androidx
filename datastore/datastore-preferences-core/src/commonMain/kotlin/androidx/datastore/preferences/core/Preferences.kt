@@ -177,7 +177,7 @@ public class MutablePreferences internal constructor(
      * }
      *
      * @param key the preference to set
-     * @param key the value to set the preference to
+     * @param value the value to set the preference to
      */
     public operator fun <T> set(key: Key<T>, value: T) {
         setUnchecked(key, value)
