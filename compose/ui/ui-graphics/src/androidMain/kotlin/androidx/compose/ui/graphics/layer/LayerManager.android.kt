@@ -127,7 +127,7 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
     }
 
     companion object {
-        private val isRobolectric = Build.FINGERPRINT.lowercase() == "robolectric"
+        val isRobolectric = Build.FINGERPRINT.lowercase() == "robolectric"
     }
 }
 

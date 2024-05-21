@@ -117,6 +117,8 @@ androidXMultiplatform {
                 implementation(libs.testRunner)
                 implementation(libs.junit)
                 implementation(libs.truth)
+                implementation(libs.robolectric)
+                implementation(project(":compose:test-utils"))
             }
         }
 
