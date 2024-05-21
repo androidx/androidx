@@ -127,7 +127,7 @@ class AuthenticationError @JvmOverloads constructor(
                 errorCode = if (isFrameworkBiometricPrompt)
                     convertFrameworkBiometricErrorToJetpack(uiErrorCode) else uiErrorCode,
                 errorMsg = uiErrorMessage,
-            )
+        )
     }
 
     override fun equals(other: Any?): Boolean {

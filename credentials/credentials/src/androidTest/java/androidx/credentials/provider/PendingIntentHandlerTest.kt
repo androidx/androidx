@@ -62,6 +62,98 @@ class PendingIntentHandlerTest {
     }
 
     @Test
+    fun test_retrieveProviderCreateCredReqWithSuccessBpAuthJetpack_retrieveJetpackResult() {
+        for (jetpackResult in AuthenticationResult.biometricFrameworkToJetpackResultMap.values) {
+            val biometricPromptResult = BiometricPromptResult(
+                AuthenticationResult(jetpackResult)
+            )
+            val request = setUpCreatePasswordRequest()
+            val intent = prepareIntentWithCreateRequest(
+                request,
+                biometricPromptResult
+            )
+
+            val retrievedRequest = PendingIntentHandler
+                .retrieveProviderCreateCredentialRequest(intent)
+
+            Assert.assertNotNull(request)
+            equals(request, retrievedRequest!!)
+            Assert.assertNotNull(biometricPromptResult.authenticationResult)
+            Assert.assertEquals(retrievedRequest.biometricPromptResult!!.authenticationResult!!
+                .authenticationType, jetpackResult)
+        }
+    }
+
+    @Test
+    fun test_retrieveProviderGetCredReqWithSuccessBpAuthJetpack_retrieveJetpackResult() {
+        for (jetpackResult in AuthenticationResult.biometricFrameworkToJetpackResultMap.values) {
+            val biometricPromptResult = BiometricPromptResult(
+                AuthenticationResult(jetpackResult)
+            )
+            val intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST, biometricPromptResult)
+
+            val request = PendingIntentHandler.retrieveProviderGetCredentialRequest(intent)
+
+            Assert.assertNotNull(request)
+            equals(GET_CREDENTIAL_REQUEST, request!!)
+            Assert.assertEquals(biometricPromptResult, request.biometricPromptResult)
+            Assert.assertEquals(request.biometricPromptResult!!.authenticationResult!!
+                .authenticationType, jetpackResult)
+        }
+    }
+
+    // While possible to test non-conversion logic, that would equate functionally to the normal
+    // jetpack tests as there is no validation.
+    @Test
+    fun test_retrieveProviderCreateCredReqWithSuccessBpAuthFramework_correctlyConvertedResult() {
+        for (frameworkResult in AuthenticationResult.biometricFrameworkToJetpackResultMap.keys) {
+            val biometricPromptResult = BiometricPromptResult(
+                AuthenticationResult.createFrom(uiAuthenticationType = frameworkResult,
+                    isFrameworkBiometricPrompt = true)
+            )
+            val request = setUpCreatePasswordRequest()
+            val expectedResult = AuthenticationResult
+                .biometricFrameworkToJetpackResultMap[frameworkResult]
+            val intent = prepareIntentWithCreateRequest(
+                request,
+                biometricPromptResult
+            )
+
+            val retrievedRequest = PendingIntentHandler
+                .retrieveProviderCreateCredentialRequest(intent)
+
+            Assert.assertNotNull(request)
+            equals(request, retrievedRequest!!)
+            Assert.assertNotNull(biometricPromptResult.authenticationResult)
+            Assert.assertEquals(retrievedRequest.biometricPromptResult!!.authenticationResult!!
+                .authenticationType, expectedResult)
+        }
+    }
+
+    // While possible to test non-conversion logic, that would equate functionally to the normal
+    // jetpack tests as there is no validation.
+    @Test
+    fun test_retrieveProviderGetCredReqWithSuccessBpAuthFramework_correctlyConvertedResult() {
+        for (frameworkResult in AuthenticationResult.biometricFrameworkToJetpackResultMap.keys) {
+            val biometricPromptResult = BiometricPromptResult(
+                AuthenticationResult.createFrom(uiAuthenticationType = frameworkResult,
+                    isFrameworkBiometricPrompt = true)
+            )
+            val expectedResult = AuthenticationResult
+                .biometricFrameworkToJetpackResultMap[frameworkResult]
+            val intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST, biometricPromptResult)
+
+            val request = PendingIntentHandler.retrieveProviderGetCredentialRequest(intent)
+
+            Assert.assertNotNull(request)
+            equals(GET_CREDENTIAL_REQUEST, request!!)
+            Assert.assertEquals(biometricPromptResult, request.biometricPromptResult)
+            Assert.assertEquals(request.biometricPromptResult!!.authenticationResult!!
+                .authenticationType, expectedResult)
+        }
+    }
+
+    @Test
     fun test_retrieveProviderCreateCredReqWithFailureBpAuthJetpack_retrieveJetpackError() {
         for (jetpackError in AuthenticationError.biometricFrameworkToJetpackErrorMap.values) {
             val biometricPromptResult =

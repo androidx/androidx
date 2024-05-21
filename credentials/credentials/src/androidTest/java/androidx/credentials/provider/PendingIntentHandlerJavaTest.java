@@ -70,6 +70,113 @@ public class PendingIntentHandlerJavaTest {
     private static final String BIOMETRIC_AUTHENTICATOR_ERROR_MSG = "error";
 
     @Test
+    public void test_retrieveProviderCreateCredReqWithSuccessBpAuthJetpack_retrieveJetpackResult() {
+        for (int jetpackResult :
+                AuthenticationResult.Companion
+                        .getBiometricFrameworkToJetpackResultMap$credentials_debug().values()) {
+            BiometricPromptResult biometricPromptResult =
+                    new BiometricPromptResult(new AuthenticationResult(jetpackResult));
+            android.service.credentials.CreateCredentialRequest request =
+                    TestUtilsKt.setUpCreatePasswordRequest();
+            Intent intent = prepareIntentWithCreateRequest(
+                    request,
+                    biometricPromptResult);
+
+            ProviderCreateCredentialRequest retrievedRequest =
+                    PendingIntentHandler.retrieveProviderCreateCredentialRequest(intent);
+
+            assertNotNull(request);
+            TestUtilsKt.equals(request, retrievedRequest);
+            assertNotNull(biometricPromptResult.getAuthenticationResult());
+            assertEquals(retrievedRequest.getBiometricPromptResult().getAuthenticationResult()
+                    .getAuthenticationType(), jetpackResult);
+        }
+    }
+
+    @Test
+    public void test_retrieveProviderGetCredReqWithSuccessBpAuthJetpack_retrieveJetpackResult() {
+        for (int jetpackResult :
+                AuthenticationResult.Companion
+                        .getBiometricFrameworkToJetpackResultMap$credentials_debug().values()) {
+            BiometricPromptResult biometricPromptResult =
+                    new BiometricPromptResult(new AuthenticationResult(jetpackResult));
+            Intent intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST,
+                    biometricPromptResult);
+
+            ProviderGetCredentialRequest retrievedRequest =
+                    PendingIntentHandler.retrieveProviderGetCredentialRequest(intent);
+
+            assertNotNull(retrievedRequest);
+            TestUtilsKt.equals(GET_CREDENTIAL_REQUEST, retrievedRequest);
+            assertEquals(biometricPromptResult, retrievedRequest.getBiometricPromptResult());
+            assertEquals(retrievedRequest.getBiometricPromptResult().getAuthenticationResult()
+                    .getAuthenticationType(), jetpackResult);
+        }
+    }
+
+    @Test
+    public void test_retrieveProviderCreateCredReqWithSuccessBpAuthFramework_resultConverted() {
+        for (int frameworkResult :
+                AuthenticationResult.Companion
+                        .getBiometricFrameworkToJetpackResultMap$credentials_debug().keySet()) {
+            BiometricPromptResult biometricPromptResult =
+                    new BiometricPromptResult(
+                            AuthenticationResult.Companion.createFrom$credentials_debug(
+                                    frameworkResult,
+                                    /*isFrameworkBiometricPrompt=*/true
+                            ));
+            android.service.credentials.CreateCredentialRequest request =
+                    TestUtilsKt.setUpCreatePasswordRequest();
+            int expectedResult =
+                    AuthenticationResult.Companion
+                            .getBiometricFrameworkToJetpackResultMap$credentials_debug()
+                            .get(frameworkResult);
+            Intent intent = prepareIntentWithCreateRequest(
+                    request,
+                    biometricPromptResult);
+
+            ProviderCreateCredentialRequest retrievedRequest =
+                    PendingIntentHandler.retrieveProviderCreateCredentialRequest(intent);
+
+            assertNotNull(request);
+            TestUtilsKt.equals(request, retrievedRequest);
+            assertNotNull(biometricPromptResult.getAuthenticationResult());
+            assertEquals(retrievedRequest.getBiometricPromptResult().getAuthenticationResult()
+                    .getAuthenticationType(), expectedResult);
+        }
+    }
+
+    @Test
+    public void test_retrieveProviderGetCredReqWithSuccessBpAuthFramework_resultConverted() {
+        for (int frameworkResult :
+                AuthenticationResult.Companion
+                        .getBiometricFrameworkToJetpackResultMap$credentials_debug().keySet()) {
+            BiometricPromptResult biometricPromptResult =
+                    new BiometricPromptResult(
+                            AuthenticationResult.Companion.createFrom$credentials_debug(
+                                    frameworkResult,
+                                    /*isFrameworkBiometricPrompt=*/true
+                            ));
+            int expectedResult =
+                    AuthenticationResult.Companion
+                            .getBiometricFrameworkToJetpackResultMap$credentials_debug()
+                            .get(frameworkResult);
+            Intent intent = prepareIntentWithGetRequest(GET_CREDENTIAL_REQUEST,
+                    biometricPromptResult);
+
+            ProviderGetCredentialRequest retrievedRequest =
+                    PendingIntentHandler.retrieveProviderGetCredentialRequest(intent);
+
+            assertNotNull(retrievedRequest);
+            TestUtilsKt.equals(GET_CREDENTIAL_REQUEST, retrievedRequest);
+            assertEquals(biometricPromptResult, retrievedRequest.getBiometricPromptResult());
+            assertEquals(retrievedRequest.getBiometricPromptResult().getAuthenticationResult()
+                    .getAuthenticationType(), expectedResult);
+        }
+    }
+
+
+    @Test
     public void test_retrieveProviderCreateCredReqWithFailureBpAuthJetpack_retrieveJetpackError() {
         for (int jetpackError :
                 AuthenticationError.Companion
