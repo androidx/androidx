@@ -24,6 +24,7 @@ import android.os.ext.SdkExtensions
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
+import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.health.connect.client.readRecord
 import androidx.health.connect.client.records.BloodPressureRecord
@@ -103,9 +104,9 @@ class HealthConnectClientUpsideDownImplTest {
 
     @After
     fun tearDown() = runTest {
-        healthConnectClient.deleteRecords(StepsRecord::class, TimeRangeFilter.none())
-        healthConnectClient.deleteRecords(HeartRateRecord::class, TimeRangeFilter.none())
-        healthConnectClient.deleteRecords(NutritionRecord::class, TimeRangeFilter.none())
+        for (recordType in RECORDS_CLASS_NAME_MAP.keys) {
+            healthConnectClient.deleteRecords(recordType, TimeRangeFilter.none())
+        }
     }
 
     @Test

@@ -18,11 +18,13 @@ package androidx.health.connect.client.impl.platform.aggregate
 
 import android.annotation.TargetApi
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.impl.HealthConnectClientUpsideDownImpl
-import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
+import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -65,20 +67,24 @@ class HealthConnectClientAggregationExtensionsTest {
             LocalDate.now().minusDays(5).atStartOfDay().toInstant(ZoneOffset.UTC)
     }
 
+    private val allHealthPermissions =
+        context.packageManager
+            .getPackageInfo(
+                context.packageName,
+                PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
+            )
+            .requestedPermissions
+            .filter { it.startsWith(PERMISSION_PREFIX) }
+            .toTypedArray()
+
     @get:Rule
-    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        HealthPermission.getWritePermission(BloodPressureRecord::class),
-        HealthPermission.getReadPermission(BloodPressureRecord::class),
-        HealthPermission.getWritePermission(NutritionRecord::class),
-        HealthPermission.getReadPermission(NutritionRecord::class),
-        HealthPermission.getWritePermission(StepsRecord::class),
-        HealthPermission.getReadPermission(StepsRecord::class)
-    )
+    val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(*allHealthPermissions)
 
     @After
     fun tearDown() = runTest {
-        healthConnectClient.deleteRecords(NutritionRecord::class, TimeRangeFilter.none())
-        healthConnectClient.deleteRecords(StepsRecord::class, TimeRangeFilter.none())
+        for (recordType in RECORDS_CLASS_NAME_MAP.keys) {
+            healthConnectClient.deleteRecords(recordType, TimeRangeFilter.none())
+        }
     }
 
     @Test
