@@ -40,11 +40,21 @@ import org.gradle.api.tasks.TaskAction
 import org.intellij.lang.annotations.Language
 
 fun Project.configureKtfmt() {
-    tasks.register("ktFormat", KtfmtFormatTask::class.java)
-    tasks.register("ktCheck", KtfmtCheckTask::class.java) { task ->
-        task.cacheEvenIfNoOutputs()
+    val lintProvider = tasks.register("ktlint", KtfmtCheckTask::class.java) {
+        task -> task.cacheEvenIfNoOutputs()
         task.runAfterKotlinCompileTasks()
     }
+    tasks.register("ktlintFormat", KtfmtFormatTask::class.java)
+
+    var isAddToBuildOnServer = false
+    tasks.configureEach { task ->
+        if (task.name == "check") {
+            task.dependsOn(lintProvider)
+            isAddToBuildOnServer = true
+        }
+    }
+
+    if (isAddToBuildOnServer) { addToBuildOnServer(lintProvider) }
 }
 
 private val ExcludedDirectories =

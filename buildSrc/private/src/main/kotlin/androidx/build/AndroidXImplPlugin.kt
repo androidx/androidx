@@ -168,7 +168,14 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configureLint()
-        project.configureKtlint()
+        val formatWithKtfmt = project.getKtfmtOptInPathPrefixes().any { prefix ->
+            project.path.startsWith(prefix)
+        }
+        if (formatWithKtfmt) {
+            project.configureKtfmt()
+        } else {
+            project.configureKtlint()
+        }
         project.configureKotlinVersion()
 
         // Avoid conflicts between full Guava and LF-only Guava.
@@ -446,8 +453,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         plugin: KotlinBasePluginWrapper,
         androidXMultiplatformExtension: AndroidXMultiplatformExtension
     ) {
-        project.configureKtfmt()
-
         project.afterEvaluate {
             val targetsAndroid =
                 project.plugins.hasPlugin(LibraryPlugin::class.java) ||
