@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
@@ -101,7 +102,8 @@ class TestUseCaseCamera(
                 cameraConfig,
                 cameraQuirks,
                 null,
-                ZslControlNoOpImpl()
+                ZslControlNoOpImpl(),
+                NoOpTemplateParamsOverride,
             )
         val cameraGraph = cameraPipe.create(cameraGraphConfig)
 
@@ -141,7 +143,8 @@ class TestUseCaseCamera(
                     UseCaseCameraState(
                         useCaseCameraGraphConfig,
                         threads,
-                        sessionProcessorManager = null
+                        sessionProcessorManager = null,
+                        templateParamsOverride = NoOpTemplateParamsOverride,
                     ),
                 useCaseGraphConfig = useCaseCameraGraphConfig,
             )

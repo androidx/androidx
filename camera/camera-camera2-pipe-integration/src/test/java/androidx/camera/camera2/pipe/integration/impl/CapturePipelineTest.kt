@@ -49,6 +49,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.CapturePipelineTorchCorrection
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
+import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
@@ -355,6 +356,7 @@ class CapturePipelineTest {
                 fakeUseCaseGraphConfig,
                 fakeUseCaseThreads,
                 sessionProcessorManager = null,
+                templateParamsOverride = NoOpTemplateParamsOverride,
             )
 
         capturePipeline =
