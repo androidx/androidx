@@ -21,7 +21,6 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewFeature;
@@ -40,11 +39,10 @@ class ErrorLoggingWebViewClient extends WebViewClientCompat {
     }
 
     @Override
-    @RequiresApi(21)
     public void onReceivedError(@NonNull WebView view, @NonNull WebResourceRequest request,
             @NonNull WebResourceErrorCompat error) {
         if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_RESOURCE_ERROR_GET_CODE)) {
-            logErrors(Api21Impl.getUrl(request).toString(), error.getErrorCode());
+            logErrors(request.getUrl().toString(), error.getErrorCode());
         }
     }
 

@@ -597,11 +597,9 @@ public class WebViewFeature {
     public static final String WEB_AUTHENTICATION = "WEB_AUTHENTICATION";
 
     /**
-     * Return whether a feature is supported at run-time. On devices running Android version {@link
-     * android.os.Build.VERSION_CODES#LOLLIPOP} and higher, this will check whether a feature is
+     * Return whether a feature is supported at run-time. This will check whether a feature is
      * supported, depending on the combination of the desired feature, the Android version of
-     * device, and the WebView APK on the device. If running on a device with a lower API level,
-     * this will always return {@code false}.
+     * device, and the WebView APK on the device.
      *
      * <p class="note"><b>Note:</b> This method is different from
      * {@link #isStartupFeatureSupported(String, Context)} and this method only accepts
@@ -620,13 +618,10 @@ public class WebViewFeature {
     }
 
     /**
-     * Return whether a startup feature is supported at run-time. On devices running Android
-     * version {@link
-     * android.os.Build.VERSION_CODES#LOLLIPOP} and higher, this will check whether a startup
+     * Return whether a startup feature is supported at run-time. This will check whether a startup
      * feature is
      * supported, depending on the combination of the desired feature, the Android version of
-     * device, and the WebView APK on the device. If running on a device with a lower API level,
-     * this will always return {@code false}.
+     * device, and the WebView APK on the device.
      *
      * <p class="note"><b>Note:</b> This method is different from
      * {@link #isFeatureSupported(String)} and this method only accepts startup features. Please

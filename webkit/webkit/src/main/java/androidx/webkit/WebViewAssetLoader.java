@@ -65,7 +65,6 @@ import java.util.List;
  *
  * webView.setWebViewClient(new WebViewClientCompat() {
  *     {@literal @}Override
- *     {@literal @}RequiresApi(21)
  *     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
  *         return assetLoader.shouldInterceptRequest(request.getUrl());
  *     }
