@@ -24,12 +24,14 @@ import androidx.core.telecom.extensions.voip.VoipExtensionManager
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.test.utils.BaseTelecomTest
+import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -59,7 +61,7 @@ class CallSessionTest : BaseTelecomTest() {
         setUpV2Test()
         runBlocking {
             val callChannels = CallChannels()
-            val callEvents = initCallEvents(callChannels, coroutineContext)
+            val callEvents = initCallEvents(coroutineContext, callChannels)
 
             assertFalse(callEvents.getIsAvailableEndpointsSet().isCompleted)
             assertFalse(callEvents.getIsCurrentEndpointSet().isCompleted)
@@ -84,7 +86,7 @@ class CallSessionTest : BaseTelecomTest() {
         setUpV2Test()
         runBlocking {
             val callChannels = CallChannels()
-            val callEvents = initCallEvents(callChannels, coroutineContext)
+            val callEvents = initCallEvents(coroutineContext, callChannels)
 
             callEvents.onCallEndpointChanged(getCurrentEndpoint())
             callEvents.onAvailableCallEndpointsChanged(getAvailableEndpoint())
@@ -98,10 +100,18 @@ class CallSessionTest : BaseTelecomTest() {
         }
     }
 
-    private fun initCallEvents(callChannels: CallChannels, coroutineContext: CoroutineContext):
-        CallSession.CallEventCallbackImpl {
-        return CallSession.CallEventCallbackImpl(callChannels, coroutineContext,
-            VoipExtensionManager(mContext, coroutineContext, callChannels, mutableListOf())
+    private fun initCallEvents(coroutineContext: CoroutineContext, callChannels: CallChannels):
+        CallSession {
+        return CallSession(
+            coroutineContext,
+            TestUtils.INCOMING_CALL_ATTRIBUTES,
+            TestUtils.mOnAnswerLambda,
+            TestUtils.mOnDisconnectLambda,
+            TestUtils.mOnSetActiveLambda,
+            TestUtils.mOnSetInActiveLambda,
+            callChannels,
+            VoipExtensionManager(mContext, coroutineContext, callChannels, mutableListOf()),
+            CompletableDeferred(Unit)
         )
     }
 

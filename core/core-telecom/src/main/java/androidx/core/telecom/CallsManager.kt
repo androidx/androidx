@@ -22,6 +22,8 @@ import android.os.Build.VERSION_CODES
 import android.os.OutcomeReceiver
 import android.os.Process
 import android.telecom.CallControl
+import android.telecom.CallControlCallback
+import android.telecom.CallEventCallback
 import android.telecom.CallException
 import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
@@ -340,15 +342,15 @@ class CallsManager constructor(context: Context) {
             // and propagates CallControlCallbacks that originate in the Platform out to the client.
             val callSession = CallSession(
                 coroutineContext,
+                callAttributes,
                 onAnswer,
                 onDisconnect,
                 onSetActive,
                 onSetInactive,
-                blockingSessionExecution)
-            // The CallSession.CallEvent* class receives callbacks from the platform and emits
-            // the values through Flows out to the client.
-            val callEvents = CallSession.CallEventCallbackImpl(callChannels, coroutineContext,
-                voipExtensionManager)
+                callChannels,
+                voipExtensionManager,
+                blockingSessionExecution
+            )
 
             /**
              * The Platform [android.telecom.TelecomManager.addCall] requires a
@@ -373,15 +375,13 @@ class CallsManager constructor(context: Context) {
                 callAttributes.toCallAttributes(getPhoneAccountHandleForPackage()),
                 mDirectExecutor,
                 callControlOutcomeReceiver,
-                CallSession.CallControlCallbackImpl(callSession),
-                callEvents
+                callSession as CallControlCallback,
+                callSession as CallEventCallback
             )
 
             pauseExecutionUntilCallIsReadyOrTimeout(openResult, blockingSessionExecution)
 
-            callEvents.maybeSwitchToSpeakerOnCallStart(
-                callSession.getCallControl(),
-                callAttributes)
+            callSession.maybeSwitchToSpeakerOnCallStart()
 
             /* at this point in time we have CallControl object */
             val scope =
