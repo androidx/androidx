@@ -24,21 +24,25 @@ import androidx.camera.core.impl.Quirk;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: b/239369953, b/331754902, b/338869048, b/339555742
+ *     Bug Id: b/239369953, b/331754902, b/338869048, b/339555742, b/336925549
  *     Description: When taking image with VideoCapture is bound, the capture result is returned
  *                  but the resulting image can not be obtained. On Pixel 4XL API29, taking image
  *                  with VideoCapture UHD is bound, camera HAL returns error. Pixel 4XL starts
  *                  from API29 and API30+ work fine.
  *                  On Moto E13, taking picture will time out after recording is started, even if
  *                  the recording is stopped.
- *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29, Moto E13
+ *                  On Samsung Tab A8, apps can't take pictures successfully when ImageCapture
+ *                  selects 1920x1080 under Preview + VideoCapture + ImageCapture UseCase
+ *                  combination.
+ *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29, Moto
+ *                E13, Samsung Tab A8
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     static boolean load() {
         return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
-                || isPixel4XLApi29() || isMotoE13();
+                || isPixel4XLApi29() || isMotoE13() || isSamsungTabA8();
     }
 
     public static boolean isBluStudioX10() {
@@ -67,6 +71,11 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
                 Build.MODEL);
     }
 
+    public static boolean isSamsungTabA8() {
+        return "samsung".equalsIgnoreCase(Build.BRAND) && ("gta8".equalsIgnoreCase(Build.DEVICE)
+                || "gta8wifi".equalsIgnoreCase(Build.DEVICE));
+    }
+
     /**
      * Returns if the workaround needs to use {@link CameraDevice#TEMPLATE_PREVIEW} instead of
      * {@link CameraDevice#TEMPLATE_RECORD}.
@@ -78,6 +87,6 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
     /** Returns if the workaround needs to enable OpenGL pipeline. */
     public boolean workaroundBySurfaceProcessing() {
         return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
-                || isPixel4XLApi29() || isMotoE13();
+                || isPixel4XLApi29() || isMotoE13() || isSamsungTabA8();
     }
 }
