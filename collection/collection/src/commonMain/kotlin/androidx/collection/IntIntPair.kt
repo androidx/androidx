@@ -29,7 +29,10 @@ import kotlin.jvm.JvmInline
  */
 @JvmInline
 public value class IntIntPair
-internal constructor(@PublishedApi @JvmField internal val packedValue: Long) {
+internal constructor(
+    /** The internal representation of the [IntIntPair]. */
+    @JvmField public val packedValue: Long
+) {
     /**
      * Constructs a [IntIntPair] with two [Int] values.
      *
