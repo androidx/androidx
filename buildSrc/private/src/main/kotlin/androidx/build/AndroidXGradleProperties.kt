@@ -143,16 +143,9 @@ const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri
 const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 
 /**
- * Comma-delimited list of project path prefixes which have been opted-out of the Suppress
- * Compatibility migration.
+ * Comma-delimited list of project path prefixes which have been opted-in to ktfmt migration.
  */
-const val SUPPRESS_COMPATIBILITY_OPT_OUT = "androidx.suppress.compatibility.optout"
-
-/**
- * Comma-delimited list of project path prefixes which have been opted-in to the Suppress
- * Compatibility migration.
- */
-const val SUPPRESS_COMPATIBILITY_OPT_IN = "androidx.suppress.compatibility.optin"
+const val KTFMT_OPT_IN = "androidx.ktfmt.optin"
 
 /**
  * If true, include Jetpack library projects that live outside of `frameworks/support`.
@@ -203,10 +196,7 @@ val ALL_ANDROIDX_PROPERTIES =
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
 
 val PREFIXED_ANDROIDX_PROPERTIES =
-    setOf(
-        SUPPRESS_COMPATIBILITY_OPT_OUT,
-        SUPPRESS_COMPATIBILITY_OPT_IN,
-    )
+    setOf(KTFMT_OPT_IN)
 
 /**
  * Whether to enable constraints for projects in same-version groups See the property definition for
@@ -318,16 +308,10 @@ fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
 }
 
 /**
- * List of project path prefixes which have been opted-in to the Suppress Compatibility migration.
+ * List of project path prefixes which have been opted-in to the ktfmt migration.
  */
-fun Project.getSuppressCompatibilityOptInPathPrefixes(): List<String> =
-    aggregatePropertyPrefix(SUPPRESS_COMPATIBILITY_OPT_IN)
-
-/**
- * List of project path prefixes which have been opted out of the Suppress Compatibility migration.
- */
-fun Project.getSuppressCompatibilityOptOutPathPrefixes(): List<String> =
-    aggregatePropertyPrefix(SUPPRESS_COMPATIBILITY_OPT_OUT)
+fun Project.getKtfmtOptInPathPrefixes(): List<String> =
+    aggregatePropertyPrefix(KTFMT_OPT_IN)
 
 internal fun Project.aggregatePropertyPrefix(prefix: String): List<String> =
     properties.flatMap { (name, value) ->
