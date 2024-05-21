@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.camera.video.internal.compat.quirk;
+package androidx.camera.camera2.internal.compat.quirk;
 
-import android.hardware.camera2.CameraDevice;
 import android.os.Build;
 
-import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk;
 
 /**
  * <p>QuirkSummary
@@ -36,7 +35,8 @@ import androidx.camera.core.impl.Quirk;
  *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29, Moto
  *                E13, Samsung Tab A8
  */
-public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
+public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements CaptureIntentPreviewQuirk,
+        SurfaceProcessingQuirk {
 
     static boolean load() {
         return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
@@ -74,15 +74,12 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
                 || "gta8wifi".equalsIgnoreCase(Build.DEVICE));
     }
 
-    /**
-     * Returns if the workaround needs to use {@link CameraDevice#TEMPLATE_PREVIEW} instead of
-     * {@link CameraDevice#TEMPLATE_RECORD}.
-     */
-    public boolean workaroundByTemplatePreview() {
+    @Override
+    public boolean workaroundByCaptureIntentPreview() {
         return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro();
     }
 
-    /** Returns if the workaround needs to enable OpenGL pipeline. */
+    @Override
     public boolean workaroundBySurfaceProcessing() {
         return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
                 || isPixel4XLApi29() || isMotoE13() || isSamsungTabA8();

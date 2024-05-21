@@ -23,12 +23,21 @@ import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureIntentPreviewQuirk.Companion.workaroundByCaptureIntentPreview
+import androidx.camera.camera2.pipe.integration.compat.quirk.ImageCaptureFailedWhenVideoCaptureIsBoundQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.PreviewDelayWhenVideoCaptureIsBoundQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.TemporalNoiseQuirk
 import dagger.Module
 import dagger.Provides
 
 /**
  * Workaround to get those capture parameters used to override the template default parameters.
  * - This workaround should only be applied on repeating request but not on single request.
+ *
+ * @see PreviewStretchWhenVideoCaptureIsBoundQuirk
+ * @see PreviewDelayWhenVideoCaptureIsBoundQuirk
+ * @see ImageCaptureFailedWhenVideoCaptureIsBoundQuirk
+ * @see TemporalNoiseQuirk
  */
 interface TemplateParamsOverride {
     /** Returns capture parameters used to override the default parameters of the input template. */
