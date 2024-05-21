@@ -14,6 +14,12 @@ If attempting to reproduce a build failure results in a successful build, here a
 
     C) You could run the build in a loop, in hopes of reproducing the error again
 
+    D) You could upload a build scan for a failure from the build server via development/publishScan.sh
+
+       Build scans sometimes have different information than error logs.
+
+       Build scans can also be directly compared using Develocity (the server that hosts them)
+
   The state of your build could be different from when you started your previous build
 
     Running the failing build may have deleted the problematic state (cleared caches etc)
