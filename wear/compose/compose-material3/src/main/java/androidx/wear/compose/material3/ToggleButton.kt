@@ -616,7 +616,7 @@ class ToggleButtonColors constructor(
     ) : this(
         checkedContainerColor = checkedContainerColor,
         checkedContentColor = checkedContentColor,
-        checkedSecondaryContentColor = checkedContainerColor,
+        checkedSecondaryContentColor = checkedContentColor,
         checkedIconColor = checkedContentColor,
         uncheckedContainerColor = uncheckedContainerColor,
         uncheckedContentColor = uncheckedContentColor,
