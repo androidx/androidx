@@ -169,7 +169,8 @@ internal fun rememberPagerMeasurePolicy(
             beyondBoundsInfo = state.beyondBoundsInfo
         )
 
-        val measureResult = Snapshot.withMutableSnapshot {
+        // todo: wrap with snapshot when b/341782245 is resolved
+        val measureResult =
             measurePager(
                 beforeContentPadding = beforeContentPadding,
                 afterContentPadding = afterContentPadding,
@@ -200,7 +201,6 @@ internal fun rememberPagerMeasurePolicy(
                     )
                 }
             )
-        }
         state.applyMeasureResult(measureResult)
         measureResult
     }
