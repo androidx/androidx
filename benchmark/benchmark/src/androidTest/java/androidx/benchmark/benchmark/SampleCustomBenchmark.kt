@@ -82,7 +82,7 @@ class SampleCustomBenchmark {
     )
     @Test
     fun sample() {
-        assumeFalse(ProfilerConfig.MethodTracing.affectsMeasurementOnThisDevice)
+        assumeFalse(ProfilerConfig.MethodTracing.AFFECTS_MEASUREMENTS_ON_THIS_DEVICE)
         benchmarkRule.measureRepeated {
             repeat(20) {
                 counter++

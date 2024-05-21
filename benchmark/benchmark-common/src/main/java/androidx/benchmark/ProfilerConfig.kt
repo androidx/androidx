@@ -61,7 +61,7 @@ sealed class ProfilerConfig(
              */
             @Suppress("GetterSetterNames")
             @JvmField
-            val affectsMeasurementOnThisDevice: Boolean =
+            val AFFECTS_MEASUREMENTS_ON_THIS_DEVICE: Boolean =
                 DeviceInfo.methodTracingAffectsMeasurements
         }
     }
