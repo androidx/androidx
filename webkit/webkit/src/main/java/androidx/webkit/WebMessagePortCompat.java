@@ -33,7 +33,7 @@ import java.lang.reflect.InvocationHandler;
  * HTML5 message ports.</a>
  *
  * <p>A Message port represents one endpoint of a Message Channel. In Android
- * webview, there is no separate Message Channel object. When a message channel
+ * WebView, there is no separate Message Channel object. When a message channel
  * is created, both ports are tangled to each other and started, and then
  * returned in a MessagePort array, see {@link WebViewCompat#createWebMessageChannel}
  * for creating a message channel.

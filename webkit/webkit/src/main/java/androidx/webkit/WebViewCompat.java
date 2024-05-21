@@ -367,7 +367,7 @@ public class WebViewCompat {
             try {
                 return getLoadedWebViewPackageInfo();
             } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException
-                     | NoSuchMethodException  e) {
+                     | NoSuchMethodException ignored) {
             }
         }
         return null;
@@ -406,13 +406,8 @@ public class WebViewCompat {
                 webviewPackageName = (String) webviewUpdateServiceClass.getMethod(
                         "getCurrentWebViewPackageName").invoke(null);
             }
-        } catch (ClassNotFoundException e) {
-            return null;
-        } catch (IllegalAccessException e) {
-            return null;
-        } catch (InvocationTargetException e) {
-            return null;
-        } catch (NoSuchMethodException e) {
+        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException
+                 | NoSuchMethodException e) {
             return null;
         }
         if (webviewPackageName == null) return null;
@@ -530,7 +525,7 @@ public class WebViewCompat {
      *
      * <table>
      * <tr><th>Rule</th><th>Description</th><th>Example</th></tr>
-     *
+     * <p>
      * <tr>
      * <td>http/https with hostname</td>
      * <td>{@code SCHEME} is http or https; {@code HOSTNAME_PATTERN} is a regular hostname; {@code
@@ -543,7 +538,7 @@ public class WebViewCompat {
      * is www.example.com.</li>
      * </ul></td>
      * </tr>
-     *
+     * <p>
      * <tr>
      * <td>http/https with pattern matching</td>
      * <td>{@code SCHEME} is http or https; {@code HOSTNAME_PATTERN} is a sub-domain matching
@@ -556,7 +551,7 @@ public class WebViewCompat {
      * <li>{@code https://*.example.com:8080} - Matches https://calendar.example.com:8080</li>
      * </ul></td>
      * </tr>
-     *
+     * <p>
      * <tr>
      * <td>http/https with IP literal</td>
      * <td>{@code SCHEME} is https or https; {@code HOSTNAME_PATTERN} is IP literal; {@code PORT} is
@@ -571,7 +566,7 @@ public class WebViewCompat {
      * <li>{@code https://[::1]:99} - Matches any https:// URL to the IPv6 loopback on port 99.</li>
      * </ul></td>
      * </tr>
-     *
+     * <p>
      * <tr>
      * <td>Custom scheme</td>
      * <td>{@code SCHEME} is a custom scheme; {@code HOSTNAME_PATTERN} and {@code PORT} must not be
@@ -580,7 +575,7 @@ public class WebViewCompat {
      * <li>{@code my-app-scheme://} - Matches any my-app-scheme:// URL.</li>
      * </ul></td>
      * </tr>
-     *
+     * <p>
      * <tr><td>{@code *}</td>
      * <td>Wildcard rule, matches any origin.</td>
      * <td><ul><li>{@code *}</li></ul></td>
@@ -606,18 +601,18 @@ public class WebViewCompat {
      * // message needs to be a JavaScript String or ArrayBuffer, MessagePorts is an optional
      * // parameter.
      * myObject.postMessage(message[, MessagePorts])
-     *
+     * <p>
      * // To receive messages posted from the app side, assign a function to the "onmessage"
      * // property. This function should accept a single "event" argument. "event" has a "data"
      * // property, which is the message String or ArrayBuffer from the app side.
      * myObject.onmessage = function(event) { ... }
-     *
+     * <p>
      * // To be compatible with DOM EventTarget's addEventListener, it accepts type and listener
      * // parameters, where type can be only "message" type and listener can only be a JavaScript
      * // function for myObject. An event object will be passed to listener with a "data" property,
      * // which is the message String or ArrayBuffer from the app side.
      * myObject.addEventListener(type, listener)
-     *
+     * <p>
      * // To be compatible with DOM EventTarget's removeEventListener, it accepts type and listener
      * // parameters, where type can be only "message" type and listener can only be a JavaScript
      * // function for myObject.
@@ -1045,10 +1040,11 @@ public class WebViewCompat {
      * <p>The app is responsible for adding the X-Client-Data header to any request that may use
      * variations metadata, such as requests to Google web properties. The returned string will be a
      * base64 encoded ClientVariations proto:
-     * https://source.chromium.org/chromium/chromium/src/+/main:components/variations/proto/client_variations.proto
+     * <a href="https://source.chromium.org/chromium/chromium/src/+/main:components/variations/proto/client_variations.proto">
+     * https://source.chromium.org/chromium/chromium/src/+/main:components/variations/proto/client_variations.proto</a>
      *
      * @return the variations header. The string may be empty if the header is not available.
-     * @see WebView#loadUrl(String, java.util.Map<String, String>)
+     * @see WebView#loadUrl(String, java.util.Map)
      */
     @RequiresFeature(
             name = WebViewFeature.GET_VARIATIONS_HEADER,
@@ -1138,10 +1134,10 @@ public class WebViewCompat {
     }
 
     /**
-     * Mute or unmute this WebView.
+     * Mute or un-mute this WebView.
      *
      * @param webView the WebView for which to control muting.
-     * @param mute true to mute the WebView; false to unmute the WebView.
+     * @param mute true to mute the WebView; false to un-mute the WebView.
      */
     @RequiresFeature(name = WebViewFeature.MUTE_AUDIO,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -1182,11 +1178,7 @@ public class WebViewCompat {
                 // WebView.checkThread() performs some logging and potentially throws an exception
                 // if WebView is used on the wrong thread.
                 checkThreadMethod.invoke(webview);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
         }

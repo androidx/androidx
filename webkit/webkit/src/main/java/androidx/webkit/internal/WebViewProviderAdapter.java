@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
  */
 @SuppressWarnings("JavadocReference") // WebViewProvider is hidden.
 public class WebViewProviderAdapter {
-    WebViewProviderBoundaryInterface mImpl;
+    final WebViewProviderBoundaryInterface mImpl;
 
     public WebViewProviderAdapter(@NonNull WebViewProviderBoundaryInterface impl) {
         mImpl = impl;
@@ -85,7 +85,7 @@ public class WebViewProviderAdapter {
 
     /**
      * Adapter method for {@link WebViewCompat#addWebMessageListener(android.webkit.WebView,
-     * String, List<String>, androidx.webkit.WebViewCompat.WebMessageListener)}.
+     * String, java.util.List, androidx.webkit.WebViewCompat.WebMessageListener)}.
      */
     public void addWebMessageListener(@NonNull String jsObjectName,
             @NonNull String[] allowedOriginRules,

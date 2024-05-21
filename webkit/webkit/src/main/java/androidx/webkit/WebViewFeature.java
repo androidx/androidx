@@ -602,7 +602,7 @@ public class WebViewFeature {
      * device, and the WebView APK on the device.
      *
      * <p class="note"><b>Note:</b> This method is different from
-     * {@link #isStartupFeatureSupported(String, Context)} and this method only accepts
+     * {@link WebViewFeature#isStartupFeatureSupported(Context, String)} and this method only accepts
      * certain features. Please verify that the correct feature checking method is used for a
      * particular feature.
      *
@@ -611,7 +611,7 @@ public class WebViewFeature {
      * for a particular feature, any callback guarded by that feature will not be invoked.
      *
      * @param feature the feature to be checked
-     * @return whether the feature is supported given the current platform SDK and webview version
+     * @return whether the feature is supported given the current platform SDK and WebView version
      */
     public static boolean isFeatureSupported(@NonNull @WebViewSupportFeature String feature) {
         return WebViewFeatureInternal.isSupported(feature);
@@ -633,7 +633,7 @@ public class WebViewFeature {
      *
      * @param context a Context to access application assets This value cannot be null.
      * @param startupFeature the startup feature to be checked
-     * @return whether the feature is supported given the current platform SDK and webview version
+     * @return whether the feature is supported given the current platform SDK and WebView version
      */
     public static boolean isStartupFeatureSupported(@NonNull Context context,
             @NonNull @WebViewStartupFeature String startupFeature) {

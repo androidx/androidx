@@ -29,7 +29,7 @@ import androidx.webkit.WebViewRenderProcessClient;
 @RequiresApi(29)
 public class WebViewRenderProcessClientFrameworkAdapter extends
             android.webkit.WebViewRenderProcessClient {
-    private WebViewRenderProcessClient mWebViewRenderProcessClient;
+    private final WebViewRenderProcessClient mWebViewRenderProcessClient;
 
     public WebViewRenderProcessClientFrameworkAdapter(@NonNull WebViewRenderProcessClient client) {
         mWebViewRenderProcessClient = client;

@@ -78,8 +78,8 @@ public class WebViewMediaIntegrityApiStatusConfig {
     public static final int WEBVIEW_MEDIA_INTEGRITY_API_DISABLED =
             WebSettingsBoundaryInterface.WebViewMediaIntegrityApiStatus.DISABLED;
 
-    private @WebViewMediaIntegrityApiStatus int mDefaultStatus;
-    private Map<String, @WebViewMediaIntegrityApiStatus Integer> mOverrideRules;
+    private final @WebViewMediaIntegrityApiStatus int mDefaultStatus;
+    private final Map<String, @WebViewMediaIntegrityApiStatus Integer> mOverrideRules;
 
     public WebViewMediaIntegrityApiStatusConfig(@NonNull Builder builder) {
         this.mDefaultStatus = builder.mDefaultStatus;
@@ -101,7 +101,7 @@ public class WebViewMediaIntegrityApiStatusConfig {
      * </pre>
      */
     public static final class Builder {
-        private @WebViewMediaIntegrityApiStatus int mDefaultStatus;
+        private final @WebViewMediaIntegrityApiStatus int mDefaultStatus;
         private Map<String, @WebViewMediaIntegrityApiStatus Integer> mOverrideRules;
 
         /**
@@ -133,10 +133,10 @@ public class WebViewMediaIntegrityApiStatusConfig {
         /**
          * Set all required override rules at once using a map of origin patterns to
          * desired API statuses. This overwrites existing rules.
-         *
+         * <p>
          * If two or more origin patterns match a given origin site, the least permissive option
          * will be chosen.
-         *
+         * <p>
          * This is only meant for internal use within the library.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
