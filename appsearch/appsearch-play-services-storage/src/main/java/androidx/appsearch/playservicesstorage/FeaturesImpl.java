@@ -26,116 +26,68 @@ import androidx.appsearch.app.Features;
 final class FeaturesImpl implements Features {
     @Override
     public boolean isFeatureSupported(@NonNull String feature) {
-        // TODO(b/274986359): Update based on features available in {@link Features} and those
-        //  supported by play-services-appsearch.
         switch (feature) {
-            // Android T Features
             case Features.ADD_PERMISSIONS_AND_GET_VISIBILITY:
                 // fall through
             case Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA:
                 // fall through
             case Features.GLOBAL_SEARCH_SESSION_GET_BY_ID:
                 // fall through
+            case Features.JOIN_SPEC_AND_QUALIFIED_ID:
+                // fall through
+            case Features.NUMERIC_SEARCH:
+                // fall through
+            case Features.VERBATIM_SEARCH:
+                // fall through
+            case Features.LIST_FILTER_QUERY_LANGUAGE:
+                // fall through
+            case Features.LIST_FILTER_HAS_PROPERTY_FUNCTION:
+                // fall through
+            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
+                // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
                 // fall through
-                return true; // AppSearch features in T, present in GMSCore AppSearch.
+            case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
+                // fall through
+            case Features.TOKENIZER_TYPE_RFC822:
+                // fall through
+            case Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
+                // fall through
+            case Features.SEARCH_SUGGESTION:
+                // fall through
+            case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
+                // fall through
+            case Features.SCHEMA_ADD_PARENT_TYPE:
+                // fall through
+            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
+                // fall through
+            case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
+                // fall through
+            case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
+                return true; // AppSearch features present in GMSCore AppSearch.
 
             // RegisterObserver and UnregisterObserver are not yet supported by GMSCore AppSearch.
             // TODO(b/208654892) : Update to reflect support once this feature is supported.
             case Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK:
-            // Android U Features
-            case Features.SEARCH_SPEC_PROPERTY_WEIGHTS:
-                // TODO(b/203700301) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.TOKENIZER_TYPE_RFC822:
-                // TODO(b/259294369) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.NUMERIC_SEARCH:
-                // TODO(b/259744228) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION:
-                // TODO(b/261474063) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.JOIN_SPEC_AND_QUALIFIED_ID:
-                // TODO(b/256022027) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.VERBATIM_SEARCH:
-                // TODO(b/204333391) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.LIST_FILTER_QUERY_LANGUAGE:
-                // TODO(b/208654892) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.LIST_FILTER_HAS_PROPERTY_FUNCTION:
-                // TODO(b/309826655) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
                 // fall through
             case Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG:
-                // TODO(b/326656531) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
-                // TODO(b/258715421) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.SEARCH_SUGGESTION:
-                // TODO(b/227356108) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
-                // TODO(b/280698121) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.SCHEMA_ADD_PARENT_TYPE:
-                // TODO(b/269295094) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
-                // TODO(b/289150947) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
                 // fall through
             case Features.SCHEMA_SET_DESCRIPTION:
-                // TODO(b/326987971) : Update to reflect support once this feature is synced over
-                // into gms-appsearch.
-                // fall through
-            case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
-                // TODO(b/296088047) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
-                // TODO(b/296088047) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
-                // TODO(b/275592563) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
-                // TODO(b/275592563) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                // fall through
-            case Features.LIST_FILTER_TOKENIZE_FUNCTION:
-                // TODO(b/332620561) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
                 // fall through
             case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:
-                // TODO(b/332642571) : Update to reflect support once this feature is synced over
-                //  into gms-appsearch.
-                return false;
+                // fall through
+            case Features.LIST_FILTER_TOKENIZE_FUNCTION:
+                // fall through
             default:
-                return false; // AppSearch features in U+, absent in GMSCore AppSearch.
+                return false; // AppSearch features absent in GMSCore AppSearch.
         }
     }
     @Override
     public int getMaxIndexedProperties() {
-        // TODO(b/241310816): Update to reflect support in Android U+ once 64 indexable properties
-        //  are possible in service-appsearch.
-        return 16;
+        return 64;
     }
 }

@@ -68,6 +68,10 @@ public class SearchResultToGmsConverter {
                     gmsMatches.get(i));
             builder.addMatchInfo(jetpackMatchInfo);
         }
+        for (com.google.android.gms.appsearch.SearchResult joinedResult :
+                gmsResult.getJoinedResults()) {
+            builder.addJoinedResult(toJetpackSearchResult(joinedResult));
+        }
         return builder.build();
     }
 

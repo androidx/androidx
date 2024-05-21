@@ -27,7 +27,6 @@ import java.util.Map;
 
 /**
  * Translates between Gms and Jetpack versions of {@link SearchSpec}.
-
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchSpecToGmsConverter {
@@ -43,10 +42,7 @@ public final class SearchSpecToGmsConverter {
                 new com.google.android.gms.appsearch.SearchSpec.Builder();
 
         if (!jetpackSearchSpec.getAdvancedRankingExpression().isEmpty()) {
-            //TODO(b/274986359) Add GMSCore feature check for Advanced Ranking once available.
-            throw new UnsupportedOperationException(
-                    Features.SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION
-                            + " is not available on this AppSearch implementation.");
+            gmsBuilder.setRankingStrategy(jetpackSearchSpec.getAdvancedRankingExpression());
         } else {
             gmsBuilder.setRankingStrategy(jetpackSearchSpec.getRankingStrategy());
         }
@@ -57,7 +53,6 @@ public final class SearchSpecToGmsConverter {
                 .addFilterNamespaces(jetpackSearchSpec.getFilterNamespaces())
                 .addFilterPackageNames(jetpackSearchSpec.getFilterPackageNames())
                 .setResultCountPerPage(jetpackSearchSpec.getResultCountPerPage())
-                .setRankingStrategy(jetpackSearchSpec.getRankingStrategy())
                 .setOrder(jetpackSearchSpec.getOrder())
                 .setSnippetCount(jetpackSearchSpec.getSnippetCount())
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
@@ -72,22 +67,27 @@ public final class SearchSpecToGmsConverter {
             gmsBuilder.addProjection(projection.getKey(), projection.getValue());
         }
 
+        if (!jetpackSearchSpec.getPropertyWeights().isEmpty()) {
+            for (Map.Entry<String, Map<String, Double>> entry :
+                    jetpackSearchSpec.getPropertyWeights().entrySet()) {
+                gmsBuilder.setPropertyWeights(entry.getKey(), entry.getValue());
+            }
+        }
+
         if (!jetpackSearchSpec.getEnabledFeatures().isEmpty()) {
-            if (jetpackSearchSpec.isNumericSearchEnabled()
-                    || jetpackSearchSpec.isVerbatimSearchEnabled()
-                    || jetpackSearchSpec.isListFilterQueryLanguageEnabled()) {
-                //TODO(b/274986359) Add GMSCore feature check for NUMERIC_SEARCH,
-                // VERBATIM_SEARCH and LIST_FILTER_QUERY_LANGUAGE once available.
-                throw new UnsupportedOperationException(
-                        "Advanced query features (NUMERIC_SEARCH, VERBATIM_SEARCH and "
-                                + "LIST_FILTER_QUERY_LANGUAGE) are not supported with this "
-                                + "backend/Android API level combination.");
+            if (jetpackSearchSpec.isNumericSearchEnabled()) {
+                gmsBuilder.setNumericSearchEnabled(true);
+            }
+            if (jetpackSearchSpec.isVerbatimSearchEnabled()) {
+                gmsBuilder.setVerbatimSearchEnabled(true);
+            }
+            if (jetpackSearchSpec.isListFilterQueryLanguageEnabled()) {
+                gmsBuilder.setListFilterQueryLanguageEnabled(true);
             }
             if (jetpackSearchSpec.isListFilterHasPropertyFunctionEnabled()) {
-                // TODO(b/309826655): Remove this once the hasProperty function becomes available.
-                throw new UnsupportedOperationException(Features.LIST_FILTER_HAS_PROPERTY_FUNCTION
-                        + " is not available on this AppSearch implementation.");
+                gmsBuilder.setListFilterHasPropertyFunctionEnabled(true);
             }
+            // Copy beyond-V features
             if (jetpackSearchSpec.isEmbeddingSearchEnabled()
                     || !jetpackSearchSpec.getSearchEmbeddings().isEmpty()) {
                 // TODO(b/326656531): Remove this once embedding search APIs are available.
@@ -101,23 +101,20 @@ public final class SearchSpecToGmsConverter {
             }
         }
 
-        if (!jetpackSearchSpec.getPropertyWeights().isEmpty()) {
-            //TODO(b/274986359) Add GMSCore feature check for Property Weights once available.
-            throw new UnsupportedOperationException(
-                    "Property weights are not supported with this backend/Android API level "
-                            + "combination.");
-        }
-
         if (jetpackSearchSpec.getJoinSpec() != null) {
-            //TODO(b/274986359) Add GMSCore feature check for Joins once available.
-            throw new UnsupportedOperationException("JoinSpec is not available on this "
-                    + "AppSearch implementation.");
+            gmsBuilder.setJoinSpec(JoinSpecToGmsConverter.toGmsJoinSpec(
+                    jetpackSearchSpec.getJoinSpec()));
         }
 
         if (!jetpackSearchSpec.getFilterProperties().isEmpty()) {
-            // TODO(b/296088047): Remove this once property filters become available.
-            throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
-                    + " is not available on this AppSearch implementation.");
+            for (Map.Entry<String, List<String>> entry :
+                    jetpackSearchSpec.getFilterProperties().entrySet()) {
+                gmsBuilder.addFilterProperties(entry.getKey(), entry.getValue());
+            }
+        }
+
+        if (jetpackSearchSpec.getSearchSourceLogTag() != null) {
+            gmsBuilder.setSearchSourceLogTag(jetpackSearchSpec.getSearchSourceLogTag());
         }
 
         if (!jetpackSearchSpec.getInformationalRankingExpressions().isEmpty()) {
