@@ -91,14 +91,31 @@ internal class RouteDecoder : AbstractDecoder {
     // we want to know if it is not null, so its !isNull
     override fun decodeNotNullMark(): Boolean = !decoder.isCurrentElementNull()
 
-    // value from decodeValue() rather than decodeInt, decodeBoolean etc.. needs to be casted
+    /**
+     * Entry point to decoding the route
+     *
+     * The original entry point was [decodeSerializableValue], however we needed to override it
+     * to handle nested serializable values without recursing into the nested
+     * serializable (non-primitives).
+     * So this is our new entry point which calls super.decodeSerializableValue to deserialize
+     * only the route.
+     */
+    internal fun <T> decodeRouteWithArgs(deserializer: DeserializationStrategy<T>): T {
+        return super.decodeSerializableValue(deserializer)
+    }
+
+    /**
+     * Decodes the arguments within the route.
+     *
+     * Handles both primitives and non-primitives in three scenarios:
+     * 1. nullable primitives with non-null value
+     * 2. nullable non-primitive with non-null value
+     * 3. non-nullable non-primitive values
+     */
     @Suppress("UNCHECKED_CAST")
-    override fun <T> decodeSerializableElement(
-        descriptor: SerialDescriptor,
-        index: Int,
-        deserializer: DeserializationStrategy<T>,
-        previousValue: T?
-    ): T = decoder.decodeValue() as T
+    override fun <T> decodeSerializableValue(deserializer: DeserializationStrategy<T>): T {
+        return decoder.decodeValue() as T
+    }
 }
 
 private class Decoder(private val store: ArgStore) {
