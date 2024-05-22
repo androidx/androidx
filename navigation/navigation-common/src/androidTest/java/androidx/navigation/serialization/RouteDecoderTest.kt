@@ -210,34 +210,31 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     @Test
     fun decodeCustomType() {
         @Serializable
-        class CustomType(val nestedArg: Int) : Parcelable {
-            override fun describeContents() = 0
-            override fun writeToParcel(dest: Parcel, flags: Int) {}
-        }
+        class TestClass(val arg: CustomType)
 
-        @Serializable
-        class TestClass(val custom: CustomType)
-
-        @Suppress("DEPRECATION")
-        val customArg = navArgument("custom") {
-            type = object : NavType<CustomType>(false) {
-                override fun put(bundle: Bundle, key: String, value: CustomType) {
-                    bundle.putString(key, value.nestedArg.toString())
-                }
-                override fun get(bundle: Bundle, key: String): CustomType =
-                    CustomType(nestedArg = bundle.getString(key)!!.toInt())
-                override fun parseValue(value: String): CustomType = CustomType(15)
-                override fun serializeAsValue(value: CustomType) = ""
-            }
-        }
         val bundle = Bundle().apply {
-            customArg.argument.type.put(this, "custom", CustomType(1))
+            customNavType.argument.type.put(this, "arg", CustomType(1))
         }
         val result = decode<TestClass>(
             bundle,
-            listOf(customArg)
+            listOf(customNavType)
         )
-        assertThat(result.custom.nestedArg).isEqualTo(1)
+        assertThat(result.arg.nestedArg).isEqualTo(1)
+    }
+
+    @Test
+    fun decodeCustomTypeNullable() {
+        @Serializable
+        class TestClass(val arg: CustomType?)
+
+        val bundle = Bundle().apply {
+            customNavType.argument.type.put(this, "arg", CustomType(1))
+        }
+        val result = decode<TestClass>(
+            bundle,
+            listOf(customNavType)
+        )
+        assertThat(result.arg?.nestedArg).isEqualTo(1)
     }
 
     @Test
@@ -340,30 +337,14 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     @Test
     fun decodeNullCustom() {
         @Serializable
-        class CustomType : Parcelable {
-            override fun describeContents() = 0
-            override fun writeToParcel(dest: Parcel, flags: Int) {}
-        }
+        class TestClass(val arg: CustomType?)
 
-        @Serializable
-        class TestClass(val custom: CustomType?)
-
-        @Suppress("DEPRECATION")
-        val customArg = navArgument("custom") {
-            type = object : NavType<CustomType>(true) {
-                override fun put(bundle: Bundle, key: String, value: CustomType) { }
-                override fun get(bundle: Bundle, key: String): CustomType? =
-                    bundle[key] as? CustomType
-                override fun parseValue(value: String): CustomType = CustomType()
-                override fun serializeAsValue(value: CustomType) = ""
-            }
-        }
-        val bundle = bundleOf("custom" to null)
+        val bundle = bundleOf("arg" to null)
         val result = decode<TestClass>(
             bundle,
-            listOf(customArg)
+            listOf(customNavType)
         )
-        assertThat(result.custom).isNull()
+        assertThat(result.arg).isNull()
     }
 
     @Test
@@ -404,6 +385,21 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
             listOf(navArgument("list") { type = collectionNavType })
         )
         assertThat(result.list).containsExactlyElementsIn(arg).inOrder()
+    }
+
+    @Serializable
+    private class CustomType(val nestedArg: Int)
+
+    private val customNavType = navArgument("arg") {
+        type = object : NavType<CustomType?>(true) {
+            override fun put(bundle: Bundle, key: String, value: CustomType?) {
+                bundle.putString(key, value?.nestedArg.toString())
+            }
+            override fun get(bundle: Bundle, key: String): CustomType? =
+                bundle.getString(key)?.toInt()?.let { CustomType(it) }
+            override fun parseValue(value: String): CustomType? = CustomType(value.toInt())
+            override fun serializeAsValue(value: CustomType?) = value?.nestedArg.toString()
+        }
     }
 
     @Suppress("DEPRECATION")
