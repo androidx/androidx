@@ -25,6 +25,7 @@ import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.LocalBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -146,6 +147,12 @@ internal fun Pager(
         )
     }
 
+    val reverseDirection = ScrollableDefaults.reverseDirection(
+        LocalLayoutDirection.current,
+        orientation,
+        reverseLayout
+    )
+
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
@@ -178,10 +185,11 @@ internal fun Pager(
                 state = state,
                 orientation = orientation,
                 enabled = userScrollEnabled,
-                reverseScrolling = reverseLayout,
+                reverseDirection = reverseDirection,
                 flingBehavior = resolvedFlingBehavior,
                 interactionSource = state.internalInteractionSource,
-                bringIntoViewSpec = pagerBringIntoViewSpec
+                bringIntoViewSpec = pagerBringIntoViewSpec,
+                overscrollEffect = ScrollableDefaults.overscrollEffect()
             )
             .dragDirectionDetector(state)
             .nestedScroll(pageNestedScrollConnection),
