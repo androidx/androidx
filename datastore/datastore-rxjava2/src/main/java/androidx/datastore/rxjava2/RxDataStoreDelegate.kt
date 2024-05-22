@@ -45,6 +45,7 @@ import kotlin.reflect.KProperty
  * @param fileName the filename relative to Context.filesDir that DataStore acts on. The File is
  * obtained by calling File(context.filesDir, "datastore/$fileName")). No two instances of DataStore
  * should act on the same file at the same time.
+ * @param serializer the Serializer to serialize and deserialize on-disk data to type [T].
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  * [androidx.datastore.core.CorruptionException] when attempting to read data. CorruptionExceptions
  * are thrown by serializers when data can not be de-serialized.
