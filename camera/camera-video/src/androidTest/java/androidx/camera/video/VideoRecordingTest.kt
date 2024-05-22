@@ -43,6 +43,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraControlInternal
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_3_4
 import androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3
@@ -635,6 +636,114 @@ class VideoRecordingTest(
 
         // Verify.
         verifyRecordingResult(file)
+    }
+
+    @Test
+    fun recordingWhenSessionErrorListenerReceivesError() {
+        val recorder = Recorder.Builder().build()
+        videoCapture = VideoCapture.withOutput(recorder)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture)
+        }
+
+        // Verifies recording before triggering onError event
+        verifyRecording()
+
+        // Retrieves the initial session config
+        var sessionConfig = videoCapture.sessionConfig
+
+        // Checks that video can be recorded successfully when onError is received.
+        triggerOnErrorAndWaitForReady(
+            sessionConfig,
+            recorder.mVideoEncoderSession.readyToReleaseFuture
+        )
+        // Verifies recording after triggering onError event
+        verifyRecording()
+
+        // Rebinds to different camera
+        val oppositeCameraSelector = getOppositeDirectionCameraSelector()
+        if (CameraUtil.hasCameraWithLensFacing(oppositeCameraSelector.lensFacing!!)) {
+            instrumentation.runOnMainSync {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    oppositeCameraSelector,
+                    preview,
+                    videoCapture
+                )
+            }
+
+            // Verifies recording after binding to different camera
+            verifyRecording()
+
+            // Checks that video can be recorded successfully when onError is received by the
+            // old error listener.
+            triggerOnErrorAndWaitForReady(sessionConfig)
+
+            // Verifies recording after triggering onError event to the closed error listener
+            verifyRecording()
+        }
+
+        // Update the session config
+        sessionConfig = videoCapture.sessionConfig
+
+        // Checks that image can be received successfully when onError is received by the new
+        // error listener.
+        triggerOnErrorAndWaitForReady(
+            sessionConfig,
+            recorder.mVideoEncoderSession.readyToReleaseFuture
+        )
+        // Verifies recording after triggering onError event to the new active error listener
+        verifyRecording()
+    }
+
+    private fun getOppositeDirectionCameraSelector(): CameraSelector =
+        if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+            CameraSelector.DEFAULT_FRONT_CAMERA
+        } else {
+            CameraSelector.DEFAULT_BACK_CAMERA
+        }
+
+    private fun verifyRecording() {
+        latchForVideoSaved = CountDownLatch(1)
+        latchForVideoRecording = CountDownLatch(5)
+
+        completeVideoRecording(videoCapture)
+    }
+
+    /**
+     * Triggers the onError to the error listener in the session config
+     *
+     * If the test starts recording immediately after `onError` is called. There could be a timing
+     * issue which causes the recording to be stopped. In that case, input the VideoEncoderSession's
+     * readyToReleaseFuture. This function will wait for the ready-to-release future to be
+     * completed. This can make sure that the following recording operation won't be interrupted
+     * when the previous DeferrableSurface is closed.
+     */
+    private fun triggerOnErrorAndWaitForReady(
+        sessionConfig: SessionConfig,
+        readyFuture: ListenableFuture<*>? = null
+    ) {
+        instrumentation.runOnMainSync {
+            sessionConfig.errorListener!!.onError(
+                sessionConfig,
+                SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
+            )
+        }
+
+        // If the test starts recording immediately after `onError` is called. There could be a
+        // timing issue which causes the recording to be stopped.
+        // On the main thread: trigger OnError
+        //    -> resetPipeline
+        //    -> DeferrableSurface is closed
+        //    -> SurfaceRequest is complete
+        // On the test thread: start recording
+        // On the Recorder mSequentialExecutor:
+        //    The listener of readyToReleaseFuture executes due to SurfaceRequest is complete
+        //    -> Recorder.requestReset()
+        //    -> recording is stopped unexpectedly.
+        readyFuture?.get(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)
     }
 
     @Test
@@ -1557,7 +1666,7 @@ class VideoRecordingTest(
 
     private fun completeVideoRecording(
         videoCapture: VideoCapture<Recorder>,
-        file: File,
+        file: File = temporaryFolder.newFile(),
         recording: Recording = startVideoRecording(videoCapture, file),
         allowError: Boolean = false,
     ) {

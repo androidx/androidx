@@ -94,7 +94,7 @@ class UseCaseSurfaceManagerTest {
                 SessionConfig.Builder().also { sessionConfigBuilder ->
                     sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                     sessionConfigBuilder.addSurface(testDeferrableSurface1)
-                    sessionConfigBuilder.addErrorListener(errorListener)
+                    sessionConfigBuilder.setErrorListener(errorListener)
                 }
             )
         }
@@ -103,7 +103,7 @@ class UseCaseSurfaceManagerTest {
                 SessionConfig.Builder().also { sessionConfigBuilder ->
                     sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                     sessionConfigBuilder.addSurface(testDeferrableSurface2)
-                    sessionConfigBuilder.addErrorListener(errorListener)
+                    sessionConfigBuilder.setErrorListener(errorListener)
                 }
             )
         }
@@ -222,7 +222,7 @@ class UseCaseSurfaceManagerTest {
                 SessionConfig.Builder().also { sessionConfigBuilder ->
                     sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                     sessionConfigBuilder.addSurface(neverCompleteDeferrableSurface)
-                    sessionConfigBuilder.addErrorListener(errorListener)
+                    sessionConfigBuilder.setErrorListener(errorListener)
                 }
             )
         }
@@ -292,7 +292,7 @@ class UseCaseSurfaceManagerTest {
                 SessionConfig.Builder().also { sessionConfigBuilder ->
                     sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
                     sessionConfigBuilder.addSurface(neverCompleteDeferrableSurface)
-                    sessionConfigBuilder.addErrorListener(errorListener)
+                    sessionConfigBuilder.setErrorListener(errorListener)
                 }
             )
         }

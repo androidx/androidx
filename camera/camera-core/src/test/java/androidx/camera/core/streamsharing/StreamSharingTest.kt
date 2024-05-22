@@ -649,9 +649,10 @@ class StreamSharingTest {
 
         // Act: send error to StreamSharing
         val sessionConfig = streamSharing.sessionConfig
-        sessionConfig.errorListeners
-            .single()
-            .onError(sessionConfig, SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
+        sessionConfig.errorListener!!.onError(
+            sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+        )
         shadowOf(getMainLooper()).idle()
 
         // Assert: StreamSharing and children pipeline are recreated.

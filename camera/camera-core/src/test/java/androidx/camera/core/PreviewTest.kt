@@ -584,7 +584,7 @@ class PreviewTest {
         val originalSessionConfig = preview.sessionConfig
 
         // Act: invoke the error listener.
-        preview.sessionConfig.errorListeners[0].onError(
+        preview.sessionConfig.errorListener!!.onError(
             preview.sessionConfig,
             SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
         )

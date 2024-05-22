@@ -16,10 +16,13 @@
 
 package androidx.camera.lifecycle;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -41,7 +44,10 @@ import java.util.List;
  * A {@link CameraUseCaseAdapter} whose starting and stopping is controlled by a
  *  {@link Lifecycle}.
  */
-final class LifecycleCamera implements LifecycleObserver, Camera {
+@SuppressLint("UsesNonDefaultVisibleForTesting")
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public final class LifecycleCamera implements LifecycleObserver, Camera {
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
@@ -76,7 +82,7 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onStart(LifecycleOwner lifecycleOwner) {
+    public void onStart(@NonNull LifecycleOwner lifecycleOwner) {
         synchronized (mLock) {
             if (!mSuspended && !mReleased) {
                 mCameraUseCaseAdapter.attachUseCases();
@@ -86,7 +92,7 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onStop(LifecycleOwner lifecycleOwner) {
+    public void onStop(@NonNull LifecycleOwner lifecycleOwner) {
         synchronized (mLock) {
             if (!mSuspended && !mReleased) {
                 mCameraUseCaseAdapter.detachUseCases();
@@ -96,14 +102,14 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    public void onDestroy(LifecycleOwner lifecycleOwner) {
+    public void onDestroy(@NonNull LifecycleOwner lifecycleOwner) {
         synchronized (mLock) {
             mCameraUseCaseAdapter.removeUseCases(mCameraUseCaseAdapter.getUseCases());
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    public void onResume(LifecycleOwner lifecycleOwner) {
+    public void onResume(@NonNull LifecycleOwner lifecycleOwner) {
         // ActiveResumingMode is required for Multi-window which is supported since Android 7(N).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mCameraUseCaseAdapter.setActiveResumingMode(true);
@@ -111,7 +117,7 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    public void onPause(LifecycleOwner lifecycleOwner) {
+    public void onPause(@NonNull LifecycleOwner lifecycleOwner) {
         // ActiveResumingMode is required for Multi-window which is supported since Android 7(N).
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mCameraUseCaseAdapter.setActiveResumingMode(false);
@@ -179,12 +185,17 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
         }
     }
 
+    /**
+     * Retrieves the lifecycle owner.
+     */
+    @NonNull
     public LifecycleOwner getLifecycleOwner() {
         synchronized (mLock) {
             return mLifecycleOwner;
         }
     }
 
+    @NonNull
     public CameraUseCaseAdapter getCameraUseCaseAdapter() {
         return mCameraUseCaseAdapter;
     }

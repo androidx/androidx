@@ -32,6 +32,8 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR
+import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.utils.Threads.runOnMainSync
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.resolutionselector.AspectRatioStrategy
@@ -63,7 +65,9 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assume
@@ -653,6 +657,60 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
         // The set allowedResolutionMode is kept
         Truth.assertThat(resolutionSelector.allowedResolutionMode)
             .isEqualTo(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+    }
+
+    @Test
+    fun sessionErrorListenerReceivesError_getsFrame(): Unit = runBlocking {
+        // Arrange.
+        val preview = defaultBuilder!!.build()
+        camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
+
+        // Act.
+        // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
+        //  done on the main thread
+        withContext(Dispatchers.Main) { preview.surfaceProvider = getSurfaceProvider(null) }
+
+        // Retrieves the initial session config
+        val initialSessionConfig = preview.sessionConfig
+
+        // Checks that image can be received successfully when onError is received.
+        triggerOnErrorAndVerifyNewImageReceived(initialSessionConfig)
+
+        // Rebinds to different camera
+        if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+            withContext(Dispatchers.Main) { camera!!.removeUseCases(setOf(preview)) }
+            camera =
+                CameraUtil.createCameraAndAttachUseCase(
+                    context!!,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    preview
+                )
+
+            // Checks that image can be received successfully when onError is received by the old
+            // error listener.
+            triggerOnErrorAndVerifyNewImageReceived(initialSessionConfig)
+        }
+
+        val sessionConfigBeforeValidErrorNotification = preview.sessionConfig
+        // Checks that image can be received successfully when onError is received by the new
+        // error listener.
+        triggerOnErrorAndVerifyNewImageReceived(preview.sessionConfig)
+        // Checks that triggering onError to valid listener has recreated the pipeline
+        Truth.assertThat(preview.sessionConfig)
+            .isNotEqualTo(sessionConfigBeforeValidErrorNotification)
+    }
+
+    private fun triggerOnErrorAndVerifyNewImageReceived(sessionConfig: SessionConfig) {
+        surfaceFutureSemaphore = Semaphore(0)
+        // Forces invoke the onError callback
+        runOnMainSync {
+            sessionConfig.errorListener!!.onError(
+                sessionConfig,
+                SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
+            )
+        }
+        // Assert.
+        Truth.assertThat(surfaceFutureSemaphore!!.tryAcquire(10, TimeUnit.SECONDS)).isTrue()
     }
 
     private val workExecutorWithNamedThread: Executor

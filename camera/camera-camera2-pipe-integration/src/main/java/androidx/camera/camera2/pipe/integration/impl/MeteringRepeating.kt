@@ -37,6 +37,7 @@ import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.SessionConfig.CloseableErrorListener
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE
@@ -62,6 +63,8 @@ class MeteringRepeating(
     private val meteringSurfaceSize = getProperPreviewSize()
 
     private val deferrableSurfaceLock = Any()
+
+    private var closeableErrorListener: CloseableErrorListener? = null
 
     @GuardedBy("deferrableSurfaceLock") private var deferrableSurface: DeferrableSurface? = null
 
@@ -112,13 +115,18 @@ class MeteringRepeating(
                 )
         }
 
+        // Closes the old error listener if there is
+        closeableErrorListener?.close()
+        val errorListener = CloseableErrorListener { _, _ ->
+            updateSessionConfig(createPipeline(resolution).build())
+            notifyReset()
+        }
+        closeableErrorListener = errorListener
+
         return SessionConfig.Builder.createFrom(MeteringRepeatingConfig(), resolution).apply {
             setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
             addSurface(deferrableSurface!!)
-            addErrorListener { _, _ ->
-                updateSessionConfig(createPipeline(resolution).build())
-                notifyReset()
-            }
+            setErrorListener(errorListener)
         }
     }
 

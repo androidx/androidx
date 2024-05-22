@@ -78,7 +78,7 @@ class VirtualCameraAdapterTest {
         private val SESSION_CONFIG_WITH_SURFACE =
             SessionConfig.Builder()
                 .addSurface(FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE))
-                .addErrorListener { _, error -> receivedSessionConfigError = error }
+                .setErrorListener { _, error -> receivedSessionConfigError = error }
                 .build()
     }
 

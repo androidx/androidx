@@ -596,7 +596,7 @@ public final class CameraUseCaseAdapter implements Camera {
 
     @VisibleForTesting
     @NonNull
-    Collection<UseCase> getCameraUseCases() {
+    public Collection<UseCase> getCameraUseCases() {
         synchronized (mLock) {
             return new ArrayList<>(mCameraUseCases);
         }

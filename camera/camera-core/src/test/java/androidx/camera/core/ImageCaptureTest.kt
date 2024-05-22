@@ -276,12 +276,10 @@ class ImageCaptureTest {
         assertTakePictureManagerHasTheSameSurface(imageCapture)
 
         // Act: invoke onError callback.
-        imageCapture.sessionConfig.errorListeners
-            .single()
-            .onError(
-                imageCapture.sessionConfig,
-                SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
-            )
+        imageCapture.sessionConfig.errorListener!!.onError(
+            imageCapture.sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+        )
 
         // Assert: the surface has been recreated.
         val newSurface = imageCapture.sessionConfig.surfaces.single().surface.get()

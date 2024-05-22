@@ -1633,9 +1633,8 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void postSurfaceClosedError(@NonNull SessionConfig sessionConfig) {
         Executor executor = CameraXExecutors.mainThreadExecutor();
-        List<SessionConfig.ErrorListener> errorListeners = sessionConfig.getErrorListeners();
-        if (!errorListeners.isEmpty()) {
-            SessionConfig.ErrorListener errorListener = errorListeners.get(0);
+        SessionConfig.ErrorListener errorListener = sessionConfig.getErrorListener();
+        if (errorListener != null) {
             debugLog("Posting surface closed", new Throwable());
             executor.execute(() -> errorListener.onError(sessionConfig,
                     SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET));

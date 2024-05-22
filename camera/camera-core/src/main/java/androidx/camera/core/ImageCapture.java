@@ -371,6 +371,8 @@ public final class ImageCapture extends UseCase {
     private ImagePipeline mImagePipeline;
     @Nullable
     private TakePictureManager mTakePictureManager;
+    @Nullable
+    private SessionConfig.CloseableErrorListener mCloseableErrorListener;
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -1321,20 +1323,27 @@ public final class ImageCapture extends UseCase {
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
-        sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
-            // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
-            //  to this use case so we don't need to do this check.
-            if (isCurrentCamera(cameraId)) {
-                mTakePictureManager.pause();
-                clearPipeline(/*keepTakePictureManager=*/ true);
-                mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
-                updateSessionConfig(mSessionConfigBuilder.build());
-                notifyReset();
-                mTakePictureManager.resume();
-            } else {
-                clearPipeline();
-            }
-        });
+        // Close the old error listener
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+        }
+        mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
+                (sessionConfig, error) -> {
+                    // Do nothing when the use case has been unbound.
+                    if (getCamera() == null) {
+                        return;
+                    }
+
+                    mTakePictureManager.pause();
+                    clearPipeline(/*keepTakePictureManager=*/ true);
+                    mSessionConfigBuilder = createPipeline(getCameraId(),
+                            (ImageCaptureConfig) getCurrentConfig(),
+                            Preconditions.checkNotNull(getAttachedStreamSpec()));
+                    updateSessionConfig(mSessionConfigBuilder.build());
+                    notifyReset();
+                    mTakePictureManager.resume();
+                });
+        sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
 
         return sessionConfigBuilder;
     }
@@ -1409,7 +1418,6 @@ public final class ImageCapture extends UseCase {
         return new Rect(0, 0, resolution.getWidth(), resolution.getHeight());
     }
 
-
     /**
      * Clears the pipeline without keeping the {@link TakePictureManager}.
      */
@@ -1425,6 +1433,13 @@ public final class ImageCapture extends UseCase {
     private void clearPipeline(boolean keepTakePictureManager) {
         Log.d(TAG, "clearPipeline");
         checkMainThread();
+
+        // Close the old error listener
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+            mCloseableErrorListener = null;
+        }
+
         if (mImagePipeline != null) {
             mImagePipeline.close();
             mImagePipeline = null;
