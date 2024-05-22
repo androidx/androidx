@@ -400,8 +400,8 @@ public fun ScalingLazyColumn(
  * which is a part of material Scaffold - meaning that rotary will be able to request a focus
  * without any additional changes.
  * Another FocusRequester can be added through Modifier chain by adding
- * `.focusRequester(focusRequester)`. Do not call `focusable()` after it as this will reset
- * the focusRequester chain and rotary support will not be available.
+ * `.focusRequester(focusRequester)`. Do not call `focusable()` or `focusTarget()` after it as this
+ * will reset the focusRequester chain and rotary support will not be available.
  *
  * Example of a [ScalingLazyColumn] with default parameters:
  * @sample androidx.wear.compose.foundation.samples.SimpleScalingLazyColumn
