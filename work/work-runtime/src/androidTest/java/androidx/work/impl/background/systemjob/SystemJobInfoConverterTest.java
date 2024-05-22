@@ -401,6 +401,20 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         }
     }
 
+    @Test
+    @SmallTest
+    public void testEnsureTraceTags() {
+        if (Build.VERSION.SDK_INT < 35) {
+            return;
+        }
+
+        final String id = "id";
+        WorkSpec workSpec = new WorkSpec(id, TestWorker.class.getName());
+        workSpec.setTraceTag(TestWorker.class.getSimpleName());
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        assertEquals(jobInfo.getTraceTag(), TestWorker.class.getSimpleName());
+    }
+
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {
         return new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(constraints)

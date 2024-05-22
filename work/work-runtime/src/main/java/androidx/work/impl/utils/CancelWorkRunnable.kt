@@ -25,6 +25,7 @@ import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.launchOperation
 import java.util.UUID
+import kotlin.collections.removeLast as removeLastKt
 
 private fun cancel(workManagerImpl: WorkManagerImpl, workSpecId: String) {
     iterativelyCancelWorkAndDependents(workManagerImpl.workDatabase, workSpecId)
@@ -48,7 +49,7 @@ private fun iterativelyCancelWorkAndDependents(workDatabase: WorkDatabase, workS
     val dependencyDao = workDatabase.dependencyDao()
     val idsToProcess = mutableListOf(workSpecId)
     while (idsToProcess.isNotEmpty()) {
-        val id = idsToProcess.removeLast()
+        val id = idsToProcess.removeLastKt()
         // Don't fail already cancelled work.
         val state = workSpecDao.getState(id)
         if (state !== WorkInfo.State.SUCCEEDED && state !== WorkInfo.State.FAILED) {
