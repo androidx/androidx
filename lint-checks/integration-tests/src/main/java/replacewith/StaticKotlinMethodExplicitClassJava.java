@@ -20,7 +20,7 @@ package replacewith;
  * Usage of a static method with an explicit class.
  */
 @SuppressWarnings({"deprecation", "unused"})
-class StaticKotlinMethodExplicitClass {
+class StaticKotlinMethodExplicitClassJava {
     void main() {
         ReplaceWithUsageKotlin.toString(this);
     }
