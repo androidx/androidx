@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -94,6 +95,7 @@ import java.util.Locale
  *
  * @param modifier The modifier to be applied to the component.
  * @param curvedModifier The [CurvedModifier] used to restrict the arc in which [TimeText] is drawn.
+ * @param maxSweepAngle The default maximum sweep angle in degrees.
  * @param timeSource [TimeSource] which retrieves the current time and formats it.
  * @param timeTextStyle [TextStyle] for the time text itself.
  * @param contentColor [Color] of content of displayed through [TimeTextScope.text] and
@@ -104,8 +106,8 @@ import java.util.Locale
 @Composable
 public fun TimeText(
     modifier: Modifier = Modifier,
-    curvedModifier: CurvedModifier =
-        CurvedModifier.sizeIn(maxSweepDegrees = TimeTextDefaults.MaxSweepAngle),
+    curvedModifier: CurvedModifier = CurvedModifier,
+    maxSweepAngle: Float = TimeTextDefaults.MaxSweepAngle,
     timeSource: TimeSource = TimeTextDefaults.timeSource(timeFormat()),
     timeTextStyle: TextStyle = TimeTextDefaults.timeTextStyle(),
     contentColor: Color = MaterialTheme.colorScheme.primary,
@@ -116,7 +118,11 @@ public fun TimeText(
 
     if (isRoundDevice()) {
         CurvedLayout(modifier = modifier) {
-            curvedRow(modifier = curvedModifier.padding(contentPadding.toArcPadding())) {
+            curvedRow(
+                modifier = curvedModifier
+                    .sizeIn(maxSweepDegrees = maxSweepAngle)
+                    .padding(contentPadding.toArcPadding())
+            ) {
                 CurvedTimeTextScope(this, timeText, timeTextStyle, contentColor).content()
             }
         }
@@ -316,6 +322,7 @@ internal class CurvedTimeTextScope(
     override fun text(text: String, style: TextStyle?) {
         scope.curvedText(
             text = text,
+            overflow = TextOverflow.Ellipsis,
             style = CurvedTextStyle(style = contentTextStyle.merge(style))
         )
     }
