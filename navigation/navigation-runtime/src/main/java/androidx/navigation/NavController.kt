@@ -2202,7 +2202,7 @@ public open class NavController(
         var currentDestination = backQueue.lastOrNull()?.destination ?: graph
         backStackState?.forEach { state ->
             val node = currentDestination.findDestinationComprehensive(
-                state.destinationId, false
+                state.destinationId, true
             )
             checkNotNull(node) {
                 val dest = NavDestination.getDisplayName(
