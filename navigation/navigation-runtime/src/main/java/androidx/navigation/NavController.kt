@@ -549,7 +549,7 @@ public open class NavController(
         saveState: Boolean = false
     ): Boolean {
         val id = serializer<T>().hashCode()
-        requireNotNull(findDestinationFromRoot(id)) {
+        requireNotNull(findDestinationComprehensive(id)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
                 "graph $graph"
         }
@@ -1646,22 +1646,38 @@ public open class NavController(
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findDestinationFromRoot(@IdRes destinationId: Int): NavDestination? {
+    public fun findDestinationComprehensive(@IdRes destinationId: Int): NavDestination? {
         if (_graph == null) {
             return null
         }
         if (_graph!!.id == destinationId) {
             return _graph
         }
-        return _graph!!.findChildNode(destinationId)
+        return _graph!!.findNodeComprehensive(destinationId, null)
     }
 
+    /**
+     * Recursively searches through parents of the receiver
+     */
     private fun NavDestination.findDestination(@IdRes destinationId: Int): NavDestination? {
         if (id == destinationId) {
             return this
         }
         val currentGraph = if (this is NavGraph) this else parent!!
         return currentGraph.findNode(destinationId)
+    }
+
+    /**
+     * Recursively searches through parents and children of the receiver
+     */
+    private fun NavDestination.findDestinationComprehensive(
+        @IdRes destinationId: Int
+    ): NavDestination? {
+        if (id == destinationId) {
+            return this
+        }
+        val currentGraph = if (this is NavGraph) this else parent!!
+        return currentGraph.findNodeComprehensive(destinationId, currentGraph)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -1684,7 +1700,7 @@ public open class NavController(
     @OptIn(InternalSerializationApi::class)
     private fun <T : Any> generateRouteFilled(route: T): String {
         val id = route::class.serializer().hashCode()
-        val destination = findDestinationFromRoot(id)
+        val destination = findDestinationComprehensive(id)
         // throw immediately if destination is not found within the graph
         requireNotNull(destination) {
             "Destination with route ${route::class.simpleName} cannot be found " +
@@ -2280,9 +2296,7 @@ public open class NavController(
                 hierarchy.first().destination
         // Pop any orphaned navigation graphs that don't connect to the new destinations
         while (!backQueue.isEmpty() && backQueue.last().destination is NavGraph &&
-            (backQueue.last().destination as NavGraph).findNode(
-                    overlappingDestination.id, false
-                ) == null
+            (backQueue.last().destination as NavGraph).nodes[overlappingDestination.id] == null
         ) {
             popEntryFromBackStack(backQueue.last())
         }
@@ -2704,7 +2718,7 @@ public open class NavController(
      */
     public inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry {
         val id = serializer<T>().hashCode()
-        requireNotNull(findDestinationFromRoot(id)) {
+        requireNotNull(findDestinationComprehensive(id)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
                 "graph $graph"
         }
