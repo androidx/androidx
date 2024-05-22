@@ -76,7 +76,7 @@ class StillCaptureProcessorTest {
     private lateinit var stillCaptureProcessor: StillCaptureProcessor
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 

@@ -73,7 +73,7 @@ const val ORIENTATION_2 = 270
 @SdkSuppress(minSdkVersion = 21)
 class Camera2RequestProcessorTest {
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 

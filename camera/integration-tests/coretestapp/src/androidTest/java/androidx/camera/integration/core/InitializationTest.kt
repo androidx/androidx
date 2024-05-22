@@ -48,7 +48,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class InitializationTest(private val config: TestConfig) {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
     @get:Rule

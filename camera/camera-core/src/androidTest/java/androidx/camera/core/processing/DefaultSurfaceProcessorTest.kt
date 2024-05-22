@@ -105,7 +105,8 @@ class DefaultSurfaceProcessorTest {
     }
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule, testCameraIdListRule)
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(testCameraRule, testCameraIdListRule)
 
     private lateinit var surfaceProcessor: DefaultSurfaceProcessor
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder

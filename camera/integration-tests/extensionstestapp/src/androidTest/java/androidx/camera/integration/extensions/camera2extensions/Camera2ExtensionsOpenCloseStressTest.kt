@@ -41,7 +41,7 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 31)
 class Camera2ExtensionsOpenCloseStressTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 

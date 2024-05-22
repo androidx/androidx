@@ -106,7 +106,7 @@ class VideoRecordingTest(
     )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 

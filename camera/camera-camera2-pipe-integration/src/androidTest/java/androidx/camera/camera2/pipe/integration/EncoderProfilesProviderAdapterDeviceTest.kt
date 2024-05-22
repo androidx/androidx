@@ -76,7 +76,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
     private var intCameraId = -1
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     @get:Rule
     val labTestRule = LabTestRule()

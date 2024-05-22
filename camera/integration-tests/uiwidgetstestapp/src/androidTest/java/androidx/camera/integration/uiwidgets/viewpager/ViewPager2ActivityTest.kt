@@ -107,7 +107,7 @@ class ViewPager2ActivityTest(
     )
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         testCameraRule, CameraUtil.PreTestCameraIdList(
             if (cameraXConfig == CameraFragment.CAMERA2_IMPLEMENTATION_OPTION) {
                 Camera2Config.defaultConfig()

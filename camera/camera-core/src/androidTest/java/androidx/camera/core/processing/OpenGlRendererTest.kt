@@ -102,7 +102,8 @@ class OpenGlRendererTest {
     }
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule, testCameraIdListRule)
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(testCameraRule, testCameraIdListRule)
 
     private lateinit var glThread: HandlerThread
     private lateinit var glHandler: Handler

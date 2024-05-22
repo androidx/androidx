@@ -82,7 +82,7 @@ class Camera2InteropIntegrationTest(
     )
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(cameraConfig)
     )
 

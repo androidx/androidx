@@ -1063,12 +1063,37 @@ public final class CameraUtil {
      * (1) Grant the camera permission.
      * (2) Check if there is at least one camera on the device alive. If not, it will ignore
      * the test.
-     * (3) Ensure the camera can be opened successfully before the test. If not, it will ignore
-     * the test.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure the default rear and front cameras (if device has them) are available again
+     * after test.
      */
     @NonNull
-    public static TestRule grantCameraPermissionAndPreTest() {
-        return grantCameraPermissionAndPreTest(new PreTestCamera(), new PreTestCameraIdList());
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest() {
+        return grantCameraPermissionAndPreTestAndPostTest(new PreTestCamera(),
+                new PreTestCameraIdList(), new PostTestCameraAvailability(
+                        Arrays.asList(CameraSelector.LENS_FACING_BACK,
+                                CameraSelector.LENS_FACING_FRONT)));
+    }
+
+    /**
+     * Grant the camera permission and test the camera.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device alive. If not, it will ignore
+     * the test.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure default cameras for provided {@code lensFacings} (if device has them) are
+     * available again after test.
+     */
+    @NonNull
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
+            @NonNull List<Integer> lensFacings
+    ) {
+        return grantCameraPermissionAndPreTestAndPostTest(new PreTestCamera(),
+                new PreTestCameraIdList(), new PostTestCameraAvailability(lensFacings));
     }
 
     /**
@@ -1080,25 +1105,100 @@ public final class CameraUtil {
      * If the test uses fake CameraXConfig or doesn't initialize CameraX, i.e. doesn't uses
      * {@link androidx.camera.lifecycle.ProcessCameraProvider} or {@link CameraXUtil#initialize} to
      * initialize CameraX for testing, you can use
-     * {@link CameraUtil#grantCameraPermissionAndPreTest()} instead.
+     * {@link CameraUtil#grantCameraPermissionAndPreTestAndPostTest()} instead.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device alive. If not, it will ignore
+     * the test. This is based on the {@link PreTestCameraIdList} parameter, which is intended to be
+     * based on a {@link CameraXConfig} as mentioned earlier.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure the default rear and front cameras (if device has them) are available again
+     * after test.
      */
     @NonNull
-    public static TestRule grantCameraPermissionAndPreTest(
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
             @Nullable PreTestCameraIdList cameraIdListTestRule) {
-        return grantCameraPermissionAndPreTest(new PreTestCamera(), cameraIdListTestRule);
+
+        return grantCameraPermissionAndPreTestAndPostTest(new PreTestCamera(), cameraIdListTestRule,
+                new PostTestCameraAvailability(Arrays.asList(CameraSelector.LENS_FACING_BACK,
+                        CameraSelector.LENS_FACING_FRONT)));
     }
 
     /**
      * Grant the camera permission and test the camera.
      *
-     * @param cameraTestRule       to check if camera can be opened.
-     * @param cameraIdListTestRule to check if camera characteristic reports correct information
-     *                             that includes the supported camera devices that shows in the
-     *                             system.
+     * <p>This method is mainly required to be used when running the test with
+     * Camera2Config/CameraPipeConfig. Please create a PreTestCameraIdList with the CameraXConfig
+     * that is used in the test.
+     * If the test uses fake CameraXConfig or doesn't initialize CameraX, i.e. doesn't uses
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider} or {@link CameraXUtil#initialize} to
+     * initialize CameraX for testing, you can use
+     * {@link CameraUtil#grantCameraPermissionAndPreTestAndPostTest()} instead.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device alive. If not, it will ignore
+     * the test. This is based on the {@link PreTestCameraIdList} parameter, which is intended to be
+     * based on a {@link CameraXConfig} as mentioned earlier.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure default cameras for provided {@code lensFacings} (if device has them) are
+     * available again after test.
      */
     @NonNull
-    public static TestRule grantCameraPermissionAndPreTest(@Nullable PreTestCamera cameraTestRule,
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
+            @Nullable PreTestCamera cameraTestRule,
             @Nullable PreTestCameraIdList cameraIdListTestRule) {
+        return grantCameraPermissionAndPreTestAndPostTest(cameraTestRule, cameraIdListTestRule,
+                new PostTestCameraAvailability(Arrays.asList(CameraSelector.LENS_FACING_BACK,
+                        CameraSelector.LENS_FACING_FRONT)));
+    }
+
+    /**
+     * Grant the camera permission and test the camera.
+     *
+     * <p>This method is mainly required to be used when running the test with
+     * Camera2Config/CameraPipeConfig. Please create a PreTestCameraIdList with the CameraXConfig
+     * that is used in the test.
+     * If the test uses fake CameraXConfig or doesn't initialize CameraX, i.e. doesn't uses
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider} or {@link CameraXUtil#initialize} to
+     * initialize CameraX for testing, you can use
+     * {@link CameraUtil#grantCameraPermissionAndPreTestAndPostTest()} instead.
+     *
+     * <p>It will
+     * (1) Grant the camera permission.
+     * (2) Check if there is at least one camera on the device alive. If not, it will ignore
+     * the test. This is based on the {@link PreTestCameraIdList} parameter, which is intended to be
+     * based on a {@link CameraXConfig} as mentioned earlier.
+     * (3) Ensure the rear and front cameras (when device has them) can be opened successfully
+     * before the test. If not, it will ignore the test.
+     * (4) Ensure default cameras for provided {@code lensFacings} (if device has them) are
+     * available again after test.
+     */
+    @NonNull
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
+            @Nullable PreTestCameraIdList cameraIdListTestRule,
+            @NonNull List<Integer> lensFacings) {
+        return grantCameraPermissionAndPreTestAndPostTest(new PreTestCamera(), cameraIdListTestRule,
+                new PostTestCameraAvailability(lensFacings));
+    }
+
+    /**
+     * Grant the camera permission and test the camera.
+     *
+     * @param cameraTestRule                to check if camera can be opened.
+     * @param cameraIdListTestRule          to check if camera characteristic reports correct
+     *                                      information that includes the supported camera devices
+     *                                      that shows in the system.
+     * @param postTestCameraAvailability    to check if camera is available again after test end.
+     */
+    @NonNull
+    public static TestRule grantCameraPermissionAndPreTestAndPostTest(
+            @Nullable PreTestCamera cameraTestRule,
+            @Nullable PreTestCameraIdList cameraIdListTestRule,
+            @Nullable PostTestCameraAvailability postTestCameraAvailability) {
         RuleChain rule = RuleChain.outerRule(GrantPermissionRule.grant(Manifest.permission.CAMERA));
         rule = rule.around(new IgnoreProblematicDeviceRule());
         if (cameraIdListTestRule != null) {
@@ -1106,6 +1206,9 @@ public final class CameraUtil {
         }
         if (cameraTestRule != null) {
             rule = rule.around(cameraTestRule);
+        }
+        if (postTestCameraAvailability != null) {
+            rule = rule.around(postTestCameraAvailability);
         }
         rule = rule.around((base, description) -> new Statement() {
             @Override
@@ -1209,6 +1312,84 @@ public final class CameraUtil {
     }
 
     /**
+     * A {@link CameraManager.AvailabilityCallback} implementation to observe the availability of a
+     * specific camera device.
+     */
+    static class CameraAvailability extends CameraManager.AvailabilityCallback {
+        private final Object mLock = new Object();
+        private final String mCameraId;
+
+        @GuardedBy("mLock")
+        private boolean mCameraAvailable = false;
+        @GuardedBy("mLock")
+        private CallbackToFutureAdapter.Completer<Void> mCompleter;
+
+        /**
+         * Creates a new instance of {@link CameraAvailability}.
+         *
+         * @param cameraId The ID of the camera to observe.
+         */
+        CameraAvailability(@NonNull String cameraId) {
+            mCameraId = cameraId;
+        }
+
+        /**
+         * Returns a{@link ListenableFuture} that represents the availability of the camera.
+         *
+         * <p>If the camera is already available, the future will return immediately. Otherwise, the
+         * future will complete when the camera becomes available.
+         *
+         * @return A {@link ListenableFuture} that represents the availability of the camera.
+         */
+        ListenableFuture<Void> observeAvailable() {
+            synchronized (mLock) {
+                if (mCameraAvailable) {
+                    return Futures.immediateFuture(null);
+                }
+                return CallbackToFutureAdapter.getFuture(
+                        completer -> {
+                            synchronized (mLock) {
+                                if (mCompleter != null) {
+                                    mCompleter.setCancelled();
+                                }
+                                mCompleter = completer;
+                            }
+                            return "observeCameraAvailable_" + mCameraId;
+                        });
+            }
+        }
+
+        @Override
+        public void onCameraAvailable(@NonNull String cameraId) {
+            Logger.d(LOG_TAG, "Camera id " + cameraId + " onCameraAvailable callback");
+            if (!mCameraId.equals(cameraId)) {
+                // Ignore availability for other cameras
+                return;
+            }
+
+            synchronized (mLock) {
+                Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraAvailable");
+                mCameraAvailable = true;
+                if (mCompleter != null) {
+                    mCompleter.set(null);
+                }
+            }
+        }
+
+        @Override
+        public void onCameraUnavailable(@NonNull String cameraId) {
+            if (!mCameraId.equals(cameraId)) {
+                // Ignore availability for other cameras
+                return;
+            }
+            synchronized (mLock) {
+                Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraUnavailable");
+                mCameraAvailable = false;
+            }
+        }
+    }
+
+    /**
      * Helper to verify the camera can be opened or not.
      *
      * <p>Call {@link #openWithRetry(int, long)} to start the test on the camera.
@@ -1297,67 +1478,6 @@ public final class CameraUtil {
             getCameraManager().unregisterAvailabilityCallback(mCameraAvailability);
             mHandlerThread.quitSafely();
         }
-
-        static class CameraAvailability extends CameraManager.AvailabilityCallback {
-            private final Object mLock = new Object();
-            private final String mCameraId;
-
-            @GuardedBy("mLock")
-            private boolean mCameraAvailable = false;
-            @GuardedBy("mLock")
-            private CallbackToFutureAdapter.Completer<Void> mCompleter;
-
-            CameraAvailability(@NonNull String cameraId) {
-                mCameraId = cameraId;
-            }
-
-            ListenableFuture<Void> observeAvailable() {
-                synchronized (mLock) {
-                    if (mCameraAvailable) {
-                        return Futures.immediateFuture(null);
-                    }
-                    return CallbackToFutureAdapter.getFuture(
-                            completer -> {
-                                synchronized (mLock) {
-                                    if (mCompleter != null) {
-                                        mCompleter.setCancelled();
-                                    }
-                                    mCompleter = completer;
-                                }
-                                return "observeCameraAvailable_" + mCameraId;
-                            });
-                }
-            }
-
-            @Override
-            public void onCameraAvailable(@NonNull String cameraId) {
-                Logger.d(LOG_TAG, "Camera id " + cameraId + " onCameraAvailable callback");
-                if (!mCameraId.equals(cameraId)) {
-                    // Ignore availability for other cameras
-                    return;
-                }
-
-                synchronized (mLock) {
-                    Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraAvailable");
-                    mCameraAvailable = true;
-                    if (mCompleter != null) {
-                        mCompleter.set(null);
-                    }
-                }
-            }
-
-            @Override
-            public void onCameraUnavailable(@NonNull String cameraId) {
-                if (!mCameraId.equals(cameraId)) {
-                    // Ignore availability for other cameras
-                    return;
-                }
-                synchronized (mLock) {
-                    Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraUnavailable");
-                    mCameraAvailable = false;
-                }
-            }
-        }
     }
 
     /**
@@ -1425,6 +1545,77 @@ public final class CameraUtil {
                         // Ignore the test, throw the AssumptionViolatedException.
                         throw new AssumptionViolatedException("Ignore the test since the camera "
                                 + "id list failed, on test " + description.getDisplayName());
+                    }
+                }
+            };
+        }
+    }
+
+    /**
+     * Waits for the camera to be available after test.
+     *
+     * <p>Try to open the camera with the front and back lensFacing. It throws an exception when
+     * the test is running in the CameraX lab, or ignore the test otherwise.
+     */
+    public static class PostTestCameraAvailability implements TestRule {
+        private int mTimeoutMillis = 5000;
+        private final List<@CameraSelector.LensFacing Integer> mLensFacings;
+
+        public PostTestCameraAvailability(
+                @NonNull List<@CameraSelector.LensFacing Integer> lensFacings) {
+            mLensFacings = lensFacings;
+        }
+
+        public PostTestCameraAvailability(
+                @NonNull List<@CameraSelector.LensFacing Integer> lensFacings,
+                int timeoutPerCameraMillis) {
+            mLensFacings = lensFacings;
+            mTimeoutMillis = timeoutPerCameraMillis;
+        }
+
+        @NonNull
+        @Override
+        public Statement apply(@NonNull Statement base, @NonNull Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    base.evaluate();
+
+                    for (int lensFacing : mLensFacings) {
+                        String cameraId = getCameraIdWithLensFacing(lensFacing);
+                        Logger.d(LOG_TAG, "PostTestCameraAvailability: lensFacing = " + lensFacing
+                                + ", cameraId = " + cameraId);
+                        if (cameraId == null) {
+                            return;
+                        }
+
+                        CameraAvailability cameraAvailability = new CameraAvailability(cameraId);
+
+                        HandlerThread handlerThread = new HandlerThread(
+                                String.format("CameraThread-%s", cameraId));
+                        handlerThread.start();
+
+                        getCameraManager().registerAvailabilityCallback(cameraAvailability,
+                                new Handler(handlerThread.getLooper()));
+
+                        try {
+                            Logger.d(LOG_TAG,
+                                    "PostTestCameraAvailability: Waiting for camera["
+                                            + cameraId + "] to be available!");
+                            cameraAvailability.observeAvailable().get(mTimeoutMillis,
+                                    TimeUnit.MILLISECONDS);
+                            Logger.d(LOG_TAG,
+                                    "PostTestCameraAvailability: camera[" + cameraId
+                                            + "] is now available!");
+                        } catch (Exception e) {
+                            Logger.d(LOG_TAG,
+                                    "PostTestCameraAvailability: observeAvailable failed for "
+                                            + "lensFacing = " + lensFacing + ", cameraId = "
+                                            + cameraId, e);
+                        } finally {
+                            getCameraManager().unregisterAvailabilityCallback(cameraAvailability);
+                            handlerThread.quitSafely();
+                        }
                     }
                 }
             };
