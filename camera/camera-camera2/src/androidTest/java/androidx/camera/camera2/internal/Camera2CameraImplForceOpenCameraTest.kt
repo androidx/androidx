@@ -71,7 +71,7 @@ import org.junit.runner.RunWith
 class Camera2CameraImplForceOpenCameraTest {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 

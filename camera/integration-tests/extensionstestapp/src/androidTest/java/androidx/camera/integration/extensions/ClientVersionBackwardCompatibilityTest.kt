@@ -81,7 +81,7 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
     )
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(config.cameraXConfig)
     )
 

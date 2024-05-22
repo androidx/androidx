@@ -57,7 +57,7 @@ import org.mockito.Mockito.mock
 @SdkSuppress(minSdkVersion = 23) // BasicVendorExtender requires API level 23
 class PreviewConfigProviderTest {
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 

@@ -86,7 +86,7 @@ class FlashTest(private val implName: String, private val cameraXConfig: CameraX
     )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(cameraXConfig)
     )
 

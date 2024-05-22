@@ -194,7 +194,7 @@ public final class CaptureSessionTest {
 
     @Rule
     public TestRule getUseCameraRule() {
-        return CameraUtil.grantCameraPermissionAndPreTest(
+        return CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
                 new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         );
     }

@@ -15,6 +15,12 @@
  */
 package androidx.camera.core;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.hardware.camera2.params.SessionConfiguration;
 
 import androidx.annotation.IntDef;
@@ -30,6 +36,7 @@ import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -341,6 +348,7 @@ public final class CameraSelector {
      * The direction the camera faces relative to device screen.
      *
      */
+    @Target({TYPE, TYPE_USE, FIELD, PARAMETER, LOCAL_VARIABLE})
     @OptIn(markerClass = ExperimentalLensFacing.class)
     @IntDef({LENS_FACING_UNKNOWN, LENS_FACING_FRONT, LENS_FACING_BACK, LENS_FACING_EXTERNAL})
     @Retention(RetentionPolicy.SOURCE)

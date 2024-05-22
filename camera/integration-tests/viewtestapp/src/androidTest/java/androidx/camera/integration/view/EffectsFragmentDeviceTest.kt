@@ -59,7 +59,7 @@ class EffectsFragmentDeviceTest(
     )
 
     @get:Rule
-    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraControllerFragmentTest.testCameraRule, CameraUtil.PreTestCameraIdList(cameraConfig)
     )
 

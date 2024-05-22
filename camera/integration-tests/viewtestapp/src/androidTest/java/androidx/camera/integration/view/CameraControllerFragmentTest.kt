@@ -96,7 +96,7 @@ class CameraControllerFragmentTest(
     )
 
     @get:Rule
-    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         testCameraRule,
         CameraUtil.PreTestCameraIdList(cameraConfig)
     )

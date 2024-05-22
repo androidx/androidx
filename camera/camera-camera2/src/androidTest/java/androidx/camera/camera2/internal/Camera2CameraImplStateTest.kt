@@ -69,7 +69,7 @@ import org.mockito.Mockito
 internal class Camera2CameraImplStateTest {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 

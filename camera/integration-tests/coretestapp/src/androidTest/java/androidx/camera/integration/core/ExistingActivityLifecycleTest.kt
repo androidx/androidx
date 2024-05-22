@@ -67,7 +67,7 @@ class ExistingActivityLifecycleTest(
     private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 

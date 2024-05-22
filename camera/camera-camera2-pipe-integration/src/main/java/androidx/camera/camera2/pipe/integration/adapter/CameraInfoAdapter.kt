@@ -139,8 +139,7 @@ class CameraInfoAdapter @Inject constructor(
         )
     }
 
-    @CameraSelector.LensFacing
-    private fun getCameraSelectorLensFacing(lensFacingInt: Int): Int {
+    private fun getCameraSelectorLensFacing(lensFacingInt: Int): @CameraSelector.LensFacing Int {
         return when (lensFacingInt) {
             CameraCharacteristics.LENS_FACING_FRONT -> CameraSelector.LENS_FACING_FRONT
             CameraCharacteristics.LENS_FACING_BACK -> CameraSelector.LENS_FACING_BACK

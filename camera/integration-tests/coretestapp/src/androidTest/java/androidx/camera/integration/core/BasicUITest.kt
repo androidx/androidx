@@ -68,7 +68,7 @@ class BasicUITest(
     )
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(
             if (implName == Camera2Config::class.simpleName) {
                 Camera2Config.defaultConfig()

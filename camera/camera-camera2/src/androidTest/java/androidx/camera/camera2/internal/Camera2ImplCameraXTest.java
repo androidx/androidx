@@ -92,7 +92,7 @@ public final class Camera2ImplCameraXTest {
             new CameraSelector.Builder().requireLensFacing(DEFAULT_LENS_FACING).build();
 
     @Rule
-    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     );
 

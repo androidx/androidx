@@ -140,7 +140,7 @@ class VideoCaptureDeviceTest(
     }
 
     @get:Rule
-    val cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val cameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 

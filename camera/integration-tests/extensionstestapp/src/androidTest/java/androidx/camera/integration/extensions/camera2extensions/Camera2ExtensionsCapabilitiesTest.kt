@@ -49,7 +49,7 @@ import org.junit.runners.Parameterized
 class Camera2ExtensionsCapabilitiesTest(private val config: CameraIdExtensionModePair) {
     @get:Rule
     val useCamera =
-        CameraUtil.grantCameraPermissionAndPreTest(
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 

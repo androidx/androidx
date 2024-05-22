@@ -70,7 +70,7 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
     )
 
     @get:Rule
-    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
         testCameraRule, CameraUtil.PreTestCameraIdList(
             if (cameraXConfig == CameraActivity.CAMERA2_IMPLEMENTATION_OPTION) {
                 Camera2Config.defaultConfig()

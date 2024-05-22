@@ -134,7 +134,7 @@ class CameraControlAdapterDeviceTest {
     }
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
+    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     @Before
     fun setUp() {
