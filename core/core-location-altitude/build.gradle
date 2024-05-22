@@ -45,7 +45,7 @@ dependencies {
 
     implementation(project(":core:core-location-altitude-proto"))
     implementation(libs.autoValueAnnotations)
-    implementation(project(":core:core"))
+    implementation("androidx.core:core:1.13.0")
     implementation("androidx.room:room-runtime:2.4.3")
 
     annotationProcessor(libs.autoValue)
