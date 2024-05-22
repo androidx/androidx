@@ -98,7 +98,7 @@ private var SemanticsPropertyReceiver.interopView by InteropViewSemanticsKey
  */
 private fun Modifier.interopSemantics(enabled: Boolean, wrappingView: InteropWrappingView): Modifier =
     if (enabled) {
-        this then semantics {
+        this.semantics {
             interopView = wrappingView
         }
     } else {
