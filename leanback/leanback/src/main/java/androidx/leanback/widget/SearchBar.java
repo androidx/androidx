@@ -498,9 +498,9 @@ public class SearchBar extends RelativeLayout {
         }
     }
 
+    @SuppressWarnings("WrongConstant") // See b/342141577 regarding a source-breaking API change.
     void hideNativeKeyboard() {
-        mInputMethodManager.hideSoftInputFromWindow(mSearchTextEditor.getWindowToken(),
-                InputMethodManager.RESULT_UNCHANGED_SHOWN);
+        mInputMethodManager.hideSoftInputFromWindow(mSearchTextEditor.getWindowToken(), 0);
     }
 
     void showNativeKeyboard() {
