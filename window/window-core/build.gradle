@@ -26,12 +26,18 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
     jvm()
-    android()
+    androidLibrary {
+        namespace = "androidx.window.core"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+    }
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -60,10 +66,6 @@ androidXMultiplatform {
             }
         }
     }
-}
-
-android {
-    namespace "androidx.window.core"
 }
 
 androidx {
