@@ -98,6 +98,7 @@ class CameraDisconnectTest(
     @After
     fun tearDown() {
         if (::cameraXActivityScenario.isInitialized) {
+            cameraXActivityScenario.cleanup()
             cameraXActivityScenario.close()
         }
 
@@ -132,12 +133,16 @@ class CameraDisconnectTest(
                 intent
             )?.apply {
                 // Wait for preview to become active
-                waitForCamera2Preview()
-
-                // Close Camera2 test activity, and verify the CameraX Preview resumes successfully.
-                finish()
+                try {
+                    waitForCamera2Preview()
+                } finally {
+                    // Close Camera2 test activity, and verify the CameraX Preview resumes
+                    // successfully.
+                    finish()
+                }
             }
 
+            waitForCameraXActivityResume()
             // Verify the CameraX Preview can resume successfully.
             waitForCameraXPreview()
         }
@@ -154,6 +159,17 @@ class CameraDisconnectTest(
         onActivity { idlingResource = it.previewReady }
 
         waitFor(idlingResource!!)
+    }
+
+    private fun ActivityScenario<CameraXTestActivity>.waitForCameraXActivityResume() {
+        var idlingResource: IdlingResource? = null
+        onActivity { idlingResource = it.activityResumeIdlingCounting }
+
+        waitFor(idlingResource!!)
+    }
+
+    private fun ActivityScenario<CameraXTestActivity>.cleanup() {
+        onActivity { it.cleanup() }
     }
 
     private fun Camera2TestActivity.waitForCamera2Preview() {
