@@ -27,6 +27,7 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.NavigationDrawerTokens
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -44,6 +46,7 @@ import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -778,6 +781,32 @@ class ModalNavigationDrawerTest {
 
         topNode = rule.onNodeWithTag(topTag).fetchSemanticsNode()
         assertEquals(2, topNode.children.size)
+    }
+
+    @Test
+    fun navigationDrawer_drawerContainerIsOffScreen_whenClosed() {
+        lateinit var navDrawerPaneTitle: String
+        rule.setMaterialContent(lightColorScheme()) {
+            navDrawerPaneTitle = getString(Strings.NavigationMenu)
+            ModalNavigationDrawer(
+                drawerState = rememberDrawerState(DrawerValue.Closed),
+                drawerContent = {
+                    ModalDrawerSheet {
+                        Box(Modifier.fillMaxSize())
+                    }
+                },
+                content = {
+                    Box(Modifier.fillMaxSize())
+                }
+            )
+        }
+
+        // This matcher returns the container of `ModalDrawerSheet`, not `ModalDrawerSheet` itself
+        rule.onNode(
+            SemanticsMatcher("drawer pane") {
+                it.config.getOrNull(SemanticsProperties.PaneTitle) == navDrawerPaneTitle
+            }
+        ).getUnclippedBoundsInRoot().left.assertIsEqualTo(-NavigationDrawerWidth)
     }
 }
 
