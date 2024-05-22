@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -86,6 +87,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -367,6 +369,11 @@ fun ModalNavigationDrawer(
         Layout(
             content = drawerContent,
             modifier = Modifier
+                .offset {
+                    drawerState.currentOffset.let { offset ->
+                        if (offset.isNaN()) IntOffset.Zero else IntOffset(offset.roundToInt(), 0)
+                    }
+                }
                 .semantics {
                     paneTitle = navigationMenu
                     if (drawerState.isOpen) {
@@ -404,7 +411,7 @@ fun ModalNavigationDrawer(
                     )
                 }
                 placeables.fastForEach {
-                    it.placeRelative(drawerState.requireOffset().roundToInt(), 0)
+                    it.placeRelative(0, 0)
                 }
             }
         }
