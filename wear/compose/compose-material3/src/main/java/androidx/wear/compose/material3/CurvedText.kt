@@ -32,12 +32,19 @@ import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedRow
+import androidx.wear.compose.foundation.sizeIn
 
 /**
  * CurvedText is a component allowing developers to easily write curved text following
  * the curvature a circle (usually at the edge of a circular screen).
  * CurvedText can be only created within the CurvedLayout to ensure the best experience, like being
  * able to specify to positioning.
+ *
+ * Note that Wear Material UX guidance recommends that [curvedText] should not exceed
+ * the sweep angle [CurvedTextDefaults.ScrollableContentMaxSweepAngle] on screens with
+ * scrollable content such as lists. This limit is enforced by default.
+ * For screens without scrollable content, [CurvedTextDefaults.StaticScreenMaxSweepAngle]
+ * may be used instead.
  *
  * The default [style] uses the [LocalTextStyle] provided by the [MaterialTheme] / components,
  * converting it to a [CurvedTextStyle]. Note that not all parameters are used by [curvedText].
@@ -68,6 +75,8 @@ import androidx.wear.compose.foundation.curvedRow
  *
  * @param text The text to display
  * @param modifier The [CurvedModifier] to apply to this curved text.
+ * @param maxSweepAngle The default maximum sweep angle in degrees. For screens without
+ * scrollable content, [CurvedTextDefaults.StaticScreenMaxSweepAngle] may be used instead.
  * @param background The background color for the text.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  * this will be [LocalContentColor].
@@ -87,6 +96,7 @@ import androidx.wear.compose.foundation.curvedRow
 fun CurvedScope.curvedText(
     text: String,
     modifier: CurvedModifier = CurvedModifier,
+    maxSweepAngle: Float = CurvedTextDefaults.ScrollableContentMaxSweepAngle,
     background: Color = Color.Unspecified,
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -97,7 +107,12 @@ fun CurvedScope.curvedText(
     style: CurvedTextStyle? = null,
     angularDirection: CurvedDirection.Angular? = null,
     overflow: TextOverflow = TextOverflow.Clip,
-) = basicCurvedText(text, modifier, angularDirection, overflow) {
+) = basicCurvedText(
+    text = text,
+    modifier = modifier.sizeIn(maxSweepDegrees = maxSweepAngle),
+    angularDirection = angularDirection,
+    overflow = overflow
+) {
     val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
     val textColor = color.takeOrElse {
         baseStyle.color.takeOrElse {
@@ -115,4 +130,22 @@ fun CurvedScope.curvedText(
             background = background
         )
     )
+}
+
+object CurvedTextDefaults {
+
+    /**
+     * The default maximum sweep angle in degrees used by [curvedText]. This threshold
+     * is for the [curvedText] displayed on screens with scrollable content, such as lists..
+     *
+     * This is calculated by keeping the length of the corresponding chord
+     * on the circle to be approximately 57% of the screen width.
+     */
+    const val ScrollableContentMaxSweepAngle: Float = 70f
+
+    /**
+     * The recommended maximum sweep angle in degrees used by [curvedText]
+     * for screens without scrollable content.
+     */
+    const val StaticScreenMaxSweepAngle: Float = 120f
 }
