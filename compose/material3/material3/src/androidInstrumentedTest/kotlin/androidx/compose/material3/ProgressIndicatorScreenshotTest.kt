@@ -182,6 +182,19 @@ class ProgressIndicatorScreenshotTest {
     }
 
     @Test
+    fun circularProgressIndicator_lightTheme_determinate_size() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(88.dp),
+                    progress = { 0.5f }
+                )
+            }
+        }
+        assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_determinate_size")
+    }
+
+    @Test
     fun circularProgressIndicator_lightTheme_indeterminate() {
         rule.mainClock.autoAdvance = false
         rule.setMaterialContent(lightColorScheme()) {
