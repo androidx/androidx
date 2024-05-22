@@ -46,7 +46,7 @@ abstract class BaseFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activity = requireActivity()
-        sdkSandboxManager = SdkSandboxManagerCompat.from(requireContext())
+        sdkSandboxManager = SdkSandboxManagerCompat.from(requireContext().applicationContext)
         runBlocking {
             val loadedSdks = sdkSandboxManager.getSandboxedSdks()
             var loadedSdk = loadedSdks.firstOrNull { it.getSdkInfo()?.name == SDK_NAME }
