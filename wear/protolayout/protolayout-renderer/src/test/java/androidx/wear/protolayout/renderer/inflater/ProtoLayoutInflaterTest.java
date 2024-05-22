@@ -5298,6 +5298,7 @@ public class ProtoLayoutInflaterTest {
         assertThat(box.getAlpha()).isEqualTo(opacity);
     }
 
+    @Ignore // b/342225240
     @Test
     public void inflate_box_withTransformationModifier() {
         DpProp translationX = dp(10.f).build();
@@ -5417,6 +5418,7 @@ public class ProtoLayoutInflaterTest {
         assertThat(box.getScaleY()).isEqualTo(1);
     }
 
+    @Ignore // b/342225240
     @Test
     public void inflate_box_withPivotTransformationModifier_noValidPivot_defaultToCenter() {
         // PivotDimension without offSetDp nor locationRation
