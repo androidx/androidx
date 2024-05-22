@@ -33,14 +33,11 @@ import org.gradle.api.tasks.TaskAction
 @CacheableTask
 abstract class UpdateAbiTask : DefaultTask() {
 
-    @get:Inject
-    abstract val fileSystemOperations: FileSystemOperations
+    @get:Inject abstract val fileSystemOperations: FileSystemOperations
 
-    @get:Input
-    abstract val version: Property<String>
+    @get:Input abstract val version: Property<String>
 
-    @get:Input
-    abstract val shouldWriteVersionedApiFile: Property<Boolean>
+    @get:Input abstract val shouldWriteVersionedApiFile: Property<Boolean>
 
     /** Text file from which API signatures will be read. */
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -48,8 +45,7 @@ abstract class UpdateAbiTask : DefaultTask() {
     abstract var inputApiLocation: Provider<File>
 
     /** Directory to which API signatures will be written. */
-    @get:OutputDirectory
-    abstract var outputDir: Provider<File>
+    @get:OutputDirectory abstract var outputDir: Provider<File>
 
     @TaskAction
     fun execute() {

@@ -236,35 +236,52 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
         samplesDestinationDirectory: Provider<Directory>,
         docsConfiguration: Configuration
     ): Pair<TaskProvider<Sync>, TaskProvider<Sync>> {
-        val pairProvider = docsConfiguration.incoming.artifactView {}.files.elements.map {
-            it.map { it.asFile }.toSortedSet().partition { "samples" !in it.toString() }
-        }
+        val pairProvider =
+            docsConfiguration.incoming
+                .artifactView {}
+                .files
+                .elements
+                .map {
+                    it.map { it.asFile }.toSortedSet().partition { "samples" !in it.toString() }
+                }
         return project.tasks.register("unzipJvmSources", Sync::class.java) { task ->
             // Store archiveOperations into a local variable to prevent access to the plugin
             // during the task execution, as that breaks configuration caching.
             val localVar = archiveOperations
             task.into(sourcesDestinationDirectory)
             task.from(
-                pairProvider.map { it.first }.map { it.map { jar ->
-                    localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
-                } }
+                pairProvider
+                    .map { it.first }
+                    .map {
+                        it.map { jar ->
+                            localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
+                        }
+                    }
             )
             // Files with the same path in different source jars of the same library will lead to
             // some classes/methods not appearing in the docs.
             task.duplicatesStrategy = DuplicatesStrategy.WARN
-        } to project.tasks.register("unzipSampleSources", Sync::class.java) { task ->
-            // Store archiveOperations into a local variable to prevent access to the plugin
-            // during the task execution, as that breaks configuration caching.
-            val localVar = archiveOperations
-            task.into(samplesDestinationDirectory)
-            task.from(
-                pairProvider.map { it.second }.map { it.map { jar ->
-                    localVar.zipTree(jar).matching { it.exclude("**/META-INF/MANIFEST.MF") }
-                } }
-            )
-            // We expect this to happen when multiple libraries use the same sample, e.g. paging.
-            task.duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        }
+        } to
+            project.tasks.register("unzipSampleSources", Sync::class.java) { task ->
+                // Store archiveOperations into a local variable to prevent access to the plugin
+                // during the task execution, as that breaks configuration caching.
+                val localVar = archiveOperations
+                task.into(samplesDestinationDirectory)
+                task.from(
+                    pairProvider
+                        .map { it.second }
+                        .map {
+                            it.map { jar ->
+                                localVar.zipTree(jar).matching {
+                                    it.exclude("**/META-INF/MANIFEST.MF")
+                                }
+                            }
+                        }
+                )
+                // We expect this to happen when multiple libraries use the same sample, e.g.
+                // paging.
+                task.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            }
     }
 
     /**
@@ -521,10 +538,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             project.tasks.register("docs", DackkaTask::class.java) { task ->
                 var taskStartTime: LocalDateTime? = null
                 task.argsJsonFile.set(
-                    File(
-                        project.getDistributionDirectory(),
-                        "dackkaArgs-${project.name}.json"
-                    )
+                    File(project.getDistributionDirectory(), "dackkaArgs-${project.name}.json")
                 )
                 task.apply {
                     // Remove once there is property version of Copy#destinationDir
@@ -542,9 +556,7 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
 
                     dackkaClasspath.from(project.files(dackkaConfiguration))
                     destinationDir.set(generatedDocsDir)
-                    frameworkSamplesDir.set(
-                        File(project.getSupportRootFolder(), "samples")
-                    )
+                    frameworkSamplesDir.set(File(project.getSupportRootFolder(), "samples"))
                     samplesDeprecatedDir.set(unzippedDeprecatedSamplesSources)
                     samplesJvmDir.set(unzippedJvmSamplesSources)
                     samplesKmpDir.set(unzippedKmpSamplesSources)
@@ -575,17 +587,26 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
                     hidingAnnotations.set(annotationsToHideApis)
                     nullabilityAnnotations.set(validNullabilityAnnotations)
                     versionMetadataFiles.from(
-                        versionMetadataConfiguration.incoming.artifactView { }.files
+                        versionMetadataConfiguration.incoming.artifactView {}.files
                     )
                     task.doFirst { taskStartTime = LocalDateTime.now() }
                     task.doLast {
-                        val cpus = try {
-                            ProcessBuilder("lscpu").start()
-                                .apply { waitFor(100L, TimeUnit.MILLISECONDS) }
-                                .inputStream.bufferedReader().readLines()
-                                .filter { it.startsWith("CPU(s):") }.singleOrNull()
-                                ?.split(" ")?.last()?.toInt()
-                        } catch (e: java.io.IOException) { null } // not running on linux
+                        val cpus =
+                            try {
+                                ProcessBuilder("lscpu")
+                                    .start()
+                                    .apply { waitFor(100L, TimeUnit.MILLISECONDS) }
+                                    .inputStream
+                                    .bufferedReader()
+                                    .readLines()
+                                    .filter { it.startsWith("CPU(s):") }
+                                    .singleOrNull()
+                                    ?.split(" ")
+                                    ?.last()
+                                    ?.toInt()
+                            } catch (e: java.io.IOException) {
+                                null
+                            } // not running on linux
                         if (cpus != 64) { // Keep stddev of build metrics low b/334867245
                             println("$cpus cpus, so not storing build metrics.")
                             return@doLast
@@ -762,12 +783,15 @@ private val hiddenAnnotations: List<String> =
         "androidx.room.Ignore"
     )
 
-val validNullabilityAnnotations = listOf(
-    "androidx.annotation.Nullable", "android.annotation.Nullable",
-    "androidx.annotation.NonNull", "android.annotation.NonNull",
-    // Required by media3
-    "org.checkerframework.checker.nullness.qual.Nullable",
-)
+val validNullabilityAnnotations =
+    listOf(
+        "androidx.annotation.Nullable",
+        "android.annotation.Nullable",
+        "androidx.annotation.NonNull",
+        "android.annotation.NonNull",
+        // Required by media3
+        "org.checkerframework.checker.nullness.qual.Nullable",
+    )
 
 // Annotations which should not be displayed in the Kotlin docs, in addition to hiddenAnnotations
 private val hiddenAnnotationsKotlin: List<String> = listOf("kotlin.ExtensionFunctionType")
@@ -776,11 +800,12 @@ private val hiddenAnnotationsKotlin: List<String> = listOf("kotlin.ExtensionFunc
 private val hiddenAnnotationsJava: List<String> = emptyList()
 
 // Annotations which mean the elements they are applied to should be hidden from the docs
-private val annotationsToHideApis: List<String> = listOf(
-    "androidx.annotation.RestrictTo",
-    // Appears in androidx.test sources
-    "dagger.internal.DaggerGenerated",
-)
+private val annotationsToHideApis: List<String> =
+    listOf(
+        "androidx.annotation.RestrictTo",
+        // Appears in androidx.test sources
+        "dagger.internal.DaggerGenerated",
+    )
 
 /** Data class that matches JSON structure of kotlin source set metadata */
 data class ProjectStructureMetadata(var sourceSets: List<SourceSetMetadata>)
@@ -806,11 +831,14 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        val (sources, samples) = inputJars.get()
-            .associate { it.name to archiveOperations.zipTree(it) }.toSortedMap()
-            // Now that we publish sample jars, they can get confused with normal source
-            // jars. We want to handle sample jars separately, so filter by the name.
-            .partition { name -> "samples" !in name }
+        val (sources, samples) =
+            inputJars
+                .get()
+                .associate { it.name to archiveOperations.zipTree(it) }
+                .toSortedMap()
+                // Now that we publish sample jars, they can get confused with normal source
+                // jars. We want to handle sample jars separately, so filter by the name.
+                .partition { name -> "samples" !in name }
         fileSystemOperations.sync {
             it.duplicatesStrategy = DuplicatesStrategy.FAIL
             it.from(sources.values)
@@ -835,6 +863,7 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
         }
     }
 }
+
 private fun <K, V> Map<K, V>.partition(condition: (K) -> Boolean): Pair<Map<K, V>, Map<K, V>> =
     this.toList().partition { (k, _) -> condition(k) }.let { it.first.toMap() to it.second.toMap() }
 

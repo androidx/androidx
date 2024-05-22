@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("unused") // used by gson
+
 package androidx.build.dackka
 
 import com.google.gson.annotations.SerializedName

@@ -35,9 +35,8 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
 @CacheableTask
-abstract class ClangArchiveTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor
-) : DefaultTask() {
+abstract class ClangArchiveTask @Inject constructor(private val workerExecutor: WorkerExecutor) :
+    DefaultTask() {
     init {
         description = "Combines multiple object files (.o) into an archive file (.a)."
         group = "Build"
@@ -47,14 +46,11 @@ abstract class ClangArchiveTask @Inject constructor(
     @get:ServiceReference(KonanBuildService.KEY)
     abstract val konanBuildService: Property<KonanBuildService>
 
-    @get:Nested
-    abstract val llvmArchiveParameters: ClangArchiveParameters
+    @get:Nested abstract val llvmArchiveParameters: ClangArchiveParameters
 
     @TaskAction
     fun archive() {
-        workerExecutor.noIsolation().submit(
-            ClangArchiveWorker::class.java
-        ) {
+        workerExecutor.noIsolation().submit(ClangArchiveWorker::class.java) {
             it.llvmArchiveParameters.set(llvmArchiveParameters)
             it.buildService.set(konanBuildService)
         }
@@ -62,25 +58,16 @@ abstract class ClangArchiveTask @Inject constructor(
 }
 
 abstract class ClangArchiveParameters {
-    /**
-     * The target platform for the archive file.
-     */
-    @get:Input
-    abstract val konanTarget: Property<SerializableKonanTarget>
+    /** The target platform for the archive file. */
+    @get:Input abstract val konanTarget: Property<SerializableKonanTarget>
 
-    /**
-     * The list of object files that needs to be added to the archive.
-     */
+    /** The list of object files that needs to be added to the archive. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NAME_ONLY)
     abstract val objectFiles: ConfigurableFileCollection
 
-    /**
-     * The final output file that will include the archive of the given
-     * [objectFiles].
-     */
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    /** The final output file that will include the archive of the given [objectFiles]. */
+    @get:OutputFile abstract val outputFile: RegularFileProperty
 }
 
 private abstract class ClangArchiveWorker : WorkAction<ClangArchiveWorker.Params> {

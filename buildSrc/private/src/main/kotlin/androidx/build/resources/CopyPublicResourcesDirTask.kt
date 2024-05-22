@@ -28,23 +28,19 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
-/**
- * Copy task that adds a [DirectoryProperty] to be used in variant.addGeneratedSourceDirectory()
- */
+/** Copy task that adds a [DirectoryProperty] to be used in variant.addGeneratedSourceDirectory() */
 @DisableCachingByDefault(
     because = " Copy tasks are faster to rerun locally than to fetch from the remote cache."
 )
 abstract class CopyPublicResourcesDirTask : DefaultTask() {
 
-    @get:Inject
-    abstract val fileSystemOperations: FileSystemOperations
+    @get:Inject abstract val fileSystemOperations: FileSystemOperations
 
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val buildSrcResDir: DirectoryProperty
 
-    @get:OutputDirectory
-    abstract val outputFolder: DirectoryProperty
+    @get:OutputDirectory abstract val outputFolder: DirectoryProperty
 
     @TaskAction
     fun copy() {

@@ -147,14 +147,10 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     val targets: NamedDomainObjectCollection<KotlinTarget>
         get() = kotlinExtension.targets
 
-    /**
-     * Helper class to access Clang functionality.
-     */
+    /** Helper class to access Clang functionality. */
     private val clang = AndroidXClang(project)
 
-    /**
-     * Helper class to bundle outputs of clang compilation into an AAR / JAR.
-     */
+    /** Helper class to bundle outputs of clang compilation into an AAR / JAR. */
     private val nativeLibraryBundler = NativeLibraryBundler(project)
 
     internal fun hasNativeTarget(): Boolean {
@@ -169,22 +165,27 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     fun sourceSets(closure: Closure<*>) {
         if (kotlinExtensionDelegate.isInitialized()) {
-            kotlinExtension.sourceSets.configure(closure).also {
-                kotlinExtension.sourceSets.configureEach { sourceSet ->
-                    if (sourceSet.name == "main" || sourceSet.name == "test") {
-                        throw Exception("KMP-enabled projects must use target-prefixed " +
-                            "source sets, e.g. androidMain or commonTest, rather than main or test")
-                    }
-                }
-            }.also {
-                if (!project.enableMac()) {
-                    for (sourceSetName in macOnlySourceSetNames) {
-                        kotlinExtension.sourceSets.findByName(sourceSetName)?.let {
-                            kotlinExtension.sourceSets.remove(it)
+            kotlinExtension.sourceSets
+                .configure(closure)
+                .also {
+                    kotlinExtension.sourceSets.configureEach { sourceSet ->
+                        if (sourceSet.name == "main" || sourceSet.name == "test") {
+                            throw Exception(
+                                "KMP-enabled projects must use target-prefixed " +
+                                    "source sets, e.g. androidMain or commonTest, rather than main or test"
+                            )
                         }
                     }
                 }
-            }
+                .also {
+                    if (!project.enableMac()) {
+                        for (sourceSetName in macOnlySourceSetNames) {
+                            kotlinExtension.sourceSets.findByName(sourceSetName)?.let {
+                                kotlinExtension.sourceSets.remove(it)
+                            }
+                        }
+                    }
+                }
         }
     }
 
@@ -194,23 +195,20 @@ open class AndroidXMultiplatformExtension(val project: Project) {
      * The given [configure] action can be used to add targets, sources, includes etc.
      *
      * The outputs of this compilation is not added to any artifact by default.
-     *  * To use the outputs via cinterop (kotlin native), use the [createCinterop] function.
-     *  * To bundle the outputs inside a JAR (to be loaded at runtime), use the
-     *  [addNativeLibrariesToResources] function.
-     *  * To bundle the outputs inside an AAR (to be loaded at runtime), use the
-     *  [addNativeLibrariesToJniLibs] function.
+     * * To use the outputs via cinterop (kotlin native), use the [createCinterop] function.
+     * * To bundle the outputs inside a JAR (to be loaded at runtime), use the
+     *   [addNativeLibrariesToResources] function.
+     * * To bundle the outputs inside an AAR (to be loaded at runtime), use the
+     *   [addNativeLibrariesToJniLibs] function.
      *
-     *  @param archiveName The archive file name for the native artifacts (.so, .a or .o)
-     *  @param configure Action block to configure the compilation.
+     * @param archiveName The archive file name for the native artifacts (.so, .a or .o)
+     * @param configure Action block to configure the compilation.
      */
     fun createNativeCompilation(
         archiveName: String,
         configure: Action<MultiTargetNativeCompilation>
     ): MultiTargetNativeCompilation {
-        return clang.createNativeCompilation(
-            archiveName = archiveName,
-            configure = configure
-        )
+        return clang.createNativeCompilation(archiveName = archiveName, configure = configure)
     }
 
     /**
@@ -218,12 +216,12 @@ open class AndroidXMultiplatformExtension(val project: Project) {
      * from the outputs of [nativeCompilation].
      *
      * @param nativeTarget The kotlin native target for which a new cinterop will be added on the
-     * main compilation.
+     *   main compilation.
      * @param nativeCompilation The [MultiTargetNativeCompilation] which will be embedded into the
-     * generated cinterop klib.
+     *   generated cinterop klib.
      * @param cinteropName The name of the cinterop definition. A matching "<cinteropName.def>" file
-     * needs to be present in the default cinterop location
-     * (src/nativeInterop/cinterop/<cinteropName.def>).
+     *   needs to be present in the default cinterop location
+     *   (src/nativeInterop/cinterop/<cinteropName.def>).
      */
     @JvmOverloads
     fun createCinterop(
@@ -232,9 +230,9 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         cinteropName: String = nativeCompilation.archiveName
     ) {
         createCinterop(
-            kotlinNativeCompilation = nativeTarget.compilations.getByName(
-                KotlinCompilation.MAIN_COMPILATION_NAME
-            ) as KotlinNativeCompilation,
+            kotlinNativeCompilation =
+                nativeTarget.compilations.getByName(KotlinCompilation.MAIN_COMPILATION_NAME)
+                    as KotlinNativeCompilation,
             nativeCompilation = nativeCompilation,
             cinteropName = cinteropName
         )
@@ -244,13 +242,13 @@ open class AndroidXMultiplatformExtension(val project: Project) {
      * Creates a Kotlin Native cinterop configuration for the given [kotlinNativeCompilation] from
      * the outputs of [nativeCompilation].
      *
-     * @param kotlinNativeCompilation The kotlin native compilation for which a new cinterop will
-     * be added
+     * @param kotlinNativeCompilation The kotlin native compilation for which a new cinterop will be
+     *   added
      * @param nativeCompilation The [MultiTargetNativeCompilation] which will be embedded into the
-     * generated cinterop klib.
+     *   generated cinterop klib.
      * @param cinteropName The name of the cinterop definition. A matching "<cinteropName.def>" file
-     * needs to be present in the default cinterop location
-     * (src/nativeInterop/cinterop/<cinteropName.def>).
+     *   needs to be present in the default cinterop location
+     *   (src/nativeInterop/cinterop/<cinteropName.def>).
      */
     @JvmOverloads
     fun createCinterop(
@@ -268,36 +266,31 @@ open class AndroidXMultiplatformExtension(val project: Project) {
      * Creates a Kotlin Native cinterop configuration for the given [kotlinNativeCompilation] from
      * the single output of a configuration.
      *
-     * @param kotlinNativeCompilation The kotlin native compilation for which a new cinterop will
-     * be added
-     * @param configuration The configuration to resolve. It is expected for the
-     * configuration to contain a single file of the archive file to be referenced in the C interop
-     * definition file.
+     * @param kotlinNativeCompilation The kotlin native compilation for which a new cinterop will be
+     *   added
+     * @param configuration The configuration to resolve. It is expected for the configuration to
+     *   contain a single file of the archive file to be referenced in the C interop definition
+     *   file.
      */
     fun createCinteropFromArchiveConfiguration(
         kotlinNativeCompilation: KotlinNativeCompilation,
         configuration: Configuration
     ) {
-        configureCinterop(
-            project,
-            kotlinNativeCompilation,
-            configuration
-        )
+        configureCinterop(project, kotlinNativeCompilation, configuration)
     }
 
-    /**
-     * @see NativeLibraryBundler.addNativeLibrariesToJniLibs
-     */
+    /** @see NativeLibraryBundler.addNativeLibrariesToJniLibs */
     @JvmOverloads
     fun addNativeLibrariesToJniLibs(
         androidTarget: KotlinAndroidTarget,
         nativeCompilation: MultiTargetNativeCompilation,
         forTest: Boolean = false
-    ) = nativeLibraryBundler.addNativeLibrariesToJniLibs(
-        androidTarget = androidTarget,
-        nativeCompilation = nativeCompilation,
-        forTest = forTest
-    )
+    ) =
+        nativeLibraryBundler.addNativeLibrariesToJniLibs(
+            androidTarget = androidTarget,
+            nativeCompilation = nativeCompilation,
+            forTest = forTest
+        )
 
     /**
      * Convenience method to add bundle native libraries with a test jar.
@@ -307,25 +300,25 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun addNativeLibrariesToTestResources(
         jvmTarget: KotlinJvmTarget,
         nativeCompilation: MultiTargetNativeCompilation
-    ) = addNativeLibrariesToResources(
-        jvmTarget = jvmTarget,
-        nativeCompilation = nativeCompilation,
-        compilationName = KotlinCompilation.TEST_COMPILATION_NAME
-    )
+    ) =
+        addNativeLibrariesToResources(
+            jvmTarget = jvmTarget,
+            nativeCompilation = nativeCompilation,
+            compilationName = KotlinCompilation.TEST_COMPILATION_NAME
+        )
 
-    /**
-     * @see NativeLibraryBundler.addNativeLibrariesToResources
-     */
+    /** @see NativeLibraryBundler.addNativeLibrariesToResources */
     @JvmOverloads
     fun addNativeLibrariesToResources(
         jvmTarget: KotlinJvmTarget,
         nativeCompilation: MultiTargetNativeCompilation,
         compilationName: String = KotlinCompilation.MAIN_COMPILATION_NAME
-    ) = nativeLibraryBundler.addNativeLibrariesToResources(
-        jvmTarget = jvmTarget,
-        nativeCompilation = nativeCompilation,
-        compilationName = compilationName
-    )
+    ) =
+        nativeLibraryBundler.addNativeLibrariesToResources(
+            jvmTarget = jvmTarget,
+            nativeCompilation = nativeCompilation,
+            compilationName = compilationName
+        )
 
     /**
      * Sets the default target platform.
@@ -541,14 +534,15 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     companion object {
         const val EXTENSION_NAME = "androidXMultiplatform"
-        private val macOnlySourceSetNames = setOf(
-            "darwinMain",
-            "darwinTest",
-            "iosMain",
-            "iosSimulatorArm64Main",
-            "iosX64Main",
-            "iosArm64Main"
-        )
+        private val macOnlySourceSetNames =
+            setOf(
+                "darwinMain",
+                "darwinTest",
+                "iosMain",
+                "iosSimulatorArm64Main",
+                "iosX64Main",
+                "iosArm64Main"
+            )
     }
 }
 
@@ -577,30 +571,33 @@ fun Project.registerValidateMultiplatformSourceSetNamingTask() {
         return
     }
 
-    tasks.register(
-        "validateMultiplatformSourceSetNaming",
-        ValidateMultiplatformSourceSetNaming::class.java
-    ) { task ->
-        targets
-            .filterNot { target -> target.platformType.name == "common" }
-            .forEach { target -> task.addTarget(project, target) }
-        task.rootDir.set(rootDir.path)
-        task.cacheEvenIfNoOutputs()
-    }.also { validateTask ->
-        // Multiplatform projects with no enabled platforms do not actually apply the Kotlin plugin
-        // and therefore do not have the check task. They are skipped unless a platform is enabled.
-        if (project.tasks.findByName("check") != null) {
-            project.addToCheckTask(validateTask)
-            project.addToBuildOnServer(validateTask)
+    tasks
+        .register(
+            "validateMultiplatformSourceSetNaming",
+            ValidateMultiplatformSourceSetNaming::class.java
+        ) { task ->
+            targets
+                .filterNot { target -> target.platformType.name == "common" }
+                .forEach { target -> task.addTarget(project, target) }
+            task.rootDir.set(rootDir.path)
+            task.cacheEvenIfNoOutputs()
         }
-    }
+        .also { validateTask ->
+            // Multiplatform projects with no enabled platforms do not actually apply the Kotlin
+            // plugin
+            // and therefore do not have the check task. They are skipped unless a platform is
+            // enabled.
+            if (project.tasks.findByName("check") != null) {
+                project.addToCheckTask(validateTask)
+                project.addToBuildOnServer(validateTask)
+            }
+        }
 }
 
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
 
-    @get:Input
-    abstract val rootDir: Property<String>
+    @get:Input abstract val rootDir: Property<String>
 
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
@@ -625,8 +622,8 @@ abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
                     // Kotlin source files must be uniquely-named across platforms.
                     if (
                         file.isFile &&
-                        file.name.endsWith(".kt") &&
-                        !file.name.endsWith(".$sourceFileSuffix.kt")
+                            file.name.endsWith(".kt") &&
+                            !file.name.endsWith(".$sourceFileSuffix.kt")
                     ) {
                         val actualPath = file.toRelativeString(File(rootDir.get()))
                         val expectedName = "${file.name.substringBefore('.')}.$sourceFileSuffix.kt"
@@ -648,34 +645,31 @@ abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
     }
 
     fun addTarget(project: Project, target: KotlinTarget) {
-        sourceSetMap[target.preferredSourceFileSuffix] = project.files(
-            target.compilations
-                .filterNot { compilation ->
-                    // Don't enforce suffixes for test source sets.
-                    compilation.name == "test" ||
-                        compilation.name.endsWith("Test")
-                }
-                .flatMap { compilation -> compilation.kotlinSourceSets }
-                .map { kotlinSourceSet -> kotlinSourceSet.kotlin.sourceDirectories }
-                .toTypedArray()
-        )
+        sourceSetMap[target.preferredSourceFileSuffix] =
+            project.files(
+                target.compilations
+                    .filterNot { compilation ->
+                        // Don't enforce suffixes for test source sets.
+                        compilation.name == "test" || compilation.name.endsWith("Test")
+                    }
+                    .flatMap { compilation -> compilation.kotlinSourceSets }
+                    .map { kotlinSourceSet -> kotlinSourceSet.kotlin.sourceDirectories }
+                    .toTypedArray()
+            )
     }
 
     /**
      * List of Kotlin target names which may be used as source file suffixes. Any target whose name
      * does not appear in this list will use its [KotlinPlatformType] name.
      */
-    private val allowedTargetNameSuffixes = setOf(
-        "android",
-        "desktop",
-        "jvm"
-    )
+    private val allowedTargetNameSuffixes = setOf("android", "desktop", "jvm")
 
     /** The preferred source file suffix for the target's platform type. */
     private val KotlinTarget.preferredSourceFileSuffix: String
-        get() = if (allowedTargetNameSuffixes.contains(name)) {
-            name
-        } else {
-            platformType.name
-        }
+        get() =
+            if (allowedTargetNameSuffixes.contains(name)) {
+                name
+            } else {
+                platformType.name
+            }
 }

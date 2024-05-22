@@ -47,20 +47,16 @@ abstract class CheckAbiIsCompatibleTask : DefaultTask() {
     @get:InputFile
     abstract var currentApiDump: Provider<File>
 
-    @get:Input
-    abstract var referenceVersion: Provider<String>
+    @get:Input abstract var referenceVersion: Provider<String>
 
-    @get:Input
-    abstract var projectVersion: Provider<String>
+    @get:Input abstract var projectVersion: Provider<String>
 
     @TaskAction
     fun execute() {
         val previousApiDumpText = previousApiDump.get().readText()
         val currentApiDumpText = currentApiDump.get().readText()
-        val shouldFreeze = shouldFreezeApis(
-            Version(referenceVersion.get()),
-            Version(projectVersion.get())
-        )
+        val shouldFreeze =
+            shouldFreezeApis(Version(referenceVersion.get()), Version(projectVersion.get()))
         if (shouldFreeze && previousApiDumpText != currentApiDumpText) {
             throw GradleException(frozenApiErrorMessage(referenceVersion.get()))
         }

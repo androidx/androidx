@@ -99,10 +99,11 @@ fun Project.configureMavenArtifactUpload(
 }
 
 private fun Project.validateTaskIsRegistered(taskName: String) =
-    tasks.findByName(taskName) ?: throw GradleException(
-        "Project $name is configured for publishing, but a '$taskName' task was never " +
-        "registered. This is likely a bug in AndroidX plugin configuration."
-    )
+    tasks.findByName(taskName)
+        ?: throw GradleException(
+            "Project $name is configured for publishing, but a '$taskName' task was never " +
+                "registered. This is likely a bug in AndroidX plugin configuration."
+        )
 
 private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension): Boolean {
     if (plugins.hasPlugin(AppPlugin::class.java)) {
@@ -191,19 +192,23 @@ private fun Project.configureComponentPublishing(
             if (addStubAar) {
                 val libraryExtension = project.extensions.getByType<LibraryExtension>()
                 // create a unique namespace for this .aar, different from the android artifact
-                val stubNamespace = project.group.toString().replace(':', '.') +
-                    "." + project.name.toString().replace('-', '.') + ".anchor"
+                val stubNamespace =
+                    project.group.toString().replace(':', '.') +
+                        "." +
+                        project.name.toString().replace('-', '.') +
+                        ".anchor"
                 val unpackedStubAarTask =
                     tasks.register("unpackedStubAar", UnpackedStubAarTask::class.java) { aarTask ->
                         aarTask.aarPackage.set(stubNamespace)
                         aarTask.minSdkVersion.set(libraryExtension.defaultConfig.minSdk)
                         aarTask.outputDir.set(buildDir.dir("intermediates/stub-aar"))
-                }
-                val stubAarTask = tasks.register("stubAar", Zip::class.java) { zipTask ->
-                    zipTask.from(unpackedStubAarTask.flatMap { it.outputDir })
-                    zipTask.destinationDirectory.set(buildDir.dir("outputs"))
-                    zipTask.archiveExtension.set("aar")
-                }
+                    }
+                val stubAarTask =
+                    tasks.register("stubAar", Zip::class.java) { zipTask ->
+                        zipTask.from(unpackedStubAarTask.flatMap { it.outputDir })
+                        zipTask.destinationDirectory.set(buildDir.dir("outputs"))
+                        zipTask.archiveExtension.set("aar")
+                    }
                 publication.artifact(stubAarTask)
             }
 
@@ -325,7 +330,8 @@ fun verifyGradleMetadata(metadata: String) {
     val gson = GsonBuilder().create()
     val jsonObj = gson.fromJson(metadata, JsonObject::class.java)!!
     jsonObj.getAsJsonArray("variants").firstOrNull { variantElement ->
-        variantElement.asJsonObject.get("name")
+        variantElement.asJsonObject
+            .get("name")
             .asString
             .contains(other = sourcesConfigurationName, ignoreCase = true)
     } ?: throw Exception("The $sourcesConfigurationName variant must exist in the module file.")
@@ -368,10 +374,7 @@ private fun Project.replaceBaseMultiplatformPublication(
             add("libraryVersionMetadata")
         }
     }
-    withSourcesComponents(
-        componentFactory,
-        sourcesElements
-    ) { sourcesComponents ->
+    withSourcesComponents(componentFactory, sourcesElements) { sourcesComponents ->
         configure<PublishingExtension> {
             publications { pubs ->
                 pubs.create<MavenPublication>(KMP_ANCHOR_PUBLICATION_NAME) {

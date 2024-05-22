@@ -40,21 +40,23 @@ import org.gradle.api.tasks.TaskAction
 import org.intellij.lang.annotations.Language
 
 fun Project.configureKtfmt() {
-    val ktCheckTask = tasks.register("ktCheck", KtfmtCheckTask::class.java) {
-        task -> task.cacheEvenIfNoOutputs()
-        task.runAfterKotlinCompileTasks()
-    }
     tasks.register("ktFormat", KtfmtFormatTask::class.java)
 
-    var isAddToBuildOnServer = false
-    tasks.configureEach { task ->
-        if (task.name == "check") {
-            task.dependsOn(ktCheckTask)
-            isAddToBuildOnServer = true
+    val ktCheckTask =
+        tasks.register("ktCheck", KtfmtCheckTask::class.java) { task ->
+            task.cacheEvenIfNoOutputs()
+            task.runAfterKotlinCompileTasks()
+        }
+
+    // afterEvaluate because Gradle's default "check" task doesn't exist yet
+    afterEvaluate {
+        // multiplatform projects with no enabled platforms do not actually apply the kotlin plugin
+        // and therefore do not have the check task. They are skipped unless a platform is enabled.
+        if (tasks.findByName("check") != null) {
+            addToCheckTask(ktCheckTask)
+            addToBuildOnServer(ktCheckTask)
         }
     }
-
-    if (isAddToBuildOnServer) { addToBuildOnServer(ktCheckTask) }
 }
 
 private val ExcludedDirectories =

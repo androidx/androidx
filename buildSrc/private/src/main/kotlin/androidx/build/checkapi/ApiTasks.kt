@@ -41,9 +41,7 @@ import org.gradle.kotlin.dsl.getByType
 
 sealed class ApiTaskConfig
 
-data class LibraryApiTaskConfig(
-    val variant: LibraryVariant
-) : ApiTaskConfig()
+data class LibraryApiTaskConfig(val variant: LibraryVariant) : ApiTaskConfig()
 
 object JavaApiTaskConfig : ApiTaskConfig()
 
@@ -226,5 +224,6 @@ fun Project.configureProjectForApiTasks(config: ApiTaskConfig, extension: Androi
 
 internal class BlankApiRegularFile(project: Project) : RegularFile {
     val file = File(project.getSupportRootFolder(), "buildSrc/blank-res-api/public.txt")
+
     override fun getAsFile(): File = file
 }

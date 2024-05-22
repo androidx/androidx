@@ -44,9 +44,10 @@ fun Project.configureLint() {
         when (plugin) {
             is AppPlugin -> configureAndroidProjectForLint(isLibrary = false)
             is LibraryPlugin -> configureAndroidProjectForLint(isLibrary = true)
-            is KotlinMultiplatformAndroidPlugin -> configureAndroidMultiplatformProjectForLint(
-                extensions.getByType<AndroidXMultiplatformExtension>().agpKmpExtension
-            )
+            is KotlinMultiplatformAndroidPlugin ->
+                configureAndroidMultiplatformProjectForLint(
+                    extensions.getByType<AndroidXMultiplatformExtension>().agpKmpExtension
+                )
             // Only configure non-multiplatform Java projects via JavaPlugin. Multiplatform
             // projects targeting Java (e.g. `jvm { withJava() }`) are configured via
             // KotlinBasePlugin.
@@ -78,6 +79,7 @@ private fun Project.configureAndroidProjectForLint(isLibrary: Boolean) =
 
         configureLint(extension.lint, isLibrary)
     }
+
 private fun Project.configureAndroidMultiplatformProjectForLint(
     extension: KotlinMultiplatformAndroidTarget
 ) {

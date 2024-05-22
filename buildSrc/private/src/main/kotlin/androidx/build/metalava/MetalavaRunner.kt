@@ -53,7 +53,6 @@ fun runMetalavaWithArgs(
                 "RemovedFinalStrict",
                 "--error",
                 "UnresolvedImport",
-
                 "--kotlin-source",
                 kotlinSourceLevel.version,
 
@@ -125,9 +124,7 @@ abstract class MetalavaWorkAction @Inject constructor(private val execOperations
 
 fun Project.getMetalavaClasspath(): FileCollection {
     val configuration =
-        configurations.detachedConfiguration(
-                dependencies.create(getLibraryByName("metalava"))
-        )
+        configurations.detachedConfiguration(dependencies.create(getLibraryByName("metalava")))
     return project.files(configuration)
 }
 
@@ -336,10 +333,7 @@ fun getGenerateApiArgs(
     if (existentCommonModuleSourcePaths.isNotEmpty()) {
         args += listOf("--common-source-path", existentCommonModuleSourcePaths.joinToString(":"))
     }
-    args += listOf(
-        "--format=v4",
-        "--warnings-as-errors"
-    )
+    args += listOf("--format=v4", "--warnings-as-errors")
 
     pathToManifest?.let { args += listOf("--manifest", pathToManifest) }
 

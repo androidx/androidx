@@ -203,8 +203,8 @@ abstract class TaskUpToDateValidator :
                         "\n" +
                         "Some additional diagnostics: \n" +
                         "\n" +
-                        "  " + tryToExplainTaskExecution(name)
-                            .replace("\n", "\n  ")
+                        "  " +
+                        tryToExplainTaskExecution(name).replace("\n", "\n  ")
                 )
             }
         }
@@ -223,54 +223,74 @@ abstract class TaskUpToDateValidator :
 
         val addedInputs = currentInputs.minus(previousInputs)
         val removedInputs = previousInputs.minus(currentInputs)
-        val addedMessage = if (addedInputs.size > 0) {
-            "Added these " + addedInputs.size + " inputs: " +
-                addedInputs.joinToString("\n") + "\n"
-        } else {
-            ""
-        }
-        val removedMessage = if (removedInputs.size > 0) {
-            "Removed these " + removedInputs.size + " inputs: " +
-                removedInputs.joinToString("\n") + "\n"
-        } else {
-            ""
-        }
+        val addedMessage =
+            if (addedInputs.size > 0) {
+                "Added these " +
+                    addedInputs.size +
+                    " inputs: " +
+                    addedInputs.joinToString("\n") +
+                    "\n"
+            } else {
+                ""
+            }
+        val removedMessage =
+            if (removedInputs.size > 0) {
+                "Removed these " +
+                    removedInputs.size +
+                    " inputs: " +
+                    removedInputs.joinToString("\n") +
+                    "\n"
+            } else {
+                ""
+            }
         return addedMessage + removedMessage
     }
 
     fun tryToExplainTaskExecution(taskPath: String): String {
         val numOutputFiles = loadTaskOutputs(taskPath, parameters.metadataDir, true).size
-        val outputsMessage = if (numOutputFiles > 0) {
-            taskPath + " declares " + numOutputFiles + " output files. This seems fine.\n"
-        } else {
-            taskPath + " declares " + numOutputFiles + " output files. This is probably " +
-                "an error.\n"
-        }
+        val outputsMessage =
+            if (numOutputFiles > 0) {
+                taskPath + " declares " + numOutputFiles + " output files. This seems fine.\n"
+            } else {
+                taskPath +
+                    " declares " +
+                    numOutputFiles +
+                    " output files. This is probably " +
+                    "an error.\n"
+            }
 
         val inputSetModifiedMessage = checkForChangingSetOfInputs(taskPath)
-        val inputsMessage = if (inputSetModifiedMessage != "") {
-            inputSetModifiedMessage
-        } else {
-            val inputFiles = loadTaskInputs(taskPath, parameters.metadataDir, true)
-            var lastModifiedFile: File? = null
-            var lastModifiedWhen = Date(0)
-            for (inputFile in inputFiles) {
-                val modifiedWhen = Date(inputFile.lastModified())
-                if (modifiedWhen.compareTo(lastModifiedWhen) > 0) {
-                    lastModifiedFile = inputFile
-                    lastModifiedWhen = modifiedWhen
+        val inputsMessage =
+            if (inputSetModifiedMessage != "") {
+                inputSetModifiedMessage
+            } else {
+                val inputFiles = loadTaskInputs(taskPath, parameters.metadataDir, true)
+                var lastModifiedFile: File? = null
+                var lastModifiedWhen = Date(0)
+                for (inputFile in inputFiles) {
+                    val modifiedWhen = Date(inputFile.lastModified())
+                    if (modifiedWhen.compareTo(lastModifiedWhen) > 0) {
+                        lastModifiedFile = inputFile
+                        lastModifiedWhen = modifiedWhen
+                    }
+                }
+
+                if (lastModifiedFile != null) {
+                    taskPath +
+                        " declares " +
+                        inputFiles.size +
+                        " input files. The " +
+                        "last modified input file is\n" +
+                        lastModifiedFile +
+                        "\nmodified at " +
+                        lastModifiedWhen +
+                        " (the previous execution of this task completed at " +
+                        getPreviousTaskExecutionCompletionTimestamp(taskPath) +
+                        ")."
+                } else {
+                    taskPath + " declares " + inputFiles.size + " input files.\n"
                 }
             }
-
-            if (lastModifiedFile != null) {
-                taskPath + " declares " + inputFiles.size + " input files. The " +
-                    "last modified input file is\n" + lastModifiedFile + "\nmodified at " +
-                    lastModifiedWhen + " (the previous execution of this task completed at " +
-                    getPreviousTaskExecutionCompletionTimestamp(taskPath) + ")."
-            } else {
-                taskPath + " declares " + inputFiles.size + " input files.\n"
-            }
-        }
 
         return outputsMessage + inputsMessage
     }
@@ -409,7 +429,8 @@ abstract class TaskUpToDateValidator :
             isValidateRun: Boolean
         ): File {
             val baseDir = metadataDir.get().getAsFile()
-            // convert from ":<project>:<subproject>:<taskname>" to "<project>/<subproject>/<taskname>"
+            // convert from ":<project>:<subproject>:<taskname>" to
+            // "<project>/<subproject>/<taskname>"
             val taskDir = File(baseDir, taskPath.substringAfter(":").replace(":", "/"))
             val validateDirName = if (isValidateRun) "up-to-date" else "clean"
             return File(taskDir, validateDirName)

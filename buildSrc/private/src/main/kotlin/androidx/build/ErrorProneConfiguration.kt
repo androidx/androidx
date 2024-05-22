@@ -70,7 +70,8 @@ fun Project.configureErrorProneForAndroid() {
     androidComponents?.onVariants { variant ->
         if (variant.buildType == "release") {
             val errorProneConfiguration = createErrorProneConfiguration()
-            configurations.getByName(variant.annotationProcessorConfiguration.name)
+            configurations
+                .getByName(variant.annotationProcessorConfiguration.name)
                 .extendsFrom(errorProneConfiguration)
 
             log.info("Configuring error-prone for ${variant.name}'s java compile")
@@ -104,7 +105,7 @@ private fun Project.createErrorProneConfiguration(): Configuration =
             isCanBeResolved = true
             exclude(group = "com.google.errorprone", module = "javac")
             project.dependencies.add(ERROR_PRONE_CONFIGURATION, getLibraryByName("errorProne"))
-    }
+        }
 
 // Given an existing JavaCompile task, reconfigures the task to use the ErrorProne compiler plugin
 private fun JavaCompile.configureWithErrorProne() {
@@ -303,9 +304,8 @@ private fun Project.makeErrorProneTask(
         maybeRegister<JavaCompile>(
             name = ERROR_PRONE_TASK,
             onConfigure = {
-                val compileTask = tasks.withType(JavaCompile::class.java)
-                    .named(compileTaskName)
-                    .get()
+                val compileTask =
+                    tasks.withType(JavaCompile::class.java).named(compileTaskName).get()
                 it.classpath = compileTask.classpath
                 it.source = compileTask.source
                 it.destinationDirectory.set(layout.buildDirectory.dir("errorProne"))

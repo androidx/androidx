@@ -133,17 +133,19 @@ private class MacOsUtilities(projectRoot: File, studioInstallationDir: File) :
 
     override fun findProcess(): Int? {
         println("Detecting active managed Studio instances...")
-        val process = ProcessBuilder().let {
-            it.command(listOf("ps", "-x"))
-            it.redirectError(ProcessBuilder.Redirect.INHERIT)
-            it.start()
-        }
+        val process =
+            ProcessBuilder().let {
+                it.command(listOf("ps", "-x"))
+                it.redirectError(ProcessBuilder.Redirect.INHERIT)
+                it.start()
+            }
         val stdout = process.inputReader().lines().toList()
         process.waitFor()
         val projectRootPath = projectRoot.absolutePath
-        return stdout.firstOrNull { line ->
-            line.endsWith("Contents/MacOS/studio $projectRootPath")
-        }?.substringBefore(' ')?.toIntOrNull()
+        return stdout
+            .firstOrNull { line -> line.endsWith("Contents/MacOS/studio $projectRootPath") }
+            ?.substringBefore(' ')
+            ?.toIntOrNull()
     }
 }
 
@@ -185,16 +187,18 @@ private class LinuxUtilities(projectRoot: File, studioInstallationDir: File) :
 
     override fun findProcess(): Int? {
         println("Detecting active managed Studio instances...")
-        val process = ProcessBuilder().let {
-            it.command(listOf("ps", "-x"))
-            it.redirectError(ProcessBuilder.Redirect.INHERIT)
-            it.start()
-        }
+        val process =
+            ProcessBuilder().let {
+                it.command(listOf("ps", "-x"))
+                it.redirectError(ProcessBuilder.Redirect.INHERIT)
+                it.start()
+            }
         val stdout = process.inputReader().lines().toList()
         process.waitFor()
         val projectRootPath = projectRoot.absolutePath
-        return stdout.firstOrNull { line ->
-            line.endsWith("com.intellij.idea.Main $projectRootPath")
-        }?.substringBefore(' ')?.toIntOrNull()
+        return stdout
+            .firstOrNull { line -> line.endsWith("com.intellij.idea.Main $projectRootPath") }
+            ?.substringBefore(' ')
+            ?.toIntOrNull()
     }
 }

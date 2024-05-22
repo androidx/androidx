@@ -84,11 +84,11 @@ androidx {
 def ktlintDir = file("../buildSrc")
 def subdirs = ["plugins", "private", "public"]
 
-tasks["ktlint"].configure({ t ->
+tasks["ktCheck"].configure({ t ->
     t.overrideDirectory = ktlintDir
     t.overrideSubdirectories = subdirs
 })
-tasks["ktlintFormat"].configure({ t ->
+tasks["ktFormat"].configure({ t ->
     t.overrideDirectory = ktlintDir
     t.overrideSubdirectories = subdirs
 })

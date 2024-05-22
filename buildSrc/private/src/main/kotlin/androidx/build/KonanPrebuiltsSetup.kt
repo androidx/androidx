@@ -23,19 +23,17 @@ import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.konan.target.Distribution
 
-/**
- * Helper class to override Konan prebuilts directories to use local konan prebuilts.
- */
+/** Helper class to override Konan prebuilts directories to use local konan prebuilts. */
 object KonanPrebuiltsSetup {
     /**
-     * Flag to notify we've updated the konan properties so that we can avoid re-doing it
-     * if [configureKonanDirectory] call comes from multiple code paths.
+     * Flag to notify we've updated the konan properties so that we can avoid re-doing it if
+     * [configureKonanDirectory] call comes from multiple code paths.
      */
     private const val DID_SETUP_KONAN_PROPERTIES_FLAG = "androidx.didSetupKonanProperties"
 
     /**
-     * Flag that causes konan to run in a separate process whose working directory
-     * is the compiling project (i.e. frameworks/support/room/room-runtime) and not the root project
+     * Flag that causes konan to run in a separate process whose working directory is the compiling
+     * project (i.e. frameworks/support/room/room-runtime) and not the root project
      * (frameworks/support).
      */
     private const val DISABLE_COMPILER_DAEMON_FLAG = "kotlin.native.disableCompilerDaemon"
@@ -44,25 +42,18 @@ object KonanPrebuiltsSetup {
      * Creates a Konan distribution with the given [prebuiltsDirectory] and [konanHome].
      *
      * @param prebuiltsDirectory The directory where AndroidX prebuilts are present. Can be `null`
-     *        for playground builds which means we'll fetch Kotlin Native prebuilts from the
-     *        internet using the Kotlin Gradle Plugin.
+     *   for playground builds which means we'll fetch Kotlin Native prebuilts from the internet
+     *   using the Kotlin Gradle Plugin.
      */
-    fun createKonanDistribution(
-        prebuiltsDirectory: File?,
-        konanHome: File
-    ) = Distribution(
-        konanHome = konanHome.canonicalPath,
-        onlyDefaultProfiles = false,
-        propertyOverrides = prebuiltsDirectory?.let {
-            mapOf(
-                "dependenciesUrl" to "file://${it.canonicalPath}"
-            )
-        }
-    )
+    fun createKonanDistribution(prebuiltsDirectory: File?, konanHome: File) =
+        Distribution(
+            konanHome = konanHome.canonicalPath,
+            onlyDefaultProfiles = false,
+            propertyOverrides =
+                prebuiltsDirectory?.let { mapOf("dependenciesUrl" to "file://${it.canonicalPath}") }
+        )
 
-    /**
-     * Returns `true` if the project's konan prebuilts is already configured.
-     */
+    /** Returns `true` if the project's konan prebuilts is already configured. */
     fun isConfigured(project: Project): Boolean {
         return project.extensions.extraProperties.has(DID_SETUP_KONAN_PROPERTIES_FLAG)
     }

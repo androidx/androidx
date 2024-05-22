@@ -163,8 +163,7 @@ abstract class FtlRunner : DefaultTask() {
                     if (testTimeout.isPresent) testTimeout.get() else null,
                     if (instrumentationArgs.isPresent) "--environment-variables" else null,
                     if (instrumentationArgs.isPresent) instrumentationArgs.get() else null,
-                ) +
-                    getDeviceArguments(device.get())
+                ) + getDeviceArguments(device.get())
             )
         }
     }
@@ -173,10 +172,7 @@ abstract class FtlRunner : DefaultTask() {
         val deviceArguments = mutableListOf<String>()
         devices.forEach { device ->
             deviceArguments.addAll(
-                listOf(
-                    "--device",
-                    "model=$device,locale=en_US,orientation=portrait"
-                )
+                listOf("--device", "model=$device,locale=en_US,orientation=portrait")
             )
         }
         return deviceArguments

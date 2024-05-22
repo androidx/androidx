@@ -202,18 +202,17 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     }
 
     /**
-     * Sets a group for the project based on its path.
-     * This ensures we always use a known value for the project group instead of what Gradle assigns
-     * by default. Furthermore, it also helps make them consistent between the main build and
-     * the playground builds.
+     * Sets a group for the project based on its path. This ensures we always use a known value for
+     * the project group instead of what Gradle assigns by default. Furthermore, it also helps make
+     * them consistent between the main build and the playground builds.
      */
     private fun setDefaultGroupFromProjectPath() {
-        project.group = project.path
-            .split(":")
-            .filter {
-                it.isNotEmpty()
-            }.dropLast(1)
-            .joinToString(separator = ".", prefix = "androidx.")
+        project.group =
+            project.path
+                .split(":")
+                .filter { it.isNotEmpty() }
+                .dropLast(1)
+                .joinToString(separator = ".", prefix = "androidx.")
     }
 
     private fun chooseProjectVersion() {
@@ -303,10 +302,11 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     var inceptionYear: String? = null
 
     /* The main license to add when publishing. Default is Apache 2. */
-    var license: License = License().apply {
-        name = "The Apache Software License, Version 2.0"
-        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-    }
+    var license: License =
+        License().apply {
+            name = "The Apache Software License, Version 2.0"
+            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        }
 
     private var extraLicenses: MutableCollection<License> = ArrayList()
 
@@ -439,10 +439,12 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     internal var samplesProjects: MutableCollection<Project> = mutableSetOf()
 
     /**
-     * Used to register a project that will be providing documentation samples for this project.
-     * Can only be called once so only one samples library can exist per library b/318840087.
+     * Used to register a project that will be providing documentation samples for this project. Can
+     * only be called once so only one samples library can exist per library b/318840087.
      */
-    fun samples(samplesProject: Project) { samplesProjects.add(samplesProject) }
+    fun samples(samplesProject: Project) {
+        samplesProjects.add(samplesProject)
+    }
 }
 
 class License {

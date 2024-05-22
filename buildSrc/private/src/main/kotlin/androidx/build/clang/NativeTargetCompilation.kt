@@ -32,16 +32,17 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
  * @param konanTarget Target host for the compilation.
  * @param compileTask The task that compiles the sources and build .o file for each source file.
  * @param archiveTask The task that will archive the output of the [compileTask] into a single .a
- *        file.
+ *   file.
  * @param sharedLibTask The task that will created a shared library from the output of [compileTask]
- *        that also optionally links with [linkedObjects]
+ *   that also optionally links with [linkedObjects]
  * @param sources List of source files for the compilation.
  * @param includes List of include directories containing .h files for the compilation.
  * @param linkedObjects List of object files that should be dynamically linked in the final shared
- *        object output.
+ *   object output.
  * @param freeArgs Arguments that will be passed into clang for compilation.
  */
-class NativeTargetCompilation internal constructor(
+class NativeTargetCompilation
+internal constructor(
     val project: Project,
     val konanTarget: KonanTarget,
     internal val compileTask: TaskProvider<ClangCompileTask>,
@@ -61,9 +62,7 @@ class NativeTargetCompilation internal constructor(
      */
     @Suppress("unused") // used from build.gradle
     fun linkWith(dependency: MultiTargetNativeCompilation) {
-        linkedObjects.from(
-            dependency.sharedObjectOutputFor(konanTarget)
-        )
+        linkedObjects.from(dependency.sharedObjectOutputFor(konanTarget))
     }
 
     /**
@@ -72,14 +71,10 @@ class NativeTargetCompilation internal constructor(
      */
     @Suppress("unused") // used from build.gradle
     fun include(dependency: MultiTargetNativeCompilation) {
-        linkedObjects.from(
-            dependency.sharedArchiveOutputFor(konanTarget)
-        )
+        linkedObjects.from(dependency.sharedArchiveOutputFor(konanTarget))
     }
 
-    /**
-     * Convenience method to add jni headers to the compilation.
-     */
+    /** Convenience method to add jni headers to the compilation. */
     @Suppress("unused") // used from build.gradle
     fun addJniHeaders() {
         if (konanTarget.family == Family.ANDROID) {
@@ -87,9 +82,7 @@ class NativeTargetCompilation internal constructor(
             return
         }
 
-        includes.from(project.provider {
-            findJniHeaderDirectories()
-        })
+        includes.from(project.provider { findJniHeaderDirectories() })
     }
 
     private fun findJniHeaderDirectories(): List<File> {
@@ -106,39 +99,31 @@ class NativeTargetCompilation internal constructor(
         // its own target family.
         val jdkPrebuiltsRoot = javaHome.parentFile
 
-        val relativeHeaderPaths = when (konanTarget.family) {
-            Family.MINGW -> {
-                listOf(
-                    "windows-x86/include",
-                    "windows-x86/include/win32"
-                )
+        val relativeHeaderPaths =
+            when (konanTarget.family) {
+                Family.MINGW -> {
+                    listOf("windows-x86/include", "windows-x86/include/win32")
+                }
+                Family.OSX -> {
+                    // it is OK that we are using x86 here, they are the same files (openjdk only
+                    // distinguishes between unix and windows).
+                    listOf("darwin-x86/include", "darwin-x86/include/darwin")
+                }
+                Family.LINUX -> {
+                    listOf(
+                        "linux-x86/include",
+                        "linux-x86/include/linux",
+                    )
+                }
+                else -> error("unsupported family ($konanTarget) for JNI compilation")
             }
-
-            Family.OSX -> {
-                // it is OK that we are using x86 here, they are the same files (openjdk only
-                // distinguishes between unix and windows).
-                listOf(
-                    "darwin-x86/include",
-                    "darwin-x86/include/darwin"
-                )
+        return relativeHeaderPaths
+            .map { jdkPrebuiltsRoot.resolve(it) }
+            .onEach {
+                check(it.exists()) {
+                    "Cannot find header directory (${it.name}) in ${it.canonicalPath}"
+                }
             }
-
-            Family.LINUX -> {
-                listOf(
-                    "linux-x86/include",
-                    "linux-x86/include/linux",
-                )
-            }
-
-            else -> error("unsupported family ($konanTarget) for JNI compilation")
-        }
-        return relativeHeaderPaths.map {
-            jdkPrebuiltsRoot.resolve(it)
-        }.onEach {
-            check(it.exists()) {
-                "Cannot find header directory (${it.name}) in ${it.canonicalPath}"
-            }
-        }
     }
 
     /**
@@ -147,18 +132,17 @@ class NativeTargetCompilation internal constructor(
      * from GitHub so it is acceptable to use local JNI headers for cross platform compilation on
      * GitHub.
      */
-    private fun findJniHeadersInPlayground(
-        javaHome: File
-    ): List<File> {
+    private fun findJniHeadersInPlayground(javaHome: File): List<File> {
         val include = File(javaHome, "include")
         if (!include.exists()) {
             error("Cannot find header directory in $javaHome")
         }
         return listOf(
-            include,
-            File(include, "darwin"),
-            File(include, "linux"),
-            File(include, "win32"),
-        ).filter { it.exists() }
+                include,
+                File(include, "darwin"),
+                File(include, "linux"),
+                File(include, "win32"),
+            )
+            .filter { it.exists() }
     }
 }

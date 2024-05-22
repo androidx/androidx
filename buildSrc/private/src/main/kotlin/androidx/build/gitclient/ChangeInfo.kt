@@ -38,55 +38,56 @@ fun Project.getChangedFilesFromChangeInfoProvider(
     changeInfoPath: String,
     projectDirRelativeToRoot: String = projectDir.relativeTo(getCheckoutRoot()).toString()
 ): Provider<List<String>> {
-    val manifestTextProvider = project.providers.fileContents(
-        project.objects.fileProperty().fileValue(File(manifestPath))
-    ).asText
-    return project.providers.fileContents(
-        project.objects.fileProperty().fileValue(File(changeInfoPath))
-    ).asText.zip(manifestTextProvider) { changeInfoText, manifestText ->
-        val fileList = mutableListOf<String>()
-        val fileSet = mutableSetOf<String>()
-        val gson = Gson()
-        val changeInfoEntries =
-            gson.fromJson(changeInfoText, ChangeInfo::class.java)
-        val projectName = computeProjectName(
-            projectDirRelativeToRoot,
-            manifestText
-        )
-        val changes = changeInfoEntries.changes?.filter { it.project == projectName } ?: emptyList()
-        for (change in changes) {
-            val revisions = change.revisions ?: listOf()
-            for (revision in revisions) {
-                val fileInfos = revision.fileInfos ?: listOf()
-                for (fileInfo in fileInfos) {
-                    fileInfo.oldPath?.let { path ->
-                        if (!fileSet.contains(path)) {
-                            fileList.add(path)
-                            fileSet.add(path)
+    val manifestTextProvider =
+        project.providers
+            .fileContents(project.objects.fileProperty().fileValue(File(manifestPath)))
+            .asText
+    return project.providers
+        .fileContents(project.objects.fileProperty().fileValue(File(changeInfoPath)))
+        .asText
+        .zip(manifestTextProvider) { changeInfoText, manifestText ->
+            val fileList = mutableListOf<String>()
+            val fileSet = mutableSetOf<String>()
+            val gson = Gson()
+            val changeInfoEntries = gson.fromJson(changeInfoText, ChangeInfo::class.java)
+            val projectName = computeProjectName(projectDirRelativeToRoot, manifestText)
+            val changes =
+                changeInfoEntries.changes?.filter { it.project == projectName } ?: emptyList()
+            for (change in changes) {
+                val revisions = change.revisions ?: listOf()
+                for (revision in revisions) {
+                    val fileInfos = revision.fileInfos ?: listOf()
+                    for (fileInfo in fileInfos) {
+                        fileInfo.oldPath?.let { path ->
+                            if (!fileSet.contains(path)) {
+                                fileList.add(path)
+                                fileSet.add(path)
+                            }
                         }
-                    }
-                    fileInfo.path?.let { path ->
-                        if (!fileSet.contains(path)) {
-                            fileList.add(path)
-                            fileSet.add(path)
+                        fileInfo.path?.let { path ->
+                            if (!fileSet.contains(path)) {
+                                fileList.add(path)
+                                fileSet.add(path)
+                            }
                         }
                     }
                 }
             }
+            return@zip fileList
         }
-        return@zip fileList
-    }
 }
 
 // Data classes uses to parse CHANGE_INFO json files
 internal data class ChangeInfo(val changes: List<ChangeEntry>?)
+
 internal data class ChangeEntry(val project: String, val revisions: List<Revisions>?)
+
 internal data class Revisions(val fileInfos: List<FileInfo>?)
+
 internal data class FileInfo(val path: String?, val oldPath: String?, val status: String)
 
 /**
- * A provider of HEAD SHA based on manifest file created by the build
- * server.
+ * A provider of HEAD SHA based on manifest file created by the build server.
  *
  * For sample manifest files, see: ChangeInfoProvidersTest.kt
  *
@@ -96,9 +97,8 @@ fun Project.getHeadShaFromManifestProvider(
     manifestPath: String,
     projectDirRelativeToRoot: String = projectDir.relativeTo(getCheckoutRoot()).toString()
 ): Provider<String> {
-    val contentsProvider = project.providers.fileContents(
-        project.objects.fileProperty().fileValue(File(manifestPath))
-    )
+    val contentsProvider =
+        project.providers.fileContents(project.objects.fileProperty().fileValue(File(manifestPath)))
     return contentsProvider.asText.map { manifestContent ->
         val projectName = computeProjectName(projectDirRelativeToRoot, manifestContent)
         val revisionRegex = Regex("revision=\"([^\"]*)\"")
@@ -134,7 +134,5 @@ private fun computeProjectName(projectPath: String, config: String): String {
             }
         }
     }
-    throw GradleException(
-        "Could not find project with path '$projectPath' in config"
-    )
+    throw GradleException("Could not find project with path '$projectPath' in config")
 }

@@ -3,56 +3,11 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        project.plugins.all { plugin ->"
-        errorLine2="                        ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXComposeImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="            multiplatformExtension.sourceSets.all {"
-        errorLine2="                                              ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXComposeImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        project.plugins.all { plugin ->"
-        errorLine2="                        ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="                    libraryExtension.buildTypes.all { buildType ->"
-        errorLine2="                                                ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
         message="Use configureEach instead of whenTaskAdded"
         errorLine1="        project.tasks.whenTaskAdded { task ->"
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/docs/AndroidXDocsImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        project.plugins.all { plugin ->"
-        errorLine2="                        ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
     </issue>
 
     <issue
@@ -66,74 +21,11 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        configurations.all { configuration ->"
-        errorLine2="                       ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        project.configurations.all { configuration ->"
-        errorLine2="                               ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        project.configurations.all { configuration ->"
-        errorLine2="                               ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        project.configurations.all { configuration ->"
-        errorLine2="                               ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        kmpExtension.targets.all { kotlinTarget ->"
-        errorLine2="                             ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="    configurations.all { configuration ->"
-        errorLine2="                   ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
         message="Avoid using method findByName"
-        errorLine1="        if (project.tasks.findByName(&quot;check&quot;) != null) {"
-        errorLine2="                          ~~~~~~~~~~">
+        errorLine1="            if (project.tasks.findByName(&quot;check&quot;) != null) {"
+        errorLine2="                              ~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXMultiplatformExtension.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        project.configurations.all { configuration ->"
-        errorLine2="                               ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXPlaygroundRootImplPlugin.kt"/>
     </issue>
 
     <issue
@@ -141,15 +33,6 @@
         message="Use register instead of create"
         errorLine1="        val buildOnServerTask = tasks.create(BUILD_ON_SERVER_TASK, BuildOnServerTask::class.java)"
         errorLine2="                                      ~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXRootImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="                    subproject.configurations.all { configuration ->"
-        errorLine2="                                              ~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXRootImplPlugin.kt"/>
     </issue>
@@ -166,19 +49,19 @@
     <issue
         id="EagerGradleConfiguration"
         message="Avoid using method get"
-        errorLine1="                    .get()"
-        errorLine2="                     ~~~">
+        errorLine1="                    tasks.withType(JavaCompile::class.java).named(compileTaskName).get()"
+        errorLine2="                                                                                   ~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/ErrorProneConfiguration.kt"/>
     </issue>
 
     <issue
         id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        this.configurations.all { c ->"
-        errorLine2="                            ~~~">
+        message="Avoid using method findByName"
+        errorLine1="        if (tasks.findByName(&quot;check&quot;) != null) {"
+        errorLine2="                  ~~~~~~~~~~">
         <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/GradleTransformWorkaround.kt"/>
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/Ktfmt.kt"/>
     </issue>
 
     <issue
@@ -192,26 +75,8 @@
 
     <issue
         id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="    project.plugins.all { plugin ->"
-        errorLine2="                    ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/LintConfiguration.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        components.all { component ->"
-        errorLine2="                   ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
         message="Avoid using method findByName"
-        errorLine1="    tasks.findByName(taskName) ?: throw GradleException("
+        errorLine1="    tasks.findByName(taskName)"
         errorLine2="          ~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
@@ -231,24 +96,6 @@
         message="Use named instead of getByName"
         errorLine1="                    tasks.getByName(&quot;publishMavenPublicationToMavenRepository&quot;).doFirst {"
         errorLine2="                          ~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="        publications.withType(MavenPublication::class.java).all { publication ->"
-        errorLine2="                                                            ~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Use configureEach instead of all"
-        errorLine1="    multiplatformExtension.targets.all { target ->"
-        errorLine2="                                   ~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/MavenUploadHelper.kt"/>
     </issue>

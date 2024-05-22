@@ -32,9 +32,7 @@ open class SingleFileCopy : DefaultTask() {
     @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) lateinit var sourceFile: Provider<File>
 
     fun setSourceFile(file: File) {
-        sourceFile = project.provider {
-            file
-        }
+        sourceFile = project.provider { file }
     }
 
     @OutputFile lateinit var destinationFile: File

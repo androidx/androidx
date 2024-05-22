@@ -88,9 +88,7 @@ const val PLAYGROUND_SNAPSHOT_BUILD_ID = "androidx.playground.snapshotBuildId"
 /** Build Id used to pull SNAPSHOT version of Metalava for Playground projects */
 const val PLAYGROUND_METALAVA_BUILD_ID = "androidx.playground.metalavaBuildId"
 
-/**
- * Specifies to prepend the current time to each Gradle log message
- */
+/** Specifies to prepend the current time to each Gradle log message */
 const val PRINT_TIMESTAMPS = "androidx.printTimestamps"
 
 /**
@@ -117,14 +115,10 @@ const val VERIFY_UP_TO_DATE = "androidx.verifyUpToDate"
  */
 const val KMP_GITHUB_BUILD = "androidx.github.build"
 
-/**
- * Specifies to give as much memory to Gradle as in a typical CI run
- */
+/** Specifies to give as much memory to Gradle as in a typical CI run */
 const val HIGH_MEMORY = "androidx.highMemory"
 
-/**
- * Negates the HIGH_MEMORY flag
- */
+/** Negates the HIGH_MEMORY flag */
 const val LOW_MEMORY = "androidx.lowMemory"
 
 /**
@@ -142,20 +136,15 @@ const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri
 /** If true, don't restrict usage of compileSdk property. */
 const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
 
-/**
- * Comma-delimited list of project path prefixes which have been opted-in to ktfmt migration.
- */
+/** Comma-delimited list of project path prefixes which have been opted-in to ktfmt migration. */
 const val KTFMT_OPT_IN = "androidx.ktfmt.optin"
 
-/**
- * If true, include Jetpack library projects that live outside of `frameworks/support`.
- */
+/** If true, include Jetpack library projects that live outside of `frameworks/support`. */
 const val INCLUDE_OPTIONAL_PROJECTS = "androidx.includeOptionalProjects"
 
 /**
- * If true, build compose compiler from source.
- * Should be kept to "false" unless we are upgrading the Kotlin version in order to release a new
- * stable Compose Compiler.
+ * If true, build compose compiler from source. Should be kept to "false" unless we are upgrading
+ * the Kotlin version in order to release a new stable Compose Compiler.
  */
 const val UNPIN_COMPOSE_COMPILER = "androidx.unpinComposeCompiler"
 
@@ -195,8 +184,7 @@ val ALL_ANDROIDX_PROPERTIES =
         INCLUDE_OPTIONAL_PROJECTS,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
 
-val PREFIXED_ANDROIDX_PROPERTIES =
-    setOf(KTFMT_OPT_IN)
+val PREFIXED_ANDROIDX_PROPERTIES = setOf(KTFMT_OPT_IN)
 
 /**
  * Whether to enable constraints for projects in same-version groups See the property definition for
@@ -272,21 +260,14 @@ fun Project.usingMaxDepVersions(): Boolean {
     return project.providers.gradleProperty(USE_MAX_DEP_VERSIONS).isPresent()
 }
 
-/**
- * Returns whether we export compose compiler metrics
- */
+/** Returns whether we export compose compiler metrics */
 fun Project.enableComposeCompilerMetrics() =
     findBooleanProperty(ENABLE_COMPOSE_COMPILER_METRICS) ?: false
 
-/**
- * Returns whether we export compose compiler metrics
- */
-fun Project.isComposeCompilerUnpinned() =
-    findBooleanProperty(UNPIN_COMPOSE_COMPILER) ?: false
+/** Returns whether we export compose compiler metrics */
+fun Project.isComposeCompilerUnpinned() = findBooleanProperty(UNPIN_COMPOSE_COMPILER) ?: false
 
-/**
- * Returns whether we export compose compiler reports
- */
+/** Returns whether we export compose compiler reports */
 fun Project.enableComposeCompilerReports() =
     findBooleanProperty(ENABLE_COMPOSE_COMPILER_REPORTS) ?: false
 
@@ -307,11 +288,8 @@ fun Project.booleanPropertyProvider(propName: String): Provider<Boolean> {
     return project.providers.gradleProperty(propName).map { s -> s.toBoolean() }.orElse(false)
 }
 
-/**
- * List of project path prefixes which have been opted-in to the ktfmt migration.
- */
-fun Project.getKtfmtOptInPathPrefixes(): List<String> =
-    aggregatePropertyPrefix(KTFMT_OPT_IN)
+/** List of project path prefixes which have been opted-in to the ktfmt migration. */
+fun Project.getKtfmtOptInPathPrefixes(): List<String> = aggregatePropertyPrefix(KTFMT_OPT_IN)
 
 internal fun Project.aggregatePropertyPrefix(prefix: String): List<String> =
     properties.flatMap { (name, value) ->
