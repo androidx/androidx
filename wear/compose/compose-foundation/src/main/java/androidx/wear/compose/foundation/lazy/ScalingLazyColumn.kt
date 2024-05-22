@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
@@ -808,6 +809,7 @@ private fun ScalingLazyColumnItemWrapper(
             val anchorType = config.anchorType
             val items = state.layoutInfo.internalVisibleItemInfo()
             val currentItem = items.fastFirstOrNull { it.index == index }
+            compositingStrategy = CompositingStrategy.ModulateAlpha
             if (currentItem != null) {
                 alpha = currentItem.alpha
                 scaleX = currentItem.scale
