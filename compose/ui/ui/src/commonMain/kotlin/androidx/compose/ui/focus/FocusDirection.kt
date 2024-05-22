@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.ui.ExperimentalComposeUiApi
+
 /**
  * The [FocusDirection] is used to specify the direction for a [FocusManager.moveFocus]
  * request.
@@ -33,7 +35,9 @@ value class FocusDirection internal constructor(private val value: Int) {
             Right -> "Right"
             Up -> "Up"
             Down -> "Down"
+            @OptIn(ExperimentalComposeUiApi::class)
             Enter -> "Enter"
+            @OptIn(ExperimentalComposeUiApi::class)
             Exit -> "Exit"
             else -> "Invalid FocusDirection"
         }
@@ -92,12 +96,18 @@ value class FocusDirection internal constructor(private val value: Int) {
          *  Direction used in [FocusManager.moveFocus] to indicate that you are searching for the
          *  next focusable item that is a child of the currently focused item.
          */
+        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+        @get:ExperimentalComposeUiApi
+        @ExperimentalComposeUiApi
         val Enter: FocusDirection = FocusDirection(7)
 
         /**
          *  Direction used in [FocusManager.moveFocus] to indicate that you want to move focus to
          *  the parent of the currently focused item.
          */
+        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+        @get:ExperimentalComposeUiApi
+        @ExperimentalComposeUiApi
         val Exit: FocusDirection = FocusDirection(8)
     }
 }
