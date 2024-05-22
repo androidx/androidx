@@ -907,7 +907,7 @@ private fun SearchBarLayout(
             .onConsumedWindowInsetsChanged { consumedInsets ->
                 unconsumedInsets.insets = windowInsets.exclude(consumedInsets)
             }
-            .consumeWindowInsets(unconsumedInsets),
+            .consumeWindowInsets(windowInsets),
         content = {
             Box(Modifier.layoutId(LayoutIdSurface), propagateMinConstraints = true) {
                 surface()
