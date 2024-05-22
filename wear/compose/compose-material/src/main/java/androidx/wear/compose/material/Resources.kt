@@ -16,10 +16,7 @@
 
 package androidx.wear.compose.material
 
-import android.provider.Settings
-import android.view.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -41,18 +38,6 @@ internal fun imageResource(image: ImageResources): Painter =
             ImageResources.RectangularVignetteTop -> R.drawable.rectangular_vignette_top
         }
     )
-
-@Composable
-internal fun isLeftyModeEnabled(): Boolean {
-    val context = LocalContext.current
-    return remember(context) {
-        Settings.System.getInt(
-            context.contentResolver,
-            Settings.System.USER_ROTATION,
-            Surface.ROTATION_0
-        ) == Surface.ROTATION_180
-    }
-}
 
 @Composable
 internal fun screenHeightDp() = LocalContext.current.resources.configuration.screenHeightDp
