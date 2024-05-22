@@ -549,7 +549,7 @@ public open class NavController(
         saveState: Boolean = false
     ): Boolean {
         val id = serializer<T>().hashCode()
-        requireNotNull(findDestinationComprehensive(id)) {
+        requireNotNull(graph.findDestinationComprehensive(id, true)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
                 "graph $graph"
         }
@@ -995,7 +995,7 @@ public open class NavController(
         }
 
         // Find the destination if the leaf destination was a NavGraph
-        with(graph.findDestination(leafDestinationId)) {
+        with(graph.findDestinationComprehensive(leafDestinationId, false)) {
             if (this is NavGraph) {
                 leafDestinationId = this.findStartDestination().id
             }
@@ -1633,6 +1633,9 @@ public open class NavController(
             return currentBackStackEntry?.destination
         }
 
+    /**
+     * Recursively searches through parents
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findDestination(@IdRes destinationId: Int): NavDestination? {
         if (_graph == null) {
@@ -1642,44 +1645,29 @@ public open class NavController(
             return _graph
         }
         val currentNode = backQueue.lastOrNull()?.destination ?: _graph!!
-        return currentNode.findDestination(destinationId)
+        return currentNode.findDestinationComprehensive(destinationId, false)
     }
 
+    /**
+     * Recursively searches through parents. If [searchChildren] is true, also recursively
+     * searches children.
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun findDestinationComprehensive(@IdRes destinationId: Int): NavDestination? {
-        if (_graph == null) {
-            return null
-        }
-        if (_graph!!.id == destinationId) {
-            return _graph
-        }
-        return _graph!!.findNodeComprehensive(destinationId, null)
-    }
-
-    /**
-     * Recursively searches through parents of the receiver
-     */
-    private fun NavDestination.findDestination(@IdRes destinationId: Int): NavDestination? {
-        if (id == destinationId) {
-            return this
-        }
-        val currentGraph = if (this is NavGraph) this else parent!!
-        return currentGraph.findNode(destinationId)
-    }
-
-    /**
-     * Recursively searches through parents and children of the receiver
-     */
-    private fun NavDestination.findDestinationComprehensive(
-        @IdRes destinationId: Int
+    public fun NavDestination.findDestinationComprehensive(
+        @IdRes destinationId: Int,
+        searchChildren: Boolean
     ): NavDestination? {
+
         if (id == destinationId) {
             return this
         }
         val currentGraph = if (this is NavGraph) this else parent!!
-        return currentGraph.findNodeComprehensive(destinationId, currentGraph)
+        return currentGraph.findNodeComprehensive(destinationId, currentGraph, searchChildren)
     }
 
+    /**
+     * Recursively searches through parents
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun findDestination(route: String): NavDestination? {
         if (_graph == null) {
@@ -1700,7 +1688,7 @@ public open class NavController(
     @OptIn(InternalSerializationApi::class)
     private fun <T : Any> generateRouteFilled(route: T): String {
         val id = route::class.serializer().hashCode()
-        val destination = findDestinationComprehensive(id)
+        val destination = graph.findDestinationComprehensive(id, true)
         // throw immediately if destination is not found within the graph
         requireNotNull(destination) {
             "Destination with route ${route::class.simpleName} cannot be found " +
@@ -2213,7 +2201,9 @@ public open class NavController(
         val backStack = mutableListOf<NavBackStackEntry>()
         var currentDestination = backQueue.lastOrNull()?.destination ?: graph
         backStackState?.forEach { state ->
-            val node = currentDestination.findDestination(state.destinationId)
+            val node = currentDestination.findDestinationComprehensive(
+                state.destinationId, false
+            )
             checkNotNull(node) {
                 val dest = NavDestination.getDisplayName(
                     context, state.destinationId
@@ -2718,7 +2708,7 @@ public open class NavController(
      */
     public inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry {
         val id = serializer<T>().hashCode()
-        requireNotNull(findDestinationComprehensive(id)) {
+        requireNotNull(graph.findDestinationComprehensive(id, true)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
                 "graph $graph"
         }
