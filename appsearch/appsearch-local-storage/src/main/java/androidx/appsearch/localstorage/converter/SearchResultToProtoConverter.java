@@ -28,7 +28,7 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchConfig;
-import androidx.core.util.Preconditions;
+import androidx.appsearch.localstorage.SchemaCache;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.SchemaTypeConfigProto;
@@ -54,18 +54,17 @@ public class SearchResultToProtoConverter {
      * Translate a {@link SearchResultProto} into {@link SearchResultPage}.
      *
      * @param proto         The {@link SearchResultProto} containing results.
-     * @param schemaMap     The cached Map of <Prefix, Map<PrefixedSchemaType, schemaProto>>
-     *                      stores all existing prefixed schema type.
+     * @param schemaCache   The SchemaCache instance held in AppSearch.
      * @return {@link SearchResultPage} of results.
      */
     @NonNull
     public static SearchResultPage toSearchResultPage(@NonNull SearchResultProto proto,
-            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap,
-            @NonNull AppSearchConfig config)
+            @NonNull SchemaCache schemaCache, @NonNull AppSearchConfig config)
             throws AppSearchException {
         List<SearchResult> results = new ArrayList<>(proto.getResultsCount());
         for (int i = 0; i < proto.getResultsCount(); i++) {
-            SearchResult result = toUnprefixedSearchResult(proto.getResults(i), schemaMap, config);
+            SearchResult result = toUnprefixedSearchResult(proto.getResults(i), schemaCache,
+                    config);
             results.add(result);
         }
         return new SearchResultPage(proto.getNextPageToken(), results);
@@ -76,20 +75,19 @@ public class SearchResultToProtoConverter {
      * database prefix will be removed from {@link GenericDocument}.
      *
      * @param proto          The proto to be converted.
-     * @param schemaMap      The cached Map of <Prefix, Map<PrefixedSchemaType, schemaProto>>
-     *                       stores all existing prefixed schema type.
+     * @param schemaCache   The SchemaCache instance held in AppSearch.
      * @return A {@link SearchResult}.
      */
     @NonNull
     private static SearchResult toUnprefixedSearchResult(
             @NonNull SearchResultProto.ResultProto proto,
-            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap,
+            @NonNull SchemaCache schemaCache,
             @NonNull AppSearchConfig config) throws AppSearchException {
 
         DocumentProto.Builder documentBuilder = proto.getDocument().toBuilder();
         String prefix = removePrefixesFromDocument(documentBuilder);
         Map<String, SchemaTypeConfigProto> schemaTypeMap =
-                Preconditions.checkNotNull(schemaMap.get(prefix));
+                schemaCache.getSchemaMapForPrefix(prefix);
         GenericDocument document =
                 GenericDocumentToProtoConverter.toGenericDocument(documentBuilder, prefix,
                         schemaTypeMap, config);
@@ -117,7 +115,8 @@ public class SearchResultToProtoConverter {
                         "Nesting joined results within joined results not allowed.");
             }
 
-            builder.addJoinedResult(toUnprefixedSearchResult(joinedResultProto, schemaMap, config));
+            builder.addJoinedResult(
+                    toUnprefixedSearchResult(joinedResultProto, schemaCache, config));
         }
         return builder.build();
     }

@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.converter;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.localstorage.SchemaCache;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 
 import com.google.android.icing.proto.NamespaceDocumentUriGroup;
@@ -54,10 +55,10 @@ public class SearchSuggestionSpecToProtoConverterTest {
                 prefix1, ImmutableSet.of(
                         prefix1 + "namespace1",
                         prefix1 + "namespace2")),
-                /*schemaMap=*/ImmutableMap.of(
-                prefix1, ImmutableMap.of(
-                        prefix1 + "typeA", configProto,
-                        prefix1 + "typeB", configProto)));
+                new SchemaCache(/*schemaMap=*/ImmutableMap.of(
+                        prefix1, ImmutableMap.of(
+                                prefix1 + "typeA", configProto,
+                                prefix1 + "typeB", configProto))));
 
         SuggestionSpecProto proto = converter.toSearchSuggestionSpecProto();
 
@@ -88,10 +89,10 @@ public class SearchSuggestionSpecToProtoConverterTest {
                 searchSuggestionSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(),
-                /*schemaMap=*/ImmutableMap.of(
-                prefix1, ImmutableMap.of(
-                        prefix1 + "typeA", configProto,
-                        prefix1 + "typeB", configProto)));
+                new SchemaCache(/*schemaMap=*/ImmutableMap.of(
+                        prefix1, ImmutableMap.of(
+                                prefix1 + "typeA", configProto,
+                                prefix1 + "typeB", configProto))));
 
         SuggestionSpecProto proto = converter.toSearchSuggestionSpecProto();
         assertThat(proto.getTypePropertyFiltersList()).containsExactly(
