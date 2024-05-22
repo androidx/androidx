@@ -55,14 +55,20 @@ class ProfilerTest {
             profiler == MethodTracing && Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP,
         )
 
-        val outputRelPath = profiler.start("test")!!.outputRelativePath
+        val result = profiler.start("test")!!
+        val outputRelPath = result.outputRelativePath
         profiler.stop()
         val file = File(Outputs.outputDirectory, outputRelPath)
-
         assertTrue(
             actual = regex.matches(outputRelPath),
             message = "expected profiler output path $outputRelPath to match $regex"
         )
+
+        if (result.convertBeforeSync != null) {
+            // profiler doesn't create file until conversion occurs
+            assertFalse(file.exists(), "Profiler should not yet create: ${file.absolutePath}")
+            result.convertBeforeSync?.invoke()
+        }
         assertTrue(file.exists(), "Profiler should create: ${file.absolutePath}")
 
         // we don't delete the file to enable inspecting the file

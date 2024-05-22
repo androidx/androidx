@@ -585,6 +585,7 @@ class BenchmarkState internal constructor(phaseConfig: MicrobenchmarkPhase.Confi
             return // nothing to report, BenchmarkState wasn't used
         }
 
+        profilerResult?.convertBeforeSync?.invoke()
         if (perfettoTracePath != null) {
             profilerResult?.embedInPerfettoTrace(perfettoTracePath)
         }
