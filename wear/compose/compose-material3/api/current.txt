@@ -209,7 +209,7 @@ package androidx.wear.compose.material3 {
   public final class CurvedTextDefaults {
     field public static final androidx.wear.compose.material3.CurvedTextDefaults INSTANCE;
     field public static final float ScrollableContentMaxSweepAngle = 70.0f;
-    field public static final float StaticScreenMaxSweepAngle = 120.0f;
+    field public static final float StaticContentMaxSweepAngle = 120.0f;
   }
 
   public final class CurvedTextKt {
