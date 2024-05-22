@@ -18,15 +18,16 @@
 package androidx.compose.material3
 
 import androidx.annotation.IntRange
-import androidx.collection.FloatFloatPair
 import androidx.collection.IntList
 import androidx.collection.MutableIntList
 import androidx.collection.intListOf
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.MutatePriority.PreventUserInput
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -56,7 +57,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.rememberAccessibilityServiceState
-import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.material3.tokens.TimeInputTokens
 import androidx.compose.material3.tokens.TimeInputTokens.PeriodSelectorContainerHeight
 import androidx.compose.material3.tokens.TimeInputTokens.PeriodSelectorContainerWidth
@@ -181,6 +181,7 @@ import kotlin.math.hypot
 import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.math.sin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -741,14 +742,14 @@ internal class AnalogTimePickerState(val state: TimePickerState) : TimePickerSta
             return
         }
 
-        val (start, end) = if (selection == TimePickerSelectionMode.Hour) {
-            valuesForAnimation(minuteAngle, hourAngle)
+        val end = if (selection == TimePickerSelectionMode.Hour) {
+            endValueForAnimation(hourAngle)
         } else {
-            valuesForAnimation(hourAngle, minuteAngle)
+            endValueForAnimation(minuteAngle)
         }
-
-        anim.snapTo(start)
-        anim.animateTo(end, tween(200))
+        mutex.mutate(priority = PreventUserInput) {
+            anim.animateTo(end, spring(dampingRatio = 1f, stiffness = 700f))
+        }
     }
 
     private fun isUpdated(): Boolean {
@@ -768,23 +769,34 @@ internal class AnalogTimePickerState(val state: TimePickerState) : TimePickerSta
     val clockFaceValues: IntList
         get() = if (selection == TimePickerSelectionMode.Minute) Minutes else Hours
 
-    private fun valuesForAnimation(current: Float, new: Float): FloatFloatPair =
-        FloatFloatPair(current.normalize(), new.normalize())
+    private fun endValueForAnimation(new: Float): Float {
+        // Calculate the absolute angular difference
+        var diff = anim.value - new
+        // Normalize the angular difference to be between -π and π
+        while (diff > HalfCircle) {
+            diff -= FullCircle
+        }
+        while (diff <= -HalfCircle) {
+            diff += FullCircle
+        }
+
+        return anim.value - diff
+    }
 
     private var anim = Animatable(hourAngle)
 
     suspend fun onGestureEnd() {
-        val (start, end) = if (selection == TimePickerSelectionMode.Hour) {
-            valuesForAnimation(currentAngle, hourAngle)
-        } else {
-            valuesForAnimation(currentAngle, minuteAngle)
-        }
+        val end =
+            endValueForAnimation(
+                if (selection == TimePickerSelectionMode.Hour) { hourAngle } else { minuteAngle }
+            )
 
-        anim.snapTo(start)
-        anim.animateTo(end, tween(200))
+        mutex.mutate(priority = PreventUserInput) {
+            anim.animateTo(end, spring())
+        }
     }
 
-    suspend fun rotateTo(angle: Float) {
+    suspend fun rotateTo(angle: Float, animate: Boolean = false) {
         mutex.mutate(MutatePriority.UserInput) {
             if (selection == TimePickerSelectionMode.Hour) {
                 hourAngle = angle.toHour() % 12 * RadiansPerHour
@@ -794,7 +806,12 @@ internal class AnalogTimePickerState(val state: TimePickerState) : TimePickerSta
                 state.minute = minuteAngle.toMinute()
             }
 
-            anim.snapTo(offsetAngle(angle))
+            if (!animate) {
+                anim.snapTo(offsetAngle(angle))
+            } else {
+                val endAngle = endValueForAnimation(offsetAngle(angle))
+                anim.animateTo(endAngle, spring(dampingRatio = 1f, stiffness = 700f))
+            }
         }
     }
 
@@ -877,16 +894,20 @@ private suspend fun AnalogTimePickerState.onTap(
     var angle = atan(y - center.y, x - center.x)
     if (selection == TimePickerSelectionMode.Minute) {
         angle = round(angle / RadiansPerMinute / 5f) * 5f * RadiansPerMinute
+    } else {
+        angle = round(angle / RadiansPerHour) * RadiansPerHour
     }
 
-    rotateTo(angle)
     moveSelector(x, y, maxDist, center)
+    rotateTo(angle, animate = true)
+
+    if (selection == TimePickerSelectionMode.Hour && autoSwitchToMinute) {
+        delay(100)
+    }
 
     if (autoSwitchToMinute) {
         selection = TimePickerSelectionMode.Minute
     }
-
-    onGestureEnd()
 }
 
 internal val AnalogTimePickerState.selectorPos: DpOffset
@@ -1497,16 +1518,16 @@ internal fun ClockFace(
     Crossfade(
         modifier = Modifier
             .background(shape = CircleShape, color = colors.clockDialColor)
+            .then(ClockDialModifier(state, autoSwitchToMinute, state.selection))
             .size(ClockDialContainerSize)
-            .semantics { selectableGroup() },
+            .drawSelector(state, colors),
         targetState = state.clockFaceValues,
-        animationSpec = tween(durationMillis = MotionTokens.DurationMedium3.toInt())
+        animationSpec = tween(durationMillis = 200)
     ) { screen ->
         CircularLayout(
             modifier = Modifier
-                .then(ClockDialModifier(state, autoSwitchToMinute, state.selection))
                 .size(ClockDialContainerSize)
-                .drawSelector(state, colors),
+                .semantics { selectableGroup() },
             radius = OuterCircleSizeRadius,
         ) {
             CompositionLocalProvider(
@@ -1923,6 +1944,7 @@ internal expect val defaultTimePickerLayoutType: TimePickerLayoutType
     @ReadOnlyComposable get
 
 private const val FullCircle: Float = (PI * 2).toFloat()
+private const val HalfCircle: Float = FullCircle / 2f
 private const val QuarterCircle = PI / 2
 private const val RadiansPerMinute: Float = FullCircle / 60
 private const val RadiansPerHour: Float = FullCircle / 12f
