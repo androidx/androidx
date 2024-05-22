@@ -238,12 +238,12 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
                 mPendingClear.set(true)
                 val result = mCommitCount.updateAndGet { value -> max(value - 1, 0) }
                 if (result != 0) {
-                    mGLRenderer.execute { commitInternal() }
+                    commitInternal()
                 } else if (mPendingRenderCount.get() > 0) {
                     mFrontBufferedRenderer?.render()
                 }
                 if (!mFrontBufferSyncStrategy.isVisible) {
-                    mGLRenderer.execute(mClearFrontBufferRunnable)
+                    mClearFrontBufferRunnable.run()
                 }
             }
         }
