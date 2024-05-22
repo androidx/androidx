@@ -43,7 +43,7 @@ import androidx.wear.compose.foundation.sizeIn
  * Note that Wear Material UX guidance recommends that [curvedText] should not exceed
  * the sweep angle [CurvedTextDefaults.ScrollableContentMaxSweepAngle] on screens with
  * scrollable content such as lists. This limit is enforced by default.
- * For screens without scrollable content, [CurvedTextDefaults.StaticScreenMaxSweepAngle]
+ * For screens without scrollable content, [CurvedTextDefaults.StaticContentMaxSweepAngle]
  * may be used instead.
  *
  * The default [style] uses the [LocalTextStyle] provided by the [MaterialTheme] / components,
@@ -76,7 +76,7 @@ import androidx.wear.compose.foundation.sizeIn
  * @param text The text to display
  * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param maxSweepAngle The default maximum sweep angle in degrees. For screens without
- * scrollable content, [CurvedTextDefaults.StaticScreenMaxSweepAngle] may be used instead.
+ * scrollable content, [CurvedTextDefaults.StaticContentMaxSweepAngle] may be used instead.
  * @param background The background color for the text.
  * @param color [Color] to apply to the text. If [Color.Unspecified], and [style] has no color set,
  * this will be [LocalContentColor].
@@ -147,5 +147,5 @@ object CurvedTextDefaults {
      * The recommended maximum sweep angle in degrees used by [curvedText]
      * for screens without scrollable content.
      */
-    const val StaticScreenMaxSweepAngle: Float = 120f
+    const val StaticContentMaxSweepAngle: Float = 120f
 }
