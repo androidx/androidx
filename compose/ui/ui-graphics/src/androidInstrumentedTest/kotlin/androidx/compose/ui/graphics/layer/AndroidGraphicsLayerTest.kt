@@ -214,14 +214,19 @@ class AndroidGraphicsLayerTest {
         // without updating GraphicsLayer internal state
         graphicsLayerTest(
             block = { graphicsContext ->
-                graphicsContext.createGraphicsLayer().apply {
+                val layer = graphicsContext.createGraphicsLayer().apply {
                     assertEquals(IntSize.Zero, this.size)
                     record {
                         drawRect(Color.Red)
                     }
                     this.impl.discardDisplayList()
                 }
-            }
+                drawIntoCanvas { layer.drawForPersistence(it) }
+            },
+            verify = {
+                it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
+            },
+            verifySoftwareRender = false
         )
     }
 
