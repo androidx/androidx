@@ -169,13 +169,8 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      * @param resId ID to locate
      * @return the node with ID resId
      */
-    public fun findNode(@IdRes resId: Int): NavDestination? {
-        val destination = nodes[resId]
-        // Search the parent for the NavDestination if it is not a child of this navigation graph
-        // and searchParents is true
-        return destination
-            ?: if (parent != null) parent!!.findNode(resId) else null
-    }
+    public fun findNode(@IdRes resId: Int): NavDestination? =
+        findNodeComprehensive(resId, this, false)
 
     /**
      * Searches all children and parents recursively.
@@ -186,23 +181,26 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     public fun findNodeComprehensive(
         @IdRes resId: Int,
         lastVisited: NavDestination?,
+        searchChildren: Boolean
     ): NavDestination? {
         // first search direct children
         var destination = nodes[resId]
         if (destination != null) return destination
 
-        // then dfs through children. Avoid re-visiting children that were recursing up this way.
-        destination = nodes.valueIterator().asSequence().firstNotNullOfOrNull { child ->
-            if (child is NavGraph && child != lastVisited) {
-                child.findNodeComprehensive(resId, this)
-            } else null
+        if (searchChildren) {
+            // then dfs through children. Avoid re-visiting children that were recursing up this way.
+            destination = nodes.valueIterator().asSequence().firstNotNullOfOrNull { child ->
+                if (child is NavGraph && child != lastVisited) {
+                    child.findNodeComprehensive(resId, this, true)
+                } else null
+            }
         }
 
         // lastly search through parents. Avoid re-visiting parents that were recursing down
         // this way.
         return destination
             ?: if (parent != null && parent != lastVisited) {
-                parent!!.findNodeComprehensive(resId, this)
+                parent!!.findNodeComprehensive(resId, this, searchChildren)
             } else null
     }
 
