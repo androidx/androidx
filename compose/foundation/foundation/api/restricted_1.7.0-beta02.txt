@@ -176,14 +176,14 @@ package androidx.compose.foundation {
   }
 
   public final class MarqueeDefaults {
-    method public int getDefaultMarqueeIterations();
-    method public int getDefaultMarqueeRepeatDelayMillis();
-    method public androidx.compose.foundation.MarqueeSpacing getDefaultMarqueeSpacing();
-    method public float getDefaultMarqueeVelocity();
-    property public final int DefaultMarqueeIterations;
-    property public final int DefaultMarqueeRepeatDelayMillis;
-    property public final androidx.compose.foundation.MarqueeSpacing DefaultMarqueeSpacing;
-    property public final float DefaultMarqueeVelocity;
+    method public int getDefaultIterations();
+    method public int getDefaultRepeatDelayMillis();
+    method public androidx.compose.foundation.MarqueeSpacing getDefaultSpacing();
+    method public float getDefaultVelocity();
+    property public final int DefaultIterations;
+    property public final int DefaultRepeatDelayMillis;
+    property public final androidx.compose.foundation.MarqueeSpacing DefaultSpacing;
+    property public final float DefaultVelocity;
     field public static final androidx.compose.foundation.MarqueeDefaults INSTANCE;
   }
 
