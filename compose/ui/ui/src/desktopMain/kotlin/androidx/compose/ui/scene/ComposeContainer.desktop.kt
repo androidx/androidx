@@ -183,7 +183,7 @@ internal class ComposeContainer(
         this.windowContainer = windowContainer
 
         if (layerType == LayerType.OnComponent && !useSwingGraphics) {
-            error("Unsupported LayerType.OnComponent might be used only with rendering to Swing graphics")
+            error("LayerType.OnComponent can only be used with rendering via Swing graphics")
         }
     }
 

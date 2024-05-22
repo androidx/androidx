@@ -21,6 +21,8 @@ import java.awt.*
 import java.awt.event.FocusListener
 import java.util.*
 import javax.accessibility.*
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.hostOs
 
 /**
  * This is a root [Accessible] for a [androidx.compose.ui.ComposeScene]
@@ -153,7 +155,16 @@ internal class ComposeSceneAccessible(
         }
 
         override fun getAccessibleRole(): AccessibleRole {
-            return AccessibleRole.UNKNOWN
+            // We want to return a role that makes the ComposeScene container "transparent" to
+            // accessibility, as if its contents are inside the parent directly.
+            // On macOS, PANEL is ignored by Java's a11y (see CAccessibility.ignoredRoles), but on
+            // Windows, it makes NVDA read it as "panel".
+            // On Windows, NVDA ignores UNKNOWN, but on macOS UNKNOWN causes VoiceOver to highlight
+            // the entire component when traversing via VoiceOver shortcuts.
+            return when (hostOs) {
+                OS.MacOS -> AccessibleRole.PANEL
+                else -> AccessibleRole.UNKNOWN
+            }
         }
 
         override fun getAccessibleStateSet(): AccessibleStateSet {
