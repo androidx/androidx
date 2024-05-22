@@ -45,6 +45,10 @@ internal class KspAnnotationValue(
 internal fun KspAnnotation.unwrap(valueType: XType, valueArgument: KSValueArgument): Any? {
     fun unwrap(value: Any?): Any? {
         return when (value) {
+            // Enums in KSP2
+            is KSClassDeclaration -> {
+                KspEnumEntry.create(env, value)
+            }
             is KSType -> {
                 val declaration = value.declaration
                 // Wrap enum entries in enum specific type elements
