@@ -470,8 +470,6 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 	public fun hasFocus ()Z
 	public final fun isDisposeOnRemove ()Z
 	public fun isFocusOwner ()Z
-	public fun isFocusable ()Z
-	public fun isRequestFocusEnabled ()Z
 	public fun remove (Ljava/awt/Component;)V
 	public fun removeFocusListener (Ljava/awt/event/FocusListener;)V
 	public fun removeNotify ()V
