@@ -504,13 +504,24 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun linux(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
         return listOfNotNull(
+            // TODO linuxArm64(block),
             linuxX64(block),
         )
     }
 
     @JvmOverloads
-    fun linuxX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
-        supportedPlatforms.add(PlatformIdentifier.LINUX_64)
+    fun linuxArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+        supportedPlatforms.add(PlatformIdentifier.LINUX_ARM_64)
+        return if (project.enableLinux()) {
+            kotlinExtension.linuxArm64().also { block?.execute(it) }
+        } else {
+            null
+        }
+    }
+
+    @JvmOverloads
+    fun linuxX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+        supportedPlatforms.add(PlatformIdentifier.LINUX_X_64)
         return if (project.enableLinux()) {
             kotlinExtension.linuxX64().also { block?.execute(it) }
         } else {
