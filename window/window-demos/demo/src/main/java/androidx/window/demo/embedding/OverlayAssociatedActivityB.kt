@@ -16,4 +16,13 @@
 
 package androidx.window.demo.embedding
 
-class OverlayActivityA : OverlayActivityBase()
+import android.graphics.Color
+import android.os.Bundle
+
+class OverlayAssociatedActivityB : OverlayActivityBase() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        viewBinding.rootOverlayActivityLayout.setBackgroundColor(Color.parseColor("#e8f5e9"))
+    }
+}

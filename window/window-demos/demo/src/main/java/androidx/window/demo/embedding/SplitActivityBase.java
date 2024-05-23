@@ -144,7 +144,7 @@ public class SplitActivityBase extends AppCompatActivity
             startActivity(new Intent(this, SplitActivityE.class), bundle);
         });
         if (extensionVersion < 3) {
-            mViewBinding.setLaunchingEInActivityStack.setEnabled(false);
+            mViewBinding.setLaunchingEInActivityStack.setVisibility(View.GONE);
         }
         mViewBinding.launchF.setOnClickListener((View v) ->
                 startActivity(new Intent(this, SplitActivityF.class)));
@@ -208,8 +208,8 @@ public class SplitActivityBase extends AppCompatActivity
                         .setMessage("This is a dialog demo").create().show());
 
         if (extensionVersion < 5) {
-            mViewBinding.pinTopActivityStackButton.setEnabled(false);
-            mViewBinding.unpinTopActivityStackButton.setEnabled(false);
+            mViewBinding.pinTopActivityStackButton.setVisibility(View.GONE);
+            mViewBinding.unpinTopActivityStackButton.setVisibility(View.GONE);
         } else {
             mViewBinding.pinTopActivityStackButton.setOnClickListener((View v) -> {
                         splitController.pinTopActivityStack(getTaskId(),
@@ -239,6 +239,13 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.finishBCCheckBox.setOnCheckedChangeListener(this);
         mViewBinding.fullscreenECheckBox.setOnCheckedChangeListener(this);
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
+
+        if (extensionVersion < 6) {
+            mViewBinding.buttonLaunchOverlayAssociatedActivity.setVisibility(View.GONE);
+        } else {
+            mViewBinding.buttonLaunchOverlayAssociatedActivity.setOnClickListener((View v) ->
+                    startActivity(new Intent(this, OverlayAssociatedActivityA.class)));
+        }
 
         mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
         if (extensionVersion >= 6) {
