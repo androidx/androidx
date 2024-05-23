@@ -19,7 +19,6 @@ package androidx.camera.video.internal.compat.quirk;
 import android.media.MediaCodec;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -34,7 +33,6 @@ import androidx.camera.core.impl.Quirk;
  *                  after resumed.
  *     Device(s): Some Samsung devices pre-API 29
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk implements Quirk {
 
     static boolean load() {

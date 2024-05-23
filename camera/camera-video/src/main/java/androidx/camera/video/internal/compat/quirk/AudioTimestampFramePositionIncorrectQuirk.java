@@ -19,7 +19,6 @@ package androidx.camera.video.internal.compat.quirk;
 import android.media.AudioTimestamp;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 import java.util.Arrays;
@@ -36,7 +35,6 @@ import java.util.Locale;
  *     Device(s): LG K10 (2017), Moto C, Realme C2, Redmi 6A, Vivo 1820, Vivo Y17 and some Oppo
  *                devices.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AudioTimestampFramePositionIncorrectQuirk implements Quirk {
 
     private static final List<String> AFFECTED_OPPO_MODELS = Arrays.asList(

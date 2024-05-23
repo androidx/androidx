@@ -17,7 +17,6 @@
 package androidx.camera.video
 
 import android.content.Context
-import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.Logger
@@ -27,7 +26,6 @@ import androidx.camera.video.internal.config.AudioSettingsAudioProfileResolver
 import androidx.camera.video.internal.config.AudioSettingsDefaultResolver
 import kotlinx.coroutines.runBlocking
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class AudioChecker {
 
     companion object {

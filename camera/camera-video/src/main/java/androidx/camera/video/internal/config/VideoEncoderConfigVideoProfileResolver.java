@@ -20,7 +20,6 @@ import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
@@ -38,7 +37,6 @@ import java.util.Objects;
  * {@link VideoSpec} for the given surface {@link Size} using the provided
  * {@link VideoProfileProxy}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderConfigVideoProfileResolver implements Supplier<VideoEncoderConfig> {
     private static final String TAG = "VidEncVdPrflRslvr";
 

@@ -18,7 +18,6 @@ package androidx.camera.video.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -30,7 +29,6 @@ import androidx.camera.core.impl.Quirk;
  *                  issue.
  *     Device(s): Some Huawei devices.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewDelayWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     /*

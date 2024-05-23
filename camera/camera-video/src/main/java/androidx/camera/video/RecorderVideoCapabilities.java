@@ -30,7 +30,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.CameraInfo;
@@ -68,7 +67,6 @@ import java.util.Set;
  *
  * @see Recorder#getVideoCapabilities(CameraInfo)
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class RecorderVideoCapabilities implements VideoCapabilities {
 

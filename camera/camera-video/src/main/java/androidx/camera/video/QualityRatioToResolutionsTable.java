@@ -29,7 +29,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.impl.utils.AspectRatioUtil;
 import androidx.camera.core.internal.utils.SizeUtil;
@@ -61,7 +60,6 @@ import java.util.Map;
  * list based on the smallest area difference to the given video size of CamcorderProfile.
  * It provides {@link #getResolutions(Quality, int)} API to query the result.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class QualityRatioToResolutionsTable {
 
     // Key: Quality

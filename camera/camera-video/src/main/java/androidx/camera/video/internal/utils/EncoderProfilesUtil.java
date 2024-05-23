@@ -21,13 +21,11 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.video.VideoSpec;
 import androidx.camera.video.internal.config.VideoConfigUtil;
 
 /** Utility class for encoder profiles related operations. */
-@RequiresApi(21)
 public class EncoderProfilesUtil {
 
     private EncoderProfilesUtil() {

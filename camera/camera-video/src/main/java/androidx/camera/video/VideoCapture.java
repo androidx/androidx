@@ -72,7 +72,6 @@ import android.view.Surface;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
@@ -174,7 +173,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @param <T> the type of VideoOutput
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String TAG = "VideoCapture";
     private static final String SURFACE_UPDATE_KEY =
@@ -1541,7 +1539,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
      *
      * @param <T> the type of VideoOutput
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @SuppressWarnings("ObjectToString")
     public static final class Builder<T extends VideoOutput> implements
             UseCaseConfig.Builder<VideoCapture<T>, VideoCaptureConfig<T>, Builder<T>>,

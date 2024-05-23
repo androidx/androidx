@@ -17,7 +17,6 @@
 package androidx.camera.video.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.video.Quality;
@@ -28,7 +27,6 @@ import androidx.camera.video.Quality;
  * <p>Subclasses of this interface can denote the reason of the Quality option that not capable
  * for video recording.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VideoQualityQuirk extends Quirk {
 
     /** Checks if the given Quality type is a problematic quality. */

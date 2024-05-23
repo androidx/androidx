@@ -19,12 +19,10 @@ package androidx.camera.video.internal.encoder;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * VideoEncoderInfo provides video encoder related information and capabilities.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VideoEncoderInfo extends EncoderInfo {
     /** Return if the supported width height can be swapped. */
     boolean canSwapWidthHeight();

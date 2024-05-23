@@ -21,7 +21,6 @@ import android.media.AudioFormat;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -33,7 +32,6 @@ import java.util.List;
  * Settings required to configure the audio source.
  */
 @SuppressWarnings("NullableProblems") // Problem from AutoValue generated class.
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class AudioSettings {
 
