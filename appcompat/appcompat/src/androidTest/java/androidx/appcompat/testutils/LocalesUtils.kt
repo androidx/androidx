@@ -34,17 +34,15 @@ import org.junit.Assert.assertNotEquals
 object LocalesUtils {
     private const val LOG_TAG = "LocalesUtils"
 
-    /**
-     * A test {@link LocaleListCompat} containing locales [CANADA_FRENCH, CHINESE].
-     */
+    /** A test {@link LocaleListCompat} containing locales [CANADA_FRENCH, CHINESE]. */
     var CUSTOM_LOCALE_LIST: LocaleListCompat = LocaleListCompat.getEmptyLocaleList()
 
     fun initCustomLocaleList() {
         if (Build.VERSION.SDK_INT >= 24) {
-            CUSTOM_LOCALE_LIST = LocaleListCompat.forLanguageTags(
-                Locale.CANADA_FRENCH.toLanguageTag() + "," +
-                    Locale.CHINESE.toLanguageTag()
-            )
+            CUSTOM_LOCALE_LIST =
+                LocaleListCompat.forLanguageTags(
+                    Locale.CANADA_FRENCH.toLanguageTag() + "," + Locale.CHINESE.toLanguageTag()
+                )
         } else {
             CUSTOM_LOCALE_LIST = LocaleListCompat.create(Locale.CHINESE)
         }
@@ -58,15 +56,8 @@ object LocalesUtils {
         }
     }
 
-    fun assertConfigurationLocalesEquals(
-        expectedLocales: LocaleListCompat,
-        context: Context
-    ) {
-        assertConfigurationLocalesEquals(
-            null,
-            expectedLocales,
-            context
-        )
+    fun assertConfigurationLocalesEquals(expectedLocales: LocaleListCompat, context: Context) {
+        assertConfigurationLocalesEquals(null, expectedLocales, context)
     }
 
     fun assertConfigurationLocalesEquals(
@@ -74,22 +65,14 @@ object LocalesUtils {
         expectedLocales: LocaleListCompat,
         context: Context
     ) {
-        assertConfigurationLocalesEquals(
-            message,
-            expectedLocales,
-            context.resources.configuration
-        )
+        assertConfigurationLocalesEquals(message, expectedLocales, context.resources.configuration)
     }
 
     fun assertConfigurationLocalesEquals(
         expectedLocales: LocaleListCompat,
         configuration: Configuration
     ) {
-        assertConfigurationLocalesEquals(
-            null,
-            expectedLocales,
-            configuration
-        )
+        assertConfigurationLocalesEquals(null, expectedLocales, configuration)
     }
 
     fun assertConfigurationLocalesEquals(
@@ -124,11 +107,7 @@ object LocalesUtils {
         @Suppress("DEPRECATION") activityRule: androidx.test.rule.ActivityTestRule<T>,
         locales: LocaleListCompat
     ) {
-        Log.d(
-            LOG_TAG,
-            "setLocalesAndWait on Activity: " + activity +
-                " to locales: " + locales
-        )
+        Log.d(LOG_TAG, "setLocalesAndWait on Activity: " + activity + " to locales: " + locales)
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         activityRule.runOnUiThread { setLocales(locales) }
@@ -146,28 +125,21 @@ object LocalesUtils {
     ): T {
         Log.d(
             LOG_TAG,
-            "setLocalesAndWaitForRecreate on Activity: " + activity +
-                " to mode: " + locales
+            "setLocalesAndWaitForRecreate on Activity: " + activity + " to mode: " + locales
         )
 
         LifecycleOwnerUtils.waitUntilState(activity, Lifecycle.State.RESUMED)
 
         // Screen rotation kicks off a lot of background work, so we might need to wait a bit
         // between the activity reaching RESUMED state and it actually being shown on screen.
-        PollingCheck.waitFor {
-            activity.hasWindowFocus()
-        }
+        PollingCheck.waitFor { activity.hasWindowFocus() }
         assertNotEquals(locales, getLocales())
 
         // Now perform locales change and wait for the Activity to be recreated.
-        return LifecycleOwnerUtils.waitForRecreation(activity) {
-            setLocales(locales)
-        }
+        return LifecycleOwnerUtils.waitForRecreation(activity) { setLocales(locales) }
     }
 
-    fun setLocales(
-        locales: LocaleListCompat
-    ) = AppCompatDelegate.setApplicationLocales(locales)
+    fun setLocales(locales: LocaleListCompat) = AppCompatDelegate.setApplicationLocales(locales)
 
     private fun getLocales(): LocaleListCompat = AppCompatDelegate.getApplicationLocales()
 }

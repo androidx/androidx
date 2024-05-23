@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NightModeForegroundDialogTestCase {
-    @get:Rule
-    val rule = NightModeActivityTestRule(NightModeActivity::class.java)
+    @get:Rule val rule = NightModeActivityTestRule(NightModeActivity::class.java)
 
     @Ignore // b/266748645
     @Test
@@ -51,11 +50,7 @@ class NightModeForegroundDialogTestCase {
         }
 
         // Now change the DayNight mode on the foreground activity.
-        setNightModeAndWaitForRecreate(
-            firstActivity,
-            MODE_NIGHT_YES,
-            NightSetMode.DEFAULT
-        )
+        setNightModeAndWaitForRecreate(firstActivity, MODE_NIGHT_YES, NightSetMode.DEFAULT)
 
         // Ensure that it was recreated.
         assertNotSame(rule.activity, firstActivity)

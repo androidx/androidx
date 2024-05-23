@@ -34,9 +34,8 @@ import org.junit.runners.Parameterized
 class NightModeCustomAttachBaseContextTestCase(private val setMode: NightSetMode) {
 
     @get:Rule
-    val activityRule = NightModeActivityTestRule(
-        NightModeCustomAttachBaseContextActivity::class.java
-    )
+    val activityRule =
+        NightModeActivityTestRule(NightModeCustomAttachBaseContextActivity::class.java)
 
     @Test
     @Suppress("DEPRECATION")

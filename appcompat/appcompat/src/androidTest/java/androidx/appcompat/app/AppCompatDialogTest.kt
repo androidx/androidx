@@ -46,17 +46,13 @@ class AppCompatDialogTest {
             val lifecycle = dialog.lifecycle
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
 
-            onActivity {
-                dialog.show()
-            }
+            onActivity { dialog.show() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
             val viewOwner = dialog.window?.decorView?.findViewTreeLifecycleOwner()!!
             assertThat(viewOwner).isEqualTo(dialog)
 
-            onActivity {
-                dialog.dismiss()
-            }
+            onActivity { dialog.dismiss() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
 
             assertWithMessage("A new Lifecycle object should be created after destruction")

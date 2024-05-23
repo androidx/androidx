@@ -29,16 +29,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-/**
- * This is one approach to customize Activity's configuration that's used in google3.
- */
+/** This is one approach to customize Activity's configuration that's used in google3. */
 @SdkSuppress(maxSdkVersion = 32)
 class LocalesCustomApplyOverrideConfigurationTestCase() {
 
     @get:Rule
-    val activityRule = LocalesActivityTestRule(
-        LocalesCustomApplyOverrideConfigurationActivity::class.java
-    )
+    val activityRule =
+        LocalesActivityTestRule(LocalesCustomApplyOverrideConfigurationActivity::class.java)
 
     @Test
     @Suppress("DEPRECATION")

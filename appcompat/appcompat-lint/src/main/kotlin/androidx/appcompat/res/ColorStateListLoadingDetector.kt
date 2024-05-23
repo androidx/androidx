@@ -30,30 +30,32 @@ import com.android.tools.lint.detector.api.minSdkLessThan
 // ContextCompat.getColorStateList or AppCompatResources.getColorStateList based
 // on the API level
 @Suppress("UnstableApiUsage")
-class ColorStateListLoadingDetector : BaseMethodDeprecationDetector(
-    NOT_USING_COMPAT_LOADING,
-    // Suggest using ContextCompat.getColorStateList at API >= 24
-    DeprecationCondition(
-        MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
-        "Use `ContextCompat.getColorStateList()`",
-        constraint = minSdkAtLeast(24),
-    ),
-    // Suggest using AppCompatResources.getColorStateList at API < 24
-    DeprecationCondition(
-        MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
-        "Use `AppCompatResources.getColorStateList()`",
-        constraint = minSdkLessThan(24),
-    )
-) {
-    companion object {
-        internal val NOT_USING_COMPAT_LOADING: Issue = Issue.create(
-            "UseCompatLoadingForColorStateLists",
-            "Should not call `Resources.getColorStateList` directly",
-            "Use Compat loading of color state lists",
-            Category.CORRECTNESS,
-            1,
-            Severity.WARNING,
-            Implementation(ColorStateListLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
+class ColorStateListLoadingDetector :
+    BaseMethodDeprecationDetector(
+        NOT_USING_COMPAT_LOADING,
+        // Suggest using ContextCompat.getColorStateList at API >= 24
+        DeprecationCondition(
+            MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
+            "Use `ContextCompat.getColorStateList()`",
+            constraint = minSdkAtLeast(24),
+        ),
+        // Suggest using AppCompatResources.getColorStateList at API < 24
+        DeprecationCondition(
+            MethodLocation("android.content.res.Resources", "getColorStateList", TYPE_INT),
+            "Use `AppCompatResources.getColorStateList()`",
+            constraint = minSdkLessThan(24),
         )
+    ) {
+    companion object {
+        internal val NOT_USING_COMPAT_LOADING: Issue =
+            Issue.create(
+                "UseCompatLoadingForColorStateLists",
+                "Should not call `Resources.getColorStateList` directly",
+                "Use Compat loading of color state lists",
+                Category.CORRECTNESS,
+                1,
+                Severity.WARNING,
+                Implementation(ColorStateListLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

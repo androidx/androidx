@@ -21,19 +21,22 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest.xml
 import com.android.tools.lint.checks.infrastructure.TestFile
 
 object Stubs {
-    val APPCOMPAT_ACTIVITY: TestFile = LintDetectorTest.kotlin(
-        "androidx/appcompat/app/AppCompatActivity.kt",
-        """
+    val APPCOMPAT_ACTIVITY: TestFile =
+        LintDetectorTest.kotlin(
+                "androidx/appcompat/app/AppCompatActivity.kt",
+                """
                 package androidx.appcompat.app
                 import android.app.Activity
                 open class AppCompatActivity: Activity()
             """
-    )
-        .indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val APPCOMPAT_RESOURCES: TestFile = LintDetectorTest.kotlin(
-        "androidx/appcompat/content/res/AppCompatActivity.kt",
-        """
+    val APPCOMPAT_RESOURCES: TestFile =
+        LintDetectorTest.kotlin(
+                "androidx/appcompat/content/res/AppCompatActivity.kt",
+                """
                 package androidx.appcompat.content.res
                 import android.content.Context
                 import android.content.res.ColorStateList
@@ -46,12 +49,14 @@ object Stubs {
                     }
                 }
             """
-    )
-        .indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val CONTEXT_COMPAT: TestFile = LintDetectorTest.java(
-        "androidx/core/content/ContextCompat.java",
-        """
+    val CONTEXT_COMPAT: TestFile =
+        LintDetectorTest.java(
+                "androidx/core/content/ContextCompat.java",
+                """
                 package androidx.core.content;
                 public class ContextCompat {
                     protected ContextCompat() {}
@@ -60,11 +65,14 @@ object Stubs {
                     }
                 }
             """
-    ).indented().within("src")
+            )
+            .indented()
+            .within("src")
 
-    val COLOR_STATE_LIST: TestFile = xml(
-        "color/color_state_list.xml",
-        """
+    val COLOR_STATE_LIST: TestFile =
+        xml(
+                "color/color_state_list.xml",
+                """
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -74,5 +82,7 @@ object Stubs {
     <item android:color="#FF0000"/>
 </selector>
         """
-    ).indented().within("res")
+            )
+            .indented()
+            .within("res")
 }

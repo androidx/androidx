@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NightModeLocalOnlyTestCase {
-    @get:Rule
-    val rule = NightModeActivityTestRule(NightModeActivity::class.java)
+    @get:Rule val rule = NightModeActivityTestRule(NightModeActivity::class.java)
 
     @Test
     fun testLocalDayNightModeRecreatesActivity() {

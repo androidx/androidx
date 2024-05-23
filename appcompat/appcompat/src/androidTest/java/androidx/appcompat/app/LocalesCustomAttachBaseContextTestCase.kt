@@ -38,9 +38,7 @@ import org.junit.Test
 class LocalesCustomAttachBaseContextTestCase() {
 
     @get:Rule
-    val activityRule = LocalesActivityTestRule(
-        LocalesCustomAttachBaseContextActivity::class.java
-    )
+    val activityRule = LocalesActivityTestRule(LocalesCustomAttachBaseContextActivity::class.java)
 
     @Before
     fun setUp() {
@@ -50,11 +48,7 @@ class LocalesCustomAttachBaseContextTestCase() {
     @Test
     @Suppress("DEPRECATION")
     fun testNightModeIsMaintainedOnLocalesChange() {
-        setNightModeAndWaitForRecreate(
-            activityRule,
-            MODE_NIGHT_YES,
-            NightSetMode.LOCAL
-        )
+        setNightModeAndWaitForRecreate(activityRule, MODE_NIGHT_YES, NightSetMode.LOCAL)
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_YES,
             activityRule.activity.resources.configuration

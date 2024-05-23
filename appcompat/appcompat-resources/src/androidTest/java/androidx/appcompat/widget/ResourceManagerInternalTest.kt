@@ -31,24 +31,20 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ResourceManagerInternalTest {
-    /**
-     * Test the workaround for b/231320562 where LayerDrawable loses state on mutate().
-     */
+    /** Test the workaround for b/231320562 where LayerDrawable loses state on mutate(). */
     @Test
     fun testLayerDrawableStatePreservedOnTint() {
-        val state = intArrayOf(
-            android.R.attr.state_enabled,
-            android.R.attr.state_checked
-        )
+        val state = intArrayOf(android.R.attr.state_enabled, android.R.attr.state_checked)
 
         val context = InstrumentationRegistry.getInstrumentation().context
         val drawable = ContextCompat.getDrawable(context, R.drawable.layer_list)!! as LayerDrawable
         drawable.state = state
 
-        val tint = TintInfo().apply {
-            mHasTintList = true
-            mTintList = ColorStateList.valueOf(Color.RED)
-        }
+        val tint =
+            TintInfo().apply {
+                mHasTintList = true
+                mTintList = ColorStateList.valueOf(Color.RED)
+            }
 
         // Before tinting, all layers have the correct state.
         assertArrayEquals(state, drawable.getDrawable(0).state)
