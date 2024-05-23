@@ -29,7 +29,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
@@ -41,6 +40,10 @@ private const val PROVIDER_PACKAGE_NAME = "com.example.fake.provider"
 
 @RunWith(AndroidJUnit4::class)
 class HealthConnectClientTest {
+
+    private companion object {
+        const val UDC_PROVIDER_PACKAGE_NAME = "package_name_for_udc"
+    }
 
     private lateinit var context: Context
 
@@ -185,9 +188,9 @@ class HealthConnectClientTest {
     }
 
     @Test
-    @Ignore("b/308687857")
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun getHealthConnectManageDataAction_platformSupported() {
+        installDataManagementHandler(context, UDC_PROVIDER_PACKAGE_NAME)
         assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action)
             .isEqualTo("android.health.connect.action.MANAGE_HEALTH_DATA")
     }
