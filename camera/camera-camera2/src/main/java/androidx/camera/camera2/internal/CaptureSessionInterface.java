@@ -134,4 +134,12 @@ interface CaptureSessionInterface {
      *                         associated streams
      */
     void setStreamUseCaseMap(@NonNull Map<DeferrableSurface, Long> streamUseCaseMap);
+
+    /**
+     * Checks if the capture session has been successfully opened or is in the process of being
+     * opened.
+     *
+     * @return true if the capture session is in an open state; otherwise, false.
+     */
+    boolean isInOpenState();
 }

@@ -74,6 +74,7 @@ class CaptureSessionRepository {
 
                 @Override
                 public void onClosed(@NonNull CameraDevice camera) {
+                    forceOnClosedCaptureSessions();
                     cameraClosed();
                 }
 
