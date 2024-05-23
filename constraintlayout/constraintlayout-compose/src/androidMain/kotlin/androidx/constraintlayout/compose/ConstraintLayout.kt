@@ -344,7 +344,8 @@ import org.intellij.lang.annotations.Language
  * @param animateChangesSpec Null by default. Otherwise, ConstraintLayout will animate the layout
  * if there were any changes on the constraints during recomposition using the given
  * [AnimationSpec]. If there's a change while the layout is still animating, the current animation
- * will complete before animating to the latest changes.
+ * will complete before animating to the latest changes. For more control in the animation consider
+ * using [MotionLayout] instead.
  * @param finishedAnimationListener Lambda called whenever an animation due to [animateChangesSpec]
  * finishes.
  * @param content Content of this layout node.
@@ -745,7 +746,8 @@ internal class ConstraintSetForInlineDsl(
  * @param animateChangesSpec Null by default. Otherwise, ConstraintLayout will animate the layout
  * if a different [ConstraintSet] is provided on recomposition using the given [AnimationSpec].
  * If there's a change in [ConstraintSet] while the layout is still animating, the current animation
- * will complete before animating to the latest changes.
+ * will complete before animating to the latest changes. For more control in the animation consider
+ * using [MotionLayout] instead.
  * @param finishedAnimationListener Lambda called whenever an animation due to [animateChangesSpec]
  * finishes.
  * @param content Content of this layout node.
