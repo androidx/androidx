@@ -16,7 +16,6 @@
 
 package androidx.camera.viewfinder.internal.utils;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -24,7 +23,6 @@ import androidx.annotation.RestrictTo.Scope;
  * Static tag for creating Camera threads. TODO(b/115747543): Remove this class when migration from
  * threads to executors is complete.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraThreads {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final String TAG = "CameraX-";

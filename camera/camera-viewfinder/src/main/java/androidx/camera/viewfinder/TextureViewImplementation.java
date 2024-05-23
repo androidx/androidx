@@ -25,7 +25,6 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.impl.utils.executor.ViewfinderExecutors;
 import androidx.camera.impl.utils.futures.FutureCallback;
 import androidx.camera.impl.utils.futures.Futures;
@@ -42,7 +41,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * The {@link TextureView} implementation for {@link CameraViewfinder}
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class TextureViewImplementation extends ViewfinderImplementation {
 
     private static final String TAG = "TextureViewImpl";
