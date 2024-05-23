@@ -19,6 +19,7 @@ package androidx.camera.view;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
@@ -68,5 +69,11 @@ class ProcessCameraProviderWrapperImpl implements ProcessCameraProviderWrapper {
     @Override
     public ListenableFuture<Void> shutdownAsync() {
         return mProcessCameraProvider.shutdownAsync();
+    }
+
+    @NonNull
+    @Override
+    public CameraInfo getCameraInfo(CameraSelector cameraSelector) {
+        return mProcessCameraProvider.getCameraInfo(cameraSelector);
     }
 }
