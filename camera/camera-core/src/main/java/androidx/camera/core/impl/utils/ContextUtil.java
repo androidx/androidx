@@ -26,6 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.util.Objects;
+
 /**
  * Utility class for {@link Context} related operations.
  */
@@ -37,15 +39,18 @@ public final class ContextUtil {
     public static Context getApplicationContext(@NonNull Context context) {
         Context resultContext  = context.getApplicationContext();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            int deviceId = Api34Impl.getDeviceId(context);
-            if (deviceId != Context.DEVICE_ID_DEFAULT) {
-                resultContext = Api34Impl.createDeviceContext(resultContext, deviceId);
+            int deviceIdContext = Api34Impl.getDeviceId(context);
+            int deviceIdResultContext = Api34Impl.getDeviceId(resultContext);
+            if (deviceIdContext != deviceIdResultContext) {
+                resultContext = Api34Impl.createDeviceContext(resultContext, deviceIdContext);
             }
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            String attributeTag = Api30Impl.getAttributionTag(context);
-            if (attributeTag != null) {
-                resultContext = Api30Impl.createAttributionContext(resultContext, attributeTag);
+            String attributeTagContext = Api30Impl.getAttributionTag(context);
+            String attributeTagResultContext = Api30Impl.getAttributionTag(resultContext);
+            if (!Objects.equals(attributeTagContext, attributeTagResultContext)) {
+                resultContext = Api30Impl.createAttributionContext(
+                        resultContext, attributeTagContext);
             }
         }
         return resultContext;

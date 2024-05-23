@@ -1110,4 +1110,12 @@ private class TestApplication(val pm: PackageManager) : Application(), CameraXCo
     override fun createAttributionContext(attributionTag: String?): Context {
         return this
     }
+
+    override fun getDeviceId(): Int {
+        return Context.DEVICE_ID_DEFAULT
+    }
+
+    override fun getAttributionTag(): String? {
+        return null
+    }
 }
