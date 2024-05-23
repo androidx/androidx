@@ -24,9 +24,9 @@ import kotlin.annotation.Target
 import kotlin.reflect.KClass
 
 /**
- * Allows use of an opt-in API denoted by the given markers in the annotated file, declaration,
- * or expression. If a declaration is annotated with [OptIn], its usages are **not** required to
- * opt-in to that API.
+ * Allows use of an opt-in API denoted by the given markers in the annotated file, declaration, or
+ * expression. If a declaration is annotated with [OptIn], its usages are **not** required to opt-in
+ * to that API.
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(
@@ -50,9 +50,7 @@ import kotlin.reflect.KClass
     ElementType.TYPE,
 )
 public annotation class OptIn(
-    /**
-     * Defines the opt-in API(s) whose usage this annotation allows.
-     */
+    /** Defines the opt-in API(s) whose usage this annotation allows. */
     @get:Suppress("ArrayReturn") // Kotlin generates a raw array for annotation vararg
     vararg val markerClass: KClass<out Annotation>
 )

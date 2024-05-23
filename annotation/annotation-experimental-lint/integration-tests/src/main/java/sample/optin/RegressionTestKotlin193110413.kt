@@ -26,6 +26,7 @@ class RegressionTestKotlin193110413 {
     @ExperimentalKotlinAnnotation
     internal interface ExperimentalInterface {
         fun experimentalMethod()
+
         fun anotherExperimentalMethod()
 
         fun defaultExperimentalMethod() {
@@ -33,9 +34,7 @@ class RegressionTestKotlin193110413 {
         }
     }
 
-    /**
-     * Safe usage due to opting in to the experimental annotation.
-     */
+    /** Safe usage due to opting in to the experimental annotation. */
     @OptIn(ExperimentalKotlinAnnotation::class)
     internal class Foo : ExperimentalInterface {
         @Suppress("OPT_IN_MARKER_ON_OVERRIDE_WARNING")
@@ -53,9 +52,7 @@ class RegressionTestKotlin193110413 {
         }
     }
 
-    /**
-     * Safe usage due to propagating the experimental annotation.
-     */
+    /** Safe usage due to propagating the experimental annotation. */
     @ExperimentalKotlinAnnotation
     internal class Bar : ExperimentalInterface {
         override fun experimentalMethod() {
@@ -73,8 +70,8 @@ class RegressionTestKotlin193110413 {
     }
 
     /**
-     * Unsafe call to an experimental method where the containing class has opted-in to an
-     * unstable interface, thus the constructor and stable method calls are safe.
+     * Unsafe call to an experimental method where the containing class has opted-in to an unstable
+     * interface, thus the constructor and stable method calls are safe.
      *
      * The expected behavior has been verified against the Kotlin compiler's implementation of
      * opt-in.

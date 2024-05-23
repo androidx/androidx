@@ -22,9 +22,7 @@ import androidx.annotation.experimental.UseExperimental
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class UseJavaExperimentalFromKt {
-    /**
-     * Unsafe call into an experimental class.
-     */
+    /** Unsafe call into an experimental class. */
     fun getDateUnsafe(): Int {
         val dateProvider = DateProvider()
         return dateProvider.date
@@ -48,9 +46,7 @@ class UseJavaExperimentalFromKt {
 
     // Tests involving multiple experimental markers.
 
-    /**
-     * Unsafe call into an experimental class.
-     */
+    /** Unsafe call into an experimental class. */
     @ExperimentalDateTime
     fun getDateExperimentalLocationUnsafe(): Int {
         val dateProvider = DateProvider()
