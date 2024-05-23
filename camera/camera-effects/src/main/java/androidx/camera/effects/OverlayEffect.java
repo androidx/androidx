@@ -23,7 +23,6 @@ import android.os.Handler;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.CameraEffect;
@@ -70,7 +69,6 @@ import java.util.concurrent.Executor;
  * {@link Handler} object in the constructor which is used for listening for Surface updates,
  * performing OpenGL operations and invoking app provided listeners.
  */
-@RequiresApi(21)
 public class OverlayEffect extends CameraEffect implements AutoCloseable {
 
     /**

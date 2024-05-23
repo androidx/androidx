@@ -31,7 +31,6 @@ import android.opengl.GLES20;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 
 import java.nio.ByteBuffer;
@@ -39,7 +38,6 @@ import java.nio.ByteBuffer;
 /**
  * A GL program that copies the source while overlaying a texture on top of it.
  */
-@RequiresApi(21)
 class GlProgramOverlay extends GlProgram {
 
     private static final String TAG = "GlProgramOverlay";

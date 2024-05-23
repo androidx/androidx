@@ -33,7 +33,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 
 import java.util.HashMap;
@@ -46,7 +45,6 @@ import java.util.Objects;
  * <p>Allows registering and unregistering output Surfaces and manages their corresponding
  * {@link EGLSurface}.
  */
-@RequiresApi(21)
 public class GlContext {
 
     private static final String TAG = "GlContext";
