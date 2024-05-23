@@ -141,9 +141,7 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
                 val projectGraph = ProjectGraph(rootProject)
                 val dependencyTracker = DependencyTracker(rootProject, logger.toLogger())
                 val provider =
-                    setupWithParams(
-                        rootProject
-                    ) { spec ->
+                    setupWithParams(rootProject) { spec ->
                         val params = spec.parameters
                         params.rootDir = rootProject.projectDir
                         params.checkoutRoot = rootProject.getCheckoutRoot()
@@ -151,9 +149,8 @@ abstract class AffectedModuleDetector(protected val logger: Logger?) {
                         params.dependencyTracker = dependencyTracker
                         params.log = logger
                         params.baseCommitOverride = baseCommitOverride
-                        params.gitChangedFilesProvider = rootProject.getChangedFilesProvider(
-                            baseCommitOverride
-                        )
+                        params.gitChangedFilesProvider =
+                            rootProject.getChangedFilesProvider(baseCommitOverride)
                     }
                 logger.info("using real detector")
                 instance.wrapped = provider

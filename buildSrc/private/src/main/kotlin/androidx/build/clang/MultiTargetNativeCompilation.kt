@@ -32,8 +32,8 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 /**
  * A native compilation setup (C code) that can target multiple platforms.
  *
- * New targets can be added via the [configureTarget] method. Each configured target will have
- * tasks to produce machine code (.o), shared library (.so / .dylib) or archive (.a).
+ * New targets can be added via the [configureTarget] method. Each configured target will have tasks
+ * to produce machine code (.o), shared library (.so / .dylib) or archive (.a).
  *
  * Common configuration between targets can be done via the [configureEachTarget] method.
  *
@@ -48,24 +48,15 @@ class MultiTargetNativeCompilation(
     private val nativeTargets =
         project.objects.domainObjectContainer(
             NativeTargetCompilation::class.java,
-            Factory(
-                project,
-                archiveName
-            )
+            Factory(project, archiveName)
         )
 
-    /**
-     * Returns true if native code targeting [konanTarget] can be compiled on this host machine.
-     */
+    /** Returns true if native code targeting [konanTarget] can be compiled on this host machine. */
     fun canCompileOnCurrentHost(konanTarget: KonanTarget) = hostManager.isEnabled(konanTarget)
 
-    /**
-     * Calls the given [action] for each added [KonanTarget] in this compilation.
-     */
+    /** Calls the given [action] for each added [KonanTarget] in this compilation. */
     @Suppress("unused") // used in build.gradle
-    fun configureEachTarget(
-        action: Action<NativeTargetCompilation>
-    ) {
+    fun configureEachTarget(action: Action<NativeTargetCompilation>) {
         nativeTargets.configureEach(action)
     }
 
@@ -73,17 +64,13 @@ class MultiTargetNativeCompilation(
      * Returns a [RegularFile] provider that points to the shared library output for the given
      * [konanTarget].
      */
-    fun sharedObjectOutputFor(
-        konanTarget: KonanTarget
-    ): Provider<RegularFile> {
+    fun sharedObjectOutputFor(konanTarget: KonanTarget): Provider<RegularFile> {
         return nativeTargets.named(konanTarget.name).flatMap { nativeTargetCompilation ->
             nativeTargetCompilation.sharedLibTask.flatMap { it.clangParameters.outputFile }
         }
     }
 
-    fun sharedArchiveOutputFor(
-        konanTarget: KonanTarget
-    ): Provider<RegularFile> {
+    fun sharedArchiveOutputFor(konanTarget: KonanTarget): Provider<RegularFile> {
         return nativeTargets.named(konanTarget.name).flatMap { nativeTargetCompilation ->
             nativeTargetCompilation.archiveTask.flatMap { it.llvmArchiveParameters.outputFile }
         }
@@ -96,23 +83,21 @@ class MultiTargetNativeCompilation(
      */
     @Suppress("MemberVisibilityCanBePrivate") // used in build.gradle
     @JvmOverloads
-    fun configureTarget(
-        konanTarget: KonanTarget,
-        action: Action<NativeTargetCompilation>? = null
-    ) {
+    fun configureTarget(konanTarget: KonanTarget, action: Action<NativeTargetCompilation>? = null) {
         if (!canCompileOnCurrentHost(konanTarget)) {
             // Cannot compile it on this host. This is similar to calling `ios` block in the build
             // gradle file on a linux machine.
             return
         }
-        val nativeTarget = if (nativeTargets.names.contains(konanTarget.name)) {
-            nativeTargets.named(konanTarget.name)
-        } else {
-            nativeTargets.register(konanTarget.name).also {
-                // force evaluation of target so that tasks are registered b/325518502
-                nativeTargets.getByName(konanTarget.name)
+        val nativeTarget =
+            if (nativeTargets.names.contains(konanTarget.name)) {
+                nativeTargets.named(konanTarget.name)
+            } else {
+                nativeTargets.register(konanTarget.name).also {
+                    // force evaluation of target so that tasks are registered b/325518502
+                    nativeTargets.getByName(konanTarget.name)
+                }
             }
-        }
         if (action != null) {
             nativeTarget.configure(action)
         }
@@ -122,36 +107,31 @@ class MultiTargetNativeCompilation(
      * Returns a provider for the given konan target and throws an exception if it is not
      * registered.
      */
-    fun targetProvider(
-        konanTarget: KonanTarget
-    ): Provider<NativeTargetCompilation> = nativeTargets.named(konanTarget.name)
+    fun targetProvider(konanTarget: KonanTarget): Provider<NativeTargetCompilation> =
+        nativeTargets.named(konanTarget.name)
 
     /**
      * Returns a provider that contains the list of [NativeTargetCompilation]s that matches the
      * given [predicate].
      *
-     * You can use this provider to obtain the compilation for targets needed without forcing
-     * the creation of all other targets.
+     * You can use this provider to obtain the compilation for targets needed without forcing the
+     * creation of all other targets.
      */
     internal fun targetsProvider(
         predicate: (KonanTarget) -> Boolean
-    ): Provider<List<NativeTargetCompilation>> = project.provider {
-        nativeTargets.names.filter {
-            predicate(SerializableKonanTarget(it).asKonanTarget)
-        }.map {
-            nativeTargets.getByName(it)
+    ): Provider<List<NativeTargetCompilation>> =
+        project.provider {
+            nativeTargets.names
+                .filter { predicate(SerializableKonanTarget(it).asKonanTarget) }
+                .map { nativeTargets.getByName(it) }
         }
-    }
+
+    /** Returns true if the given [konanTarget] is configured as a compilation target. */
+    fun hasTarget(konanTarget: KonanTarget) = nativeTargets.names.contains(konanTarget.name)
 
     /**
-     * Returns true if the given [konanTarget] is configured as a compilation target.
-     */
-    fun hasTarget(konanTarget: KonanTarget) =
-        nativeTargets.names.contains(konanTarget.name)
-
-    /**
-     * Convenience method to configure multiple targets at the same time.
-     * This is equal to calling [configureTarget] for each given [konanTargets].
+     * Convenience method to configure multiple targets at the same time. This is equal to calling
+     * [configureTarget] for each given [konanTargets].
      */
     @Suppress("unused") // used in build.gradle
     @JvmOverloads
@@ -168,17 +148,12 @@ class MultiTargetNativeCompilation(
         private val project: Project,
         private val archiveName: String,
     ) : NamedDomainObjectFactory<NativeTargetCompilation> {
-        /**
-         * Shared task prefix for this archive
-         */
+        /** Shared task prefix for this archive */
         private val taskPrefix = "nativeCompilationFor".appendCapitalized(archiveName)
 
-        /**
-         * Shared output directory prefix for tasks of this archive.
-         */
-        private val outputDir = project.layout.buildDirectory.dir(
-            "clang".appendCapitalized(archiveName)
-        )
+        /** Shared output directory prefix for tasks of this archive. */
+        private val outputDir =
+            project.layout.buildDirectory.dir("clang".appendCapitalized(archiveName))
 
         override fun create(name: String): NativeTargetCompilation {
             return create(SerializableKonanTarget(name))
@@ -214,29 +189,28 @@ class MultiTargetNativeCompilation(
             serializableKonanTarget: SerializableKonanTarget,
             compileTask: TaskProvider<ClangCompileTask>
         ): TaskProvider<ClangArchiveTask> {
-            val archiveTaskName = taskPrefix.appendCapitalized(
-                "archive",
-                serializableKonanTarget.name
-            )
-            val archiveTask = project.tasks.register(
-                archiveTaskName, ClangArchiveTask::class.java
-            ) { task ->
-                val konanTarget = serializableKonanTarget.asKonanTarget
-                val archiveFileName = listOf(
-                    konanTarget.family.staticPrefix,
-                    archiveName,
-                    ".",
-                    konanTarget.family.staticSuffix
-                ).joinToString("")
-                task.usesService(KonanBuildService.obtain(project))
-                task.llvmArchiveParameters.let { llvmAr ->
-                    llvmAr.outputFile.set(outputDir.map {
-                        it.file("$serializableKonanTarget/$archiveFileName")
-                    })
-                    llvmAr.konanTarget.set(serializableKonanTarget)
-                    llvmAr.objectFiles.from(compileTask.map { it.clangParameters.output })
+            val archiveTaskName =
+                taskPrefix.appendCapitalized("archive", serializableKonanTarget.name)
+            val archiveTask =
+                project.tasks.register(archiveTaskName, ClangArchiveTask::class.java) { task ->
+                    val konanTarget = serializableKonanTarget.asKonanTarget
+                    val archiveFileName =
+                        listOf(
+                                konanTarget.family.staticPrefix,
+                                archiveName,
+                                ".",
+                                konanTarget.family.staticSuffix
+                            )
+                            .joinToString("")
+                    task.usesService(KonanBuildService.obtain(project))
+                    task.llvmArchiveParameters.let { llvmAr ->
+                        llvmAr.outputFile.set(
+                            outputDir.map { it.file("$serializableKonanTarget/$archiveFileName") }
+                        )
+                        llvmAr.konanTarget.set(serializableKonanTarget)
+                        llvmAr.objectFiles.from(compileTask.map { it.clangParameters.output })
+                    }
                 }
-            }
             return archiveTask
         }
 
@@ -246,22 +220,22 @@ class MultiTargetNativeCompilation(
             sources: ConfigurableFileCollection?,
             freeArgs: ListProperty<String>
         ): TaskProvider<ClangCompileTask> {
-            val compileTaskName = taskPrefix.appendCapitalized(
-                "compile",
-                serializableKonanTarget.name
-            )
-            val compileTask = project.tasks.register(
-                compileTaskName, ClangCompileTask::class.java
-            ) { compileTask ->
-                compileTask.usesService(KonanBuildService.obtain(project))
-                compileTask.clangParameters.let { clang ->
-                    clang.output.set(outputDir.map { it.dir("compile/$serializableKonanTarget") })
-                    clang.includes.from(includes)
-                    clang.sources.from(sources)
-                    clang.freeArgs.addAll(freeArgs)
-                    clang.konanTarget.set(serializableKonanTarget)
+            val compileTaskName =
+                taskPrefix.appendCapitalized("compile", serializableKonanTarget.name)
+            val compileTask =
+                project.tasks.register(compileTaskName, ClangCompileTask::class.java) { compileTask
+                    ->
+                    compileTask.usesService(KonanBuildService.obtain(project))
+                    compileTask.clangParameters.let { clang ->
+                        clang.output.set(
+                            outputDir.map { it.dir("compile/$serializableKonanTarget") }
+                        )
+                        clang.includes.from(includes)
+                        clang.sources.from(sources)
+                        clang.freeArgs.addAll(freeArgs)
+                        clang.konanTarget.set(serializableKonanTarget)
+                    }
                 }
-            }
             return compileTask
         }
 
@@ -271,31 +245,30 @@ class MultiTargetNativeCompilation(
             linkedObjects: ConfigurableFileCollection,
         ): TaskProvider<ClangSharedLibraryTask> {
             val archiveTaskName =
-                taskPrefix.appendCapitalized(
-                    "createSharedLibrary",
-                    serializableKonanTarget.name
-                )
-            val archiveTask = project.tasks.register(
-                archiveTaskName, ClangSharedLibraryTask::class.java
-            ) { task ->
-                val konanTarget = serializableKonanTarget.asKonanTarget
-                val archiveFileName = listOf(
-                    konanTarget.family.staticPrefix,
-                    archiveName,
-                    ".",
-                    konanTarget.family.dynamicSuffix
-                ).joinToString("")
+                taskPrefix.appendCapitalized("createSharedLibrary", serializableKonanTarget.name)
+            val archiveTask =
+                project.tasks.register(archiveTaskName, ClangSharedLibraryTask::class.java) { task
+                    ->
+                    val konanTarget = serializableKonanTarget.asKonanTarget
+                    val archiveFileName =
+                        listOf(
+                                konanTarget.family.staticPrefix,
+                                archiveName,
+                                ".",
+                                konanTarget.family.dynamicSuffix
+                            )
+                            .joinToString("")
 
-                task.usesService(KonanBuildService.obtain(project))
-                task.clangParameters.let { clang ->
-                    clang.outputFile.set(outputDir.map {
-                        it.file("$serializableKonanTarget/$archiveFileName")
-                    })
-                    clang.konanTarget.set(serializableKonanTarget)
-                    clang.objectFiles.from(compileTask.map { it.clangParameters.output })
-                    clang.linkedObjects.from(linkedObjects)
+                    task.usesService(KonanBuildService.obtain(project))
+                    task.clangParameters.let { clang ->
+                        clang.outputFile.set(
+                            outputDir.map { it.file("$serializableKonanTarget/$archiveFileName") }
+                        )
+                        clang.konanTarget.set(serializableKonanTarget)
+                        clang.objectFiles.from(compileTask.map { it.clangParameters.output })
+                        clang.linkedObjects.from(linkedObjects)
+                    }
                 }
-            }
             return archiveTask
         }
     }

@@ -52,10 +52,7 @@ fun Project.configureSourceJarForAndroid(
     samplesProjects: MutableCollection<Project>
 ) {
     val sourceJar =
-        tasks.register(
-            "sourceJar${libraryVariant.name.capitalize()}",
-            Jar::class.java
-        ) { task ->
+        tasks.register("sourceJar${libraryVariant.name.capitalize()}", Jar::class.java) { task ->
             task.archiveClassifier.set("sources")
             task.from(libraryVariant.sources.java!!.all)
             task.exclude { it.file.path.contains("generated") }
@@ -91,19 +88,11 @@ fun Project.configureMultiplatformSourcesForAndroid(
     samplesProjects: MutableCollection<Project>
 ) {
     val sourceJar =
-        tasks.register(
-            "sourceJar${variantName.capitalize()}",
-            Jar::class.java
-        ) { task ->
+        tasks.register("sourceJar${variantName.capitalize()}", Jar::class.java) { task ->
             task.archiveClassifier.set("sources")
-            target
-                .mainCompilation()
-                .allKotlinSourceSets
-                .forEach { sourceSet ->
-                    task.from(sourceSet.kotlin.srcDirs) { copySpec ->
-                        copySpec.into(sourceSet.name)
-                    }
-                }
+            target.mainCompilation().allKotlinSourceSets.forEach { sourceSet ->
+                task.from(sourceSet.kotlin.srcDirs) { copySpec -> copySpec.into(sourceSet.name) }
+            }
             task.duplicatesStrategy = DuplicatesStrategy.FAIL
         }
     registerSourcesVariant(sourceJar)
@@ -286,7 +275,8 @@ fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<Str
 private fun Project.registerSamplesLibraries(samplesProjects: MutableCollection<Project>) =
     samplesProjects.forEach {
         dependencies.add("samples", it)
-        // this publishing variant is used in non-KMP projects and non-KMP source jars of KMP projects
+        // this publishing variant is used in non-KMP projects and non-KMP source jars of KMP
+        // projects
         val publishingVariants = mutableListOf<String>()
         if (hasAndroidMultiplatformPlugin()) {
             publishingVariants.add(androidMultiplatformSourcesConfigurationName)
@@ -297,10 +287,10 @@ private fun Project.registerSamplesLibraries(samplesProjects: MutableCollection<
             publishingVariants += kmpSourcesConfigurationName // used for KMP source jars
             if (it.targets.any { it.platformType == KotlinPlatformType.androidJvm })
             // used for --android source jars of KMP projects
-                publishingVariants += "release" + sourcesConfigurationName.capitalize()
+            publishingVariants += "release" + sourcesConfigurationName.capitalize()
         }
         updateCopySampleSourceJarsTaskWithVariant(publishingVariants)
-}
+    }
 
 /**
  * Updates the published variants with the output of [LazyInputsCopyTask]. This function must be
@@ -329,6 +319,7 @@ private const val PROJECT_STRUCTURE_METADATA_FILEPATH =
 internal const val sourcesConfigurationName = "sourcesElements"
 private const val androidMultiplatformSourcesConfigurationName = "androidSourcesElements"
 private const val kmpSourcesConfigurationName = "androidxSourcesElements"
+
 internal fun String.capitalize() = replaceFirstChar {
     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
 }

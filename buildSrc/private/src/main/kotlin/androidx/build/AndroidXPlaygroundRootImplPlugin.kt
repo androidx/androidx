@@ -61,9 +61,8 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         rootProject.repositories.addPlaygroundRepositories()
         GradleTransformWorkaround.maybeApply(rootProject)
         PlaygroundCIHostTestsTask.register(rootProject)
-        primaryProjectPaths = target.extensions.extraProperties
-            .get("primaryProjects").toString().split(",")
-            .toSet()
+        primaryProjectPaths =
+            target.extensions.extraProperties.get("primaryProjects").toString().split(",").toSet()
         rootProject.subprojects { configureSubProject(it) }
     }
 
@@ -252,16 +251,16 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     abstract class PlaygroundCIHostTestsTask : DefaultTask() {
         init {
             group = "Verification"
-            description = "Runs host tests that belong to the projects which were explicitly " +
-                "requested in the playground setup."
+            description =
+                "Runs host tests that belong to the projects which were explicitly " +
+                    "requested in the playground setup."
         }
 
         companion object {
             private val NAME = "playgroundCIHostTests"
+
             fun addTask(project: Project, task: AbstractTestTask) {
-                project.rootProject.tasks.named(NAME).configure {
-                    it.dependsOn(task)
-                }
+                project.rootProject.tasks.named(NAME).configure { it.dependsOn(task) }
             }
 
             fun register(project: Project) {

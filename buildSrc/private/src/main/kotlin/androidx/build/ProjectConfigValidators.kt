@@ -22,13 +22,13 @@ import org.gradle.api.Project
 
 /** Validates the project's Maven group against Jetpack guidelines. */
 fun Project.validateProjectMavenGroup(groupId: String) {
-   if (groupId.contains('-')) {
-       throw GradleException(
-           "Invalid Maven group! Found invalid character '-' in Maven group \"$groupId\" for " +
-               "$displayName.\n\nWas this supposed to be a sub-artifact of an existing group, " +
-               "ex. \"x.y:y-z\" rather than \"x.y-z:z\"?"
-       )
-   }
+    if (groupId.contains('-')) {
+        throw GradleException(
+            "Invalid Maven group! Found invalid character '-' in Maven group \"$groupId\" for " +
+                "$displayName.\n\nWas this supposed to be a sub-artifact of an existing group, " +
+                "ex. \"x.y:y-z\" rather than \"x.y-z:z\"?"
+        )
+    }
 }
 
 // Translate common phrases and marketing names into Maven name component equivalents.

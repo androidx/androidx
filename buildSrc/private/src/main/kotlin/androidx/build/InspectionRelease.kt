@@ -54,9 +54,7 @@ internal fun Project.publishInspectionConfiguration(
     val sync =
         tasks.register(name, SingleFileCopy::class.java) {
             it.dependsOn(configuration)
-            it.sourceFile = project.provider {
-                project.files(configuration).singleFile
-            }
+            it.sourceFile = project.provider { project.files(configuration).singleFile }
             val extension = project.extensions.getByType(InspectionExtension::class.java)
             val fileName = extension.name ?: "${project.name}.jar"
             it.destinationFile = File(File(getDistributionDirectory(), dirName), fileName)

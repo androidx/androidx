@@ -38,32 +38,20 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 /**
  * Combines all given [objectFiles] into a directory with a well defined directory structure.
  *
- * The android targets will be placed into a directory structure that matches the jniLibs
- * structure of Android Gradle Plugin.
+ * The android targets will be placed into a directory structure that matches the jniLibs structure
+ * of Android Gradle Plugin.
  *
- * e.g.:
- * <outputDir>
- *     x86/libfoo.so
- *     x86_64/libfoo.so
- *     armeabi-v7a/libfoo.so
- *     arm64-v8a/libfoo.so
+ * e.g.: <outputDir> x86/libfoo.so x86_64/libfoo.so armeabi-v7a/libfoo.so arm64-v8a/libfoo.so
  *
- * Desktop targets will be placed on a structure that is based on the OS and architecture.
- * e.g.:
- * <outputDir>
- *     osx_arm64/libfoo.dylib
- *     osx_x64/libfoo.dylib
- *     windows_x64/libfoo.dll
- *     linux_x64/libfoo.so
- *     linux_arm64/libfoo.so
+ * Desktop targets will be placed on a structure that is based on the OS and architecture. e.g.:
+ * <outputDir> osx_arm64/libfoo.dylib osx_x64/libfoo.dylib windows_x64/libfoo.dll
+ * linux_x64/libfoo.so linux_arm64/libfoo.so
  */
 @DisableCachingByDefault(because = "not worth caching,just copies inputs into a another directory")
 abstract class CombineObjectFilesTask : DefaultTask() {
-    @get:Nested
-    abstract val objectFiles: ListProperty<Provider<ObjectFile>>
+    @get:Nested abstract val objectFiles: ListProperty<Provider<ObjectFile>>
 
-    @get:OutputDirectory
-    abstract val outputDirectory: DirectoryProperty
+    @get:OutputDirectory abstract val outputDirectory: DirectoryProperty
 
     @TaskAction
     fun combineLibraries() {
@@ -80,34 +68,31 @@ abstract class CombineObjectFilesTask : DefaultTask() {
             val konanTarget = objectFile.konanTarget.get().asKonanTarget
             val targetFile = targetFileFor(outputDir, konanTarget, objectFile)
             targetFile.parentFile?.mkdirs()
-            objectFile.file.get().asFile.copyTo(
-                target = targetFile,
-                overwrite = true
-            )
+            objectFile.file.get().asFile.copyTo(target = targetFile, overwrite = true)
         }
     }
 
     companion object {
-        private val familyDirectoryPrefixes = mapOf(
-            Family.LINUX to "linux",
-            Family.MINGW to "windows",
-            Family.OSX to "osx",
-        )
+        private val familyDirectoryPrefixes =
+            mapOf(
+                Family.LINUX to "linux",
+                Family.MINGW to "windows",
+                Family.OSX to "osx",
+            )
 
-        private val architectureSuffixes = mapOf(
-            Architecture.ARM32 to "arm32",
-            Architecture.ARM64 to "arm64",
-            Architecture.X64 to "x64",
-            Architecture.X86 to "x86"
-        )
+        private val architectureSuffixes =
+            mapOf(
+                Architecture.ARM32 to "arm32",
+                Architecture.ARM64 to "arm64",
+                Architecture.X64 to "x64",
+                Architecture.X86 to "x86"
+            )
 
         private fun targetFileFor(
             outputDir: File,
             konanTarget: KonanTarget,
             objectFile: ObjectFile
-        ) = outputDir.resolve(directoryName(konanTarget)).resolve(
-            objectFile.file.get().asFile.name
-        )
+        ) = outputDir.resolve(directoryName(konanTarget)).resolve(objectFile.file.get().asFile.name)
 
         private fun directoryName(konanTarget: KonanTarget): String {
             if (konanTarget.family == Family.ANDROID) {
@@ -118,17 +103,17 @@ abstract class CombineObjectFilesTask : DefaultTask() {
                     Architecture.X64 -> "x86_64"
                     Architecture.ARM32 -> "armeabi-v7a"
                     Architecture.ARM64 -> "arm64-v8a"
-                    else -> error(
-                        "add this architecture for android ${konanTarget.architecture}"
-                    )
+                    else -> error("add this architecture for android ${konanTarget.architecture}")
                 }
             }
-            val familyPrefix = familyDirectoryPrefixes[konanTarget.family] ?: error(
-                "Unsupported family ${konanTarget.family} for $konanTarget"
-            )
-            val architectureSuffix = architectureSuffixes[konanTarget.architecture] ?: error(
-                "Unsupported architecture ${konanTarget.architecture} for $konanTarget"
-            )
+            val familyPrefix =
+                familyDirectoryPrefixes[konanTarget.family]
+                    ?: error("Unsupported family ${konanTarget.family} for $konanTarget")
+            val architectureSuffix =
+                architectureSuffixes[konanTarget.architecture]
+                    ?: error(
+                        "Unsupported architecture ${konanTarget.architecture} for $konanTarget"
+                    )
             return "natives/${familyPrefix}_$architectureSuffix"
         }
     }
@@ -158,13 +143,8 @@ fun TaskProvider<CombineObjectFilesTask>.configureFrom(
     }
 }
 
-/**
- * Represents an object file (.o, .so) associated with its [konanTarget].
- */
+/** Represents an object file (.o, .so) associated with its [konanTarget]. */
 class ObjectFile(
-    @get:Input
-    val konanTarget: Provider<SerializableKonanTarget>,
-    @get:InputFile
-    @get:PathSensitive(PathSensitivity.NAME_ONLY)
-    val file: RegularFileProperty
+    @get:Input val konanTarget: Provider<SerializableKonanTarget>,
+    @get:InputFile @get:PathSensitive(PathSensitivity.NAME_ONLY) val file: RegularFileProperty
 )

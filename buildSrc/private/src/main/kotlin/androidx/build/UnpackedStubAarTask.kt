@@ -27,8 +27,8 @@ import org.gradle.work.DisableCachingByDefault
 import org.intellij.lang.annotations.Language
 
 /**
- * Creates a directory representing a stub (essentially empty) .aar
- * This directory can be zipped to make an actual .aar
+ * Creates a directory representing a stub (essentially empty) .aar This directory can be zipped to
+ * make an actual .aar
  */
 @DisableCachingByDefault(because = "Doesn't benefit from caching")
 abstract class UnpackedStubAarTask : DefaultTask() {
@@ -46,12 +46,14 @@ abstract class UnpackedStubAarTask : DefaultTask() {
         val manifestFile = File("$outputDir/AndroidManifest.xml")
         val aarPackage = aarPackage.get()
         @Language("xml")
-        val manifestText = """
+        val manifestText =
+            """
             <?xml version="1.0" encoding="utf-8"?>
             <manifest xmlns:android="http://schemas.android.com/apk/res/android"
                 package="$aarPackage">
                 <uses-sdk android:minSdkVersion="${minSdkVersion.get()}"/>
-            </manifest>""".trimIndent()
+            </manifest>"""
+                .trimIndent()
         manifestFile.writeText(manifestText)
     }
 }

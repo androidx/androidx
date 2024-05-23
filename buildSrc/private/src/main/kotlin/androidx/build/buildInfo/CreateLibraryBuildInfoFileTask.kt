@@ -351,10 +351,7 @@ class BuildInfoVariantDependency(group: String, name: String, version: String) :
 
 // For examples, see CreateLibraryBuildInfoFileTaskTest
 @VisibleForTesting
-fun computeTaskSuffix(
-    projectName: String,
-    artifactId: String
-) =
+fun computeTaskSuffix(projectName: String, artifactId: String) =
     artifactId.substringAfter(projectName).split("-").joinToString("") { word ->
         word.replaceFirstChar { it.uppercase() }
     }

@@ -45,10 +45,7 @@ internal fun Project.configureSamplesProject() {
         isTransitive = false
         isCanBeConsumed = false
         attributes {
-            it.attribute(
-                Usage.USAGE_ATTRIBUTE,
-                project.objects.named<Usage>(Usage.JAVA_RUNTIME)
-            )
+            it.attribute(Usage.USAGE_ATTRIBUTE, project.objects.named<Usage>(Usage.JAVA_RUNTIME))
             it.attribute(
                 Category.CATEGORY_ATTRIBUTE,
                 project.objects.named<Category>(Category.DOCUMENTATION)
@@ -64,31 +61,31 @@ internal fun Project.configureSamplesProject() {
         }
     }
 
-    val samplesConfiguration = project.configurations.register("samples") {
-        it.isVisible = false
-        it.isCanBeConsumed = false
-        it.isCanBeResolved = true
-        it.setResolveSources()
-    }
+    val samplesConfiguration =
+        project.configurations.register("samples") {
+            it.isVisible = false
+            it.isCanBeConsumed = false
+            it.isCanBeResolved = true
+            it.setResolveSources()
+        }
 
     project.tasks.register("copySampleSourceJars", LazyInputsCopyTask::class.java) { task ->
-        task.inputJars.from(samplesConfiguration.map { it.incoming.artifactView { }.files })
+        task.inputJars.from(samplesConfiguration.map { it.incoming.artifactView {}.files })
         val srcJarFilename = "${project.name}-${project.version}-samples-sources.jar"
         task.destinationJar.set(project.layout.buildDirectory.file(srcJarFilename))
     }
 }
 
 /**
- * This is necessary because we need to delay artifact resolution until after configuration.
- * If one sample is used by multiple libraries (e.g. paging-samples) it is copied several times.
- * This is to avoid caching failures. There should be a better way that avoids needing this.
+ * This is necessary because we need to delay artifact resolution until after configuration. If one
+ * sample is used by multiple libraries (e.g. paging-samples) it is copied several times. This is to
+ * avoid caching failures. There should be a better way that avoids needing this.
  */
 @DisableCachingByDefault(because = "caching large output files is more expensive than copying")
 abstract class LazyInputsCopyTask : DefaultTask() {
     @get:[InputFiles PathSensitive(value = PathSensitivity.RELATIVE)]
     abstract val inputJars: ConfigurableFileCollection
-    @get:OutputFile
-    abstract val destinationJar: RegularFileProperty
+    @get:OutputFile abstract val destinationJar: RegularFileProperty
 
     @TaskAction
     fun copyAction() {

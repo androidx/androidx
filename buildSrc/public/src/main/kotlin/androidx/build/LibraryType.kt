@@ -95,8 +95,8 @@ sealed class LibraryType(
         private val allTypes =
             mapOf(
                 "PUBLISHED_LIBRARY" to PUBLISHED_LIBRARY,
-                "PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS"
-                    to PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS,
+                "PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS" to
+                    PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS,
                 "PUBLISHED_TEST_LIBRARY" to PUBLISHED_TEST_LIBRARY,
                 "PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY" to PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY,
                 "INTERNAL_TEST_LIBRARY" to INTERNAL_TEST_LIBRARY,
@@ -144,10 +144,11 @@ sealed class LibraryType(
             allowCallingVisibleForTestsApis = allowCallingVisibleForTestsApis
         )
 
-    class PublishedTestLibrary(targetsKotlinConsumersOnly: Boolean = false) : PublishedLibrary(
-        allowCallingVisibleForTestsApis = true,
-        targetsKotlinConsumersOnly = targetsKotlinConsumersOnly
-    )
+    class PublishedTestLibrary(targetsKotlinConsumersOnly: Boolean = false) :
+        PublishedLibrary(
+            allowCallingVisibleForTestsApis = true,
+            targetsKotlinConsumersOnly = targetsKotlinConsumersOnly
+        )
 
     class InternalTestLibrary() : InternalLibrary(allowCallingVisibleForTestsApis = true)
 
@@ -271,8 +272,10 @@ enum class Publish {
 sealed class RunApiTasks {
     /** Automatically determine whether API tasks should be run. */
     object Auto : RunApiTasks()
+
     /** Always run API tasks regardless of other project properties. */
     data class Yes(val reason: String? = null) : RunApiTasks()
+
     /** Do not run any API tasks. */
     data class No(val reason: String) : RunApiTasks()
 }
