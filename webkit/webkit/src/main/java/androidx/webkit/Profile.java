@@ -21,6 +21,7 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.ServiceWorkerController;
 import android.webkit.WebStorage;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 
@@ -41,6 +42,7 @@ public interface Profile {
      * @return the name of this Profile which was used to create the Profile from
      * ProfileStore create methods.
      */
+    @AnyThread
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -54,6 +56,7 @@ public interface Profile {
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
      */
+    @AnyThread
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -67,6 +70,7 @@ public interface Profile {
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
      */
+    @AnyThread
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -80,6 +84,7 @@ public interface Profile {
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
      */
+    @AnyThread
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -93,6 +98,7 @@ public interface Profile {
      * @throws IllegalStateException if the profile has been deleted by
      * {@link ProfileStore#deleteProfile(String)}}.
      */
+    @AnyThread
     @NonNull
     @RequiresFeature(name = WebViewFeature.MULTI_PROFILE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

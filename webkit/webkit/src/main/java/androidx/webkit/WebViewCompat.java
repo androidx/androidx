@@ -28,6 +28,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
@@ -203,6 +204,7 @@ public class WebViewCompat {
      * @param callback will be called on the UI thread with {@code true} if initialization is
      * successful, {@code false} otherwise.
      */
+    @AnyThread
     @RequiresFeature(name = WebViewFeature.START_SAFE_BROWSING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void startSafeBrowsing(@NonNull Context context,
@@ -245,6 +247,7 @@ public class WebViewCompat {
      * allowlist, {@code false} if any hosts are malformed. The callback will be run on the UI
      * thread
      */
+    @AnyThread
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ALLOWLIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingAllowlist(@NonNull Set<String> hosts,
@@ -297,6 +300,7 @@ public class WebViewCompat {
      *
      * @deprecated Please use {@link #setSafeBrowsingAllowlist(Set, ValueCallback)} instead.
      */
+    @AnyThread
     @Deprecated
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_WHITELIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -315,6 +319,7 @@ public class WebViewCompat {
      *
      * @return the url pointing to a privacy policy document which can be displayed to users.
      */
+    @AnyThread
     @NonNull
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -343,6 +348,7 @@ public class WebViewCompat {
      */
     // Note that this API is not protected by a {@link androidx.webkit.WebViewFeature} since
     // this feature is not dependent on the WebView APK.
+    @AnyThread
     @Nullable
     public static PackageInfo getCurrentWebViewPackage(@NonNull Context context) {
         PackageInfo info = getCurrentLoadedWebViewPackage();
@@ -358,6 +364,7 @@ public class WebViewCompat {
      * @see #getCurrentWebViewPackage(Context)
      * @return the loaded WebView package, or null if no WebView is created.
      */
+    @AnyThread
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static PackageInfo getCurrentLoadedWebViewPackage() {
@@ -1023,6 +1030,7 @@ public class WebViewCompat {
      * This renderer process may be shared with other WebViews in the
      * application, but is not shared with other application processes.
      */
+    @AnyThread
     @RequiresFeature(name = WebViewFeature.MULTI_PROCESS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean isMultiProcessEnabled() {
@@ -1046,6 +1054,7 @@ public class WebViewCompat {
      * @return the variations header. The string may be empty if the header is not available.
      * @see WebView#loadUrl(String, java.util.Map)
      */
+    @AnyThread
     @RequiresFeature(
             name = WebViewFeature.GET_VARIATIONS_HEADER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")

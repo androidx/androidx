@@ -18,6 +18,7 @@ package androidx.webkit;
 
 import android.content.Context;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
@@ -46,6 +47,7 @@ import java.util.concurrent.Executor;
  *                        Executors.newSingleThreadExecutor());
  * </pre>
  */
+@AnyThread
 public abstract class TracingController {
     /**
      *
