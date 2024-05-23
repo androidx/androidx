@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,48 +18,30 @@ package androidx.compose.material
 
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-
-@Deprecated(
-    level = DeprecationLevel.HIDDEN,
-    replaceWith = ReplaceWith(
-        expression = "DropdownMenu(expanded,onDismissRequest, modifier, offset, " +
-            "rememberScrollState(), properties, content)",
-        "androidx.compose.foundation.rememberScrollState"
-    ),
-    message = "Replaced by a DropdownMenu function with a ScrollState parameter"
-)
-@Composable
-fun DropdownMenu(
-    expanded: Boolean,
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    properties: PopupProperties = PopupProperties(focusable = true),
-    content: @Composable ColumnScope.() -> Unit
-) = DropdownMenu(
-    expanded = expanded,
-    onDismissRequest = onDismissRequest,
-    modifier = modifier,
-    offset = offset,
-    scrollState = rememberScrollState(),
-    properties = properties,
-    content = content
-)
 
 @Composable
 actual fun DropdownMenu(
@@ -84,11 +66,18 @@ actual fun DropdownMenu(
             transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
         }
 
+        var focusManager: FocusManager? by mutableStateOf(null)
+        var inputModeManager: InputModeManager? by mutableStateOf(null)
         Popup(
             onDismissRequest = onDismissRequest,
             popupPositionProvider = popupPositionProvider,
-            properties = properties
+            properties = properties,
+            onKeyEvent = {
+                handlePopupOnKeyEvent(it, focusManager, inputModeManager)
+            },
         ) {
+            focusManager = LocalFocusManager.current
+            inputModeManager = LocalInputModeManager.current
             DropdownMenuContent(
                 expandedStates = expandedStates,
                 transformOriginState = transformOriginState,
@@ -100,22 +89,31 @@ actual fun DropdownMenu(
     }
 }
 
-@Composable
-actual fun DropdownMenuItem(
-    onClick: () -> Unit,
-    modifier: Modifier,
-    enabled: Boolean,
-    contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource?,
-    content: @Composable RowScope.() -> Unit
-): Unit = DropdownMenuItemContent(
-    onClick,
-    modifier,
-    enabled,
-    contentPadding,
-    interactionSource,
-    content = content
-)
-
 internal actual val DefaultMenuProperties =
-    PopupProperties(focusable = true)
+    PopupProperties(
+        focusable = true
+        // TODO: Add a flag to not block clicks outside while being focusable
+    )
+
+@OptIn(ExperimentalComposeUiApi::class)
+internal fun handlePopupOnKeyEvent(
+    keyEvent: KeyEvent,
+    focusManager: FocusManager?,
+    inputModeManager: InputModeManager?
+): Boolean = if (keyEvent.type == KeyEventType.KeyDown) {
+    when (keyEvent.key) {
+        Key.DirectionDown -> {
+            inputModeManager?.requestInputMode(InputMode.Keyboard)
+            focusManager?.moveFocus(FocusDirection.Next)
+            true
+        }
+        Key.DirectionUp -> {
+            inputModeManager?.requestInputMode(InputMode.Keyboard)
+            focusManager?.moveFocus(FocusDirection.Previous)
+            true
+        }
+        else -> false
+    }
+} else {
+    false
+}
