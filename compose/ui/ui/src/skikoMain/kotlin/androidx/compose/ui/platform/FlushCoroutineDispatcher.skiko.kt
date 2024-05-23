@@ -49,6 +49,7 @@ internal class FlushCoroutineDispatcher(
     @Volatile
     private var isPerformingRun = false
     private val runLock = createSynchronizedObject()
+    
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         synchronized(tasksLock) {
             tasks.add(block)
@@ -64,12 +65,13 @@ internal class FlushCoroutineDispatcher(
             }
         }
     }
+
     /**
-     * Does the dispatcher have any tasks scheduled or currently in progress
+     * Whether the dispatcher has any tasks scheduled or currently running.
      */
     fun hasTasks() = synchronized(tasksLock) {
         tasks.isNotEmpty() || delayedTasks.isNotEmpty()
-    } && !isPerformingRun
+    } || isPerformingRun
 
     /**
      * Perform all scheduled tasks and wait for the tasks which are already

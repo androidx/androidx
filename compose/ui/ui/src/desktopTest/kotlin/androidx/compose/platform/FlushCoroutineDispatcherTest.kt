@@ -17,13 +17,19 @@
 package androidx.compose.platform
 
 import androidx.compose.ui.platform.FlushCoroutineDispatcher
+import java.util.concurrent.Exchanger
+import java.util.concurrent.Executors
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
@@ -57,5 +63,26 @@ class FlushCoroutineDispatcherTest {
 
         assertEquals((0 until 10000).toList(), actualNumbers)
         assertFalse(dispatcher.hasTasks())
+    }
+
+    // Needs JVM APIs to test (and can't test in a single-threaded (JS) environment anyway)
+    @Test
+    fun has_tasks_while_performing_run() = runTest {
+        val coroutineScope = CoroutineScope(Executors.newSingleThreadExecutor().asCoroutineDispatcher())
+        val dispatcher = FlushCoroutineDispatcher(coroutineScope)
+
+        val jobExchanger = Exchanger<Unit>()
+        launch(dispatcher) {
+            jobExchanger.exchange(Unit)
+            jobExchanger.exchange(Unit)
+        }
+
+        try {
+            jobExchanger.exchange(Unit)  // Wait for the task to run
+            assertTrue(dispatcher.hasTasks(), "hasTasks == false while executing tasks")
+        } finally {
+            // Allow the task to complete, even if `assertTrue` threw an exception
+            jobExchanger.exchange(Unit)
+        }
     }
 }
