@@ -1849,7 +1849,7 @@ private fun SingleRowTopAppBar(
     // ensures that the colors will adjust whether the app bar behavior is pinned or scrolled.
     // This may potentially animate or interpolate a transition between the container-color and the
     // container's scrolled-color according to the app bar's scroll state.
-    val colorTransitionFraction by remember {
+    val colorTransitionFraction by remember(scrollBehavior) {
         // derivedStateOf to prevent redundant recompositions when the content scrolls.
         derivedStateOf {
             val overlappingFraction = scrollBehavior?.state?.overlappedFraction ?: 0f
