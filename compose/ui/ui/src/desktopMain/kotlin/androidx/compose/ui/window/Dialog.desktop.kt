@@ -18,26 +18,16 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeDialog
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.ComponentUpdater
 import androidx.compose.ui.util.makeDisplayable
@@ -52,75 +42,6 @@ import java.awt.event.ComponentEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import javax.swing.JDialog
-
-/**
- * Properties used to customize the behavior of a [Dialog].
- *
- * @property dismissOnBackPress whether the popup can be dismissed by pressing the back button
- *  * on Android or escape key on desktop.
- * If true, pressing the back button will call onDismissRequest.
- * @property dismissOnClickOutside whether the dialog can be dismissed by clicking outside the
- * dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
- * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
- * the platform default, which is smaller than the screen width.
- */
-@Immutable
-actual class DialogProperties actual constructor(
-    actual val dismissOnBackPress: Boolean,
-    actual val dismissOnClickOutside: Boolean,
-    actual val usePlatformDefaultWidth: Boolean,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is DialogProperties) return false
-
-        if (dismissOnBackPress != other.dismissOnBackPress) return false
-        if (dismissOnClickOutside != other.dismissOnClickOutside) return false
-        if (usePlatformDefaultWidth != other.usePlatformDefaultWidth) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = dismissOnBackPress.hashCode()
-        result = 31 * result + dismissOnClickOutside.hashCode()
-        result = 31 * result + usePlatformDefaultWidth.hashCode()
-        return result
-    }
-}
-
-@Composable
-actual fun Dialog(
-    onDismissRequest: () -> Unit,
-    properties: DialogProperties,
-    content: @Composable () -> Unit
-) {
-    val popupPositioner = remember {
-        AlignmentOffsetPositionProvider(
-            alignment = Alignment.Center,
-            offset = IntOffset(0, 0)
-        )
-    }
-    PopupLayout(
-        popupPositionProvider = popupPositioner,
-        focusable = true,
-        if (properties.dismissOnClickOutside) onDismissRequest else null,
-        modifier = Modifier.drawBehind {
-            drawRect(Color.Black.copy(alpha = 0.6f))
-        },
-        onKeyEvent = {
-            if (properties.dismissOnBackPress &&
-                it.type == KeyEventType.KeyDown && it.key == Key.Escape
-            ) {
-                onDismissRequest()
-                true
-            } else {
-                false
-            }
-        },
-        content = content
-    )
-}
 
 @Deprecated(
     message = "Replaced by DialogWindow",
@@ -155,26 +76,65 @@ fun Dialog(
     resizable,
     enabled,
     focusable,
+    alwaysOnTop = false,
     onPreviewKeyEvent,
     onKeyEvent,
     content
 )
+
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced by an overload that also takes alwaysOnTop",
+)
+@Composable
+fun DialogWindow(
+    onCloseRequest: () -> Unit,
+    state: DialogState = rememberDialogState(),
+    visible: Boolean = true,
+    title: String = "Untitled",
+    icon: Painter? = null,
+    undecorated: Boolean = false,
+    transparent: Boolean = false,
+    resizable: Boolean = true,
+    enabled: Boolean = true,
+    focusable: Boolean = true,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    onKeyEvent: ((KeyEvent) -> Boolean) = { false },
+    content: @Composable DialogWindowScope.() -> Unit
+) {
+    DialogWindow(
+        onCloseRequest,
+        state,
+        visible,
+        title,
+        icon,
+        undecorated,
+        transparent,
+        resizable,
+        enabled,
+        focusable,
+        alwaysOnTop = false,
+        onPreviewKeyEvent,
+        onKeyEvent,
+        content
+    )
+}
 
 /**
  * Composes platform dialog in the current composition. When Dialog enters the composition,
  * a new platform dialog will be created and receives the focus. When Dialog leaves the
  * composition, dialog will be disposed and closed.
  *
- * Dialog is a modal window. It means it blocks the parent [Window] / [Dialog] in which composition
+ * Dialog is a modal window. It means it blocks the parent [Window] / [DialogWindow] in which composition
  * context it was created.
  *
  * Usage:
  * ```
  * @Composable
  * fun main() = application {
- *     val isDialogOpen by remember { mutableStateOf(true) }
+ *     var isDialogOpen by remember { mutableStateOf(true) }
  *     if (isDialogOpen) {
- *         Dialog(onCloseRequest = { isDialogOpen = false })
+ *         Dialog(onCloseRequest = { isDialogOpen = false }) {}
  *     }
  * }
  * ```
@@ -189,11 +149,11 @@ fun Dialog(
  * the native dialog will update its corresponding properties.
  * If [DialogState.position] is not [WindowPosition.isSpecified], then after the first show on the
  * screen [DialogState.position] will be set to the absolute values.
- * @param visible Is [Dialog] visible to user.
+ * @param visible Is [DialogWindow] visible to user.
  * If `false`:
- * - internal state of [Dialog] is preserved and will be restored next time the dialog
+ * - internal state of [DialogWindow] is preserved and will be restored next time the dialog
  * will be visible;
- * - native resources will not be released. They will be released only when [Dialog]
+ * - native resources will not be released. They will be released only when [DialogWindow]
  * will leave the composition.
  * @param title Title in the titlebar of the dialog
  * @param icon Icon in the titlebar of the window (for platforms which support this).
@@ -207,6 +167,7 @@ fun Dialog(
  * changing [state])
  * @param enabled Can dialog react to input events
  * @param focusable Can dialog receive focus
+ * @param alwaysOnTop Should the dialog always be on top of another windows and dialogs
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
  * Return true to stop propagation of this event. If you return false, the key event will be
@@ -229,6 +190,7 @@ fun DialogWindow(
     resizable: Boolean = true,
     enabled: Boolean = true,
     focusable: Boolean = true,
+    alwaysOnTop: Boolean = false,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
     onKeyEvent: ((KeyEvent) -> Boolean) = { false },
     content: @Composable DialogWindowScope.() -> Unit
@@ -243,6 +205,7 @@ fun DialogWindow(
     val currentResizable by rememberUpdatedState(resizable)
     val currentEnabled by rememberUpdatedState(enabled)
     val currentFocusable by rememberUpdatedState(focusable)
+    val currentAlwaysOnTop by rememberUpdatedState(alwaysOnTop)
     val currentOnCloseRequest by rememberUpdatedState(onCloseRequest)
 
     val updater = remember(::ComponentUpdater)
@@ -281,6 +244,7 @@ fun DialogWindow(
                 set(currentResizable, dialog::setResizable)
                 set(currentEnabled, dialog::setEnabled)
                 set(currentFocusable, dialog::setFocusable)
+                set(currentAlwaysOnTop, dialog::setAlwaysOnTop)
                 set(state.size, dialog::setSizeSafely)
                 set(state.position, dialog::setPositionSafely)
             }
@@ -325,7 +289,7 @@ fun Dialog(
  * Once Dialog leaves the composition, [dispose] will be called to free resources that
  * obtained by the [ComposeDialog].
  *
- * Dialog is a modal window. It means it blocks the parent [Window] / [Dialog] in which composition
+ * Dialog is a modal window. It means it blocks the parent [Window] / [DialogWindow] in which composition
  * context it was created.
  *
  * The [update] block can be run multiple times (on the UI thread as well) due to recomposition,
@@ -334,13 +298,13 @@ fun Dialog(
  * Note the block will also be ran once right after the [create] block completes.
  *
  * Dialog is needed for creating dialog's that still can't be created with
- * the default Compose function [androidx.compose.ui.window.Dialog]
+ * the default Compose function [androidx.compose.ui.window.DialogWindow]
  *
  * @param visible Is [ComposeDialog] visible to user.
  * If `false`:
  * - internal state of [ComposeDialog] is preserved and will be restored next time the dialog
  * will be visible;
- * - native resources will not be released. They will be released only when [Dialog]
+ * - native resources will not be released. They will be released only when [DialogWindow]
  * will leave the composition.
  * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
@@ -393,12 +357,12 @@ fun DialogWindow(
 }
 
 /**
- * Receiver scope which is used by [androidx.compose.ui.window.Dialog].
+ * Receiver scope which is used by [androidx.compose.ui.window.DialogWindow].
  */
 @Stable
 interface DialogWindowScope : WindowScope {
     /**
-     * [ComposeDialog] that was created inside [androidx.compose.ui.window.Dialog].
+     * [ComposeDialog] that was created inside [androidx.compose.ui.window.DialogWindow].
      */
     override val window: ComposeDialog
 }

@@ -181,6 +181,7 @@ class FocusTransactionsTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun cancelTakeFocus_fromCustomEnter() {
         // Arrange.

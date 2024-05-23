@@ -191,6 +191,7 @@ object PopupAlertDialogProvider : AlertDialogProvider {
         // [alignment] property of [Popup] and have to use [Box] that fills all the
         // available space. Also [Box] provides a dismiss request feature when clicked
         // outside of the [AlertDialog] content.
+        @Suppress("DEPRECATION") // Will be removed in aosp/3077146
         Popup(
             popupPositionProvider = object : PopupPositionProvider {
                 override fun calculatePosition(

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
 import androidx.compose.ui.focus.CustomDestinationResult.RedirectCancelled
@@ -38,6 +39,7 @@ import androidx.compose.ui.node.requireOwner
  * children. Calling this function will send a focus request to this
  * [FocusNode][FocusTargetNode]'s parent [FocusNode][FocusTargetNode].
  */
+@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetNode.requestFocus(): Boolean = requestFocus(Enter) ?: false
 
 internal fun FocusTargetNode.requestFocus(focusDirection: FocusDirection): Boolean? {
@@ -286,6 +288,7 @@ internal fun FocusTargetNode.performCustomClearFocus(
             ?: performCustomExit(focusDirection)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.performCustomEnter(
     focusDirection: FocusDirection
 ): CustomDestinationResult {
@@ -296,6 +299,7 @@ private fun FocusTargetNode.performCustomEnter(
     return None
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 private fun FocusTargetNode.performCustomExit(
     focusDirection: FocusDirection
 ): CustomDestinationResult {
