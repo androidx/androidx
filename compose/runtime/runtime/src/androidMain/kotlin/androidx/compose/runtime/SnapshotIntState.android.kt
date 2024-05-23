@@ -20,8 +20,12 @@ import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 
+internal actual fun createSnapshotMutableIntState(
+    value: Int
+): MutableIntState = ParcelableSnapshotMutableIntState(value)
+
 @SuppressLint("BanParcelableUsage")
-internal class ParcelableSnapshotMutableIntState(
+private class ParcelableSnapshotMutableIntState(
     value: Int
 ) : SnapshotMutableIntStateImpl(value), Parcelable {
 

@@ -16,6 +16,48 @@
 
 package androidx.compose.runtime.internal
 
+import androidx.compose.runtime.SynchronizedObject
+import androidx.compose.runtime.synchronized
+
+/**
+ * This is similar to a [ThreadLocal] but has lower overhead because it avoids a weak reference.
+ * This should only be used when the writes are delimited by a try...finally call that will clean
+ * up the reference such as [androidx.compose.runtime.snapshots.Snapshot.enter] else the reference
+ * could get pinned by the thread local causing a leak.
+ *
+ * [ThreadLocal] can be used to implement the actual for platforms that do not exhibit the same
+ * overhead for thread locals as the JVM and ART.
+ */
+internal class SnapshotThreadLocal<T> {
+    private val map = AtomicReference(emptyThreadMap)
+    private val writeMutex = SynchronizedObject()
+
+    private var mainThreadValue: T? = null
+
+    @Suppress("UNCHECKED_CAST")
+    fun get(): T? {
+        val threadId = currentThreadId()
+        return if (threadId == MainThreadId) {
+            mainThreadValue
+        } else {
+            map.get().get(threadId) as T?
+        }
+    }
+
+    fun set(value: T?) {
+        val key = currentThreadId()
+        if (key == MainThreadId) {
+            mainThreadValue = value
+        } else {
+            synchronized(writeMutex) {
+                val current = map.get()
+                if (current.trySet(key, value)) return
+                map.set(current.newWith(key, value))
+            }
+        }
+    }
+}
+
 internal class ThreadMap(
     private val size: Int,
     private val keys: LongArray,
@@ -108,4 +150,4 @@ internal class ThreadMap(
     }
 }
 
-internal val emptyThreadMap = ThreadMap(0, LongArray(0), emptyArray())
+private val emptyThreadMap = ThreadMap(0, LongArray(0), emptyArray())

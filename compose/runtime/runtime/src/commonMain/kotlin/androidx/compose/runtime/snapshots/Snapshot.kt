@@ -18,22 +18,21 @@ package androidx.compose.runtime.snapshots
 
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.runtime.AtomicInt
-import androidx.compose.runtime.AtomicReference
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.SnapshotThreadLocal
+import androidx.compose.runtime.SynchronizedObject
 import androidx.compose.runtime.checkPrecondition
 import androidx.compose.runtime.collection.wrapIntoSet
-import androidx.compose.runtime.currentThreadId
+import androidx.compose.runtime.internal.AtomicInt
+import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
+import androidx.compose.runtime.internal.SnapshotThreadLocal
+import androidx.compose.runtime.internal.currentThreadId
 import androidx.compose.runtime.requirePrecondition
 import androidx.compose.runtime.snapshots.Snapshot.Companion.takeMutableSnapshot
 import androidx.compose.runtime.snapshots.Snapshot.Companion.takeSnapshot
-import androidx.compose.runtime.snapshots.SnapshotApplyResult.Failure
-import androidx.compose.runtime.snapshots.SnapshotApplyResult.Success
 import androidx.compose.runtime.synchronized
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -1837,7 +1836,7 @@ private val threadSnapshot = SnapshotThreadLocal<Snapshot>()
  * of the fields below.
  */
 @PublishedApi
-internal val lock = Any()
+internal val lock = SynchronizedObject()
 
 @PublishedApi
 internal inline fun <T> sync(block: () -> T): T = synchronized(lock, block)

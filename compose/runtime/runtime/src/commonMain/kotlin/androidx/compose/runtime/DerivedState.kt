@@ -23,6 +23,8 @@ import androidx.collection.ObjectIntMap
 import androidx.collection.emptyObjectIntMap
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.internal.IntRef
+import androidx.compose.runtime.internal.SnapshotThreadLocal
+import androidx.compose.runtime.internal.identityHashCode
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.StateFactoryMarker
 import androidx.compose.runtime.snapshots.StateObject

@@ -20,13 +20,17 @@ import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 
+internal actual fun createSnapshotMutableDoubleState(
+    value: Double
+): MutableDoubleState = ParcelableSnapshotMutableDoubleState(value)
+
 @SuppressLint("BanParcelableUsage")
-internal class ParcelableSnapshotMutableFloatState(
-    value: Float
-) : SnapshotMutableFloatStateImpl(value), Parcelable {
+private class ParcelableSnapshotMutableDoubleState(
+    value: Double
+) : SnapshotMutableDoubleStateImpl(value), Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeFloat(floatValue)
+        parcel.writeDouble(doubleValue)
     }
 
     override fun describeContents(): Int {
@@ -36,15 +40,15 @@ internal class ParcelableSnapshotMutableFloatState(
     companion object {
         @Suppress("unused")
         @JvmField
-        val CREATOR = object : Parcelable.Creator<ParcelableSnapshotMutableFloatState> {
-            override fun createFromParcel(parcel: Parcel): ParcelableSnapshotMutableFloatState {
-                return ParcelableSnapshotMutableFloatState(
-                    value = parcel.readFloat()
+        val CREATOR = object : Parcelable.Creator<ParcelableSnapshotMutableDoubleState> {
+            override fun createFromParcel(parcel: Parcel): ParcelableSnapshotMutableDoubleState {
+                return ParcelableSnapshotMutableDoubleState(
+                    value = parcel.readDouble()
                 )
             }
 
             override fun newArray(size: Int) =
-                arrayOfNulls<ParcelableSnapshotMutableFloatState>(size)
+                arrayOfNulls<ParcelableSnapshotMutableDoubleState>(size)
         }
     }
 }

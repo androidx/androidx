@@ -19,9 +19,15 @@ package androidx.compose.runtime
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.compose.runtime.snapshots.SnapshotMutableState
+
+internal actual fun <T> createSnapshotMutableState(
+    value: T,
+    policy: SnapshotMutationPolicy<T>
+): SnapshotMutableState<T> = ParcelableSnapshotMutableState(value, policy)
 
 @SuppressLint("BanParcelableUsage")
-internal class ParcelableSnapshotMutableState<T>(
+private class ParcelableSnapshotMutableState<T>(
     value: T,
     policy: SnapshotMutationPolicy<T>
 ) : SnapshotMutableStateImpl<T>(value, policy), Parcelable {
