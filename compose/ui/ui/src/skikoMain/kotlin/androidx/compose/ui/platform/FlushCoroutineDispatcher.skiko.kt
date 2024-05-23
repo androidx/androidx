@@ -42,10 +42,10 @@ internal class FlushCoroutineDispatcher(
     // use this dispatcher won't be properly cancelled.
     // TODO replace it by scope.coroutineContext[CoroutineDispatcher] when it will be no longer experimental
     private val scope = CoroutineScope(scope.coroutineContext.minusKey(Job))
-    private val tasks = mutableSetOf<Runnable>()
+    private var tasks = mutableSetOf<Runnable>()
     private val delayedTasks = mutableSetOf<Runnable>()
     private val tasksLock = createSynchronizedObject()
-    private val tasksCopy = mutableSetOf<Runnable>()
+    private var tasksSwap = mutableSetOf<Runnable>()
     @Volatile
     private var isPerformingRun = false
     private val runLock = createSynchronizedObject()
@@ -85,12 +85,13 @@ internal class FlushCoroutineDispatcher(
                 if (tasks.isEmpty())
                     return@performRun
 
-                tasksCopy.addAll(tasks)
-                tasks.clear()
+                val tmp = tasksSwap
+                tasksSwap = tasks
+                tasks = tmp
             }
 
-            tasksCopy.forEach(Runnable::run)
-            tasksCopy.clear()
+            tasksSwap.forEach(Runnable::run)
+            tasksSwap.clear()
         }
     }
 
