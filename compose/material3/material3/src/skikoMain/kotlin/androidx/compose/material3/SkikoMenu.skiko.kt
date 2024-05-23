@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,75 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.internal.DropdownMenuPositionProvider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+
+@Deprecated(
+    "Replaced by DropdownMenu with properties parameter",
+    ReplaceWith("DropdownMenu(expanded, onDismissRequest, modifier, offset, " +
+        "androidx.compose.ui.window.PopupProperties(focusable = focusable), " +
+        "content)"),
+    level = DeprecationLevel.HIDDEN
+)
+@Suppress("ModifierParameter")
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    focusable: Boolean = true,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    properties = PopupProperties(focusable = focusable),
+    content = content
+)
+
+// Workaround for `Overload resolution ambiguity` between old and new overload.
+@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    offset: DpOffset = DpOffset(0.dp, 0.dp),
+    content: @Composable ColumnScope.() -> Unit
+) = DropdownMenu(
+    expanded = expanded,
+    onDismissRequest = onDismissRequest,
+    modifier = modifier,
+    offset = offset,
+    properties = PopupProperties(focusable = true),
+    content = content
+)
 
 @Composable
 actual fun DropdownMenu(
@@ -68,11 +125,19 @@ actual fun DropdownMenu(
             }
         }
 
+        var focusManager: FocusManager? by mutableStateOf(null)
+        var inputModeManager: InputModeManager? by mutableStateOf(null)
         Popup(
             onDismissRequest = onDismissRequest,
             popupPositionProvider = popupPositionProvider,
-            properties = properties
+            properties = properties,
+            onKeyEvent = {
+                handlePopupOnKeyEvent(it, focusManager, inputModeManager)
+            },
         ) {
+            focusManager = LocalFocusManager.current
+            inputModeManager = LocalInputModeManager.current
+
             DropdownMenuContent(
                 expandedState = expandedState,
                 transformOriginState = transformOriginState,
@@ -134,6 +199,8 @@ fun DropdownMenu(
     content = content,
 )
 
+@Suppress("ModifierParameter")
+@OptIn(ExperimentalMaterial3Api::class)
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
     replaceWith = ReplaceWith(
@@ -147,9 +214,9 @@ fun DropdownMenu(
 fun DropdownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, 0.dp),
-    properties: PopupProperties = PopupProperties(focusable = true),
+    modifier: Modifier,
+    offset: DpOffset,
+    properties: PopupProperties,
     content: @Composable ColumnScope.() -> Unit
 ) = DropdownMenu(
     expanded = expanded,
@@ -187,4 +254,30 @@ actual fun DropdownMenuItem(
 }
 
 internal actual val DefaultMenuProperties =
-    PopupProperties(focusable = true)
+    PopupProperties(
+        focusable = true
+        // TODO: Add a flag to not block clicks outside while being focusable
+    )
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun handlePopupOnKeyEvent(
+    keyEvent: KeyEvent,
+    focusManager: FocusManager?,
+    inputModeManager: InputModeManager?
+): Boolean = if (keyEvent.type == KeyEventType.KeyDown) {
+    when (keyEvent.key) {
+        Key.DirectionDown -> {
+            inputModeManager?.requestInputMode(InputMode.Keyboard)
+            focusManager?.moveFocus(FocusDirection.Next)
+            true
+        }
+        Key.DirectionUp -> {
+            inputModeManager?.requestInputMode(InputMode.Keyboard)
+            focusManager?.moveFocus(FocusDirection.Previous)
+            true
+        }
+        else -> false
+    }
+} else {
+    false
+}
