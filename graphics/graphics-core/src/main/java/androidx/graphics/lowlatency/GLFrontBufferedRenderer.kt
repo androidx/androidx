@@ -341,7 +341,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      * this collection is cleared and new parameters are added to it with consecutive calls to
      * [renderFrontBufferedLayer].
      */
-    private val mSegments = ConcurrentLinkedQueue<MutableCollection<T>>()
+    private val mSegments = ConcurrentLinkedQueue<Collection<T>>()
 
     /**
      * [FrameBuffer] used for rendering into the front buffered layer. This buffer is persisted
@@ -563,12 +563,7 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
      */
     fun renderMultiBufferedLayer(params: Collection<T>) {
         if (isValid()) {
-            val segment = if (params is MutableCollection<T>) {
-                params
-            } else {
-                ArrayList<T>().apply { addAll(params) }
-            }
-            mSegments.add(segment)
+            mSegments.add(params)
             mMultiBufferedRenderer?.render()
         } else {
             Log.w(
