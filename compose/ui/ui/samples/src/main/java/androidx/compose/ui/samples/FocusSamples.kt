@@ -287,6 +287,7 @@ fun FocusPropertiesSample() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun CancelFocusMoveSample() {
@@ -305,6 +306,7 @@ fun CancelFocusMoveSample() {
     }
 }
 
+@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun CustomFocusEnterSample() {
@@ -317,6 +319,7 @@ fun CustomFocusEnterSample() {
     }
 }
 
+@ExperimentalComposeUiApi
 @Sampled
 @Composable
 fun CustomFocusExitSample() {
