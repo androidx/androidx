@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal
 import android.os.Build
 import android.util.Log
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
@@ -33,7 +32,6 @@ private const val TAG = "FakeFocusMeteringControl"
 /**
  * A fake implementations of {@link ScreenFlash} for testing purpose.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class FakeFocusMeteringControl(
     fakeCamera2CameraControlImpl: ScreenFlashTaskTest.FakeCamera2CameraControlImpl,
     quirks: Quirks

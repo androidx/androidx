@@ -146,7 +146,6 @@ import java.util.concurrent.atomic.AtomicLong;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21)
-@RequiresApi(21)
 public final class CaptureSessionTest {
 
     // Enumerate possible SDR transfer functions. This may need to be updated if more transfer

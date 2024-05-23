@@ -22,7 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.SurfaceConfig;
 
@@ -48,7 +47,6 @@ import java.util.Map;
  *                Samsung Galaxy A3 (2017) SM-A320FL, Samsung Galaxy J5 Prime SM-G570M,
  *                Samsung Galaxy J7 Prime SM-G610F, Samsung Galaxy J7 Prime SM-G610M
  */
-@RequiresApi(21)
 public class ExtraCroppingQuirk implements Quirk {
 
     private static final Map<String, Range<Integer>> SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP =

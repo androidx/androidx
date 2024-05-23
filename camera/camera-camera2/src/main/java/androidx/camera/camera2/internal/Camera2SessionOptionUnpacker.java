@@ -20,7 +20,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
@@ -36,7 +35,6 @@ import androidx.camera.core.impl.UseCaseConfig;
  * A {@link SessionConfig.OptionUnpacker} implementation for unpacking Camera2 options into a
  * {@link SessionConfig.Builder}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class Camera2SessionOptionUnpacker implements SessionConfig.OptionUnpacker {
 
     static final Camera2SessionOptionUnpacker INSTANCE = new Camera2SessionOptionUnpacker();

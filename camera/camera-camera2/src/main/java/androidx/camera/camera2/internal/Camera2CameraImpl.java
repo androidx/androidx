@@ -37,7 +37,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.ApiCompat;
@@ -118,7 +117,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Capture requests will be issued only for use cases which are in both the attached and active
  * state.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class Camera2CameraImpl implements CameraInternal {
     private static final String TAG = "Camera2CameraImpl";
     private static final int ERROR_NONE = 0;
@@ -1895,7 +1893,6 @@ final class Camera2CameraImpl implements CameraInternal {
         abstract List<UseCaseConfigFactory.CaptureType> getCaptureTypes();
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     final class StateCallback extends CameraDevice.StateCallback {
         @CameraExecutor
         private final Executor mExecutor;

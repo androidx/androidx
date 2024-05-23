@@ -23,7 +23,6 @@ import android.os.Build;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.workaround.OutputSizesCorrector;
 
@@ -35,7 +34,6 @@ import java.util.Set;
  * A wrapper for {@link CameraCharacteristics} which caches the retrieved values to optimize
  * the latency and might contain backward compatible fixes for certain parameters.
  */
-@RequiresApi(21)
 public class CameraCharacteristicsCompat {
     @NonNull
     @GuardedBy("this")

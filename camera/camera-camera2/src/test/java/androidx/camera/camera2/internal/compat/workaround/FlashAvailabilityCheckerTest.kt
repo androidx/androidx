@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.workaround
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.annotation.RequiresApi
 import com.google.common.truth.Truth.assertThat
 import java.nio.BufferUnderflowException
 import org.junit.Assert.assertThrows
@@ -82,7 +81,6 @@ class FlashAvailabilityCheckerTest(
     }
 }
 
-@RequiresApi(21)
 private class FlashAvailabilityTrueProvider : CameraCharacteristicsProvider {
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T? = when (key) {
@@ -91,13 +89,11 @@ private class FlashAvailabilityTrueProvider : CameraCharacteristicsProvider {
     }
 }
 
-@RequiresApi(21)
 private class BufferUnderflowProvider : CameraCharacteristicsProvider {
     override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T =
         throw BufferUnderflowException()
 }
 
-@RequiresApi(21)
 private class FlashAvailabilityNullProvider : CameraCharacteristicsProvider {
     override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T? = null
 }

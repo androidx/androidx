@@ -19,7 +19,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 import android.hardware.camera2.CameraCharacteristics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
 
@@ -36,7 +35,6 @@ import androidx.camera.core.impl.Quirk;
  *                  next capture session.
  *     Device(s): Devices in LEGACY camera hardware level.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CaptureSessionStuckQuirk implements Quirk {
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristics) {
