@@ -26,7 +26,6 @@ import android.view.ViewConfiguration
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener
 import androidx.camera.viewfinder.core.ZoomGestureDetector.ZoomEvent
@@ -54,7 +53,6 @@ import kotlin.math.roundToInt
  * @param listener The listener to receive the callback.
  * @sample androidx.camera.viewfinder.core.samples.onTouchEventSample
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ZoomGestureDetector @SuppressLint("ExecutorRegistration") @JvmOverloads constructor(
     private val context: Context,
     @Px private val spanSlop: Int = ViewConfiguration.get(context).scaledTouchSlop * 2,
