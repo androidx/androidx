@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -32,7 +31,6 @@ import androidx.camera.core.impl.Quirk;
  *                  callback will not be triggered under some circumstances.
  *     Device(s): Devices in Android API version <= 22
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CaptureSessionOnClosedNotCalledQuirk implements Quirk {
 
     static boolean load() {

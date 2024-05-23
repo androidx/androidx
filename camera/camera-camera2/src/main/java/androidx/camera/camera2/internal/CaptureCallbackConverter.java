@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureCallbacks.ComboCameraCaptureCallback;
 
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** An utility class to convert {@link CameraCaptureCallback} to camera2 {@link CaptureCallback}. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class CaptureCallbackConverter {
 
     private CaptureCallbackConverter() {

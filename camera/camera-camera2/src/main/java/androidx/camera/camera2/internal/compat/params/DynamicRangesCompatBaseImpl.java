@@ -20,14 +20,12 @@ import android.hardware.camera2.params.DynamicRangeProfiles;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.Set;
 
-@RequiresApi(21)
 class DynamicRangesCompatBaseImpl implements DynamicRangesCompat.DynamicRangeProfilesCompatImpl {
 
     static final DynamicRangesCompat COMPAT_INSTANCE =

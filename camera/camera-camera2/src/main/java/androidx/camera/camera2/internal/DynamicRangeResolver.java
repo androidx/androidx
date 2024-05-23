@@ -53,7 +53,6 @@ import java.util.Set;
 /**
  * Resolves and validates dynamic ranges based on device capabilities and constraints.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class DynamicRangeResolver {
     private static final String TAG = "DynamicRangeResolver";
     private final CameraCharacteristicsCompat mCharacteristics;

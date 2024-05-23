@@ -24,7 +24,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.workaround.OutputSizesCorrector;
 import androidx.camera.core.Logger;
 
@@ -35,7 +34,6 @@ import java.util.Map;
  * Helper for accessing features in {@link StreamConfigurationMap} in a backwards compatible
  * fashion.
  */
-@RequiresApi(21)
 public class StreamConfigurationMapCompat {
     private static final String TAG = "StreamConfigurationMapCompat";
 

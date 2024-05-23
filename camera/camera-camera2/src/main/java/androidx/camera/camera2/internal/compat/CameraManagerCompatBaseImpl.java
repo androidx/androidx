@@ -26,7 +26,6 @@ import android.os.Handler;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.core.util.Preconditions;
 
@@ -36,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-@RequiresApi(21)
 class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCompatImpl {
 
     final CameraManager mCameraManager;

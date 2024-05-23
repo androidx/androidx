@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.FlashAvailabilityBufferUnderflowQuirk;
 import androidx.camera.core.Logger;
@@ -33,7 +32,6 @@ import java.nio.BufferUnderflowException;
  *
  * @see androidx.camera.camera2.internal.compat.quirk.FlashAvailabilityBufferUnderflowQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FlashAvailabilityChecker {
     private static final String TAG = "FlashAvailability";
 

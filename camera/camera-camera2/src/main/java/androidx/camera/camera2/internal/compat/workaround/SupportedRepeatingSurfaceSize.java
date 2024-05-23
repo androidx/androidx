@@ -20,7 +20,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.RepeatingStreamConstraintForVideoRecordingQuirk;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
@@ -32,7 +31,6 @@ import java.util.List;
 /**
  * Gets the supported surface for configurations.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SupportedRepeatingSurfaceSize {
 
     @Nullable

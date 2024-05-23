@@ -30,7 +30,6 @@ import java.util.Objects;
 /**
  * Helper for accessing features in InputConfiguration in a backwards compatible fashion.
  */
-@RequiresApi(21)
 public final class InputConfigurationCompat {
 
     private final InputConfigurationCompatImpl mImpl;
