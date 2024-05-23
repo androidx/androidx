@@ -57,6 +57,7 @@ android {
     }
 
     defaultConfig {
+        compileSdkPreview "VanillaIceCream"
         multiDexEnabled = true
         testInstrumentationRunner "androidx.recyclerview.test.TestRunner"
         multiDexEnabled true
