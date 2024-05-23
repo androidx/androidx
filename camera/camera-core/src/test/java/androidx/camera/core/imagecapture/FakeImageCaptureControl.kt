@@ -16,7 +16,6 @@
 
 package androidx.camera.core.imagecapture
 
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.concurrent.futures.CallbackToFutureAdapter
@@ -25,7 +24,6 @@ import com.google.common.util.concurrent.ListenableFuture
 /**
  * Fake [ImageCaptureControl] that records method calls.
  */
-@RequiresApi(21)
 class FakeImageCaptureControl : ImageCaptureControl {
 
     companion object {

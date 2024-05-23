@@ -24,7 +24,6 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
@@ -48,7 +47,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>Resources managed by this class can be safely cleaned up upon completion of the
  * {@link ListenableFuture} returned by {@link #getTerminationFuture()}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class DeferrableSurface {
 
     /**

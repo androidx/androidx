@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.ResolutionSelectorUtil;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 
@@ -39,7 +38,6 @@ import java.util.Set;
  * {@link Config#retrieveOptionWithPriority} and {@link Config#getPriorities} can be used to
  * retrieve option value of specified priority.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface Config {
 
     /**

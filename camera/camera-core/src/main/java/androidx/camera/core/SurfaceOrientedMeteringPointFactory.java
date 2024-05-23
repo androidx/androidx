@@ -23,7 +23,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -45,7 +44,6 @@ import androidx.annotation.RestrictTo;
  *
  * @see MeteringPoint
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceOrientedMeteringPointFactory extends MeteringPointFactory {
     /** the width of the area in surface orientation */
     private final float mWidth;

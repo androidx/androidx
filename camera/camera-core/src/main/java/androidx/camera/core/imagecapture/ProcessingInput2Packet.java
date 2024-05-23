@@ -29,12 +29,10 @@ import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.hardware.camera2.CaptureRequest;
-import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -51,7 +49,6 @@ import java.io.IOException;
  *
  * <p>This is we fix the metadata of the image, such as rotation and crop rect.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 final class ProcessingInput2Packet implements
         Operation<ProcessingNode.InputPacket, Packet<ImageProxy>> {
 

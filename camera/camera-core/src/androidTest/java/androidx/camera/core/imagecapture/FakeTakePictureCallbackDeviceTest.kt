@@ -16,7 +16,6 @@
 
 package androidx.camera.core.imagecapture
 
-import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture.OutputFileResults
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageProxy
@@ -28,7 +27,6 @@ import org.junit.Test
 /**
  * Unit tests for [FakeTakePictureCallbackDeviceTest]
  */
-@RequiresApi(21)
 @SdkSuppress(minSdkVersion = 21)
 class FakeTakePictureCallbackDeviceTest {
 

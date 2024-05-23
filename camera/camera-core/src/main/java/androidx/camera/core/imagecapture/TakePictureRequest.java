@@ -24,13 +24,11 @@ import static java.util.Objects.requireNonNull;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.os.Build;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -51,7 +49,6 @@ import java.util.concurrent.Executor;
  *
  * <p> It contains app provided data and a snapshot of {@link ImageCapture} properties.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 @SuppressWarnings("AutoValueImmutableFields")
 @AutoValue
 public abstract class TakePictureRequest {

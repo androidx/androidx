@@ -21,7 +21,6 @@ import android.media.ImageReader;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageAnalysis;
@@ -32,7 +31,6 @@ import androidx.camera.core.internal.ThreadConfig;
 /**
  * Configuration for an image analysis use case.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ImageAnalysisConfig
         implements UseCaseConfig<ImageAnalysis>,
         ImageOutputConfig,

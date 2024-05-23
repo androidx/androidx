@@ -16,7 +16,6 @@
 
 package androidx.camera.core.internal.compat.quirk;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
 
@@ -40,7 +39,6 @@ import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
  *     Device(s): Some Samsung devices and Pixel 1
  *     @see SurfaceSorter
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceOrderQuirk implements Quirk {
 
     static boolean load() {

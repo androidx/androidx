@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -41,7 +40,6 @@ import java.util.concurrent.Future;
  * {@link ListenableFuture} will fail immediately with
  * {@link CameraControl.OperationCanceledException}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface CameraControl {
     /**
      * Enable the torch or disable the torch.

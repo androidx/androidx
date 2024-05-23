@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.util.Objects;
 
@@ -31,7 +30,6 @@ import java.util.Objects;
  * <p>The estimate is comprised of two components: {@link #getCaptureLatencyMillis()},
  * {@link #getProcessingLatencyMillis()}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureLatencyEstimate {
     /** The capture latency is unsupported or undefined */
     public static final long UNDEFINED_CAPTURE_LATENCY = -1;

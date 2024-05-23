@@ -18,15 +18,12 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.Matrix
 import android.graphics.Rect
-import android.os.Build
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
 import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import java.io.File
 import java.util.UUID
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 object Utils {
     const val WIDTH = 640
     const val HEIGHT = 480

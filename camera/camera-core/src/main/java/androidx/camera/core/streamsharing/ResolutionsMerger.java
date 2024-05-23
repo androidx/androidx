@@ -37,7 +37,6 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -65,7 +64,6 @@ import java.util.Set;
 /**
  * A class for calculating parent resolutions based on the children's configs.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ResolutionsMerger {
 
     private static final String TAG = "ResolutionsMerger";

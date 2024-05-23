@@ -22,7 +22,6 @@ import android.media.Image;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.util.HashSet;
@@ -39,7 +38,6 @@ import java.util.Set;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class ForwardingImageProxy implements ImageProxy {
     private final Object mLock = new Object();
 

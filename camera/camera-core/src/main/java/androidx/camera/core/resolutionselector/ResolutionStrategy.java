@@ -21,7 +21,6 @@ import android.util.Size;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.UseCase;
@@ -36,7 +35,6 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Applications can create a {@link ResolutionSelector} with a proper ResolutionStrategy to
  * choose the preferred resolution.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ResolutionStrategy {
     /**
      * A resolution strategy chooses the highest available resolution. This strategy does not

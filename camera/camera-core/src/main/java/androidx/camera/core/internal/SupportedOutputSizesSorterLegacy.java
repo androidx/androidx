@@ -31,7 +31,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -49,7 +48,6 @@ import java.util.Map;
 /**
  * A class used to sort the supported output sizes according to the legacy use case configs
  */
-@RequiresApi(21)
 class SupportedOutputSizesSorterLegacy {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final int mSensorOrientation;

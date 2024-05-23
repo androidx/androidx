@@ -21,10 +21,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProcessor;
@@ -41,7 +38,6 @@ import java.util.concurrent.Executor;
  * <p>This class wrap calls to {@link ImageProcessor} with the effect-provided {@link Executor}.
  * It also provides additional from Camera
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class InternalImageProcessor {
 
     @NonNull

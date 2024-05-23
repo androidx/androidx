@@ -18,7 +18,6 @@ package androidx.camera.core.impl.utils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 import androidx.core.util.Supplier;
 
@@ -27,7 +26,6 @@ import androidx.core.util.Supplier;
  *
  * <p>Copied and adapted from Guava.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class Present<T> extends Optional<T> {
     private final T mReference;
 

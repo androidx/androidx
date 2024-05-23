@@ -17,8 +17,6 @@
 package androidx.camera.core
 
 import android.graphics.Bitmap
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.ImageCapture.OutputFileResults
 import androidx.camera.core.imagecapture.TakePictureRequest
@@ -43,7 +41,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @see ImageCapture.takePicture
  * @see ImageCapture.OnImageCapturedCallback
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 suspend fun ImageCapture.takePicture(
     onCaptureStarted: (() -> Unit)? = null,
     onCaptureProcessProgressed: ((Int) -> Unit)? = null,
@@ -94,7 +91,6 @@ suspend fun ImageCapture.takePicture(
  * @see ImageCapture.takePicture
  * @see ImageCapture.OnImageSavedCallback
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 suspend fun ImageCapture.takePicture(
     outputFileOptions: ImageCapture.OutputFileOptions,
     onCaptureStarted: (() -> Unit)? = null,
@@ -136,13 +132,11 @@ suspend fun ImageCapture.takePicture(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @VisibleForTesting
 internal fun ImageCapture.getTakePictureRequest(): TakePictureRequest? {
     return takePictureManager.capturingRequest?.takePictureRequest
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private class DelegatingImageCapturedCallback(
     delegate: ImageCapture.OnImageCapturedCallback
 ) : ImageCapture.OnImageCapturedCallback() {
@@ -175,7 +169,6 @@ private class DelegatingImageCapturedCallback(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private class DelegatingImageSavedCallback(
     delegate: ImageCapture.OnImageSavedCallback
 ) : ImageCapture.OnImageSavedCallback {

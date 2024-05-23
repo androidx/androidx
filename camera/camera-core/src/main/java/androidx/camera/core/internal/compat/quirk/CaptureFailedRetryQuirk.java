@@ -19,7 +19,6 @@ package androidx.camera.core.internal.compat.quirk;
 import android.os.Build;
 import android.util.Pair;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.internal.compat.workaround.CaptureFailedRetryEnabler;
 
@@ -38,7 +37,6 @@ import java.util.Set;
  *     Device(s): Samsung sm-g981u1
  *     @see CaptureFailedRetryEnabler
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CaptureFailedRetryQuirk implements Quirk {
 
     private static final Set<Pair<String, String>> FAILED_RETRY_ALLOW_LIST = new HashSet<>(

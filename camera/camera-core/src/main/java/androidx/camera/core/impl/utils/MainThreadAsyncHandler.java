@@ -20,14 +20,12 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.os.HandlerCompat;
 
 /**
  * Singleton instance of an async main thread {@link Handler}.
  * @see HandlerCompat#createAsync(Looper)
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class MainThreadAsyncHandler {
     private static volatile Handler sHandler;
 

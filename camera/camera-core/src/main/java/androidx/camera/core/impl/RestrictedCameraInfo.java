@@ -22,7 +22,6 @@ import android.util.Rational;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.TorchState;
@@ -39,7 +38,6 @@ import java.lang.annotation.RetentionPolicy;
  * A {@link CameraInfoInternal} that returns disabled state if the corresponding operation in the
  * given {@link RestrictedCameraControl} is disabled.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class RestrictedCameraInfo extends ForwardingCameraInfo {
     /**
      * Defines the list of supported camera operations.

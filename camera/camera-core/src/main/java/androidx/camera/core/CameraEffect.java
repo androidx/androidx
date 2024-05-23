@@ -25,7 +25,6 @@ import android.view.Display;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
 import androidx.camera.core.processing.SurfaceProcessorWithExecutor;
@@ -81,7 +80,6 @@ import java.util.concurrent.Executor;
  * }
  * </code></pre>
  */
-@RequiresApi(21)
 public abstract class CameraEffect {
 
     /**

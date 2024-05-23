@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraManager;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
@@ -41,7 +40,6 @@ import java.util.List;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21)
 public interface CameraCoordinator {
 
     int CAMERA_OPERATING_MODE_UNSPECIFIED = 0;

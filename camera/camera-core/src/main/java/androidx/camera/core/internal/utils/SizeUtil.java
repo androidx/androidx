@@ -20,7 +20,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 
 import java.util.Collections;
@@ -31,7 +30,6 @@ import java.util.TreeMap;
 /**
  * Utility class for size related operations.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SizeUtil {
     public static final Size RESOLUTION_ZERO = new Size(0, 0);
     public static final Size RESOLUTION_QVGA = new Size(320, 240);

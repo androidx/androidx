@@ -17,13 +17,11 @@
 package androidx.camera.core.impl.utils;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 /**
  * Utility class for resolution selector related operations.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ResolutionSelectorUtil {
     private ResolutionSelectorUtil() {
     }

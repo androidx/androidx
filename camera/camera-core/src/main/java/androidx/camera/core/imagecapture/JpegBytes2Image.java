@@ -23,10 +23,7 @@ import static androidx.camera.core.ImageReaderProxys.createIsolatedReader;
 
 import static java.util.Objects.requireNonNull;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.SafeCloseImageReaderProxy;
@@ -36,7 +33,6 @@ import androidx.camera.core.processing.Packet;
 /**
  * Converts JPEG bytes to {@link ImageProxy}.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class JpegBytes2Image implements Operation<Packet<byte[]>, Packet<ImageProxy>> {
 
     private static final int MAX_IMAGES = 2;

@@ -20,7 +20,6 @@ import android.util.Size;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -36,7 +35,6 @@ import java.util.List;
  * <p>Applications can create a {@link ResolutionSelector} with a proper ResolutionFilter to
  * choose the preferred resolution.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface ResolutionFilter {
     /**
      * Removes unsuitable sizes and sorts the resolution list in the preferred order.

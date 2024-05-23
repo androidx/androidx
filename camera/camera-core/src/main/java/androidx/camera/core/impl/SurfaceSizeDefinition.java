@@ -21,7 +21,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -34,7 +33,6 @@ import java.util.Map;
  * guaranteed stream combinations for different hardware level devices.
  */
 @SuppressWarnings("AutoValueImmutableFields")
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class SurfaceSizeDefinition {
 

@@ -16,9 +16,6 @@
 
 package androidx.camera.core.internal.compat;
 
-import androidx.annotation.RequiresApi;
-
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class MediaActionSoundCompatBaseImpl {
 
     // The camera ID used to query the camera information that is the same for all cameras.

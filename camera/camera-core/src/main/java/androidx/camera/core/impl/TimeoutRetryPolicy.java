@@ -17,7 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ExperimentalRetryPolicy;
 import androidx.camera.core.RetryPolicy;
 import androidx.core.util.Preconditions;
@@ -34,7 +33,6 @@ import androidx.core.util.Preconditions;
  *
  * <p>A timeout of 0 means the execution will never be halted.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalRetryPolicy
 public final class TimeoutRetryPolicy implements RetryPolicy {
 

@@ -20,7 +20,6 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
@@ -45,7 +44,6 @@ import java.util.Objects;
  *
  * <p>Call {@link #save()} to persist changes to disc.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Exif {
 
     /** Timestamp value indicating a timestamp value that is either not set or not valid */

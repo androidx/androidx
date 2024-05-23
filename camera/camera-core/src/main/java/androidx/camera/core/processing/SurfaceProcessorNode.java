@@ -37,7 +37,6 @@ import android.util.Size;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ProcessingException;
@@ -76,7 +75,6 @@ import java.util.concurrent.CancellationException;
  *  connected. For example, when app fails to provide a Surface or when VideoCapture is paused.
  *  One possible optimization is only connecting the upstream when the downstream are available.
  */
-@RequiresApi(api = 21)
 // TODO(b/233627260): remove once implemented.
 @SuppressWarnings("UnusedVariable")
 public class SurfaceProcessorNode implements

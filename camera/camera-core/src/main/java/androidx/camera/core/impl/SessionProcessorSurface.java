@@ -19,7 +19,6 @@ package androidx.camera.core.impl;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -31,7 +30,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  * <p>It is similar as {@link ImmediateSurface} but contains output config Id that can be used to
  * query the surface the id associates with.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SessionProcessorSurface extends DeferrableSurface {
     private final Surface mSurface;
     private final int mOutputConfigId;

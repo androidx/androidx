@@ -19,12 +19,10 @@ package androidx.camera.core.impl;
 import android.media.CamcorderProfile;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * EncoderProfilesProvider is used to obtain the {@link EncoderProfilesProxy}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface EncoderProfilesProvider {
 
     /**

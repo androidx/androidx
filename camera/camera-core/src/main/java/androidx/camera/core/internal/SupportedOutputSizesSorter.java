@@ -30,7 +30,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
@@ -65,7 +64,6 @@ import java.util.Map;
  *   <li>High resolution enabled flags
  * </ul>
  */
-@RequiresApi(21)
 public class SupportedOutputSizesSorter {
     private static final String TAG = "SupportedOutputSizesCollector";
     private final CameraInfoInternal mCameraInfoInternal;
