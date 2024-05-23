@@ -357,7 +357,11 @@ public class OpenGLActivity extends AppCompatActivity {
         @DoNotInline
         static Set<DynamicRange> getHighDynamicRangesSupportedByDisplay(
                 @NonNull Display display) {
-            return Arrays.stream(display.getHdrCapabilities().getSupportedHdrTypes())
+            Display.HdrCapabilities hdrCapabilities = display.getHdrCapabilities();
+            if (hdrCapabilities == null) {
+                return Collections.emptySet();
+            }
+            return Arrays.stream(hdrCapabilities.getSupportedHdrTypes())
                     .boxed()
                     .map(DISPLAY_HDR_TYPE_TO_DYNAMIC_RANGE::get)
                     .flatMap(set -> Objects.requireNonNull(set).stream())
