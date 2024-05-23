@@ -18,15 +18,12 @@ package androidx.camera.extensions.impl.advanced;
 
 import android.graphics.ImageFormat;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * A sample HDR implementation for testing long processing capture. It is capable of outputting
  * the postview(JPEG format) and the process progress event. ImageAnalysis is not supported.
  *
  * @since 1.2
  */
-@RequiresApi(21)
 public class HdrAdvancedExtenderImpl extends LongCaptureAdvancedExtenderImpl {
     public HdrAdvancedExtenderImpl() {
         super(/* postviewFormat */ ImageFormat.JPEG);
