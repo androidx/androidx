@@ -42,10 +42,10 @@ internal class FlushCoroutineDispatcher(
     // use this dispatcher won't be properly cancelled.
     // TODO replace it by scope.coroutineContext[CoroutineDispatcher] when it will be no longer experimental
     private val scope = CoroutineScope(scope.coroutineContext.minusKey(Job))
-    private var immediateTasks = mutableSetOf<Runnable>()
-    private val delayedTasks = mutableSetOf<Runnable>()
+    private var immediateTasks = ArrayDeque<Runnable>()
+    private val delayedTasks = ArrayDeque<Runnable>()
     private val tasksLock = createSynchronizedObject()
-    private var immediateTasksSwap = mutableSetOf<Runnable>()
+    private var immediateTasksSwap = ArrayDeque<Runnable>()
     @Volatile
     private var isPerformingRun = false
     private val runLock = createSynchronizedObject()

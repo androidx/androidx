@@ -17,6 +17,7 @@
 package androidx.compose.ui.platform
 
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -120,5 +121,27 @@ class FlushCoroutineDispatcherTest {
             actual = !dispatcher.hasTasks(),
             message = "FlushCoroutineDispatcher has a delayed task that has been cancelled"
         )
+    }
+
+    @Test
+    fun duplicate_identical_tasks_are_executed() = runTest {
+        val tasks = mutableListOf<Runnable>()
+        val controlledCoroutineDispatcher = object: CoroutineDispatcher() {
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                tasks.add(block)
+            }
+        }
+
+        val coroutineScope = CoroutineScope(controlledCoroutineDispatcher)
+        val dispatcher = FlushCoroutineDispatcher(coroutineScope)
+        var executionCount = 0
+        val block = Runnable { executionCount++ }
+        dispatcher.dispatch(EmptyCoroutineContext, block)
+        dispatcher.dispatch(EmptyCoroutineContext, block)
+        for (task in tasks) {
+            task.run()
+        }
+
+        assertEquals(2, executionCount)
     }
 }
