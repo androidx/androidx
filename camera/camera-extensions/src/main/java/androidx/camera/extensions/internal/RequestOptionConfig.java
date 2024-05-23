@@ -19,7 +19,6 @@ package androidx.camera.extensions.internal;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -29,7 +28,6 @@ import androidx.camera.core.impl.ReadableConfig;
 /**
  * Builder for creating {@link Config} that contains capture request options.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class RequestOptionConfig implements ReadableConfig {
     static final String CAPTURE_REQUEST_ID_STEM = "camera2.captureRequest.option.";
 

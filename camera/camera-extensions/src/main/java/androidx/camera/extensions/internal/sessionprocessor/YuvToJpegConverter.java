@@ -21,7 +21,6 @@ import android.view.Surface;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProcessingUtil;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
@@ -32,7 +31,6 @@ import androidx.core.util.Preconditions;
  * A image converter for YUV_420_888 to JPEG. The converted JPEG images were written to the given
  * output surface after {@link #writeYuvImage(ImageProxy)} is invoked.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class YuvToJpegConverter {
     private static final String TAG = "YuvToJpegConverter";
     private final Surface mOutputJpegSurface;

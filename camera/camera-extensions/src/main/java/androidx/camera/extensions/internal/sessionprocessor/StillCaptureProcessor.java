@@ -28,7 +28,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageReaderProxys;
 import androidx.camera.core.Logger;
@@ -70,7 +69,6 @@ import java.util.Map;
  *    Please note that the output JPEG surface should be closed AFTER this processor is closed().
  * </pre>
  */
-@RequiresApi(21)
 class StillCaptureProcessor {
     private static final String TAG = "StillCaptureProcessor";
     private static final int MAX_IMAGES = 2;

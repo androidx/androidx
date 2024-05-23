@@ -20,7 +20,6 @@ import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
 import androidx.camera.extensions.impl.advanced.ImageReaderOutputConfigImpl
 import androidx.camera.extensions.impl.advanced.MultiResolutionImageReaderOutputConfigImpl
@@ -39,7 +38,6 @@ private const val IMAGE_FORMAT = ImageFormat.YUV_420_888
 private const val MAX_IMAGES = 2
 private const val ID = 10
 
-@RequiresApi(21)
 private val SIZE = Size(640, 480)
 
 @RunWith(RobolectricTestRunner::class)

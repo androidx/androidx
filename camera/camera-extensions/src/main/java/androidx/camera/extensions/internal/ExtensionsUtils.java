@@ -33,7 +33,6 @@ import java.util.Set;
 /**
  * Utils for camera-extensions.
  */
-@RequiresApi(21)
 public class ExtensionsUtils {
     private ExtensionsUtils() {}
 
