@@ -170,6 +170,7 @@ fun DropdownMenu(
             transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
         }
 
+        @Suppress("DEPRECATION") // Will be removed in aosp/3077093
         Popup(
             focusable = focusable,
             onDismissRequest = onDismissRequest,
@@ -294,6 +295,7 @@ fun CursorDropdownMenu(
     if (expandedStates.currentState || expandedStates.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
 
+        @Suppress("DEPRECATION") // Will be removed in aosp/3077093
         Popup(
             focusable = focusable,
             onDismissRequest = onDismissRequest,

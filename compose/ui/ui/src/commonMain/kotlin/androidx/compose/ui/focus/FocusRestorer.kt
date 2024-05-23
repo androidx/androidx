@@ -105,6 +105,7 @@ internal class FocusRestorerNode(
         Default
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private val onEnter: (FocusDirection) -> FocusRequester = {
         @OptIn(ExperimentalComposeUiApi::class)
         val result = if (restoreFocusedChild()) Cancel else onRestoreFailed?.invoke()
@@ -114,7 +115,9 @@ internal class FocusRestorerNode(
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
+        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.enter = onEnter
+        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.exit = onExit
     }
 
