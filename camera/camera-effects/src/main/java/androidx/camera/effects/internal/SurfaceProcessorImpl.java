@@ -32,7 +32,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.Logger;
@@ -57,7 +56,6 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>This implementation only expects one input surface and one output surface.
  */
-@RequiresApi(21)
 public class SurfaceProcessorImpl implements SurfaceProcessor,
         SurfaceTexture.OnFrameAvailableListener {
 
