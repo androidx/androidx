@@ -17,7 +17,4 @@
 /**
  *
  */
-@RequiresApi(21)
 package androidx.camera.viewfinder.surface;
-
-import androidx.annotation.RequiresApi;
