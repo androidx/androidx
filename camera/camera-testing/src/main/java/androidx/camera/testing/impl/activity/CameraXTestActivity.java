@@ -27,7 +27,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
@@ -45,8 +44,13 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
-/** An activity which starts CameraX preview for testing. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+/** An Activity which starts CameraX preview for testing.
+ *
+ * <p>This Activity is intended to test the behavior of CameraX when an Activity with an
+ * active camera session goes into the background and returns to the foreground.
+ * Please retain active UseCases even when the Activity is paused. The camera is expected to resume
+ * automatically when the Activity returns to the foreground.
+ */
 public class CameraXTestActivity extends AppCompatActivity {
 
     private static final String TAG = "CameraXTestActivity";
@@ -58,8 +62,9 @@ public class CameraXTestActivity extends AppCompatActivity {
     private String mCameraId = null;
     @Nullable
     private CameraUseCaseAdapter mCameraUseCaseAdapter = null;
-    @NonNull
     final CountingIdlingResource mPreviewReady = new CountingIdlingResource("PreviewReady");
+    final CountingIdlingResource mResumeIdlingCounting =
+            new CountingIdlingResource("ActivityResume");
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,16 +78,15 @@ public class CameraXTestActivity extends AppCompatActivity {
         super.onResume();
         enablePreview();
         Logger.i(TAG, "Got UseCase: " + mPreview);
+        if (!mResumeIdlingCounting.isIdleNow()) {
+            mResumeIdlingCounting.decrement();
+        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mPreview != null && mCameraUseCaseAdapter != null) {
-            mCameraUseCaseAdapter.removeUseCases(Collections.singleton(mPreview));
-            mPreview = null;
-            mCameraUseCaseAdapter = null;
-        }
+        mResumeIdlingCounting.increment();
     }
 
     private void enablePreview() {
@@ -154,9 +158,10 @@ public class CameraXTestActivity extends AppCompatActivity {
                     cameraX.getDefaultConfigFactory());
             mCameraUseCaseAdapter.addUseCases(Collections.singleton(mPreview));
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            Logger.e(TAG, "Error when adding UseCases: " + e.getMessage(), e);
             return;
         } catch (CameraUseCaseAdapter.CameraException e) {
+            Logger.e(TAG, "CameraException when adding UseCases: " + e.getMessage(), e);
             mCameraUseCaseAdapter = null;
             mPreview = null;
             return;
@@ -176,7 +181,22 @@ public class CameraXTestActivity extends AppCompatActivity {
         return mPreviewReady;
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+    @VisibleForTesting
+    @NonNull
+    public CountingIdlingResource getActivityResumeIdlingCounting() {
+        return mResumeIdlingCounting;
+    }
+
+    /** Unbind UseCases if any */
+    @VisibleForTesting
+    public void cleanup() {
+        if (mPreview != null && mCameraUseCaseAdapter != null) {
+            mCameraUseCaseAdapter.removeUseCases(Collections.singleton(mPreview));
+            mPreview = null;
+            mCameraUseCaseAdapter = null;
+        }
+    }
+
     private static final class SurfaceTextureCallbackImpl implements
             SurfaceTextureProvider.SurfaceTextureCallback {
         private final TextureView mTextureView;
