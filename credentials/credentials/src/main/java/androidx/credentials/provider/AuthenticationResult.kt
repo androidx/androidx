@@ -16,7 +16,10 @@
 
 package androidx.credentials.provider
 
+import android.hardware.biometrics.BiometricPrompt
+import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.credentials.provider.AuthenticationError.Companion.TAG
 import java.util.Objects
 import org.jetbrains.annotations.VisibleForTesting
 
@@ -26,19 +29,68 @@ import org.jetbrains.annotations.VisibleForTesting
  *
  * @property authenticationType the type of authentication (e.g. device credential or biometric)
  * that was requested from and successfully provided by the user, corresponds to
- * constants defined in [android.hardware.biometrics.BiometricManager] such as
- * [android.hardware.biometrics.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC]
+ * constants defined in [androidx.biometric.BiometricPrompt] such as
+ * [androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC]
  * or
- * [android.hardware.biometrics.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL]
+ * [androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL]
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class AuthenticationResult(val authenticationType: Int) {
+class AuthenticationResult(
+    val authenticationType: @AuthenticatorResultTypes Int,
+) {
 
     companion object {
         @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val EXTRA_BIOMETRIC_AUTH_RESULT_TYPE =
             "BIOMETRIC_AUTH_RESULT"
+
+        @VisibleForTesting
+        internal val biometricFrameworkToJetpackResultMap = linkedMapOf(
+            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC to
+                androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC,
+            BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL to
+                androidx.biometric.BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL,
+            // TODO(b/340334264) : Add TYPE_UNKNOWN once avail from fw, though unexpected unless
+            // very low API level, and may be ignored until jp only impl added in QPR, or other
+            // ctr can be used directly once avail/ready
+        )
+
+        internal fun convertFrameworkBiometricResultToJetpack(frameworkCode: Int): Int {
+            // Ignoring getOrDefault to allow this object down to API 21
+            return if (biometricFrameworkToJetpackResultMap.containsKey(frameworkCode)) {
+                biometricFrameworkToJetpackResultMap[frameworkCode]!!
+            } else {
+                Log.i(TAG, "Non framework result code, $frameworkCode, ")
+                frameworkCode
+            }
+        }
+
+        /**
+         * Generates an instance of this class, to be called by an UI consumer that calls
+         * [BiometricPrompt] API and needs the result to be wrapped by this class. The caller of
+         * this API must specify whether the framework [android.hardware.biometrics.BiometricPrompt]
+         * API or the jetpack [androidx.biometric.BiometricPrompt] API is used through
+         * [isFrameworkBiometricPrompt].
+         *
+         * @param uiAuthenticationType the type of authentication (e.g. device credential or
+         * biometric) that was requested from and successfully provided by the user, corresponds to
+         * constants defined in [androidx.biometric.BiometricPrompt] if conversion is not desired,
+         * or in [android.hardware.biometrics.BiometricPrompt] if conversion is desired
+         * @param isFrameworkBiometricPrompt the bit indicating whether or not this error code
+         * requires conversion or not, set to true by default
+         * @return an authentication result that has properly handled conversion of the result types
+         */
+        @JvmOverloads @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        internal fun createFrom(
+            uiAuthenticationType: Int,
+            isFrameworkBiometricPrompt: Boolean = true,
+        ): AuthenticationResult =
+            AuthenticationResult(
+                authenticationType = if (isFrameworkBiometricPrompt)
+                    convertFrameworkBiometricResultToJetpack(uiAuthenticationType)
+                else uiAuthenticationType
+            )
     }
 
     override fun equals(other: Any?): Boolean {
