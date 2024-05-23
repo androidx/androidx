@@ -1,13 +1,29 @@
 // Baseline format: 1.0
-AddedMethod: androidx.compose.ui.semantics.SemanticsProperties#getIsEditable():
-    Added method androidx.compose.ui.semantics.SemanticsProperties.getIsEditable()
-AddedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#isEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver):
-    Added method androidx.compose.ui.semantics.SemanticsPropertiesKt.isEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver)
-AddedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#setEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver, boolean):
-    Added method androidx.compose.ui.semantics.SemanticsPropertiesKt.setEditable(androidx.compose.ui.semantics.SemanticsPropertyReceiver,boolean)
-
-
-RemovedMethod: androidx.compose.ui.semantics.SemanticsProperties#getEditable():
-    Removed method androidx.compose.ui.semantics.SemanticsProperties.getEditable()
-RemovedMethod: androidx.compose.ui.semantics.SemanticsPropertiesKt#editable(androidx.compose.ui.semantics.SemanticsPropertyReceiver):
-    Removed method androidx.compose.ui.semantics.SemanticsPropertiesKt.editable(androidx.compose.ui.semantics.SemanticsPropertyReceiver)
+BecameUnchecked: androidx.compose.ui.focus.FocusDirection.Companion#Enter:
+    Removed property FocusDirection.Companion.Enter from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusDirection.Companion#Exit:
+    Removed property FocusDirection.Companion.Exit from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusDirection.Companion#getEnter():
+    Removed method androidx.compose.ui.focus.FocusDirection.Companion.getEnter() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusDirection.Companion#getExit():
+    Removed method androidx.compose.ui.focus.FocusDirection.Companion.getExit() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusProperties#enter:
+    Removed property FocusProperties.enter from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusProperties#exit:
+    Removed property FocusProperties.exit from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusProperties#getEnter():
+    Removed method androidx.compose.ui.focus.FocusProperties.getEnter() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusProperties#getExit():
+    Removed method androidx.compose.ui.focus.FocusProperties.getExit() from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusProperties#setEnter(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>):
+    Removed method androidx.compose.ui.focus.FocusProperties.setEnter(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusProperties#setEnter(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>) parameter #0:
+    Removed parameter arg1 in androidx.compose.ui.focus.FocusProperties.setEnter(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> arg1) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusProperties#setExit(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>):
+    Removed method androidx.compose.ui.focus.FocusProperties.setExit(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusProperties#setExit(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester>) parameter #0:
+    Removed parameter arg1 in androidx.compose.ui.focus.FocusProperties.setExit(kotlin.jvm.functions.Function1<? super androidx.compose.ui.focus.FocusDirection,androidx.compose.ui.focus.FocusRequester> arg1) from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusRequester.Companion#Cancel:
+    Removed property FocusRequester.Companion.Cancel from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.focus.FocusRequester.Companion#getCancel():
+    Removed method androidx.compose.ui.focus.FocusRequester.Companion.getCancel() from compatibility checked API surface
