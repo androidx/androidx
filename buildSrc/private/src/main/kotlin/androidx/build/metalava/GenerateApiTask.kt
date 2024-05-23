@@ -65,11 +65,7 @@ abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecuto
     @OutputFiles
     fun getTaskOutputs(): List<File> {
         val prop = apiLocation.get()
-        return listOf(
-            prop.publicApiFile,
-            prop.restrictedApiFile,
-            prop.apiLevelsFile
-        )
+        return listOf(prop.publicApiFile, prop.restrictedApiFile, prop.apiLevelsFile)
     }
 
     @get:Internal abstract val currentVersion: Property<Version>
@@ -98,12 +94,13 @@ abstract class GenerateApiTask @Inject constructor(workerExecutor: WorkerExecuto
             check(compiled.exists()) { "File " + compiled + " does not exist" }
         }
 
-        val inputs = JavaCompileInputs(
-            sourcePaths = sourcePaths,
-            commonModuleSourcePaths = commonModuleSourcePaths,
-            dependencyClasspath = dependencyClasspath,
-            bootClasspath = bootClasspath
-        )
+        val inputs =
+            JavaCompileInputs(
+                sourcePaths = sourcePaths,
+                commonModuleSourcePaths = commonModuleSourcePaths,
+                dependencyClasspath = dependencyClasspath,
+                bootClasspath = bootClasspath
+            )
 
         val levelsArgs =
             getGenerateApiLevelsArgs(

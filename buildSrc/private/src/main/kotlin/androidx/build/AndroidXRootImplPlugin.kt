@@ -45,6 +45,7 @@ import org.gradle.kotlin.dsl.extra
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
     @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
+
     override fun apply(project: Project) {
         if (!project.isRoot) {
             throw Exception("This plugin should only be applied to root project")
@@ -96,8 +97,8 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         extra.set("projects", ConcurrentHashMap<String, String>())
 
         /**
-         * Copy PrivacySandbox related APKs into [getTestConfigDirectory] before zipping.
-         * Flatten directory hierarchy as both TradeFed and FTL work with flat hierarchy.
+         * Copy PrivacySandbox related APKs into [getTestConfigDirectory] before zipping. Flatten
+         * directory hierarchy as both TradeFed and FTL work with flat hierarchy.
          */
         val finalizeConfigsTask =
             project.tasks.register(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK, Copy::class.java) {

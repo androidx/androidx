@@ -44,7 +44,8 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             project.extensions.create<AndroidXComposeExtension>("androidxCompose", project)
         project.plugins.configureEach { plugin ->
             when (plugin) {
-                is AppPlugin, is LibraryPlugin -> {
+                is AppPlugin,
+                is LibraryPlugin -> {
                     val commonExtension =
                         project.extensions.findByType(CommonExtension::class.java)
                             ?: throw Exception("Failed to find Android extension")
@@ -177,37 +178,34 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
         val shouldPublish = androidXExtension.shouldPublish()
 
         // Create configuration that we'll use to load Compose compiler plugin
-        val configuration = project.configurations.create(COMPILER_PLUGIN_CONFIGURATION) {
-            it.isCanBeConsumed = false
-        }
+        val configuration =
+            project.configurations.create(COMPILER_PLUGIN_CONFIGURATION) {
+                it.isCanBeConsumed = false
+            }
         // Add Compose compiler plugin to kotlinPlugin configuration, making sure it works
         // for Playground builds as well
         val pluginVersionToml = project.getVersionByName("composeCompilerPlugin")
-        val versionToUse = if (ProjectLayoutType.isPlayground(project)) {
-            pluginVersionToml
-        } else {
-            // use exact project path instead of subprojects.find, it is faster
-            val compilerProject = project.rootProject.resolveProject(
-                ":compose:compiler:compiler"
-            )
-            val compilerMavenDirectory = File(
-                compilerProject.projectDir,
-                "compose-compiler-snapshot-repository"
-            )
-            if (!compilerMavenDirectory.exists()) {
+        val versionToUse =
+            if (ProjectLayoutType.isPlayground(project)) {
                 pluginVersionToml
             } else {
-                project.repositories.maven {
-                    it.url = compilerMavenDirectory.toURI()
+                // use exact project path instead of subprojects.find, it is faster
+                val compilerProject =
+                    project.rootProject.resolveProject(":compose:compiler:compiler")
+                val compilerMavenDirectory =
+                    File(compilerProject.projectDir, "compose-compiler-snapshot-repository")
+                if (!compilerMavenDirectory.exists()) {
+                    pluginVersionToml
+                } else {
+                    project.repositories.maven { it.url = compilerMavenDirectory.toURI() }
+                    // Version chosen to be not a "-SNAPSHOT" since apparently gradle doesn't
+                    // validate signatures for -SNAPSHOT builds.  Version is chosen to be higher
+                    // than anything real to ensure it is seen as newer than any explicit dependency
+                    // to prevent gradle from "upgrading" to a stable build instead of local build.
+                    // This version is built by: snapshot-compose-compiler.sh (in compiler project)
+                    "99.0.0"
                 }
-                // Version chosen to be not a "-SNAPSHOT" since apparently gradle doesn't
-                // validate signatures for -SNAPSHOT builds.  Version is chosen to be higher
-                // than anything real to ensure it is seen as newer than any explicit dependency
-                // to prevent gradle from "upgrading" to a stable build instead of local build.
-                // This version is built by: snapshot-compose-compiler.sh (in compiler project)
-                "99.0.0"
             }
-        }
         project.dependencies.add(
             COMPILER_PLUGIN_CONFIGURATION,
             if (project.isComposeCompilerUnpinned()) {
@@ -224,18 +222,19 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             }
         )
 
-        val kotlinPluginProvider = project.provider {
-            configuration.incoming
-                .artifactView { view ->
-                    view.attributes { attributes ->
-                        attributes.attribute(
-                            Attribute.of("artifactType", String::class.java),
-                            ArtifactTypeDefinition.JAR_TYPE
-                        )
+        val kotlinPluginProvider =
+            project.provider {
+                configuration.incoming
+                    .artifactView { view ->
+                        view.attributes { attributes ->
+                            attributes.attribute(
+                                Attribute.of("artifactType", String::class.java),
+                                ArtifactTypeDefinition.JAR_TYPE
+                            )
+                        }
                     }
-                }
-                .files
-        }
+                    .files
+            }
 
         val enableMetrics = project.enableComposeCompilerMetrics()
         val enableReports = project.enableComposeCompilerReports()
@@ -266,7 +265,9 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             val metricsIntermediateDir = project.compilerMetricsIntermediatesDir()
             compileTasks.configureEach { compile ->
                 compile.addPluginOption(
-                    ComposeCompileOptions.MetricsOption, metricsIntermediateDir.path)
+                    ComposeCompileOptions.MetricsOption,
+                    metricsIntermediateDir.path
+                )
             }
         }
         if (enableReports) {
@@ -289,59 +290,59 @@ private fun KotlinCompile.addPluginOption(
     composeCompileOptions: ComposeCompileOptions,
     value: String
 ) =
-    pluginOptions.add(CompilerPluginConfig().apply {
-                addPluginArgument(
-                    composeCompileOptions.pluginId,
-                    SubpluginOption(composeCompileOptions.key, value))
-    }
-)
+    pluginOptions.add(
+        CompilerPluginConfig().apply {
+            addPluginArgument(
+                composeCompileOptions.pluginId,
+                SubpluginOption(composeCompileOptions.key, value)
+            )
+        }
+    )
 
-private fun KotlinCompile.enableFeatureFlag(
-    featureFlag: ComposeFeatureFlag
-) {
+private fun KotlinCompile.enableFeatureFlag(featureFlag: ComposeFeatureFlag) {
     addPluginOption(ComposeCompileOptions.FeatureFlagOption, featureFlag.featureName)
 }
 
-private fun KotlinCompile.disableFeatureFlag(
-    featureFlag: ComposeFeatureFlag
-) {
+private fun KotlinCompile.disableFeatureFlag(featureFlag: ComposeFeatureFlag) {
     addPluginOption(ComposeCompileOptions.FeatureFlagOption, "-${featureFlag.featureName}")
 }
 
 public fun Project.zipComposeCompilerMetrics() {
     if (project.enableComposeCompilerMetrics()) {
-        val zipComposeMetrics = project.tasks.register(zipComposeMetricsTaskName, Zip::class.java) {
-            zipTask ->
-            zipTask.from(project.compilerMetricsIntermediatesDir())
-            zipTask.destinationDirectory.set(project.composeCompilerDataDir())
-            zipTask.archiveBaseName.set("composemetrics")
-        }
+        val zipComposeMetrics =
+            project.tasks.register(zipComposeMetricsTaskName, Zip::class.java) { zipTask ->
+                zipTask.from(project.compilerMetricsIntermediatesDir())
+                zipTask.destinationDirectory.set(project.composeCompilerDataDir())
+                zipTask.archiveBaseName.set("composemetrics")
+            }
         project.addToBuildOnServer(zipComposeMetrics)
     }
 }
 
 public fun Project.zipComposeCompilerReports() {
     if (project.enableComposeCompilerReports()) {
-        val zipComposeReports = project.tasks.register(zipComposeReportsTaskName, Zip::class.java) {
-            zipTask ->
-            zipTask.from(project.compilerReportsIntermediatesDir())
-            zipTask.destinationDirectory.set(project.composeCompilerDataDir())
-            zipTask.archiveBaseName.set("composereports")
-        }
+        val zipComposeReports =
+            project.tasks.register(zipComposeReportsTaskName, Zip::class.java) { zipTask ->
+                zipTask.from(project.compilerReportsIntermediatesDir())
+                zipTask.destinationDirectory.set(project.composeCompilerDataDir())
+                zipTask.archiveBaseName.set("composereports")
+            }
         project.addToBuildOnServer(zipComposeReports)
     }
 }
 
 fun Project.compilerMetricsIntermediatesDir(): File {
-    return project.rootProject.layout.buildDirectory.dir(
-        "libraryreports/composemetrics"
-    ).get().getAsFile()
+    return project.rootProject.layout.buildDirectory
+        .dir("libraryreports/composemetrics")
+        .get()
+        .getAsFile()
 }
 
 fun Project.compilerReportsIntermediatesDir(): File {
-    return project.rootProject.layout.buildDirectory.dir(
-        "libraryreports/composereports"
-    ).get().getAsFile()
+    return project.rootProject.layout.buildDirectory
+        .dir("libraryreports/composereports")
+        .get()
+        .getAsFile()
 }
 
 fun Project.composeCompilerDataDir(): File {

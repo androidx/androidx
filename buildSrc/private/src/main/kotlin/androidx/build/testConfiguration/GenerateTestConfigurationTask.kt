@@ -59,9 +59,7 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val appFileCollection: ConfigurableFileCollection
 
-    /**
-     * File existence check to determine whether to run this task.
-     */
+    /** File existence check to determine whether to run this task. */
     @get:InputFiles
     @get:SkipWhenEmpty
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -69,19 +67,13 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
 
     @get:Internal abstract val appLoader: Property<BuiltArtifactsLoader>
 
-    /**
-     * Extracted APKs for PrivacySandbox SDKs dependencies.
-     * Produced by AGP.
-     */
+    /** Extracted APKs for PrivacySandbox SDKs dependencies. Produced by AGP. */
     @get:InputFiles
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val privacySandboxSdkApks: ConfigurableFileCollection
 
-    /**
-     * Extracted split with manifest containing <uses-sdk-library> tag.
-     * Produced by AGP.
-     */
+    /** Extracted split with manifest containing <uses-sdk-library> tag. Produced by AGP. */
     @get:InputFiles
     @get:Optional
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -119,16 +111,12 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
     abstract val outputAppApk: RegularFileProperty
 
     /**
-     * Filename prefix for all PrivacySandbox related output files.
-     * Required for producing unique filenames over all projects,
+     * Filename prefix for all PrivacySandbox related output files. Required for producing unique
+     * filenames over all projects,
      */
-    @get:Input
-    @get:Optional
-    abstract val outputPrivacySandboxFilenamesPrefix: Property<String>
+    @get:Input @get:Optional abstract val outputPrivacySandboxFilenamesPrefix: Property<String>
 
-    /**
-     * Output directory for PrivacySandbox files (SDKs APKs, splits, etc).
-     */
+    /** Output directory for PrivacySandbox files (SDKs APKs, splits, etc). */
     @get:[OutputDirectory Optional]
     abstract val outputPrivacySandboxFiles: DirectoryProperty
 
@@ -211,8 +199,8 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
         val testApkBuiltArtifact = testApk.elements.single()
         val destinationApk = outputTestApk.get().asFile
         File(testApkBuiltArtifact.outputFile).copyTo(destinationApk, overwrite = true)
-        instrumentationArgs.get().forEach {
-            (key, value) -> configBuilder.instrumentationArgsMap[key] = value
+        instrumentationArgs.get().forEach { (key, value) ->
+            configBuilder.instrumentationArgsMap[key] = value
         }
         configBuilder
             .testApkName(destinationApk.name)
@@ -236,8 +224,8 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
     }
 
     /**
-     * Configure installation of PrivacySandbox SDKs before main and test APKs.
-     * Do nothing if project doesn't have dependencies on PrivacySandbox SDKs.
+     * Configure installation of PrivacySandbox SDKs before main and test APKs. Do nothing if
+     * project doesn't have dependencies on PrivacySandbox SDKs.
      */
     private fun configurePrivacySandbox(configBuilder: ConfigBuilder) {
         if (privacySandboxSdkApks.isEmpty) {
@@ -245,19 +233,19 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
         }
 
         val prefix = outputPrivacySandboxFilenamesPrefix.get()
-        val sdkApkFileNames = privacySandboxSdkApks.asFileTree.map { sdkApk ->
-            // TODO (b/309610890): Remove after supporting unique filenames on bundletool side.
-            val sdkProjectName = sdkApk.parentFile?.name
-            val outputFileName = "$prefix-$sdkProjectName-${sdkApk.name}"
-            val outputFile = outputPrivacySandboxFiles.get().file(outputFileName)
-            sdkApk.copyTo(outputFile.asFile, overwrite = true)
-            outputFileName
-        }
+        val sdkApkFileNames =
+            privacySandboxSdkApks.asFileTree.map { sdkApk ->
+                // TODO (b/309610890): Remove after supporting unique filenames on bundletool side.
+                val sdkProjectName = sdkApk.parentFile?.name
+                val outputFileName = "$prefix-$sdkProjectName-${sdkApk.name}"
+                val outputFile = outputPrivacySandboxFiles.get().file(outputFileName)
+                sdkApk.copyTo(outputFile.asFile, overwrite = true)
+                outputFileName
+            }
         configBuilder.initialSetupApks(sdkApkFileNames)
 
-        val usesSdkSplitArtifact = appLoader.get().load(privacySandboxUsesSdkSplit)
-            ?.elements
-            ?.single()
+        val usesSdkSplitArtifact =
+            appLoader.get().load(privacySandboxUsesSdkSplit)?.elements?.single()
         if (usesSdkSplitArtifact != null) {
             val splitApk = File(usesSdkSplitArtifact.outputFile)
             val outputFileName = "$prefix-${splitApk.name}"

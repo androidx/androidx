@@ -41,8 +41,8 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
             project.extensions.create<RelocationExtension>(EXTENSION_NAME, project)
         project.plugins.configureEach { plugin ->
             when (plugin) {
-                is JavaLibraryPlugin, is KotlinBasePlugin ->
-                    project.configureJavaOrKotlinLibrary(relocationExtension)
+                is JavaLibraryPlugin,
+                is KotlinBasePlugin -> project.configureJavaOrKotlinLibrary(relocationExtension)
             }
         }
     }
@@ -51,30 +51,30 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
         createConfigurations()
 
         val sourceSets = extensions.getByType(SourceSetContainer::class.java)
-        val libraryShadowJar = tasks.register(
-            "shadowLibraryJar", ShadowJar::class.java
-        ) { task ->
-            task.transformers.add(
-                BundleInsideHelper.DontIncludeResourceTransformer().apply {
-                    dropResourcesWithSuffix = ".proto"
+        val libraryShadowJar =
+            tasks.register("shadowLibraryJar", ShadowJar::class.java) { task ->
+                task.transformers.add(
+                    BundleInsideHelper.DontIncludeResourceTransformer().apply {
+                        dropResourcesWithSuffix = ".proto"
+                    }
+                )
+                task.from(sourceSets.named("main").map { it.output })
+                relocationExtension.getRelocations().forEach {
+                    task.relocate(it.sourcePackage, it.targetPackage)
                 }
-            )
-            task.from(sourceSets.named("main").map { it.output })
-            relocationExtension.getRelocations().forEach {
-                task.relocate(it.sourcePackage, it.targetPackage)
+                relocationExtension.artifactId.orNull?.let {
+                    task.configurations = listOf(configurations.getByName("repackageClasspath"))
+                }
             }
-            relocationExtension.artifactId.orNull?.let {
-                task.configurations = listOf(configurations.getByName("repackageClasspath"))
-            }
-        }
         addArchiveToVariants(libraryShadowJar)
     }
 
     private fun Project.createConfigurations() {
-        val repackage = configurations.create("repackage") { config ->
-            config.isCanBeConsumed = false
-            config.isCanBeResolved = false
-        }
+        val repackage =
+            configurations.create("repackage") { config ->
+                config.isCanBeConsumed = false
+                config.isCanBeResolved = false
+            }
 
         configurations.create("repackageClasspath") { config ->
             config.isCanBeConsumed = false
@@ -93,9 +93,9 @@ class AndroidXRepackageImplPlugin : Plugin<Project> {
     }
 
     /**
-     * This forces the use of repackaged JARs as opposed to the java-classes-directory
-     * for Android. Without this, AGP uses the artifacts in java-classes-directory, which do not
-     * have the classes repackaged to the target package.
+     * This forces the use of repackaged JARs as opposed to the java-classes-directory for Android.
+     * Without this, AGP uses the artifacts in java-classes-directory, which do not have the classes
+     * repackaged to the target package.
      *
      * We attempted to extract the contents of the repackaged library JAR into classes/java/main,
      * but the AGP transform depends on JavaCompile. We cannot make JavaCompile depend on the task

@@ -46,6 +46,7 @@ abstract class VersionFileWriterTask : DefaultTask() {
         writer.println(version.get())
         writer.close()
     }
+
     internal companion object {
         const val TASK_NAME = "writeVersionFile"
     }
@@ -60,14 +61,10 @@ fun Project.configureVersionFileWriter(
     libraryAndroidComponentsExtension: LibraryAndroidComponentsExtension,
     androidXExtension: AndroidXExtension
 ) {
-    val writeVersionFile = tasks.register(
-        VersionFileWriterTask.TASK_NAME,
-        VersionFileWriterTask::class.java
-    )
+    val writeVersionFile =
+        tasks.register(VersionFileWriterTask.TASK_NAME, VersionFileWriterTask::class.java)
 
-    afterEvaluate {
-        configureVersionFile(writeVersionFile, androidXExtension)
-    }
+    afterEvaluate { configureVersionFile(writeVersionFile, androidXExtension) }
     libraryAndroidComponentsExtension.onVariants {
         it.sources.resources!!.addGeneratedSourceDirectory(
             writeVersionFile,
@@ -80,10 +77,8 @@ fun Project.configureVersionFileWriter(
     kmpExtension: KotlinMultiplatformExtension,
     androidXExtension: AndroidXExtension
 ) {
-    val writeVersionFile = tasks.register(
-        VersionFileWriterTask.TASK_NAME,
-        VersionFileWriterTask::class.java
-    )
+    val writeVersionFile =
+        tasks.register(VersionFileWriterTask.TASK_NAME, VersionFileWriterTask::class.java)
     writeVersionFile.configure {
         it.outputDir.set(layout.buildDirectory.dir("generatedVersionFile"))
     }
@@ -95,9 +90,7 @@ fun Project.configureVersionFileWriter(
         includes.add("META-INF/*.version")
         resources.setIncludes(includes)
     }
-    afterEvaluate {
-        configureVersionFile(writeVersionFile, androidXExtension)
-    }
+    afterEvaluate { configureVersionFile(writeVersionFile, androidXExtension) }
 }
 
 private fun Project.configureVersionFile(

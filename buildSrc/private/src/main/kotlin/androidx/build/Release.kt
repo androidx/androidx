@@ -81,6 +81,7 @@ open class GMavenZipTask : Zip() {
             }
         }
     }
+
     /** Config action that configures the task when necessary. */
     class ConfigAction(private val params: Params) : Action<GMavenZipTask> {
         data class Params(
@@ -459,11 +460,13 @@ val AndroidXExtension.publishedArtifacts: List<Artifact>
 private val AndroidXExtension.publishPlatforms: List<String>
     get() {
         val potentialTargets =
-            project.multiplatformExtension?.targets?.asMap?.filterValues {
-                it.publishable
-            }?.keys?.map { it.lowercase() } ?: emptySet()
-        val declaredTargets = potentialTargets
-            .filter { it != "metadata" }
+            project.multiplatformExtension
+                ?.targets
+                ?.asMap
+                ?.filterValues { it.publishable }
+                ?.keys
+                ?.map { it.lowercase() } ?: emptySet()
+        val declaredTargets = potentialTargets.filter { it != "metadata" }
         return declaredTargets.toList()
     }
 

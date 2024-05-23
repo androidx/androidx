@@ -21,23 +21,19 @@ import org.jetbrains.kotlin.konan.target.KonanTarget
 
 /**
  * We cannot use KonanTarget as Gradle input/output due to
- * https://youtrack.jetbrains.com/issue/KT-61657.
- * Hence, we have this value class which represents it as a string.
+ * https://youtrack.jetbrains.com/issue/KT-61657. Hence, we have this value class which represents
+ * it as a string.
  */
-
 @JvmInline
 value class SerializableKonanTarget(val name: String) : Serializable {
     init {
-        check(KonanTarget.predefinedTargets.contains(name)) {
-            "Invalid KonanTarget name: $name"
-        }
+        check(KonanTarget.predefinedTargets.contains(name)) { "Invalid KonanTarget name: $name" }
     }
 
     val asKonanTarget
         get(): KonanTarget {
-            return KonanTarget.predefinedTargets[name] ?: error(
-                "No KonanTarget found with name $name"
-            )
+            return KonanTarget.predefinedTargets[name]
+                ?: error("No KonanTarget found with name $name")
         }
 
     override fun toString() = name

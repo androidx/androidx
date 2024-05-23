@@ -52,8 +52,7 @@ abstract class DackkaTask
 constructor(private val workerExecutor: WorkerExecutor, private val objects: ObjectFactory) :
     DefaultTask() {
 
-    @get:OutputFile
-    abstract val argsJsonFile: RegularFileProperty
+    @get:OutputFile abstract val argsJsonFile: RegularFileProperty
 
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     abstract val projectStructureMetadataFile: RegularFileProperty
@@ -117,8 +116,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
     @get:Input abstract val nullabilityAnnotations: ListProperty<String>
 
     // Version metadata for apiSince, only marked as @InputFiles if includeVersionMetadata is true
-    @get:Internal
-    abstract val versionMetadataFiles: ConfigurableFileCollection
+    @get:Internal abstract val versionMetadataFiles: ConfigurableFileCollection
 
     @InputFiles
     @PathSensitive(PathSensitivity.NONE)
@@ -184,16 +182,19 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                             sourceRoots = objects.fileCollection().from(sourceDir),
                             // TODO(b/181224204): KMP samples aren't supported, dackka assumes all
                             // samples are in common
-                            samples = if (analysisPlatform == DokkaAnalysisPlatform.COMMON) {
-                                objects.fileCollection().from(
-                                    samplesDeprecatedDir,
-                                    samplesJvmDir,
-                                    samplesKmpDir,
-                                    frameworkSamplesDir.get().asFile
-                                )
-                            } else {
-                                objects.fileCollection()
-                            },
+                            samples =
+                                if (analysisPlatform == DokkaAnalysisPlatform.COMMON) {
+                                    objects
+                                        .fileCollection()
+                                        .from(
+                                            samplesDeprecatedDir,
+                                            samplesJvmDir,
+                                            samplesKmpDir,
+                                            frameworkSamplesDir.get().asFile
+                                        )
+                                } else {
+                                    objects.fileCollection()
+                                },
                             includes = objects.fileCollection().from(includesFiles(sourceDir)),
                             classpath = dependenciesClasspath,
                             externalDocumentationLinks = externalDocs,
@@ -213,12 +214,15 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 displayName = "main",
                 analysisPlatform = "jvm",
                 sourceRoots = objects.fileCollection().from(jvmSourcesDir),
-                samples = objects.fileCollection().from(
-                    samplesDeprecatedDir,
-                    samplesJvmDir,
-                    samplesKmpDir,
-                    frameworkSamplesDir.get().asFile
-                ),
+                samples =
+                    objects
+                        .fileCollection()
+                        .from(
+                            samplesDeprecatedDir,
+                            samplesJvmDir,
+                            samplesKmpDir,
+                            frameworkSamplesDir.get().asFile
+                        ),
                 includes = objects.fileCollection().from(includesFiles(jvmSourcesDir.get().asFile)),
                 classpath = dependenciesClasspath,
                 externalDocumentationLinks = externalDocs,
@@ -283,20 +287,18 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
             )
 
         val json = gson.toJson(jsonMap)
-        return argsJsonFile.get().asFile.apply {
-            writeText(json)
-        }
+        return argsJsonFile.get().asFile.apply { writeText(json) }
     }
 
     /**
-     * If version metadata shouldn't be included in the docs, returns an empty list.
-     * Otherwise, returns the list of version metadata files after checking if they're all JSON. If
-     * version metadata does not exist for a project, it's possible that a configuration which isn't
-     * an exact match of the version metadata attributes to be selected as version metadata.
+     * If version metadata shouldn't be included in the docs, returns an empty list. Otherwise,
+     * returns the list of version metadata files after checking if they're all JSON. If version
+     * metadata does not exist for a project, it's possible that a configuration which isn't an
+     * exact match of the version metadata attributes to be selected as version metadata.
      */
     private fun getVersionMetadataFiles(): List<File> {
-        val (json, nonJson) = getOptionalVersionMetadataFiles().files
-            .partition { it.extension == "json" }
+        val (json, nonJson) =
+            getOptionalVersionMetadataFiles().files.partition { it.extension == "json" }
         if (nonJson.isNotEmpty()) {
             logger.error(
                 "The following were resolved as version metadata files but are not JSON files. " +
@@ -359,7 +361,7 @@ constructor(private val workerExecutor: WorkerExecutor, private val objects: Obj
                 "robolectric" to "https://robolectric.org/javadoc/4.11/",
                 "interactive-media" to
                     "https://developers.google.com/interactive-media-ads/docs/sdks/android/" +
-                    "client-side/api/reference/com/google/ads/interactivemedia/v3",
+                        "client-side/api/reference/com/google/ads/interactivemedia/v3",
                 "errorprone" to "https://errorprone.info/api/latest/",
                 "gms" to "https://developers.google.com/android/reference",
                 "checkerframework" to "https://checkerframework.org/api/",

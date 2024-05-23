@@ -51,15 +51,15 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
     /**
      * Specifies both the source files and their corresponding compiled class files
      *
-     * We specify the source files to pass to Metalava because that's the format that
-     * Metalava needs.
+     * We specify the source files to pass to Metalava because that's the format that Metalava
+     * needs.
      *
-     * However, Metalava is only supposed to read the public API, so we don't need to
-     * rerun Metalava if no API changes occurred.
+     * However, Metalava is only supposed to read the public API, so we don't need to rerun Metalava
+     * if no API changes occurred.
      *
-     * Gradle doesn't offer all of the same abilities as Metalava for writing a signature file
-     * and validating its compatibility, but Gradle does offer the ability to check whether
-     * two sets of classes have the same API.
+     * Gradle doesn't offer all of the same abilities as Metalava for writing a signature file and
+     * validating its compatibility, but Gradle does offer the ability to check whether two sets of
+     * classes have the same API.
      *
      * So, we ask Gradle to rerun this task only if the public API changes, which we implement by
      * declaring the compiled classes as inputs rather than the sources
@@ -88,7 +88,11 @@ constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTas
 
     fun runWithArgs(args: List<String>) {
         runMetalavaWithArgs(
-            metalavaClasspath, args, k2UastEnabled.get(), kotlinSourceLevel.get(), workerExecutor
+            metalavaClasspath,
+            args,
+            k2UastEnabled.get(),
+            kotlinSourceLevel.get(),
+            workerExecutor
         )
     }
 }

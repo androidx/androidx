@@ -47,22 +47,23 @@ object MetalavaTasks {
         builtApiLocation: ApiLocation,
         outputApiLocations: List<ApiLocation>
     ) {
-        val generateApiDependencies = project.configurations.create("GenerateApiDependencies") {
-            it.isCanBeConsumed = false
-            it.isTransitive = false
-            it.attributes.attribute(
-                BuildTypeAttr.ATTRIBUTE,
-                project.objects.named(BuildTypeAttr::class.java, "debug")
-            )
-            it.attributes.attribute(
-                Usage.USAGE_ATTRIBUTE,
-                project.objects.named(Usage::class.java, Usage.JAVA_API)
-            )
-            it.attributes.attribute(
-                ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE,
-                ArtifactTypeDefinition.JAR_TYPE
-            )
-        }
+        val generateApiDependencies =
+            project.configurations.create("GenerateApiDependencies") {
+                it.isCanBeConsumed = false
+                it.isTransitive = false
+                it.attributes.attribute(
+                    BuildTypeAttr.ATTRIBUTE,
+                    project.objects.named(BuildTypeAttr::class.java, "debug")
+                )
+                it.attributes.attribute(
+                    Usage.USAGE_ATTRIBUTE,
+                    project.objects.named(Usage::class.java, Usage.JAVA_API)
+                )
+                it.attributes.attribute(
+                    ArtifactTypeDefinition.ARTIFACT_TYPE_ATTRIBUTE,
+                    ArtifactTypeDefinition.JAR_TYPE
+                )
+            }
         project.dependencies.add(generateApiDependencies.name, project.project(project.path))
 
         val metalavaClasspath = project.getMetalavaClasspath()

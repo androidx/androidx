@@ -222,8 +222,10 @@ private fun Project.shouldVerifyConfiguration(configuration: Configuration): Boo
     if (name.contains("TestCompile")) return false
     if (name.contains("commonTest", ignoreCase = true)) return false
     if (name.contains("nativeTest", ignoreCase = true)) return false
-    if (multiplatformExtension?.targets
-            ?.any { name.contains("${it.name}Test", ignoreCase = true) } == true
+    if (
+        multiplatformExtension?.targets?.any {
+            name.contains("${it.name}Test", ignoreCase = true)
+        } == true
     ) {
         return false
     }
@@ -246,9 +248,11 @@ private fun shouldVerifyDependency(dependency: Dependency): Boolean {
 
     // Should be guaranteed to be an androidx project at this point, but doesn't necessarily mean
     // we have AndroidXExtension applied.
-    if (dependency is ProjectDependency &&
-        dependency.dependencyProject.extensions.findByType<AndroidXExtension>()
-            ?.shouldRelease() != true
+    if (
+        dependency is ProjectDependency &&
+            dependency.dependencyProject.extensions
+                .findByType<AndroidXExtension>()
+                ?.shouldRelease() != true
     ) {
         return false
     }

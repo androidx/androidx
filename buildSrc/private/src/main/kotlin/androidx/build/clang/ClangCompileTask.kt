@@ -36,9 +36,8 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
 @CacheableTask
-abstract class ClangCompileTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor
-) : DefaultTask() {
+abstract class ClangCompileTask @Inject constructor(private val workerExecutor: WorkerExecutor) :
+    DefaultTask() {
     init {
         description = "Compiles C sources into an object file (.o)."
         group = "Build"
@@ -48,14 +47,11 @@ abstract class ClangCompileTask @Inject constructor(
     @get:ServiceReference(KonanBuildService.KEY)
     abstract val konanBuildService: Property<KonanBuildService>
 
-    @get:Nested
-    abstract val clangParameters: ClangCompileParameters
+    @get:Nested abstract val clangParameters: ClangCompileParameters
 
     @TaskAction
     fun compile() {
-        workerExecutor.noIsolation().submit(
-            ClangCompileWorker::class.java
-        ) {
+        workerExecutor.noIsolation().submit(ClangCompileWorker::class.java) {
             it.buildService.set(konanBuildService)
             it.clangParameters.set(clangParameters)
         }
@@ -63,37 +59,24 @@ abstract class ClangCompileTask @Inject constructor(
 }
 
 abstract class ClangCompileParameters {
-    /**
-     * The compilation target platform for which the given inputs will be compiled.
-     */
-    @get:Input
-    abstract val konanTarget: Property<SerializableKonanTarget>
+    /** The compilation target platform for which the given inputs will be compiled. */
+    @get:Input abstract val konanTarget: Property<SerializableKonanTarget>
 
-    /**
-     * List of C source files.
-     */
+    /** List of C source files. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NAME_ONLY)
     abstract val sources: ConfigurableFileCollection
 
-    /**
-     * The output directory where the object files for each source file will be written.
-     */
-    @get:OutputDirectory
-    abstract val output: DirectoryProperty
+    /** The output directory where the object files for each source file will be written. */
+    @get:OutputDirectory abstract val output: DirectoryProperty
 
-    /**
-     * List of directories that include the headers used in the compilation.
-     */
+    /** List of directories that include the headers used in the compilation. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val includes: ConfigurableFileCollection
 
-    /**
-     * List of arguments that will be passed into clang during compilation.
-     */
-    @get:Input
-    abstract val freeArgs: ListProperty<String>
+    /** List of arguments that will be passed into clang during compilation. */
+    @get:Input abstract val freeArgs: ListProperty<String>
 }
 
 private abstract class ClangCompileWorker : WorkAction<ClangCompileWorker.Params> {

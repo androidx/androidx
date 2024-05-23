@@ -55,12 +55,11 @@ private fun JavaExecSpec.addKtlintJvmArgs() {
 // Workaround for https://github.com/gradle/gradle/issues/29205
 fun Task.runAfterKotlinCompileTasks() {
     val thisTask = this
-    // Our ktlint tasks declare "src" as an input, while our KotlinCompile tasks use something like src/main/java as an inpt
+    // Our ktlint tasks declare "src" as an input, while our KotlinCompile tasks use something like
+    // src/main/java as an inpt
     // Currently Gradle can sometimes get confused when loading a parent and child directory at
     // the same time, so we ask Gradle to avoid running both tasks in parallel
-    thisTask.mustRunAfter(
-        project.tasks.withType(KotlinCompile::class.java)
-    )
+    thisTask.mustRunAfter(project.tasks.withType(KotlinCompile::class.java))
 }
 
 private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
@@ -300,11 +299,8 @@ abstract class KtlintCheckFileTask : DefaultTask() {
             execOperations.javaexec { javaExecSpec ->
                 javaExecSpec.mainClass.set(MainClass)
                 javaExecSpec.classpath = ktlintClasspath
-                val args = mutableListOf(
-                    "--code-style=android_studio",
-                    "--disabled_rules",
-                    DisabledRules
-                )
+                val args =
+                    mutableListOf("--code-style=android_studio", "--disabled_rules", DisabledRules)
                 args.addAll(kotlinFiles)
                 if (format) args.add("-F")
 

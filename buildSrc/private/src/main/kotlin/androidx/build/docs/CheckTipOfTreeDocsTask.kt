@@ -45,14 +45,11 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
     @get:[InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val tipOfTreeBuildFile: RegularFileProperty
 
-    @get:Input
-    abstract val projectPathProvider: Property<String>
+    @get:Input abstract val projectPathProvider: Property<String>
 
-    @get:Input
-    abstract val includeOptionalProjects: Property<Boolean>
+    @get:Input abstract val includeOptionalProjects: Property<Boolean>
 
-    @get:Input
-    abstract val type: Property<DocsType>
+    @get:Input abstract val type: Property<DocsType>
 
     @TaskAction
     fun exec() {
@@ -69,28 +66,30 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
         val foundExpectedText = fileContents.contains(fullExpectedText)
 
         // Optional projects use a different path for docs configuration
-        val foundOptionalText = includeOptionalProjects.get() &&
-            fileContents.contains("${prefix}ForOptionalProject(\"$projectPath\")")
+        val foundOptionalText =
+            includeOptionalProjects.get() &&
+                fileContents.contains("${prefix}ForOptionalProject(\"$projectPath\")")
 
         if (!foundExpectedText && !foundOptionalText) {
             // If this is a KMP project, check if it is present but configured as non-KMP
-            val message = if (fileContents.contains(projectDependency)) {
-                "Project $projectPath has the wrong configuration type in " +
-                    "docs-tip-of-tree/build.gradle, should use $prefix\n\n" +
-                    "Update the entry for $projectPath in docs-tip-of-tree/build.gradle to " +
-                    "'$fullExpectedText'."
-            } else {
-                "Project $projectPath not found in docs-tip-of-tree/build.gradle\n\n" +
-                    "Use the project creation script (development/project-creator/" +
-                    "create_project.py) when setting up a project to make sure all required " +
-                    "steps are complete.\n\n" +
-                    "The project should be added to docs-tip-of-tree/build.gradle as " +
-                    "\'$fullExpectedText\'.\n\n" +
-                    "If this project should not have published refdocs, first check that the " +
-                    "library type listed in its build.gradle file is accurate. If it is, opt out " +
-                    "of refdoc generation using \'doNotDocumentReason = \"some reason\"\' in the " +
-                    "'androidx' configuration section (this is not common)."
-            }
+            val message =
+                if (fileContents.contains(projectDependency)) {
+                    "Project $projectPath has the wrong configuration type in " +
+                        "docs-tip-of-tree/build.gradle, should use $prefix\n\n" +
+                        "Update the entry for $projectPath in docs-tip-of-tree/build.gradle to " +
+                        "'$fullExpectedText'."
+                } else {
+                    "Project $projectPath not found in docs-tip-of-tree/build.gradle\n\n" +
+                        "Use the project creation script (development/project-creator/" +
+                        "create_project.py) when setting up a project to make sure all required " +
+                        "steps are complete.\n\n" +
+                        "The project should be added to docs-tip-of-tree/build.gradle as " +
+                        "\'$fullExpectedText\'.\n\n" +
+                        "If this project should not have published refdocs, first check that the " +
+                        "library type listed in its build.gradle file is accurate. If it is, opt out " +
+                        "of refdoc generation using \'doNotDocumentReason = \"some reason\"\' in the " +
+                        "'androidx' configuration section (this is not common)."
+                }
             throw GradleException(message)
         }
     }
@@ -100,29 +99,33 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
             project.afterEvaluate {
                 if (!extension.requiresDocs()) return@afterEvaluate
 
-                val docsType = if (extension.type == LibraryType.Companion.SAMPLES) {
-                    DocsType.SAMPLES
-                } else if (multiplatformExtension != null) {
-                    DocsType.KMP
-                } else {
-                    DocsType.STANDARD
-                }
+                val docsType =
+                    if (extension.type == LibraryType.Companion.SAMPLES) {
+                        DocsType.SAMPLES
+                    } else if (multiplatformExtension != null) {
+                        DocsType.KMP
+                    } else {
+                        DocsType.STANDARD
+                    }
 
-                val checkDocs = project.tasks.register(
-                    "checkDocsTipOfTree",
-                    CheckTipOfTreeDocsTask::class.java
-                ) { task ->
-                    task.tipOfTreeBuildFile.set(
-                        project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")
-                    )
-                    task.projectPathProvider.set(path)
-                    task.includeOptionalProjects.set(
-                        providers.gradleProperty(INCLUDE_OPTIONAL_PROJECTS)
-                            .getOrElse("false").toBoolean()
-                    )
-                    task.type.set(docsType)
-                    task.cacheEvenIfNoOutputs()
-                }
+                val checkDocs =
+                    project.tasks.register(
+                        "checkDocsTipOfTree",
+                        CheckTipOfTreeDocsTask::class.java
+                    ) { task ->
+                        task.tipOfTreeBuildFile.set(
+                            project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")
+                        )
+                        task.projectPathProvider.set(path)
+                        task.includeOptionalProjects.set(
+                            providers
+                                .gradleProperty(INCLUDE_OPTIONAL_PROJECTS)
+                                .getOrElse("false")
+                                .toBoolean()
+                        )
+                        task.type.set(docsType)
+                        task.cacheEvenIfNoOutputs()
+                    }
                 project.addToBuildOnServer(checkDocs)
             }
         }

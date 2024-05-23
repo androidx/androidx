@@ -87,18 +87,20 @@ private fun Project.createTestConfigurationGenerationTask(
             val androidXExtension = extensions.getByType<AndroidXExtension>()
             if (isPrivacySandboxEnabled()) {
                 // TODO (b/309610890): Replace for dependency on AGP artifact.
-                val extractedPrivacySandboxSdkApksDir = layout.buildDirectory.dir(
-                    "intermediates/extracted_apks_from_privacy_sandbox_sdks"
-                )
+                val extractedPrivacySandboxSdkApksDir =
+                    layout.buildDirectory.dir(
+                        "intermediates/extracted_apks_from_privacy_sandbox_sdks"
+                    )
                 task.privacySandboxSdkApks.from(
                     files(extractedPrivacySandboxSdkApksDir) {
                         it.builtBy("buildPrivacySandboxSdkApksForDebug")
                     }
                 )
                 // TODO (b/309610890): Replace for dependency on AGP artifact.
-                val usesSdkSplitDir = layout.buildDirectory.dir(
-                    "intermediates/uses_sdk_library_split_for_local_deployment"
-                )
+                val usesSdkSplitDir =
+                    layout.buildDirectory.dir(
+                        "intermediates/uses_sdk_library_split_for_local_deployment"
+                    )
                 task.privacySandboxUsesSdkSplit.from(
                     files(usesSdkSplitDir) {
                         it.builtBy("generateDebugAdditionalSplitForPrivacySandboxDeployment")
@@ -207,10 +209,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                         .incoming
                         .artifactView {
                             it.attributes { container ->
-                                container.attribute(
-                                    ARTIFACT_TYPE_ATTRIBUTE,
-                                    "apk"
-                                )
+                                container.attribute(ARTIFACT_TYPE_ATTRIBUTE, "apk")
                             }
                         }
                         .files
@@ -237,7 +236,8 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                     config.isCanBeConsumed = false
                     config.attributes {
                         it.attribute(
-                            BuildTypeAttr.ATTRIBUTE, objects.named(targetAppProjectVariant)
+                            BuildTypeAttr.ATTRIBUTE,
+                            objects.named(targetAppProjectVariant)
                         )
                         it.attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
                     }
@@ -256,12 +256,7 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
                 task.appFileCollection.from(
                     configuration.incoming
                         .artifactView { view ->
-                            view.attributes {
-                                it.attribute(
-                                    ARTIFACT_TYPE_ATTRIBUTE,
-                                    "apk"
-                                )
-                            }
+                            view.attributes { it.attribute(ARTIFACT_TYPE_ATTRIBUTE, "apk") }
                         }
                         .files
                 )
@@ -401,9 +396,7 @@ private fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
         it.previousClientApk.set(
             getFileInTestConfigDirectory("mediaClientPrevious$variantName.apk")
         )
-        it.totServiceApk.set(
-            getFileInTestConfigDirectory("mediaServiceToT$variantName.apk")
-        )
+        it.totServiceApk.set(getFileInTestConfigDirectory("mediaServiceToT$variantName.apk"))
         it.previousServiceApk.set(
             getFileInTestConfigDirectory("mediaServicePrevious$variantName.apk")
         )
@@ -501,8 +494,9 @@ private fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCol
             // com.android.test modules
         }
         is HasAndroidTest -> {
-            variant.androidTest?.sources?.java?.all
-                ?.let { testSourceFileCollections.add(files(it)) }
+            variant.androidTest?.sources?.java?.all?.let {
+                testSourceFileCollections.add(files(it))
+            }
         }
     }
 
@@ -514,7 +508,8 @@ private fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCol
         ?.let { testSourceFileCollections.add(it.kotlin.sourceDirectories) }
 
     // Add kotlin-multiplatform androidInstrumentedTest target source sets
-    multiplatformExtension?.targets
+    multiplatformExtension
+        ?.targets
         ?.filterIsInstance<KotlinAndroidTarget>()
         ?.mapNotNull { it.compilations.find { it.name == "debugAndroidTest" } }
         ?.flatMap { it.allKotlinSourceSets }
@@ -523,7 +518,4 @@ private fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCol
 }
 
 private fun Project.isPrivacySandboxEnabled(): Boolean =
-    extensions.findByType(ApplicationExtension::class.java)
-        ?.privacySandbox
-        ?.enable
-        ?: false
+    extensions.findByType(ApplicationExtension::class.java)?.privacySandbox?.enable ?: false

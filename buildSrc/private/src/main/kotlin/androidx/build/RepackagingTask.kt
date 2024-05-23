@@ -24,15 +24,12 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.work.DisableCachingByDefault
 
-/** Task to facilitate repackaging an [aarFile] and adding additional files **/
-@DisableCachingByDefault(
-    because = "Not worth caching"
-)
+/** Task to facilitate repackaging an [aarFile] and adding additional files */
+@DisableCachingByDefault(because = "Not worth caching")
 abstract class RepackagingTask : Zip() {
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val aarFile: RegularFileProperty
 
-    @get:OutputFile
-    abstract val output: RegularFileProperty
+    @get:OutputFile abstract val output: RegularFileProperty
 }

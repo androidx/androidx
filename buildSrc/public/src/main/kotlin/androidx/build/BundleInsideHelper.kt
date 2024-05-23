@@ -60,6 +60,7 @@ object BundleInsideHelper {
         // Add to AGP's configuration so this jar get packaged inside of the aar.
         dependencies.add("implementation", files(repackage.flatMap { it.archiveFile }))
     }
+
     /**
      * Creates 3 configurations for the users to use that will be used bundle these dependency jars
      * inside of libs/ directory inside of the aar.
@@ -84,10 +85,10 @@ object BundleInsideHelper {
     }
 
     /**
-     * Creates a configuration for users to use that will bundle the dependency jars
-     * inside of this lint check's jar. This is required because lintPublish does not currently
-     * support dependencies, so instead we need to bundle any dependencies with the lint jar
-     * manually. (b/182319899)
+     * Creates a configuration for users to use that will bundle the dependency jars inside of this
+     * lint check's jar. This is required because lintPublish does not currently support
+     * dependencies, so instead we need to bundle any dependencies with the lint jar manually.
+     * (b/182319899)
      *
      * ```
      * dependencies {
@@ -131,13 +132,12 @@ object BundleInsideHelper {
             )
         }
 
-        listOf("apiElements", "runtimeElements")
-            .forEach { config ->
-                configurations.getByName(config).apply {
-                    outgoing.artifacts.clear()
-                    outgoing.artifact(repackage)
-                }
+        listOf("apiElements", "runtimeElements").forEach { config ->
+            configurations.getByName(config).apply {
+                outgoing.artifacts.clear()
+                outgoing.artifact(repackage)
             }
+        }
     }
 
     data class Relocation(val from: String, val to: String)
@@ -166,15 +166,13 @@ object BundleInsideHelper {
     }
 
     private fun Project.createBundleConfiguration(): Configuration {
-        val bundle = configurations.create(CONFIGURATION_NAME) {
-            it.attributes {
-                   it.attribute(
-                         Usage.USAGE_ATTRIBUTE,
-                        objects.named<Usage>(Usage.JAVA_RUNTIME)
-                   )
+        val bundle =
+            configurations.create(CONFIGURATION_NAME) {
+                it.attributes {
+                    it.attribute(Usage.USAGE_ATTRIBUTE, objects.named<Usage>(Usage.JAVA_RUNTIME))
+                }
+                it.isCanBeConsumed = false
             }
-            it.isCanBeConsumed = false
-        }
         return bundle
     }
 

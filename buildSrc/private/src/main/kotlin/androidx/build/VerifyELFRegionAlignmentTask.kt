@@ -26,7 +26,6 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Task for verifying the ELF regions in all shared libs in androidx are aligned to 16Kb boundary
  */
-
 @CacheableTask
 abstract class VerifyELFRegionAlignmentTask : DefaultTask() {
     init {
@@ -49,16 +48,10 @@ abstract class VerifyELFRegionAlignmentTask : DefaultTask() {
 }
 
 private fun getELFAlignment(filePath: String): String? {
-    val alignment = ProcessBuilder("objdump", "-p", filePath)
-        .start()
-        .inputStream
-        .bufferedReader()
-        .useLines { lines ->
-            lines.filter {
-                it.contains("LOAD")
-            }.map {
-                it.split(" ").last()
-            }.firstOrNull()
+    val alignment =
+        ProcessBuilder("objdump", "-p", filePath).start().inputStream.bufferedReader().useLines {
+            lines ->
+            lines.filter { it.contains("LOAD") }.map { it.split(" ").last() }.firstOrNull()
         }
     return alignment
 }

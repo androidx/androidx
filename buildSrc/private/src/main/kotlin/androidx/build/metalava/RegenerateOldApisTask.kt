@@ -106,10 +106,12 @@ constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
         artifactId: String,
         projectPrebuiltsDir: File,
     ) {
-        val location = project.getRequiredCompatibilityApiLocation() ?: run {
-            logger.warn("No required compat location for $groupId:$artifactId")
-            return
-        }
+        val location =
+            project.getRequiredCompatibilityApiLocation()
+                ?: run {
+                    logger.warn("No required compat location for $groupId:$artifactId")
+                    return
+                }
         val compatVersion = location.version()!!
 
         if (!tryRegenerate(projectPrebuiltsDir, groupId, artifactId, compatVersion, location)) {
