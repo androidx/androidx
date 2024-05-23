@@ -19,13 +19,11 @@ package androidx.camera.core.internal.compat;
 import android.media.MediaActionSound;
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 
 /**
  * Helper for accessing features of {@link MediaActionSound} in a backwards compatible fashion.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class MediaActionSoundCompat {
 
     /**

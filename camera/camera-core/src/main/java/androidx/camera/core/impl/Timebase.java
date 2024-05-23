@@ -18,12 +18,9 @@ package androidx.camera.core.impl;
 
 import android.os.SystemClock;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * The time base enum.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public enum Timebase {
     /**
      * System time since boot, not counting time spent in deep sleep.

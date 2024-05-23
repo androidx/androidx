@@ -15,8 +15,6 @@
  */
 package androidx.camera.core.internal.utils
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageInfo
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState
@@ -38,7 +36,6 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
 @RunWith(JUnit4::class)
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class ZslRingBufferTest {
 
     lateinit var mMockedCameraCaptureResult: CameraCaptureResult

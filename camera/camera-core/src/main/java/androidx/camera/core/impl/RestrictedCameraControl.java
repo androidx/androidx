@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.impl.utils.SessionProcessorUtil;
@@ -32,7 +31,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  * {@link SessionProcessor#getSupportedCameraOperations()} can be supported by the
  * RestrictedCameraControl.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class RestrictedCameraControl extends ForwardingCameraControl {
     private final CameraControlInternal mCameraControl;
     @Nullable

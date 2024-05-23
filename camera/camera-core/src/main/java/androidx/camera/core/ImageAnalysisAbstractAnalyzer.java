@@ -33,7 +33,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -53,7 +52,6 @@ import java.util.concurrent.Executor;
  * This is an extension of {@link ImageAnalysis}. It has the same lifecycle and share part of the
  * states.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImageAvailableListener {
 
     private static final String TAG = "ImageAnalysisAnalyzer";

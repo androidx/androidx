@@ -15,15 +15,12 @@
  */
 package androidx.camera.core.impl
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.DynamicRange
 import androidx.core.util.Preconditions
 
 /**
  * Utility methods for handling dynamic range.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 object DynamicRanges {
 
     /**

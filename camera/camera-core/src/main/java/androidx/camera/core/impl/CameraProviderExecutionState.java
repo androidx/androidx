@@ -19,7 +19,6 @@ package androidx.camera.core.impl;
 import android.os.SystemClock;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.ExperimentalRetryPolicy;
 import androidx.camera.core.InitializationException;
@@ -29,7 +28,6 @@ import androidx.camera.core.RetryPolicy;
  * This class acts as a container for information about the execution state of the camera
  * initialization process.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalRetryPolicy
 public final class CameraProviderExecutionState implements RetryPolicy.ExecutionState {
 

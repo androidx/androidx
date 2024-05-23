@@ -16,12 +16,9 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.RequiresApi;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** A {@link ImageProxy} which filters out redundant calls to {@link #close()}. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class SingleCloseImageProxy extends ForwardingImageProxy {
     private final AtomicBoolean mClosed = new AtomicBoolean(false);
 

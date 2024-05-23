@@ -23,7 +23,6 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalLensFacing;
 import androidx.camera.core.Logger;
@@ -32,7 +31,6 @@ import androidx.camera.core.Logger;
  * Validation methods to verify the camera is initialized successfully, more info please reference
  * b/167201193.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @OptIn(markerClass = ExperimentalLensFacing.class)
 public final class CameraValidator {
     private CameraValidator() {

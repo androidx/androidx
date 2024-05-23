@@ -24,12 +24,10 @@ import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.Image;
-import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -58,7 +56,6 @@ import java.nio.ByteBuffer;
  * @param <T> image data type. Possible values are {@link ImageProxy}, {@link ByteBuffer},
  *            {@link Bitmap} etc.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 @AutoValue
 public abstract class Packet<T> {
 

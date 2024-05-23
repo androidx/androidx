@@ -16,10 +16,7 @@
 
 package androidx.camera.core.processing;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProcessor;
 import androidx.camera.core.ImageProxy;
 
@@ -27,7 +24,6 @@ import androidx.camera.core.ImageProxy;
  * Internal implementation of {@link ImageProcessor.Request} for sending {@link ImageProxy} to
  * effect implementations.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ImageProcessorRequest implements ImageProcessor.Request {
     @NonNull
     private final ImageProxy mImageProxy;

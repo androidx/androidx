@@ -19,7 +19,6 @@ package androidx.camera.core.internal.compat.quirk;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.Quirk;
 
@@ -37,7 +36,6 @@ import java.util.Set;
  *                  image can't be parsed and saved successfully.
  *     Device(s): Samsung Galaxy A24 device.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class IncorrectJpegMetadataQuirk implements Quirk {
 
     private static final Set<String> SAMSUNG_DEVICES = new HashSet<>(Arrays.asList(

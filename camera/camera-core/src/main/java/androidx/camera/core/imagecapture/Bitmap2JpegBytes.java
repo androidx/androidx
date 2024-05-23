@@ -38,7 +38,6 @@ import java.io.ByteArrayOutputStream;
  *
  * <p>The {@link Bitmap} will be recycled and should not be used after the processing.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>> {
 
     @NonNull

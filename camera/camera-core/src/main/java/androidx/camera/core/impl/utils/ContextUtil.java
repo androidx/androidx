@@ -29,7 +29,6 @@ import androidx.annotation.RequiresApi;
 /**
  * Utility class for {@link Context} related operations.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ContextUtil {
     /**
      * Gets the application context and preserves the attribution tag and device id.

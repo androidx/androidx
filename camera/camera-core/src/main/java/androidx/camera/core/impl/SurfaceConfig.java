@@ -22,7 +22,6 @@ import android.os.Handler;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.internal.utils.SizeUtil;
 
 import com.google.auto.value.AutoValue;
@@ -37,7 +36,6 @@ import java.util.List;
  * of surface configuration type and size pairs can be supported for different hardware level camera
  * devices.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class SurfaceConfig {
     public static final long DEFAULT_STREAM_USE_CASE_VALUE = 0;

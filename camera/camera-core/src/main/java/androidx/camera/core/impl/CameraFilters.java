@@ -16,7 +16,6 @@
 
 package androidx.camera.core.impl;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraFilter;
 
 import java.util.Collections;
@@ -24,7 +23,6 @@ import java.util.Collections;
 /**
  * Implementations of different {@link CameraFilter}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraFilters {
     /**
      * A camera filter which returns all input camera infos.

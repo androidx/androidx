@@ -37,7 +37,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.DynamicRange;
@@ -69,7 +68,6 @@ import javax.microedition.khronos.egl.EGL10;
  * {@link IllegalStateException} will be thrown when other methods are called.
  */
 @WorkerThread
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class OpenGlRenderer {
     /** Unknown version information. */
     public static final String VERSION_UNKNOWN = "0.0";

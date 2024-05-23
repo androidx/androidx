@@ -27,11 +27,9 @@ import static androidx.camera.core.impl.utils.TransformUtils.updateSensorToBuffe
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
@@ -50,7 +48,6 @@ import java.io.IOException;
 /**
  * Converts a {@link ImageProxy} to JPEG bytes.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte[]>> {
     private final JpegMetadataCorrector mJpegMetadataCorrector;
 

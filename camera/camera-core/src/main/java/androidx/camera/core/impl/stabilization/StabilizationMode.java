@@ -17,7 +17,6 @@
 package androidx.camera.core.impl.stabilization;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -27,7 +26,6 @@ import java.lang.annotation.RetentionPolicy;
  * Class for preview or video stabilization mode.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@RequiresApi(21)
 public class StabilizationMode {
 
     /* Not specified */

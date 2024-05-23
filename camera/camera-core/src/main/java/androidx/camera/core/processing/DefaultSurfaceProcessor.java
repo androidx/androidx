@@ -34,7 +34,6 @@ import android.view.Surface;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.arch.core.util.Function;
@@ -71,7 +70,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p> This implementation simply copies the frame from the source to the destination with the
  * transformation defined in {@link SurfaceOutput#updateTransformMatrix}.
  */
-@RequiresApi(21)
 public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         SurfaceTexture.OnFrameAvailableListener {
     private static final String TAG = "DefaultSurfaceProcessor";

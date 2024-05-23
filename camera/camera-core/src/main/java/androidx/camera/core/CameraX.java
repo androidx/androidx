@@ -37,7 +37,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -64,7 +63,6 @@ import java.util.concurrent.Executor;
  * <p>This is a singleton class responsible for managing the set of camera instances.
  *
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @OptIn(markerClass = ExperimentalRetryPolicy.class)
 @MainThread
 @RestrictTo(Scope.LIBRARY_GROUP)

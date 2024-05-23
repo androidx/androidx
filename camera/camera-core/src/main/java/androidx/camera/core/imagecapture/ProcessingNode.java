@@ -29,11 +29,9 @@ import static java.util.Objects.requireNonNull;
 
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.ImageCapture;
@@ -61,7 +59,6 @@ import java.util.concurrent.Executor;
  * <p>This node performs operations that runs on a single image, such as cropping, format
  * conversion, effects and/or saving to disk.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     private static final String TAG = "ProcessingNode";
     @NonNull

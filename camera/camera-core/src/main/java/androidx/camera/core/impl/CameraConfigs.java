@@ -17,12 +17,10 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * Utility methods for operating on {@link CameraConfig} instances.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraConfigs {
     private static final CameraConfig DEFAULT_CAMERA_CONFIG = new DefaultCameraConfig();
 

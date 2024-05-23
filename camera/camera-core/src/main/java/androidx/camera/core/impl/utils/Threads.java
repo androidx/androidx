@@ -22,7 +22,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Helpers for {@link Thread}s.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Threads {
     private static final long TIMEOUT_RUN_ON_MAIN_MS = 30_000L; // milliseconds
 

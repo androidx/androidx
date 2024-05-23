@@ -18,7 +18,6 @@ package androidx.camera.core.imagecapture
 
 import android.util.Size
 import androidx.annotation.MainThread
-import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.imagecapture.CaptureNode.MAX_IMAGES
 import androidx.camera.core.imagecapture.Utils.createEmptyImageCaptureConfig
@@ -30,7 +29,6 @@ import com.google.common.util.concurrent.ListenableFuture
 /**
  * Fake [ImagePipeline] class for testing.
  */
-@RequiresApi(21)
 class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
     ImagePipeline(config, cameraSurfaceSize) {
 

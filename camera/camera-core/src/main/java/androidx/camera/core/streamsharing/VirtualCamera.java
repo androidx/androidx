@@ -17,11 +17,8 @@ package androidx.camera.core.streamsharing;
 
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 
-import android.os.Build;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -38,7 +35,6 @@ import java.util.Collection;
  * <p> This class manages children {@link UseCase} and connects/disconnects them to the
  * parent {@link StreamSharing}. It also forwards parent camera properties/events to the children.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class VirtualCamera implements CameraInternal {
     private static final String UNSUPPORTED_MESSAGE = "Operation not supported by VirtualCamera.";
     // The parent camera instance.

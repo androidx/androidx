@@ -25,7 +25,6 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
@@ -41,7 +40,6 @@ import java.util.Locale;
  * {@link UseCaseGroup} usually share some common properties like the FOV defined by
  * {@link ViewPort}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class UseCaseGroup {
     @Nullable
     private final ViewPort mViewPort;
