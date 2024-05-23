@@ -413,6 +413,15 @@ internal class KotlinxDatetimeCalendarModelTest {
         assertThat(model.getDateInputFormat(locale).patternWithoutDelimiters).isEqualTo("ddMMyyyy")
         assertThat(model.getDateInputFormat(locale).delimiter).isEqualTo('-')
     }
+
+    @Test
+    fun illegalDateParsingDoesNotThrowException(){
+        val model = KotlinxDatetimeCalendarModel(calendarLocale("en","US"))
+
+        assertThat(model.parse("50-50-2000","MM-dd-yyyy")).isEqualTo(null)
+        assertThat(model.parse("50-50-2000","")).isEqualTo(null)
+        assertThat(model.parse("","MM-dd-yyyy")).isEqualTo(null)
+    }
 }
 
 internal const val January2022Millis = 1640995200000

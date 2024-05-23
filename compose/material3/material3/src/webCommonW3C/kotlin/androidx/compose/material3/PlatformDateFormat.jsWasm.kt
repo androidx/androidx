@@ -19,8 +19,12 @@ package androidx.compose.material3
 import androidx.compose.ui.text.intl.Locale
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
+import kotlinx.datetime.format
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
@@ -44,7 +48,8 @@ internal actual class PlatformDateFormat actual constructor(private val locale: 
         listOf("AE", "AG", "AL", "AS", "AU", "BB", "BD", "BH", "BM", "BN", "BS", "BT", "CA", "CN", "CO", "CY", "DJ", "DM", "DO", "DZ", "EG", "EH", "ER", "ET", "FJ", "FM", "GD", "GH", "GM", "GR", "GU", "GY", "HK", "IN", "IQ", "JM", "JO", "KH", "KI", "KN", "KP", "KR", "KW", "KY", "LB", "LC", "LR", "LS", "LY", "MH", "MO", "MP", "MR", "MW", "MY", "NA", "NZ", "OM", "PA", "PG", "PH", "PK", "PR", "PS", "PW", "QA", "SA", "SB", "SD", "SG", "SL", "SO", "SS", "SY", "SZ", "TC", "TD", "TN", "TO", "TT", "TW", "UM", "US", "VC", "VE", "VG", "VI", "VU", "WS", "YE", "ZM")
     }
 
-    //TODO: replace formatting with kotlinx datetime when supported (see https://github.com/Kotlin/kotlinx-datetime/pull/251)
+    //TODO: replace manual locale-aware formatting with kotlinx-datetime when supported
+    @OptIn(FormatStringsInDatetimeFormats::class)
     actual fun formatWithPattern(
         utcTimeMillis: Long,
         pattern: String,
@@ -56,35 +61,31 @@ internal actual class PlatformDateFormat actual constructor(private val locale: 
 
         val jsDate = Date(utcTimeMillis.toDouble())
 
-        val monthShort = jsDate.toLocaleDateString(
-            locales = locale.toLanguageTag(),
-            options = dateLocaleOptions {
-                month = SHORT
-            })
+        val (monthShort, monthLong) = listOf(SHORT, LONG).map {
+            jsDate.toLocaleDateString(
+                locales = locale.toLanguageTag(),
+                options = dateLocaleOptions {
+                    month = it
+                }
+            )
+        }
 
-        val monthLong = jsDate.toLocaleDateString(
-            locales = locale.toLanguageTag(),
-            options = dateLocaleOptions {
-                month = LONG
-            })
+        val (wdShort, wdLong) = listOf(SHORT, LONG).map {
+            jsDate.toLocaleDateString(
+                locales = locale.toLanguageTag(),
+                options = dateLocaleOptions {
+                    weekday = it
+                }
+            )
+        }
 
-        return pattern
-            .replace("yyyy", date.year.toString(), ignoreCase = true)
-            .replace("yy", date.year.toString().takeLast(2), ignoreCase = true)
+        return date
+            .format(LocalDateTime.Format { byUnicodePattern(pattern) })
             .replace("MMMM", monthLong)
             .replace("MMM", monthShort)
-            .replace("MM", date.monthNumber.toStringWithLeadingZero())
-            .replace("M", date.monthNumber.toString())
-            .replace("dd", date.dayOfMonth.toStringWithLeadingZero(), ignoreCase = true)
-            .replace("d", date.dayOfMonth.toString(), ignoreCase = true)
-            .replace("hh", date.hour.toStringWithLeadingZero(), ignoreCase = true)
-            .replace("h", date.hour.toString(), ignoreCase = true)
-            .replace("ii", date.minute.toStringWithLeadingZero(), ignoreCase = true)
-            .replace("i", date.minute.toString(), ignoreCase = true)
-            .replace("ss", date.second.toStringWithLeadingZero(), ignoreCase = true)
-            .replace("s", date.second.toString(), ignoreCase = true)
+            .replace("EEEE", wdLong)
+            .replace("EEE", wdShort)
     }
-
 
     actual fun formatWithSkeleton(
         utcTimeMillis: Long,
@@ -137,35 +138,23 @@ internal actual class PlatformDateFormat actual constructor(private val locale: 
         )
     }
 
+    @OptIn(FormatStringsInDatetimeFormats::class)
     actual fun parse(
         date: String,
         pattern: String
     ): CalendarDate? {
-        val year = parseSegment(date, pattern, "yyyy")
-            ?: return null
-
-        val month = parseSegment(date, pattern, "mm")
-            ?: parseSegment(date, pattern, "m")
-            ?: return null
-
-        val day = parseSegment(date, pattern, "dd")
-            ?: parseSegment(date, pattern, "d")
-            ?: 1
-
-        return LocalDate(
-            year, month, day
-        ).atTime(Midnight)
-            .toInstant(TimeZone.UTC)
-            .toCalendarDate(TimeZone.UTC)
-    }
-
-    private fun parseSegment(date: String, pattern: String, segmentPattern: String): Int? {
-        val index = pattern
-            .indexOf(segmentPattern, ignoreCase = true)
-            .takeIf { it >= 0 } ?: return null
-
-        return date.substring(index, index + segmentPattern.length)
-            .toIntOrNull()
+        return try {
+            LocalDate.parse(
+                input = date,
+                format = LocalDate.Format {
+                    byUnicodePattern(pattern)
+                }
+            ).atTime(Midnight)
+                .toInstant(TimeZone.UTC)
+                .toCalendarDate(TimeZone.UTC)
+        } catch (e: Throwable) {
+            null
+        }
     }
 
     actual fun getDateInputFormat(): DateInputFormat {
