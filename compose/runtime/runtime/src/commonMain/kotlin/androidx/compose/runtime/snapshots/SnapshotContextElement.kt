@@ -17,7 +17,6 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.ExperimentalComposeApi
-import androidx.compose.runtime.SnapshotContextElementImpl
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -39,3 +38,8 @@ fun Snapshot.asContextElement(): SnapshotContextElement = SnapshotContextElement
 interface SnapshotContextElement : CoroutineContext.Element {
     companion object Key : CoroutineContext.Key<SnapshotContextElement>
 }
+
+@OptIn(ExperimentalComposeApi::class)
+internal expect class SnapshotContextElementImpl(
+    snapshot: Snapshot
+) : SnapshotContextElement

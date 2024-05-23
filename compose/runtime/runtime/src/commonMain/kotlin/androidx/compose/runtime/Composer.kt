@@ -32,7 +32,9 @@ import androidx.compose.runtime.changelist.FixupList
 import androidx.compose.runtime.collection.IntMap
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.internal.IntRef
+import androidx.compose.runtime.internal.invokeComposable
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
+import androidx.compose.runtime.internal.trace
 import androidx.compose.runtime.snapshots.currentSnapshot
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastMap
@@ -42,6 +44,8 @@ import androidx.compose.runtime.tooling.LocalInspectionTables
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
+import kotlin.jvm.JvmInline
+import kotlin.jvm.JvmName
 
 private class GroupInfo(
     /**

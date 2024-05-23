@@ -16,7 +16,7 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.SnapshotThreadLocal
+import androidx.compose.runtime.internal.SnapshotThreadLocal
 import androidx.compose.runtime.internal.ThreadMap
 import kotlin.random.Random
 import kotlin.test.Test

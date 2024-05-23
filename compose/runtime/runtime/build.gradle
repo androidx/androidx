@@ -21,6 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -78,21 +79,15 @@ androidXMultiplatform {
             }
         }
 
+        jvmTest {
+            dependsOn(commonTest)
+        }
+
         androidMain {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
                 api("androidx.annotation:annotation-experimental:1.4.0")
-            }
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
             }
         }
 
@@ -109,6 +104,15 @@ androidXMultiplatform {
         androidUnitTest {
             dependsOn(jvmTest)
             dependsOn(nonEmulatorJvmTest)
+        }
+
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(nonAndroidMain)
         }
 
         desktopTest {

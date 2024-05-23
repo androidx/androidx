@@ -17,8 +17,8 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.TestOnly
-import androidx.compose.runtime.WeakReference
-import androidx.compose.runtime.identityHashCode
+import androidx.compose.runtime.internal.WeakReference
+import androidx.compose.runtime.internal.identityHashCode
 
 private const val INITIAL_CAPACITY = 16
 
