@@ -18,7 +18,6 @@ package androidx.camera.video.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -33,7 +32,6 @@ import androidx.camera.core.impl.Quirk;
  *                  duration, resulting in a/v out of sync after resume.
  *     Device(s): Sony-G3125
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AudioEncoderIgnoresInputTimestampQuirk implements Quirk {
 
     static boolean load() {

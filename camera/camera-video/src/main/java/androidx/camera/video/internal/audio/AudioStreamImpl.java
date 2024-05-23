@@ -60,7 +60,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p>This class is not thread safe, it should be used on the same thread.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AudioStreamImpl implements AudioStream {
     private static final String TAG = "AudioStreamImpl";
     private static final long DIFF_LIMIT_FROM_SYSTEM_TIME_NS = MILLISECONDS.toNanos(500L);

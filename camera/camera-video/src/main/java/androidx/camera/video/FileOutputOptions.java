@@ -18,7 +18,6 @@ package androidx.camera.video;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -33,7 +32,6 @@ import java.io.File;
  * <p>To use a {@link android.os.ParcelFileDescriptor} as an output destination instead of a
  * {@link File}, use {@link FileDescriptorOutputOptions}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FileOutputOptions extends OutputOptions {
 
     private final FileOutputOptionsInternal mFileOutputOptionsInternal;
@@ -75,7 +73,6 @@ public final class FileOutputOptions extends OutputOptions {
     }
 
     /** The builder of the {@link FileOutputOptions} object. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder extends OutputOptions.Builder<FileOutputOptions, Builder> {
 
         private final FileOutputOptionsInternal.Builder mInternalBuilder;

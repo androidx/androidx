@@ -21,7 +21,6 @@ import android.media.MediaFormat;
 import android.os.Build;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -38,7 +37,6 @@ import androidx.camera.core.impl.Quirk;
  *                  the issue by experimental results.
  *     Device(s): Nokia 1
  */
-@RequiresApi(21)
 public class CodecStuckOnFlushQuirk implements Quirk {
 
     static boolean load() {

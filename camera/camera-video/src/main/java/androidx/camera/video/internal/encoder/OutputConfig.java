@@ -19,7 +19,6 @@ package androidx.camera.video.internal.encoder;
 import android.media.MediaFormat;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 /**
  * The output config of an encoder.
@@ -27,7 +26,6 @@ import androidx.annotation.RequiresApi;
  * <p>The output config will be the final configuration of an {@link Encoder} relative to the
  * input config {@link EncoderConfig}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface OutputConfig {
 
     /** Gets the media format. */

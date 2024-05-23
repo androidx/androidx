@@ -22,7 +22,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesProxy;
@@ -41,7 +40,6 @@ import java.util.Map;
  *
  * @see StretchedVideoResolutionQuirk
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class QualityResolutionModifiedEncoderProfilesProvider implements EncoderProfilesProvider {
 
     @NonNull

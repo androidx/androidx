@@ -18,7 +18,6 @@ package androidx.camera.video.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -27,7 +26,6 @@ import androidx.camera.core.impl.Quirk;
  *     Description: Quirk indicates Preview is stretched when VideoCapture is bound.
  *     Device(s): Samsung J3, Samsung J5, Samsung J7, Samsung J1 Ace neo and Oppo A37F
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class PreviewStretchWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     static boolean load() {

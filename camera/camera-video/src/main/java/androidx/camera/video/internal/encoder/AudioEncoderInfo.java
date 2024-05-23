@@ -19,12 +19,10 @@ package androidx.camera.video.internal.encoder;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * AudioEncoderInfo provides audio encoder related information and capabilities.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface AudioEncoderInfo extends EncoderInfo {
 
     /** Returns the range of supported bitrates in bits/second. */

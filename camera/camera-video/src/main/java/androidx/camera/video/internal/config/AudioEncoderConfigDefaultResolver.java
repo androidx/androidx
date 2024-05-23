@@ -19,7 +19,6 @@ package androidx.camera.video.internal.config;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.video.AudioSpec;
@@ -31,7 +30,6 @@ import androidx.core.util.Supplier;
  * An {@link AudioEncoderConfig} supplier that resolves requested encoder settings from a
  * {@link AudioSpec} for the given {@link AudioSettings} using pre-defined default values.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class AudioEncoderConfigDefaultResolver implements Supplier<AudioEncoderConfig> {
 
     private static final String TAG = "AudioEncCfgDefaultRslvr";

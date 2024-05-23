@@ -26,7 +26,6 @@ import android.util.Log
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio.RATIO_16_9
@@ -1338,7 +1337,6 @@ class VideoRecordingTest(
         )
 }
 
-@RequiresApi(21)
 private class VideoCaptureMonitor : Consumer<VideoRecordEvent> {
     private var countDown: CountDownLatch? = null
 

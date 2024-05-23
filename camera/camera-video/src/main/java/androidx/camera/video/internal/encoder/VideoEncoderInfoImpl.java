@@ -22,7 +22,6 @@ import android.media.MediaCodecInfo;
 import android.util.Range;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.arch.core.util.Function;
 import androidx.camera.core.Logger;
 import androidx.camera.video.internal.workaround.VideoEncoderInfoWrapper;
@@ -36,7 +35,6 @@ import java.util.Objects;
  * such as {@link MediaCodecInfo.CodecCapabilities}, {@link MediaCodecInfo.EncoderCapabilities}
  * and {@link MediaCodecInfo.VideoCapabilities}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class VideoEncoderInfoImpl extends EncoderInfoImpl implements VideoEncoderInfo {
     private static final String TAG = "VideoEncoderInfoImpl";
 

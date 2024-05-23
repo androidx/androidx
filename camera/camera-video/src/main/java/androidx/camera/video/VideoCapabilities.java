@@ -21,7 +21,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
@@ -46,7 +45,6 @@ import java.util.Set;
  *   List<Quality> supportedQualities = videoCapabilities.getSupportedQualities(dynamicRange);
  * }</pre>
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VideoCapabilities {
 
     /**

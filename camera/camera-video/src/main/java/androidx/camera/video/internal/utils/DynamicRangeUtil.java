@@ -63,7 +63,6 @@ import static java.util.Objects.requireNonNull;
 import android.media.MediaFormat;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 
@@ -76,7 +75,6 @@ import java.util.Set;
 /**
  * Utility class for dynamic range related operations.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DynamicRangeUtil {
     public static final Map<Integer, Set<Integer>> DR_TO_VP_BIT_DEPTH_MAP = new HashMap<>();
     public static final Map<Integer, Set<Integer>> DR_TO_VP_FORMAT_MAP = new HashMap<>();

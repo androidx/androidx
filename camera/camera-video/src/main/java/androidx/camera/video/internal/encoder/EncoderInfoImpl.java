@@ -19,7 +19,6 @@ package androidx.camera.video.internal.encoder;
 import android.media.MediaCodecInfo;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.util.Objects;
 
@@ -30,7 +29,6 @@ import java.util.Objects;
  * such as {@link MediaCodecInfo.CodecCapabilities} and
  * {@link MediaCodecInfo.EncoderCapabilities}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public abstract class EncoderInfoImpl implements EncoderInfo {
     private final MediaCodecInfo mMediaCodecInfo;
     protected final MediaCodecInfo.CodecCapabilities mCodecCapabilities;
