@@ -36,8 +36,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(maxSdkVersion = 32)
 class LocalesLateOnCreateTestCase {
 
-    @get:Rule
-    val activityRule = LocalesActivityTestRule(LocalesLateOnCreateActivity::class.java)
+    @get:Rule val activityRule = LocalesActivityTestRule(LocalesLateOnCreateActivity::class.java)
 
     @Test
     fun testActivityRecreateLoop() {
@@ -49,10 +48,7 @@ class LocalesLateOnCreateTestCase {
         )
 
         // Simulate the user set locales, which should force an activity recreate().
-        setLocalesAndWaitForRecreate(
-            activityRule,
-            TEST_LOCALE_LIST
-        )
+        setLocalesAndWaitForRecreate(activityRule, TEST_LOCALE_LIST)
 
         // Activity should be able to reach fully resumed state again.
         waitUntilState(activityRule.activity, Lifecycle.State.RESUMED)

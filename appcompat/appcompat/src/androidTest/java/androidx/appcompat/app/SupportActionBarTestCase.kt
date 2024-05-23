@@ -27,29 +27,25 @@ import org.junit.Test
 @MediumTest
 public class SupportActionBarTestCase {
 
-    /**
-     * Regression test for b/186791590 where custom window callbacks were overwritten.
-     */
+    /** Regression test for b/186791590 where custom window callbacks were overwritten. */
     @Test
     public fun testSetSupportActionBarPreservesWindowCallback() {
         ActivityScenario.launch(ToolbarAppCompatActivity::class.java).onActivity { activity ->
             val previousCallback = activity.window.callback
             var dispatchedToCallback = false
 
-            activity.window.callback = object : Window.Callback by previousCallback {
-                override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
-                    dispatchedToCallback = true
-                    return previousCallback.dispatchTouchEvent(event)
+            activity.window.callback =
+                object : Window.Callback by previousCallback {
+                    override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
+                        dispatchedToCallback = true
+                        return previousCallback.dispatchTouchEvent(event)
+                    }
                 }
-            }
 
             activity.setSupportActionBar(activity.findViewById(R.id.toolbar))
             activity.window.callback.dispatchTouchEvent(obtainEvent(MotionEvent.ACTION_DOWN))
 
-            assertTrue(
-                "Event was not dispatched to custom window callback",
-                dispatchedToCallback
-            )
+            assertTrue("Event was not dispatched to custom window callback", dispatchedToCallback)
         }
     }
 

@@ -27,36 +27,40 @@ import com.android.tools.lint.detector.api.Severity
 // Flags usage of Context.getDrawable and Resources.getDrawable and suggests converting them
 // to either AppCompatResources.getDrawable or ResourcesCompat.getDrawable
 @Suppress("UnstableApiUsage")
-class DrawableLoadingDetector : BaseMethodDeprecationDetector(
-    NOT_USING_COMPAT_LOADING,
-    // Suggest using ContextCompat.getDrawable
-    DeprecationCondition(
-        MethodLocation("android.content.Context", "getDrawable", TYPE_INT),
-        "Use `AppCompatResources.getDrawable()`"
-    ),
-    // Suggest using ResourcesCompat.getDrawable for one-parameter Resources.getDrawable calls
-    DeprecationCondition(
-        MethodLocation("android.content.res.Resources", "getDrawable", TYPE_INT),
-        "Use `ResourcesCompat.getDrawable()`"
-    ),
-    // Suggest using ResourcesCompat.getDrawable for two-parameter Resources.getDrawable calls
-    DeprecationCondition(
-        MethodLocation(
-            "android.content.res.Resources", "getDrawable", TYPE_INT,
-            "android.content.res.Resources.Theme"
+class DrawableLoadingDetector :
+    BaseMethodDeprecationDetector(
+        NOT_USING_COMPAT_LOADING,
+        // Suggest using ContextCompat.getDrawable
+        DeprecationCondition(
+            MethodLocation("android.content.Context", "getDrawable", TYPE_INT),
+            "Use `AppCompatResources.getDrawable()`"
         ),
-        "Use `ResourcesCompat.getDrawable()`"
-    )
-) {
-    companion object {
-        internal val NOT_USING_COMPAT_LOADING: Issue = Issue.create(
-            "UseCompatLoadingForDrawables",
-            "Should not call `Context.getDrawable` or `Resources.getDrawable` directly",
-            "Use Compat loading of drawables",
-            Category.CORRECTNESS,
-            1,
-            Severity.WARNING,
-            Implementation(DrawableLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
+        // Suggest using ResourcesCompat.getDrawable for one-parameter Resources.getDrawable calls
+        DeprecationCondition(
+            MethodLocation("android.content.res.Resources", "getDrawable", TYPE_INT),
+            "Use `ResourcesCompat.getDrawable()`"
+        ),
+        // Suggest using ResourcesCompat.getDrawable for two-parameter Resources.getDrawable calls
+        DeprecationCondition(
+            MethodLocation(
+                "android.content.res.Resources",
+                "getDrawable",
+                TYPE_INT,
+                "android.content.res.Resources.Theme"
+            ),
+            "Use `ResourcesCompat.getDrawable()`"
         )
+    ) {
+    companion object {
+        internal val NOT_USING_COMPAT_LOADING: Issue =
+            Issue.create(
+                "UseCompatLoadingForDrawables",
+                "Should not call `Context.getDrawable` or `Resources.getDrawable` directly",
+                "Use Compat loading of drawables",
+                Category.CORRECTNESS,
+                1,
+                Severity.WARNING,
+                Implementation(DrawableLoadingDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

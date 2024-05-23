@@ -46,9 +46,8 @@ class NightModeCustomApplicationConfigurationTestCase(private val setMode: Night
     private var initialConfig: Configuration? = null
 
     @get:Rule
-    val activityRule = NightModeActivityTestRule(
-        NightModeCustomAttachBaseContextActivity::class.java
-    )
+    val activityRule =
+        NightModeActivityTestRule(NightModeCustomAttachBaseContextActivity::class.java)
 
     @Suppress("DEPRECATION")
     @Before

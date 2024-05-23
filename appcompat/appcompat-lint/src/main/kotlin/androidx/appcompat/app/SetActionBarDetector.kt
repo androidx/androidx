@@ -26,24 +26,26 @@ import com.android.tools.lint.detector.api.Severity
 // Flags usage of Activity.setActionBar and suggests converting it to
 // AppCompatActivity.setSupportActionBar
 @Suppress("UnstableApiUsage")
-class SetActionBarDetector : BaseMethodDeprecationDetector(
-    USING_CORE_ACTION_BAR,
-    // Suggest using AppCompatActivity.setSupportActionBar
-    DeprecationCondition(
-        MethodLocation("android.app.Activity", "setActionBar", "android.widget.Toolbar"),
-        "Use `AppCompatActivity.setSupportActionBar`",
-        SubClassOf("androidx.appcompat.app.AppCompatActivity")
-    )
-) {
-    companion object {
-        internal val USING_CORE_ACTION_BAR: Issue = Issue.create(
-            "UseSupportActionBar",
-            "Should not call `Activity.setActionBar` if you extend `AppCompatActivity`",
+class SetActionBarDetector :
+    BaseMethodDeprecationDetector(
+        USING_CORE_ACTION_BAR,
+        // Suggest using AppCompatActivity.setSupportActionBar
+        DeprecationCondition(
+            MethodLocation("android.app.Activity", "setActionBar", "android.widget.Toolbar"),
             "Use `AppCompatActivity.setSupportActionBar`",
-            Category.CORRECTNESS,
-            1,
-            Severity.WARNING,
-            Implementation(SetActionBarDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            SubClassOf("androidx.appcompat.app.AppCompatActivity")
         )
+    ) {
+    companion object {
+        internal val USING_CORE_ACTION_BAR: Issue =
+            Issue.create(
+                "UseSupportActionBar",
+                "Should not call `Activity.setActionBar` if you extend `AppCompatActivity`",
+                "Use `AppCompatActivity.setSupportActionBar`",
+                Category.CORRECTNESS,
+                1,
+                Severity.WARNING,
+                Implementation(SetActionBarDetector::class.java, Scope.JAVA_FILE_SCOPE)
+            )
     }
 }

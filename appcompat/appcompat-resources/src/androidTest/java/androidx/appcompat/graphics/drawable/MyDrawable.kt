@@ -22,9 +22,7 @@ import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import kotlin.math.min
 
-/**
- * Simple custom drawable.
- */
+/** Simple custom drawable. */
 class MyDrawable : Drawable() {
     private val mPaint: Paint = Paint()
 

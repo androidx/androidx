@@ -30,15 +30,16 @@ import org.w3c.dom.Attr
 @Suppress("UnstableApiUsage")
 class OnClickXmlDetector : LayoutDetector() {
     companion object {
-        internal val USING_ON_CLICK_IN_XML: Issue = Issue.create(
-            "UsingOnClickInXml",
-            "Using `android:onClick` on older version of the platform is broken",
-            "Old versions of the platform do not properly support resolving `android:onClick`",
-            Category.CORRECTNESS,
-            1,
-            Severity.WARNING,
-            Implementation(OnClickXmlDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
-        )
+        internal val USING_ON_CLICK_IN_XML: Issue =
+            Issue.create(
+                "UsingOnClickInXml",
+                "Using `android:onClick` on older version of the platform is broken",
+                "Old versions of the platform do not properly support resolving `android:onClick`",
+                Category.CORRECTNESS,
+                1,
+                Severity.WARNING,
+                Implementation(OnClickXmlDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
+            )
     }
 
     override fun getApplicableAttributes(): Collection<String> = listOf("onClick")
@@ -52,10 +53,11 @@ class OnClickXmlDetector : LayoutDetector() {
         }
 
         // The resolution is not guaranteed to work on pre-23 versions of the platform
-        val incident = Incident(context)
-            .issue(USING_ON_CLICK_IN_XML)
-            .at(attribute)
-            .message("Use databinding or explicit wiring of click listener in code")
+        val incident =
+            Incident(context)
+                .issue(USING_ON_CLICK_IN_XML)
+                .at(attribute)
+                .message("Use databinding or explicit wiring of click listener in code")
         context.report(incident, minSdkLessThan(23))
     }
 }

@@ -30,15 +30,16 @@ import org.w3c.dom.Element
 @Suppress("UnstableApiUsage")
 class ImageViewTintDetector : LayoutDetector() {
     companion object {
-        internal val USING_ANDROID_TINT: Issue = Issue.create(
-            "UseAppTint",
-            "`app:tint` attribute should be used on `ImageView` and `ImageButton`",
-            "`ImageView` or `ImageButton` uses `android:tint` instead of `app:tint`",
-            Category.CORRECTNESS,
-            1,
-            Severity.ERROR,
-            Implementation(ImageViewTintDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
-        )
+        internal val USING_ANDROID_TINT: Issue =
+            Issue.create(
+                "UseAppTint",
+                "`app:tint` attribute should be used on `ImageView` and `ImageButton`",
+                "`ImageView` or `ImageButton` uses `android:tint` instead of `app:tint`",
+                Category.CORRECTNESS,
+                1,
+                Severity.ERROR,
+                Implementation(ImageViewTintDetector::class.java, Scope.RESOURCE_FILE_SCOPE)
+            )
     }
 
     override fun getApplicableElements(): Collection<String>? = listOf("ImageView", "ImageButton")
@@ -55,13 +56,18 @@ class ImageViewTintDetector : LayoutDetector() {
             element,
             context.getLocation(element.getAttributeNodeNS(SdkConstants.ANDROID_URI, "tint")),
             "Must use `app:tint` instead of `android:tint`",
-            LintFix.create().name("Use `app:tint` instead of `android:tint`").composite(
-                LintFix.create().set(
-                    SdkConstants.AUTO_URI, "tint",
-                    element.getAttributeNS(SdkConstants.ANDROID_URI, "tint")
-                ).build(),
-                LintFix.create().unset(SdkConstants.ANDROID_URI, "tint").build()
-            )
+            LintFix.create()
+                .name("Use `app:tint` instead of `android:tint`")
+                .composite(
+                    LintFix.create()
+                        .set(
+                            SdkConstants.AUTO_URI,
+                            "tint",
+                            element.getAttributeNS(SdkConstants.ANDROID_URI, "tint")
+                        )
+                        .build(),
+                    LintFix.create().unset(SdkConstants.ANDROID_URI, "tint").build()
+                )
         )
     }
 }

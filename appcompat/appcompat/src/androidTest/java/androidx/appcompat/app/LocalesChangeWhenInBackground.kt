@@ -38,16 +38,15 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(maxSdkVersion = 32)
 class LocalesChangeWhenInBackground {
-    @get:Rule
-    val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
+    @get:Rule val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
     private var systemLocales = LocaleListCompat.getEmptyLocaleList()
 
     @Before
     fun setUp() {
         // Since no locales are applied as of now, current configuration will have system
         // locales.
-        systemLocales = LocalesUpdateActivity.getConfigLocales(
-            rule.activity.resources.configuration)
+        systemLocales =
+            LocalesUpdateActivity.getConfigLocales(rule.activity.resources.configuration)
     }
 
     @Test
@@ -58,17 +57,15 @@ class LocalesChangeWhenInBackground {
         assertConfigurationLocalesEquals(systemLocales, firstActivity)
 
         // Start a new Activity, so that the original Activity goes into the background
-        val intent = Intent(firstActivity, AppCompatActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+        val intent =
+            Intent(firstActivity, AppCompatActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
         val secondActivity = instrumentation.startActivitySync(intent) as AppCompatActivity
         assertConfigurationLocalesEquals(systemLocales, secondActivity)
 
         // Now change the locales for the foreground activity
-        val recreatedSecond = setLocalesAndWaitForRecreate(
-            secondActivity,
-            CUSTOM_LOCALE_LIST
-        )
+        val recreatedSecond = setLocalesAndWaitForRecreate(secondActivity, CUSTOM_LOCALE_LIST)
 
         // Now finish the foreground activity and wait until it is destroyed,
         // allowing the recreated activity to come to the foreground
