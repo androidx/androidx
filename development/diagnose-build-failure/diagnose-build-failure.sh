@@ -113,8 +113,16 @@ fi
 COLOR_WHITE="\e[97m"
 COLOR_GREEN="\e[32m"
 
-# link to ab-damage-estimator including potentially some relevant query parameters
-AB_DAMAGE_ESTIMATOR_LINK="https://dashboards.corp.google.com/_d7c29bbb_d22c_4d60_833b_98f096f089e7?f=branch:in:aosp-androidx-main&f=day:pd:90"
+function outputAdvice() {
+  adviceName="$1"
+  cd "$scriptPath"
+  adviceFilepath="classifications/${adviceName}.md"
+  echo >&2
+  echo "Advice ${scriptPath}/${adviceFilepath}:" >&2
+  echo >&2
+  cat "$adviceFilepath" >&2
+  exit 0
+}
 
 function checkStatusRepo() {
   repo status >&2
@@ -216,32 +224,7 @@ echo "diagnose-build-failure making sure that we can reproduce the build failure
 if runBuild ./gradlew -Pandroidx.summarizeStderr $gradleArgs; then
   echo >&2
   echo "This script failed to reproduce the build failure." >&2
-  echo >&2
-  echo "Some possibilities:" >&2
-  echo >&2
-  # This message is probably important for users that run this command directly, so we put it first
-  # This message is probably not important when running on the build server so we send it to stdout rather than to stderr (so we don't put ">&2")
-  echo "  Was the previous failure that you observed in Android Studio? This script cannot necessarily reproduce errors from the editor"
-  echo
-  echo "    A) You could ask a teammate for help"
-  echo
-  echo "  The build may be nondeterministic" >&2
-  echo >&2
-  echo "    A) ab-damage-estimator can search for examples of this error on build servers $AB_DAMAGE_ESTIMATOR_LINK" >&2
-  echo >&2
-  echo "    B) Develocity can search for examples of this error on developer computers https://ge.androidx.dev/scans/failures" >&2
-  echo >&2
-  echo "       To upload your own build scan data, see https://g3doc.corp.google.com/company/teams/androidx/onboarding.md?cl=head#gradle-build-scans" >&2
-  echo >&2
-  echo "    C) You could run the build in a loop, in hopes of reproducing the error again" >&2
-  echo >&2
-  echo "  The state of your build could be different from when you started your previous build" >&2
-  echo >&2
-  echo "    Running the failing build may have deleted the problematic state (cleared caches etc)" >&2
-  echo >&2
-  echo "    A) Next time, you could make a backup of the build state ( development/diagnose-build-failure/impl/backup-state.sh ) before the failure occurs and compare to the build state after the failure occurs" >&2
-  echo >&2
-  exit 1
+  outputAdvice "subsequent-success"
 else
   echo >&2
   echo "Reproduced build failure" >&2
@@ -275,15 +258,7 @@ cd "$supportRoot"
 if runBuild ./gradlew --no-daemon $gradleArgs; then
   echo >&2
   echo "The build passed when disabling the Gradle Daemon" >&2
-  echo >&2
-  echo "This suggests that there is some state saved in the Gradle Daemon that is causing a failure." >&2
-  echo >&2
-  echo "Some ideas:" >&2
-  echo >&2
-  echo "  A) Next time you could get a heap dump" >&2 # should diagnose-build-failure preemptively do this automatically?
-  echo >&2
-  echo "  B) You could look for more examples of this error on build servers using ab-damage-estimator $AB_DAMAGE_ESTIMATOR_LINK" >&2
-  exit 1
+  outputAdvice "memory-state"
 else
   echo >&2
   echo "The build failed even with the Gradle Daemon disabled." >&2
@@ -307,9 +282,7 @@ if runBuild ./gradlew --no-daemon $gradleArgs; then
 else
   echo >&2
   echo "The clean build also reproduced the issue." >&2
-  echo "This may mean that everyone is observing this issue" >&2
-  echo "This may mean that something about this checkout is different from others'" >&2
-  echo "You may be interested in running development/simplify-build-failure/simplify-build-failure.sh to identify the minimal set of source files required to reproduce this error" >&2
+  outputAdvice "clean-error"
   echo "Checking the status of the checkout:" >&2
   checkStatus
   exit 1
@@ -334,13 +307,7 @@ restoreState "$tempDir/prev"
 if runBuild ./gradlew --no-daemon $gradleArgs; then
   echo >&2
   echo "After restoring the saved state, the build passed." >&2
-  echo "This might mean that there is additional state being saved somewhere else that this script does not know about" >&2
-  echo "This might mean that the success or failure status of the build is dependent on timestamps." >&2
-  echo "This might mean that the build is nondeterministic." >&2
-  echo "Unfortunately, this script does not know how to diagnose this further." >&2
-  echo "You could:" >&2
-  echo "  Ask a team member if they know where the state may be stored" >&2
-  echo "  Ask a team member if they recognize the build error" >&2
+  outputAdvice "unknown-state"
   exit 1
 else
   echo >&2
