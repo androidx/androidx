@@ -31,7 +31,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.core.CameraSelector;
@@ -59,7 +58,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * Extension test util functions.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionsTestUtil {
     public static final Config.Option<CameraCaptureSession.CaptureCallback>
             SESSION_CAPTURE_CALLBACK_OPTION =

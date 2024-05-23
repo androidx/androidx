@@ -25,7 +25,6 @@ import android.util.Range;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
@@ -140,7 +139,6 @@ import java.util.concurrent.ExecutionException;
  * </code> will select the supported sizes for the use cases according to the use cases'
  * configuration and combination.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ExtensionsManager {
     private static final String TAG = "ExtensionsManager";
 

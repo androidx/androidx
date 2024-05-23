@@ -18,7 +18,6 @@ package androidx.camera.extensions.internal.compat.workaround;
 
 import android.os.SystemClock;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.extensions.internal.compat.quirk.CrashWhenOnDisableTooSoon;
@@ -27,7 +26,6 @@ import androidx.camera.extensions.internal.compat.quirk.DeviceQuirks;
 /**
  * A workaround to ensure the duration of onEnableSession to onDisableSession is long enough.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class OnEnableDisableSessionDurationCheck {
     private static final String TAG = "OnEnableDisableSessionDurationCheck";
     private final boolean mEnabledMinimumDuration;

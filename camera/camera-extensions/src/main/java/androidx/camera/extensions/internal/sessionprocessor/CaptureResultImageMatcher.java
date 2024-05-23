@@ -23,7 +23,6 @@ import android.util.LongSparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -34,7 +33,6 @@ import java.util.Map;
 /**
  * To match {@link ImageReference} with {@link TotalCaptureResult} by timestamp.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureResultImageMatcher {
     private final Object mLock = new Object();
     private static final int INVALID_TIMESTAMP = -1;

@@ -23,7 +23,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
@@ -54,7 +53,6 @@ import java.util.List;
  * to get the specified {@link CameraSelector} to bind use cases and enable the extension mode on
  * the camera.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class ExtensionsInfo {
     private static final String EXTENDED_CAMERA_CONFIG_PROVIDER_ID_PREFIX = ":camera:camera"
             + "-extensions-";

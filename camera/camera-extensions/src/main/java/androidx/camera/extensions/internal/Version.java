@@ -20,7 +20,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.google.auto.value.AutoValue;
 
@@ -32,7 +31,6 @@ import java.util.regex.Pattern;
 /**
  * Class encapsulating a version with major, minor, patch and description values.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class Version implements Comparable<Version> {
     public static final Version VERSION_1_0 = Version.create(1, 0, 0, "");

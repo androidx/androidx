@@ -780,7 +780,6 @@ private suspend fun <T> Deferred<T>.awaitWithTimeout(timeMillis: Long): T {
  * to allow tests to access the [RequestProcessorImpl] to receive the Image for
  * [ImageReaderOutputConfigImpl].
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class FakeSessionProcessImpl(
     var previewConfigBlock: (OutputSurfaceImpl) -> Camera2OutputConfigImpl = { outputSurfaceImpl ->
         Camera2OutputConfigImplBuilder
@@ -905,7 +904,6 @@ class FakeSessionProcessImpl(
             ) {
             }
 
-            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onCaptureCompleted(
                 request: RequestProcessorImpl.Request,
                 totalCaptureResult: TotalCaptureResult
@@ -967,7 +965,6 @@ class FakeSessionProcessImpl(
             ) {
             }
 
-            @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
             override fun onCaptureCompleted(
                 request: RequestProcessorImpl.Request,
                 totalCaptureResult: TotalCaptureResult
