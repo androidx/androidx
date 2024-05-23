@@ -23,7 +23,6 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -56,7 +55,6 @@ import java.util.concurrent.Executor;
  * notifying submitted requests using the associated {@link CameraCaptureCallback} instances or
  * {@link ControlUpdateCallback}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
     private static final ControlUpdateCallback NO_OP_CALLBACK = new ControlUpdateCallback() {
@@ -433,7 +431,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     /** A listener which is used to notify when there are new submitted capture requests */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface OnNewCaptureRequestListener {
         /** Called when there are new submitted capture request */
         void onNewCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);

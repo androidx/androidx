@@ -18,7 +18,6 @@ package androidx.camera.testing.impl.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraCaptureMetaData;
@@ -29,7 +28,6 @@ import androidx.camera.core.impl.TagBundle;
  * A fake implementation of {@link CameraCaptureResult} where the values are settable.
  *
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeCameraCaptureResult implements CameraCaptureResult {
     private CameraCaptureMetaData.AfMode mAfMode = CameraCaptureMetaData.AfMode.UNKNOWN;
@@ -136,7 +134,6 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
      *
      */
     @SuppressWarnings("unused")
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static class Builder {
         private CameraCaptureMetaData.AfMode mAfMode = CameraCaptureMetaData.AfMode.UNKNOWN;

@@ -17,7 +17,6 @@ package androidx.camera.testing.impl
 
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.AssumptionViolatedException
@@ -28,7 +27,6 @@ import org.junit.runners.model.Statement
 /**
  * Test class to set the TestRule should not be run on the problematic devices.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class IgnoreProblematicDeviceRule : TestRule {
     private val api21Emulator = isEmulator && Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP
 

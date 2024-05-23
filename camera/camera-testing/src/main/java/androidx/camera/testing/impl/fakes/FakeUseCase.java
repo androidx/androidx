@@ -18,7 +18,6 @@ package androidx.camera.testing.impl.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
@@ -39,7 +38,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A fake {@link UseCase}.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FakeUseCase extends UseCase {
 
     private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 0;

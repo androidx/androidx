@@ -29,7 +29,6 @@ import android.view.Surface;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
@@ -67,7 +66,6 @@ import java.util.concurrent.Executor;
  *
  * <p>This camera info can be constructed with fake values.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private static final Set<Range<Integer>> FAKE_FPS_RANGES = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList(
@@ -457,7 +455,6 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         }
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static final class FakeExposureState implements ExposureState {
         private int mIndex = 0;
         private Range<Integer> mRange = new Range<>(0, 0);

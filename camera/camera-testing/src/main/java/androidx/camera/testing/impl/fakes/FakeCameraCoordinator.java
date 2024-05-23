@@ -18,7 +18,6 @@ package androidx.camera.testing.impl.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
@@ -34,7 +33,6 @@ import java.util.Map;
  * information.
  *
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FakeCameraCoordinator implements CameraCoordinator {
 

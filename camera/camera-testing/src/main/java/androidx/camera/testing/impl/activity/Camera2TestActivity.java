@@ -36,7 +36,6 @@ import android.view.TextureView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
@@ -49,7 +48,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /** An activity which opens the camera via Camera2 API for testing. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Camera2TestActivity extends Activity {
 
     private static final String TAG = "Camera2TestActivity";
@@ -262,7 +260,6 @@ public class Camera2TestActivity extends Activity {
         }
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     final class DeviceStateCallbackImpl extends CameraDevice.StateCallback {
 
         @Override
@@ -293,7 +290,6 @@ public class Camera2TestActivity extends Activity {
         }
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     final class SessionStateCallbackImpl extends CameraCaptureSession.StateCallback {
 
         @Override

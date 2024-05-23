@@ -17,13 +17,11 @@
 package androidx.camera.testing.impl.fakes
 
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.UseCaseConfig
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FakeSessionConfigOptionUnpacker : SessionConfig.OptionUnpacker {
     override fun unpack(
         resolution: Size,
