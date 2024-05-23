@@ -37,7 +37,6 @@ import org.junit.runners.model.Statement
 /**
  * A rule that opens an empty Activity and wakes the device to prevent test failures.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class WakelockEmptyActivityRule : TestRule {
     override fun apply(base: Statement, description: Description): Statement =
         object : Statement() {

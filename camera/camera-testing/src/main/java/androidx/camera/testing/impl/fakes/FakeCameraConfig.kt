@@ -16,7 +16,6 @@
 
 package androidx.camera.testing.impl.fakes
 
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.Config
@@ -25,7 +24,6 @@ import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.UseCaseConfigFactory
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class FakeCameraConfig(
     private val sessionProcessor: SessionProcessor? = null,

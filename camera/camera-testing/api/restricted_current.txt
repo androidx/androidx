@@ -1,12 +1,12 @@
 // Signature format: 4.0
 package androidx.camera.testing.fakes {
 
-  @RequiresApi(21) public final class FakeAppConfig {
+  public final class FakeAppConfig {
     method public static androidx.camera.core.CameraXConfig create();
     method public static androidx.camera.core.CameraXConfig create(androidx.camera.core.CameraSelector?);
   }
 
-  @RequiresApi(21) public class FakeCamera implements androidx.camera.core.Camera {
+  public class FakeCamera implements androidx.camera.core.Camera {
     ctor public FakeCamera();
     ctor public FakeCamera(androidx.camera.core.impl.CameraControlInternal);
     ctor public FakeCamera(androidx.camera.core.impl.CameraControlInternal?, androidx.camera.core.impl.CameraInfoInternal);
@@ -37,7 +37,7 @@ package androidx.camera.testing.fakes {
     method public void setHasTransform(boolean);
   }
 
-  @RequiresApi(21) public final class FakeCameraControl implements androidx.camera.core.CameraControl {
+  public final class FakeCameraControl implements androidx.camera.core.CameraControl {
     ctor public FakeCameraControl();
     ctor public FakeCameraControl(androidx.camera.core.impl.CameraControlInternal.ControlUpdateCallback);
     ctor public FakeCameraControl(java.util.concurrent.Executor, androidx.camera.core.impl.CameraControlInternal.ControlUpdateCallback);
@@ -75,11 +75,11 @@ package androidx.camera.testing.fakes {
     field public static final androidx.camera.core.impl.CameraControlInternal DEFAULT_EMPTY_INSTANCE;
   }
 
-  @RequiresApi(21) public static interface FakeCameraControl.OnNewCaptureRequestListener {
+  public static interface FakeCameraControl.OnNewCaptureRequestListener {
     method public void onNewCaptureRequests(java.util.List<androidx.camera.core.impl.CaptureConfig!>);
   }
 
-  @RequiresApi(21) public final class FakeCameraInfoInternal implements androidx.camera.core.CameraInfo {
+  public final class FakeCameraInfoInternal implements androidx.camera.core.CameraInfo {
     ctor public FakeCameraInfoInternal();
     ctor public FakeCameraInfoInternal(int, int);
     ctor public FakeCameraInfoInternal(String);

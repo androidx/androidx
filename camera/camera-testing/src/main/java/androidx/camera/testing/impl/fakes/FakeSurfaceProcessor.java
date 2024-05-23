@@ -17,12 +17,10 @@
 package androidx.camera.testing.impl.fakes;
 
 import android.graphics.SurfaceTexture;
-import android.os.Build;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
 import androidx.camera.core.SurfaceRequest;
@@ -35,7 +33,6 @@ import java.util.concurrent.Executor;
 /**
  * Fake {@link SurfaceProcessor} used in tests.
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class FakeSurfaceProcessor implements SurfaceProcessor {
 
     final SurfaceTexture mSurfaceTexture;

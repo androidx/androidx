@@ -17,7 +17,6 @@
 package androidx.camera.testing.impl
 
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.testing.impl.LabTestRule.LabTestFrontCamera
 import androidx.camera.testing.impl.LabTestRule.LabTestOnly
@@ -58,7 +57,6 @@ import org.junit.runners.model.Statement
  * adb shell setprop log.tag.rearCameraE2E DEBUG
  * ```
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class LabTestRule : TestRule {
 
     /**

@@ -22,7 +22,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor;
 import androidx.camera.testing.impl.mocks.helpers.CallTimes;
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast;
@@ -43,7 +42,6 @@ import java.util.concurrent.TimeUnit;
  */
 // TODO(b/239752223): We should change all the mock consumer to this manual mock for
 //  consistency, or try to figure out why this error only happens on certain tests.
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class MockConsumer<T> implements Consumer<T> {
 
     public static final long NO_TIMEOUT = 0;

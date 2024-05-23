@@ -18,7 +18,6 @@ package androidx.camera.testing.fakes;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraXConfig;
@@ -35,7 +34,6 @@ import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
  *
  * <p>This {@link CameraXConfig} contains all fake CameraX implementation components.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class FakeAppConfig {
     private FakeAppConfig() {
     }

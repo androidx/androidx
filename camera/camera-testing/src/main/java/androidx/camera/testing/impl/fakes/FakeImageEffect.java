@@ -16,10 +16,7 @@
 
 package androidx.camera.testing.impl.fakes;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ImageProcessor;
 import androidx.core.util.Consumer;
@@ -29,7 +26,6 @@ import java.util.concurrent.Executor;
 /**
  * A fake {@link CameraEffect} with {@link ImageProcessor}
  */
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class FakeImageEffect extends CameraEffect {
 
     public FakeImageEffect(

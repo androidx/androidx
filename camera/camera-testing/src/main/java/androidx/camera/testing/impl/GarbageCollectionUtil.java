@@ -17,7 +17,6 @@
 package androidx.camera.testing.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import org.junit.rules.TestRule;
 import org.junit.runners.model.Statement;
@@ -29,7 +28,6 @@ import java.util.concurrent.TimeoutException;
 /**
  * Utility class for tests containing methods related to garbage collection.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class GarbageCollectionUtil {
 
     private static final long FINALIZE_TIMEOUT_MILLIS = 200L;

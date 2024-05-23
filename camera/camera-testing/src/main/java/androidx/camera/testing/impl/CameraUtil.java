@@ -97,7 +97,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** Utility functions for obtaining instances of camera2 classes. */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraUtil {
     private CameraUtil() {
     }
@@ -197,7 +196,6 @@ public final class CameraUtil {
      * <p>The camera device should always be closed with
      * {@link CameraUtil#releaseCameraDevice(CameraDeviceHolder)} once finished with the device.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class CameraDeviceHolder {
 
         final Object mLock = new Object();
@@ -240,7 +238,6 @@ public final class CameraUtil {
             });
         }
 
-        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
         final class DeviceStateCallbackImpl extends CameraDevice.StateCallback {
 
             private final CallbackToFutureAdapter.Completer<Void> mOpenCompleter;
@@ -406,7 +403,6 @@ public final class CameraUtil {
      * be closed when the associated CameraDeviceHolder is released by
      * {@link CameraUtil#releaseCameraDevice(CameraDeviceHolder)}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
     public static class CameraCaptureSessionHolder {
 
         private final CameraDeviceHolder mCameraDeviceHolder;
@@ -541,7 +537,6 @@ public final class CameraUtil {
                     "CameraCaptureSession is closed");
         }
 
-        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
         private static class SessionStateCallbackImpl extends
                 CameraCaptureSession.StateCallback {
             private final Completer<CameraCaptureSession> mOpenCompleter;
@@ -1227,7 +1222,6 @@ public final class CameraUtil {
      * <p>Try to open the camera with the front and back lensFacing. It throws an exception when
      * the test is running in the CameraX lab, or ignore the test otherwise.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class PreTestCamera implements TestRule {
         final boolean mThrowOnError = Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG);
         final AtomicReference<Boolean> mCanOpenCamera = new AtomicReference<>();
@@ -1396,7 +1390,6 @@ public final class CameraUtil {
      *
      * <p>Call {@link #shutdown()} after finish the test.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class RetryCameraOpener {
         private static final int RETRY_DELAY_MS = 1000;
         private CameraAvailability mCameraAvailability;
