@@ -73,6 +73,8 @@ private const val IncludedFiles = "**/*.kt"
 abstract class BaseKtfmtTask : DefaultTask() {
     @get:Inject abstract val objects: ObjectFactory
 
+    @get:Internal val projectPath: String = project.path
+
     @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
     fun getInputFiles(): FileTree {
         val projectDirectory = overrideDirectory
@@ -110,7 +112,15 @@ abstract class BaseKtfmtTask : DefaultTask() {
                     error(
                         "Found ${incorrectlyFormatted.size} files that are not correctly " +
                             "formatted:\n" +
-                            incorrectlyFormatted.map { it.input }.joinToString("\n")
+                            incorrectlyFormatted.map { it.input }.joinToString("\n") +
+                            """
+
+                ********************************************************************************
+                You can attempt to automatically fix these issues with:
+                ./gradlew $projectPath:ktFormat
+                ********************************************************************************
+                """
+                                .trimIndent()
                     )
                 }
             }
