@@ -42,22 +42,22 @@ internal class FlushCoroutineDispatcher(
     // use this dispatcher won't be properly cancelled.
     // TODO replace it by scope.coroutineContext[CoroutineDispatcher] when it will be no longer experimental
     private val scope = CoroutineScope(scope.coroutineContext.minusKey(Job))
-    private var tasks = mutableSetOf<Runnable>()
+    private var immediateTasks = mutableSetOf<Runnable>()
     private val delayedTasks = mutableSetOf<Runnable>()
     private val tasksLock = createSynchronizedObject()
-    private var tasksSwap = mutableSetOf<Runnable>()
+    private var immediateTasksSwap = mutableSetOf<Runnable>()
     @Volatile
     private var isPerformingRun = false
     private val runLock = createSynchronizedObject()
     
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         synchronized(tasksLock) {
-            tasks.add(block)
+            immediateTasks.add(block)
         }
         scope.launch {
             performRun {
                 val isTaskAlive = synchronized(tasksLock) {
-                    tasks.remove(block)
+                    immediateTasks.remove(block)
                 }
                 if (isTaskAlive) {
                     block.run()
@@ -70,7 +70,7 @@ internal class FlushCoroutineDispatcher(
      * Whether the dispatcher has any tasks scheduled or currently running.
      */
     fun hasTasks() = synchronized(tasksLock) {
-        tasks.isNotEmpty() || delayedTasks.isNotEmpty()
+        immediateTasks.isNotEmpty() || delayedTasks.isNotEmpty()
     } || isPerformingRun
 
     /**
@@ -82,16 +82,16 @@ internal class FlushCoroutineDispatcher(
         // pending at the start
         while (true) {
             synchronized(tasksLock) {
-                if (tasks.isEmpty())
+                if (immediateTasks.isEmpty())
                     return@performRun
 
-                val tmp = tasksSwap
-                tasksSwap = tasks
-                tasks = tmp
+                val tmp = immediateTasksSwap
+                immediateTasksSwap = immediateTasks
+                immediateTasks = tmp
             }
 
-            tasksSwap.forEach(Runnable::run)
-            tasksSwap.clear()
+            immediateTasksSwap.forEach(Runnable::run)
+            immediateTasksSwap.clear()
         }
     }
 
