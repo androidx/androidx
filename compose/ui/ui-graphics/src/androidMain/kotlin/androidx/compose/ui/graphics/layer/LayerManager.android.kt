@@ -23,8 +23,8 @@ import android.os.Looper
 import android.os.Message
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.collection.ObjectList
-import androidx.collection.mutableObjectListOf
+import androidx.collection.ScatterSet
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.core.os.HandlerCompat
 
@@ -36,7 +36,7 @@ import androidx.core.os.HandlerCompat
  */
 internal class LayerManager(val canvasHolder: CanvasHolder) {
 
-    private val layerList = mutableObjectListOf<GraphicsLayer>()
+    private val layerSet = mutableScatterSetOf<GraphicsLayer>()
 
     /**
      * Create a placeholder ImageReader instance that we will use to issue a single draw call
@@ -48,32 +48,30 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
     private var imageReader: ImageReader? = null
 
     private val handler = HandlerCompat.createAsync(Looper.getMainLooper()) {
-        persistLayers(layerList)
+        persistLayers(layerSet)
         true
     }
 
     fun persist(layer: GraphicsLayer) {
-        if (!layerList.contains(layer)) {
-            layerList.add(layer)
-            if (!handler.hasMessages(0)) {
-                // we don't run persistLayers() synchronously in order to do less work as there
-                // might be a lot of new layers created during one frame. however we also want
-                // to execute it as soon as possible to be able to persist the layers before
-                // they discard their content. it is possible that there is some other work
-                // scheduled on the main thread which is going to change what layers are drawn.
-                // we use sendMessageAtFrontOfQueue() in order to be executed before that.
-                handler.sendMessageAtFrontOfQueue(Message.obtain())
-            }
+        layerSet.add(layer)
+        if (!handler.hasMessages(0)) {
+            // we don't run persistLayers() synchronously in order to do less work as there
+            // might be a lot of new layers created during one frame. however we also want
+            // to execute it as soon as possible to be able to persist the layers before
+            // they discard their content. it is possible that there is some other work
+            // scheduled on the main thread which is going to change what layers are drawn.
+            // we use sendMessageAtFrontOfQueue() in order to be executed before that.
+            handler.sendMessageAtFrontOfQueue(Message.obtain())
         }
     }
 
     fun release(layer: GraphicsLayer) {
-        if (layerList.remove(layer)) {
+        if (layerSet.remove(layer)) {
             layer.discardDisplayList()
         }
     }
 
-    private fun persistLayers(layers: ObjectList<GraphicsLayer>) {
+    private fun persistLayers(layers: ScatterSet<GraphicsLayer>) {
         /**
          * Create a placeholder ImageReader instance that we will use to issue a single draw call
          * for each GraphicsLayer. This placeholder draw will increase the ref count of each
@@ -125,7 +123,7 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
      */
     fun updateLayerPersistence() {
         destroy()
-        persistLayers(layerList)
+        persistLayers(layerSet)
     }
 
     companion object {
