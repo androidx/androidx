@@ -25,15 +25,19 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.AspectRatio
+import androidx.camera.core.AspectRatio.RATIO_16_9
+import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.ImageCapture.ScreenFlash
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.MirrorMode
+import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.TorchState
 import androidx.camera.core.ViewPort
 import androidx.camera.core.impl.ImageAnalysisConfig
@@ -93,7 +97,7 @@ class CameraControllerTest {
     private val targetSizeWithResolution =
         CameraController.OutputSize(Size(1080, 1960))
     private val targetVideoQuality = Quality.HIGHEST
-    private val fakeViewPort = ViewPort.Builder(Rational(1, 1), 0).build()
+    private val fakeViewPort = ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
     private val fakeCameraControl = FakeCameraControl()
     private val fakeCamera = FakeCamera(fakeCameraControl)
     private val processCameraProviderWrapper = FakeProcessCameraProviderWrapper(fakeCamera)
@@ -592,5 +596,87 @@ class CameraControllerTest {
         Assert.assertThrows(IllegalStateException::class.java) {
             controller.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
         }
+    }
+
+    @UiThreadTest
+    @Test
+    fun preview_surfaceProviderIsPreserved_afterRebind() {
+        // Arrange.
+        val surfaceProvider = SurfaceProvider { }
+        controller.attachPreviewSurface(surfaceProvider, fakeViewPort)
+
+        // Act: Setting a different resolution selector triggers a rebinding.
+        controller.previewResolutionSelector = resolutionSelector
+
+        // Assert.
+        assertThat(controller.mPreview.surfaceProvider).isSameInstanceAs(surfaceProvider)
+    }
+
+    @UiThreadTest
+    @Test
+    fun imageCapture_flashModeIsPreserved_afterRebind() {
+        // Arrange.
+        controller.imageCaptureFlashMode = FLASH_MODE_ON
+
+        // Act: Setting a different resolution selector triggers a rebinding.
+        controller.imageCaptureResolutionSelector = resolutionSelector
+
+        // Assert.
+        assertThat(controller.imageCaptureFlashMode).isEqualTo(FLASH_MODE_ON)
+    }
+
+    @Test
+    fun setViewport_overrideUseCasesAspectRatioIfNotSetYet() {
+        // Arrange & Act: Set a 16:9 viewport.
+        controller.attachPreviewSurface(
+            { },
+            ViewPort.Builder(Rational(9, 16), Surface.ROTATION_90).build()
+        )
+
+        // Assert: The aspect ratio of the use case configs should be override by viewport,
+        // which should be 16:9.
+        val previewConfig = controller.mPreview.currentConfig as ImageOutputConfig
+        assertThat(previewConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
+            .isEqualTo(
+                RATIO_16_9
+            )
+        val imageCaptureConfig = controller.mImageCapture.currentConfig as ImageOutputConfig
+        assertThat(imageCaptureConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
+            .isEqualTo(
+                RATIO_16_9
+            )
+        val imageAnalysisConfig = controller.mImageAnalysis.currentConfig as ImageOutputConfig
+        assertThat(imageAnalysisConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
+            .isEqualTo(
+                RATIO_16_9
+            )
+        assertThat(controller.mVideoCapture.output.aspectRatio).isEqualTo(RATIO_16_9)
+    }
+
+    @Test
+    fun setViewport_notOverrideUseCasesAspectRatioIfAlreadySet() {
+        // Arrange: Set a 4:3 viewport.
+        controller.attachPreviewSurface(
+            { },
+            ViewPort.Builder(Rational(4, 3), Surface.ROTATION_0).build()
+        )
+
+        // Act: Explicitly set a 16:9 resolution selector.
+        controller.previewResolutionSelector = resolutionSelector
+        controller.imageCaptureResolutionSelector = resolutionSelector
+        controller.imageAnalysisResolutionSelector = resolutionSelector
+        controller.videoCaptureQualitySelector = QualitySelector.from(targetVideoQuality)
+
+        // Assert: The aspect ratio of the use case configs should not be override.
+        val previewConfig = controller.mPreview.currentConfig as ImageOutputConfig
+        assertThat(previewConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
+            .isNotEqualTo(RATIO_4_3)
+        val imageCaptureConfig = controller.mImageCapture.currentConfig as ImageOutputConfig
+        assertThat(imageCaptureConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
+            .isNotEqualTo(RATIO_4_3)
+        val imageAnalysisConfig = controller.mImageAnalysis.currentConfig as ImageOutputConfig
+        assertThat(imageAnalysisConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
+            .isNotEqualTo(RATIO_4_3)
+        assertThat(controller.mVideoCapture.output.aspectRatio).isNotEqualTo(RATIO_4_3)
     }
 }

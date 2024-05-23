@@ -17,6 +17,7 @@
 package androidx.camera.view
 
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
@@ -67,5 +68,9 @@ class FakeProcessCameraProviderWrapper(
 
     override fun shutdownAsync(): ListenableFuture<Void> {
         return Futures.immediateFuture(null)
+    }
+
+    override fun getCameraInfo(cameraSelector: CameraSelector?): CameraInfo {
+        return camera.cameraInfo
     }
 }
