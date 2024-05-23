@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DefaultDensity
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.layer.LayerManager.Companion.isRobolectric
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -842,7 +843,10 @@ actual class GraphicsLayer internal constructor(
 
     companion object {
 
-        private val SnapshotImpl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        // See b/340578758, fallback to software rendering for Robolectric tests
+        private val SnapshotImpl = if (isRobolectric) {
+            LayerSnapshotV21
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             LayerSnapshotV28
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 &&
             SurfaceUtils.isLockHardwareCanvasAvailable()) {
