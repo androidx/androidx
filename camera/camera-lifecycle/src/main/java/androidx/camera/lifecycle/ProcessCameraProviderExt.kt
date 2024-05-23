@@ -17,8 +17,6 @@
 package androidx.camera.lifecycle
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.core.InitializationException
 import androidx.concurrent.futures.await
 
@@ -34,6 +32,5 @@ import androidx.concurrent.futures.await
  * [InitializationException.cause] to get the error cause.
  * @see ProcessCameraProvider.getInstance
  */
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 suspend fun ProcessCameraProvider.Companion.awaitInstance(context: Context) =
     getInstance(context).await()
