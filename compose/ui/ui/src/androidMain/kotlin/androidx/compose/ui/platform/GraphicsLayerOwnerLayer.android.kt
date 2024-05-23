@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.layer.setOutline
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.internal.throwIllegalStateException
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
@@ -50,7 +49,7 @@ import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 
 internal class GraphicsLayerOwnerLayer(
-    private val graphicsLayer: GraphicsLayer,
+    private var graphicsLayer: GraphicsLayer,
     // when we have a context it means the object is created by us and we need to release it
     private val context: GraphicsContext?,
     private val ownerView: AndroidComposeView,
@@ -303,7 +302,10 @@ internal class GraphicsLayerOwnerLayer(
         invalidateParentLayer = null
         isDestroyed = true
         isDirty = false
-        context?.releaseGraphicsLayer(graphicsLayer)
+        if (context != null) {
+            context.releaseGraphicsLayer(graphicsLayer)
+            ownerView.recycle(this)
+        }
     }
 
     override fun mapOffset(point: Offset, inverse: Boolean): Offset {
@@ -331,7 +333,25 @@ internal class GraphicsLayerOwnerLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit
     ) {
-        throwIllegalStateException("reuseLayer is not supported yet")
+        val context = requireNotNull(context) {
+            "currently reuse is only supported when we manage the layer lifecycle"
+        }
+        require(graphicsLayer.isReleased) { "layer should have been released before reuse" }
+
+        // recreate a layer
+        graphicsLayer = context.createGraphicsLayer()
+        isDestroyed = false
+
+        // apply new params
+        this.drawBlock = drawBlock
+        this.invalidateParentLayer = invalidateParentLayer
+
+        // reset mutable variables to their initial values
+        transformOrigin = TransformOrigin.Center
+        drawnWithEnabledZ = false
+        size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
+        outline = null
+        mutatedFields = 0
     }
 
     override fun transform(matrix: Matrix) {
