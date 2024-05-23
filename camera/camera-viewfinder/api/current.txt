@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.camera.viewfinder {
 
-  @RequiresApi(21) public final class CameraViewfinder extends android.widget.FrameLayout {
+  public final class CameraViewfinder extends android.widget.FrameLayout {
     ctor @UiThread public CameraViewfinder(android.content.Context);
     ctor @UiThread public CameraViewfinder(android.content.Context, android.util.AttributeSet?);
     ctor @UiThread public CameraViewfinder(android.content.Context, android.util.AttributeSet?, int);
@@ -15,12 +15,12 @@ package androidx.camera.viewfinder {
     method @UiThread public void setScaleType(androidx.camera.viewfinder.CameraViewfinder.ScaleType);
   }
 
-  @Deprecated @RequiresApi(21) public enum CameraViewfinder.ImplementationMode {
+  @Deprecated public enum CameraViewfinder.ImplementationMode {
     enum_constant @Deprecated public static final androidx.camera.viewfinder.CameraViewfinder.ImplementationMode COMPATIBLE;
     enum_constant @Deprecated public static final androidx.camera.viewfinder.CameraViewfinder.ImplementationMode PERFORMANCE;
   }
 
-  @RequiresApi(21) public enum CameraViewfinder.ScaleType {
+  public enum CameraViewfinder.ScaleType {
     enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FILL_CENTER;
     enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FILL_END;
     enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FILL_START;
@@ -29,13 +29,13 @@ package androidx.camera.viewfinder {
     enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FIT_START;
   }
 
-  @RequiresApi(21) public final class CameraViewfinderExt {
+  public final class CameraViewfinderExt {
     method public suspend Object? requestSurface(androidx.camera.viewfinder.CameraViewfinder, androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest viewfinderSurfaceRequest, kotlin.coroutines.Continuation<? super android.view.Surface>);
     method @Deprecated public suspend Object? requestSurface(androidx.camera.viewfinder.CameraViewfinder, androidx.camera.viewfinder.ViewfinderSurfaceRequest viewfinderSurfaceRequest, kotlin.coroutines.Continuation<? super android.view.Surface>);
     field public static final androidx.camera.viewfinder.CameraViewfinderExt INSTANCE;
   }
 
-  @Deprecated @RequiresApi(21) public class ViewfinderSurfaceRequest {
+  @Deprecated public class ViewfinderSurfaceRequest {
     method @Deprecated public androidx.camera.viewfinder.CameraViewfinder.ImplementationMode? getImplementationMode();
     method @Deprecated public int getLensFacing();
     method @Deprecated public android.util.Size getResolution();
@@ -54,7 +54,7 @@ package androidx.camera.viewfinder {
   }
 
   public final class ViewfinderSurfaceRequestUtil {
-    method @Deprecated @RequiresApi(21) public static androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
+    method @Deprecated public static androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
   }
 
 }

@@ -18,12 +18,9 @@ package androidx.camera.viewfinder.internal.utils;
 
 import android.os.Looper;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * Helpers for {@link Thread}s.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Threads {
 
     // Prevent instantiation.

@@ -40,7 +40,6 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.viewfinder.internal.quirk.DeviceQuirks;
@@ -61,7 +60,6 @@ import com.google.common.util.concurrent.ListenableFuture;
  * camera feed, and applies required transformations on them to correctly display the viewfinder,
  * this involves correcting their aspect ratio, scale and rotation.
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraViewfinder extends FrameLayout {
 
     private static final String TAG = "CameraViewFinder";
@@ -520,7 +518,6 @@ public final class CameraViewfinder extends FrameLayout {
      * @deprecated Use {@link androidx.camera.viewfinder.surface.ImplementationMode} instead.
      */
     @Deprecated
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ImplementationMode {
 
         /**
@@ -563,7 +560,6 @@ public final class CameraViewfinder extends FrameLayout {
     }
 
     /** Options for scaling the viewfinder vis-à-vis its container {@link CameraViewfinder}. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public enum ScaleType {
         /**
          * Scale the viewfinder, maintaining the source aspect ratio, so it fills the entire
