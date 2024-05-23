@@ -18,7 +18,6 @@ package androidx.camera.view.internal.compat.quirk;
 
 import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
 
 /**
@@ -31,7 +30,6 @@ import androidx.camera.core.impl.Quirk;
  *                  incorrect transformation.
  *     Device(s): Samsung Fold2 F2Q, Samsung Fold3 Q2Q, Oppo Find N OP4E75L1, Lenovo P12 Pro
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class SurfaceViewStretchedQuirk implements Quirk {
 
     // Samsung Galaxy Z Fold2 b/129403806

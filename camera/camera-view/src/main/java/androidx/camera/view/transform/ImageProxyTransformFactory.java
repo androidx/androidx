@@ -25,7 +25,6 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageInfo;
@@ -44,7 +43,6 @@ import androidx.camera.view.TransformExperimental;
  * @see OutputTransform
  * @see CoordinateTransform
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @TransformExperimental
 public final class ImageProxyTransformFactory {
 
