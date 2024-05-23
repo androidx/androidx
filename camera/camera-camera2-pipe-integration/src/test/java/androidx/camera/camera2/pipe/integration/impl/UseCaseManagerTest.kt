@@ -19,16 +19,24 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
+import android.hardware.camera2.CameraMetadata.CONTROL_CAPTURE_INTENT_PREVIEW
+import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
+import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.HIGH_SPEED
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.BlockingTestDeferrableSurface
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.adapter.FakeTestUseCase
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.TestDeferrableSurface
 import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
@@ -468,6 +476,45 @@ class UseCaseManagerTest {
         assertTrue(previewUseCase.cameraControlReady)
         assertTrue(imageCaptureUseCase.cameraControlReady)
         assertTrue(imageAnalysisUseCase.cameraControlReady)
+    }
+
+    @Test
+    fun createCameraGraphConfig_propagateUseCaseConfigToGraphConfig() = runTest {
+        // Arrange
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        val fakeUseCase =
+            FakeUseCase().apply {
+                updateSessionConfigForTesting(
+                    SessionConfig.Builder()
+                        .setSessionType(SESSION_HIGH_SPEED)
+                        .setTemplateType(TEMPLATE_RECORD)
+                        .setImplementationOptions(
+                            Camera2ImplConfig.Builder()
+                                .setCaptureRequestOption(
+                                    CONTROL_CAPTURE_INTENT,
+                                    CONTROL_CAPTURE_INTENT_PREVIEW
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+            }
+        val sessionConfigAdapter = SessionConfigAdapter(setOf(fakeUseCase))
+        val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
+
+        // Act
+        val graphConfig =
+            useCaseManager.createCameraGraphConfig(
+                sessionConfigAdapter,
+                streamConfigMap,
+            )
+
+        // Assert
+        assertThat(graphConfig.sessionMode).isEqualTo(HIGH_SPEED)
+        assertThat(graphConfig.sessionTemplate).isEqualTo(RequestTemplate(TEMPLATE_RECORD))
+        assertThat(graphConfig.sessionParameters)
+            .isEqualTo(mapOf(CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_PREVIEW))
     }
 
     @OptIn(ExperimentalCamera2Interop::class)
