@@ -37,17 +37,15 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class SystemLocalesMaintainedOnAppLanguageChangeTestCase {
-    @get:Rule
-    val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
+    @get:Rule val rule = LocalesActivityTestRule(LocalesUpdateActivity::class.java)
     private var expectedSystemLocales = LocaleListCompat.getEmptyLocaleList()
 
     @Before
     fun setUp() {
         // Since no locales are applied as of now, current configuration will have system
         // locales.
-        expectedSystemLocales = LocalesUpdateActivity.getConfigLocales(
-            rule.activity.resources.configuration
-        )
+        expectedSystemLocales =
+            LocalesUpdateActivity.getConfigLocales(rule.activity.resources.configuration)
     }
 
     @Ignore
@@ -67,7 +65,7 @@ class SystemLocalesMaintainedOnAppLanguageChangeTestCase {
         val context = InstrumentationRegistry.getInstrumentation().context
         // verify correct system locales are returned.
         assertEquals(expectedSystemLocales, LocaleManagerCompat.getSystemLocales(context))
-       }
+    }
 
     @After
     fun teardown() {

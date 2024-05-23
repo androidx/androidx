@@ -18,9 +18,7 @@ package androidx.appcompat.app
 
 import android.content.Context
 
-/**
- * Activity used by [NightModeLocalBeforeAttachBaseTestCase].
- */
+/** Activity used by [NightModeLocalBeforeAttachBaseTestCase]. */
 class NightModeLocalBeforeAttachBaseActivity : NightModeActivity() {
     override fun attachBaseContext(newBase: Context) {
         // Call setLocalNightMode() before super.attachBaseContext()

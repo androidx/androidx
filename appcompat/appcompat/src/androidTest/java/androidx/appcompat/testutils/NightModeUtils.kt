@@ -35,26 +35,15 @@ object NightModeUtils {
     private const val LOG_TAG = "NightModeUtils"
 
     enum class NightSetMode {
-        /**
-         * Set the night mode using [AppCompatDelegate.setDefaultNightMode]
-         */
+        /** Set the night mode using [AppCompatDelegate.setDefaultNightMode] */
         DEFAULT,
 
-        /**
-         * Set the night mode using [AppCompatDelegate.setLocalNightMode]
-         */
+        /** Set the night mode using [AppCompatDelegate.setLocalNightMode] */
         LOCAL
     }
 
-    fun assertConfigurationNightModeEquals(
-        expectedNightMode: Int,
-        context: Context
-    ) {
-        assertConfigurationNightModeEquals(
-            null,
-            expectedNightMode,
-            context
-        )
+    fun assertConfigurationNightModeEquals(expectedNightMode: Int, context: Context) {
+        assertConfigurationNightModeEquals(null, expectedNightMode, context)
     }
 
     fun assertConfigurationNightModeEquals(
@@ -69,15 +58,8 @@ object NightModeUtils {
         )
     }
 
-    fun assertConfigurationNightModeEquals(
-        expectedNightMode: Int,
-        configuration: Configuration
-    ) {
-        assertConfigurationNightModeEquals(
-            null,
-            expectedNightMode,
-            configuration
-        )
+    fun assertConfigurationNightModeEquals(expectedNightMode: Int, configuration: Configuration) {
+        assertConfigurationNightModeEquals(null, expectedNightMode, configuration)
     }
 
     fun assertConfigurationNightModeEquals(
@@ -108,9 +90,12 @@ object NightModeUtils {
     ) {
         Log.d(
             LOG_TAG,
-            "setNightModeAndWait on Activity: " + activity +
-                " to mode: " + nightMode +
-                " using set mode: " + setMode
+            "setNightModeAndWait on Activity: " +
+                activity +
+                " to mode: " +
+                nightMode +
+                " using set mode: " +
+                setMode
         )
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -131,18 +116,19 @@ object NightModeUtils {
     ): T {
         Log.d(
             LOG_TAG,
-            "setNightModeAndWaitForRecreate on Activity: " + activity +
-                " to mode: " + nightMode +
-                " using set mode: " + setMode
+            "setNightModeAndWaitForRecreate on Activity: " +
+                activity +
+                " to mode: " +
+                nightMode +
+                " using set mode: " +
+                setMode
         )
 
         LifecycleOwnerUtils.waitUntilState(activity, Lifecycle.State.RESUMED)
 
         // Screen rotation kicks off a lot of background work, so we might need to wait a bit
         // between the activity reaching RESUMED state and it actually being shown on screen.
-        PollingCheck.waitFor {
-            activity.hasWindowFocus()
-        }
+        PollingCheck.waitFor { activity.hasWindowFocus() }
         assertNotEquals(nightMode, getNightMode(activity, setMode))
 
         // Now perform night mode change wait for the Activity to be recreated
@@ -158,8 +144,8 @@ object NightModeUtils {
         // Now perform rotation and wait for the Activity to be recreated
         return LifecycleOwnerUtils.waitForRecreation(activity) {
             Log.e(LOG_TAG, "request rotate on ui thread")
-            if (activity.resources.configuration.orientation ==
-                Configuration.ORIENTATION_LANDSCAPE
+            if (
+                activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             ) {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             } else {
@@ -186,17 +172,16 @@ object NightModeUtils {
         @NightMode nightMode: Int,
         activity: AppCompatActivity?,
         setMode: NightSetMode
-    ) = when (setMode) {
-        NightSetMode.DEFAULT -> AppCompatDelegate.setDefaultNightMode(nightMode)
-        NightSetMode.LOCAL -> activity!!.delegate.localNightMode = nightMode
-    }
+    ) =
+        when (setMode) {
+            NightSetMode.DEFAULT -> AppCompatDelegate.setDefaultNightMode(nightMode)
+            NightSetMode.LOCAL -> activity!!.delegate.localNightMode = nightMode
+        }
 
     @NightMode
-    fun getNightMode(
-        activity: AppCompatActivity?,
-        setMode: NightSetMode
-    ): Int = when (setMode) {
-        NightSetMode.DEFAULT -> AppCompatDelegate.getDefaultNightMode()
-        NightSetMode.LOCAL -> activity!!.delegate.localNightMode
-    }
+    fun getNightMode(activity: AppCompatActivity?, setMode: NightSetMode): Int =
+        when (setMode) {
+            NightSetMode.DEFAULT -> AppCompatDelegate.getDefaultNightMode()
+            NightSetMode.LOCAL -> activity!!.delegate.localNightMode
+        }
 }

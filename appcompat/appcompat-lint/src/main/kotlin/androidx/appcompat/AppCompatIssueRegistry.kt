@@ -33,21 +33,25 @@ import com.android.tools.lint.client.api.Vendor
 class AppCompatIssueRegistry : IssueRegistry() {
     override val minApi = 10 // Only compatible with the latest lint
     override val api = 14
-    override val issues get() = listOf(
-        SetActionBarDetector.USING_CORE_ACTION_BAR,
-        ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA,
-        ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING,
-        DrawableLoadingDetector.NOT_USING_COMPAT_LOADING,
-        ImageViewTintDetector.USING_ANDROID_TINT,
-        SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE,
-        SwitchUsageXmlDetector.USING_CORE_SWITCH_XML,
-        TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS,
-        TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS,
-        OnClickXmlDetector.USING_ON_CLICK_IN_XML
-    )
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=460343",
-        identifier = "androidx.appcompat",
-        vendorName = "Android Open Source Project",
-    )
+    override val issues
+        get() =
+            listOf(
+                SetActionBarDetector.USING_CORE_ACTION_BAR,
+                ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA,
+                ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING,
+                DrawableLoadingDetector.NOT_USING_COMPAT_LOADING,
+                ImageViewTintDetector.USING_ANDROID_TINT,
+                SwitchUsageCodeDetector.USING_CORE_SWITCH_CODE,
+                SwitchUsageXmlDetector.USING_CORE_SWITCH_XML,
+                TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS,
+                TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS,
+                OnClickXmlDetector.USING_ON_CLICK_IN_XML
+            )
+
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=460343",
+            identifier = "androidx.appcompat",
+            vendorName = "Android Open Source Project",
+        )
 }

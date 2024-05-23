@@ -32,9 +32,10 @@ import org.junit.runner.RunWith
 class AppCompatActivityViewTreeTest {
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityRule = androidx.test.rule.ActivityTestRule<AppCompatInflaterDefaultActivity>(
-        AppCompatInflaterDefaultActivity::class.java
-    )
+    val activityRule =
+        androidx.test.rule.ActivityTestRule<AppCompatInflaterDefaultActivity>(
+            AppCompatInflaterDefaultActivity::class.java
+        )
 
     @Test
     fun queryViewTreeLifecycleTest() {

@@ -23,46 +23,37 @@ import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask
 import com.android.tools.lint.checks.infrastructure.TestMode
 
-/**
- * Runs AppCompat lint checks against the specified [testFiles] in PARTIAL mode.
- */
+/** Runs AppCompat lint checks against the specified [testFiles] in PARTIAL mode. */
 fun check(vararg testFiles: TestFile): TestLintResult {
     return TestLintTask.lint()
-        .files(
-            *testFiles
-        )
+        .files(*testFiles)
         .issues(*AppCompatIssueRegistry().issues.toTypedArray())
         .testModes(TestMode.PARTIAL)
         .allowCompilationErrors()
         .run()
 }
 
-/**
- * Loads a [TestFile] from Java source code included in the JAR resources.
- */
+/** Loads a [TestFile] from Java source code included in the JAR resources. */
 fun javaSample(className: String): TestFile {
-    val url = TestFiles::class.java.getResource(
-        "/java/${className.replace('.', '/')}.java"
-    ) ?: throw IllegalArgumentException("Failed to load source for $className")
+    val url =
+        TestFiles::class.java.getResource("/java/${className.replace('.', '/')}.java")
+            ?: throw IllegalArgumentException("Failed to load source for $className")
     return TestFiles.java(url.readText())
 }
 
-/**
- * Loads a [TestFile] from Kotlin source code included in the JAR resources.
- */
+/** Loads a [TestFile] from Kotlin source code included in the JAR resources. */
 fun ktSample(className: String): TestFile {
-    val url = TestFiles::class.java.getResource(
-        "/java/${className.replace('.', '/')}.kt"
-    ) ?: throw IllegalArgumentException("Failed to load source for $className")
+    val url =
+        TestFiles::class.java.getResource("/java/${className.replace('.', '/')}.kt")
+            ?: throw IllegalArgumentException("Failed to load source for $className")
     return TestFiles.kotlin(url.readText())
 }
 
-/**
- * Loads a [TestFile] from Kotlin source code included in the JAR resources.
- */
+/** Loads a [TestFile] from Kotlin source code included in the JAR resources. */
 fun xmlSample(resName: String): TestFile {
     val path = "/res/${resName.replace('.', '/')}.xml"
-    val url = TestFiles::class.java.getResource(path)
-        ?: throw IllegalArgumentException("Failed to load source for $resName")
+    val url =
+        TestFiles::class.java.getResource(path)
+            ?: throw IllegalArgumentException("Failed to load source for $resName")
     return TestFiles.xml(path, url.readText())
 }

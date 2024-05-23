@@ -37,9 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Regression test for b/235567649, adapted from Translate's own tests.
- */
+/** Regression test for b/235567649, adapted from Translate's own tests. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NavDrawerActivityTest {
@@ -47,11 +45,12 @@ class NavDrawerActivityTest {
 
     @Suppress("DEPRECATION")
     @get:Rule
-    val activityTestRule = androidx.test.rule.ActivityTestRule(
-        OldTranslateActivity::class.java,
-        /* initialTouchMode = */ false,
-        /* launchActivity = */ false
-    )
+    val activityTestRule =
+        androidx.test.rule.ActivityTestRule(
+            OldTranslateActivity::class.java,
+            /* initialTouchMode = */ false,
+            /* launchActivity = */ false
+        )
 
     private lateinit var activity: OldTranslateActivity
     private lateinit var originalScreenOrientation: AndroidTestUtil.ScreenOrientation

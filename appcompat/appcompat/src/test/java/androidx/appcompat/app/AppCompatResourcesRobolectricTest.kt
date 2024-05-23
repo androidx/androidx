@@ -33,9 +33,8 @@ class AppCompatResourcesRobolectricTest {
 
     /**
      * This is a test only for Robolectric. Currently Robolectric allows tests to assume that the
-     * application theme will be propagated to Activities. There are a number of tests in the
-     * wild which assume that the following works:
-     *
+     * application theme will be propagated to Activities. There are a number of tests in the wild
+     * which assume that the following works:
      * ```
      * ApplicationProvider.getApplicationContext<Application>()
      *     .setTheme(R.style.Theme_MyApp)
@@ -44,9 +43,9 @@ class AppCompatResourcesRobolectricTest {
      * // activity also has it's theme set to R.style.Theme_MyApp
      * ```
      *
-     * This has never been the case on Android devices. We have a workaround in AppCompat to
-     * enable this to continue to work in Robolectric, and this test ensures that the workaround
-     * works. If this behavior is fixed in Robolectric, this test and the workaround can be removed.
+     * This has never been the case on Android devices. We have a workaround in AppCompat to enable
+     * this to continue to work in Robolectric, and this test ensures that the workaround works. If
+     * this behavior is fixed in Robolectric, this test and the workaround can be removed.
      */
     @Test
     fun testApplicationThemeIsCopiedToActivity() {
@@ -55,7 +54,6 @@ class AppCompatResourcesRobolectricTest {
 
         // If the theme is not propagated to the Activity, AppCompatActivity will throw a:
         // 'IllegalStateException: You need to use a Theme.AppCompat theme'
-        Robolectric.buildActivity(AppCompatActivity::class.java)
-            .create().start().resume().get()
+        Robolectric.buildActivity(AppCompatActivity::class.java).create().start().resume().get()
     }
 }

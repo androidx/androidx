@@ -28,9 +28,8 @@ import org.junit.Assert.assertFalse
 import org.junit.Test
 
 @MediumTest
-class KeyEventsTestCaseWithToolbar : BaseKeyEventsTestCase<ToolbarAppCompatActivity>(
-    ToolbarAppCompatActivity::class.java
-) {
+class KeyEventsTestCaseWithToolbar :
+    BaseKeyEventsTestCase<ToolbarAppCompatActivity>(ToolbarAppCompatActivity::class.java) {
     @Test
     override fun testMenuKeyEventReachesActivity() {
         // With Toolbar, MENU key gets sent-to (and consumed by) Toolbar rather than Activity

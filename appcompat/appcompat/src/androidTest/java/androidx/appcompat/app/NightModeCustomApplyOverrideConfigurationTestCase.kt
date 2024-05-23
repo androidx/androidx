@@ -39,9 +39,8 @@ import org.junit.runners.Parameterized
 class NightModeCustomApplyOverrideConfigurationTestCase(private val setMode: NightSetMode) {
 
     @get:Rule
-    val activityRule = NightModeActivityTestRule(
-        NightModeCustomApplyOverrideConfigurationActivity::class.java
-    )
+    val activityRule =
+        NightModeActivityTestRule(NightModeCustomApplyOverrideConfigurationActivity::class.java)
 
     @Test
     @Suppress("DEPRECATION")
