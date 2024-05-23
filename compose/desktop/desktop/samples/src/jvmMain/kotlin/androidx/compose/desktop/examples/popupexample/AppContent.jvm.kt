@@ -64,6 +64,7 @@ import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.DialogWindow
 import androidx.compose.ui.window.Notification
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.TrayState
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
@@ -297,8 +298,10 @@ fun PopupSample(displayed: Boolean, onDismiss: () -> Unit) {
             Popup(
                 alignment = Alignment.TopCenter,
                 offset = IntOffset(0, 50),
-                focusable = true,
-                onDismissRequest = onDismiss
+                onDismissRequest = onDismiss,
+                properties = PopupProperties(
+                    focusable = true
+                )
             ) {
                 println("CompositionLocal value is ${LocalTest.current}.")
                 PopupContent(onDismiss)

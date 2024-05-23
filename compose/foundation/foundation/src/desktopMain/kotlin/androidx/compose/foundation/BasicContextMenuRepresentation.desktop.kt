@@ -40,6 +40,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberCursorPositionProvider
 
 // Design of basic represenation is from Material specs:
@@ -68,9 +69,9 @@ class DefaultContextMenuRepresentation(
         val isOpen = state.status is ContextMenuState.Status.Open
         if (isOpen) {
             Popup(
-                focusable = true,
+                popupPositionProvider = rememberCursorPositionProvider(),
                 onDismissRequest = { state.status = ContextMenuState.Status.Closed },
-                popupPositionProvider = rememberCursorPositionProvider()
+                properties = PopupProperties(focusable = true)
             ) {
                 Column(
                     modifier = Modifier
