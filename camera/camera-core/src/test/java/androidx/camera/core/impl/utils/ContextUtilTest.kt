@@ -97,57 +97,6 @@ class ContextUtilTest {
         assertThat(resultContext.getTag()).isEqualTo(appContext.getTag())
     }
 
-    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Test
-    fun testGetBaseContext_deviceIdAndAttributionTag() {
-        val baseContext = FakeContext("baseContext")
-        val context =
-            FakeContext(
-                "non-baseContext",
-                baseContext = baseContext,
-                deviceId = DEVICE_ID,
-                attributionTag = ATTRIBUTION_TAG
-            )
-        val resultContext = ContextUtil.getBaseContext(context) as FakeContext
-        assertThat(resultContext.attributionTag).isEqualTo(ATTRIBUTION_TAG)
-        assertThat(resultContext.deviceId).isEqualTo(DEVICE_ID)
-        // Ensures the result context is created from base context.
-        assertThat(resultContext.getTag()).isEqualTo(baseContext.getTag())
-    }
-
-    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Test
-    fun testGetBaseContext_deviceId() {
-        val baseContext = FakeContext("baseContext")
-        val context =
-            FakeContext(
-                "non-baseContext",
-                baseContext = baseContext,
-                deviceId = DEVICE_ID,
-            )
-        val resultContext = ContextUtil.getBaseContext(context) as FakeContext
-        assertThat(resultContext.deviceId).isEqualTo(DEVICE_ID)
-        assertThat(resultContext.attributionTag).isEqualTo(null)
-        // Ensures the result context is created from base context.
-        assertThat(resultContext.getTag()).isEqualTo(baseContext.getTag())
-    }
-
-    @Config(minSdk = Build.VERSION_CODES.R)
-    @Test
-    fun testGetBaseContext_attributionTag() {
-        val baseContext = FakeContext("baseContext")
-        val context =
-            FakeContext(
-                "non-baseContext",
-                baseContext = baseContext,
-                attributionTag = ATTRIBUTION_TAG,
-            )
-        val resultContext = ContextUtil.getBaseContext(context) as FakeContext
-        assertThat(resultContext.attributionTag).isEqualTo(ATTRIBUTION_TAG)
-        // Ensures the result context is created from base context.
-        assertThat(resultContext.getTag()).isEqualTo(baseContext.getTag())
-    }
-
     @Test
     fun testGetApplicationFromContext() {
         val application = ApplicationProvider.getApplicationContext<Context>()
@@ -172,7 +121,6 @@ class ContextUtilTest {
         private val attributionTag: String? = null
     ) : ContextWrapper(baseContext) {
         override fun getDeviceId(): Int = deviceId
-
         override fun getAttributionTag(): String? = attributionTag
 
         override fun createDeviceContext(newDeviceId: Int): Context =

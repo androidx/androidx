@@ -53,33 +53,18 @@ public final class ContextUtil {
 
 
     /**
-     * Gets the base context and preserves the attribution tag and device id.
-     */
-    @NonNull
-    public static Context getBaseContext(@NonNull ContextWrapper context) {
-        Context resultContext  = context.getBaseContext();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            int deviceId = Api34Impl.getDeviceId(context);
-            if (deviceId != Context.DEVICE_ID_DEFAULT) {
-                resultContext = Api34Impl.createDeviceContext(resultContext, deviceId);
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            String attributeTag = Api30Impl.getAttributionTag(context);
-            if (attributeTag != null) {
-                resultContext = Api30Impl.createAttributionContext(resultContext, attributeTag);
-            }
-        }
-        return resultContext;
-    }
-
-    /**
      * Attempts to retrieve an {@link Application} object from the provided {@link Context}.
      *
      * <p>Because the contract does not specify that {@code Context.getApplicationContext()} must
      * return an {@code Application} object, this method will attempt to retrieve the
      * {@code Application} by unwrapping the context via {@link ContextWrapper#getBaseContext()} if
      * {@code Context.getApplicationContext()}} does not succeed.
+     *
+     * <p>Since the purpose of this method is to retrieve the {@link Application} instance, it is
+     * not necessary to keep the attribution and device id info and also invoking
+     * {@link Context#createAttributionContext(String)} or {@link Context#createDeviceContext(int)}
+     * will create a non-ContextWrapper instance which could fail to invoke
+     * {@link ContextWrapper#getBaseContext()}.
      */
     @Nullable
     public static Application getApplicationFromContext(@NonNull Context context) {
@@ -90,7 +75,7 @@ public final class ContextUtil {
                 application = (Application) appContext;
                 break;
             } else {
-                appContext = getBaseContext((ContextWrapper) appContext);
+                appContext = ((ContextWrapper) appContext).getBaseContext();
             }
         }
         return application;
