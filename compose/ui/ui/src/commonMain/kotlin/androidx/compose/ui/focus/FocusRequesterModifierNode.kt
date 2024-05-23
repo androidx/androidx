@@ -36,6 +36,7 @@ interface FocusRequesterModifierNode : DelegatableNode
  *
  * @sample androidx.compose.ui.samples.RequestFocusSample
  */
+@OptIn(ExperimentalComposeUiApi::class)
 fun FocusRequesterModifierNode.requestFocus(): Boolean {
     visitSelfAndChildren(Nodes.FocusTarget) { focusTarget ->
         return if (focusTarget.fetchFocusProperties().canFocus) {

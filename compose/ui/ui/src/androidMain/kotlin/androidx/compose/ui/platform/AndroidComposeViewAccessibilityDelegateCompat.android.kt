@@ -1866,7 +1866,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         force = false,
                         refreshFocusEvents = true,
                         clearOwnerFocus = true,
-                        focusDirection = Exit
+                        focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
                     )
                     true
                 } else {
