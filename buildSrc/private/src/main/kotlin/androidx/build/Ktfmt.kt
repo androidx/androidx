@@ -135,7 +135,7 @@ abstract class BaseKtfmtTask : DefaultTask() {
     /** Run ktfmt on the [input] file. */
     private fun processFile(input: File): KtfmtResult {
         // To hack around https://github.com/facebook/ktfmt/issues/406 we rewrite all the
-        // @sample tags to @sample so that ktfmt would not move them around. We then
+        // @sample tags to ####### so that ktfmt would not move them around. We then
         // rewrite it back when returning the formatted code.
         val originCode = input.readText().replace(SAMPLE, PLACEHOLDER)
         val formattedCode = format(Formatter.KOTLINLANG_FORMAT, originCode)
@@ -149,7 +149,7 @@ abstract class BaseKtfmtTask : DefaultTask() {
 
 // Keep two of them the same length to make sure line wrapping works as expected
 private const val SAMPLE = "@sample"
-private const val PLACEHOLDER = "@sample"
+private const val PLACEHOLDER = "#######"
 
 internal data class KtfmtResult(
     val input: File,
