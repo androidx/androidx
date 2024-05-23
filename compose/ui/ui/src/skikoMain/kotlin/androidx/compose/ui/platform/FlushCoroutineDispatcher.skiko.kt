@@ -111,21 +111,21 @@ internal class FlushCoroutineDispatcher(
             delayedTasks.add(block)
         }
         val job = scope.launch {
-            try{
-                kotlinx.coroutines.delay(timeMillis)
-            } finally {
-                performRun {
-                    val isTaskAlive = synchronized(tasksLock) {
-                        delayedTasks.remove(block)
-                    }
-                    if (isTaskAlive) {
-                        block.run()
-                    }
+            kotlinx.coroutines.delay(timeMillis)
+            performRun {
+                val isTaskAlive = synchronized(tasksLock) {
+                    delayedTasks.remove(block)
+                }
+                if (isTaskAlive) {
+                    block.run()
                 }
             }
         }
         continuation.invokeOnCancellation {
             job.cancel()
+            synchronized(tasksLock) {
+                delayedTasks.remove(block)
+            }
         }
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -76,7 +77,7 @@ class FlushCoroutineDispatcherTest {
     fun delayed_tasks_are_cancelled() = runTest {
         val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
         val dispatcher = FlushCoroutineDispatcher(coroutineScope)
-        val job = launch(dispatcher){
+        val job = launch(dispatcher) {
             delay(Long.MAX_VALUE/2)
         }
         assertTrue(dispatcher.hasTasks())
@@ -84,6 +85,40 @@ class FlushCoroutineDispatcherTest {
         assertTrue(
             !dispatcher.hasTasks(),
             "FlushCoroutineDispatcher has a delayed task that has been cancelled"
+        )
+    }
+
+    @Test
+    fun delayed_tasks_are_cancelled_when_job_is_cancelled_before_delaying_coroutine_is_run() = runTest {
+        // Verify that the task is removed from `delayedTasks` even if the job is cancelled
+        // before the coroutine launched by `FlushCoroutineDispatcher.scheduleResumeAfterDelay`
+        // starts running.
+
+        // To test this, we create a special coroutine dispatcher that conditionally ignores the
+        // block it is asked to dispatch. We then use it to avoid dispatching the coroutine
+        // launched in `FlushCoroutineDispatcher.scheduleResumeAfterDelay`.
+        var ignoreDispatch = false
+        val ignoreDelayedTaskLaunchCoroutineDispatcher = object: CoroutineDispatcher() {
+            override fun dispatch(context: CoroutineContext, block: Runnable) {
+                if (!ignoreDispatch) {
+                    block.run()
+                }
+            }
+        }
+        val coroutineScope = CoroutineScope(ignoreDelayedTaskLaunchCoroutineDispatcher)
+        val dispatcher = FlushCoroutineDispatcher(coroutineScope)
+        val job = launch(dispatcher) {
+            ignoreDispatch = true
+            delay(Long.MAX_VALUE/2)
+        }
+        assertTrue(dispatcher.hasTasks())
+        // Needed because the cancellation notification is itself dispatched with the coroutine
+        // dispatcher.
+        ignoreDispatch = false
+        job.cancel()
+        assertTrue(
+            actual = !dispatcher.hasTasks(),
+            message = "FlushCoroutineDispatcher has a delayed task that has been cancelled"
         )
     }
 }
