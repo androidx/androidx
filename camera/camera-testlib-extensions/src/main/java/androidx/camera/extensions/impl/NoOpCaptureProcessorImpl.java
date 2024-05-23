@@ -24,12 +24,10 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class NoOpCaptureProcessorImpl implements CaptureProcessorImpl {
     @Override
     public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
