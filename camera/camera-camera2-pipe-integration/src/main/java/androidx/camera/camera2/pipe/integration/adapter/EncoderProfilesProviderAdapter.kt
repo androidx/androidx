@@ -17,6 +17,8 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.media.CamcorderProfile
+import android.media.CamcorderProfile.QUALITY_HIGH
+import android.media.CamcorderProfile.QUALITY_LOW
 import android.media.EncoderProfiles
 import android.os.Build
 import android.util.Size
@@ -30,6 +32,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.InvalidVideoProfile
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProvider
+import androidx.camera.core.impl.EncoderProfilesProvider.QUALITY_HIGH_TO_LOW
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.compat.EncoderProfilesProxyCompat
@@ -87,11 +90,36 @@ constructor(
         } else {
             var profiles = getProfilesInternal(quality)
             if (profiles != null && !isEncoderProfilesResolutionValidInQuirk(profiles)) {
-                profiles = null
+                profiles =
+                    when (quality) {
+                        QUALITY_HIGH -> findHighestQualityProfiles()
+                        QUALITY_LOW -> findLowestQualityProfiles()
+                        else -> null
+                    }
             }
             mEncoderProfilesCache[quality] = profiles
             profiles
         }
+    }
+
+    private fun findHighestQualityProfiles(): EncoderProfilesProxy? {
+        for (quality in QUALITY_HIGH_TO_LOW) {
+            val profiles = getAll(quality)
+            if (profiles != null) {
+                return profiles
+            }
+        }
+        return null
+    }
+
+    private fun findLowestQualityProfiles(): EncoderProfilesProxy? {
+        for (index in QUALITY_HIGH_TO_LOW.lastIndex downTo 0) {
+            val profiles = getAll(QUALITY_HIGH_TO_LOW[index])
+            if (profiles != null) {
+                return profiles
+            }
+        }
+        return null
     }
 
     @Nullable

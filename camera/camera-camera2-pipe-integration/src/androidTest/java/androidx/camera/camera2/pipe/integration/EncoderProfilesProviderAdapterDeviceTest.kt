@@ -38,6 +38,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -82,7 +83,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
 
     @Before
     fun setup() {
-        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
         cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK)!!
         intCameraId = cameraId.toInt()
@@ -107,7 +108,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
 
     @Test
     fun notHasProfile_getReturnNull() {
-        Assume.assumeTrue(!CamcorderProfile.hasProfile(intCameraId, quality))
+        assumeTrue(!CamcorderProfile.hasProfile(intCameraId, quality))
 
         assertThat(encoderProfilesProvider.getAll(quality)).isNull()
     }
@@ -115,7 +116,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
     @Suppress("DEPRECATION")
     @Test
     fun hasSameContentAsCamcorderProfile() {
-        Assume.assumeTrue(encoderProfilesProvider.hasProfile(quality))
+        assumeTrue(encoderProfilesProvider.hasProfile(quality))
 
         val profile = CamcorderProfile.get(quality)
         val encoderProfiles = encoderProfilesProvider.getAll(quality)
@@ -138,11 +139,11 @@ class EncoderProfilesProviderAdapterDeviceTest(
     @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 32)
     @Test
     fun api31Api32_hasSameContentAsEncoderProfiles() {
-        Assume.assumeTrue(encoderProfilesProvider.hasProfile(quality))
+        assumeTrue(encoderProfilesProvider.hasProfile(quality))
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
         val video = profiles!!.videoProfiles[0]
-        Assume.assumeTrue(video != null)
+        assumeTrue(video != null)
         val audio = profiles.audioProfiles[0]
         val profilesProxy = encoderProfilesProvider.getAll(quality)
         val videoProxy = profilesProxy!!.videoProfiles[0]
@@ -171,11 +172,11 @@ class EncoderProfilesProviderAdapterDeviceTest(
     @SdkSuppress(minSdkVersion = 33)
     @Test
     fun afterApi33_hasSameContentAsEncoderProfiles() {
-        Assume.assumeTrue(encoderProfilesProvider.hasProfile(quality))
+        assumeTrue(encoderProfilesProvider.hasProfile(quality))
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
         val video = profiles!!.videoProfiles[0]
-        Assume.assumeTrue(video != null)
+        assumeTrue(video != null)
         val audio = profiles.audioProfiles[0]
         val profilesProxy = encoderProfilesProvider.getAll(quality)
         val videoProxy = profilesProxy!!.videoProfiles[0]
@@ -205,10 +206,20 @@ class EncoderProfilesProviderAdapterDeviceTest(
     @SdkSuppress(minSdkVersion = 31)
     @Test
     fun detectNullVideoProfile() {
-        Assume.assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
+        assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
         skipTestOnDevicesWithProblematicBuild()
         val profiles = CamcorderProfile.getAll(cameraId, quality)!!
         assertThat(profiles.videoProfiles[0]).isNotNull()
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    fun qualityHighAndLowIsNotNull() {
+        assumeTrue(
+            quality == CamcorderProfile.QUALITY_HIGH || quality == CamcorderProfile.QUALITY_LOW
+        )
+
+        assertThat(encoderProfilesProvider.getAll(quality)).isNotNull()
     }
 
     private fun skipTestOnDevicesWithProblematicBuild() {
