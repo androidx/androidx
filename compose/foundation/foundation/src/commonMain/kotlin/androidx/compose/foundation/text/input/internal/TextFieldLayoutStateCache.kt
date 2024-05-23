@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.text.TextDelegate
+import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.internal.TextFieldLayoutStateCache.MeasureInputs
 import androidx.compose.foundation.text.input.internal.TextFieldLayoutStateCache.NonMeasureInputs
@@ -30,11 +31,15 @@ import androidx.compose.runtime.snapshots.StateObject
 import androidx.compose.runtime.snapshots.StateRecord
 import androidx.compose.runtime.snapshots.withCurrent
 import androidx.compose.runtime.snapshots.writable
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -154,6 +159,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
 
             if (cachedResult != null &&
                 cachedRecord.visualText?.contentEquals(visualText) == true &&
+                cachedRecord.composition == visualText.composition &&
                 cachedRecord.singleLine == nonMeasureInputs.singleLine &&
                 cachedRecord.softWrap == nonMeasureInputs.softWrap &&
                 cachedRecord.layoutDirection == measureInputs.layoutDirection &&
@@ -249,7 +255,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
     }
 
     private fun computeLayout(
-        visualText: CharSequence,
+        visualText: TextFieldCharSequence,
         nonMeasureInputs: NonMeasureInputs,
         measureInputs: MeasureInputs
     ): TextLayoutResult {
@@ -260,7 +266,16 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         val textMeasurer = obtainTextMeasurer(measureInputs)
 
         return textMeasurer.measure(
-            text = visualText.toString(),
+            text = buildAnnotatedString {
+                append(visualText.toString())
+                if (visualText.composition != null) {
+                    addStyle(
+                        style = SpanStyle(textDecoration = TextDecoration.Underline),
+                        start = visualText.composition.min,
+                        end = visualText.composition.max
+                    )
+                }
+            },
             style = nonMeasureInputs.textStyle,
             softWrap = nonMeasureInputs.softWrap,
             maxLines = if (nonMeasureInputs.singleLine) 1 else Int.MAX_VALUE,
@@ -305,6 +320,10 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         // re-layout. Also if the TFS object _doesn't_ change but its text _does_, we do need to
         // re-layout. That state read happens in getOrComputeLayout to invalidate correctly.
         var visualText: CharSequence? = null
+        // We keep composition separate from visualText because we do not want to invalidate text
+        // layout when selection changes. Composition should invalidate the layout because it
+        // adds an underline span.
+        var composition: TextRange? = null
         var textStyle: TextStyle? = null
         var singleLine: Boolean = false
         var softWrap: Boolean = false
@@ -324,6 +343,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         override fun assign(value: StateRecord) {
             value as CacheRecord
             visualText = value.visualText
+            composition = value.composition
             textStyle = value.textStyle
             singleLine = value.singleLine
             softWrap = value.softWrap
@@ -337,6 +357,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
 
         override fun toString(): String = "CacheRecord(" +
             "visualText=$visualText, " +
+            "composition=$composition, " +
             "textStyle=$textStyle, " +
             "singleLine=$singleLine, " +
             "softWrap=$softWrap, " +

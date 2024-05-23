@@ -31,6 +31,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -441,6 +442,32 @@ class TextFieldLayoutStateCacheTest {
         ) { old, new ->
             Truth.assertThat(old.layoutInput.text.text).isEqualTo("h")
             Truth.assertThat(new.layoutInput.text.text).isEqualTo("hello")
+        }
+    }
+
+    @Test
+    fun value_returnsNewLayout_whenCompositionChanged() {
+        textFieldState.edit {
+            replace(0, length, "hello")
+            placeCursorBeforeCharAt(0)
+        }
+        assertLayoutChange(
+            change = {
+                textFieldState.editAsUser(inputTransformation = null) {
+                    setComposingRegion(2, 3)
+                }
+            },
+        ) { old, new ->
+            Truth.assertThat(
+                old.multiParagraph.intrinsics.annotatedString.spanStyles.any {
+                    it.item.textDecoration == TextDecoration.Underline
+                }
+            ).isFalse()
+            Truth.assertThat(
+                new.multiParagraph.intrinsics.annotatedString.spanStyles.any {
+                    it.item.textDecoration == TextDecoration.Underline
+                }
+            ).isTrue()
         }
     }
 
