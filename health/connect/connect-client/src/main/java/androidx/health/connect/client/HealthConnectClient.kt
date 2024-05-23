@@ -129,7 +129,7 @@ interface HealthConnectClient {
      * filtered to [Record] belonging to the calling application). Deletion of multiple [Record] is
      * executed in a transaction - if one fails, none is deleted.
      *
-     * @param recordType Which type of [Record] to delete, such as `Steps::class`
+     * @param recordType Which type of [Record] to delete, such as `StepsRecord::class`
      * @param timeRangeFilter The [TimeRangeFilter] to delete from
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
