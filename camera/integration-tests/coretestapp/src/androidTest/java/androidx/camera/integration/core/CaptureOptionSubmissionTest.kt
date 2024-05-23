@@ -35,10 +35,12 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.camera2.pipe.integration.adapter.awaitUntil
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
@@ -474,7 +476,7 @@ class CaptureOptionSubmissionTest(
             // since Preview & VideoCapture already has stabilization APIs, Camera2Interop isn't
             // needed when they are bound. Also, ImageCapture-only is more complex due to
             // MeteringRepeating and may pick up further issues.
-            ImageCapture.Builder().also {
+            ImageAnalysis.Builder().also {
                 Camera2Interop.Extender(it).setCaptureRequestOption(
                     CONTROL_VIDEO_STABILIZATION_MODE, targetStabilizationMode
                 )
@@ -546,6 +548,11 @@ class CaptureOptionSubmissionTest(
                 }.build().apply {
                     if (this is Preview) {
                         setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                    }
+                    if (this is ImageAnalysis) {
+                        setAnalyzer(CameraXExecutors.directExecutor()) { imageProxy ->
+                            imageProxy.close()
+                        }
                     }
                 })
             }
