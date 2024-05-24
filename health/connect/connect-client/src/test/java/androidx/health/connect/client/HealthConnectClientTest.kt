@@ -41,10 +41,6 @@ private const val PROVIDER_PACKAGE_NAME = "com.example.fake.provider"
 @RunWith(AndroidJUnit4::class)
 class HealthConnectClientTest {
 
-    private companion object {
-        const val UDC_PROVIDER_PACKAGE_NAME = "package_name_for_udc"
-    }
-
     private lateinit var context: Context
 
     @Before
@@ -190,7 +186,7 @@ class HealthConnectClientTest {
     @Test
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun getHealthConnectManageDataAction_platformSupported() {
-        installDataManagementHandler(context, UDC_PROVIDER_PACKAGE_NAME)
+        installDataManagementHandler(context, PROVIDER_PACKAGE_NAME)
         assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action)
             .isEqualTo("android.health.connect.action.MANAGE_HEALTH_DATA")
     }
