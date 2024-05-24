@@ -55,6 +55,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntRect
@@ -389,7 +390,7 @@ internal fun DropdownMenuContent(
             }
         }
     ) { expanded ->
-        if (expanded) 1f else 0.8f
+        if (expanded) ExpandedScaleTarget else ClosedScaleTarget
     }
 
     val alpha by transition.animateFloat(
@@ -403,14 +404,24 @@ internal fun DropdownMenuContent(
             }
         }
     ) { expanded ->
-        if (expanded) 1f else 0f
+        if (expanded) ExpandedAlphaTarget else ClosedAlphaTarget
     }
 
+    val isInspecting = LocalInspectionMode.current
     Surface(
         modifier = Modifier.graphicsLayer {
-            scaleX = scale
-            scaleY = scale
-            this.alpha = alpha
+            scaleX =
+                if (!isInspecting) scale
+                else if (expandedState.targetState) ExpandedScaleTarget
+                else ClosedScaleTarget
+            scaleY =
+                if (!isInspecting) scale
+                else if (expandedState.targetState) ExpandedScaleTarget
+                else ClosedScaleTarget
+            this.alpha =
+                if (!isInspecting) alpha
+                else if (expandedState.targetState) ExpandedAlphaTarget
+                else ClosedAlphaTarget
             transformOrigin = transformOriginState.value
         },
         shape = shape,
@@ -543,3 +554,7 @@ private val DropdownMenuItemDefaultMaxWidth = 280.dp
 // Menu open/close animation.
 internal const val InTransitionDuration = 120
 internal const val OutTransitionDuration = 75
+internal const val ExpandedScaleTarget = 1f
+internal const val ClosedScaleTarget = 0.8f
+internal const val ExpandedAlphaTarget = 1f
+internal const val ClosedAlphaTarget = 0f
