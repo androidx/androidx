@@ -767,7 +767,9 @@ class RouteFilledTest {
     @Test
     fun collectionNavType() {
         assertThatRouteFilledFrom(
-            TestClassCollectionArg(listOf(CustomType(1), CustomType(3), CustomType(5))),
+            TestClassCollectionArg(listOf(
+                CustomTypeWithArg(1), CustomTypeWithArg(3), CustomTypeWithArg(5)
+            )),
             listOf(navArgument("list") { type = collectionNavType })
         ).isEqualTo(
             "$PATH_SERIAL_NAME?list=1&list=3&list=5"
@@ -838,22 +840,25 @@ private class CustomSerializer : KSerializer<CustomSerializerClass> {
 }
 
 @Serializable
-data class CustomType(val id: Int)
+internal data class CustomTypeWithArg(val id: Int)
 
 @Serializable
 @SerialName(PATH_SERIAL_NAME)
-class TestClassCollectionArg(val list: List<CustomType>)
+internal class TestClassCollectionArg(val list: List<CustomTypeWithArg>)
 
-val collectionNavType = object : CollectionNavType<List<CustomType>>(false) {
-    override fun put(bundle: Bundle, key: String, value: List<CustomType>) { }
-    override fun serializeAsValues(value: List<CustomType>): List<String> =
-        value.map { it.id.toString() }
-    @Suppress("UNCHECKED_CAST", "DEPRECATION")
-    override fun get(bundle: Bundle, key: String): List<CustomType> {
-        return bundle[key] as List<CustomType>
+internal val collectionNavType = object : CollectionNavType<List<CustomTypeWithArg>>(
+    false
+) {
+    override fun put(bundle: Bundle, key: String, value: List<CustomTypeWithArg>) {
+        bundle.putStringArrayList(key, ArrayList(value.map { it.id.toString() }))
     }
-    override fun parseValue(value: String): List<CustomType> = listOf()
-    override fun serializeAsValue(value: List<CustomType>) = "customValue"
+    override fun serializeAsValues(value: List<CustomTypeWithArg>): List<String> =
+        value.map { it.id.toString() }
+    override fun get(bundle: Bundle, key: String): List<CustomTypeWithArg> {
+        return bundle.getStringArrayList(key)?.map { CustomTypeWithArg(it.toInt()) } ?: emptyList()
+    }
+    override fun parseValue(value: String): List<CustomTypeWithArg> = listOf()
+    override fun serializeAsValue(value: List<CustomTypeWithArg>) = "CustomTypeWithArg"
 }
 
 private interface TestInterface
