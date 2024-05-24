@@ -113,7 +113,7 @@ fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = FilledButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -184,7 +184,7 @@ fun FilledTonalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = FilledTonalButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -254,7 +254,7 @@ fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = OutlinedButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -324,7 +324,7 @@ fun ChildButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = ChildButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -409,7 +409,7 @@ fun Button(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = FilledButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -501,7 +501,7 @@ fun FilledTonalButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = FilledTonalButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -588,7 +588,7 @@ fun OutlinedButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = OutlinedButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -674,7 +674,7 @@ fun ChildButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = ChildButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.shape,
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
@@ -776,7 +776,7 @@ fun CompactButton(
     modifier: Modifier = Modifier,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = CompactButtonTokens.ContainerShape.value,
+    shape: Shape = ButtonDefaults.compactButtonShape,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.CompactButtonContentPadding,
@@ -835,6 +835,17 @@ fun CompactButton(
  * Contains the default values used by [Button]
  */
 object ButtonDefaults {
+    /**
+     * Recommended [Shape] for [Button].
+     */
+    val shape: Shape
+        @Composable get() = FilledButtonTokens.ContainerShape.value
+
+    /**
+     * Recommended [Shape] for [CompactButton].
+     */
+    val compactButtonShape: Shape
+        @Composable get() = CompactButtonTokens.ContainerShape.value
 
     /**
      * Creates a [ButtonColors] with a muted background and contrasting content color,
