@@ -18,10 +18,11 @@ package androidx.test.screenshot
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.screenshot.OutputFileType.DIFF_TEXT_RESULT_PROTO
 import androidx.test.screenshot.OutputFileType.IMAGE_ACTUAL
 import androidx.test.screenshot.OutputFileType.IMAGE_DIFF
 import androidx.test.screenshot.OutputFileType.IMAGE_EXPECTED
-import androidx.test.screenshot.OutputFileType.RESULT_PROTO
+import androidx.test.screenshot.OutputFileType.TEXT_RESULT_PROTO
 import androidx.test.screenshot.matchers.PixelPerfectMatcher
 import androidx.test.screenshot.utils.loadBitmap
 import com.google.common.truth.Truth.assertThat
@@ -53,8 +54,10 @@ class ScreenshotTestRuleTest {
         first
             .assertAgainstGolden(rule, "round_rect_gray", matcher = PixelPerfectMatcher())
 
-        val resultProto = rule.getPathOnDeviceFor(RESULT_PROTO)
-        assertThat(resultProto.readText()).contains("PASS")
+        val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
+        val diffTextResultProto = rule.getPathOnDeviceFor(DIFF_TEXT_RESULT_PROTO)
+        assertThat(textResultProto.readText()).contains("PASS")
+        assertThat(diffTextResultProto.readText()).contains("PASSED")
         assertThat(rule.getPathOnDeviceFor(IMAGE_ACTUAL).exists()).isFalse()
         assertThat(rule.getPathOnDeviceFor(IMAGE_DIFF).exists()).isFalse()
         assertThat(rule.getPathOnDeviceFor(IMAGE_EXPECTED).exists()).isFalse()
@@ -73,8 +76,10 @@ class ScreenshotTestRuleTest {
                 .assertAgainstGolden(rule, "round_rect_green")
         }
 
-        val resultProto = rule.getPathOnDeviceFor(RESULT_PROTO)
-        assertThat(resultProto.readText()).contains("FAILED")
+        val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
+        val diffTextResultProto = rule.getPathOnDeviceFor(DIFF_TEXT_RESULT_PROTO)
+        assertThat(textResultProto.readText()).contains("FAILED")
+        assertThat(diffTextResultProto.readText()).contains("FAILED")
         assertThat(rule.getPathOnDeviceFor(IMAGE_ACTUAL).exists()).isTrue()
         assertThat(rule.getPathOnDeviceFor(IMAGE_DIFF).exists()).isTrue()
         assertThat(rule.getPathOnDeviceFor(IMAGE_EXPECTED).exists()).isTrue()
@@ -93,8 +98,10 @@ class ScreenshotTestRuleTest {
                 .assertAgainstGolden(rule, "round_rect_green", matcher = PixelPerfectMatcher())
         }
 
-        val resultProto = rule.getPathOnDeviceFor(RESULT_PROTO)
-        assertThat(resultProto.readText()).contains("FAILED")
+        val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
+        val diffTextResultProto = rule.getPathOnDeviceFor(DIFF_TEXT_RESULT_PROTO)
+        assertThat(textResultProto.readText()).contains("FAILED")
+        assertThat(diffTextResultProto.readText()).contains("FAILED")
         assertThat(rule.getPathOnDeviceFor(IMAGE_ACTUAL).exists()).isTrue()
         assertThat(rule.getPathOnDeviceFor(IMAGE_DIFF).exists()).isTrue()
         assertThat(rule.getPathOnDeviceFor(IMAGE_EXPECTED).exists()).isTrue()
@@ -110,8 +117,10 @@ class ScreenshotTestRuleTest {
                 .assertAgainstGolden(rule, "round_rect_gray")
         }
 
-        val resultProto = rule.getPathOnDeviceFor(RESULT_PROTO)
-        assertThat(resultProto.readText()).contains("SIZE_MISMATCH")
+        val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
+        val diffTextResultProto = rule.getPathOnDeviceFor(DIFF_TEXT_RESULT_PROTO)
+        assertThat(textResultProto.readText()).contains("SIZE_MISMATCH")
+        assertThat(diffTextResultProto.readText()).contains("FLAKY")
         assertThat(rule.getPathOnDeviceFor(IMAGE_ACTUAL).exists()).isTrue()
         assertThat(rule.getPathOnDeviceFor(IMAGE_DIFF).exists()).isFalse()
         assertThat(rule.getPathOnDeviceFor(IMAGE_EXPECTED).exists()).isTrue()
@@ -138,8 +147,10 @@ class ScreenshotTestRuleTest {
                 .assertAgainstGolden(rule, "does_not_exist")
         }
 
-        val resultProto = rule.getPathOnDeviceFor(RESULT_PROTO)
-        assertThat(resultProto.readText()).contains("MISSING_GOLDEN")
+        val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
+        val diffTextResultProto = rule.getPathOnDeviceFor(DIFF_TEXT_RESULT_PROTO)
+        assertThat(textResultProto.readText()).contains("MISSING_GOLDEN")
+        assertThat(diffTextResultProto.readText()).contains("MISSING_REFERENCE")
         assertThat(rule.getPathOnDeviceFor(IMAGE_ACTUAL).exists()).isTrue()
         assertThat(rule.getPathOnDeviceFor(IMAGE_DIFF).exists()).isFalse()
         assertThat(rule.getPathOnDeviceFor(IMAGE_EXPECTED).exists()).isFalse()

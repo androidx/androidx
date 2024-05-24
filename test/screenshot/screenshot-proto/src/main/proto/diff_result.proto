@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package test.screenshot.proto;
+option java_package = "androidx.test.screenshot.proto";
+option java_outer_classname = "DiffResultProto";
+
+message DiffResult {
+  enum Status {
+    UNSPECIFIED = 0;
+    PASSED = 1;
+    FAILED = 2;
+    // There was no file at the golden location or it was unreadable.
+    MISSING_REFERENCE = 3;
+    FLAKY = 4;  // undefined behavior
+  }
+
+  message Metadata {
+    string key = 1;
+    string value = 2;
+  }
+
+  Status result_type = 1;
+
+  string image_location_golden = 2;
+
+  // Locations relative to output folder.
+  string image_location_test = 3;
+  string image_location_reference = 4;
+  string image_location_diff = 5;
+
+  repeated Metadata metadata = 7;
+}
