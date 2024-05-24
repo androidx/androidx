@@ -47,9 +47,7 @@ class PoolingContainerTest {
     fun listenerIsCalledExactlyOnce() {
         val view = View(InstrumentationRegistry.getInstrumentation().context)
         var callbacks = 0
-        view.addPoolingContainerListener {
-            callbacks++
-        }
+        view.addPoolingContainerListener { callbacks++ }
         view.callPoolingContainerOnRelease()
         assertThat(callbacks).isEqualTo(1)
     }
@@ -58,9 +56,7 @@ class PoolingContainerTest {
     fun listenerRemoved_notCalled() {
         val view = View(InstrumentationRegistry.getInstrumentation().context)
         var callbacks = 0
-        val listener = PoolingContainerListener {
-            callbacks++
-        }
+        val listener = PoolingContainerListener { callbacks++ }
         view.addPoolingContainerListener(listener)
         view.removePoolingContainerListener(listener)
         view.callPoolingContainerOnRelease()
@@ -81,36 +77,33 @@ class PoolingContainerTest {
         val secondLevelParent2 =
             LinearLayout(InstrumentationRegistry.getInstrumentation().context).also {
                 topLevelParent.addView(it)
-                it.addPoolingContainerListener {
-                    callbacks[0]++
-                }
+                it.addPoolingContainerListener { callbacks[0]++ }
             }
-        val secondLevelView = View(InstrumentationRegistry.getInstrumentation().context).also {
-            topLevelParent.addView(it)
-            it.addPoolingContainerListener {
-                callbacks[1]++
+        val secondLevelView =
+            View(InstrumentationRegistry.getInstrumentation().context).also {
+                topLevelParent.addView(it)
+                it.addPoolingContainerListener { callbacks[1]++ }
             }
-        }
-        val thirdLevelView1 = View(InstrumentationRegistry.getInstrumentation().context).also {
-            secondLevelParent1.addView(it)
-            it.addPoolingContainerListener {
-                callbacks[2]++
+        val thirdLevelView1 =
+            View(InstrumentationRegistry.getInstrumentation().context).also {
+                secondLevelParent1.addView(it)
+                it.addPoolingContainerListener { callbacks[2]++ }
             }
-        }
-        val thirdLevelView2 = View(InstrumentationRegistry.getInstrumentation().context).also {
-            secondLevelParent2.addView(it)
-            it.addPoolingContainerListener {
-                callbacks[3]++
+        val thirdLevelView2 =
+            View(InstrumentationRegistry.getInstrumentation().context).also {
+                secondLevelParent2.addView(it)
+                it.addPoolingContainerListener { callbacks[3]++ }
             }
-        }
 
         assertThat(topLevelParent.isWithinPoolingContainer).isFalse()
         listOf(
-            secondLevelParent1, secondLevelParent2, secondLevelView, thirdLevelView1,
-            thirdLevelView2
-        ).forEach {
-            assertThat(it.isWithinPoolingContainer).isTrue()
-        }
+                secondLevelParent1,
+                secondLevelParent2,
+                secondLevelView,
+                thirdLevelView1,
+                thirdLevelView2
+            )
+            .forEach { assertThat(it.isWithinPoolingContainer).isTrue() }
 
         topLevelParent.callPoolingContainerOnRelease()
         // All listeners called exactly once
@@ -121,9 +114,8 @@ class PoolingContainerTest {
     // While this test looks trivial, the implementation is more than just a boolean setter
     fun isPoolingContainerTest() {
         val view = LinearLayout(InstrumentationRegistry.getInstrumentation().context)
-        val child = View(InstrumentationRegistry.getInstrumentation().context).also {
-            view.addView(it)
-        }
+        val child =
+            View(InstrumentationRegistry.getInstrumentation().context).also { view.addView(it) }
 
         assertThat(view.isPoolingContainer).isFalse()
         assertThat(child.isPoolingContainer).isFalse()
@@ -136,9 +128,8 @@ class PoolingContainerTest {
     @Test
     fun isWithinPoolingContainerTest() {
         val parent = LinearLayout(InstrumentationRegistry.getInstrumentation().context)
-        val child = View(InstrumentationRegistry.getInstrumentation().context).also {
-            parent.addView(it)
-        }
+        val child =
+            View(InstrumentationRegistry.getInstrumentation().context).also { parent.addView(it) }
 
         assertThat(parent.isWithinPoolingContainer).isFalse()
         assertThat(child.isWithinPoolingContainer).isFalse()
@@ -157,13 +148,9 @@ class PoolingContainerTest {
         val callbacks = intArrayOf(0, 0)
         val view = View(InstrumentationRegistry.getInstrumentation().context)
 
-        val listener1 = PoolingContainerListener {
-            callbacks[0]++
-        }
+        val listener1 = PoolingContainerListener { callbacks[0]++ }
         view.addPoolingContainerListener(listener1)
-        view.addPoolingContainerListener {
-            callbacks[1]++
-        }
+        view.addPoolingContainerListener { callbacks[1]++ }
 
         view.callPoolingContainerOnRelease()
         assertThat(callbacks).isEqualTo(intArrayOf(1, 1))
@@ -178,21 +165,23 @@ class PoolingContainerTest {
         val callbacks = intArrayOf(0, 0, 0)
 
         val view = View(InstrumentationRegistry.getInstrumentation().context)
-        view.addPoolingContainerListener(object : PoolingContainerListener {
-            override fun onRelease() {
-                callbacks[0]++
-                view.removePoolingContainerListener(this)
+        view.addPoolingContainerListener(
+            object : PoolingContainerListener {
+                override fun onRelease() {
+                    callbacks[0]++
+                    view.removePoolingContainerListener(this)
+                }
             }
-        })
-        view.addPoolingContainerListener {
-            callbacks[1]++
-        }
-        view.addPoolingContainerListener(object : PoolingContainerListener {
-            override fun onRelease() {
-                callbacks[2]++
-                view.removePoolingContainerListener(this)
+        )
+        view.addPoolingContainerListener { callbacks[1]++ }
+        view.addPoolingContainerListener(
+            object : PoolingContainerListener {
+                override fun onRelease() {
+                    callbacks[2]++
+                    view.removePoolingContainerListener(this)
+                }
             }
-        })
+        )
 
         view.callPoolingContainerOnRelease()
         assertThat(callbacks).isEqualTo(intArrayOf(1, 1, 1))
