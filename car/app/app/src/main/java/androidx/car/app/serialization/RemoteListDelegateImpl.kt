@@ -38,11 +38,11 @@ class RemoteListDelegateImpl<T> : RemoteListDelegate<T> {
         mStub = RemoteListStub(content)
     }
 
-    /** For Serialization  */
-    @Suppress("unused")
-    private constructor()
+    /** For Serialization */
+    @Suppress("unused") private constructor()
 
-    override val size get() = _size
+    override val size
+        get() = _size
 
     override fun requestItemRange(startIndex: Int, endIndex: Int, callback: OnDoneCallback) {
         assert(endIndex >= startIndex)
@@ -60,9 +60,7 @@ class RemoteListDelegateImpl<T> : RemoteListDelegate<T> {
         }
     }
 
-    private class RemoteListStub<T>(
-        private val mContent: List<T>
-    ) : IRemoteList.Stub() {
+    private class RemoteListStub<T>(private val mContent: List<T>) : IRemoteList.Stub() {
         @Throws(RemoteException::class)
         override fun requestItemRange(startIndex: Int, endIndex: Int, callback: IOnDoneCallback) {
             RemoteUtils.dispatchCallFromHost(callback, "lazy load content") {

@@ -39,9 +39,10 @@ object SpannableStringBuilderAnnotationExtensions {
     private fun SpannableStringBuilder.findAnnotationBounds(
         key: String,
         value: String
-    ): Pair<Int, Int>? = getSpans(0, length, AnnotationSpan::class.java)
-        .find { it.key == key && it.value == value }
-        ?.let { Pair(getSpanStart(it), getSpanEnd(it)) }
+    ): Pair<Int, Int>? =
+        getSpans(0, length, AnnotationSpan::class.java)
+            .find { it.key == key && it.value == value }
+            ?.let { Pair(getSpanStart(it), getSpanEnd(it)) }
 
     /**
      * Nests the provided span within an existing [android.text.Annotation].
@@ -55,9 +56,9 @@ object SpannableStringBuilderAnnotationExtensions {
         value: String,
         span: Any
     ): SpannableStringBuilder {
-        findAnnotationBounds(key, value)
-            ?.let { setSpan(span, it.first, it.second, SPAN_INCLUSIVE_INCLUSIVE) }
-            ?: Log.e(TAG, "Unable to find annotation span for $key:$value")
+        findAnnotationBounds(key, value)?.let {
+            setSpan(span, it.first, it.second, SPAN_INCLUSIVE_INCLUSIVE)
+        } ?: Log.e(TAG, "Unable to find annotation span for $key:$value")
 
         return this
     }
