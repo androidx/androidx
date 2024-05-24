@@ -1942,6 +1942,27 @@ class GraphicsLayerTest {
     }
 
     @Test
+    fun centerPivotIsCorrectlyCalculatedForOddSize() {
+        var bounds: Rect = Rect.Zero
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                Box(
+                    modifier = Modifier
+                        .size(9.dp)
+                        .rotate(180f)
+                        .onPlaced {
+                            bounds = it.boundsInRoot()
+                        }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(bounds).isEqualTo(Rect(0f, 0f, 9f, 9f))
+        }
+    }
+
+    @Test
     fun customPivotIsCalculatedCorrectlyWhenWeCalculateBoundsBeforeLayerWasFirstDrawn() {
         var bounds: Rect = Rect.Zero
         rule.setContent {
