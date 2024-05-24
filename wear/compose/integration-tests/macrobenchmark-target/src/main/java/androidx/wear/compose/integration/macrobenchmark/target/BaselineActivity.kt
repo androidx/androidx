@@ -96,6 +96,7 @@ import androidx.wear.compose.material.PlaceholderDefaults
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.RadioButton
 import androidx.wear.compose.material.Scaffold
+import androidx.wear.compose.material.SelectableChip
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Stepper
 import androidx.wear.compose.material.StepperDefaults
@@ -140,6 +141,7 @@ private val PROGRESS_INDICATOR = "progress-indicator"
 private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
 private val PROGRESSINDICATORS = "progressindicators"
 private val RADIO_BUTTON = "radio-button"
+private val SELECTABLE_CHIP = "selectable-chip"
 private val SLIDER = "slider"
 private val START_INDEX = "start-index"
 private val STEPPER = "stepper"
@@ -437,6 +439,15 @@ fun Chips() {
                         contentDescription = null
                     )
                 }
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            var selectedState by remember { mutableStateOf(false) }
+            SelectableChip(
+                selected = selectedState,
+                onClick = { selectedState = !selectedState },
+                label = { Text("S") },
+                modifier = Modifier.semantics { contentDescription = SELECTABLE_CHIP }
             )
         }
     }
