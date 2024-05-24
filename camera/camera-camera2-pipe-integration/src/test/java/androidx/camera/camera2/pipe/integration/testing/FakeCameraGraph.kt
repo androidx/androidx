@@ -42,6 +42,7 @@ class FakeCameraGraph(
 
     override val graphState: StateFlow<GraphState>
         get() = throw NotImplementedError("Not used in testing")
+
     override var isForeground = false
     private var audioRestrictionMode = AUDIO_RESTRICTION_NONE
 
@@ -53,17 +54,15 @@ class FakeCameraGraph(
     }
 
     override fun acquireSessionOrNull() = if (isClosed) null else fakeCameraGraphSession
+
     override suspend fun <T> useSession(
         action: suspend CoroutineScope.(CameraGraph.Session) -> T
-    ): T =
-        fakeCameraGraphSession.use { coroutineScope { action(it) } }
+    ): T = fakeCameraGraphSession.use { coroutineScope { action(it) } }
 
     override fun <T> useSessionIn(
         scope: CoroutineScope,
         action: suspend CoroutineScope.(CameraGraph.Session) -> T
-    ): Deferred<T> = scope.async {
-        useSession(action)
-    }
+    ): Deferred<T> = scope.async { useSession(action) }
 
     override fun close() {
         isClosed = true

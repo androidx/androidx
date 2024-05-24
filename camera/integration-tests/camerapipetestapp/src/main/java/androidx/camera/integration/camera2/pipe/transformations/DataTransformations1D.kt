@@ -22,16 +22,13 @@ import androidx.camera.integration.camera2.pipe.CameraMetadataKey.CONTROL_AE_MOD
 import androidx.camera.integration.camera2.pipe.CameraMetadataKey.LENS_FOCUS_DISTANCE
 import androidx.camera.integration.camera2.pipe.CameraMetadataKey.STATISTICS_FACES
 
-/**
- * Transforms camera metadata into numbers to be visualized as 1D graphics
- */
+/** Transforms camera metadata into numbers to be visualized as 1D graphics */
 object DataTransformations1D {
 
     /**
-     * Tries to apply a specific transformation. If one exists, the resulting Number is returned.
-     * If none exist, we try to apply a type based transformation. If one exists, the resulting
-     * Number is returned. Otherwise, an error expressing the transformation is not supported is
-     * thrown.
+     * Tries to apply a specific transformation. If one exists, the resulting Number is returned. If
+     * none exist, we try to apply a type based transformation. If one exists, the resulting Number
+     * is returned. Otherwise, an error expressing the transformation is not supported is thrown.
      */
     fun convert(key: CameraMetadataKey, keyData: Any?): Number? {
 
@@ -50,49 +47,53 @@ object DataTransformations1D {
         hashMapOf(
             /**
              * LENS_FOCUS_DISTANCE has a specific transformation that maps Float inputs to their
-             * reciprocals, maps null input to null, and throws an IllegalArgumentException if the input
-             * is not of the expected type Float?
+             * reciprocals, maps null input to null, and throws an IllegalArgumentException if the
+             * input is not of the expected type Float?
              */
-            LENS_FOCUS_DISTANCE to { keyData: Any? ->
-                when (keyData) {
-                    is Float -> 1 / keyData
-                    else -> nullOrInvalid(LENS_FOCUS_DISTANCE, keyData)
-                }
-            },
+            LENS_FOCUS_DISTANCE to
+                { keyData: Any? ->
+                    when (keyData) {
+                        is Float -> 1 / keyData
+                        else -> nullOrInvalid(LENS_FOCUS_DISTANCE, keyData)
+                    }
+                },
 
             /**
-             * CONTROL_AE_MODE has a specific transformation that upon an Int input returns that input
-             * as is since each Int corresponds to a mode (The strings describing these modes will be
-             * passed as a map into the data source for the visualization directly). Upon a null input,
-             * null will be returned, and upon any other input, an exception will be thrown
+             * CONTROL_AE_MODE has a specific transformation that upon an Int input returns that
+             * input as is since each Int corresponds to a mode (The strings describing these modes
+             * will be passed as a map into the data source for the visualization directly). Upon a
+             * null input, null will be returned, and upon any other input, an exception will be
+             * thrown
              */
-            CONTROL_AE_MODE to { keyData: Any? ->
-                when (keyData) {
-                    is Int -> keyData
-                    else -> nullOrInvalid(CONTROL_AE_MODE, keyData)
-                }
-            },
+            CONTROL_AE_MODE to
+                { keyData: Any? ->
+                    when (keyData) {
+                        is Int -> keyData
+                        else -> nullOrInvalid(CONTROL_AE_MODE, keyData)
+                    }
+                },
 
             /**
              * STATISTICS_FACES has a specific transformation that maps Array<Face> inputs to array
-             * size of that input, maps null input to null, and throws an IllegalArgumentException if
-             * the input is not an Array, or is an Array of the wrong type
+             * size of that input, maps null input to null, and throws an IllegalArgumentException
+             * if the input is not an Array, or is an Array of the wrong type
              */
-            STATISTICS_FACES to { keyData: Any? ->
-                when (keyData) {
-                    is Array<*> -> {
-                        if (keyData.isArrayOf<Face>()) {
-                            keyData.size
-                        } else {
-                            throw IllegalArgumentException(
-                                "keyData for $STATISTICS_FACES expected " +
-                                    "to be Array<Face>, but was ${keyData::class.simpleName}"
-                            )
+            STATISTICS_FACES to
+                { keyData: Any? ->
+                    when (keyData) {
+                        is Array<*> -> {
+                            if (keyData.isArrayOf<Face>()) {
+                                keyData.size
+                            } else {
+                                throw IllegalArgumentException(
+                                    "keyData for $STATISTICS_FACES expected " +
+                                        "to be Array<Face>, but was ${keyData::class.simpleName}"
+                                )
+                            }
                         }
+                        else -> nullOrInvalid(STATISTICS_FACES, keyData)
                     }
-                    else -> nullOrInvalid(STATISTICS_FACES, keyData)
                 }
-            }
         )
 
     /**
@@ -108,15 +109,14 @@ object DataTransformations1D {
     }
 
     /**
-     * This function is called when keyData doesn't match any valid type. If keyData is null,
-     * null is returned, but if keyData is some other type, we throw an Illegal Argument
-     * Exception explaining transformation is not supported for the keyData's type
+     * This function is called when keyData doesn't match any valid type. If keyData is null, null
+     * is returned, but if keyData is some other type, we throw an Illegal Argument Exception
+     * explaining transformation is not supported for the keyData's type
      */
     private fun nullOrInvalid(key: CameraMetadataKey, keyData: Any?): Number? {
         if (keyData == null) return null
         throw IllegalArgumentException(
-            "keyData of type ${keyData::class.simpleName} for $key is" +
-                " not supported"
+            "keyData of type ${keyData::class.simpleName} for $key is" + " not supported"
         )
     }
 }

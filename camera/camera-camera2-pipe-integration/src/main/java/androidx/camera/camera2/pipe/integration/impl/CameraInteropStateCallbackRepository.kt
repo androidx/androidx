@@ -60,6 +60,7 @@ class CameraInteropStateCallbackRepository {
     class CameraInteropDeviceStateCallback : CameraDevice.StateCallback() {
 
         private var callbacks: AtomicRef<List<CameraDevice.StateCallback>> = atomic(listOf())
+
         internal fun updateCallbacks(sessionConfig: SessionConfig) {
             callbacks.value = sessionConfig.deviceStateCallbacks.toList()
         }

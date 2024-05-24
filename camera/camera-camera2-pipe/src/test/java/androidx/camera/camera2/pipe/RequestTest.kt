@@ -31,8 +31,7 @@ internal class RequestTest {
     private val request =
         Request(
             listOf(StreamId(1)),
-            parameters =
-            mapOf(CaptureRequest.EDGE_MODE to CaptureRequest.EDGE_MODE_HIGH_QUALITY),
+            parameters = mapOf(CaptureRequest.EDGE_MODE to CaptureRequest.EDGE_MODE_HIGH_QUALITY),
             extras = mapOf(FakeMetadata.TEST_KEY to 42)
         )
 
@@ -88,10 +87,11 @@ internal class RequestTest {
         // Check with an invalid test key
         assertThat(request.get(CaptureRequest.CONTROL_AE_MODE)).isNull()
         assertThat(
-            request.getOrDefault(
-                CaptureRequest.CONTROL_AE_MODE, default = CaptureRequest.CONTROL_AE_MODE_ON
+                request.getOrDefault(
+                    CaptureRequest.CONTROL_AE_MODE,
+                    default = CaptureRequest.CONTROL_AE_MODE_ON
+                )
             )
-        )
             .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
     }
 }

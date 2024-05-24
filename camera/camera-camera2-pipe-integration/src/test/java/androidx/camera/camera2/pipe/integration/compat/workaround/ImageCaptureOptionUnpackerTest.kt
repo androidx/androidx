@@ -46,202 +46,214 @@ class ImageCaptureOptionUnpackerTest {
         setDeviceProperty(PROPERTIES_PIXEL_2_API26)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(CaptureRequest.CONTROL_ENABLE_ZSL, null)
-        ).isNull()
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
+            )
+            .isNull()
     }
 
     @Test
     fun unpackWithValidPixel2AndMinLatency() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_PIXEL_2_API26)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isEqualTo(false)
+            .isEqualTo(false)
     }
 
     @Test
     fun unpackWithValidPixel2AndMaxQuality() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_PIXEL_2_API26)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isEqualTo(true)
+            .isEqualTo(true)
     }
 
     @Test
     fun unpackWithPixel2NotSupportApiLevelAndMinLatency() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_PIXEL_2_NOT_SUPPORT_API)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isNull()
+            .isNull()
     }
 
     @Test
     fun unpackWithPixel2NotSupportApiLevelAndMaxQuality() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_PIXEL_2_NOT_SUPPORT_API)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isNull()
+            .isNull()
     }
 
     @Test
     fun unpackWithValidPixel3AndMinLatency() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_PIXEL_3_API26)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isEqualTo(false)
+            .isEqualTo(false)
     }
 
     @Test
     fun unpackWithValidPixel3AndMaxQuality() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_PIXEL_3_API26)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isEqualTo(true)
+            .isEqualTo(true)
     }
 
     @Test
     fun unpackWithPixel3NotSupportApiLevelAndMinLatency() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_PIXEL_3_NOT_SUPPORT_API)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isNull()
+            .isNull()
     }
 
     @Test
     fun unpackWithPixel3NotSupportApiLevelAndMaxQuality() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_PIXEL_3_NOT_SUPPORT_API)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isNull()
+            .isNull()
     }
 
     @Test
     fun unpackWithNotSupportManufacture() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_NOT_GOOGLE)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isNull()
+            .isNull()
     }
 
     @Test
     fun unpackWithNotSupportModel() {
         val captureBuilder = CaptureConfig.Builder()
-        val imageCaptureConfig = ImageCapture.Builder()
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-            .useCaseConfig
+        val imageCaptureConfig =
+            ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .useCaseConfig
         setDeviceProperty(PROPERTIES_NOT_SUPPORT_MODEL)
         unpacker.unpack(imageCaptureConfig, captureBuilder)
         val captureConfig = captureBuilder.build()
-        val camera2Config = Camera2ImplConfig(
-            captureConfig.implementationOptions
-        )
+        val camera2Config = Camera2ImplConfig(captureConfig.implementationOptions)
         assertThat(
-            camera2Config.getCaptureRequestOption<Boolean>(
-                CaptureRequest.CONTROL_ENABLE_ZSL, null
+                camera2Config.getCaptureRequestOption<Boolean>(
+                    CaptureRequest.CONTROL_ENABLE_ZSL,
+                    null
+                )
             )
-        ).isNull()
+            .isNull()
     }
 
     private fun setDeviceProperty(properties: DeviceProperties) {
@@ -262,35 +274,17 @@ class ImageCaptureOptionUnpackerTest {
         private const val MODEL_NOT_SUPPORT_HDR = "ANY"
         private const val API_LEVEL_25 = Build.VERSION_CODES.N_MR1
         private const val API_LEVEL_26 = Build.VERSION_CODES.O
-        private val PROPERTIES_PIXEL_2_API26 = DeviceProperties.create(
-            MANUFACTURE_GOOGLE,
-            MODEL_PIXEL_2,
-            API_LEVEL_26
-        )
-        private val PROPERTIES_PIXEL_3_API26 = DeviceProperties.create(
-            MANUFACTURE_GOOGLE,
-            MODEL_PIXEL_3,
-            API_LEVEL_26
-        )
-        private val PROPERTIES_PIXEL_2_NOT_SUPPORT_API = DeviceProperties.create(
-            MANUFACTURE_GOOGLE,
-            MODEL_PIXEL_2,
-            API_LEVEL_25
-        )
-        private val PROPERTIES_PIXEL_3_NOT_SUPPORT_API = DeviceProperties.create(
-            MANUFACTURE_GOOGLE,
-            MODEL_PIXEL_3,
-            API_LEVEL_25
-        )
-        private val PROPERTIES_NOT_GOOGLE = DeviceProperties.create(
-            MANUFACTURE_NOT_GOOGLE,
-            MODEL_PIXEL_2,
-            API_LEVEL_26
-        )
-        private val PROPERTIES_NOT_SUPPORT_MODEL = DeviceProperties.create(
-            MANUFACTURE_GOOGLE,
-            MODEL_NOT_SUPPORT_HDR,
-            API_LEVEL_26
-        )
+        private val PROPERTIES_PIXEL_2_API26 =
+            DeviceProperties.create(MANUFACTURE_GOOGLE, MODEL_PIXEL_2, API_LEVEL_26)
+        private val PROPERTIES_PIXEL_3_API26 =
+            DeviceProperties.create(MANUFACTURE_GOOGLE, MODEL_PIXEL_3, API_LEVEL_26)
+        private val PROPERTIES_PIXEL_2_NOT_SUPPORT_API =
+            DeviceProperties.create(MANUFACTURE_GOOGLE, MODEL_PIXEL_2, API_LEVEL_25)
+        private val PROPERTIES_PIXEL_3_NOT_SUPPORT_API =
+            DeviceProperties.create(MANUFACTURE_GOOGLE, MODEL_PIXEL_3, API_LEVEL_25)
+        private val PROPERTIES_NOT_GOOGLE =
+            DeviceProperties.create(MANUFACTURE_NOT_GOOGLE, MODEL_PIXEL_2, API_LEVEL_26)
+        private val PROPERTIES_NOT_SUPPORT_MODEL =
+            DeviceProperties.create(MANUFACTURE_GOOGLE, MODEL_NOT_SUPPORT_HDR, API_LEVEL_26)
     }
 }

@@ -42,11 +42,11 @@ import kotlinx.coroutines.withContext
 
 internal const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
 
-/**
- * Implementation of Flash control exposed by [CameraControlInternal].
- */
+/** Implementation of Flash control exposed by [CameraControlInternal]. */
 @CameraScope
-class FlashControl @Inject constructor(
+class FlashControl
+@Inject
+constructor(
     private val cameraProperties: CameraProperties,
     private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
@@ -64,23 +64,18 @@ class FlashControl @Inject constructor(
     override fun reset() {
         _flashMode = DEFAULT_FLASH_MODE
         _screenFlash = null
-        threads.sequentialScope.launch {
-            stopRunningTask()
-        }
+        threads.sequentialScope.launch { stopRunningTask() }
         setFlashAsync(DEFAULT_FLASH_MODE)
     }
 
-    @Volatile
-    @ImageCapture.FlashMode
-    private var _flashMode: Int = DEFAULT_FLASH_MODE
+    @Volatile @ImageCapture.FlashMode private var _flashMode: Int = DEFAULT_FLASH_MODE
 
     @ImageCapture.FlashMode
     var flashMode: Int = _flashMode
         get() = _flashMode
         private set
 
-    @Volatile
-    private var _screenFlash: ScreenFlash? = null
+    @Volatile private var _screenFlash: ScreenFlash? = null
 
     var screenFlash: ScreenFlash? = _screenFlash
         get() = _screenFlash
@@ -89,11 +84,12 @@ class FlashControl @Inject constructor(
     private var _updateSignal: CompletableDeferred<Unit>? = null
 
     var updateSignal: Deferred<Unit> = CompletableDeferred(Unit)
-        get() = if (_updateSignal != null) {
-            _updateSignal!!
-        } else {
-            CompletableDeferred(Unit)
-        }
+        get() =
+            if (_updateSignal != null) {
+                _updateSignal!!
+            } else {
+                CompletableDeferred(Unit)
+            }
         private set
 
     fun setFlashAsync(
@@ -122,11 +118,12 @@ class FlashControl @Inject constructor(
                 state3AControl.flashMode = flashMode
                 state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
             }
-        } ?: run {
-            signal.completeExceptionally(
-                CameraControl.OperationCanceledException("Camera is not active.")
-            )
         }
+            ?: run {
+                signal.completeExceptionally(
+                    CameraControl.OperationCanceledException("Camera is not active.")
+                )
+            }
 
         return signal
     }
@@ -171,16 +168,11 @@ class FlashControl @Inject constructor(
      */
     private suspend fun applyScreenFlash(timeoutMillis: Long): Deferred<Unit> {
         val onApplyCompletedSignal = CompletableDeferred<Unit>()
-        val screenFlashListener = ScreenFlashListener {
-            onApplyCompletedSignal.complete(Unit)
-        }
+        val screenFlashListener = ScreenFlashListener { onApplyCompletedSignal.complete(Unit) }
 
         withContext(Dispatchers.Main) {
             val expirationTimeMillis = System.currentTimeMillis() + timeoutMillis
-            screenFlash?.apply(
-                expirationTimeMillis,
-                screenFlashListener
-            )
+            screenFlash?.apply(expirationTimeMillis, screenFlashListener)
             debug {
                 "applyScreenFlash: ScreenFlash.apply() invoked" +
                     ", expirationTimeMillis = $expirationTimeMillis"
@@ -196,8 +188,10 @@ class FlashControl @Inject constructor(
             if (onApplyCompletedSignal.awaitUntil(timeoutMillis)) {
                 debug { "applyScreenFlash: ScreenFlashListener completed" }
             } else {
-                warn { "applyScreenFlash: ScreenFlashListener completion timed out" +
-                    " after $timeoutMillis ms" }
+                warn {
+                    "applyScreenFlash: ScreenFlashListener completion timed out" +
+                        " after $timeoutMillis ms"
+                }
             }
         }
     }
@@ -221,9 +215,7 @@ class FlashControl @Inject constructor(
 
         state3AControl.tryExternalFlashAeMode = true
         return state3AControl.updateSignal?.also {
-            debug {
-                "setExternalFlashAeModeAsync: need to wait for state3AControl.updateSignal"
-            }
+            debug { "setExternalFlashAeModeAsync: need to wait for state3AControl.updateSignal" }
             it.invokeOnCompletion {
                 debug { "setExternalFlashAeModeAsync: state3AControl.updateSignal completed" }
             }
@@ -241,21 +233,15 @@ class FlashControl @Inject constructor(
      */
     private fun setTorchForScreenFlash(): Deferred<Unit>? {
         val shouldUseFlashModeTorch = useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()
-        debug {
-            "setTorchIfRequired: shouldUseFlashModeTorch = $shouldUseFlashModeTorch"
-        }
+        debug { "setTorchIfRequired: shouldUseFlashModeTorch = $shouldUseFlashModeTorch" }
 
         if (!shouldUseFlashModeTorch) {
             return null
         }
 
         return torchControl.setTorchAsync(torch = true, ignoreFlashUnitAvailability = true).also {
-            debug {
-                "setTorchIfRequired: need to wait for torch control to be completed"
-            }
-            it.invokeOnCompletion {
-                debug { "setTorchIfRequired: torch control completed" }
-            }
+            debug { "setTorchIfRequired: need to wait for torch control to be completed" }
+            it.invokeOnCompletion { debug { "setTorchIfRequired: torch control completed" } }
         }
     }
 

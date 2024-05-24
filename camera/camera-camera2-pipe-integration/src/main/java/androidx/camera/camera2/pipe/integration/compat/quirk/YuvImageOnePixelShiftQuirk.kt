@@ -23,16 +23,20 @@ import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk
 /**
  * QuirkSummary
  * - Bug Id: 184229033
- * - Description: On certain devices, one pixel shifted when the HAL layer converts RGB data to
- *                YUV data. It leads to the leftmost column degradation when converting YUV to
- *                RGB in applications.
+ * - Description: On certain devices, one pixel shifted when the HAL layer converts RGB data to YUV
+ *   data. It leads to the leftmost column degradation when converting YUV to RGB in applications.
  * - Device(s): Motorola MotoG3, Samsung SM-G532F/SM-J700F/SM-J415F/SM-920F, Xiaomi Mi A1
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
 class YuvImageOnePixelShiftQuirk : OnePixelShiftQuirk {
     companion object {
-        fun isEnabled() = isMotorolaMotoG3() || isSamsungSMG532F() || isSamsungSMJ700F() ||
-            isSamsungSMA920F() || isSamsungSMJ415F() || isXiaomiMiA1()
+        fun isEnabled() =
+            isMotorolaMotoG3() ||
+                isSamsungSMG532F() ||
+                isSamsungSMJ700F() ||
+                isSamsungSMA920F() ||
+                isSamsungSMJ415F() ||
+                isXiaomiMiA1()
 
         private fun isMotorolaMotoG3() =
             "motorola".equals(Build.BRAND, ignoreCase = true) &&

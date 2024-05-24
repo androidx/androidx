@@ -27,10 +27,9 @@ import java.nio.BufferUnderflowException
  *
  * QuirkSummary
  * - Bug Id: 231701345
- * - Description: When attempting to retrieve the
- *   [CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE] characteristic, an
- *   [AssertionError] is thrown. This is an undocumented exception
- *   on the [CameraCharacteristics.get] method, so this violates the API contract.
+ * - Description: When attempting to retrieve the [CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE]
+ *   characteristic, an [AssertionError] is thrown. This is an undocumented exception on the
+ *   [CameraCharacteristics.get] method, so this violates the API contract.
  * - Device(s): Jio JioPhone Next, Samsung Galaxy A02s, Vivo V2039
  *
  * @see androidx.camera.camera2.pipe.integration.compat.workaround.getControlZoomRatioRangeSafely
@@ -40,15 +39,17 @@ class ControlZoomRatioRangeAssertionErrorQuirk : Quirk {
     companion object {
         fun isEnabled() = isJioPhoneNext() || isSamsungA2s() || isVivo2039()
 
-        private fun isJioPhoneNext() = Build.BRAND.equals("JIO", ignoreCase = true) &&
-            Build.MODEL.startsWith("LS1542QW", ignoreCase = true)
+        private fun isJioPhoneNext() =
+            Build.BRAND.equals("JIO", ignoreCase = true) &&
+                Build.MODEL.startsWith("LS1542QW", ignoreCase = true)
 
-        private fun isSamsungA2s() = Build.BRAND.equals("SAMSUNG", ignoreCase = true) && (
-            Build.MODEL.startsWith("SM-A025", ignoreCase = true) ||
-            Build.MODEL.equals("SM-S124DL", ignoreCase = true)
-        )
+        private fun isSamsungA2s() =
+            Build.BRAND.equals("SAMSUNG", ignoreCase = true) &&
+                (Build.MODEL.startsWith("SM-A025", ignoreCase = true) ||
+                    Build.MODEL.equals("SM-S124DL", ignoreCase = true))
 
-        private fun isVivo2039() = Build.BRAND.equals("VIVO", ignoreCase = true) &&
-            Build.MODEL.equals("VIVO 2039", ignoreCase = true)
+        private fun isVivo2039() =
+            Build.BRAND.equals("VIVO", ignoreCase = true) &&
+                Build.MODEL.equals("VIVO 2039", ignoreCase = true)
     }
 }

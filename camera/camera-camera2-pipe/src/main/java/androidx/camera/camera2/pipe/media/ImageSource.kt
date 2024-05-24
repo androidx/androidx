@@ -39,24 +39,23 @@ import kotlinx.atomicfu.atomic
  * these classes directly.
  *
  * There are three common problems that occur when using an ImageReader with a camera:
+ * 1. Closing the ImageReader before all outstanding Images are closed. This can lead to memory
+ *    getting unexpectedly freed or overwritten, leading to corrupted outputs or difficult to
+ *    diagnose crashes. Implementations are expected to avoid this problem by waiting to close the
+ *    underlying ImageReader (after close has been called) until all images passed to the listener
+ *    have also been closed.
+ * 2. Acquiring too many images from an ImageReader (or failing to acquire images fast enough) can
+ *    either lead to IllegalStateExceptions when attempting to read images out, or it can lead to
+ *    stalling the Camera if images are not drained out fast enough. Implementations of this
+ *    interface are expected to internally account for the number of outstanding images and to read
+ *    and drop images that would otherwise exceed the maximum number of images.
+ * 3. Using ImageReader.acquireLatestImage skips an arbitrary number of images. While this is
+ *    primarily used to avoid stalling the camera, it also causes problems when attempting to
+ *    associate metadata from the camera and can lead to stalls later on. Since this can be solved
+ *    via #2, acquireLatestImage is not supported.
  *
- *   1. Closing the ImageReader before all outstanding Images are closed. This can lead to
- *      memory getting unexpectedly freed or overwritten, leading to corrupted outputs or difficult
- *      to diagnose crashes. Implementations are expected to avoid this problem by waiting to close
- *      the underlying ImageReader (after close has been called) until all images passed to the
- *      listener have also been closed.
- *   2. Acquiring too many images from an ImageReader (or failing to acquire images fast enough) can
- *      either lead to IllegalStateExceptions when attempting to read images out, or it can lead to
- *      stalling the Camera if images are not drained out fast enough. Implementations of this
- *      interface are expected to internally account for the number of outstanding images and to
- *      read and drop images that would otherwise exceed the maximum number of images.
- *   3. Using ImageReader.acquireLatestImage skips an arbitrary number of images. While this is
- *      primarily used to avoid stalling the camera, it also causes problems when attempting to
- *      associate metadata from the camera and can lead to stalls later on. Since this can be solved
- *      via #2, acquireLatestImage is not supported.
- *
- *  Implementations are expected to be thread safe, and to associate each image with the [OutputId]
- *  it is associated with.
+ * Implementations are expected to be thread safe, and to associate each image with the [OutputId]
+ * it is associated with.
  */
 interface ImageSource : UnsafeWrapper, AutoCloseable {
     /** The graphics surface that the Camera produces images into. */
@@ -68,9 +67,7 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
         private const val IMAGE_CAPACITY_MARGIN = 2
         private const val IMAGE_SOURCE_CAPACITY = IMAGEREADER_MAX_CAPACITY - IMAGE_CAPACITY_MARGIN
 
-        fun create(
-            imageReader: ImageReaderWrapper
-        ): ImageSource {
+        fun create(imageReader: ImageReaderWrapper): ImageSource {
             // Reduce the maxImages of the ImageSource relative to the ImageReader to ensure there
             // is enough headroom to avoid acquiring too many images that could otherwise stall the
             // camera or trigger IllegalStateExceptions from the underlying ImageReader.
@@ -105,18 +102,19 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
             if (cameraStream.outputs.size == 1) {
                 val output = cameraStream.outputs.single()
                 val handler = handlerProvider()
-                val imageReader = AndroidImageReader.create(
-                    output.size.width,
-                    output.size.height,
-                    output.format.value,
-                    imageReaderCapacity,
-                    usageFlags,
-                    defaultDataSpace,
-                    defaultHardwareBufferFormat,
-                    cameraStream.id,
-                    output.id,
-                    handler
-                )
+                val imageReader =
+                    AndroidImageReader.create(
+                        output.size.width,
+                        output.size.height,
+                        output.format.value,
+                        imageReaderCapacity,
+                        usageFlags,
+                        defaultDataSpace,
+                        defaultHardwareBufferFormat,
+                        cameraStream.id,
+                        output.id,
+                        handler
+                    )
                 return create(imageReader)
             }
 
@@ -142,11 +140,12 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
                             "setting the default HardwareBufferFormat."
                     }
                 }
-                val imageReader = AndroidMultiResolutionImageReader.create(
-                    cameraStream,
-                    capacity,
-                    executorProvider()
-                )
+                val imageReader =
+                    AndroidMultiResolutionImageReader.create(
+                        cameraStream,
+                        capacity,
+                        executorProvider()
+                    )
                 return create(imageReader)
             }
 
@@ -157,9 +156,7 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
     }
 }
 
-/**
- * Listener for handling [ImageWrapper]s as they are produced.
- */
+/** Listener for handling [ImageWrapper]s as they are produced. */
 fun interface ImageSourceListener {
     /**
      * Handle the next image from the [ImageSource]. Implementations *must* close the [image] when
@@ -169,9 +166,7 @@ fun interface ImageSourceListener {
     fun onImage(streamId: StreamId, outputId: OutputId, outputTimestamp: Long, image: ImageWrapper?)
 }
 
-/**
- * An ImageReaderImageSource implements an [ImageSource] using an [ImageReader]
- */
+/** An ImageReaderImageSource implements an [ImageSource] using an [ImageReader] */
 internal class ImageSourceImpl(
     private val imageReader: ImageReaderWrapper,
     private val maxImages: Int,
@@ -259,10 +254,9 @@ internal class ImageSourceImpl(
         imageReader.flush()
     }
 
-    private inner class TrackedImage(
-        private val image: ImageWrapper
-    ) : ImageWrapper by image {
+    private inner class TrackedImage(private val image: ImageWrapper) : ImageWrapper by image {
         private val closed = atomic(false)
+
         override fun close() {
             if (closed.compareAndSet(expect = false, update = true)) {
                 // Close underlying image exactly once, and close it *before* decrementImageCount

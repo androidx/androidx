@@ -24,8 +24,8 @@ import androidx.camera.integration.camera2.pipe.dataholders.GraphDataHolder
 import androidx.camera.integration.camera2.pipe.dataholders.GraphDataPoint
 
 /**
- * View for 1D graph visualizations. Implemented for both graphing state over time and
- * graphing value over time
+ * View for 1D graph visualizations. Implemented for both graphing state over time and graphing
+ * value over time
  */
 abstract class GraphView(
     context: Context,
@@ -61,12 +61,13 @@ abstract class GraphView(
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         val height = bottom - top
-        layoutState = LayoutState(
-            widthFloat = (right - left).toFloat(),
-            dataGraphHeight = height * 3 / 4f,
-            latencyGraphHeight = height / 4f,
-            latencyBaseline = height * 7 / 8f
-        )
+        layoutState =
+            LayoutState(
+                widthFloat = (right - left).toFloat(),
+                dataGraphHeight = height * 3 / 4f,
+                latencyGraphHeight = height / 4f,
+                latencyBaseline = height * 7 / 8f
+            )
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -80,19 +81,17 @@ abstract class GraphView(
         canvas.drawLine(0f, dividerY, layoutState.widthFloat, dividerY, paints.dividerLinePaint)
 
         val totalTimeElapsedNanos = System.nanoTime() - beginTimeNanos
-        val totalTimeIntervalsPassed = (totalTimeElapsedNanos) / TIME_INTERVAL_LENGTH_NANOS
-            .toFloat()
+        val totalTimeIntervalsPassed =
+            (totalTimeElapsedNanos) / TIME_INTERVAL_LENGTH_NANOS.toFloat()
 
         /**
-         * if it we have recorded more than 1 interval of data, then we want to offset the
-         * time passed by the extra number of intervals
+         * if it we have recorded more than 1 interval of data, then we want to offset the time
+         * passed by the extra number of intervals
          */
         val xIntervalOffset = if (totalTimeIntervalsPassed > 1) totalTimeIntervalsPassed - 1 else 0f
 
-        val pointsInTimeWindow = graphDataHolder.getPointsInTimeWindow(
-            TIME_INTERVAL_LENGTH_NANOS,
-            totalTimeElapsedNanos
-        )
+        val pointsInTimeWindow =
+            graphDataHolder.getPointsInTimeWindow(TIME_INTERVAL_LENGTH_NANOS, totalTimeElapsedNanos)
 
         drawPoints(canvas, pointsInTimeWindow, xIntervalOffset)
         drawExtra(canvas)
@@ -101,10 +100,9 @@ abstract class GraphView(
         postInvalidate()
     }
 
-    /** Calculate the y coordinate given a data point*/
-    private fun getYFromPoint(point: GraphDataPoint): Float = layoutState.dataGraphHeight -
-        unitHeight *
-        point.value.toFloat()
+    /** Calculate the y coordinate given a data point */
+    private fun getYFromPoint(point: GraphDataPoint): Float =
+        layoutState.dataGraphHeight - unitHeight * point.value.toFloat()
 
     private fun drawLatency(
         canvas: Canvas,
@@ -113,20 +111,17 @@ abstract class GraphView(
         x2: Float,
         latency2: Float,
         paint: Paint
-    ) = canvas.drawLine(
-        x1, layoutState.latencyBaseline - latency1 * 150, x2,
-        layoutState
-            .latencyBaseline - latency2 *
-            150,
-        paint
-    )
+    ) =
+        canvas.drawLine(
+            x1,
+            layoutState.latencyBaseline - latency1 * 150,
+            x2,
+            layoutState.latencyBaseline - latency2 * 150,
+            paint
+        )
 
     /** Draws all the data points within the time window */
-    private fun drawPoints(
-        canvas: Canvas,
-        points: List<GraphDataPoint>,
-        xIntervalOffset: Float
-    ) {
+    private fun drawPoints(canvas: Canvas, points: List<GraphDataPoint>, xIntervalOffset: Float) {
 
         if (points.isEmpty()) return
 
@@ -147,10 +142,10 @@ abstract class GraphView(
              * the total offset gives us the decimal representing what percent of the screen the
              * currentX is at
              */
-            val intervalsPassedSinceTimestamp = point.timestampNanos / TIME_INTERVAL_LENGTH_NANOS
-                .toFloat()
-            val intervalsPassedSinceArrivalTime = point.timeArrivedNanos /
-                TIME_INTERVAL_LENGTH_NANOS.toFloat()
+            val intervalsPassedSinceTimestamp =
+                point.timestampNanos / TIME_INTERVAL_LENGTH_NANOS.toFloat()
+            val intervalsPassedSinceArrivalTime =
+                point.timeArrivedNanos / TIME_INTERVAL_LENGTH_NANOS.toFloat()
 
             currentX = (intervalsPassedSinceTimestamp - xIntervalOffset) * width
 
@@ -163,7 +158,11 @@ abstract class GraphView(
 
             if (lastLatency != null)
                 drawLatency(
-                    canvas, lastX, lastLatency, currentX, currentLatency,
+                    canvas,
+                    lastX,
+                    lastLatency,
+                    currentX,
+                    currentLatency,
                     paints.latencyDataPaint
                 )
 
@@ -181,7 +180,10 @@ abstract class GraphView(
                 (1 until frameDifference).forEach { i ->
                     val missingFrameX = lastX + i * frameUnitWidth
                     canvas.drawLine(
-                        missingFrameX, 0f, missingFrameX, layoutState.dataGraphHeight,
+                        missingFrameX,
+                        0f,
+                        missingFrameX,
+                        layoutState.dataGraphHeight,
                         paints.missingDataPaint
                     )
                 }
@@ -196,7 +198,7 @@ abstract class GraphView(
     abstract fun drawPoint(canvas: Canvas, x1: Float, y1: Float, x2: Float, y2: Float, paint: Paint)
 
     /** Can be overridden by subclasses for drawing things besides data */
-    open fun drawExtra(canvas: Canvas?) { }
+    open fun drawExtra(canvas: Canvas?) {}
 
     companion object {
         /** Length of the time window of points being drawn - arbitrarily set at 4 seconds */

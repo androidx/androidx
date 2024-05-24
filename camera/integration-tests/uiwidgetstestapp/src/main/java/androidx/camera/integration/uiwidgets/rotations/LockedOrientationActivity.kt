@@ -26,18 +26,19 @@ class LockedOrientationActivity : CameraActivity() {
     val mOrientationEventListener by lazy {
         object : OrientationEventListener(this) {
             override fun onOrientationChanged(orientation: Int) {
-                if (!isImageAnalysisInitialized() || !isImageCaptureInitialized() ||
-                    orientation < 0
+                if (
+                    !isImageAnalysisInitialized() || !isImageCaptureInitialized() || orientation < 0
                 ) {
                     return
                 }
 
-                val rotation = when (orientation) {
-                    in 45 until 135 -> Surface.ROTATION_270
-                    in 135 until 225 -> Surface.ROTATION_180
-                    in 225 until 315 -> Surface.ROTATION_90
-                    else -> Surface.ROTATION_0
-                }
+                val rotation =
+                    when (orientation) {
+                        in 45 until 135 -> Surface.ROTATION_270
+                        in 135 until 225 -> Surface.ROTATION_180
+                        in 225 until 315 -> Surface.ROTATION_90
+                        else -> Surface.ROTATION_0
+                    }
 
                 mImageAnalysis.targetRotation = rotation
                 mImageCapture.targetRotation = rotation

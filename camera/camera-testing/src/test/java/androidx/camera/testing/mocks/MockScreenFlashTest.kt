@@ -51,18 +51,20 @@ class MockScreenFlashTest {
     fun getScreenFlashEvents_invocationsRecordedExactlyInSameOrder() {
         mMockScreenFlash.clear()
         mMockScreenFlash.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
+            System.currentTimeMillis() +
+                TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
             dummyListener,
         )
         mMockScreenFlash.clear()
 
-        assertThat(mMockScreenFlash.screenFlashEvents).isEqualTo(listOf(
-            CLEAR,
-            APPLY,
-            CLEAR,
-        ))
+        assertThat(mMockScreenFlash.screenFlashEvents)
+            .isEqualTo(
+                listOf(
+                    CLEAR,
+                    APPLY,
+                    CLEAR,
+                )
+            )
     }
 
     @Test
@@ -70,9 +72,8 @@ class MockScreenFlashTest {
         var isCompleted = false
         val listener = ScreenFlashListener { isCompleted = true }
         mMockScreenFlash.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
+            System.currentTimeMillis() +
+                TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
             listener,
         )
 
@@ -93,16 +94,21 @@ class MockScreenFlashTest {
     @SuppressLint("BanThreadSleep")
     @Test
     fun awaitClear_returnsTrueWhenClearInvokedLater() {
-        Thread({
-            try {
-                // ensure clearScreenFlashUi is not invoked immediately, but after some delay and
-                // from another thread
-                Thread.sleep(100)
-            } catch (e: InterruptedException) {
-                throw RuntimeException(e)
-            }
-            mMockScreenFlash.clear()
-        }, "test thread").start()
+        Thread(
+                {
+                    try {
+                        // ensure clearScreenFlashUi is not invoked immediately, but after some
+                        // delay and
+                        // from another thread
+                        Thread.sleep(100)
+                    } catch (e: InterruptedException) {
+                        throw RuntimeException(e)
+                    }
+                    mMockScreenFlash.clear()
+                },
+                "test thread"
+            )
+            .start()
 
         assertThat(mMockScreenFlash.awaitClear(3000)).isTrue()
     }

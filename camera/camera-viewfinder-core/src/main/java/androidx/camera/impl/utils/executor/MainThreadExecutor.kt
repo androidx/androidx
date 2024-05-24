@@ -22,19 +22,15 @@ import java.util.concurrent.Executor
 import java.util.concurrent.ScheduledExecutorService
 
 /**
- * Helper class for retrieving an [ScheduledExecutorService] which will post to the main
- * thread.
+ * Helper class for retrieving an [ScheduledExecutorService] which will post to the main thread.
  *
- * Since [ScheduledExecutorService] implements [Executor], this can also be used
- * as a simple Executor.
+ * Since [ScheduledExecutorService] implements [Executor], this can also be used as a simple
+ * Executor.
  */
-
 internal class MainThreadExecutor {
     companion object {
         val instance: ScheduledExecutorService by lazy {
-            HandlerScheduledExecutorService(
-                Handler(Looper.getMainLooper())
-            )
+            HandlerScheduledExecutorService(Handler(Looper.getMainLooper()))
         }
     }
 }

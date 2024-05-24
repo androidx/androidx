@@ -35,15 +35,12 @@ interface ZoomCompat {
     val minZoomRatio: Float
     val maxZoomRatio: Float
 
-    fun applyAsync(
-        zoomRatio: Float,
-        camera: UseCaseCamera
-    ): Deferred<Unit>
+    fun applyAsync(zoomRatio: Float, camera: UseCaseCamera): Deferred<Unit>
 
     /**
      * Returns the current crop sensor region which should be used for converting
-     * [androidx.camera.core.MeteringPoint] to sensor coordinates. Returns the sensor
-     * rect if there is no crop region being set.
+     * [androidx.camera.core.MeteringPoint] to sensor coordinates. Returns the sensor rect if there
+     * is no crop region being set.
      */
     fun getCropSensorRegion(): Rect
 
@@ -70,11 +67,14 @@ interface ZoomCompat {
 class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : ZoomCompat {
     override val minZoomRatio: Float
         get() = 1.0f
+
     override val maxZoomRatio: Float
         get() {
-            val ratio = cameraProperties.metadata.getOrDefault(
-                CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM, minZoomRatio
-            )
+            val ratio =
+                cameraProperties.metadata.getOrDefault(
+                    CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM,
+                    minZoomRatio
+                )
             if (nearZero(ratio)) {
                 Log.warn { "Invalid max zoom ratio of $ratio detected, defaulting to 1.0f" }
                 return 1.0f
@@ -84,18 +84,16 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
 
     private var currentCropRect: Rect? = null
 
-    override fun applyAsync(
-        zoomRatio: Float,
-        camera: UseCaseCamera
-    ): Deferred<Unit> {
+    override fun applyAsync(zoomRatio: Float, camera: UseCaseCamera): Deferred<Unit> {
         val sensorRect =
             cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
         currentCropRect = computeCropRect(sensorRect, zoomRatio)
         return camera.setParameterAsync(CaptureRequest.SCALER_CROP_REGION, currentCropRect)
     }
 
-    override fun getCropSensorRegion() = currentCropRect
-        ?: cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
+    override fun getCropSensorRegion() =
+        currentCropRect
+            ?: cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
 
     private fun computeCropRect(sensorRect: Rect, zoomRatio: Float): Rect {
         var ratio = zoomRatio
@@ -123,13 +121,11 @@ class AndroidRZoomCompat(
 ) : ZoomCompat {
     override val minZoomRatio: Float
         get() = range.lower
+
     override val maxZoomRatio: Float
         get() = range.upper
 
-    override fun applyAsync(
-        zoomRatio: Float,
-        camera: UseCaseCamera
-    ): Deferred<Unit> {
+    override fun applyAsync(zoomRatio: Float, camera: UseCaseCamera): Deferred<Unit> {
         require(zoomRatio in minZoomRatio..maxZoomRatio)
         return camera.setParameterAsync(CaptureRequest.CONTROL_ZOOM_RATIO, zoomRatio)
     }

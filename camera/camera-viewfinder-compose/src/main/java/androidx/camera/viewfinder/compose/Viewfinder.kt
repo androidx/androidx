@@ -54,17 +54,16 @@ import kotlinx.coroutines.cancel
  * [ViewfinderSurfaceRequest.getSurface].
  *
  * This has two underlying implementations either using an [AndroidEmbeddedExternalSurface] for
- * [ImplementationMode.EMBEDDED] or an [AndroidExternalSurface] for
- * [ImplementationMode.EXTERNAL].
+ * [ImplementationMode.EMBEDDED] or an [AndroidExternalSurface] for [ImplementationMode.EXTERNAL].
  *
  * @param surfaceRequest Details about the surface being requested
  * @param implementationMode Determines the underlying implementation of the [Surface].
  * @param transformationInfo Specifies the required transformations for the media being displayed.
  * @param modifier Modifier to be applied to the [Viewfinder]
  * @param coordinateTransformer Coordinate transformer that can be used to convert Compose space
- *      coordinates such as touch coordinates to surface space coordinates.
- *      When the Viewfinder is displaying content from the camera, this transformer can be used to
- *      translate touch events into camera sensor coordinates for focus and metering actions.
+ *   coordinates such as touch coordinates to surface space coordinates. When the Viewfinder is
+ *   displaying content from the camera, this transformer can be used to translate touch events into
+ *   camera sensor coordinates for focus and metering actions.
  *
  * TODO(b/322420487): Add a sample with `@sample`
  */
@@ -78,11 +77,7 @@ fun Viewfinder(
 ) {
     val resolution = surfaceRequest.resolution
 
-    Box(
-        modifier = modifier
-            .clipToBounds()
-            .fillMaxSize()
-    ) {
+    Box(modifier = modifier.clipToBounds().fillMaxSize()) {
         key(surfaceRequest) {
             TransformedSurface(
                 resolution = resolution,
@@ -90,14 +85,10 @@ fun Viewfinder(
                 implementationMode = implementationMode,
                 onInit = {
                     onSurface { newSurface, _, _ ->
-                        val refCountedSurface = RefCounted<Surface> {
-                            it.release()
-                        }
+                        val refCountedSurface = RefCounted<Surface> { it.release() }
 
                         refCountedSurface.initialize(newSurface)
-                        newSurface.onDestroyed {
-                            refCountedSurface.release()
-                        }
+                        newSurface.onDestroyed { refCountedSurface.release() }
 
                         refCountedSurface.acquire()?.let {
                             surfaceRequest.provideSurface(it, Runnable::run) {
@@ -124,10 +115,10 @@ private fun TransformedSurface(
     onInit: AndroidExternalSurfaceScope.() -> Unit,
     coordinateTransformer: MutableCoordinateTransformer?,
 ) {
-    val surfaceModifier = Modifier.layout { measurable, constraints ->
-            val placeable = measurable.measure(
-                Constraints.fixed(resolution.width, resolution.height)
-            )
+    val surfaceModifier =
+        Modifier.layout { measurable, constraints ->
+            val placeable =
+                measurable.measure(Constraints.fixed(resolution.width, resolution.height))
 
             // When the child placeable is larger than the parent's constraints, rather
             // than the child overflowing through the right or bottom of the parent, it overflows
@@ -145,17 +136,14 @@ private fun TransformedSurface(
                             Size(constraints.maxWidth, constraints.maxHeight)
                         )
 
-                    coordinateTransformer?.transformMatrix = Matrix().apply {
-                        setFrom(surfaceToViewFinderMatrix)
-                        invert()
-                    }
+                    coordinateTransformer?.transformMatrix =
+                        Matrix().apply {
+                            setFrom(surfaceToViewFinderMatrix)
+                            invert()
+                        }
 
-                    val surfaceRectInViewfinder = RectF(
-                        0f,
-                        0f,
-                        resolution.width.toFloat(),
-                        resolution.height.toFloat()
-                    )
+                    val surfaceRectInViewfinder =
+                        RectF(0f, 0f, resolution.width.toFloat(), resolution.height.toFloat())
                     surfaceToViewFinderMatrix.mapRect(surfaceRectInViewfinder)
 
                     transformOrigin = TransformOrigin(0f, 0f)
@@ -170,15 +158,13 @@ private fun TransformedSurface(
 
     when (implementationMode) {
         ImplementationMode.EXTERNAL -> {
-            AndroidExternalSurface(
-                modifier = surfaceModifier,
-                onInit = onInit
-            )
+            AndroidExternalSurface(modifier = surfaceModifier, onInit = onInit)
         }
         ImplementationMode.EMBEDDED -> {
-            val displayRotationDegrees = key(LocalConfiguration.current) {
-                surfaceRotationToRotationDegrees(LocalView.current.display.rotation)
-            }
+            val displayRotationDegrees =
+                key(LocalConfiguration.current) {
+                    surfaceRotationToRotationDegrees(LocalView.current.display.rotation)
+                }
 
             // For TextureView, correct the orientation to match the display rotation.
             val correctionMatrix = remember { Matrix() }

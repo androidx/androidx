@@ -21,14 +21,11 @@ import android.util.AttributeSet
 import android.view.SurfaceView
 import android.view.View
 
-/**
- * A [SurfaceView] that can be adjusted to a specified aspect ratio.
- */
-class AutoFitSurfaceView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyle: Int = 0
-) : SurfaceView(context, attrs, defStyle) {
+/** A [SurfaceView] that can be adjusted to a specified aspect ratio. */
+class AutoFitSurfaceView
+@JvmOverloads
+constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
+    SurfaceView(context, attrs, defStyle) {
 
     private var ratioWidth = 0
     private var ratioHeight = 0

@@ -34,9 +34,7 @@ internal object Api24Compat {
         surface: Surface,
         frameNumber: Long
     ) {
-        callback.onCaptureBufferLost(
-            session, request, surface, frameNumber
-        )
+        callback.onCaptureBufferLost(session, request, surface, frameNumber)
     }
 }
 
@@ -51,8 +49,6 @@ internal object Api34Compat {
         timestamp: Long,
         frameNumber: Long
     ) {
-        callback.onReadoutStarted(
-            session, request, timestamp, frameNumber
-        )
+        callback.onReadoutStarted(session, request, timestamp, frameNumber)
     }
 }

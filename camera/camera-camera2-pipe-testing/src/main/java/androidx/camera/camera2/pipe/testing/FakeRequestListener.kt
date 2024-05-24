@@ -30,8 +30,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 /**
  * Fake implementation of a [Request.Listener] for tests.
  *
- * Events are exposed as SharedFlows of events to allow a test to block and wait for events to
- * to be sent.
+ * Events are exposed as SharedFlows of events to allow a test to block and wait for events to to be
+ * sent.
  */
 @Suppress("ListenerInterface")
 class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener {
@@ -47,113 +47,95 @@ class FakeRequestListener(private val replayBuffer: Int = 10) : Request.Listener
         MutableSharedFlow<OnTotalCaptureResult>(replay = replayBuffer)
     val onTotalCaptureResultFlow = _onTotalCaptureResultFlow.asSharedFlow()
 
-    private val _onCompleteFlow =
-        MutableSharedFlow<OnComplete>(replay = replayBuffer)
+    private val _onCompleteFlow = MutableSharedFlow<OnComplete>(replay = replayBuffer)
     val onCompleteFlow = _onCompleteFlow.asSharedFlow()
 
-    private val _onBufferLostFlow =
-        MutableSharedFlow<OnBufferLost>(replay = replayBuffer)
+    private val _onBufferLostFlow = MutableSharedFlow<OnBufferLost>(replay = replayBuffer)
     val onBufferLostFlow = _onBufferLostFlow.asSharedFlow()
 
-    private val _onAbortedFlow =
-        MutableSharedFlow<OnAborted>(replay = replayBuffer)
+    private val _onAbortedFlow = MutableSharedFlow<OnAborted>(replay = replayBuffer)
     val onAbortedFlow = _onAbortedFlow.asSharedFlow()
 
-    private val _onFailedFlow =
-        MutableSharedFlow<OnFailed>(replay = replayBuffer)
+    private val _onFailedFlow = MutableSharedFlow<OnFailed>(replay = replayBuffer)
     val onFailedFlow = _onFailedFlow.asSharedFlow()
 
     override fun onStarted(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         timestamp: CameraTimestamp
-    ) = check(
-        _onStartedFlow.tryEmit(
-            OnStarted(requestMetadata, frameNumber, timestamp)
-        )
-    ) {
-        "Failed to emit onStarted event! The size of the replay buffer" +
-            "($replayBuffer) may need to be increased."
-    }
+    ) =
+        check(_onStartedFlow.tryEmit(OnStarted(requestMetadata, frameNumber, timestamp))) {
+            "Failed to emit onStarted event! The size of the replay buffer" +
+                "($replayBuffer) may need to be increased."
+        }
 
     override fun onPartialCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         captureResult: FrameMetadata
-    ) = check(
-        _onPartialCaptureResultFlow.tryEmit(
-            OnPartialCaptureResult(requestMetadata, frameNumber, captureResult)
-        )
-    ) {
-        "Failed to emit OnPartialCaptureResult event! The size of the replay buffer" +
-            "($replayBuffer) may need to be increased."
-    }
+    ) =
+        check(
+            _onPartialCaptureResultFlow.tryEmit(
+                OnPartialCaptureResult(requestMetadata, frameNumber, captureResult)
+            )
+        ) {
+            "Failed to emit OnPartialCaptureResult event! The size of the replay buffer" +
+                "($replayBuffer) may need to be increased."
+        }
 
     override fun onTotalCaptureResult(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         totalCaptureResult: FrameInfo
-    ) = check(
-        _onTotalCaptureResultFlow.tryEmit(
-            OnTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult)
-        )
-    ) {
-        "Failed to emit OnTotalCaptureResult event! The size of the replay buffer" +
-            "($replayBuffer) may need to be increased."
-    }
+    ) =
+        check(
+            _onTotalCaptureResultFlow.tryEmit(
+                OnTotalCaptureResult(requestMetadata, frameNumber, totalCaptureResult)
+            )
+        ) {
+            "Failed to emit OnTotalCaptureResult event! The size of the replay buffer" +
+                "($replayBuffer) may need to be increased."
+        }
 
     override fun onComplete(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         result: FrameInfo
-    ) = check(
-        _onCompleteFlow.tryEmit(
-            OnComplete(requestMetadata, frameNumber, result)
-        )
-    ) {
-        "Failed to emit onComplete event! The size of the replay buffer" +
-            "($replayBuffer) may need to be increased."
-    }
+    ) =
+        check(_onCompleteFlow.tryEmit(OnComplete(requestMetadata, frameNumber, result))) {
+            "Failed to emit onComplete event! The size of the replay buffer" +
+                "($replayBuffer) may need to be increased."
+        }
 
-    override fun onAborted(
-        request: Request
-    ) = check(
-        _onAbortedFlow.tryEmit(
-            OnAborted(request)
-        )
-    ) {
-        "Failed to emit OnAborted event! The size of the replay buffer" +
-            "($replayBuffer) may need to be increased."
-    }
+    override fun onAborted(request: Request) =
+        check(_onAbortedFlow.tryEmit(OnAborted(request))) {
+            "Failed to emit OnAborted event! The size of the replay buffer" +
+                "($replayBuffer) may need to be increased."
+        }
 
     override fun onBufferLost(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         stream: StreamId
-    ) = check(
-        _onBufferLostFlow.tryEmit(
-            OnBufferLost(requestMetadata, frameNumber, stream)
-        )
-    ) {
-        "Failed to emit OnBufferLost event! The size of the replay buffer" +
-            "($replayBuffer) may need to be increased."
-    }
+    ) =
+        check(_onBufferLostFlow.tryEmit(OnBufferLost(requestMetadata, frameNumber, stream))) {
+            "Failed to emit OnBufferLost event! The size of the replay buffer" +
+                "($replayBuffer) may need to be increased."
+        }
 
     override fun onFailed(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         requestFailure: RequestFailure
-    ) = check(
-        _onFailedFlow.tryEmit(
-            OnFailed(requestMetadata, frameNumber, requestFailure)
-        )
-    ) {
-        "Failed to emit OnFailed event! The size of the replay buffer" +
-            "($replayBuffer) may need to be increased."
-    }
+    ) =
+        check(_onFailedFlow.tryEmit(OnFailed(requestMetadata, frameNumber, requestFailure))) {
+            "Failed to emit OnFailed event! The size of the replay buffer" +
+                "($replayBuffer) may need to be increased."
+        }
 }
 
 sealed class RequestListenerEvent
+
 class OnStarted(
     val requestMetadata: RequestMetadata,
     val frameNumber: FrameNumber,
@@ -178,9 +160,7 @@ class OnComplete(
     val frameInfo: FrameInfo
 ) : RequestListenerEvent()
 
-class OnAborted(
-    val request: Request
-) : RequestListenerEvent()
+class OnAborted(val request: Request) : RequestListenerEvent()
 
 class OnBufferLost(
     val requestMetadata: RequestMetadata,

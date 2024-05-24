@@ -51,6 +51,7 @@ class ExternalCameraController(
 
     override val cameraId: CameraId
         get() = graphConfig.camera
+
     override var isForeground = false
 
     override fun start() {
@@ -194,8 +195,7 @@ internal class ExternalCaptureSequenceProcessor(
         override val listeners: List<Request.Listener>,
         override val sequenceListener: CaptureSequence.CaptureSequenceListener,
     ) : CaptureSequence<Request> {
-        @Volatile
-        private var _sequenceNumber: Int? = null
+        @Volatile private var _sequenceNumber: Int? = null
         override var sequenceNumber: Int
             get() {
                 if (_sequenceNumber == null) {
@@ -231,7 +231,9 @@ internal class ExternalCaptureSequenceProcessor(
         override val requestNumber: RequestNumber
     ) : RequestMetadata {
         override fun <T> get(key: CaptureRequest.Key<T>): T? = parameters[key] as T?
+
         override fun <T> get(key: Metadata.Key<T>): T? = parameters[key] as T?
+
         override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
             get(key) ?: default
 

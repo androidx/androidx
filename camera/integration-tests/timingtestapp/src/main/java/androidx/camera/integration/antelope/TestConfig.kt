@@ -18,9 +18,9 @@ package androidx.camera.integration.antelope
 
 /** The different types of tests Antelop can perform */
 enum class TestType {
-    /** No test  */
+    /** No test */
     NONE,
-    /** Open and close camera only*/
+    /** Open and close camera only */
     INIT,
     /** Start preview stream */
     PREVIEW,
@@ -70,9 +70,7 @@ class TestConfig(
     var testResults: TestResults = TestResults()
 ) {
 
-    /**
-     * Set up the TestResults object to reflect the test configuration
-     */
+    /** Set up the TestResults object to reflect the test configuration */
     fun setupTestResults() {
         testResults.testName = testName
         testResults.testType = currentRunningTest

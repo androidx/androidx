@@ -27,9 +27,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 
-/**
- * This is the main activity for the CameraPipe test application.
- */
+/** This is the main activity for the CameraPipe test application. */
 @SuppressLint("RestrictedApiAndroidX")
 class CameraPipeActivity : CameraPermissionActivity() {
     private lateinit var cameraPipe: CameraPipe
@@ -61,8 +59,12 @@ class CameraPipeActivity : CameraPermissionActivity() {
         Trace.endSection()
 
         val cameraDevices = cameraPipe.cameras()
-        cameraIdGroups = cameraDevices.awaitCameraIds()!!.map { listOf(it) } +
-            cameraDevices.awaitConcurrentCameraIds()!!.filter { it.size <= 2 }.map { it.toList() }
+        cameraIdGroups =
+            cameraDevices.awaitCameraIds()!!.map { listOf(it) } +
+                cameraDevices
+                    .awaitConcurrentCameraIds()!!
+                    .filter { it.size <= 2 }
+                    .map { it.toList() }
 
         // TODO: Update this to work with newer versions of the visualizations and to accept
         //   the CameraPipeUi object as a parameter.
@@ -74,10 +76,7 @@ class CameraPipeActivity : CameraPermissionActivity() {
         Log.i("CXCP-App", "Activity onStart")
 
         checkPermissionsAndRun(
-            setOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
-            )
+            setOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO)
         ) {
             val cameras = currentCameras
             if (cameras == null) {
@@ -149,25 +148,27 @@ class CameraPipeActivity : CameraPermissionActivity() {
 
         Trace.beginSection("CXCP-App#startCameraGraph")
         if (cameraIds.size == 1) {
-            cameras = listOf(
-                SimpleCamera.create(
-                    cameraPipe,
-                    cameraIds.first(),
-                    ui.viewfinder,
-                    emptyList(),
-                    operatingMode
+            cameras =
+                listOf(
+                    SimpleCamera.create(
+                        cameraPipe,
+                        cameraIds.first(),
+                        ui.viewfinder,
+                        emptyList(),
+                        operatingMode
+                    )
                 )
-            )
             ui.viewfinderText.text = cameras[0].cameraInfoString()
             ui.viewfinder2.visibility = View.INVISIBLE
             ui.viewfinderText2.visibility = View.INVISIBLE
         } else {
-            cameras = SimpleCamera.create(
-                cameraPipe,
-                cameraIds,
-                listOf(ui.viewfinder, ui.viewfinder2),
-                listOf(Size(1280, 720), Size(1280, 720))
-            )
+            cameras =
+                SimpleCamera.create(
+                    cameraPipe,
+                    cameraIds,
+                    listOf(ui.viewfinder, ui.viewfinder2),
+                    listOf(Size(1280, 720), Size(1280, 720))
+                )
             ui.viewfinderText.text = cameras[0].cameraInfoString()
             ui.viewfinderText2.text = cameras[1].cameraInfoString()
             ui.viewfinder2.visibility = View.VISIBLE
@@ -203,7 +204,8 @@ class CameraPipeActivity : CameraPermissionActivity() {
         operatingMode = CameraGraph.OperatingMode.NORMAL
 
         // If a camera was previously open, select the next camera in the list of all cameras. It is
-        // possible that the list of cameras contains only one camera, in which case this will return
+        // possible that the list of cameras contains only one camera, in which case this will
+        // return
         // the same camera as "currentCameraId"
 
         val lastCamerasIndex = cameraIdGroups.indexOf(lastCameraIdGroup)

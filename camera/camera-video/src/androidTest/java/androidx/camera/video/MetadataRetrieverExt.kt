@@ -57,8 +57,8 @@ fun MediaMetadataRetriever.getRotatedResolution(): Size = rotateSize(getResoluti
 
 fun MediaMetadataRetriever.getAspectRatio(): Rational = Rational(getWidth(), getHeight())
 
-fun MediaMetadataRetriever.getRotatedAspectRatio(): Rational = if (is90or270(getRotation()))
-    Rational(getHeight(), getWidth()) else getAspectRatio()
+fun MediaMetadataRetriever.getRotatedAspectRatio(): Rational =
+    if (is90or270(getRotation())) Rational(getHeight(), getWidth()) else getAspectRatio()
 
 fun MediaMetadataRetriever.getMimeType(): String = extractMetadata(METADATA_KEY_MIMETYPE)!!
 

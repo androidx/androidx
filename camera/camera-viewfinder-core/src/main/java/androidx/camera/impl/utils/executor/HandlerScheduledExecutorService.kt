@@ -34,19 +34,14 @@ import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
 
 /**
- * An implementation of [ScheduledExecutorService] which delegates all scheduled task to
- * the given [Handler].
+ * An implementation of [ScheduledExecutorService] which delegates all scheduled task to the given
+ * [Handler].
  *
  * Currently, can only be used to schedule future non-repeating tasks.
  */
 internal class HandlerScheduledExecutorService(private val handler: Handler) :
-    AbstractExecutorService(),
-    ScheduledExecutorService {
-    override fun schedule(
-        command: Runnable,
-        delay: Long,
-        unit: TimeUnit
-    ): ScheduledFuture<*> {
+    AbstractExecutorService(), ScheduledExecutorService {
+    override fun schedule(command: Runnable, delay: Long, unit: TimeUnit): ScheduledFuture<*> {
         val wrapper: Callable<Void> = Callable {
             command.run()
             null
@@ -60,15 +55,10 @@ internal class HandlerScheduledExecutorService(private val handler: Handler) :
         unit: TimeUnit
     ): ScheduledFuture<V> {
         val runAtMillis = SystemClock.uptimeMillis() + TimeUnit.MILLISECONDS.convert(delay, unit)
-        val future = HandlerScheduledFuture(
-            handler, runAtMillis,
-            callable
-        )
+        val future = HandlerScheduledFuture(handler, runAtMillis, callable)
         return if (handler.postAtTime(future, runAtMillis)) {
             future
-        } else Futures.immediateFailedScheduledFuture(
-            createPostFailedException()
-        )
+        } else Futures.immediateFailedScheduledFuture(createPostFailedException())
     }
 
     override fun scheduleAtFixedRate(
@@ -138,25 +128,25 @@ internal class HandlerScheduledExecutorService(private val handler: Handler) :
         handler: Handler,
         private val mRunAtMillis: Long,
         private val mTask: Callable<V>
-    ) :
-        RunnableScheduledFuture<V> {
+    ) : RunnableScheduledFuture<V> {
         val mCompleter = AtomicReference<CallbackToFutureAdapter.Completer<V>?>(null)
         private val mDelegate: ListenableFuture<V>
 
         init {
-            mDelegate = CallbackToFutureAdapter.getFuture { completer ->
-                completer.addCancellationListener(
-                    { // Remove the completer if we're cancelled so the task won't
-                        // run.
-                        if (mCompleter.getAndSet(null) != null) {
-                            handler.removeCallbacks(this@HandlerScheduledFuture)
-                        }
-                    },
-                    ViewfinderExecutors.directExecutor()
-                )
-                mCompleter.set(completer)
-                "HandlerScheduledFuture-$mTask"
-            }
+            mDelegate =
+                CallbackToFutureAdapter.getFuture { completer ->
+                    completer.addCancellationListener(
+                        { // Remove the completer if we're cancelled so the task won't
+                            // run.
+                            if (mCompleter.getAndSet(null) != null) {
+                                handler.removeCallbacks(this@HandlerScheduledFuture)
+                            }
+                        },
+                        ViewfinderExecutors.directExecutor()
+                    )
+                    mCompleter.set(completer)
+                    "HandlerScheduledFuture-$mTask"
+                }
         }
 
         override fun isPeriodic(): Boolean {
@@ -164,10 +154,7 @@ internal class HandlerScheduledExecutorService(private val handler: Handler) :
         }
 
         override fun getDelay(unit: TimeUnit): Long {
-            return unit.convert(
-                mRunAtMillis - System.currentTimeMillis(),
-                TimeUnit.MILLISECONDS
-            )
+            return unit.convert(mRunAtMillis - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
         }
 
         override fun compareTo(other: Delayed): Int {
@@ -203,11 +190,7 @@ internal class HandlerScheduledExecutorService(private val handler: Handler) :
             return mDelegate.get()
         }
 
-        @Throws(
-            ExecutionException::class,
-            InterruptedException::class,
-            TimeoutException::class
-        )
+        @Throws(ExecutionException::class, InterruptedException::class, TimeoutException::class)
         override fun get(timeout: Long, unit: TimeUnit): V {
             return mDelegate[timeout, unit]
         }

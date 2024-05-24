@@ -23,8 +23,8 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import kotlin.reflect.KClass
 
 /**
- * This class implements the [RequestFailure] interface by extracting the fields of
- * the package-private [CaptureFailure] object.
+ * This class implements the [RequestFailure] interface by extracting the fields of the
+ * package-private [CaptureFailure] object.
  */
 internal data class ExtensionRequestFailure(
     override val requestMetadata: RequestMetadata,

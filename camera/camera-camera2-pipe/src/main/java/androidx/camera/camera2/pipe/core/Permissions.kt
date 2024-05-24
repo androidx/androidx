@@ -36,8 +36,7 @@ import javax.inject.Singleton
 internal class Permissions
 @Inject
 constructor(@CameraPipeContext private val cameraPipeContext: Context) {
-    @Volatile
-    private var _hasCameraPermission = false
+    @Volatile private var _hasCameraPermission = false
     val hasCameraPermission: Boolean
         get() =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -57,8 +56,9 @@ constructor(@CameraPipeContext private val cameraPipeContext: Context) {
         // allowing the code to avoid re-querying after checkSelfPermission returns true.
         if (!_hasCameraPermission) {
             Debug.traceStart { "CXCP#checkCameraPermission" }
-            if (Api23Compat.checkSelfPermission(cameraPipeContext, Manifest.permission.CAMERA) ==
-                PERMISSION_GRANTED
+            if (
+                Api23Compat.checkSelfPermission(cameraPipeContext, Manifest.permission.CAMERA) ==
+                    PERMISSION_GRANTED
             ) {
                 _hasCameraPermission = true
             }

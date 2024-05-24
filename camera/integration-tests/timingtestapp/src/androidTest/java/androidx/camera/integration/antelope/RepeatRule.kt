@@ -21,26 +21,22 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /**
- * A [TestRule] which can be used to run the same test multiple times. Useful when trying
- * to debug flaky tests.
+ * A [TestRule] which can be used to run the same test multiple times. Useful when trying to debug
+ * flaky tests.
  *
  * To use this [TestRule] do the following. <br></br><br></br>
  *
- * Add the Rule to your JUnit test. <br></br><br></br>
- * `RepeatRule mRepeatRule = new RepeatRule();
-` *
- * <br></br><br></br>
+ * Add the Rule to your JUnit test. <br></br><br></br> `RepeatRule mRepeatRule = new RepeatRule();
+ * ` * <br></br><br></br>
  *
- * Add the [Repeat] annotation to your test case. <br></br><br></br>
- * `public void yourTestCase() {
+ * Add the [Repeat] annotation to your test case. <br></br><br></br> `public void yourTestCase() {
  *
- * }
-` *
- * <br></br><br></br>
+ * } ` * <br></br><br></br>
  */
 class RepeatRule : TestRule {
     @Target(
-        AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER,
+        AnnotationTarget.FUNCTION,
+        AnnotationTarget.PROPERTY_GETTER,
         AnnotationTarget.PROPERTY_SETTER
     )
     @Retention(AnnotationRetention.RUNTIME)

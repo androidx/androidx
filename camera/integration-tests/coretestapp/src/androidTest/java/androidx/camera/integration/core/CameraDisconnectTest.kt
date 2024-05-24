@@ -51,31 +51,28 @@ import org.junit.runners.Parameterized
 /** Tests for [CameraX] which varies use case combinations to run. */
 @LargeTest
 @RunWith(Parameterized::class)
-class CameraDisconnectTest(
-    private val implName: String,
-    private val cameraConfig: CameraXConfig
-) {
+class CameraDisconnectTest(private val implName: String, private val cameraConfig: CameraXConfig) {
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
-    @get:Rule
-    val labTestRule = LabTestRule()
+    @get:Rule val labTestRule = LabTestRule()
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -120,27 +117,26 @@ class CameraDisconnectTest(
             waitForCameraXPreview()
 
             // Launch Camera2 test activity. It should cause the camera to disconnect from CameraX.
-            val intent = Intent(
-                context,
-                Camera2TestActivity::class.java
-            ).apply {
-                putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, getCameraId())
-            }
+            val intent =
+                Intent(context, Camera2TestActivity::class.java).apply {
+                    putExtra(Camera2TestActivity.EXTRA_CAMERA_ID, getCameraId())
+                }
 
             CoreAppTestUtil.launchActivity(
-                InstrumentationRegistry.getInstrumentation(),
-                Camera2TestActivity::class.java,
-                intent
-            )?.apply {
-                // Wait for preview to become active
-                try {
-                    waitForCamera2Preview()
-                } finally {
-                    // Close Camera2 test activity, and verify the CameraX Preview resumes
-                    // successfully.
-                    finish()
+                    InstrumentationRegistry.getInstrumentation(),
+                    Camera2TestActivity::class.java,
+                    intent
+                )
+                ?.apply {
+                    // Wait for preview to become active
+                    try {
+                        waitForCamera2Preview()
+                    } finally {
+                        // Close Camera2 test activity, and verify the CameraX Preview resumes
+                        // successfully.
+                        finish()
+                    }
                 }
-            }
 
             waitForCameraXActivityResume()
             // Verify the CameraX Preview can resume successfully.

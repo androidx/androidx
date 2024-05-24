@@ -76,34 +76,35 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.runBlocking
 
 /**
- * This class keeps track of the currently attached and active [UseCase]'s for a specific camera.
- * A [UseCase] during its lifetime, can be:
+ * This class keeps track of the currently attached and active [UseCase]'s for a specific camera. A
+ * [UseCase] during its lifetime, can be:
+ * - Attached: This happens when a use case is bound to a CameraX Lifecycle, and signals that the
+ *   camera should be opened, and a camera capture session should be created to include the stream
+ *   corresponding to the use case. In the integration layer here, we'll recreate a CameraGraph when
+ *   a use case is attached.
+ * - Detached: This happens when a use case is unbound from a CameraX Lifecycle, and signals that we
+ *   no longer need this specific use case and therefore its corresponding stream in our current
+ *   capture session. In the integration layer, we'll also recreate a CameraGraph when a use case is
+ *   detached, though it might not be strictly necessary.
+ * - Active: This happens when the use case is considered "ready", meaning that the use case is
+ *   ready to have frames delivered to it. In the case of the integration layer, this means we can
+ *   start submitting the capture requests corresponding to the use case. An important note here is
+ *   that a use case can actually become "active" before it is "attached", and thus we should only
+ *   take action when a use case is both "attached" and "active".
+ * - Inactive: This happens when use case no longer needs frames delivered to it. This is can be
+ *   seen as an optimization signal, as we technically are allowed to continue submitting capture
+ *   requests, but we no longer need to. An example of this is when you clear the analyzer during
+ *   ImageAnalysis.
  *
- *   - Attached: This happens when a use case is bound to a CameraX Lifecycle, and signals that the
- *       camera should be opened, and a camera capture session should be created to include the
- *       stream corresponding to the use case. In the integration layer here, we'll recreate a
- *       CameraGraph when a use case is attached.
- *   - Detached: This happens when a use case is unbound from a CameraX Lifecycle, and signals that
- *       we no longer need this specific use case and therefore its corresponding stream in our
- *       current capture session. In the integration layer, we'll also recreate a CameraGraph when
- *       a use case is detached, though it might not be strictly necessary.
- *   - Active: This happens when the use case is considered "ready", meaning that the use case is
- *       ready to have frames delivered to it. In the case of the integration layer, this means we
- *       can start submitting the capture requests corresponding to the use case. An important note
- *       here is that a use case can actually become "active" before it is "attached", and thus we
- *       should only take action when a use case is both "attached" and "active".
- *   - Inactive: This happens when use case no longer needs frames delivered to it. This is can be
- *       seen as an optimization signal, as we technically are allowed to continue submitting
- *       capture requests, but we no longer need to. An example of this is when you clear the
- *       analyzer during ImageAnalysis.
- *
- *  In this class, we also define a new term - "Running". A use case is considered running when it's
- *  both "attached" and "active". This means we should have a camera opened, a capture session with
- *  the streams created and have capture requests submitting.
+ * In this class, we also define a new term - "Running". A use case is considered running when it's
+ * both "attached" and "active". This means we should have a camera opened, a capture session with
+ * the streams created and have capture requests submitting.
  */
 @OptIn(ExperimentalCamera2Interop::class)
 @CameraScope
-class UseCaseManager @Inject constructor(
+class UseCaseManager
+@Inject
+constructor(
     private val cameraPipe: CameraPipe,
     private val callbackMap: CameraCallbackMap,
     private val requestListener: ComboRequestListener,
@@ -127,42 +128,31 @@ class UseCaseManager @Inject constructor(
     private val lock = Any()
 
     internal var sessionProcessor: SessionProcessor? = null
-        get() = synchronized(lock) {
-            return field
-        }
-        set(value) = synchronized(lock) {
-            field = value
-        }
+        get() =
+            synchronized(lock) {
+                return field
+            }
+        set(value) = synchronized(lock) { field = value }
 
-    @GuardedBy("lock")
-    private var sessionProcessorManager: SessionProcessorManager? = null
+    @GuardedBy("lock") private var sessionProcessorManager: SessionProcessorManager? = null
 
-    @GuardedBy("lock")
-    private val attachedUseCases = mutableSetOf<UseCase>()
+    @GuardedBy("lock") private val attachedUseCases = mutableSetOf<UseCase>()
 
-    @GuardedBy("lock")
-    private val activeUseCases = mutableSetOf<UseCase>()
+    @GuardedBy("lock") private val activeUseCases = mutableSetOf<UseCase>()
 
-    @GuardedBy("lock")
-    private var activeResumeEnabled = false
+    @GuardedBy("lock") private var activeResumeEnabled = false
 
-    @GuardedBy("lock")
-    private var shouldCreateCameraGraphImmediately = true
+    @GuardedBy("lock") private var shouldCreateCameraGraphImmediately = true
 
-    @GuardedBy("lock")
-    private var deferredUseCaseManagerConfig: UseCaseManagerConfig? = null
+    @GuardedBy("lock") private var deferredUseCaseManagerConfig: UseCaseManagerConfig? = null
 
-    @GuardedBy("lock")
-    private var pendingSessionProcessorInitialization = false
+    @GuardedBy("lock") private var pendingSessionProcessorInitialization = false
 
     @GuardedBy("lock")
     private val pendingUseCasesToNotifyCameraControlReady = mutableSetOf<UseCase>()
 
     private val meteringRepeating by lazy {
-        MeteringRepeating.Builder(
-            cameraProperties,
-            displayInfoManager
-        ).build()
+        MeteringRepeating.Builder(cameraProperties, displayInfoManager).build()
     }
 
     private val supportedSurfaceCombination by lazy {
@@ -173,10 +163,10 @@ class UseCaseManager @Inject constructor(
         )
     }
 
-    @Volatile
-    private var _activeComponent: UseCaseCameraComponent? = null
+    @Volatile private var _activeComponent: UseCaseCameraComponent? = null
     val camera: UseCaseCamera?
         get() = _activeComponent?.getUseCaseCamera()
+
     val useCaseGraphConfig: UseCaseGraphConfig?
         get() = _activeComponent?.getUseCaseGraphConfig()
 
@@ -184,97 +174,100 @@ class UseCaseManager @Inject constructor(
 
     private val allControls = controls.toMutableSet().apply { add(camera2CameraControl) }
 
-    internal fun setCameraGraphCreationMode(createImmediately: Boolean) = synchronized(lock) {
-        shouldCreateCameraGraphImmediately = createImmediately
-        if (shouldCreateCameraGraphImmediately) {
-            // Clear the UseCaseManager configuration that haven't been "resumed" when we return
-            // to single camera operating mode early.
-            deferredUseCaseManagerConfig = null
+    internal fun setCameraGraphCreationMode(createImmediately: Boolean) =
+        synchronized(lock) {
+            shouldCreateCameraGraphImmediately = createImmediately
+            if (shouldCreateCameraGraphImmediately) {
+                // Clear the UseCaseManager configuration that haven't been "resumed" when we return
+                // to single camera operating mode early.
+                deferredUseCaseManagerConfig = null
+            }
         }
-    }
 
-    internal fun getDeferredCameraGraphConfig() = synchronized(lock) {
-        deferredUseCaseManagerConfig?.cameraGraphConfig
-    }
+    internal fun getDeferredCameraGraphConfig() =
+        synchronized(lock) { deferredUseCaseManagerConfig?.cameraGraphConfig }
 
     /**
      * This attaches the specified [useCases] to the current set of attached use cases. When any
      * changes are identified (i.e., a new use case is added), the subsequent actions would trigger
      * a recreation of the current CameraGraph if there is one.
      */
-    fun attach(useCases: List<UseCase>): Unit = synchronized(lock) {
-        if (useCases.isEmpty()) {
-            Log.warn { "Attach [] from $this (Ignored)" }
-            return
-        }
-        Log.debug { "Attaching $useCases from $this" }
+    fun attach(useCases: List<UseCase>): Unit =
+        synchronized(lock) {
+            if (useCases.isEmpty()) {
+                Log.warn { "Attach [] from $this (Ignored)" }
+                return
+            }
+            Log.debug { "Attaching $useCases from $this" }
 
-        val unattachedUseCases = useCases.filter { useCase ->
-            !attachedUseCases.contains(useCase)
-        }
+            val unattachedUseCases =
+                useCases.filter { useCase -> !attachedUseCases.contains(useCase) }
 
-        // Notify state attached to use cases
-        for (useCase in unattachedUseCases) {
-            useCase.onStateAttached()
-        }
+            // Notify state attached to use cases
+            for (useCase in unattachedUseCases) {
+                useCase.onStateAttached()
+            }
 
-        if (attachedUseCases.addAll(useCases)) {
-            if (!addOrRemoveRepeatingUseCase(getRunningUseCases())) {
-                updateZslDisabledByUseCaseConfigStatus()
-                refreshAttachedUseCases(attachedUseCases)
+            if (attachedUseCases.addAll(useCases)) {
+                if (!addOrRemoveRepeatingUseCase(getRunningUseCases())) {
+                    updateZslDisabledByUseCaseConfigStatus()
+                    refreshAttachedUseCases(attachedUseCases)
+                }
+            }
+
+            if (sessionProcessor != null || !shouldCreateCameraGraphImmediately) {
+                pendingUseCasesToNotifyCameraControlReady.addAll(unattachedUseCases)
+            } else {
+                unattachedUseCases.forEach { useCase ->
+                    // Notify CameraControl is ready after the UseCaseCamera is created
+                    useCase.onCameraControlReady()
+                }
             }
         }
-
-        if (sessionProcessor != null || !shouldCreateCameraGraphImmediately) {
-            pendingUseCasesToNotifyCameraControlReady.addAll(unattachedUseCases)
-        } else {
-            unattachedUseCases.forEach { useCase ->
-                // Notify CameraControl is ready after the UseCaseCamera is created
-                useCase.onCameraControlReady()
-            }
-        }
-    }
 
     /**
      * This detaches the specified [useCases] from the current set of attached use cases. When any
      * changes are identified (i.e., an existing use case is removed), the subsequent actions would
      * trigger a recreation of the current CameraGraph.
      */
-    fun detach(useCases: List<UseCase>): Unit = synchronized(lock) {
-        if (useCases.isEmpty()) {
-            Log.warn { "Detaching [] from $this (Ignored)" }
-            return
-        }
-        Log.debug { "Detaching $useCases from $this" }
-
-        // When use cases are detached, they should be considered inactive as well. Also note that
-        // we remove the use cases from our set directly because the subsequent cleanup actions from
-        // detaching the use cases should suffice here.
-        activeUseCases.removeAll(useCases)
-
-        // Notify state detached to use cases
-        for (useCase in useCases) {
-            if (attachedUseCases.contains(useCase)) {
-                useCase.onStateDetached()
-            }
-        }
-
-        // TODO: We might only want to tear down when the number of attached use cases goes to
-        //  zero. If a single UseCase is removed, we could deactivate it?
-        if (attachedUseCases.removeAll(useCases)) {
-            if (addOrRemoveRepeatingUseCase(getRunningUseCases())) {
+    fun detach(useCases: List<UseCase>): Unit =
+        synchronized(lock) {
+            if (useCases.isEmpty()) {
+                Log.warn { "Detaching [] from $this (Ignored)" }
                 return
             }
+            Log.debug { "Detaching $useCases from $this" }
 
-            if (attachedUseCases.isEmpty()) {
-                cameraControl.setZslDisabledByUserCaseConfig(false)
-            } else {
-                updateZslDisabledByUseCaseConfigStatus()
+            // When use cases are detached, they should be considered inactive as well. Also note
+            // that
+            // we remove the use cases from our set directly because the subsequent cleanup actions
+            // from
+            // detaching the use cases should suffice here.
+            activeUseCases.removeAll(useCases)
+
+            // Notify state detached to use cases
+            for (useCase in useCases) {
+                if (attachedUseCases.contains(useCase)) {
+                    useCase.onStateDetached()
+                }
             }
-            refreshAttachedUseCases(attachedUseCases)
+
+            // TODO: We might only want to tear down when the number of attached use cases goes to
+            //  zero. If a single UseCase is removed, we could deactivate it?
+            if (attachedUseCases.removeAll(useCases)) {
+                if (addOrRemoveRepeatingUseCase(getRunningUseCases())) {
+                    return
+                }
+
+                if (attachedUseCases.isEmpty()) {
+                    cameraControl.setZslDisabledByUserCaseConfig(false)
+                } else {
+                    updateZslDisabledByUseCaseConfigStatus()
+                }
+                refreshAttachedUseCases(attachedUseCases)
+            }
+            pendingUseCasesToNotifyCameraControlReady.removeAll(useCases)
         }
-        pendingUseCasesToNotifyCameraControlReady.removeAll(useCases)
-    }
 
     /**
      * This marks the specified [useCase] as active ("activate"). This refreshes the current set of
@@ -282,11 +275,12 @@ class UseCaseManager @Inject constructor(
      * latest set of "running" (attached and active) use cases, which will in turn trigger actions
      * for SessionConfig updates.
      */
-    fun activate(useCase: UseCase) = synchronized(lock) {
-        if (activeUseCases.add(useCase)) {
-            refreshRunningUseCases()
+    fun activate(useCase: UseCase) =
+        synchronized(lock) {
+            if (activeUseCases.add(useCase)) {
+                refreshRunningUseCases()
+            }
         }
-    }
 
     /**
      * This marks the specified [useCase] as inactive ("deactivate"). This refreshes the current set
@@ -294,37 +288,42 @@ class UseCaseManager @Inject constructor(
      * latest set of "running" (attached and active) use cases, which will in turn trigger actions
      * for SessionConfig updates.
      */
-    fun deactivate(useCase: UseCase) = synchronized(lock) {
-        if (activeUseCases.remove(useCase)) {
-            refreshRunningUseCases()
+    fun deactivate(useCase: UseCase) =
+        synchronized(lock) {
+            if (activeUseCases.remove(useCase)) {
+                refreshRunningUseCases()
+            }
         }
-    }
 
-    fun update(useCase: UseCase) = synchronized(lock) {
-        if (attachedUseCases.contains(useCase)) {
-            refreshRunningUseCases()
+    fun update(useCase: UseCase) =
+        synchronized(lock) {
+            if (attachedUseCases.contains(useCase)) {
+                refreshRunningUseCases()
+            }
         }
-    }
 
-    fun reset(useCase: UseCase) = synchronized(lock) {
-        if (attachedUseCases.contains(useCase)) {
-            refreshAttachedUseCases(attachedUseCases)
+    fun reset(useCase: UseCase) =
+        synchronized(lock) {
+            if (attachedUseCases.contains(useCase)) {
+                refreshAttachedUseCases(attachedUseCases)
+            }
         }
-    }
 
-    fun setActiveResumeMode(enabled: Boolean) = synchronized(lock) {
-        activeResumeEnabled = enabled
-        camera?.setActiveResumeMode(enabled)
-    }
+    fun setActiveResumeMode(enabled: Boolean) =
+        synchronized(lock) {
+            activeResumeEnabled = enabled
+            camera?.setActiveResumeMode(enabled)
+        }
 
     suspend fun close() {
-        val closingJobs = synchronized(lock) {
-            if (attachedUseCases.isNotEmpty()) {
-                detach(attachedUseCases.toList())
+        val closingJobs =
+            synchronized(lock) {
+                if (attachedUseCases.isNotEmpty()) {
+                    detach(attachedUseCases.toList())
+                }
+                meteringRepeating.onUnbind()
+                closingCameraJobs.toList()
             }
-            meteringRepeating.onUnbind()
-            closingCameraJobs.toList()
-        }
         closingJobs.joinAll()
     }
 
@@ -365,9 +364,7 @@ class UseCaseManager @Inject constructor(
                 } else {
                     closingCameraJobs.add(closingJob)
                     closingJob.invokeOnCompletion {
-                        synchronized(lock) {
-                            closingCameraJobs.remove(closingJob)
-                        }
+                        synchronized(lock) { closingCameraJobs.remove(closingJob) }
                     }
                 }
             }
@@ -401,44 +398,45 @@ class UseCaseManager @Inject constructor(
 
         if (sessionProcessor != null) {
             Log.debug { "Setting up UseCaseManager with SessionProcessorManager" }
-            sessionProcessorManager = SessionProcessorManager(
-                sessionProcessor!!,
-                cameraInfoInternal.get(),
-                useCaseThreads.get().scope,
-            ).also { manager ->
-                pendingSessionProcessorInitialization = true
-                manager.initialize(this, useCases) { config ->
-                    synchronized(lock) {
-                        if (manager.isClosed()) {
-                            // We've been cancelled by other use case transactions. This means the
-                            // attached set of use cases have been updated in the meantime, and the
-                            // UseCaseManagerConfig we have here is obsolete, so we can simply abort
-                            // here.
-                            return@initialize
+            sessionProcessorManager =
+                SessionProcessorManager(
+                        sessionProcessor!!,
+                        cameraInfoInternal.get(),
+                        useCaseThreads.get().scope,
+                    )
+                    .also { manager ->
+                        pendingSessionProcessorInitialization = true
+                        manager.initialize(this, useCases) { config ->
+                            synchronized(lock) {
+                                if (manager.isClosed()) {
+                                    // We've been cancelled by other use case transactions. This
+                                    // means the
+                                    // attached set of use cases have been updated in the meantime,
+                                    // and the
+                                    // UseCaseManagerConfig we have here is obsolete, so we can
+                                    // simply abort
+                                    // here.
+                                    return@initialize
+                                }
+                                if (config == null) {
+                                    Log.error { "Failed to initialize SessionProcessor" }
+                                    manager.close()
+                                    sessionProcessorManager = null
+                                    return@initialize
+                                }
+                                pendingSessionProcessorInitialization = false
+                                this@UseCaseManager.tryResumeUseCaseManager(config)
+                            }
                         }
-                        if (config == null) {
-                            Log.error { "Failed to initialize SessionProcessor" }
-                            manager.close()
-                            sessionProcessorManager = null
-                            return@initialize
-                        }
-                        pendingSessionProcessorInitialization = false
-                        this@UseCaseManager.tryResumeUseCaseManager(config)
                     }
-                }
-            }
             return
         } else {
             val sessionConfigAdapter = SessionConfigAdapter(useCases)
             val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
             val graphConfig = createCameraGraphConfig(sessionConfigAdapter, streamConfigMap)
 
-            val useCaseManagerConfig = UseCaseManagerConfig(
-                useCases,
-                sessionConfigAdapter,
-                graphConfig,
-                streamConfigMap
-            )
+            val useCaseManagerConfig =
+                UseCaseManagerConfig(useCases, sessionConfigAdapter, graphConfig, streamConfigMap)
             this.tryResumeUseCaseManager(useCaseManagerConfig)
         }
     }
@@ -454,9 +452,10 @@ class UseCaseManager @Inject constructor(
         beginComponentCreation(useCaseManagerConfig, cameraGraph)
     }
 
-    internal fun resumeDeferredComponentCreation(cameraGraph: CameraGraph) = synchronized(lock) {
-        beginComponentCreation(checkNotNull(deferredUseCaseManagerConfig), cameraGraph)
-    }
+    internal fun resumeDeferredComponentCreation(cameraGraph: CameraGraph) =
+        synchronized(lock) {
+            beginComponentCreation(checkNotNull(deferredUseCaseManagerConfig), cameraGraph)
+        }
 
     @GuardedBy("lock")
     private fun beginComponentCreation(
@@ -476,16 +475,18 @@ class UseCaseManager @Inject constructor(
 
             // Create and configure the new camera component.
             _activeComponent =
-                builder.config(
-                    UseCaseCameraConfig(
-                        useCases,
-                        sessionConfigAdapter,
-                        cameraStateAdapter,
-                        cameraGraph,
-                        streamConfigMap,
-                        sessionProcessorManager,
+                builder
+                    .config(
+                        UseCaseCameraConfig(
+                            useCases,
+                            sessionConfigAdapter,
+                            cameraStateAdapter,
+                            cameraGraph,
+                            streamConfigMap,
+                            sessionProcessorManager,
+                        )
                     )
-                ).build()
+                    .build()
 
             for (control in allControls) {
                 control.useCaseCamera = camera
@@ -532,9 +533,11 @@ class UseCaseManager @Inject constructor(
         val meteringRepeatingEnabled = attachedUseCases.contains(meteringRepeating)
         if (!meteringRepeatingEnabled) {
             val activeSurfaces = runningUseCases.withoutMetering().surfaceCount()
-            return activeSurfaces > 0 && with(attachedUseCases.withoutMetering()) {
-                (onlyVideoCapture() || requireMeteringRepeating()) && supportMeteringCombination()
-            }
+            return activeSurfaces > 0 &&
+                with(attachedUseCases.withoutMetering()) {
+                    (onlyVideoCapture() || requireMeteringRepeating()) &&
+                        supportMeteringCombination()
+                }
         }
         return false
     }
@@ -552,9 +555,11 @@ class UseCaseManager @Inject constructor(
         val meteringRepeatingEnabled = runningUseCases.contains(meteringRepeating)
         if (meteringRepeatingEnabled) {
             val activeSurfaces = runningUseCases.withoutMetering().surfaceCount()
-            return activeSurfaces == 0 || with(attachedUseCases.withoutMetering()) {
-                !(onlyVideoCapture() || requireMeteringRepeating()) || !supportMeteringCombination()
-            }
+            return activeSurfaces == 0 ||
+                with(attachedUseCases.withoutMetering()) {
+                    !(onlyVideoCapture() || requireMeteringRepeating()) ||
+                        !supportMeteringCombination()
+                }
         }
         return false
     }
@@ -585,11 +590,11 @@ class UseCaseManager @Inject constructor(
     }
 
     private fun Collection<UseCase>.onlyVideoCapture(): Boolean {
-        return isNotEmpty() && checkSurfaces { _, sessionSurfaces ->
-            sessionSurfaces.isNotEmpty() && sessionSurfaces.all {
-                it.containerClass == MediaCodec::class.java
+        return isNotEmpty() &&
+            checkSurfaces { _, sessionSurfaces ->
+                sessionSurfaces.isNotEmpty() &&
+                    sessionSurfaces.all { it.containerClass == MediaCodec::class.java }
             }
-        }
     }
 
     private fun Collection<UseCase>.supportMeteringCombination(): Boolean {
@@ -603,15 +608,17 @@ class UseCaseManager @Inject constructor(
     }
 
     private fun isCombinationSupported(currentUseCases: Collection<UseCase>): Boolean {
-        val surfaceConfigs = currentUseCases.map { useCase ->
-            // TODO: Test with correct Camera Mode when concurrent mode / ultra high resolution is
-            //  implemented.
-            supportedSurfaceCombination.transformSurfaceConfig(
-                CameraMode.DEFAULT,
-                useCase.imageFormat,
-                useCase.attachedSurfaceResolution!!
-            )
-        }
+        val surfaceConfigs =
+            currentUseCases.map { useCase ->
+                // TODO: Test with correct Camera Mode when concurrent mode / ultra high resolution
+                // is
+                //  implemented.
+                supportedSurfaceCombination.transformSurfaceConfig(
+                    CameraMode.DEFAULT,
+                    useCase.imageFormat,
+                    useCase.attachedSurfaceResolution!!
+                )
+            }
 
         var isPreviewStabilizationOn = false
         for (useCase in currentUseCases) {
@@ -626,7 +633,8 @@ class UseCaseManager @Inject constructor(
                 CameraMode.DEFAULT,
                 DynamicRange.BIT_DEPTH_8_BIT,
                 isPreviewStabilizationOn
-            ), surfaceConfigs
+            ),
+            surfaceConfigs
         )
     }
 
@@ -636,27 +644,30 @@ class UseCaseManager @Inject constructor(
             return validatingBuilder.build().surfaces.size
         }
 
-    private fun Collection<UseCase>.withoutMetering(): Collection<UseCase> =
-        filterNot { it is MeteringRepeating }
+    private fun Collection<UseCase>.withoutMetering(): Collection<UseCase> = filterNot {
+        it is MeteringRepeating
+    }
 
     private fun Collection<UseCase>.requireMeteringRepeating(): Boolean {
-        return isNotEmpty() && checkSurfaces { repeatingSurfaces, sessionSurfaces ->
-            // There is no repeating UseCases
-            sessionSurfaces.isNotEmpty() && repeatingSurfaces.isEmpty()
-        }
+        return isNotEmpty() &&
+            checkSurfaces { repeatingSurfaces, sessionSurfaces ->
+                // There is no repeating UseCases
+                sessionSurfaces.isNotEmpty() && repeatingSurfaces.isEmpty()
+            }
     }
 
     private fun Collection<UseCase>.checkSurfaces(
-        predicate: (
-            repeatingSurfaces: List<DeferrableSurface>,
-            sessionSurfaces: List<DeferrableSurface>
-        ) -> Boolean
-    ): Boolean = ValidatingBuilder().let { validatingBuilder ->
-        forEach { useCase -> validatingBuilder.add(useCase.sessionConfig) }
-        val sessionConfig = validatingBuilder.build()
-        val captureConfig = sessionConfig.repeatingCaptureConfig
-        return predicate(captureConfig.surfaces, sessionConfig.surfaces)
-    }
+        predicate:
+            (
+                repeatingSurfaces: List<DeferrableSurface>, sessionSurfaces: List<DeferrableSurface>
+            ) -> Boolean
+    ): Boolean =
+        ValidatingBuilder().let { validatingBuilder ->
+            forEach { useCase -> validatingBuilder.add(useCase.sessionConfig) }
+            val sessionConfig = validatingBuilder.build()
+            val captureConfig = sessionConfig.repeatingCaptureConfig
+            return predicate(captureConfig.surfaces, sessionConfig.surfaces)
+        }
 
     private fun updateZslDisabledByUseCaseConfigStatus() {
         val disableZsl = attachedUseCases.any { it.currentConfig.isZslDisabled(false) }
@@ -691,11 +702,12 @@ class UseCaseManager @Inject constructor(
             val streamGroupMap = mutableMapOf<Int, MutableList<CameraStream.Config>>()
             val inputStreams = mutableListOf<InputStream.Config>()
             sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
-                operatingMode = when (sessionConfig.sessionType) {
-                    SESSION_REGULAR -> OperatingMode.NORMAL
-                    SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
-                    else -> OperatingMode.custom(sessionConfig.sessionType)
-                }
+                operatingMode =
+                    when (sessionConfig.sessionType) {
+                        SESSION_REGULAR -> OperatingMode.NORMAL
+                        SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
+                        else -> OperatingMode.custom(sessionConfig.sessionType)
+                    }
 
                 val physicalCameraIdForAllStreams =
                     sessionConfig.toCamera2ImplConfig().getPhysicalCameraId(null)
@@ -705,32 +717,39 @@ class UseCaseManager @Inject constructor(
                     val physicalCameraId =
                         physicalCameraIdForAllStreams ?: outputConfig.physicalCameraId
                     val mirrorMode = outputConfig.mirrorMode
-                    val outputStreamConfig = OutputStream.Config.create(
-                        size = deferrableSurface.prescribedSize,
-                        format = StreamFormat(deferrableSurface.prescribedStreamFormat),
-                        camera = if (physicalCameraId == null) {
-                            null
-                        } else {
-                            CameraId.fromCamera2Id(physicalCameraId)
-                        },
-                        // No need to map MIRROR_MODE_ON_FRONT_ONLY to MIRROR_MODE_AUTO
-                        // since its default value in framework
-                        mirrorMode = when (mirrorMode) {
-                            MirrorMode.MIRROR_MODE_OFF -> OutputStream.MirrorMode(
-                                OutputConfiguration.MIRROR_MODE_NONE)
-                            MirrorMode.MIRROR_MODE_ON -> OutputStream.MirrorMode(
-                                OutputConfiguration.MIRROR_MODE_H)
-                            else -> null
-                        },
-                        streamUseCase = getStreamUseCase(
-                            deferrableSurface,
-                            sessionConfigAdapter.surfaceToStreamUseCaseMap
-                        ),
-                        streamUseHint = getStreamUseHint(
-                            deferrableSurface,
-                            sessionConfigAdapter.surfaceToStreamUseHintMap
-                        ),
-                    )
+                    val outputStreamConfig =
+                        OutputStream.Config.create(
+                            size = deferrableSurface.prescribedSize,
+                            format = StreamFormat(deferrableSurface.prescribedStreamFormat),
+                            camera =
+                                if (physicalCameraId == null) {
+                                    null
+                                } else {
+                                    CameraId.fromCamera2Id(physicalCameraId)
+                                },
+                            // No need to map MIRROR_MODE_ON_FRONT_ONLY to MIRROR_MODE_AUTO
+                            // since its default value in framework
+                            mirrorMode =
+                                when (mirrorMode) {
+                                    MirrorMode.MIRROR_MODE_OFF ->
+                                        OutputStream.MirrorMode(
+                                            OutputConfiguration.MIRROR_MODE_NONE
+                                        )
+                                    MirrorMode.MIRROR_MODE_ON ->
+                                        OutputStream.MirrorMode(OutputConfiguration.MIRROR_MODE_H)
+                                    else -> null
+                                },
+                            streamUseCase =
+                                getStreamUseCase(
+                                    deferrableSurface,
+                                    sessionConfigAdapter.surfaceToStreamUseCaseMap
+                                ),
+                            streamUseHint =
+                                getStreamUseHint(
+                                    deferrableSurface,
+                                    sessionConfigAdapter.surfaceToStreamUseHintMap
+                                ),
+                        )
                     val surfaces = outputConfig.sharedSurfaces + deferrableSurface
                     for (surface in surfaces) {
                         val stream = CameraStream.Config.create(outputStreamConfig)
@@ -738,8 +757,7 @@ class UseCaseManager @Inject constructor(
                         if (outputConfig.surfaceGroupId != SURFACE_GROUP_ID_NONE) {
                             val streamList = streamGroupMap[outputConfig.surfaceGroupId]
                             if (streamList == null) {
-                                streamGroupMap[outputConfig.surfaceGroupId] =
-                                    mutableListOf(stream)
+                                streamGroupMap[outputConfig.surfaceGroupId] = mutableListOf(stream)
                             } else {
                                 streamList.add(stream)
                             }
@@ -770,12 +788,14 @@ class UseCaseManager @Inject constructor(
                     true
                 } else if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
                     // If we can release Surfaces immediately, we'll finalize the session when the
-                    // camera graph is closed (through FinalizeSessionOnCloseQuirk), and thus we won't
+                    // camera graph is closed (through FinalizeSessionOnCloseQuirk), and thus we
+                    // won't
                     // need to explicitly close the capture session.
                     false
                 } else {
-                    if (cameraQuirks.quirks.contains(CloseCaptureSessionOnVideoQuirk::class.java) &&
-                        containsVideo
+                    if (
+                        cameraQuirks.quirks.contains(CloseCaptureSessionOnVideoQuirk::class.java) &&
+                            containsVideo
                     ) {
                         true
                     } else {
@@ -785,40 +805,41 @@ class UseCaseManager @Inject constructor(
             val shouldCloseCameraDeviceOnClose =
                 DeviceQuirks[CloseCameraDeviceOnCameraGraphCloseQuirk::class.java] != null
             val shouldAbortCapturesOnStop =
-                if (isExtensions &&
-                    DeviceQuirks[DisableAbortCapturesOnStopWithSessionProcessorQuirk::class.java] !=
-                    null
+                if (
+                    isExtensions &&
+                        DeviceQuirks[
+                            DisableAbortCapturesOnStopWithSessionProcessorQuirk::class.java] != null
                 ) {
                     false
                 } else {
-                    /**
-                     * @see [CameraGraph.Flags.abortCapturesOnStop]
-                     */
+                    /** @see [CameraGraph.Flags.abortCapturesOnStop] */
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
                 }
 
-            val combinedFlags = cameraGraphFlags?.copy(
-                abortCapturesOnStop = shouldAbortCapturesOnStop,
-                quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
-                quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
-            )
-                ?: CameraGraph.Flags(
+            val combinedFlags =
+                cameraGraphFlags?.copy(
                     abortCapturesOnStop = shouldAbortCapturesOnStop,
                     quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
                     quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
                 )
+                    ?: CameraGraph.Flags(
+                        abortCapturesOnStop = shouldAbortCapturesOnStop,
+                        quirkCloseCaptureSessionOnDisconnect =
+                            shouldCloseCaptureSessionOnDisconnect,
+                        quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
+                    )
 
             // Set video stabilization mode to capture request
             var videoStabilizationMode = CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF
             if (sessionConfigAdapter.getValidSessionConfigOrNull() != null) {
-                val config = sessionConfigAdapter
-                    .getValidSessionConfigOrNull()!!
-                    .repeatingCaptureConfig
+                val config =
+                    sessionConfigAdapter.getValidSessionConfigOrNull()!!.repeatingCaptureConfig
                 val isPreviewStabilizationMode = config.previewStabilizationMode
                 val isVideoStabilizationMode = config.videoStabilizationMode
 
-                if (isPreviewStabilizationMode == StabilizationMode.OFF ||
-                    isVideoStabilizationMode == StabilizationMode.OFF
+                if (
+                    isPreviewStabilizationMode == StabilizationMode.OFF ||
+                        isVideoStabilizationMode == StabilizationMode.OFF
                 ) {
                     videoStabilizationMode = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF
                 } else if (isPreviewStabilizationMode == StabilizationMode.ON) {
@@ -829,16 +850,17 @@ class UseCaseManager @Inject constructor(
                 }
             }
 
-            val defaultParameters = buildMap<Any, Any?> {
-                if (isExtensions) {
-                    set(CameraPipeKeys.ignore3ARequiredParameters, true)
+            val defaultParameters =
+                buildMap<Any, Any?> {
+                    if (isExtensions) {
+                        set(CameraPipeKeys.ignore3ARequiredParameters, true)
+                    }
+                    set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, videoStabilizationMode)
+                    set(
+                        CameraPipeKeys.camera2CaptureRequestTag,
+                        "android.hardware.camera2.CaptureRequest.setTag.CX"
+                    )
                 }
-                set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, videoStabilizationMode)
-                set(
-                    CameraPipeKeys.camera2CaptureRequestTag,
-                    "android.hardware.camera2.CaptureRequest.setTag.CX"
-                )
-            }
 
             // TODO: b/327517884 - Add a quirk to not abort captures on stop for certain OEMs during
             //   extension sessions.

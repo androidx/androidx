@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.graph.Result3AStateListener
 internal class UpdateCounting3AStateListener(private val listener: Result3AStateListener) :
     Result3AStateListener {
     var updateCount = 0
+
     override fun onRequestSequenceCreated(requestNumber: RequestNumber) {
         listener.onRequestSequenceCreated(requestNumber)
     }

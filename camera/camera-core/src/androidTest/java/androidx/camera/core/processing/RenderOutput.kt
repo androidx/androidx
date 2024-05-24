@@ -62,14 +62,15 @@ abstract class RenderOutput<T> {
 
     suspend fun await(imageCount: Int, timeoutInMs: Long): Boolean {
         val scope = CoroutineScope(handler.asCoroutineDispatcher())
-        val imageCollectJob = scope.launch {
-            imageFlow.collectIndexed { index, image ->
-                releaseImage(image)
-                if (index >= imageCount) {
-                    scope.cancel()
+        val imageCollectJob =
+            scope.launch {
+                imageFlow.collectIndexed { index, image ->
+                    releaseImage(image)
+                    if (index >= imageCount) {
+                        scope.cancel()
+                    }
                 }
             }
-        }
 
         return withTimeoutOrNull(timeoutInMs) {
             imageCollectJob.join()
@@ -77,8 +78,7 @@ abstract class RenderOutput<T> {
         } ?: false
     }
 
-    open fun releaseImage(image: T) {
-    }
+    open fun releaseImage(image: T) {}
 
     open fun release() {
         handlerThread.quitSafely()
@@ -95,15 +95,17 @@ private class SurfaceTextureOutput : RenderOutput<Unit>() {
     override val surface: Surface by ::outputSurface
 
     override val imageFlow = callbackFlow {
-        outputSurfaceTexture.setOnFrameAvailableListener({
-            it.updateTexImage()
-            trySend(Unit)
-        }, handler)
+        outputSurfaceTexture.setOnFrameAvailableListener(
+            {
+                it.updateTexImage()
+                trySend(Unit)
+            },
+            handler
+        )
         awaitClose { outputSurfaceTexture.setOnFrameAvailableListener(null) }
     }
     override val dataSpace: Int
-        @RequiresApi(33)
-        get() = outputSurfaceTexture.dataSpace
+        @RequiresApi(33) get() = outputSurfaceTexture.dataSpace
 
     override fun release() {
         super.release()
@@ -112,11 +114,13 @@ private class SurfaceTextureOutput : RenderOutput<Unit>() {
     }
 
     private var outputSurfaceTexture: SurfaceTexture
+
     init {
         runBlocking(handler.asCoroutineDispatcher()) {
-            outputSurfaceTexture = SurfaceTexture(GLUtil.getTexIdFromGLContext()).apply {
-                setDefaultBufferSize(WIDTH, HEIGHT)
-            }
+            outputSurfaceTexture =
+                SurfaceTexture(GLUtil.getTexIdFromGLContext()).apply {
+                    setDefaultBufferSize(WIDTH, HEIGHT)
+                }
         }
     }
 
@@ -129,19 +133,19 @@ private class ImageReaderOutput : RenderOutput<Image>() {
         get() = imageReader.surface
 
     override val imageFlow = callbackFlow {
-        val listener = ImageReader.OnImageAvailableListener {
-            val image = it.acquireLatestImage()
-            if (image != null) {
-                trySend(image)
+        val listener =
+            ImageReader.OnImageAvailableListener {
+                val image = it.acquireLatestImage()
+                if (image != null) {
+                    trySend(image)
+                }
             }
-        }
         imageReader.setOnImageAvailableListener(listener, handler)
         awaitClose { imageReader.setOnImageAvailableListener({}, Handler(Looper.getMainLooper())) }
     }
 
     override val dataSpace: Int
-        @RequiresApi(33)
-        get() = imageReader.dataSpace
+        @RequiresApi(33) get() = imageReader.dataSpace
 
     override fun releaseImage(image: Image) {
         image.close()

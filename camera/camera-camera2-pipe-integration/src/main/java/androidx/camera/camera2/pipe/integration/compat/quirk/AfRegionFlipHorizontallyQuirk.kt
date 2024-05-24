@@ -28,7 +28,7 @@ import androidx.camera.core.impl.Quirk
  * QuirkSummary
  * - Bug Id: 210548792
  * - Description: Regions set in [android.hardware.camera2.CaptureRequest.CONTROL_AF_REGIONS] are
- *                incorrectly flipped horizontally when using front-facing cameras.
+ *   incorrectly flipped horizontally when using front-facing cameras.
  * - Device(s): All Samsung devices.
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
@@ -39,7 +39,7 @@ class AfRegionFlipHorizontallyQuirk : Quirk {
         fun isEnabled(cameraMetadata: CameraMetadata) =
             Build.BRAND.equals("SAMSUNG", ignoreCase = true) &&
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && // Samsung fixed it in T.
-                (cameraMetadata[CameraCharacteristics.LENS_FACING]
-                    == CameraCharacteristics.LENS_FACING_FRONT)
+                (cameraMetadata[CameraCharacteristics.LENS_FACING] ==
+                    CameraCharacteristics.LENS_FACING_FRONT)
     }
 }

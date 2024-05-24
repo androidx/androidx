@@ -28,12 +28,13 @@ import javax.inject.Inject
 
 /**
  * Helper class to provide the StreamConfigurationMap output sizes related correction functions.
- *
  * 1. ExtraSupportedOutputSizeQuirk
  * 2. ExcludedSupportedSizesContainer
  */
 @CameraScope
-class OutputSizesCorrector @Inject constructor(
+class OutputSizesCorrector
+@Inject
+constructor(
     private val cameraMetadata: CameraMetadata?,
     private val streamConfigurationMap: StreamConfigurationMap?
 ) {
@@ -43,9 +44,7 @@ class OutputSizesCorrector @Inject constructor(
     private val extraSupportedOutputSizeQuirk: ExtraSupportedOutputSizeQuirk? =
         DeviceQuirks[ExtraSupportedOutputSizeQuirk::class.java]
 
-    /**
-     * Applies the output sizes related quirks onto the input sizes array.
-     */
+    /** Applies the output sizes related quirks onto the input sizes array. */
     fun applyQuirks(sizes: Array<Size>, format: Int): Array<Size> {
         val sizeList = sizes.toMutableList()
         addExtraSupportedOutputSizesByFormat(sizeList, format)
@@ -56,9 +55,7 @@ class OutputSizesCorrector @Inject constructor(
         return sizeList.toTypedArray()
     }
 
-    /**
-     * Applies the output sizes related quirks onto the input sizes array.
-     */
+    /** Applies the output sizes related quirks onto the input sizes array. */
     fun <T> applyQuirks(sizes: Array<Size>, klass: Class<T>): Array<Size> {
         val sizeList = sizes.toMutableList()
         addExtraSupportedOutputSizesByClass(sizeList, klass)
@@ -75,10 +72,7 @@ class OutputSizesCorrector @Inject constructor(
      * @param sizeList the original sizes list which must be a mutable list
      * @param format the image format to apply the workaround
      */
-    private fun addExtraSupportedOutputSizesByFormat(
-        sizeList: MutableList<Size>,
-        format: Int
-    ) {
+    private fun addExtraSupportedOutputSizesByFormat(sizeList: MutableList<Size>, format: Int) {
         if (extraSupportedOutputSizeQuirk == null) {
             return
         }
@@ -116,10 +110,7 @@ class OutputSizesCorrector @Inject constructor(
      * @param sizeList the original sizes list which must be a mutable list
      * @param format the image format to apply the workaround
      */
-    private fun excludeProblematicOutputSizesByFormat(
-        sizeList: MutableList<Size>,
-        format: Int
-    ) {
+    private fun excludeProblematicOutputSizesByFormat(sizeList: MutableList<Size>, format: Int) {
         if (cameraMetadata == null || excludedSupportedSizesQuirk == null) {
             return
         }

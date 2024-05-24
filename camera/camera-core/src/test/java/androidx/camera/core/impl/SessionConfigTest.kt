@@ -92,23 +92,14 @@ class SessionConfigTest {
     @Test
     fun builderAddOutputConfig() {
         val builder = SessionConfig.Builder()
-        val sharedSurface1: DeferrableSurface = ImmediateSurface(
-            mock(
-                Surface::class.java
-            )
-        )
-        val sharedSurface2: DeferrableSurface = ImmediateSurface(
-            mock(
-                Surface::class.java
-            )
-        )
-        val outputConfig = SessionConfig.OutputConfig.builder(
-            mMockSurface0!!
-        )
-            .setSurfaceGroupId(1)
-            .setSharedSurfaces(Arrays.asList(sharedSurface1, sharedSurface2))
-            .setPhysicalCameraId("4")
-            .build()
+        val sharedSurface1: DeferrableSurface = ImmediateSurface(mock(Surface::class.java))
+        val sharedSurface2: DeferrableSurface = ImmediateSurface(mock(Surface::class.java))
+        val outputConfig =
+            SessionConfig.OutputConfig.builder(mMockSurface0!!)
+                .setSurfaceGroupId(1)
+                .setSharedSurfaces(Arrays.asList(sharedSurface1, sharedSurface2))
+                .setPhysicalCameraId("4")
+                .build()
 
         builder.addOutputConfig(outputConfig)
         val sessionConfig = builder.build()
@@ -134,8 +125,7 @@ class SessionConfigTest {
 
         val surfaces = sessionConfig.surfaces
         val outputConfigs = sessionConfig.outputConfigs
-        val repeatingSurfaces =
-            sessionConfig.repeatingCaptureConfig.surfaces
+        val repeatingSurfaces = sessionConfig.repeatingCaptureConfig.surfaces
 
         assertThat(surfaces).containsExactly(mMockSurface0)
         assertThat(outputConfigs).hasSize(1)
@@ -153,9 +143,8 @@ class SessionConfigTest {
         val sessionConfig = builder.build()
 
         val surfaces = DeferrableSurfacesUtil.surfaceList(sessionConfig.surfaces)
-        val repeatingSurfaces = DeferrableSurfacesUtil.surfaceList(
-            sessionConfig.repeatingCaptureConfig.surfaces
-        )
+        val repeatingSurfaces =
+            DeferrableSurfacesUtil.surfaceList(sessionConfig.repeatingCaptureConfig.surfaces)
 
         assertThat(surfaces.size).isAtLeast(repeatingSurfaces.size)
         assertThat(surfaces).containsAtLeastElementsIn(repeatingSurfaces)
@@ -211,16 +200,14 @@ class SessionConfigTest {
 
     @Test
     fun builderSetSessionType() {
-        val builder = SessionConfig.Builder()
-            .setSessionType(2)
+        val builder = SessionConfig.Builder().setSessionType(2)
         val sessionConfig = builder.build()
         assertThat(sessionConfig.sessionType == 2)
     }
 
     @Test
     fun builderSetPostviewSurface() {
-        val builder = SessionConfig.Builder()
-            .setPostviewSurface(mMockSurface0!!)
+        val builder = SessionConfig.Builder().setPostviewSurface(mMockSurface0!!)
         val sessionConfig = builder.build()
         assertThat(sessionConfig.postviewOutputConfig!!.surface).isEqualTo(mMockSurface0)
     }
@@ -241,9 +228,7 @@ class SessionConfigTest {
 
         assertThat(validatingBuilder.isValid).isTrue()
 
-        assertThat(validatingBuilder.build().templateType).isEqualTo(
-            CameraDevice.TEMPLATE_PREVIEW
-        )
+        assertThat(validatingBuilder.build().templateType).isEqualTo(CameraDevice.TEMPLATE_PREVIEW)
     }
 
     @Test
@@ -262,9 +247,7 @@ class SessionConfigTest {
 
         assertThat(validatingBuilder.isValid).isTrue()
 
-        assertThat(validatingBuilder.build().templateType).isEqualTo(
-            CameraDevice.TEMPLATE_RECORD
-        )
+        assertThat(validatingBuilder.build().templateType).isEqualTo(CameraDevice.TEMPLATE_RECORD)
     }
 
     @Test
@@ -284,9 +267,8 @@ class SessionConfigTest {
 
         assertThat(validatingBuilder.isValid).isTrue()
 
-        assertThat(validatingBuilder.build().templateType).isEqualTo(
-            CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
-        )
+        assertThat(validatingBuilder.build().templateType)
+            .isEqualTo(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
     }
 
     @Test
@@ -306,9 +288,8 @@ class SessionConfigTest {
 
         assertThat(validatingBuilder.isValid).isTrue()
 
-        assertThat(validatingBuilder.build().templateType).isEqualTo(
-            CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
-        )
+        assertThat(validatingBuilder.build().templateType)
+            .isEqualTo(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
     }
 
     @Test
@@ -323,9 +304,8 @@ class SessionConfigTest {
 
         assertThat(validatingBuilder.isValid).isTrue()
 
-        assertThat(validatingBuilder.build().expectedFrameRateRange).isEqualTo(
-            StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED
-        )
+        assertThat(validatingBuilder.build().expectedFrameRateRange)
+            .isEqualTo(StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED)
     }
 
     @Test
@@ -342,9 +322,7 @@ class SessionConfigTest {
 
         assertThat(validatingBuilder.isValid).isTrue()
 
-        assertThat(validatingBuilder.build().expectedFrameRateRange).isEqualTo(
-            fpsRangeLow
-        )
+        assertThat(validatingBuilder.build().expectedFrameRateRange).isEqualTo(fpsRangeLow)
     }
 
     @Test
@@ -367,9 +345,7 @@ class SessionConfigTest {
 
         assertThat(validatingBuilder.isValid).isTrue()
 
-        assertThat(validatingBuilder.build().expectedFrameRateRange).isEqualTo(
-            fpsRangeLow
-        )
+        assertThat(validatingBuilder.build().expectedFrameRateRange).isEqualTo(fpsRangeLow)
     }
 
     @Test
@@ -398,15 +374,17 @@ class SessionConfigTest {
     fun addImplementationOptionForStreamUseCase() {
         val validatingBuilder = ValidatingBuilder()
         assertThat(
-            !validatingBuilder.build().implementationOptions.containsOption(
-                Camera2ImplConfig.STREAM_USE_CASE_OPTION
-            )
+            !validatingBuilder
+                .build()
+                .implementationOptions
+                .containsOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION)
         )
         validatingBuilder.addImplementationOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION, 1L)
         assertThat(
-            validatingBuilder.build().implementationOptions.retrieveOption(
-                Camera2ImplConfig.STREAM_USE_CASE_OPTION
-            ) == 1L
+            validatingBuilder
+                .build()
+                .implementationOptions
+                .retrieveOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION) == 1L
         )
     }
 
@@ -414,12 +392,16 @@ class SessionConfigTest {
     fun addDifferentNonDefaultSessionType() {
         // 1. Arrange.
         val validatingBuilder = ValidatingBuilder()
-        val sessionConfig1 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-            .setSessionType(1).build()
-        val sessionConfig2 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-            .setSessionType(2).build()
+        val sessionConfig1 =
+            SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setSessionType(1)
+                .build()
+        val sessionConfig2 =
+            SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setSessionType(2)
+                .build()
 
         // 2. Act.
         validatingBuilder.add(sessionConfig1)
@@ -434,11 +416,13 @@ class SessionConfigTest {
         // 1. Arrange.
         val sessionTypeToVerify = 2
         val validatingBuilder = ValidatingBuilder()
-        val sessionConfig1 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW).build()
-        val sessionConfig2 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-            .setSessionType(sessionTypeToVerify).build()
+        val sessionConfig1 =
+            SessionConfig.Builder().setTemplateType(CameraDevice.TEMPLATE_PREVIEW).build()
+        val sessionConfig2 =
+            SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setSessionType(sessionTypeToVerify)
+                .build()
 
         // 2. Act.
         validatingBuilder.add(sessionConfig1)
@@ -454,11 +438,13 @@ class SessionConfigTest {
         // 1. Arrange.
         val sessionTypeToVerify = 2
         val validatingBuilder = ValidatingBuilder()
-        val sessionConfig1 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-            .setSessionType(sessionTypeToVerify).build()
-        val sessionConfig2 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW).build()
+        val sessionConfig1 =
+            SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setSessionType(sessionTypeToVerify)
+                .build()
+        val sessionConfig2 =
+            SessionConfig.Builder().setTemplateType(CameraDevice.TEMPLATE_PREVIEW).build()
 
         // 2. Act.
         validatingBuilder.add(sessionConfig1)
@@ -473,10 +459,11 @@ class SessionConfigTest {
     fun addPostviewSurfaceTo_validatingBuilder() {
         // 1. Arrange.
         val validatingBuilder = ValidatingBuilder()
-        val sessionConfig1 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-            .setPostviewSurface(mMockSurface0!!)
-            .build()
+        val sessionConfig1 =
+            SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setPostviewSurface(mMockSurface0!!)
+                .build()
 
         // 2. Act.
         validatingBuilder.add(sessionConfig1)
@@ -491,14 +478,16 @@ class SessionConfigTest {
     fun addDifferentPostviewSurfacesTo_validatingBuilder() {
         // 1. Arrange.
         val validatingBuilder = ValidatingBuilder()
-        val sessionConfig1 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-            .setPostviewSurface(mMockSurface0!!)
-            .build()
-        val sessionConfig2 = SessionConfig.Builder()
-            .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-            .setPostviewSurface(mMockSurface1!!)
-            .build()
+        val sessionConfig1 =
+            SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setPostviewSurface(mMockSurface0!!)
+                .build()
+        val sessionConfig2 =
+            SessionConfig.Builder()
+                .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                .setPostviewSurface(mMockSurface1!!)
+                .build()
 
         // 2. Act.
         validatingBuilder.add(sessionConfig1)
@@ -579,11 +568,7 @@ class SessionConfigTest {
     }
 
     private fun createSurface(containerClass: Class<*>): DeferrableSurface {
-        val deferrableSurface: DeferrableSurface = ImmediateSurface(
-            mock(
-                Surface::class.java
-            )
-        )
+        val deferrableSurface: DeferrableSurface = ImmediateSurface(mock(Surface::class.java))
         deferrableSurface.setContainerClass(containerClass)
         return deferrableSurface
     }
@@ -614,20 +599,16 @@ class SessionConfigTest {
 
     @Test
     fun combineTwoSessionsOutputConfigs() {
-        val nonRepeatingSurface = mock(
-            DeferrableSurface::class.java
-        )
+        val nonRepeatingSurface = mock(DeferrableSurface::class.java)
 
         val builder0 = SessionConfig.Builder()
-        val outputConfig0 =
-            SessionConfig.OutputConfig.builder(mMockSurface0!!).build()
+        val outputConfig0 = SessionConfig.OutputConfig.builder(mMockSurface0!!).build()
         builder0.addOutputConfig(outputConfig0)
         builder0.addNonRepeatingSurface(nonRepeatingSurface)
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
 
         val builder1 = SessionConfig.Builder()
-        val outputConfig1 =
-            SessionConfig.OutputConfig.builder(mMockSurface1!!).build()
+        val outputConfig1 = SessionConfig.OutputConfig.builder(mMockSurface1!!).build()
         builder1.addOutputConfig(outputConfig1)
         builder1.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
 
@@ -638,12 +619,10 @@ class SessionConfigTest {
         val sessionConfig = validatingBuilder.build()
 
         val surfaces = sessionConfig.surfaces
-        assertThat(surfaces)
-            .containsExactly(mMockSurface0, mMockSurface1, nonRepeatingSurface)
+        assertThat(surfaces).containsExactly(mMockSurface0, mMockSurface1, nonRepeatingSurface)
         assertThat(sessionConfig.outputConfigs).hasSize(3)
         assertThat(sessionConfig.outputConfigs[0]).isEqualTo(outputConfig0)
-        assertThat(sessionConfig.outputConfigs[1].surface)
-            .isEqualTo(nonRepeatingSurface)
+        assertThat(sessionConfig.outputConfigs[1].surface).isEqualTo(nonRepeatingSurface)
         assertThat(sessionConfig.outputConfigs[2]).isEqualTo(outputConfig1)
         // Should not contain the nonRepeatingSurface.
         assertThat(sessionConfig.repeatingCaptureConfig.surfaces)
@@ -680,10 +659,8 @@ class SessionConfigTest {
 
     @Test
     fun combineTwoSessionsMultiValueSetValid() {
-        val option = Option.create<FakeMultiValueSet>(
-            "multiValueSet",
-            FakeMultiValueSet::class.java
-        )
+        val option =
+            Option.create<FakeMultiValueSet>("multiValueSet", FakeMultiValueSet::class.java)
 
         val builder0 = SessionConfig.Builder()
         builder0.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
@@ -710,12 +687,8 @@ class SessionConfigTest {
     @Test
     fun builderAddMultipleRepeatingCameraCaptureCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
+        val callback0 = mock(CameraCaptureCallback::class.java)
+        val callback1 = mock(CameraCaptureCallback::class.java)
 
         builder.addRepeatingCameraCaptureCallback(callback0)
         builder.addRepeatingCameraCaptureCallback(callback1)
@@ -723,19 +696,14 @@ class SessionConfigTest {
 
         assertThat(configuration.repeatingCameraCaptureCallbacks)
             .containsExactly(callback0, callback1)
-        assertThat(configuration.singleCameraCaptureCallbacks)
-            .containsNoneOf(callback0, callback1)
+        assertThat(configuration.singleCameraCaptureCallbacks).containsNoneOf(callback0, callback1)
     }
 
     @Test
     fun builderAddAllRepeatingCameraCaptureCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
+        val callback0 = mock(CameraCaptureCallback::class.java)
+        val callback1 = mock(CameraCaptureCallback::class.java)
         val callbacks: List<CameraCaptureCallback> = Lists.newArrayList(callback0, callback1)
 
         builder.addAllRepeatingCameraCaptureCallbacks(callbacks)
@@ -743,8 +711,7 @@ class SessionConfigTest {
 
         assertThat(configuration.repeatingCameraCaptureCallbacks)
             .containsExactly(callback0, callback1)
-        assertThat(configuration.singleCameraCaptureCallbacks)
-            .containsNoneOf(callback0, callback1)
+        assertThat(configuration.singleCameraCaptureCallbacks).containsNoneOf(callback0, callback1)
     }
 
     @Test(expected = UnsupportedOperationException::class)
@@ -752,22 +719,14 @@ class SessionConfigTest {
         val builder = SessionConfig.Builder()
         val configuration = builder.build()
 
-        configuration.repeatingCameraCaptureCallbacks.add(
-            mock(
-                CameraCaptureCallback::class.java
-            )
-        )
+        configuration.repeatingCameraCaptureCallbacks.add(mock(CameraCaptureCallback::class.java))
     }
 
     @Test
     fun builderAddMultipleDeviceStateCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 = mock(
-            CameraDevice.StateCallback::class.java
-        )
-        val callback1 = mock(
-            CameraDevice.StateCallback::class.java
-        )
+        val callback0 = mock(CameraDevice.StateCallback::class.java)
+        val callback1 = mock(CameraDevice.StateCallback::class.java)
 
         builder.addDeviceStateCallback(callback0)
         builder.addDeviceStateCallback(callback1)
@@ -779,12 +738,8 @@ class SessionConfigTest {
     @Test
     fun builderAddAllDeviceStateCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 = mock(
-            CameraDevice.StateCallback::class.java
-        )
-        val callback1 = mock(
-            CameraDevice.StateCallback::class.java
-        )
+        val callback0 = mock(CameraDevice.StateCallback::class.java)
+        val callback1 = mock(CameraDevice.StateCallback::class.java)
         val callbacks: List<CameraDevice.StateCallback> = Lists.newArrayList(callback0, callback1)
 
         builder.addAllDeviceStateCallbacks(callbacks)
@@ -798,20 +753,14 @@ class SessionConfigTest {
         val builder = SessionConfig.Builder()
         val configuration = builder.build()
 
-        configuration.deviceStateCallbacks.add(
-            mock(
-                CameraDevice.StateCallback::class.java
-            )
-        )
+        configuration.deviceStateCallbacks.add(mock(CameraDevice.StateCallback::class.java))
     }
 
     @Test
     fun builderAddMultipleSessionStateCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 =
-            mock(CameraCaptureSession.StateCallback::class.java)
-        val callback1 =
-            mock(CameraCaptureSession.StateCallback::class.java)
+        val callback0 = mock(CameraCaptureSession.StateCallback::class.java)
+        val callback1 = mock(CameraCaptureSession.StateCallback::class.java)
 
         builder.addSessionStateCallback(callback0)
         builder.addSessionStateCallback(callback1)
@@ -823,10 +772,8 @@ class SessionConfigTest {
     @Test
     fun builderAddAllSessionStateCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 =
-            mock(CameraCaptureSession.StateCallback::class.java)
-        val callback1 =
-            mock(CameraCaptureSession.StateCallback::class.java)
+        val callback0 = mock(CameraCaptureSession.StateCallback::class.java)
+        val callback1 = mock(CameraCaptureSession.StateCallback::class.java)
         val callbacks: List<CameraCaptureSession.StateCallback> =
             Lists.newArrayList(callback0, callback1)
 
@@ -841,26 +788,22 @@ class SessionConfigTest {
         val builder = SessionConfig.Builder()
         val configuration = builder.build()
 
-        configuration.sessionStateCallbacks
-            .add(mock(CameraCaptureSession.StateCallback::class.java))
+        configuration.sessionStateCallbacks.add(
+            mock(CameraCaptureSession.StateCallback::class.java)
+        )
     }
 
     @Test
     fun builderAddMultipleCameraCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
+        val callback0 = mock(CameraCaptureCallback::class.java)
+        val callback1 = mock(CameraCaptureCallback::class.java)
 
         builder.addCameraCaptureCallback(callback0)
         builder.addCameraCaptureCallback(callback1)
         val configuration = builder.build()
 
-        assertThat(configuration.singleCameraCaptureCallbacks)
-            .containsExactly(callback0, callback1)
+        assertThat(configuration.singleCameraCaptureCallbacks).containsExactly(callback0, callback1)
         assertThat(configuration.repeatingCameraCaptureCallbacks)
             .containsExactly(callback0, callback1)
     }
@@ -868,28 +811,21 @@ class SessionConfigTest {
     @Test
     fun builderAddAllCameraCallbacks() {
         val builder = SessionConfig.Builder()
-        val callback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
+        val callback0 = mock(CameraCaptureCallback::class.java)
+        val callback1 = mock(CameraCaptureCallback::class.java)
         val callbacks: List<CameraCaptureCallback> = Lists.newArrayList(callback0, callback1)
 
         builder.addAllCameraCaptureCallbacks(callbacks)
         val configuration = builder.build()
 
-        assertThat(configuration.singleCameraCaptureCallbacks)
-            .containsExactly(callback0, callback1)
+        assertThat(configuration.singleCameraCaptureCallbacks).containsExactly(callback0, callback1)
         assertThat(configuration.repeatingCameraCaptureCallbacks)
             .containsExactly(callback0, callback1)
     }
 
     @Test
     fun removeCameraCaptureCallback_returnsFalseIfNotAdded() {
-        val mockCallback = mock(
-            CameraCaptureCallback::class.java
-        )
+        val mockCallback = mock(CameraCaptureCallback::class.java)
         val builder = SessionConfig.Builder()
 
         assertThat(builder.removeCameraCaptureCallback(mockCallback)).isFalse()
@@ -898,12 +834,8 @@ class SessionConfigTest {
     @Test
     fun canAddAndRemoveCameraCaptureCallback_withBuilder() {
         // Arrange.
-        val mockRepeatingCallback = mock(
-            CameraCaptureCallback::class.java
-        )
-        val mockSingleCallback = mock(
-            CameraCaptureCallback::class.java
-        )
+        val mockRepeatingCallback = mock(CameraCaptureCallback::class.java)
+        val mockSingleCallback = mock(CameraCaptureCallback::class.java)
         val builder = SessionConfig.Builder()
 
         // Act.
@@ -912,12 +844,10 @@ class SessionConfigTest {
         val sessionConfigWithCallbacks = builder.build()
 
         // Assert.
-        assertThat(sessionConfigWithCallbacks.singleCameraCaptureCallbacks).contains(
-            mockSingleCallback
-        )
-        assertThat(sessionConfigWithCallbacks.singleCameraCaptureCallbacks).contains(
-            mockSingleCallback
-        )
+        assertThat(sessionConfigWithCallbacks.singleCameraCaptureCallbacks)
+            .contains(mockSingleCallback)
+        assertThat(sessionConfigWithCallbacks.singleCameraCaptureCallbacks)
+            .contains(mockSingleCallback)
 
         // Act.
         val removedSingle = builder.removeCameraCaptureCallback(mockSingleCallback)
@@ -934,11 +864,8 @@ class SessionConfigTest {
 
         // Assert.
         assertThat(removedRepeating).isTrue()
-        assertThat(
-            sessionConfigWithoutCallbacks.repeatingCameraCaptureCallbacks
-        ).doesNotContain(
-            mockRepeatingCallback
-        )
+        assertThat(sessionConfigWithoutCallbacks.repeatingCameraCaptureCallbacks)
+            .doesNotContain(mockRepeatingCallback)
     }
 
     @Test(expected = UnsupportedOperationException::class)
@@ -946,19 +873,13 @@ class SessionConfigTest {
         val builder = SessionConfig.Builder()
         val configuration = builder.build()
 
-        configuration.singleCameraCaptureCallbacks.add(
-            mock(
-                CameraCaptureCallback::class.java
-            )
-        )
+        configuration.singleCameraCaptureCallbacks.add(mock(CameraCaptureCallback::class.java))
     }
 
     @Test
     fun builderAddErrorListener() {
         val builder = SessionConfig.Builder()
-        val callback = mock(
-            SessionConfig.ErrorListener::class.java
-        )
+        val callback = mock(SessionConfig.ErrorListener::class.java)
 
         builder.addErrorListener(callback)
 
@@ -970,20 +891,11 @@ class SessionConfigTest {
     @Test
     fun combineTwoSessionsCallbacks() {
         val builder0 = SessionConfig.Builder()
-        val sessionCallback0 =
-            mock(CameraCaptureSession.StateCallback::class.java)
-        val deviceCallback0 = mock(
-            CameraDevice.StateCallback::class.java
-        )
-        val repeatingCallback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val cameraCallback0 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val errorListener0 = mock(
-            SessionConfig.ErrorListener::class.java
-        )
+        val sessionCallback0 = mock(CameraCaptureSession.StateCallback::class.java)
+        val deviceCallback0 = mock(CameraDevice.StateCallback::class.java)
+        val repeatingCallback0 = mock(CameraCaptureCallback::class.java)
+        val cameraCallback0 = mock(CameraCaptureCallback::class.java)
+        val errorListener0 = mock(SessionConfig.ErrorListener::class.java)
         builder0.addSessionStateCallback(sessionCallback0)
         builder0.addDeviceStateCallback(deviceCallback0)
         builder0.addRepeatingCameraCaptureCallback(repeatingCallback0)
@@ -991,20 +903,11 @@ class SessionConfigTest {
         builder0.addErrorListener(errorListener0)
 
         val builder1 = SessionConfig.Builder()
-        val sessionCallback1 =
-            mock(CameraCaptureSession.StateCallback::class.java)
-        val deviceCallback1 = mock(
-            CameraDevice.StateCallback::class.java
-        )
-        val repeatingCallback1 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val cameraCallback1 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val errorListener1 = mock(
-            SessionConfig.ErrorListener::class.java
-        )
+        val sessionCallback1 = mock(CameraCaptureSession.StateCallback::class.java)
+        val deviceCallback1 = mock(CameraDevice.StateCallback::class.java)
+        val repeatingCallback1 = mock(CameraCaptureCallback::class.java)
+        val cameraCallback1 = mock(CameraCaptureCallback::class.java)
+        val errorListener1 = mock(SessionConfig.ErrorListener::class.java)
         builder1.addSessionStateCallback(sessionCallback1)
         builder1.addDeviceStateCallback(deviceCallback1)
         builder1.addRepeatingCameraCaptureCallback(repeatingCallback1)
@@ -1023,14 +926,14 @@ class SessionConfigTest {
             .containsExactly(deviceCallback0, deviceCallback1)
         assertThat(sessionConfig.repeatingCameraCaptureCallbacks)
             .containsExactly(
-                repeatingCallback0, cameraCallback0, repeatingCallback1, cameraCallback1
+                repeatingCallback0,
+                cameraCallback0,
+                repeatingCallback1,
+                cameraCallback1
             )
         assertThat(sessionConfig.singleCameraCaptureCallbacks)
             .containsExactly(cameraCallback0, cameraCallback1)
-        assertThat(sessionConfig.errorListeners).containsExactly(
-            errorListener0,
-            errorListener1
-        )
+        assertThat(sessionConfig.errorListeners).containsExactly(errorListener0, errorListener1)
     }
 
     @Test
@@ -1055,34 +958,16 @@ class SessionConfigTest {
     @Test
     fun builderChange_doNotChangeEarlierBuiltInstance() {
         // 1. Arrange
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback2 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val deferrableSurface1 = mock(
-            DeferrableSurface::class.java
-        )
-        val deferrableSurface2 = mock(
-            DeferrableSurface::class.java
-        )
-        val deviceStateCallback1 = mock(
-            CameraDevice.StateCallback::class.java
-        )
-        val deviceStateCallback2 = mock(
-            CameraDevice.StateCallback::class.java
-        )
-        val sessionCallback1 =
-            mock(CameraCaptureSession.StateCallback::class.java)
-        val sessionCallback2 =
-            mock(CameraCaptureSession.StateCallback::class.java)
-        val errorListener1 = mock(
-            SessionConfig.ErrorListener::class.java
-        )
-        val errorListener2 = mock(
-            SessionConfig.ErrorListener::class.java
-        )
+        val callback1 = mock(CameraCaptureCallback::class.java)
+        val callback2 = mock(CameraCaptureCallback::class.java)
+        val deferrableSurface1 = mock(DeferrableSurface::class.java)
+        val deferrableSurface2 = mock(DeferrableSurface::class.java)
+        val deviceStateCallback1 = mock(CameraDevice.StateCallback::class.java)
+        val deviceStateCallback2 = mock(CameraDevice.StateCallback::class.java)
+        val sessionCallback1 = mock(CameraCaptureSession.StateCallback::class.java)
+        val sessionCallback2 = mock(CameraCaptureSession.StateCallback::class.java)
+        val errorListener1 = mock(SessionConfig.ErrorListener::class.java)
+        val errorListener2 = mock(SessionConfig.ErrorListener::class.java)
         val fpsRange1 = Range(30, 30)
         val fpsRange2 = Range(15, 30)
         val optionsBundle1 = MutableOptionsBundle.create()
@@ -1132,34 +1017,16 @@ class SessionConfigTest {
     @Test
     fun validatingBuilderChange_doNotChangeEarlierBuiltInstance() {
         // 1. Arrange
-        val callback1 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val callback2 = mock(
-            CameraCaptureCallback::class.java
-        )
-        val deferrableSurface1 = mock(
-            DeferrableSurface::class.java
-        )
-        val deferrableSurface2 = mock(
-            DeferrableSurface::class.java
-        )
-        val deviceStateCallback1 = mock(
-            CameraDevice.StateCallback::class.java
-        )
-        val deviceStateCallback2 = mock(
-            CameraDevice.StateCallback::class.java
-        )
-        val sessionCallback1 =
-            mock(CameraCaptureSession.StateCallback::class.java)
-        val sessionCallback2 =
-            mock(CameraCaptureSession.StateCallback::class.java)
-        val errorListener1 = mock(
-            SessionConfig.ErrorListener::class.java
-        )
-        val errorListener2 = mock(
-            SessionConfig.ErrorListener::class.java
-        )
+        val callback1 = mock(CameraCaptureCallback::class.java)
+        val callback2 = mock(CameraCaptureCallback::class.java)
+        val deferrableSurface1 = mock(DeferrableSurface::class.java)
+        val deferrableSurface2 = mock(DeferrableSurface::class.java)
+        val deviceStateCallback1 = mock(CameraDevice.StateCallback::class.java)
+        val deviceStateCallback2 = mock(CameraDevice.StateCallback::class.java)
+        val sessionCallback1 = mock(CameraCaptureSession.StateCallback::class.java)
+        val sessionCallback2 = mock(CameraCaptureSession.StateCallback::class.java)
+        val errorListener1 = mock(SessionConfig.ErrorListener::class.java)
+        val errorListener2 = mock(SessionConfig.ErrorListener::class.java)
         val fpsRange1 = Range(30, 30)
         val fpsRange2 = Range(15, 30)
         val optionsBundle1 = MutableOptionsBundle.create()
@@ -1222,11 +1089,7 @@ class SessionConfigTest {
     }
 
     companion object {
-        private val OPTION = Option.create<Int>(
-            "camerax.test.option_0", Int::class.java
-        )
-        private val OPTION_1 = Option.create<String>(
-            "camerax.test.option_1", String::class.java
-        )
+        private val OPTION = Option.create<Int>("camerax.test.option_0", Int::class.java)
+        private val OPTION_1 = Option.create<String>("camerax.test.option_1", String::class.java)
     }
 }

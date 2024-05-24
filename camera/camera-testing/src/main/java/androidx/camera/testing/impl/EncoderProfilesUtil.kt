@@ -25,146 +25,115 @@ import androidx.camera.core.impl.EncoderProfilesProxy.ImmutableEncoderProfilesPr
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
 
 /**
- * Utility methods for testing [EncoderProfiles] related classes, including predefined
- * resolutions, attributes and [EncoderProfilesProxy], which can be used directly on the
- * unit tests.
+ * Utility methods for testing [EncoderProfiles] related classes, including predefined resolutions,
+ * attributes and [EncoderProfilesProxy], which can be used directly on the unit tests.
  */
-
 object EncoderProfilesUtil {
-    /** Resolution for QCIF.  */
+    /** Resolution for QCIF. */
     val RESOLUTION_QCIF = Size(176, 144)
 
-    /** Resolution for QVGA.  */
+    /** Resolution for QVGA. */
     val RESOLUTION_QVGA = Size(320, 240)
 
-    /** Resolution for CIF.  */
+    /** Resolution for CIF. */
     val RESOLUTION_CIF = Size(352, 288)
 
-    /** Resolution for VGA.  */
+    /** Resolution for VGA. */
     val RESOLUTION_VGA = Size(640, 480)
 
-    /** Resolution for 480P.  */
+    /** Resolution for 480P. */
     val RESOLUTION_480P = Size(720, 480) /* 640, 704 or 720 x 480 */
 
-    /** Resolution for 720P.  */
+    /** Resolution for 720P. */
     val RESOLUTION_720P = Size(1280, 720)
 
-    /** Resolution for 1080P.  */
+    /** Resolution for 1080P. */
     val RESOLUTION_1080P = Size(1920, 1080) /* 1920 x 1080 or 1088 */
 
-    /** Resolution for 2K.  */
+    /** Resolution for 2K. */
     val RESOLUTION_2K = Size(2048, 1080)
 
-    /** Resolution for QHD.  */
+    /** Resolution for QHD. */
     val RESOLUTION_QHD = Size(2560, 1440)
 
-    /** Resolution for 2160P.  */
+    /** Resolution for 2160P. */
     val RESOLUTION_2160P = Size(3840, 2160)
 
-    /** Resolution for 4KDCI.  */
+    /** Resolution for 4KDCI. */
     val RESOLUTION_4KDCI = Size(4096, 2160)
 
-    /** Default duration.  */
+    /** Default duration. */
     const val DEFAULT_DURATION = 30
 
-    /** Default output format.  */
+    /** Default output format. */
     const val DEFAULT_OUTPUT_FORMAT = MediaRecorder.OutputFormat.MPEG_4
 
-    /** Default video codec.  */
+    /** Default video codec. */
     const val DEFAULT_VIDEO_CODEC = MediaRecorder.VideoEncoder.H264
 
-    /** Default media type.  */
+    /** Default media type. */
     const val DEFAULT_VIDEO_MEDIA_TYPE = MediaFormat.MIMETYPE_VIDEO_AVC
 
-    /** Default video bitrate.  */
+    /** Default video bitrate. */
     const val DEFAULT_VIDEO_BITRATE = 8 * 1024 * 1024
 
-    /** Default video frame rate.  */
+    /** Default video frame rate. */
     const val DEFAULT_VIDEO_FRAME_RATE = 30
 
-    /** Default video code profile.  */
+    /** Default video code profile. */
     const val DEFAULT_VIDEO_PROFILE = EncoderProfilesProxy.CODEC_PROFILE_NONE
 
-    /** Default bit depth.  */
+    /** Default bit depth. */
     const val DEFAULT_VIDEO_BIT_DEPTH = VideoProfileProxy.BIT_DEPTH_8
 
-    /** Default chroma subsampling.  */
+    /** Default chroma subsampling. */
     const val DEFAULT_VIDEO_CHROMA_SUBSAMPLING = EncoderProfiles.VideoProfile.YUV_420
 
-    /** Default hdr format.  */
+    /** Default hdr format. */
     const val DEFAULT_VIDEO_HDR_FORMAT = EncoderProfiles.VideoProfile.HDR_NONE
 
-    /** Default audio codec.  */
+    /** Default audio codec. */
     const val DEFAULT_AUDIO_CODEC = MediaRecorder.AudioEncoder.AAC
 
-    /** Default media type.  */
+    /** Default media type. */
     const val DEFAULT_AUDIO_MEDIA_TYPE = MediaFormat.MIMETYPE_AUDIO_AAC
 
-    /** Default audio bitrate.  */
+    /** Default audio bitrate. */
     const val DEFAULT_AUDIO_BITRATE = 192000
 
-    /** Default audio sample rate.  */
+    /** Default audio sample rate. */
     const val DEFAULT_AUDIO_SAMPLE_RATE = 48000
 
-    /** Default channel count.  */
+    /** Default channel count. */
     const val DEFAULT_AUDIO_CHANNELS = 1
 
-    /** Default audio code profile.  */
+    /** Default audio code profile. */
     const val DEFAULT_AUDIO_PROFILE = EncoderProfilesProxy.CODEC_PROFILE_NONE
-    val PROFILES_QCIF = createFakeEncoderProfilesProxy(
-        RESOLUTION_QCIF.width,
-        RESOLUTION_QCIF.height
-    )
-    val PROFILES_QVGA = createFakeEncoderProfilesProxy(
-        RESOLUTION_QVGA.width,
-        RESOLUTION_QVGA.height
-    )
-    val PROFILES_CIF = createFakeEncoderProfilesProxy(
-        RESOLUTION_CIF.width,
-        RESOLUTION_CIF.height
-    )
-    val PROFILES_VGA = createFakeEncoderProfilesProxy(
-        RESOLUTION_VGA.width,
-        RESOLUTION_VGA.height
-    )
-    val PROFILES_480P = createFakeEncoderProfilesProxy(
-        RESOLUTION_480P.width,
-        RESOLUTION_480P.height
-    )
-    val PROFILES_720P = createFakeEncoderProfilesProxy(
-        RESOLUTION_720P.width,
-        RESOLUTION_720P.height
-    )
-    val PROFILES_1080P = createFakeEncoderProfilesProxy(
-        RESOLUTION_1080P.width,
-        RESOLUTION_1080P.height
-    )
-    val PROFILES_2K = createFakeEncoderProfilesProxy(
-        RESOLUTION_2K.width,
-        RESOLUTION_2K.height
-    )
-    val PROFILES_QHD = createFakeEncoderProfilesProxy(
-        RESOLUTION_QHD.width,
-        RESOLUTION_QHD.height
-    )
-    val PROFILES_2160P = createFakeEncoderProfilesProxy(
-        RESOLUTION_2160P.width,
-        RESOLUTION_2160P.height
-    )
-    val PROFILES_4KDCI = createFakeEncoderProfilesProxy(
-        RESOLUTION_4KDCI.width,
-        RESOLUTION_4KDCI.height
-    )
+    val PROFILES_QCIF =
+        createFakeEncoderProfilesProxy(RESOLUTION_QCIF.width, RESOLUTION_QCIF.height)
+    val PROFILES_QVGA =
+        createFakeEncoderProfilesProxy(RESOLUTION_QVGA.width, RESOLUTION_QVGA.height)
+    val PROFILES_CIF = createFakeEncoderProfilesProxy(RESOLUTION_CIF.width, RESOLUTION_CIF.height)
+    val PROFILES_VGA = createFakeEncoderProfilesProxy(RESOLUTION_VGA.width, RESOLUTION_VGA.height)
+    val PROFILES_480P =
+        createFakeEncoderProfilesProxy(RESOLUTION_480P.width, RESOLUTION_480P.height)
+    val PROFILES_720P =
+        createFakeEncoderProfilesProxy(RESOLUTION_720P.width, RESOLUTION_720P.height)
+    val PROFILES_1080P =
+        createFakeEncoderProfilesProxy(RESOLUTION_1080P.width, RESOLUTION_1080P.height)
+    val PROFILES_2K = createFakeEncoderProfilesProxy(RESOLUTION_2K.width, RESOLUTION_2K.height)
+    val PROFILES_QHD = createFakeEncoderProfilesProxy(RESOLUTION_QHD.width, RESOLUTION_QHD.height)
+    val PROFILES_2160P =
+        createFakeEncoderProfilesProxy(RESOLUTION_2160P.width, RESOLUTION_2160P.height)
+    val PROFILES_4KDCI =
+        createFakeEncoderProfilesProxy(RESOLUTION_4KDCI.width, RESOLUTION_4KDCI.height)
 
-    /** A utility method to create an EncoderProfilesProxy with some default values.  */
+    /** A utility method to create an EncoderProfilesProxy with some default values. */
     fun createFakeEncoderProfilesProxy(
         videoFrameWidth: Int,
         videoFrameHeight: Int
     ): EncoderProfilesProxy {
-        val videoProfile = createFakeVideoProfileProxy(
-            videoFrameWidth,
-            videoFrameHeight
-        )
+        val videoProfile = createFakeVideoProfileProxy(videoFrameWidth, videoFrameHeight)
         val audioProfile = createFakeAudioProfileProxy()
         return ImmutableEncoderProfilesProxy.create(
             DEFAULT_DURATION,
@@ -174,7 +143,7 @@ object EncoderProfilesUtil {
         )
     }
 
-    /** A utility method to create a VideoProfileProxy with some default values.  */
+    /** A utility method to create a VideoProfileProxy with some default values. */
     fun createFakeVideoProfileProxy(
         videoFrameWidth: Int,
         videoFrameHeight: Int,
@@ -198,7 +167,7 @@ object EncoderProfilesUtil {
         )
     }
 
-    /** A utility method to create an AudioProfileProxy with some default values.  */
+    /** A utility method to create an AudioProfileProxy with some default values. */
     fun createFakeAudioProfileProxy(): AudioProfileProxy {
         return AudioProfileProxy.create(
             DEFAULT_AUDIO_CODEC,

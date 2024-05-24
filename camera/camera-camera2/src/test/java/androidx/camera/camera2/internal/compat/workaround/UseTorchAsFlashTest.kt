@@ -82,14 +82,12 @@ class UseTorchAsFlashTest {
     ): UseTorchAsFlash {
         val characteristics = ShadowCameraCharacteristics.newCameraCharacteristics()
         val shadowCharacteristics = Shadow.extract<ShadowCameraCharacteristics>(characteristics)
-        shadowCharacteristics.set(
-            CameraCharacteristics.LENS_FACING,
-            lensFacing
-        )
-        val characteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
-            characteristics,
-            ANY_CAMERA_ID
-        )
+        shadowCharacteristics.set(CameraCharacteristics.LENS_FACING, lensFacing)
+        val characteristicsCompat =
+            CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                characteristics,
+                ANY_CAMERA_ID
+            )
         val quirks = CameraQuirks.get(ANY_CAMERA_ID, characteristicsCompat)
 
         return UseTorchAsFlash(quirks)

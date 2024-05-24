@@ -26,10 +26,9 @@ import androidx.camera.core.impl.Quirk
  *
  * QuirkSummary
  * - Bug Id: 172036589
- * - Description: On some devices like Samsung SM-A716B, it could lead to CaptureRequest not
- *                being completed when taking photos in dark environment with flash on/auto.
- *                Calling stopRepeating ahead of still capture and setRepeating again after
- *                capture is done can fix the issue.
+ * - Description: On some devices like Samsung SM-A716B, it could lead to CaptureRequest not being
+ *   completed when taking photos in dark environment with flash on/auto. Calling stopRepeating
+ *   ahead of still capture and setRepeating again after capture is done can fix the issue.
  * - Device(s): Samsung SM-A716
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.

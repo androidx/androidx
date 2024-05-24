@@ -21,21 +21,19 @@ import android.view.Surface
 /**
  * A interface implemented by the application to provide a [Surface] for viewfinder.
  *
- * This interface is implemented by the application to provide a [Surface]. This
- * will be called by application when it needs a Surface for viewfinder. It also signals when the
- * Surface is no longer in use.
+ * This interface is implemented by the application to provide a [Surface]. This will be called by
+ * application when it needs a Surface for viewfinder. It also signals when the Surface is no longer
+ * in use.
  */
 interface ViewfinderSurfaceProvider {
     /**
      * Called when a new [Surface] has been requested by the frame producer.
      *
+     * This is called every time a new surface is required to keep the viewfinder running. The
+     * producer may repeatedly request surfaces, but only a single request will be active at a time.
      *
-     * This is called every time a new surface is required to keep the viewfinder running.
-     * The producer may repeatedly request surfaces, but only a single request will be active at a
-     * time.
-     *
-     * @param request the request for a surface which contains the requirements of the
-     * surface and methods for completing the request.
+     * @param request the request for a surface which contains the requirements of the surface and
+     *   methods for completing the request.
      */
     fun onSurfaceRequested(request: ViewfinderSurfaceRequest)
 }

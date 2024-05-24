@@ -24,9 +24,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-/**
- * Unit tests for [FakeTakePictureCallbackDeviceTest]
- */
+/** Unit tests for [FakeTakePictureCallbackDeviceTest] */
 @SdkSuppress(minSdkVersion = 21)
 class FakeTakePictureCallbackDeviceTest {
 
@@ -45,8 +43,7 @@ class FakeTakePictureCallbackDeviceTest {
     @Test
     fun inMemoryResultArrivesBeforeGet_canGetResult() = runBlocking {
         // Arrange.
-        val inMemoryResult =
-            FakeImageProxy(FakeImageInfo())
+        val inMemoryResult = FakeImageProxy(FakeImageInfo())
         // Assert.
         fakeTakePictureCallback.onFinalResult(inMemoryResult)
         // Act.

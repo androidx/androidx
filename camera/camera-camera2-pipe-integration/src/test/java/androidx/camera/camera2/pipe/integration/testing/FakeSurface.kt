@@ -21,9 +21,7 @@ import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
 
-class FakeSurface(
-    val surface: Surface? = null
-) : DeferrableSurface() {
+class FakeSurface(val surface: Surface? = null) : DeferrableSurface() {
     override fun provideSurface(): ListenableFuture<Surface> {
         return Futures.immediateFuture(surface)
     }

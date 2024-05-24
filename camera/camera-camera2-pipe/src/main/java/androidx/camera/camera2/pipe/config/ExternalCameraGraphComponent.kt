@@ -46,6 +46,7 @@ internal interface ExternalCameraGraphComponent {
     @Subcomponent.Builder
     interface Builder {
         fun externalCameraGraphConfigModule(config: ExternalCameraGraphConfigModule): Builder
+
         fun build(): ExternalCameraGraphComponent
     }
 }
@@ -56,77 +57,75 @@ internal class ExternalCameraGraphConfigModule(
     private val cameraMetadata: CameraMetadata,
     private val requestProcessor: RequestProcessor
 ) {
-    private val externalCameraBackend = object : CameraBackend {
-        override val id: CameraBackendId
-            get() = CameraBackendId("External")
-        override val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
-            get() = MutableSharedFlow()
+    private val externalCameraBackend =
+        object : CameraBackend {
+            override val id: CameraBackendId
+                get() = CameraBackendId("External")
 
-        override suspend fun getCameraIds(): List<CameraId>? {
-            throwUnsupportedOperationException()
+            override val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
+                get() = MutableSharedFlow()
+
+            override suspend fun getCameraIds(): List<CameraId>? {
+                throwUnsupportedOperationException()
+            }
+
+            override fun awaitCameraIds(): List<CameraId>? {
+                throwUnsupportedOperationException()
+            }
+
+            override fun awaitConcurrentCameraIds(): Set<Set<CameraId>>? {
+                throwUnsupportedOperationException()
+            }
+
+            override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? {
+                throwUnsupportedOperationException()
+            }
+
+            override fun disconnectAllAsync(): Deferred<Unit> {
+                throwUnsupportedOperationException()
+            }
+
+            override fun shutdownAsync(): Deferred<Unit> {
+                throwUnsupportedOperationException()
+            }
+
+            override fun createCameraController(
+                cameraContext: CameraContext,
+                graphConfig: CameraGraph.Config,
+                graphListener: GraphListener,
+                streamGraph: StreamGraph
+            ): CameraController {
+                throwUnsupportedOperationException()
+            }
+
+            override fun prewarm(cameraId: CameraId) {
+                throwUnsupportedOperationException()
+            }
+
+            override fun disconnect(cameraId: CameraId) {
+                throwUnsupportedOperationException()
+            }
+
+            override fun disconnectAsync(cameraId: CameraId): Deferred<Unit> {
+                throwUnsupportedOperationException()
+            }
+
+            override fun disconnectAll() {
+                throwUnsupportedOperationException()
+            }
+
+            private fun throwUnsupportedOperationException(): Nothing =
+                throw UnsupportedOperationException("External CameraPipe should not use backends")
         }
 
-        override fun awaitCameraIds(): List<CameraId>? {
-            throwUnsupportedOperationException()
-        }
+    @Provides fun provideCameraGraphConfig(): CameraGraph.Config = config
 
-        override fun awaitConcurrentCameraIds(): Set<Set<CameraId>>? {
-            throwUnsupportedOperationException()
-        }
-
-        override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? {
-            throwUnsupportedOperationException()
-        }
-
-        override fun disconnectAllAsync(): Deferred<Unit> {
-            throwUnsupportedOperationException()
-        }
-
-        override fun shutdownAsync(): Deferred<Unit> {
-            throwUnsupportedOperationException()
-        }
-
-        override fun createCameraController(
-            cameraContext: CameraContext,
-            graphConfig: CameraGraph.Config,
-            graphListener: GraphListener,
-            streamGraph: StreamGraph
-        ): CameraController {
-            throwUnsupportedOperationException()
-        }
-
-        override fun prewarm(cameraId: CameraId) {
-            throwUnsupportedOperationException()
-        }
-
-        override fun disconnect(cameraId: CameraId) {
-            throwUnsupportedOperationException()
-        }
-
-        override fun disconnectAsync(cameraId: CameraId): Deferred<Unit> {
-            throwUnsupportedOperationException()
-        }
-
-        override fun disconnectAll() {
-            throwUnsupportedOperationException()
-        }
-
-        private fun throwUnsupportedOperationException(): Nothing =
-            throw UnsupportedOperationException("External CameraPipe should not use backends")
-    }
-
-    @Provides
-    fun provideCameraGraphConfig(): CameraGraph.Config = config
-
-    @Provides
-    fun provideCameraMetadata(): CameraMetadata = cameraMetadata
+    @Provides fun provideCameraMetadata(): CameraMetadata = cameraMetadata
 
     @CameraGraphScope
     @Provides
     fun provideGraphController(graphListener: GraphListener): CameraController =
         ExternalCameraController(config, graphListener, requestProcessor)
 
-    @CameraGraphScope
-    @Provides
-    fun provideCameraBackend(): CameraBackend = externalCameraBackend
+    @CameraGraphScope @Provides fun provideCameraBackend(): CameraBackend = externalCameraBackend
 }

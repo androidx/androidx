@@ -24,39 +24,23 @@ import org.junit.Test
 class GraphDataHolderValueImplTest {
     @Test(expected = IllegalArgumentException::class)
     fun inputParams_minMaxDifferentTypes() {
-        GraphDataHolderValueImpl(
-            20f,
-            900,
-            GraphDataSortedRingBuffer()
-        )
+        GraphDataHolderValueImpl(20f, 900, GraphDataSortedRingBuffer())
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun inputParams_maxLessThanMin() {
-        GraphDataHolderValueImpl(
-            20f,
-            3f,
-            GraphDataSortedRingBuffer()
-        )
+        GraphDataHolderValueImpl(20f, 3f, GraphDataSortedRingBuffer())
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun inputParams_maxEqualsMin() {
-        GraphDataHolderValueImpl(
-            700L,
-            700,
-            GraphDataSortedRingBuffer()
-        )
+        GraphDataHolderValueImpl(700L, 700, GraphDataSortedRingBuffer())
     }
 
     @Test
     fun inputParams_positiveRange() {
         val graphDataHolderValueImpl =
-            GraphDataHolderValueImpl(
-                33,
-                1000,
-                GraphDataSortedRingBuffer()
-            )
+            GraphDataHolderValueImpl(33, 1000, GraphDataSortedRingBuffer())
         assertThat(graphDataHolderValueImpl.getRange()).isEqualTo(967)
     }
 }

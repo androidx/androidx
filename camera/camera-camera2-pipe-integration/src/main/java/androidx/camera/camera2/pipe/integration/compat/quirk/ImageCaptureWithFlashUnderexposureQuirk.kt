@@ -22,17 +22,17 @@ import android.os.Build
 import androidx.camera.camera2.pipe.CameraMetadata
 
 /**
- * A quirk to denote even when the camera uses flash ON/AUTO mode, but the captured image is
- * still underexposed.
+ * A quirk to denote even when the camera uses flash ON/AUTO mode, but the captured image is still
+ * underexposed.
  *
  * QuirkSummary
  * - Bug Id: 228800282
  * - Description: While the flash is in ON/AUTO mode and the camera fires the flash in a dark
- *   environment, the captured photos are underexposed after continuously capturing 2
- *   or more photos.
- * - Device(s): Samsung Galaxy A2 Core (sm-a260f), Samsung Galaxy J5 (sm-j530f), Samsung Galaxy
- *   J6 (sm-j600g), Samsung Galaxy J7 Neo (sm-j701f), Samsung Galaxy J7 Prime
- *   (sm-g610f), Samsung Galaxy J7 (sm-j710mn)
+ *   environment, the captured photos are underexposed after continuously capturing 2 or more
+ *   photos.
+ * - Device(s): Samsung Galaxy A2 Core (sm-a260f), Samsung Galaxy J5 (sm-j530f), Samsung Galaxy J6
+ *   (sm-j600g), Samsung Galaxy J7 Neo (sm-j701f), Samsung Galaxy J7 Prime (sm-g610f), Samsung
+ *   Galaxy J7 (sm-j710mn)
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
@@ -40,14 +40,15 @@ import androidx.camera.camera2.pipe.CameraMetadata
 class ImageCaptureWithFlashUnderexposureQuirk : UseTorchAsFlashQuirk {
     companion object {
         // List of devices with the issue. See b/228800282.
-        private val BUILD_MODELS = listOf(
-            "sm-a260f", // Samsung Galaxy A2 Core
-            "sm-j530f", // Samsung Galaxy J5
-            "sm-j600g", // Samsung Galaxy J6
-            "sm-j701f", // Samsung Galaxy J7 Neo
-            "sm-g610f", // Samsung Galaxy J7 Prime
-            "sm-j710mn", // Samsung Galaxy J7
-        )
+        private val BUILD_MODELS =
+            listOf(
+                "sm-a260f", // Samsung Galaxy A2 Core
+                "sm-j530f", // Samsung Galaxy J5
+                "sm-j600g", // Samsung Galaxy J6
+                "sm-j701f", // Samsung Galaxy J7 Neo
+                "sm-g610f", // Samsung Galaxy J7 Prime
+                "sm-j710mn", // Samsung Galaxy J7
+            )
 
         fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             return BUILD_MODELS.contains(Build.MODEL.lowercase()) &&

@@ -48,17 +48,18 @@ class ExtensionValidationResultAdapter(
         val textView: TextView
         val detailsView: TextView
 
-        val v = if (convertView == null) {
-            val layout = android.R.layout.simple_list_item_2
-            val view = layoutInflater.inflate(layout, parent, false)
-            textView = view.findViewById(android.R.id.text1)
-            detailsView = view.findViewById(android.R.id.text2)
-            view
-        } else {
-            textView = convertView.findViewById(android.R.id.text1)
-            detailsView = convertView.findViewById(android.R.id.text2)
-            convertView
-        }
+        val v =
+            if (convertView == null) {
+                val layout = android.R.layout.simple_list_item_2
+                val view = layoutInflater.inflate(layout, parent, false)
+                textView = view.findViewById(android.R.id.text1)
+                detailsView = view.findViewById(android.R.id.text2)
+                view
+            } else {
+                textView = convertView.findViewById(android.R.id.text1)
+                detailsView = convertView.findViewById(android.R.id.text2)
+                convertView
+            }
 
         val item = getItem(position)
 

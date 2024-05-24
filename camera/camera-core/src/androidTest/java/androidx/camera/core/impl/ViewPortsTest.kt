@@ -33,14 +33,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-/**
- * Unit tests for [ViewPorts].
- */
+/** Unit tests for [ViewPorts]. */
 @SmallTest
 @SuppressLint("UnsupportedTestRunner")
-@RunWith(
-    ConstraintEnclosedTestRunner::class
-)
+@RunWith(ConstraintEnclosedTestRunner::class)
 @SdkSuppress(minSdkVersion = 21)
 object ViewPortsTest {
     // Rotation degrees.
@@ -56,9 +52,7 @@ object ViewPortsTest {
     private val NARROW: Rational by lazy { Rational(1, 2) }
 
     /**
-     * Parameterized tests for
-     * [ViewPorts.getScaledRect]
-     * testing all possible input combinations.
+     * Parameterized tests for [ViewPorts.getScaledRect] testing all possible input combinations.
      */
     @SmallTest
     @RunWith(Parameterized::class)
@@ -76,15 +70,17 @@ object ViewPortsTest {
         fun testGetScaledRect() {
             val rect = Rect()
             ViewPorts.getScaledRect(
-                FITTING_RECT, aspectRatio, scaleType, false, layoutDirection,
-                rotationDegrees
-            ).round(rect)
+                    FITTING_RECT,
+                    aspectRatio,
+                    scaleType,
+                    false,
+                    layoutDirection,
+                    rotationDegrees
+                )
+                .round(rect)
             Truth.assertThat(intArrayOf(rect.left, rect.top, rect.width(), rect.height()))
                 .isEqualTo(
-                    intArrayOf(
-                        expectedLeft, expectedTop, expectedSize.width,
-                        expectedSize.height
-                    )
+                    intArrayOf(expectedLeft, expectedTop, expectedSize.width, expectedSize.height)
                 )
         }
 
@@ -289,15 +285,7 @@ object ViewPortsTest {
                     )
                     // Wide viewport & FILL_END. Parameter index 16~23.
                     result.add(
-                        arrayOf(
-                            WIDE,
-                            LayoutDirection.LTR,
-                            R0,
-                            ViewPort.FILL_END,
-                            10,
-                            30,
-                            WIDE_FILL
-                        )
+                        arrayOf(WIDE, LayoutDirection.LTR, R0, ViewPort.FILL_END, 10, 30, WIDE_FILL)
                     )
                     result.add(
                         arrayOf(
@@ -333,15 +321,7 @@ object ViewPortsTest {
                         )
                     )
                     result.add(
-                        arrayOf(
-                            WIDE,
-                            LayoutDirection.RTL,
-                            R0,
-                            ViewPort.FILL_END,
-                            10,
-                            30,
-                            WIDE_FILL
-                        )
+                        arrayOf(WIDE, LayoutDirection.RTL, R0, ViewPort.FILL_END, 10, 30, WIDE_FILL)
                     )
                     result.add(
                         arrayOf(
@@ -646,10 +626,7 @@ object ViewPortsTest {
 
                     // FIT always returns the same rect. Parameter index 48~63.
                     for (ratio in arrayOf(WIDE, NARROW)) {
-                        for (direction in intArrayOf(
-                            LayoutDirection.LTR,
-                            LayoutDirection.RTL
-                        )) {
+                        for (direction in intArrayOf(LayoutDirection.LTR, LayoutDirection.RTL)) {
                             for (rotation in intArrayOf(R0, R90, R180, R270)) {
                                 result.add(
                                     arrayOf(
@@ -657,7 +634,9 @@ object ViewPortsTest {
                                         direction,
                                         rotation,
                                         ViewPort.FIT,
-                                        10, 20, FIT_SIZE
+                                        10,
+                                        20,
+                                        FIT_SIZE
                                     )
                                 )
                             }
@@ -686,24 +665,26 @@ object ViewPortsTest {
             // Arrange.
             // Convert the sizes into a UseCase map.
             val orderedUseCases: MutableList<UseCase> = ArrayList()
-            val useCaseStreamSpecMap = HashMap<UseCase?, StreamSpec?>().apply {
-                for (size in surfaceSizes) {
-                    val fakeUseCase = FakeUseCaseConfig.Builder().build()
-                    put(fakeUseCase, StreamSpec.builder(size).build())
-                    orderedUseCases.add(fakeUseCase)
+            val useCaseStreamSpecMap =
+                HashMap<UseCase?, StreamSpec?>().apply {
+                    for (size in surfaceSizes) {
+                        val fakeUseCase = FakeUseCaseConfig.Builder().build()
+                        put(fakeUseCase, StreamSpec.builder(size).build())
+                        orderedUseCases.add(fakeUseCase)
+                    }
                 }
-            }
 
             // Act.
-            val useCaseCropRects = ViewPorts.calculateViewPortRects(
-                Rect(0, 0, sensorSize.width, sensorSize.height),
-                isFrontCamera,
-                aspectRatio,
-                rotationDegrees,
-                scaleType,
-                layoutDirection,
-                useCaseStreamSpecMap
-            )
+            val useCaseCropRects =
+                ViewPorts.calculateViewPortRects(
+                    Rect(0, 0, sensorSize.width, sensorSize.height),
+                    isFrontCamera,
+                    aspectRatio,
+                    rotationDegrees,
+                    scaleType,
+                    layoutDirection,
+                    useCaseStreamSpecMap
+                )
 
             // Assert.
             // Converts the map back to sizes array.
@@ -725,15 +706,12 @@ object ViewPortsTest {
 
             // Narrow and front camera.
             /**
-             * Parameters for testing
-             * [ViewPorts.calculateViewPortRects]
+             * Parameters for testing [ViewPorts.calculateViewPortRects]
              *
-             *
-             * The goal of the algorithm is to fit-a-minimum/fill-a-maximum 2:1 rectangle
-             * with the given rotation/layout-direction to the intersection area (marked with "XXX").
-             * the sensor rect is 8 x 8, narrow surface (marked with "\\\") is 4 x 8 and wide
-             * surface is 8 x 4 (marked with "///").The output rect is in the surface' coordinates.
-             *
+             * The goal of the algorithm is to fit-a-minimum/fill-a-maximum 2:1 rectangle with the
+             * given rotation/layout-direction to the intersection area (marked with "XXX"). the
+             * sensor rect is 8 x 8, narrow surface (marked with "\\\") is 4 x 8 and wide surface is
+             * 8 x 4 (marked with "///").The output rect is in the surface' coordinates.
              * <pre>
              * . 0  1  2  3  4  5  6  7  8
              * 1 +-----\\\\\\\\\\\\-----+
@@ -744,7 +722,7 @@ object ViewPortsTest {
              * 6 //////XXXXXXXXXXXX//////
              * 7 |     \\\\\\\\\\\\     |
              * 8 +-----\\\\\\\\\\\\-----+
-            </pre> *
+             * </pre> *
              *
              * Only test 2 groups of cases. The rest should be tested by [GetScaledRectTests]
              */
@@ -763,13 +741,8 @@ object ViewPortsTest {
                             R0,
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 2, 4, 4),
-                                Rect(2, 0, 6, 2)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2))
                         )
                     )
                     result.add(
@@ -780,13 +753,8 @@ object ViewPortsTest {
                             R90,
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 2, 2, 6),
-                                Rect(2, 0, 4, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4))
                         )
                     )
                     result.add(
@@ -797,13 +765,8 @@ object ViewPortsTest {
                             R180,
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 4, 4, 6),
-                                Rect(2, 2, 6, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4))
                         )
                     )
                     result.add(
@@ -814,13 +777,8 @@ object ViewPortsTest {
                             R270,
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(2, 2, 4, 6),
-                                Rect(4, 0, 6, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4))
                         )
                     )
 
@@ -833,13 +791,8 @@ object ViewPortsTest {
                             R0,
                             ViewPort.FILL_START,
                             LayoutDirection.RTL,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(2, 2, 4, 6),
-                                Rect(4, 0, 6, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4))
                         )
                     )
                     result.add(
@@ -850,13 +803,8 @@ object ViewPortsTest {
                             R90,
                             ViewPort.FILL_START,
                             LayoutDirection.RTL,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 2, 4, 4),
-                                Rect(2, 0, 6, 2)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2))
                         )
                     )
                     result.add(
@@ -867,13 +815,8 @@ object ViewPortsTest {
                             R180,
                             ViewPort.FILL_START,
                             LayoutDirection.RTL,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 2, 2, 6),
-                                Rect(2, 0, 4, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4))
                         )
                     )
                     result.add(
@@ -884,13 +827,8 @@ object ViewPortsTest {
                             R270,
                             ViewPort.FILL_START,
                             LayoutDirection.RTL,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 4, 4, 6),
-                                Rect(2, 2, 6, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4))
                         )
                     )
 
@@ -903,13 +841,8 @@ object ViewPortsTest {
                             R0,
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(2, 2, 4, 6),
-                                Rect(4, 0, 6, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(2, 2, 4, 6), Rect(4, 0, 6, 4))
                         )
                     )
                     result.add(
@@ -920,13 +853,8 @@ object ViewPortsTest {
                             R90,
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 2, 4, 4),
-                                Rect(2, 0, 6, 2)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 2, 4, 4), Rect(2, 0, 6, 2))
                         )
                     )
                     result.add(
@@ -937,13 +865,8 @@ object ViewPortsTest {
                             R180,
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 2, 2, 6),
-                                Rect(2, 0, 4, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 2, 2, 6), Rect(2, 0, 4, 4))
                         )
                     )
                     result.add(
@@ -954,13 +877,8 @@ object ViewPortsTest {
                             R270,
                             ViewPort.FILL_START,
                             LayoutDirection.LTR,
-                            arrayOf(
-                                SURFACE_NARROW, SURFACE_WIDE
-                            ),
-                            arrayOf(
-                                Rect(0, 4, 4, 6),
-                                Rect(2, 2, 6, 4)
-                            )
+                            arrayOf(SURFACE_NARROW, SURFACE_WIDE),
+                            arrayOf(Rect(0, 4, 4, 6), Rect(2, 2, 6, 4))
                         )
                     )
                     return result

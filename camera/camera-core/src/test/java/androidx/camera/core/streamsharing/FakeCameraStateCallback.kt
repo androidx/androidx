@@ -18,9 +18,7 @@ package androidx.camera.core.streamsharing
 
 import android.hardware.camera2.CameraDevice
 
-/**
- * A fake [CameraDevice.StateCallback].
- */
+/** A fake [CameraDevice.StateCallback]. */
 class FakeCameraStateCallback : CameraDevice.StateCallback() {
 
     var onOpenedCalled = false

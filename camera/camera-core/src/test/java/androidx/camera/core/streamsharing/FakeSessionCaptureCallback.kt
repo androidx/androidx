@@ -22,9 +22,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.view.Surface
 
-/**
- * A fake [CameraCaptureSession.CaptureCallback].s
- */
+/** A fake [CameraCaptureSession.CaptureCallback].s */
 class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
 
     var onCaptureCompletedCalled = false
@@ -72,10 +70,7 @@ class FakeSessionCaptureCallback : CameraCaptureSession.CaptureCallback() {
         onCaptureSequenceCompletedCalled = true
     }
 
-    override fun onCaptureSequenceAborted(
-        session: CameraCaptureSession,
-        sequenceId: Int
-    ) {
+    override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
         super.onCaptureSequenceAborted(session, sequenceId)
         onCaptureSequenceAbortedCalled = true
     }

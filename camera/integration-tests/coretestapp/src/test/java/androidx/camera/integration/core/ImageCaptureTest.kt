@@ -57,8 +57,7 @@ class ImageCaptureTest(
     private val testScope = TestScope()
     private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
 
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule(testDispatcher)
+    @get:Rule val mainDispatcherRule = MainDispatcherRule(testDispatcher)
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -69,10 +68,11 @@ class ImageCaptureTest(
     companion object {
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "LensFacing = {0}")
-        fun data() = listOf(
-            arrayOf(CameraSelector.LENS_FACING_BACK),
-            arrayOf(CameraSelector.LENS_FACING_FRONT),
-        )
+        fun data() =
+            listOf(
+                arrayOf(CameraSelector.LENS_FACING_BACK),
+                arrayOf(CameraSelector.LENS_FACING_FRONT),
+            )
     }
 
     @Before
@@ -117,11 +117,12 @@ class ImageCaptureTest(
             CameraSelector.Builder().requireLensFacing(lensFacing).build(),
             imageCapture
         )
-        camera = when (lensFacing) {
-            CameraSelector.LENS_FACING_BACK -> FakeAppConfig.getBackCamera()
-            CameraSelector.LENS_FACING_FRONT -> FakeAppConfig.getFrontCamera()
-            else -> throw AssertionError("Unsupported lens facing: $lensFacing")
-        }
+        camera =
+            when (lensFacing) {
+                CameraSelector.LENS_FACING_BACK -> FakeAppConfig.getBackCamera()
+                CameraSelector.LENS_FACING_FRONT -> FakeAppConfig.getFrontCamera()
+                else -> throw AssertionError("Unsupported lens facing: $lensFacing")
+            }
         cameraControl = camera.cameraControl as FakeCameraControl
 
         return imageCapture

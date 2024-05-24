@@ -93,22 +93,23 @@ class TestResults {
     /** Was the image captured an HDR+ image? */
     var isHDRPlus: ArrayList<Boolean> = ArrayList<Boolean>()
 
-    /**
-     * Format results into a human readable string
-     */
+    /** Format results into a human readable string */
     fun toString(activity: MainActivity, header: Boolean): String {
         var output = ""
 
         if (header) {
             val dateFormatter = SimpleDateFormat("d MMM yyyy - kk'h'mm")
             val cal: Calendar = Calendar.getInstance()
-            output += "DATE: " + dateFormatter.format(cal.time) +
-                " (Antelope " + getVersionName(activity) + ")\n"
+            output +=
+                "DATE: " +
+                    dateFormatter.format(cal.time) +
+                    " (Antelope " +
+                    getVersionName(activity) +
+                    ")\n"
 
             output += "DEVICE: " + MainActivity.deviceInfo.device + "\n\n"
             output += "CAMERAS:\n"
-            for (camera in MainActivity.cameras)
-                output += camera + "\n"
+            for (camera in MainActivity.cameras) output += camera + "\n"
             output += "\n"
         }
 
@@ -155,8 +156,12 @@ class TestResults {
         if (1 < capturePlusImageReady.size) {
             val captureStats = Stats.of(capturePlusImageReady)
             output += "Capture range: " + captureStats.min() + " - " + captureStats.max() + "\n"
-            output += "Capture mean: " + captureStats.mean() +
-                " (" + captureStats.count() + " captures)\n"
+            output +=
+                "Capture mean: " +
+                    captureStats.mean() +
+                    " (" +
+                    captureStats.count() +
+                    " captures)\n"
             output += "Capture median: " + Quantiles.median().compute(capturePlusImageReady) + "\n"
             output += "Capture standard deviation: " + captureStats.sampleStandardDeviation() + "\n"
         }
@@ -164,9 +169,7 @@ class TestResults {
         return output
     }
 
-    /**
-     * Format results to a comma-based .csv string
-     */
+    /** Format results to a comma-based .csv string */
     fun toCSV(activity: MainActivity, header: Boolean = true): String {
         val numCommas = PrefHelper.getNumTests(activity)
 
@@ -175,14 +178,24 @@ class TestResults {
         if (header) {
             val dateFormatter = SimpleDateFormat("d MMM yyyy - kk'h'mm")
             val cal: Calendar = Calendar.getInstance()
-            output += "DATE: " + dateFormatter.format(cal.time) + " (Antelope " +
-                getVersionName(activity) + ")" + outputCommas(numCommas) + "\n"
+            output +=
+                "DATE: " +
+                    dateFormatter.format(cal.time) +
+                    " (Antelope " +
+                    getVersionName(activity) +
+                    ")" +
+                    outputCommas(numCommas) +
+                    "\n"
 
-            output += "DEVICE: " + MainActivity.deviceInfo.device + outputCommas(numCommas) +
-                "\n" + outputCommas(numCommas) + "\n"
+            output +=
+                "DEVICE: " +
+                    MainActivity.deviceInfo.device +
+                    outputCommas(numCommas) +
+                    "\n" +
+                    outputCommas(numCommas) +
+                    "\n"
             output += "CAMERAS: " + outputCommas(numCommas) + "\n"
-            for (camera in MainActivity.cameras)
-                output += camera + outputCommas(numCommas) + "\n"
+            for (camera in MainActivity.cameras) output += camera + outputCommas(numCommas) + "\n"
             output += outputCommas(numCommas) + "\n"
         }
 
@@ -190,8 +203,13 @@ class TestResults {
         output += "Camera: " + camera + outputCommas(numCommas) + "\n"
         output += "API: " + cameraAPI + outputCommas(numCommas) + "\n"
         output += "Focus Mode: " + focusMode + outputCommas(numCommas) + "\n"
-        output += "Image Capture Size: " + imageCaptureSize + outputCommas(numCommas) + "\n" +
-            outputCommas(numCommas) + "\n"
+        output +=
+            "Image Capture Size: " +
+                imageCaptureSize +
+                outputCommas(numCommas) +
+                "\n" +
+                outputCommas(numCommas) +
+                "\n"
 
         output += outputResultLine("Camera open", initialization, numCommas, true)
         output += outputResultLine("Preview start", previewStart, numCommas, true)
@@ -199,46 +217,25 @@ class TestResults {
 
         when (focusMode) {
             FocusMode.CONTINUOUS -> {
-                output += outputResultLine(
-                    "Capture (continuous focus)", capture,
-                    numCommas, true
-                )
+                output += outputResultLine("Capture (continuous focus)", capture, numCommas, true)
             }
             FocusMode.FIXED -> {
-                output += outputResultLine(
-                    "Capture (fixed-focus)", capture,
-                    numCommas, true
-                )
+                output += outputResultLine("Capture (fixed-focus)", capture, numCommas, true)
             }
             else -> {
                 // CameraX doesn't allow us insight into autofocus
                 if (CameraAPI.CAMERAX == cameraAPI) {
-                    output += outputResultLine(
-                        "Capture incl. autofocus", capture,
-                        numCommas, true
-                    )
+                    output += outputResultLine("Capture incl. autofocus", capture, numCommas, true)
                 } else {
-                    output += outputResultLine(
-                        "Autofocus", autofocus,
-                        numCommas, true
-                    )
-                    output += outputResultLine(
-                        "Capture", captureNoAF,
-                        numCommas, true
-                    )
-                    output += outputResultLine(
-                        "Capture incl. autofocus", capture,
-                        numCommas, true
-                    )
+                    output += outputResultLine("Autofocus", autofocus, numCommas, true)
+                    output += outputResultLine("Capture", captureNoAF, numCommas, true)
+                    output += outputResultLine("Capture incl. autofocus", capture, numCommas, true)
                 }
             }
         }
 
         output += outputResultLine("Image ready", imageready, numCommas, true)
-        output += outputResultLine(
-            "Cap + img ready", capturePlusImageReady,
-            numCommas, true
-        )
+        output += outputResultLine("Cap + img ready", capturePlusImageReady, numCommas, true)
         output += outputResultLine("Image save", imagesave, numCommas, true)
         output += outputResultLine("Switch to 2nd", switchToSecond, numCommas, true)
         output += outputResultLine("Switch to 1st", switchToFirst, numCommas, true)
@@ -246,21 +243,35 @@ class TestResults {
         output += outputResultLine("Camera close", cameraClose, numCommas, true)
         output += outputBooleanResultLine("HDR+", isHDRPlus, numCommas, true)
         output += outputResultLine("Total", total, numCommas, true)
-        output += outputResultLine(
-            "Total w/o preview buffer", totalNoPreview,
-            numCommas, true
-        )
+        output += outputResultLine("Total w/o preview buffer", totalNoPreview, numCommas, true)
 
         if (1 < capturePlusImageReady.size) {
             val captureStats = Stats.of(capturePlusImageReady)
-            output += "Capture range:," + captureStats.min() + " - " + captureStats.max() +
-                outputCommas(numCommas) + "\n"
-            output += "Capture mean " + " (" + captureStats.count() + " captures):," +
-                Stats.of(capturePlusImageReady).mean() + outputCommas(numCommas) + "\n"
-            output += "Capture median:," + Quantiles.median().compute(capturePlusImageReady) +
-                outputCommas(numCommas) + "\n"
-            output += "Capture standard deviation:," +
-                captureStats.sampleStandardDeviation() + outputCommas(numCommas) + "\n"
+            output +=
+                "Capture range:," +
+                    captureStats.min() +
+                    " - " +
+                    captureStats.max() +
+                    outputCommas(numCommas) +
+                    "\n"
+            output +=
+                "Capture mean " +
+                    " (" +
+                    captureStats.count() +
+                    " captures):," +
+                    Stats.of(capturePlusImageReady).mean() +
+                    outputCommas(numCommas) +
+                    "\n"
+            output +=
+                "Capture median:," +
+                    Quantiles.median().compute(capturePlusImageReady) +
+                    outputCommas(numCommas) +
+                    "\n"
+            output +=
+                "Capture standard deviation:," +
+                    captureStats.sampleStandardDeviation() +
+                    outputCommas(numCommas) +
+                    "\n"
         }
 
         output += "Total batch time:," + Stats.of(total).sum() + outputCommas(numCommas) + "\n"
@@ -293,37 +304,34 @@ fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
  * (Environment.DIRECTORY_DOCUMENTS) can work. For Q, set requestLegacyExternalStorage = true to
  * make it workable. Ref:
  * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
-*/
+ */
 fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
-    val csvFile = File(
-        Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOCUMENTS
-        ),
-        File.separatorChar + MainActivity.LOG_DIR + File.separatorChar +
-            prefix + "_" + generateCSVTimestamp() + ".csv"
-    )
+    val csvFile =
+        File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+            File.separatorChar +
+                MainActivity.LOG_DIR +
+                File.separatorChar +
+                prefix +
+                "_" +
+                generateCSVTimestamp() +
+                ".csv"
+        )
 
-    val csvDir = File(
-        Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOCUMENTS
-        ),
-        MainActivity.LOG_DIR
-    )
-    val docsDir = File(
-        Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOCUMENTS
-        ),
-        ""
-    )
+    val csvDir =
+        File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+            MainActivity.LOG_DIR
+        )
+    val docsDir =
+        File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "")
 
     if (!docsDir.exists()) {
         val createSuccess = docsDir.mkdir()
         if (!createSuccess) {
             activity.runOnUiThread {
-                Toast.makeText(
-                    activity, "Documents" + " creation failed.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(activity, "Documents" + " creation failed.", Toast.LENGTH_SHORT)
+                    .show()
             }
             MainActivity.logd("Log storage directory Documents" + " creation failed!!")
         } else {
@@ -336,20 +344,20 @@ fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
         if (!createSuccess) {
             activity.runOnUiThread {
                 Toast.makeText(
-                    activity,
-                    "Documents/" + MainActivity.LOG_DIR +
-                        " creation failed.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                        activity,
+                        "Documents/" + MainActivity.LOG_DIR + " creation failed.",
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
             }
             MainActivity.logd(
-                "Log storage directory Documents/" +
-                    MainActivity.LOG_DIR + " creation failed!!"
+                "Log storage directory Documents/" + MainActivity.LOG_DIR + " creation failed!!"
             )
         } else {
             MainActivity.logd(
                 "Log storage directory Documents/" +
-                    MainActivity.LOG_DIR + " did not exist. Created."
+                    MainActivity.LOG_DIR +
+                    " did not exist. Created."
             )
         }
     }
@@ -386,16 +394,18 @@ fun writeCSVBeforeQ(activity: MainActivity, prefix: String, csv: String) {
 fun writeCSVAfterQ(activity: MainActivity, prefix: String, csv: String) {
     var output: OutputStream?
     val resolver: ContentResolver = activity.contentResolver
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, prefix + "_" + generateCSVTimestamp() + ".csv")
-        put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
-        put(MediaStore.MediaColumns.RELATIVE_PATH, LOG_PATH)
-    }
+    val contentValues =
+        ContentValues().apply {
+            put(
+                MediaStore.MediaColumns.DISPLAY_NAME,
+                prefix + "_" + generateCSVTimestamp() + ".csv"
+            )
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, LOG_PATH)
+        }
 
-    val csvUri = resolver.insert(
-        MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
-        contentValues
-    )
+    val csvUri =
+        resolver.insert(MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL), contentValues)
     if (csvUri != null) {
         lateinit var bufferWriter: BufferedWriter
         try {
@@ -415,17 +425,12 @@ fun writeCSVAfterQ(activity: MainActivity, prefix: String, csv: String) {
         }
     } else {
         activity.runOnUiThread {
-            Toast.makeText(
-                activity, "CSV log file creation failed.",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(activity, "CSV log file creation failed.", Toast.LENGTH_SHORT).show()
         }
     }
 }
 
-/**
- * Delete all Antelope .csv files in the Documents directory
- */
+/** Delete all Antelope .csv files in the Documents directory */
 fun deleteCSVFiles(activity: MainActivity) {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
         deleteCSVFilesAfterQ(activity)
@@ -449,11 +454,7 @@ fun deleteCSVFilesAfterQ(activity: MainActivity) {
     val selection = MediaStore.MediaColumns.RELATIVE_PATH + " like ?"
     val selectionArgs = arrayOf("%$LOG_PATH%")
 
-    resolver.delete(
-        logDirUri,
-        selection,
-        selectionArgs
-    )
+    resolver.delete(logDirUri, selection, selectionArgs)
 }
 
 /**
@@ -463,17 +464,15 @@ fun deleteCSVFilesAfterQ(activity: MainActivity) {
  * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
  */
 fun deleteCSVFilesBeforeQ(activity: MainActivity) {
-    val csvDir = File(
-        Environment.getExternalStoragePublicDirectory(
-            Environment.DIRECTORY_DOCUMENTS
-        ),
-        MainActivity.LOG_DIR
-    )
+    val csvDir =
+        File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+            MainActivity.LOG_DIR
+        )
 
     if (csvDir.exists()) {
 
-        for (csv in csvDir.listFiles()!!)
-            csv.delete()
+        for (csv in csvDir.listFiles()!!) csv.delete()
 
         // Files are deleted, let media scanner know
         val scannerIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
@@ -482,9 +481,7 @@ fun deleteCSVFilesBeforeQ(activity: MainActivity) {
     }
 }
 
-/**
- * Generate a timestamp for csv filenames
- */
+/** Generate a timestamp for csv filenames */
 fun generateCSVTimestamp(): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd-HH'h'mm", Locale.US)
     return sdf.format(Date())
@@ -493,19 +490,16 @@ fun generateCSVTimestamp(): String {
 /**
  * Create a string consisting solely of the number of commas indicated
  *
- * Handy for properly formatting comma-based .csv files as the number of columns will depend on
- * the user configurable number of test repetitions.
+ * Handy for properly formatting comma-based .csv files as the number of columns will depend on the
+ * user configurable number of test repetitions.
  */
 fun outputCommas(numCommas: Int): String {
     var output = ""
-    for (i in 1..numCommas)
-        output += ","
+    for (i in 1..numCommas) output += ","
     return output
 }
 
-/**
- * For a list of Longs, output a comma separated .csv line
- */
+/** For a list of Longs, output a comma separated .csv line */
 fun outputResultLine(
     name: String,
     results: ArrayList<Long>,
@@ -517,21 +511,17 @@ fun outputResultLine(
     if (!results.isEmpty()) {
         output += name + ": "
         for ((index, result) in results.withIndex()) {
-            if (isCSV || (0 != index))
-                output += ","
+            if (isCSV || (0 != index)) output += ","
             output += result
         }
-        if (isCSV)
-            output += outputCommas(numCommas - results.size)
+        if (isCSV) output += outputCommas(numCommas - results.size)
         output += "\n"
     }
 
     return output
 }
 
-/**
- * For a list of Booleans, output a comma separated .csv line
- */
+/** For a list of Booleans, output a comma separated .csv line */
 fun outputBooleanResultLine(
     name: String,
     results: ArrayList<Boolean>,
@@ -540,19 +530,14 @@ fun outputBooleanResultLine(
 ): String {
     var output = ""
 
-// If every result is false, don't output this line at all
+    // If every result is false, don't output this line at all
     if (!results.isEmpty() && results.contains(true)) {
         output += name + ": "
         for ((index, result) in results.withIndex()) {
-            if (isCSV || (0 != index))
-                output += ","
-            if (result)
-                output += "HDR+"
-            else
-                output += " - "
+            if (isCSV || (0 != index)) output += ","
+            if (result) output += "HDR+" else output += " - "
         }
-        if (isCSV)
-            output += outputCommas(numCommas - results.size)
+        if (isCSV) output += outputCommas(numCommas - results.size)
         output += "\n"
     }
 

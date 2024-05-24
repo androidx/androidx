@@ -73,9 +73,8 @@ class ScreenFlashTaskTest {
         screenFlashTask.preCapture(null)
         shadowOf(getMainLooper()).idle()
 
-        assertThat(screenFlash.lastApplyExpirationTimeMillis).isAtLeast(
-            initialTime + TimeUnit.SECONDS.toMillis(3)
-        )
+        assertThat(screenFlash.lastApplyExpirationTimeMillis)
+            .isAtLeast(initialTime + TimeUnit.SECONDS.toMillis(3))
     }
 
     @Test
@@ -86,9 +85,8 @@ class ScreenFlashTaskTest {
         screenFlashTask.preCapture(null)
         shadowOf(getMainLooper()).idle()
 
-        assertThat(screenFlash.lastApplyExpirationTimeMillis).isLessThan(
-            initialTime + TimeUnit.SECONDS.toMillis(4)
-        )
+        assertThat(screenFlash.lastApplyExpirationTimeMillis)
+            .isLessThan(initialTime + TimeUnit.SECONDS.toMillis(4))
     }
 
     @Test
@@ -201,9 +199,7 @@ class ScreenFlashTaskTest {
         shadowOf(getMainLooper()).idle() // ScreenFlash#apply is invoked in main thread
 
         cameraControl.focusMeteringControl.awaitTriggerAePrecapture(
-            TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS + 1
-            )
+            TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS + 1)
         )
     }
 
@@ -285,11 +281,14 @@ class ScreenFlashTaskTest {
     private fun createScreenFlashTask(
         addTorchFlashRequiredQuirk: Boolean = false
     ): Camera2CapturePipeline.ScreenFlashTask {
-        val quirks = Quirks(mutableListOf<Quirk>().apply {
-            if (addTorchFlashRequiredQuirk) {
-                add(TorchFlashRequiredFor3aUpdateQuirk(cameraCharacteristics))
-            }
-        })
+        val quirks =
+            Quirks(
+                mutableListOf<Quirk>().apply {
+                    if (addTorchFlashRequiredQuirk) {
+                        add(TorchFlashRequiredFor3aUpdateQuirk(cameraCharacteristics))
+                    }
+                }
+            )
 
         cameraControl = FakeCamera2CameraControlImpl(cameraCharacteristics, quirks, screenFlash)
         return Camera2CapturePipeline.ScreenFlashTask(
@@ -302,37 +301,38 @@ class ScreenFlashTaskTest {
 
     private fun createCameraCharacteristicsCompat(
         addExternalFlashAeMode: Boolean = false,
-    ) = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+    ) =
+        CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
             ShadowCameraCharacteristics.newCameraCharacteristics().also {
                 Shadow.extract<ShadowCameraCharacteristics>(it).apply {
                     if (addExternalFlashAeMode) {
                         set(
                             CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
-                            intArrayOf(
-                                CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH
-                            )
+                            intArrayOf(CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
                         )
                     }
                 }
-            }, CAMERA_ID
+            },
+            CAMERA_ID
         )
 
     internal inner class FakeCamera2CameraControlImpl(
         cameraCharacteristics: CameraCharacteristicsCompat = createCameraCharacteristicsCompat(),
         quirks: Quirks,
         private val screenFlash: ScreenFlash,
-    ) : Camera2CameraControlImpl(
-        cameraCharacteristics,
-        executorService,
-        MoreExecutors.directExecutor(),
-        object : CameraControlInternal.ControlUpdateCallback {
-            override fun onCameraControlUpdateSessionConfig() {}
+    ) :
+        Camera2CameraControlImpl(
+            cameraCharacteristics,
+            executorService,
+            MoreExecutors.directExecutor(),
+            object : CameraControlInternal.ControlUpdateCallback {
+                override fun onCameraControlUpdateSessionConfig() {}
 
-            override fun onCameraControlCaptureRequests(
-                captureConfigs: MutableList<CaptureConfig>
-            ) {}
-        }
-    ) {
+                override fun onCameraControlCaptureRequests(
+                    captureConfigs: MutableList<CaptureConfig>
+                ) {}
+            }
+        ) {
         private lateinit var captureResultListeners: MutableList<CaptureResultListener>
         var isTorchEnabled = false
 
@@ -385,19 +385,18 @@ class ScreenFlashTaskTest {
         timeoutMillis: Long,
         exceptionType: Class<T>
     ) {
-        assertThrows(exceptionType) {
-            get(timeoutMillis, TimeUnit.MILLISECONDS)
-        }
+        assertThrows(exceptionType) { get(timeoutMillis, TimeUnit.MILLISECONDS) }
     }
 
     companion object {
         private const val CAMERA_ID = "0"
 
-        private val RESULT_CONVERGED: Map<CaptureResult.Key<*>, *> = mapOf(
-            CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO,
-            CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
-            CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
-            CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_CONVERGED,
-        )
+        private val RESULT_CONVERGED: Map<CaptureResult.Key<*>, *> =
+            mapOf(
+                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO,
+                CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
+                CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_CONVERGED,
+            )
     }
 }

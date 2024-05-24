@@ -41,28 +41,26 @@ class CameraStateAdapter @Inject constructor() {
     internal val cameraInternalState = LiveDataObservable<CameraInternal.State>()
     internal val cameraState = MutableLiveData<CameraState>()
 
-    @GuardedBy("lock")
-    private var currentGraph: CameraGraph? = null
+    @GuardedBy("lock") private var currentGraph: CameraGraph? = null
 
-    @GuardedBy("lock")
-    private var currentCameraInternalState = CameraInternal.State.CLOSED
+    @GuardedBy("lock") private var currentCameraInternalState = CameraInternal.State.CLOSED
 
-    @GuardedBy("lock")
-    private var currentCameraStateError: CameraState.StateError? = null
+    @GuardedBy("lock") private var currentCameraStateError: CameraState.StateError? = null
 
     init {
         postCameraState(CameraInternal.State.CLOSED)
     }
 
-    fun onGraphUpdated(cameraGraph: CameraGraph) = synchronized(lock) {
-        Log.debug { "Camera graph updated from $currentGraph to $cameraGraph" }
-        if (currentCameraInternalState != CameraInternal.State.CLOSED) {
-            postCameraState(CameraInternal.State.CLOSING)
-            postCameraState(CameraInternal.State.CLOSED)
+    fun onGraphUpdated(cameraGraph: CameraGraph) =
+        synchronized(lock) {
+            Log.debug { "Camera graph updated from $currentGraph to $cameraGraph" }
+            if (currentCameraInternalState != CameraInternal.State.CLOSED) {
+                postCameraState(CameraInternal.State.CLOSING)
+                postCameraState(CameraInternal.State.CLOSED)
+            }
+            currentGraph = cameraGraph
+            currentCameraInternalState = CameraInternal.State.CLOSED
         }
-        currentGraph = cameraGraph
-        currentCameraInternalState = CameraInternal.State.CLOSED
-    }
 
     fun onGraphStateUpdated(cameraGraph: CameraGraph, graphState: GraphState) =
         synchronized(lock) {
@@ -111,24 +109,45 @@ class CameraStateAdapter @Inject constructor() {
     internal fun calculateNextState(
         currentState: CameraInternal.State,
         graphState: GraphState
-    ): CombinedCameraState? = when (currentState) {
-        CameraInternal.State.CLOSED ->
-            when (graphState) {
-                GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
-                GraphStateStarted -> CombinedCameraState(CameraInternal.State.OPEN)
-                else -> null
-            }
-
-        CameraInternal.State.OPENING ->
-            when (graphState) {
-                GraphStateStarted -> CombinedCameraState(CameraInternal.State.OPEN)
-                is GraphStateError ->
-                    if (graphState.willAttemptRetry) {
-                        CombinedCameraState(
-                            CameraInternal.State.OPENING,
-                            graphState.cameraError.toCameraStateError()
-                        )
-                    } else {
+    ): CombinedCameraState? =
+        when (currentState) {
+            CameraInternal.State.CLOSED ->
+                when (graphState) {
+                    GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
+                    GraphStateStarted -> CombinedCameraState(CameraInternal.State.OPEN)
+                    else -> null
+                }
+            CameraInternal.State.OPENING ->
+                when (graphState) {
+                    GraphStateStarted -> CombinedCameraState(CameraInternal.State.OPEN)
+                    is GraphStateError ->
+                        if (graphState.willAttemptRetry) {
+                            CombinedCameraState(
+                                CameraInternal.State.OPENING,
+                                graphState.cameraError.toCameraStateError()
+                            )
+                        } else {
+                            if (isRecoverableError(graphState.cameraError)) {
+                                CombinedCameraState(
+                                    CameraInternal.State.PENDING_OPEN,
+                                    graphState.cameraError.toCameraStateError()
+                                )
+                            } else {
+                                CombinedCameraState(
+                                    CameraInternal.State.CLOSING,
+                                    graphState.cameraError.toCameraStateError()
+                                )
+                            }
+                        }
+                    GraphStateStopping -> CombinedCameraState(CameraInternal.State.CLOSING)
+                    GraphStateStopped -> CombinedCameraState(CameraInternal.State.CLOSED)
+                    else -> null
+                }
+            CameraInternal.State.OPEN ->
+                when (graphState) {
+                    GraphStateStopping -> CombinedCameraState(CameraInternal.State.CLOSING)
+                    GraphStateStopped -> CombinedCameraState(CameraInternal.State.CLOSED)
+                    is GraphStateError ->
                         if (isRecoverableError(graphState.cameraError)) {
                             CombinedCameraState(
                                 CameraInternal.State.PENDING_OPEN,
@@ -136,72 +155,43 @@ class CameraStateAdapter @Inject constructor() {
                             )
                         } else {
                             CombinedCameraState(
-                                CameraInternal.State.CLOSING,
+                                CameraInternal.State.CLOSED,
                                 graphState.cameraError.toCameraStateError()
                             )
                         }
-                    }
-
-                GraphStateStopping -> CombinedCameraState(CameraInternal.State.CLOSING)
-                GraphStateStopped -> CombinedCameraState(CameraInternal.State.CLOSED)
-                else -> null
-            }
-
-        CameraInternal.State.OPEN ->
-            when (graphState) {
-                GraphStateStopping -> CombinedCameraState(CameraInternal.State.CLOSING)
-                GraphStateStopped -> CombinedCameraState(CameraInternal.State.CLOSED)
-                is GraphStateError ->
-                    if (isRecoverableError(graphState.cameraError)) {
+                    else -> null
+                }
+            CameraInternal.State.CLOSING ->
+                when (graphState) {
+                    GraphStateStopped -> CombinedCameraState(CameraInternal.State.CLOSED)
+                    GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
+                    is GraphStateError ->
                         CombinedCameraState(
-                            CameraInternal.State.PENDING_OPEN,
+                            CameraInternal.State.CLOSING,
                             graphState.cameraError.toCameraStateError()
                         )
-                    } else {
-                        CombinedCameraState(
-                            CameraInternal.State.CLOSED,
-                            graphState.cameraError.toCameraStateError()
-                        )
-                    }
-
-                else -> null
-            }
-
-        CameraInternal.State.CLOSING ->
-            when (graphState) {
-                GraphStateStopped -> CombinedCameraState(CameraInternal.State.CLOSED)
-                GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
-                is GraphStateError -> CombinedCameraState(
-                    CameraInternal.State.CLOSING,
-                    graphState.cameraError.toCameraStateError()
-                )
-
-                else -> null
-            }
-
-        CameraInternal.State.PENDING_OPEN ->
-            when (graphState) {
-                GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
-                GraphStateStarted -> CombinedCameraState(CameraInternal.State.OPEN)
-                is GraphStateError ->
-                    if (isRecoverableError(graphState.cameraError)) {
-                        CombinedCameraState(
-                            CameraInternal.State.PENDING_OPEN,
-                            graphState.cameraError.toCameraStateError()
-                        )
-                    } else {
-                        CombinedCameraState(
-                            CameraInternal.State.CLOSED,
-                            graphState.cameraError.toCameraStateError()
-                        )
-                    }
-
-                else -> null
-            }
-
-        else ->
-            null
-    }
+                    else -> null
+                }
+            CameraInternal.State.PENDING_OPEN ->
+                when (graphState) {
+                    GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
+                    GraphStateStarted -> CombinedCameraState(CameraInternal.State.OPEN)
+                    is GraphStateError ->
+                        if (isRecoverableError(graphState.cameraError)) {
+                            CombinedCameraState(
+                                CameraInternal.State.PENDING_OPEN,
+                                graphState.cameraError.toCameraStateError()
+                            )
+                        } else {
+                            CombinedCameraState(
+                                CameraInternal.State.CLOSED,
+                                graphState.cameraError.toCameraStateError()
+                            )
+                        }
+                    else -> null
+                }
+            else -> null
+        }
 
     internal data class CombinedCameraState(
         val state: CameraInternal.State,
@@ -220,31 +210,26 @@ class CameraStateAdapter @Inject constructor() {
                     CameraError.ERROR_CAMERA_SERVICE -> CameraState.ERROR_CAMERA_FATAL_ERROR
                     CameraError.ERROR_CAMERA_DISCONNECTED ->
                         CameraState.ERROR_OTHER_RECOVERABLE_ERROR
-
                     CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION ->
                         CameraState.ERROR_CAMERA_FATAL_ERROR
-
-                    CameraError.ERROR_SECURITY_EXCEPTION ->
-                        CameraState.ERROR_CAMERA_FATAL_ERROR
-
+                    CameraError.ERROR_SECURITY_EXCEPTION -> CameraState.ERROR_CAMERA_FATAL_ERROR
                     CameraError.ERROR_GRAPH_CONFIG -> CameraState.ERROR_STREAM_CONFIG
                     CameraError.ERROR_DO_NOT_DISTURB_ENABLED ->
                         CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED
-
                     CameraError.ERROR_UNKNOWN_EXCEPTION -> CameraState.ERROR_CAMERA_FATAL_ERROR
-
                     else -> throw IllegalArgumentException("Unexpected CameraError: $this")
                 }
             )
 
-        internal fun CameraInternal.State.toCameraState(): CameraState.Type = when (this) {
-            CameraInternal.State.CLOSED -> CameraState.Type.CLOSED
-            CameraInternal.State.OPENING -> CameraState.Type.OPENING
-            CameraInternal.State.OPEN -> CameraState.Type.OPEN
-            CameraInternal.State.CLOSING -> CameraState.Type.CLOSING
-            CameraInternal.State.PENDING_OPEN -> CameraState.Type.PENDING_OPEN
-            else -> throw IllegalArgumentException("Unexpected CameraInternal state: $this")
-        }
+        internal fun CameraInternal.State.toCameraState(): CameraState.Type =
+            when (this) {
+                CameraInternal.State.CLOSED -> CameraState.Type.CLOSED
+                CameraInternal.State.OPENING -> CameraState.Type.OPENING
+                CameraInternal.State.OPEN -> CameraState.Type.OPEN
+                CameraInternal.State.CLOSING -> CameraState.Type.CLOSING
+                CameraInternal.State.PENDING_OPEN -> CameraState.Type.PENDING_OPEN
+                else -> throw IllegalArgumentException("Unexpected CameraInternal state: $this")
+            }
 
         internal fun isRecoverableError(cameraError: CameraError) =
             cameraError == CameraError.ERROR_CAMERA_DISCONNECTED ||

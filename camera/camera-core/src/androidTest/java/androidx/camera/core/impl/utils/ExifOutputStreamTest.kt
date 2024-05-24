@@ -34,12 +34,13 @@ public class ExifOutputStreamTest {
     public fun canSetExifOnCompressedBitmap() {
         // Arrange.
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        val exifData = ExifData.builderForDevice()
-            .setImageWidth(bitmap.width)
-            .setImageHeight(bitmap.height)
-            .setFlashState(CameraCaptureMetaData.FlashState.NONE)
-            .setExposureTimeNanos(0)
-            .build()
+        val exifData =
+            ExifData.builderForDevice()
+                .setImageWidth(bitmap.width)
+                .setImageHeight(bitmap.height)
+                .setFlashState(CameraCaptureMetaData.FlashState.NONE)
+                .setExposureTimeNanos(0)
+                .build()
 
         val fileWithExif = File.createTempFile("testWithExif", ".jpg")
         val outputStreamWithExif = ExifOutputStream(fileWithExif.outputStream(), exifData)

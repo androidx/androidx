@@ -40,24 +40,14 @@ class MainActivity : AppCompatActivity() {
         binding.rotationUnlocked.setOnClickListener {
             launch(UnlockedOrientationActivity::class.java)
         }
-        binding.rotationLocked.setOnClickListener {
-            launch(LockedOrientationActivity::class.java)
-        }
+        binding.rotationLocked.setOnClickListener { launch(LockedOrientationActivity::class.java) }
         binding.rotationConfigChanges.setOnClickListener {
             launch(OrientationConfigChangesOverriddenActivity::class.java)
         }
-        binding.viewpager.setOnClickListener {
-            launch(ViewPagerActivity::class.java)
-        }
-        binding.viewpager2.setOnClickListener {
-            launch(ViewPager2Activity::class.java)
-        }
-        binding.foldable.setOnClickListener {
-            launch(FoldableCameraActivity::class.java)
-        }
-        binding.compose.setOnClickListener {
-            launch(ComposeCameraActivity::class.java)
-        }
+        binding.viewpager.setOnClickListener { launch(ViewPagerActivity::class.java) }
+        binding.viewpager2.setOnClickListener { launch(ViewPager2Activity::class.java) }
+        binding.foldable.setOnClickListener { launch(FoldableCameraActivity::class.java) }
+        binding.compose.setOnClickListener { launch(ComposeCameraActivity::class.java) }
     }
 
     private fun <A : ComponentActivity> launch(activityClass: Class<A>) {

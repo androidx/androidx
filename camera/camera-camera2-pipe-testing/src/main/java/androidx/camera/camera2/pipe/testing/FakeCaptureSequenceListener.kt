@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe.testing
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener
 
-/***
+/**
  * Fake [CaptureSequenceListener] instance that can be used to check to see if
  * [onCaptureSequenceComplete] has been invoked.
  */

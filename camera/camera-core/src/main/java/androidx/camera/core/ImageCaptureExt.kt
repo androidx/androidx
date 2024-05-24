@@ -51,31 +51,32 @@ suspend fun ImageCapture.takePicture(
             ?: CameraXExecutors.directExecutor()
     return suspendCancellableCoroutine { continuation ->
         lateinit var delegatingCallback: DelegatingImageCapturedCallback
-        delegatingCallback = DelegatingImageCapturedCallback(
-            object : ImageCapture.OnImageCapturedCallback() {
-                override fun onCaptureStarted() {
-                    onCaptureStarted?.invoke()
-                }
+        delegatingCallback =
+            DelegatingImageCapturedCallback(
+                object : ImageCapture.OnImageCapturedCallback() {
+                    override fun onCaptureStarted() {
+                        onCaptureStarted?.invoke()
+                    }
 
-                override fun onCaptureProcessProgressed(progress: Int) {
-                    onCaptureProcessProgressed?.invoke(progress)
-                }
+                    override fun onCaptureProcessProgressed(progress: Int) {
+                        onCaptureProcessProgressed?.invoke(progress)
+                    }
 
-                override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
-                    onPostviewBitmapAvailable?.invoke(bitmap)
-                }
+                    override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
+                        onPostviewBitmapAvailable?.invoke(bitmap)
+                    }
 
-                override fun onCaptureSuccess(imageProxy: ImageProxy) {
-                    delegatingCallback.dispose()
-                    continuation.resume(imageProxy)
-                }
+                    override fun onCaptureSuccess(imageProxy: ImageProxy) {
+                        delegatingCallback.dispose()
+                        continuation.resume(imageProxy)
+                    }
 
-                override fun onError(exception: ImageCaptureException) {
-                    delegatingCallback.dispose()
-                    continuation.resumeWithException(exception)
+                    override fun onError(exception: ImageCaptureException) {
+                        delegatingCallback.dispose()
+                        continuation.resumeWithException(exception)
+                    }
                 }
-            }
-        )
+            )
         continuation.invokeOnCancellation { delegatingCallback.dispose() }
         takePicture(callbackExecutor, delegatingCallback)
     }
@@ -102,31 +103,32 @@ suspend fun ImageCapture.takePicture(
             ?: CameraXExecutors.directExecutor()
     return suspendCancellableCoroutine { continuation ->
         lateinit var delegatingCallback: DelegatingImageSavedCallback
-        delegatingCallback = DelegatingImageSavedCallback(
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onCaptureStarted() {
-                    onCaptureStarted?.invoke()
-                }
+        delegatingCallback =
+            DelegatingImageSavedCallback(
+                object : ImageCapture.OnImageSavedCallback {
+                    override fun onCaptureStarted() {
+                        onCaptureStarted?.invoke()
+                    }
 
-                override fun onCaptureProcessProgressed(progress: Int) {
-                    onCaptureProcessProgressed?.invoke(progress)
-                }
+                    override fun onCaptureProcessProgressed(progress: Int) {
+                        onCaptureProcessProgressed?.invoke(progress)
+                    }
 
-                override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
-                    onPostviewBitmapAvailable?.invoke(bitmap)
-                }
+                    override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
+                        onPostviewBitmapAvailable?.invoke(bitmap)
+                    }
 
-                override fun onImageSaved(outputFileResults: OutputFileResults) {
-                    delegatingCallback.dispose()
-                    continuation.resume(outputFileResults)
-                }
+                    override fun onImageSaved(outputFileResults: OutputFileResults) {
+                        delegatingCallback.dispose()
+                        continuation.resume(outputFileResults)
+                    }
 
-                override fun onError(exception: ImageCaptureException) {
-                    delegatingCallback.dispose()
-                    continuation.resumeWithException(exception)
+                    override fun onError(exception: ImageCaptureException) {
+                        delegatingCallback.dispose()
+                        continuation.resumeWithException(exception)
+                    }
                 }
-            }
-        )
+            )
         continuation.invokeOnCancellation { delegatingCallback.dispose() }
         takePicture(outputFileOptions, callbackExecutor, delegatingCallback)
     }
@@ -137,9 +139,8 @@ internal fun ImageCapture.getTakePictureRequest(): TakePictureRequest? {
     return takePictureManager.capturingRequest?.takePictureRequest
 }
 
-private class DelegatingImageCapturedCallback(
-    delegate: ImageCapture.OnImageCapturedCallback
-) : ImageCapture.OnImageCapturedCallback() {
+private class DelegatingImageCapturedCallback(delegate: ImageCapture.OnImageCapturedCallback) :
+    ImageCapture.OnImageCapturedCallback() {
     private val _delegate = AtomicReference(delegate)
     private val delegate: ImageCapture.OnImageCapturedCallback?
         get() = _delegate.get()
@@ -169,9 +170,8 @@ private class DelegatingImageCapturedCallback(
     }
 }
 
-private class DelegatingImageSavedCallback(
-    delegate: ImageCapture.OnImageSavedCallback
-) : ImageCapture.OnImageSavedCallback {
+private class DelegatingImageSavedCallback(delegate: ImageCapture.OnImageSavedCallback) :
+    ImageCapture.OnImageSavedCallback {
     private val _delegate = AtomicReference(delegate)
     private val delegate: ImageCapture.OnImageSavedCallback?
         get() = _delegate.get()

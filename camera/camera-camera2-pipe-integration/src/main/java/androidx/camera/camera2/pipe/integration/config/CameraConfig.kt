@@ -69,24 +69,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 
-@Scope
-annotation class CameraScope
+@Scope annotation class CameraScope
 
 /** Dependency bindings for adapting an individual [CameraInternal] instance to [CameraPipe] */
 @OptIn(ExperimentalCamera2Interop::class)
 @Module(
-    includes = [
-        Camera2CameraControlCompat.Bindings::class,
-        EvCompCompat.Bindings::class,
-        EvCompControl.Bindings::class,
-        FlashControl.Bindings::class,
-        FocusMeteringControl.Bindings::class,
-        State3AControl.Bindings::class,
-        StillCaptureRequestControl.Bindings::class,
-        TorchControl.Bindings::class,
-        ZoomCompat.Bindings::class,
-        ZoomControl.Bindings::class,
-    ],
+    includes =
+        [
+            Camera2CameraControlCompat.Bindings::class,
+            EvCompCompat.Bindings::class,
+            EvCompControl.Bindings::class,
+            FlashControl.Bindings::class,
+            FocusMeteringControl.Bindings::class,
+            State3AControl.Bindings::class,
+            StillCaptureRequestControl.Bindings::class,
+            TorchControl.Bindings::class,
+            ZoomCompat.Bindings::class,
+            ZoomControl.Bindings::class,
+        ],
     subcomponents = [UseCaseCameraComponent::class]
 )
 abstract class CameraModule {
@@ -102,17 +102,14 @@ abstract class CameraModule {
             val executor = cameraThreadConfig.cameraExecutor
             val dispatcher = cameraThreadConfig.cameraExecutor.asCoroutineDispatcher()
 
-            val cameraScope = CoroutineScope(
-                SupervisorJob() +
-                    dispatcher +
-                    CoroutineName("CXCP-UseCase-${cameraConfig.cameraId.value}")
-            )
+            val cameraScope =
+                CoroutineScope(
+                    SupervisorJob() +
+                        dispatcher +
+                        CoroutineName("CXCP-UseCase-${cameraConfig.cameraId.value}")
+                )
 
-            return UseCaseThreads(
-                cameraScope,
-                executor,
-                dispatcher
-            )
+            return UseCaseThreads(cameraScope, executor, dispatcher)
         }
 
         @CameraScope
@@ -120,13 +117,8 @@ abstract class CameraModule {
         fun provideCamera2CameraControl(
             compat: Camera2CameraControlCompat,
             threads: UseCaseThreads,
-            @VisibleForTesting
-            requestListener: ComboRequestListener,
-        ) = Camera2CameraControl.create(
-            compat,
-            threads,
-            requestListener
-        )
+            @VisibleForTesting requestListener: ComboRequestListener,
+        ) = Camera2CameraControl.create(compat, threads, requestListener)
 
         @CameraScope
         @Nullable
@@ -178,9 +170,7 @@ abstract class CameraModule {
 
         @CameraScope
         @Provides
-        fun provideZslControl(
-            cameraProperties: CameraProperties
-        ): ZslControl {
+        fun provideZslControl(cameraProperties: CameraProperties): ZslControl {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 return ZslControlImpl(cameraProperties)
             } else {
@@ -189,14 +179,11 @@ abstract class CameraModule {
         }
     }
 
-    @Binds
-    abstract fun bindCameraProperties(impl: CameraPipeCameraProperties): CameraProperties
+    @Binds abstract fun bindCameraProperties(impl: CameraPipeCameraProperties): CameraProperties
 
-    @Binds
-    abstract fun bindCameraInternal(adapter: CameraInternalAdapter): CameraInternal
+    @Binds abstract fun bindCameraInternal(adapter: CameraInternalAdapter): CameraInternal
 
-    @Binds
-    abstract fun bindCameraInfoInternal(adapter: CameraInfoAdapter): CameraInfoInternal
+    @Binds abstract fun bindCameraInfoInternal(adapter: CameraInfoAdapter): CameraInfoInternal
 
     @Binds
     abstract fun bindCameraControlInternal(adapter: CameraControlAdapter): CameraControlInternal
@@ -205,23 +192,24 @@ abstract class CameraModule {
 /** Configuration properties used when creating a [CameraInternal] instance. */
 @Module
 class CameraConfig(val cameraId: CameraId) {
-    @Provides
-    fun provideCameraConfig(): CameraConfig = this
+    @Provides fun provideCameraConfig(): CameraConfig = this
 }
 
 /** Dagger subcomponent for a single [CameraInternal] instance. */
 @CameraScope
 @Subcomponent(
-    modules = [
-        CameraModule::class,
-        CameraConfig::class,
-        CameraCompatModule::class,
-    ]
+    modules =
+        [
+            CameraModule::class,
+            CameraConfig::class,
+            CameraCompatModule::class,
+        ]
 )
 interface CameraComponent {
     @Subcomponent.Builder
     interface Builder {
         fun config(config: CameraConfig): Builder
+
         fun build(): CameraComponent
     }
 

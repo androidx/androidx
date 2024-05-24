@@ -47,23 +47,20 @@ import javax.inject.Scope
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 
-@Scope
-internal annotation class CameraGraphScope
+@Scope internal annotation class CameraGraphScope
 
-@Qualifier
-internal annotation class ForCameraGraph
+@Qualifier internal annotation class ForCameraGraph
 
-@Qualifier
-internal annotation class CameraGraphContext
+@Qualifier internal annotation class CameraGraphContext
 
 @CameraGraphScope
 @Subcomponent(
     modules =
-    [
-        SharedCameraGraphModules::class,
-        InternalCameraGraphModules::class,
-        CameraGraphConfigModule::class,
-    ]
+        [
+            SharedCameraGraphModules::class,
+            InternalCameraGraphModules::class,
+            CameraGraphConfigModule::class,
+        ]
 )
 internal interface CameraGraphComponent {
     fun cameraGraph(): CameraGraph
@@ -71,33 +68,29 @@ internal interface CameraGraphComponent {
     @Subcomponent.Builder
     interface Builder {
         fun cameraGraphConfigModule(config: CameraGraphConfigModule): Builder
+
         fun build(): CameraGraphComponent
     }
 }
 
 @Module
 internal class CameraGraphConfigModule(private val config: CameraGraph.Config) {
-    @Provides
-    fun provideCameraGraphConfig(): CameraGraph.Config = config
+    @Provides fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
 
 @Module
 internal abstract class SharedCameraGraphModules {
-    @Binds
-    abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
+    @Binds abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
 
-    @Binds
-    abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
+    @Binds abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
 
-    @Binds
-    abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
+    @Binds abstract fun bindGraphListener(graphProcessor: GraphProcessorImpl): GraphListener
 
     @Binds
     @CameraGraphContext
     abstract fun bindCameraGraphContext(@CameraPipeContext cameraPipeContext: Context): Context
 
-    @Binds
-    abstract fun bindStreamGraph(streamGraph: StreamGraphImpl): StreamGraph
+    @Binds abstract fun bindStreamGraph(streamGraph: StreamGraphImpl): StreamGraph
 
     companion object {
         @CameraGraphScope
@@ -158,10 +151,7 @@ internal abstract class SharedCameraGraphModules {
             imageSourceMap: ImageSourceMap,
             frameCaptureQueue: FrameCaptureQueue
         ): FrameDistributor {
-            return FrameDistributor(
-                imageSourceMap.imageSources,
-                frameCaptureQueue
-            ) { }
+            return FrameDistributor(imageSourceMap.imageSources, frameCaptureQueue) {}
         }
     }
 }
@@ -213,7 +203,10 @@ internal abstract class InternalCameraGraphModules {
             streamGraph: StreamGraph,
         ): CameraController {
             return cameraBackend.createCameraController(
-                cameraContext, graphConfig, graphProcessor, streamGraph
+                cameraContext,
+                graphConfig,
+                graphProcessor,
+                streamGraph
             )
         }
     }

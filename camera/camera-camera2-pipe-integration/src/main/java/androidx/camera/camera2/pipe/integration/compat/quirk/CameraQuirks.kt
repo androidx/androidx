@@ -26,7 +26,9 @@ import javax.inject.Inject
 
 /** Provider of camera specific quirks. */
 @CameraScope
-class CameraQuirks @Inject constructor(
+class CameraQuirks
+@Inject
+constructor(
     private val cameraMetadata: CameraMetadata?,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat
 ) {

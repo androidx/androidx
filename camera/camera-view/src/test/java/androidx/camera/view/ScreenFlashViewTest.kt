@@ -62,9 +62,7 @@ class ScreenFlashViewTest {
         }
     }
 
-    private fun getScreenFlashAfterSettingWindow(
-        assumeNoFailure: Boolean
-    ): ScreenFlash? {
+    private fun getScreenFlashAfterSettingWindow(assumeNoFailure: Boolean): ScreenFlash? {
         screenFlashView.setScreenFlashWindow(window)
         val screenFlash = screenFlashView.screenFlash
         if (assumeNoFailure) {
@@ -103,9 +101,8 @@ class ScreenFlashViewTest {
     fun isFullyVisible_whenScreenFlashApplyInvoked() {
         val screenFlash = getScreenFlashAfterSettingWindow(true)
         screenFlash!!.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
+            System.currentTimeMillis() +
+                TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
             noOpListener,
         )
         assertThat(screenFlashView.alpha).isEqualTo(1f)
@@ -115,9 +112,8 @@ class ScreenFlashViewTest {
     fun windowBrightnessMaximized_whenScreenFlashApplyInvoked() {
         val screenFlash = getScreenFlashAfterSettingWindow(true)
         screenFlash!!.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
+            System.currentTimeMillis() +
+                TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
             noOpListener,
         )
         assertThat(window.attributes.screenBrightness).isEqualTo(1f)
@@ -127,9 +123,8 @@ class ScreenFlashViewTest {
     fun isTransparent_whenScreenFlashUiClearedAfterApply() {
         val screenFlash = getScreenFlashAfterSettingWindow(true)
         screenFlash!!.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
+            System.currentTimeMillis() +
+                TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
             noOpListener,
         )
         screenFlash.clear()
@@ -144,9 +139,8 @@ class ScreenFlashViewTest {
         window.setAttributes(layoutParam)
         val screenFlash = getScreenFlashAfterSettingWindow(true)
         screenFlash!!.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
+            System.currentTimeMillis() +
+                TimeUnit.SECONDS.toMillis(ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
             noOpListener,
         )
         screenFlash.clear()

@@ -80,8 +80,8 @@ internal class SharedReference<T>(private val value: T, defaultFinalizer: Finali
      * null, the [Finalizer.finalize] method will be immediately and synchronously invoked with
      * null.
      *
-     * This can be used to gain access to the underlying object after all shared references have been
-     * closed.
+     * This can be used to gain access to the underlying object after all shared references have
+     * been closed.
      */
     fun setFinalizer(value: Finalizer<T>) {
         // Update the finalizer to the new value, but only if the current finalizer is not null. If

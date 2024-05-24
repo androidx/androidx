@@ -48,12 +48,19 @@ class SurfaceSorterTest {
     @Test
     fun sort_previewSurfaceIsInTheFirstAndMediaCodecSurfaceIsInTheLast() {
         // Arrange.
-        val videoOutput = SessionConfig.OutputConfig.builder(
-            createSurface(containerClass = MediaCodec::class.java)).build()
-        val previewOutput = SessionConfig.OutputConfig.builder(
-            createSurface(containerClass = Preview::class.java)).build()
-        val imageOutput = SessionConfig.OutputConfig.builder(
-            createSurface(containerClass = ImageCapture::class.java)).build()
+        val videoOutput =
+            SessionConfig.OutputConfig.builder(
+                    createSurface(containerClass = MediaCodec::class.java)
+                )
+                .build()
+        val previewOutput =
+            SessionConfig.OutputConfig.builder(createSurface(containerClass = Preview::class.java))
+                .build()
+        val imageOutput =
+            SessionConfig.OutputConfig.builder(
+                    createSurface(containerClass = ImageCapture::class.java)
+                )
+                .build()
         val surfaceSorter = SurfaceSorter()
 
         // All combinations
@@ -88,9 +95,7 @@ class SurfaceSorterTest {
         assertThat(outputConfigs6.last()).isEqualTo(videoOutput)
     }
 
-    private fun createSurface(
-        containerClass: Class<*>
-    ): DeferrableSurface {
+    private fun createSurface(containerClass: Class<*>): DeferrableSurface {
         val deferrableSurface = ImmediateSurface(mock(Surface::class.java))
         deferrableSurface.setContainerClass(containerClass)
         deferrableSurfaces.add(deferrableSurface)

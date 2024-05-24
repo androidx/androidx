@@ -28,10 +28,10 @@ import java.util.concurrent.TimeUnit
 /**
  * An implementation of [ListenableFuture] which immediately contains a result.
  *
- *
  * This implementation is based off of the Guava ImmediateSuccessfulFuture class.
- * @param <V> The type of the value stored in the future.
-</V> */
+ *
+ * @param <V> The type of the value stored in the future. </V>
+ */
 internal abstract class ImmediateFuture<V> : ListenableFuture<V> {
     override fun addListener(listener: Runnable, executor: Executor) {
         Preconditions.checkNotNull(listener)
@@ -42,8 +42,12 @@ internal abstract class ImmediateFuture<V> : ListenableFuture<V> {
             // ListenableFuture does not throw runtime exceptions, so swallow the exception and
             // log it here.
             Logger.e(
-                TAG, "Experienced RuntimeException while attempting to notify " +
-                    listener + " on Executor " + executor, e
+                TAG,
+                "Experienced RuntimeException while attempting to notify " +
+                    listener +
+                    " on Executor " +
+                    executor,
+                e
             )
         }
     }
@@ -60,8 +64,7 @@ internal abstract class ImmediateFuture<V> : ListenableFuture<V> {
         return true
     }
 
-    @Throws(ExecutionException::class)
-    abstract override fun get(): V?
+    @Throws(ExecutionException::class) abstract override fun get(): V?
 
     @Throws(ExecutionException::class)
     override fun get(timeout: Long, unit: TimeUnit): V? {
@@ -109,7 +112,6 @@ internal abstract class ImmediateFuture<V> : ListenableFuture<V> {
 
         /**
          * Returns a future that contains a null value.
-         *
          *
          * This should be used any time a null value is needed as it uses a static ListenableFuture
          * that contains null, and thus will not allocate.

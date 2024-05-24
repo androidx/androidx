@@ -22,9 +22,7 @@ import java.io.BufferedReader
 
 const val JPEG_ENCODE_ERROR_TOLERANCE = 3
 
-/**
- * Asserting bitmap color and dimension is as expected
- */
+/** Asserting bitmap color and dimension is as expected */
 fun assertBitmapColorAndSize(bitmap: Bitmap, color: Int, width: Int, height: Int) {
     for (x in 0 until bitmap.width) {
         for (y in 0 until bitmap.height) {
@@ -42,9 +40,7 @@ fun assertBitmapColorAndSize(bitmap: Bitmap, color: Int, width: Int, height: Int
     assertThat(bitmap.height).isEqualTo(height)
 }
 
-/**
- * Reading and returning complete String from buffer
- */
+/** Reading and returning complete String from buffer */
 fun readText(br: BufferedReader): String {
     var lines = StringBuilder()
     while (br.ready()) {

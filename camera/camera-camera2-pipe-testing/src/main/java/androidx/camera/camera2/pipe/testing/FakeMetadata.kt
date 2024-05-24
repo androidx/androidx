@@ -39,40 +39,36 @@ import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 private val fakeCameraIds = atomic(0)
+
 internal fun nextFakeCameraId(): CameraId =
     CameraId("FakeCamera-${fakeCameraIds.incrementAndGet()}")
 
 private val fakeRequestNumbers = atomic(0L)
+
 internal fun nextFakeRequestNumber(): RequestNumber =
     RequestNumber(fakeRequestNumbers.incrementAndGet())
 
 private val fakeFrameNumbers = atomic(0L)
+
 internal fun nextFakeFrameNumber(): FrameNumber = FrameNumber(fakeFrameNumbers.incrementAndGet())
 
-/**
- * Utility class for interacting with objects that require pre-populated Metadata.
- */
-open class FakeMetadata(
-    private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap()
-) : Metadata {
+/** Utility class for interacting with objects that require pre-populated Metadata. */
+open class FakeMetadata(private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap()) : Metadata {
     companion object {
-        @JvmField
-        val TEST_KEY: Metadata.Key<Int> = Metadata.Key.create("test.key")
+        @JvmField val TEST_KEY: Metadata.Key<Int> = Metadata.Key.create("test.key")
 
-        @JvmField
-        val TEST_KEY_ABSENT: Metadata.Key<Int> = Metadata.Key.create("test.key.absent")
+        @JvmField val TEST_KEY_ABSENT: Metadata.Key<Int> = Metadata.Key.create("test.key.absent")
     }
 
     override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
+
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T {
         val value = metadata[key]
         return if (value == null) default else value as T
     }
 }
 
-/**
- * Utility class for interacting with objects require specific [CameraCharacteristics] metadata.
- */
+/** Utility class for interacting with objects require specific [CameraCharacteristics] metadata. */
 class FakeCameraMetadata(
     private val characteristics: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
@@ -87,6 +83,7 @@ class FakeCameraMetadata(
 ) : FakeMetadata(metadata), CameraMetadata {
 
     override fun <T> get(key: CameraCharacteristics.Key<T>): T? = characteristics[key] as T?
+
     override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
         get(key) ?: default
 
@@ -111,13 +108,10 @@ class FakeCameraMetadata(
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 
-    override fun toString(): String =
-        "FakeCameraMetadata(camera: ${camera.value})"
+    override fun toString(): String = "FakeCameraMetadata(camera: ${camera.value})"
 }
 
-/**
- * Utility class for interacting with objects require specific [CaptureRequest] metadata.
- */
+/** Utility class for interacting with objects require specific [CaptureRequest] metadata. */
 class FakeRequestMetadata(
     private val requestParameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
@@ -129,14 +123,13 @@ class FakeRequestMetadata(
 ) : FakeMetadata(request.extras.plus(metadata)), RequestMetadata {
 
     override fun <T> get(key: CaptureRequest.Key<T>): T? = requestParameters[key] as T?
+
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 
     companion object {
-        /**
-         * Initialize FakeRequestMetadata based on a specific [Request] object.
-         */
+        /** Initialize FakeRequestMetadata based on a specific [Request] object. */
         fun from(
             request: Request,
             streamToSurfaces: Map<StreamId, Surface>,
@@ -157,9 +150,7 @@ class FakeRequestMetadata(
         "FakeRequestMetadata(requestNumber: ${requestNumber.value}, request: $request)"
 }
 
-/**
- * Utility class for interacting with objects require specific [CaptureResult] metadata
- */
+/** Utility class for interacting with objects require specific [CaptureResult] metadata */
 class FakeFrameMetadata(
     private val resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
     extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
@@ -179,9 +170,7 @@ class FakeFrameMetadata(
         "FakeFrameMetadata(camera: ${camera.value}, frameNumber: ${frameNumber.value})"
 }
 
-/**
- * Utility class for interacting with objects require specific [TotalCaptureResult] metadata
- */
+/** Utility class for interacting with objects require specific [TotalCaptureResult] metadata */
 class FakeFrameInfo(
     override val metadata: FrameMetadata = FakeFrameMetadata(),
     override val requestMetadata: RequestMetadata = FakeRequestMetadata(),

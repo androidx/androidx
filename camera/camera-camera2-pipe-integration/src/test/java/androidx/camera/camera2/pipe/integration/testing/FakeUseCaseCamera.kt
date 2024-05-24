@@ -57,8 +57,12 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 
     private var config: UseCaseCameraConfig =
         UseCaseCameraConfig(
-            emptyList(), sessionConfigAdapter, CameraStateAdapter(), cameraGraph,
-            streamConfigMap, sessionProcessorManager = null
+            emptyList(),
+            sessionConfigAdapter,
+            CameraStateAdapter(),
+            cameraGraph,
+            streamConfigMap,
+            sessionProcessorManager = null
         )
 
     override fun config(config: UseCaseCameraConfig): UseCaseCameraComponent.Builder {
@@ -153,8 +157,12 @@ open class FakeUseCaseCameraRequestControl(
 
         focusMeteringCalls.add(
             FocusMeteringParams(
-                aeRegions, afRegions, awbRegions,
-                aeLockBehavior, afLockBehavior, awbLockBehavior,
+                aeRegions,
+                afRegions,
+                awbRegions,
+                aeLockBehavior,
+                afLockBehavior,
+                awbLockBehavior,
                 afTriggerStartAeMode,
                 timeLimitNs
             )
@@ -163,14 +171,15 @@ open class FakeUseCaseCameraRequestControl(
         if (focusAutoCompletesAfterTimeout) {
             scope.launch {
                 withTimeoutOrNull(MILLISECONDS.convert(timeLimitNs, NANOSECONDS)) {
-                    focusMeteringResult.await()
-                }.let { result3A ->
-                    if (result3A == null) {
-                        focusMeteringResult.complete(
-                            Result3A(status = Result3A.Status.TIME_LIMIT_REACHED)
-                        )
+                        focusMeteringResult.await()
                     }
-                }
+                    .let { result3A ->
+                        if (result3A == null) {
+                            focusMeteringResult.complete(
+                                Result3A(status = Result3A.Status.TIME_LIMIT_REACHED)
+                            )
+                        }
+                    }
             }
         }
 
@@ -188,9 +197,7 @@ open class FakeUseCaseCameraRequestControl(
         @ImageCapture.FlashType flashType: Int,
         @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>> {
-        return captureSequence.map {
-            CompletableDeferred<Void?>(null).apply { complete(null) }
-        }
+        return captureSequence.map { CompletableDeferred<Void?>(null).apply { complete(null) } }
     }
 
     override suspend fun update3aRegions(
@@ -204,8 +211,7 @@ open class FakeUseCaseCameraRequestControl(
         return CompletableDeferred(Result3A(status = Result3A.Status.OK))
     }
 
-    override fun close() {
-    }
+    override fun close() {}
 
     data class FocusMeteringParams(
         val aeRegions: List<MeteringRectangle>? = null,

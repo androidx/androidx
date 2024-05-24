@@ -29,9 +29,7 @@ import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
 import androidx.camera.integration.antelope.testEnded
 
-/**
- * Callbacks that track an image capture session
- */
+/** Callbacks that track an image capture session */
 class CameraXCaptureSessionCallback(
     internal val activity: MainActivity,
     internal val params: CameraParams,
@@ -55,13 +53,15 @@ class CameraXCaptureSessionCallback(
     ) {
         MainActivity.logd(
             "CameraX captureStillPicture captureCallback: Capture Failed. Failure: " +
-                failure.reason + " Current test: " + testConfig.currentRunningTest.toString()
+                failure.reason +
+                " Current test: " +
+                testConfig.currentRunningTest.toString()
         )
         closeCameraX(activity, params, testConfig)
         cameraXOpenCamera(activity, params, testConfig)
     }
 
-    /** Unused but retained here as it can be useful for debugging  */
+    /** Unused but retained here as it can be useful for debugging */
     override fun onCaptureStarted(
         session: CameraCaptureSession,
         request: CaptureRequest,
@@ -72,7 +72,7 @@ class CameraXCaptureSessionCallback(
         super.onCaptureStarted(session, request, timestamp, frameNumber)
     }
 
-    /** Unused but retained here as it can be useful for debugging  */
+    /** Unused but retained here as it can be useful for debugging */
     override fun onCaptureProgressed(
         session: CameraCaptureSession,
         request: CaptureRequest,
@@ -82,7 +82,7 @@ class CameraXCaptureSessionCallback(
         super.onCaptureProgressed(session, request, partialResult)
     }
 
-    /** Unused but retained here as it can be useful for debugging  */
+    /** Unused but retained here as it can be useful for debugging */
     override fun onCaptureBufferLost(
         session: CameraCaptureSession,
         request: CaptureRequest,
@@ -93,9 +93,7 @@ class CameraXCaptureSessionCallback(
         super.onCaptureBufferLost(session, request, target, frameNumber)
     }
 
-    /**
-     * Still capture has completed. Record timing and proceed to next test or finish.
-     */
+    /** Still capture has completed. Record timing and proceed to next test or finish. */
     override fun onCaptureCompleted(
         session: CameraCaptureSession,
         request: CaptureRequest,

@@ -35,41 +35,40 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class AttachedSurfaceInfoTest {
     private var attachedSurfaceInfo: AttachedSurfaceInfo? = null
-    private val surfaceConfig = SurfaceConfig.create(
-        SurfaceConfig.ConfigType.JPEG,
-        SurfaceConfig.ConfigSize.PREVIEW
-    )
+    private val surfaceConfig =
+        SurfaceConfig.create(SurfaceConfig.ConfigType.JPEG, SurfaceConfig.ConfigSize.PREVIEW)
     private val imageFormat = ImageFormat.JPEG
     private val size = Size(1920, 1080)
     private val dynamicRange = DynamicRange.SDR
     private val captureTypes = listOf(CaptureType.PREVIEW)
     private val inputFormat = ImageFormat.PRIVATE
     private val targetFramerate = Range(10, 20)
-    private val config = FakeUseCaseConfig.Builder(
-        CaptureType.PREVIEW,
-        inputFormat
-    ).useCaseConfig.config
+    private val config =
+        FakeUseCaseConfig.Builder(CaptureType.PREVIEW, inputFormat).useCaseConfig.config
 
     @Before
     fun setup() {
-        attachedSurfaceInfo = AttachedSurfaceInfo.create(
-            surfaceConfig,
-            imageFormat,
-            size,
-            dynamicRange,
-            captureTypes,
-            config,
-            targetFramerate
-        )
+        attachedSurfaceInfo =
+            AttachedSurfaceInfo.create(
+                surfaceConfig,
+                imageFormat,
+                size,
+                dynamicRange,
+                captureTypes,
+                config,
+                targetFramerate
+            )
     }
 
     @Test
     fun canGetSurfaceConfig() {
-        Truth.assertThat(attachedSurfaceInfo!!.surfaceConfig).isEqualTo(
-            SurfaceConfig.create(
-                SurfaceConfig.ConfigType.JPEG, SurfaceConfig.ConfigSize.PREVIEW
+        Truth.assertThat(attachedSurfaceInfo!!.surfaceConfig)
+            .isEqualTo(
+                SurfaceConfig.create(
+                    SurfaceConfig.ConfigType.JPEG,
+                    SurfaceConfig.ConfigSize.PREVIEW
+                )
             )
-        )
     }
 
     @Test
@@ -98,14 +97,16 @@ class AttachedSurfaceInfoTest {
     @Test
     fun canGetImplementationOption() {
         Truth.assertThat(
-            attachedSurfaceInfo!!.implementationOptions!!
-                .containsOption(ImageInputConfig.OPTION_INPUT_FORMAT)
-        )
+                attachedSurfaceInfo!!
+                    .implementationOptions!!
+                    .containsOption(ImageInputConfig.OPTION_INPUT_FORMAT)
+            )
             .isTrue()
         Truth.assertThat(
-            attachedSurfaceInfo!!.implementationOptions!!
-                .retrieveOption(ImageInputConfig.OPTION_INPUT_FORMAT)
-        )
+                attachedSurfaceInfo!!
+                    .implementationOptions!!
+                    .retrieveOption(ImageInputConfig.OPTION_INPUT_FORMAT)
+            )
             .isEqualTo(inputFormat)
     }
 
@@ -116,15 +117,16 @@ class AttachedSurfaceInfoTest {
 
     @Test
     fun nullGetTargetFrameRateReturnsNull() {
-        val attachedSurfaceInfo2 = AttachedSurfaceInfo.create(
-            surfaceConfig,
-            imageFormat,
-            size,
-            dynamicRange,
-            listOf(CaptureType.PREVIEW),
-            config,
-            null
-        )
+        val attachedSurfaceInfo2 =
+            AttachedSurfaceInfo.create(
+                surfaceConfig,
+                imageFormat,
+                size,
+                dynamicRange,
+                listOf(CaptureType.PREVIEW),
+                config,
+                null
+            )
         Truth.assertThat(attachedSurfaceInfo2.targetFrameRate).isNull()
     }
 }

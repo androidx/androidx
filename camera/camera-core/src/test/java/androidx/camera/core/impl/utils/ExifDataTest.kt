@@ -74,28 +74,29 @@ public class ExifDataTest {
 
     @Test
     public fun canSetFlashState() {
-        val exifDataFired = ExifData.builderForDevice()
-            .setFlashState(CameraCaptureMetaData.FlashState.FIRED)
-            .build()
-        val exifDataReady = ExifData.builderForDevice()
-            .setFlashState(CameraCaptureMetaData.FlashState.READY)
-            .build()
-        val exifDataNone = ExifData.builderForDevice()
-            .setFlashState(CameraCaptureMetaData.FlashState.NONE)
-            .build()
+        val exifDataFired =
+            ExifData.builderForDevice()
+                .setFlashState(CameraCaptureMetaData.FlashState.FIRED)
+                .build()
+        val exifDataReady =
+            ExifData.builderForDevice()
+                .setFlashState(CameraCaptureMetaData.FlashState.READY)
+                .build()
+        val exifDataNone =
+            ExifData.builderForDevice().setFlashState(CameraCaptureMetaData.FlashState.NONE).build()
 
         // Unknown should not set the attribute
-        val exifDataUnknown = ExifData.builderForDevice()
-            .setFlashState(CameraCaptureMetaData.FlashState.UNKNOWN)
-            .build()
+        val exifDataUnknown =
+            ExifData.builderForDevice()
+                .setFlashState(CameraCaptureMetaData.FlashState.UNKNOWN)
+                .build()
 
         // Flash fired.
         assertThat(exifDataFired.getAttribute(ExifInterface.TAG_FLASH)?.toShort())
             .isEqualTo(FLAG_FLASH_FIRED)
 
         // Has flash but not fired.
-        assertThat(exifDataReady.getAttribute(ExifInterface.TAG_FLASH)?.toShort())
-            .isEqualTo(0)
+        assertThat(exifDataReady.getAttribute(ExifInterface.TAG_FLASH)?.toShort()).isEqualTo(0)
 
         // No flash function.
         assertThat(exifDataNone.getAttribute(ExifInterface.TAG_FLASH)?.toShort())
@@ -106,26 +107,21 @@ public class ExifDataTest {
 
     @Test
     public fun canSetExposureTime() {
-        val exifData = ExifData.builderForDevice()
-            .setExposureTimeNanos(TimeUnit.SECONDS.toNanos(5))
-            .build()
+        val exifData =
+            ExifData.builderForDevice().setExposureTimeNanos(TimeUnit.SECONDS.toNanos(5)).build()
         assertThat(exifData.getAttribute(ExifInterface.TAG_EXPOSURE_TIME)?.toFloat()?.toInt())
             .isEqualTo(5)
     }
 
     @Test
     public fun canSetLensFNumber() {
-        val exifData = ExifData.builderForDevice()
-            .setLensFNumber(1.2f)
-            .build()
+        val exifData = ExifData.builderForDevice().setLensFNumber(1.2f).build()
         assertThat(exifData.getAttribute(ExifInterface.TAG_F_NUMBER)).isEqualTo("1.2")
     }
 
     @Test
     public fun canSetIso() {
-        val exifData = ExifData.builderForDevice()
-            .setIso(800)
-            .build()
+        val exifData = ExifData.builderForDevice().setIso(800).build()
         assertThat(exifData.getAttribute(ExifInterface.TAG_SENSITIVITY_TYPE))
             .isEqualTo("${ExifInterface.SENSITIVITY_TYPE_ISO_SPEED}")
         assertThat(exifData.getAttribute(ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY))
@@ -134,25 +130,25 @@ public class ExifDataTest {
 
     @Test
     public fun canSetFocalLength() {
-        val exifData = ExifData.builderForDevice()
-            .setFocalLength(5400f /*millimeters*/)
-            .build()
+        val exifData = ExifData.builderForDevice().setFocalLength(5400f /*millimeters*/).build()
         assertThat(
-            exifData.getAttribute(ExifInterface.TAG_FOCAL_LENGTH)
-                ?.split("/")
-                ?.map(String::toLong)
-                ?.reduce { numerator: Long, denominator: Long -> numerator / denominator }
-        ).isEqualTo(5400)
+                exifData
+                    .getAttribute(ExifInterface.TAG_FOCAL_LENGTH)
+                    ?.split("/")
+                    ?.map(String::toLong)
+                    ?.reduce { numerator: Long, denominator: Long -> numerator / denominator }
+            )
+            .isEqualTo(5400)
     }
 
     @Test
     public fun canSetWhiteBalanceMode() {
-        val exifDataAuto = ExifData.builderForDevice()
-            .setWhiteBalanceMode(ExifData.WhiteBalanceMode.AUTO)
-            .build()
-        val exifDataManual = ExifData.builderForDevice()
-            .setWhiteBalanceMode(ExifData.WhiteBalanceMode.MANUAL)
-            .build()
+        val exifDataAuto =
+            ExifData.builderForDevice().setWhiteBalanceMode(ExifData.WhiteBalanceMode.AUTO).build()
+        val exifDataManual =
+            ExifData.builderForDevice()
+                .setWhiteBalanceMode(ExifData.WhiteBalanceMode.MANUAL)
+                .build()
 
         assertThat(exifDataAuto.getAttribute(ExifInterface.TAG_WHITE_BALANCE)?.toShort())
             .isEqualTo(ExifInterface.WHITE_BALANCE_AUTO)
@@ -166,7 +162,6 @@ public class ExifDataTest {
 
         assertThat(exifDataDefault.getAttribute(ExifInterface.TAG_MAKE))
             .isEqualTo(Build.MANUFACTURER)
-        assertThat(exifDataDefault.getAttribute(ExifInterface.TAG_MODEL))
-            .isEqualTo(Build.MODEL)
+        assertThat(exifDataDefault.getAttribute(ExifInterface.TAG_MODEL)).isEqualTo(Build.MODEL)
     }
 }

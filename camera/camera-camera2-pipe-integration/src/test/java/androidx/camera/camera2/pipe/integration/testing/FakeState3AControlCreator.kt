@@ -30,22 +30,22 @@ object FakeState3AControlCreator {
     fun createState3AControl(
         properties: CameraProperties = FakeCameraProperties(),
         useCaseCamera: UseCaseCamera = FakeUseCaseCamera(),
-    ) = State3AControl(
-        properties,
-        NoOpAutoFlashAEModeDisabler,
-        AeFpsRange(
-            CameraQuirks(
-                properties.metadata,
-                StreamConfigurationMapCompat(
-                    StreamConfigurationMapBuilder.newBuilder().build(),
-                    OutputSizesCorrector(
+    ) =
+        State3AControl(
+                properties,
+                NoOpAutoFlashAEModeDisabler,
+                AeFpsRange(
+                    CameraQuirks(
                         properties.metadata,
-                        StreamConfigurationMapBuilder.newBuilder().build()
+                        StreamConfigurationMapCompat(
+                            StreamConfigurationMapBuilder.newBuilder().build(),
+                            OutputSizesCorrector(
+                                properties.metadata,
+                                StreamConfigurationMapBuilder.newBuilder().build()
+                            )
+                        )
                     )
-                )
+                ),
             )
-        ),
-    ).apply {
-        this.useCaseCamera = useCaseCamera
-    }
+            .apply { this.useCaseCamera = useCaseCamera }
 }

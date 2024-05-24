@@ -24,10 +24,11 @@ operator fun Number.minus(otherNum: Number): Number {
         is Short -> this - otherNum.toShort()
         is Double -> this - otherNum.toDouble()
         is Float -> this - otherNum.toFloat()
-        else -> throw RuntimeException(
-            "Subtraction between ${this::class.java.simpleName} and " +
-                "${otherNum.javaClass.simpleName} is not supported"
-        )
+        else ->
+            throw RuntimeException(
+                "Subtraction between ${this::class.java.simpleName} and " +
+                    "${otherNum.javaClass.simpleName} is not supported"
+            )
     }
 }
 
@@ -38,9 +39,10 @@ operator fun Number.compareTo(otherNum: Number): Int {
         is Short -> this.compareTo(otherNum.toShort())
         is Double -> this.compareTo(otherNum.toDouble())
         is Float -> this.compareTo(otherNum.toFloat())
-        else -> throw RuntimeException(
-            "Comparison between ${this::class.java.simpleName} and " +
-                "${otherNum.javaClass.simpleName} is not supported"
-        )
+        else ->
+            throw RuntimeException(
+                "Comparison between ${this::class.java.simpleName} and " +
+                    "${otherNum.javaClass.simpleName} is not supported"
+            )
     }
 }

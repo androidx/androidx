@@ -35,11 +35,9 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class ImageCaptureSwitchCameraStressTest constructor(
-    implName: String,
-    cameraConfig: CameraXConfig,
-    cameraId: String
-) : SwitchCameraStressTestBase(implName, cameraConfig, cameraId) {
+class ImageCaptureSwitchCameraStressTest
+constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
+    SwitchCameraStressTestBase(implName, cameraConfig, cameraId) {
     @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)

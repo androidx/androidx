@@ -29,16 +29,16 @@ import org.junit.runners.model.Statement
  * All the test methods will be executed as usual when [active] is set to false.
  *
  * When the [active] is true and DUT doesn't set the debug [CAMERA_PIPE_TEST_FLAG], all the test
- * failures will be converted to AssumptionViolatedException. Otherwise, test failures will be
- * shown as usual.
+ * failures will be converted to AssumptionViolatedException. Otherwise, test failures will be shown
+ * as usual.
  *
  * The [CAMERA_PIPE_TEST_FLAG] can be enabled on the DUT by the command:
  * ```
  * adb shell setprop log.tag.CAMERA_PIPE_TESTING DEBUG
  * ```
  *
- * To apply the [TestRule] , please create the [CameraPipeConfigTestRule] directly.
- * For Camera-Pipe related tests, please set [active] to true.
+ * To apply the [TestRule] , please create the [CameraPipeConfigTestRule] directly. For Camera-Pipe
+ * related tests, please set [active] to true.
  *
  * ```
  *  @get:Rule
@@ -46,6 +46,7 @@ import org.junit.runners.model.Statement
  *      active = true
  *  )
  * ```
+ *
  * @property active true to activate this rule.
  */
 class CameraPipeConfigTestRule(
@@ -113,6 +114,7 @@ class CameraPipeConfigTestRule(
         private const val CAMERA_PIPE_TEST_FLAG = "CAMERA_PIPE_TESTING"
         private const val CAMERA_PIPE_MH_FLAG = "CameraPipeMH"
         private const val LOG_TAG = "CameraPipeTest"
+
         fun log(message: String, throwable: Throwable? = null) {
             if (throwable != null) {
                 Log.e(LOG_TAG, message, throwable)

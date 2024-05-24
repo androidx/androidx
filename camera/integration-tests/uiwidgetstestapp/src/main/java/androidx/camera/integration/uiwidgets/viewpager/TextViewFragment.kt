@@ -27,6 +27,7 @@ class TextViewFragment : Fragment() {
 
     companion object {
         fun newInstance() = TextViewFragment()
+
         private const val TAG = "TextViewFragment"
     }
 

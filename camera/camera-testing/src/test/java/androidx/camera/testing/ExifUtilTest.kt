@@ -28,9 +28,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [ExifUtil]
- */
+/** Unit tests for [ExifUtil] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -45,9 +43,7 @@ class ExifUtilTest {
         // Arrange: create a JPEG file.
         val jpeg = createJpegBytes(640, 480)
         // Act: update the description tag.
-        val jpegWithExif = updateExif(jpeg) {
-            it.description = DESCRIPTION
-        }
+        val jpegWithExif = updateExif(jpeg) { it.description = DESCRIPTION }
         // Assert: the description tag has been updated.
         val exif = createFromInputStream(ByteArrayInputStream(jpegWithExif))
         assertThat(exif.description).isEqualTo(DESCRIPTION)

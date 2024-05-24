@@ -45,8 +45,7 @@ internal class SurfaceGraph(
     @GuardedBy("lock")
     private val surfaceUsageMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
 
-    @GuardedBy("lock")
-    private var closed: Boolean = false
+    @GuardedBy("lock") private var closed: Boolean = false
 
     operator fun set(streamId: StreamId, surface: Surface?) {
         check(!imageSources.keys.contains(streamId)) {

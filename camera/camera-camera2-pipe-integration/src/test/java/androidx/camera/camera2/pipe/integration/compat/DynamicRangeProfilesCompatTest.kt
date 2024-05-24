@@ -110,39 +110,51 @@ class DynamicRangeProfilesCompatTest {
         val hlg10ConstrainedWrapped =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(HLG10_CONSTRAINED)
         Truth.assertThat(
-            hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(DynamicRange.SDR)
-        ).containsExactly(DynamicRange.SDR)
-        Truth.assertThat(
-            hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                DynamicRange.HLG_10_BIT
+                hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(DynamicRange.SDR)
             )
-        ).containsExactly(DynamicRange.HLG_10_BIT)
+            .containsExactly(DynamicRange.SDR)
+        Truth.assertThat(
+                hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.HLG_10_BIT
+                )
+            )
+            .containsExactly(DynamicRange.HLG_10_BIT)
 
         val hlg10SdrConstrainedWrapped =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(HLG10_SDR_CONSTRAINED)
         Truth.assertThat(
-            hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(DynamicRange.SDR)
-        ).containsExactly(DynamicRange.SDR, DynamicRange.HLG_10_BIT)
-        Truth.assertThat(
-            hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                DynamicRange.HLG_10_BIT
+                hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.SDR
+                )
             )
-        ).containsExactly(DynamicRange.HLG_10_BIT, DynamicRange.SDR)
+            .containsExactly(DynamicRange.SDR, DynamicRange.HLG_10_BIT)
+        Truth.assertThat(
+                hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.HLG_10_BIT
+                )
+            )
+            .containsExactly(DynamicRange.HLG_10_BIT, DynamicRange.SDR)
 
         val hlg10Hdr10ConstrainedWrapped =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(HLG10_HDR10_CONSTRAINED)
         Truth.assertThat(
-            hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(DynamicRange.SDR)
-        ).containsExactly(DynamicRange.SDR)
-        Truth.assertThat(
-            hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                DynamicRange.HLG_10_BIT
+                hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.SDR
+                )
             )
-        ).containsExactly(DynamicRange.HLG_10_BIT, DynamicRange.HDR10_10_BIT)
+            .containsExactly(DynamicRange.SDR)
         Truth.assertThat(
-            hlg10Hdr10ConstrainedWrapped
-                ?.getDynamicRangeCaptureRequestConstraints(DynamicRange.HDR10_10_BIT)
-        ).containsExactly(DynamicRange.HDR10_10_BIT, DynamicRange.HLG_10_BIT)
+                hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.HLG_10_BIT
+                )
+            )
+            .containsExactly(DynamicRange.HLG_10_BIT, DynamicRange.HDR10_10_BIT)
+        Truth.assertThat(
+                hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.HDR10_10_BIT
+                )
+            )
+            .containsExactly(DynamicRange.HDR10_10_BIT, DynamicRange.HLG_10_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -153,8 +165,9 @@ class DynamicRangeProfilesCompatTest {
         Truth.assertThat(dynamicRangeProfilesCompat?.isExtraLatencyPresent(DynamicRange.SDR))
             .isFalse()
         Truth.assertThat(
-            dynamicRangeProfilesCompat?.isExtraLatencyPresent(DynamicRange.DOLBY_VISION_10_BIT)
-        ).isTrue()
+                dynamicRangeProfilesCompat?.isExtraLatencyPresent(DynamicRange.DOLBY_VISION_10_BIT)
+            )
+            .isTrue()
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -163,10 +176,11 @@ class DynamicRangeProfilesCompatTest {
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(HLG10_UNCONSTRAINED)
         Truth.assertThat(
-            dynamicRangeProfilesCompat?.getDynamicRangeCaptureRequestConstraints(
-                DynamicRange.HLG_10_BIT
+                dynamicRangeProfilesCompat?.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.HLG_10_BIT
+                )
             )
-        ).isEmpty()
+            .isEmpty()
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -183,11 +197,15 @@ class DynamicRangeProfilesCompatTest {
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun canProduceDynamicRangesCompatFromCharacteristics() {
-        val cameraMetadata = FakeCameraMetadata(
-            cameraId = cameraId, characteristics = mutableMapOf(
-                CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to HLG10_CONSTRAINED
+        val cameraMetadata =
+            FakeCameraMetadata(
+                cameraId = cameraId,
+                characteristics =
+                    mutableMapOf(
+                        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                            HLG10_CONSTRAINED
+                    )
             )
-        )
 
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
@@ -206,8 +224,11 @@ class DynamicRangeProfilesCompatTest {
         Truth.assertThat(dynamicRangeProfilesCompat.supportedDynamicRanges)
             .containsExactly(DynamicRange.SDR)
         Truth.assertThat(
-            dynamicRangeProfilesCompat.getDynamicRangeCaptureRequestConstraints(DynamicRange.SDR)
-        ).containsExactly(DynamicRange.SDR)
+                dynamicRangeProfilesCompat.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.SDR
+                )
+            )
+            .containsExactly(DynamicRange.SDR)
     }
 
     @Test
@@ -217,9 +238,8 @@ class DynamicRangeProfilesCompatTest {
             characteristics[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES] =
                 DOLBY_VISION_8B_UNCONSTRAINED
         }
-        val cameraMetadata = FakeCameraMetadata(
-            cameraId = cameraId, characteristics = characteristics
-        )
+        val cameraMetadata =
+            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
 
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
@@ -229,14 +249,13 @@ class DynamicRangeProfilesCompatTest {
                 .containsExactly(DynamicRange.SDR)
         } else {
             Truth.assertThat(dynamicRangeProfilesCompat.supportedDynamicRanges)
-                .containsExactly(
-                    DynamicRange.SDR, DynamicRange.DOLBY_VISION_8_BIT
-                )
+                .containsExactly(DynamicRange.SDR, DynamicRange.DOLBY_VISION_8_BIT)
         }
 
         Assert.assertThrows(IllegalArgumentException::class.java) {
-            dynamicRangeProfilesCompat
-                .getDynamicRangeCaptureRequestConstraints(DynamicRange.DOLBY_VISION_10_BIT)
+            dynamicRangeProfilesCompat.getDynamicRangeCaptureRequestConstraints(
+                DynamicRange.DOLBY_VISION_10_BIT
+            )
         }
 
         Assert.assertThrows(IllegalArgumentException::class.java) {
@@ -251,9 +270,8 @@ class DynamicRangeProfilesCompatTest {
             characteristics[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES] =
                 HLG10_CONSTRAINED
         }
-        val cameraMetadata = FakeCameraMetadata(
-            cameraId = cameraId, characteristics = characteristics
-        )
+        val cameraMetadata =
+            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
 
@@ -268,15 +286,16 @@ class DynamicRangeProfilesCompatTest {
             characteristics[CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES] =
                 HLG10_CONSTRAINED
         }
-        val cameraMetadata = FakeCameraMetadata(
-            cameraId = cameraId, characteristics = characteristics
-        )
+        val cameraMetadata =
+            FakeCameraMetadata(cameraId = cameraId, characteristics = characteristics)
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
 
         Truth.assertThat(
-            dynamicRangeProfilesCompat.getDynamicRangeCaptureRequestConstraints(DynamicRange.SDR)
-        )
+                dynamicRangeProfilesCompat.getDynamicRangeCaptureRequestConstraints(
+                    DynamicRange.SDR
+                )
+            )
             .containsExactly(DynamicRange.SDR)
     }
 }
@@ -285,8 +304,5 @@ class DynamicRangeProfilesCompatTest {
 fun ShadowCameraCharacteristics.addDynamicRangeProfiles(
     dynamicRangeProfiles: DynamicRangeProfiles
 ) {
-    set(
-        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES,
-        dynamicRangeProfiles
-    )
+    set(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES, dynamicRangeProfiles)
 }

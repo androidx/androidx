@@ -58,9 +58,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-/**
- * Open a [CameraGraph] for the desired [cameraId] and [useCases]
- */
+/** Open a [CameraGraph] for the desired [cameraId] and [useCases] */
 class TestUseCaseCamera(
     private val context: Context,
     private val cameraId: String,
@@ -68,23 +66,25 @@ class TestUseCaseCamera(
     private val useCases: List<UseCase>,
     private val cameraConfig: CameraConfig = CameraConfig(CameraId(cameraId)),
     val cameraPipe: CameraPipe = CameraPipe(CameraPipe.Config(context)),
-    val useCaseSurfaceManager: UseCaseSurfaceManager = UseCaseSurfaceManager(
-        threads,
-        cameraPipe,
-        NoOpInactiveSurfaceCloser,
-    ),
+    val useCaseSurfaceManager: UseCaseSurfaceManager =
+        UseCaseSurfaceManager(
+            threads,
+            cameraPipe,
+            NoOpInactiveSurfaceCloser,
+        ),
 ) : UseCaseCamera {
     val cameraMetadata =
         cameraPipe.cameras().awaitCameraMetadata(CameraId.fromCamera2Id(cameraId))!!
     val streamConfigurationMap =
         cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-    val cameraQuirks = CameraQuirks(
-        cameraMetadata,
-        StreamConfigurationMapCompat(
-            streamConfigurationMap,
-            OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+    val cameraQuirks =
+        CameraQuirks(
+            cameraMetadata,
+            StreamConfigurationMapCompat(
+                streamConfigurationMap,
+                OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+            )
         )
-    )
     val sessionConfigAdapter = SessionConfigAdapter(useCases)
     val useCaseCameraGraphConfig: UseCaseGraphConfig
 
@@ -92,66 +92,82 @@ class TestUseCaseCamera(
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
         val callbackMap = CameraCallbackMap()
         val requestListener = ComboRequestListener()
-        val cameraGraphConfig = createCameraGraphConfig(
-            sessionConfigAdapter, streamConfigMap, callbackMap, requestListener, cameraConfig,
-            cameraQuirks, null, ZslControlNoOpImpl()
-        )
+        val cameraGraphConfig =
+            createCameraGraphConfig(
+                sessionConfigAdapter,
+                streamConfigMap,
+                callbackMap,
+                requestListener,
+                cameraConfig,
+                cameraQuirks,
+                null,
+                ZslControlNoOpImpl()
+            )
         val cameraGraph = cameraPipe.create(cameraGraphConfig)
 
-        useCaseCameraGraphConfig = UseCaseCameraConfig(
-            useCases,
-            sessionConfigAdapter,
-            CameraStateAdapter(),
-            cameraGraph,
-            streamConfigMap,
-            sessionProcessorManager = null
-        ).provideUseCaseGraphConfig(
-            useCaseSurfaceManager = useCaseSurfaceManager,
-            cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()
-        )
+        useCaseCameraGraphConfig =
+            UseCaseCameraConfig(
+                    useCases,
+                    sessionConfigAdapter,
+                    CameraStateAdapter(),
+                    cameraGraph,
+                    streamConfigMap,
+                    sessionProcessorManager = null
+                )
+                .provideUseCaseGraphConfig(
+                    useCaseSurfaceManager = useCaseSurfaceManager,
+                    cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()
+                )
     }
 
-    override val requestControl: UseCaseCameraRequestControl = UseCaseCameraRequestControlImpl(
-        capturePipeline = object : CapturePipeline {
-            override var template: Int = CameraDevice.TEMPLATE_PREVIEW
+    override val requestControl: UseCaseCameraRequestControl =
+        UseCaseCameraRequestControlImpl(
+                capturePipeline =
+                    object : CapturePipeline {
+                        override var template: Int = CameraDevice.TEMPLATE_PREVIEW
 
-            override suspend fun submitStillCaptures(
-                configs: List<CaptureConfig>,
-                requestTemplate: RequestTemplate,
-                sessionConfigOptions: Config,
-                @ImageCapture.CaptureMode captureMode: Int,
-                @ImageCapture.FlashType flashType: Int,
-                @ImageCapture.FlashMode flashMode: Int
-            ): List<Deferred<Void?>> {
-                throw NotImplementedError("Not implemented")
-            }
-        },
-        state = UseCaseCameraState(
-            useCaseCameraGraphConfig,
-            threads,
-            sessionProcessorManager = null
-        ),
-        useCaseGraphConfig = useCaseCameraGraphConfig,
-    ).apply {
-        SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->
-            setConfigAsync(
-                type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
-                config = sessionConfig.implementationOptions,
-                tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
-                listeners = setOf(
-                    CameraCallbackMap.createFor(
-                        sessionConfig.repeatingCameraCaptureCallbacks,
-                        threads.backgroundExecutor
-                    )
-                ),
-                template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
-                streams = useCaseCameraGraphConfig.getStreamIdsFromSurfaces(
-                    sessionConfig.repeatingCaptureConfig.surfaces
-                ),
-                sessionConfig = sessionConfig,
+                        override suspend fun submitStillCaptures(
+                            configs: List<CaptureConfig>,
+                            requestTemplate: RequestTemplate,
+                            sessionConfigOptions: Config,
+                            @ImageCapture.CaptureMode captureMode: Int,
+                            @ImageCapture.FlashType flashType: Int,
+                            @ImageCapture.FlashMode flashMode: Int
+                        ): List<Deferred<Void?>> {
+                            throw NotImplementedError("Not implemented")
+                        }
+                    },
+                state =
+                    UseCaseCameraState(
+                        useCaseCameraGraphConfig,
+                        threads,
+                        sessionProcessorManager = null
+                    ),
+                useCaseGraphConfig = useCaseCameraGraphConfig,
             )
-        }
-    }
+            .apply {
+                SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->
+                    setConfigAsync(
+                        type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+                        config = sessionConfig.implementationOptions,
+                        tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+                        listeners =
+                            setOf(
+                                CameraCallbackMap.createFor(
+                                    sessionConfig.repeatingCameraCaptureCallbacks,
+                                    threads.backgroundExecutor
+                                )
+                            ),
+                        template =
+                            RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+                        streams =
+                            useCaseCameraGraphConfig.getStreamIdsFromSurfaces(
+                                sessionConfig.repeatingCaptureConfig.surfaces
+                            ),
+                        sessionConfig = sessionConfig,
+                    )
+                }
+            }
 
     override var runningUseCases = useCases.toSet()
 

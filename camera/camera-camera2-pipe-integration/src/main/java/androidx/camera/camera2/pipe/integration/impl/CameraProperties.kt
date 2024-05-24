@@ -31,7 +31,9 @@ interface CameraProperties {
 }
 
 @CameraScope
-class CameraPipeCameraProperties @Inject constructor(
+class CameraPipeCameraProperties
+@Inject
+constructor(
     private val cameraConfig: CameraConfig,
     private val cameraMetadata: CameraMetadata?,
 ) : CameraProperties {

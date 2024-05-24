@@ -49,7 +49,11 @@ fun AdvancedFloatingActionButton(
         LocalRippleConfiguration provides if (enabled) RippleConfiguration() else null
     ) {
         FloatingActionButton(
-            onClick = if (enabled) onClick else { {} },
+            onClick =
+                if (enabled) onClick
+                else {
+                    {}
+                },
             modifier = modifier,
             interactionSource = interactionSource,
             shape = shape,

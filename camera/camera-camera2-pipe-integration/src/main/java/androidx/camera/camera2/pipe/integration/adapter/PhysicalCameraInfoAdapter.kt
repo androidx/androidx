@@ -37,15 +37,14 @@ import androidx.lifecycle.LiveData
 import kotlin.reflect.KClass
 
 /**
- * Implementation of [CameraInfo] for physical camera. In comparison,
- * [CameraInfoAdapter] is the version of logical camera.
+ * Implementation of [CameraInfo] for physical camera. In comparison, [CameraInfoAdapter] is the
+ * version of logical camera.
  */
 @SuppressLint(
     "UnsafeOptInUsageError" // Suppressed due to experimental API
 )
-class PhysicalCameraInfoAdapter(
-    private val cameraProperties: CameraProperties
-) : CameraInfo, UnsafeWrapper {
+class PhysicalCameraInfoAdapter(private val cameraProperties: CameraProperties) :
+    CameraInfo, UnsafeWrapper {
 
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
@@ -152,9 +151,10 @@ class PhysicalCameraInfoAdapter(
             CameraCharacteristics.LENS_FACING_FRONT -> CameraSelector.LENS_FACING_FRONT
             CameraCharacteristics.LENS_FACING_BACK -> CameraSelector.LENS_FACING_BACK
             CameraCharacteristics.LENS_FACING_EXTERNAL -> CameraSelector.LENS_FACING_EXTERNAL
-            else -> throw IllegalArgumentException(
-                "The specified lens facing integer $lensFacingInt can not be recognized."
-            )
+            else ->
+                throw IllegalArgumentException(
+                    "The specified lens facing integer $lensFacingInt can not be recognized."
+                )
         }
     }
 }

@@ -41,14 +41,11 @@ internal class WakeLock(
 ) {
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private var count = 0
+    @GuardedBy("lock") private var count = 0
 
-    @GuardedBy("lock")
-    private var timeoutJob: Job? = null
+    @GuardedBy("lock") private var timeoutJob: Job? = null
 
-    @GuardedBy("lock")
-    private var closed = false
+    @GuardedBy("lock") private var closed = false
 
     init {
         if (startTimeoutOnCreation) {

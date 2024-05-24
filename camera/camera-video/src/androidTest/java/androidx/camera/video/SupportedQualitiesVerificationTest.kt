@@ -86,17 +86,18 @@ class SupportedQualitiesVerificationTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
-    @get:Rule
-    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+    @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
         private const val VIDEO_TIMEOUT_SEC = 10L
@@ -106,41 +107,43 @@ class SupportedQualitiesVerificationTest(
             arrayOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
 
         @JvmStatic
-        private val quality = arrayOf(
-            Quality.SD,
-            Quality.HD,
-            Quality.FHD,
-            Quality.UHD,
-            Quality.LOWEST,
-            Quality.HIGHEST,
-        )
+        private val quality =
+            arrayOf(
+                Quality.SD,
+                Quality.HD,
+                Quality.FHD,
+                Quality.UHD,
+                Quality.LOWEST,
+                Quality.HIGHEST,
+            )
 
         @JvmStatic
         @Parameterized.Parameters(name = "lensFacing={0}, quality={2}, config={4}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            cameraSelectors.forEach { cameraSelector ->
-                quality.forEach { quality ->
-                    add(
-                        arrayOf(
-                            cameraSelector.lensFacing,
-                            cameraSelector,
-                            quality,
-                            Camera2Config.defaultConfig(),
-                            Camera2Config::class.simpleName
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                cameraSelectors.forEach { cameraSelector ->
+                    quality.forEach { quality ->
+                        add(
+                            arrayOf(
+                                cameraSelector.lensFacing,
+                                cameraSelector,
+                                quality,
+                                Camera2Config.defaultConfig(),
+                                Camera2Config::class.simpleName
+                            )
                         )
-                    )
-                    add(
-                        arrayOf(
-                            cameraSelector.lensFacing,
-                            cameraSelector,
-                            quality,
-                            CameraPipeConfig.defaultConfig(),
-                            CameraPipeConfig::class.simpleName
+                        add(
+                            arrayOf(
+                                cameraSelector.lensFacing,
+                                cameraSelector,
+                                quality,
+                                CameraPipeConfig.defaultConfig(),
+                                CameraPipeConfig::class.simpleName
+                            )
                         )
-                    )
+                    }
                 }
             }
-        }
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -222,49 +225,50 @@ class SupportedQualitiesVerificationTest(
         val videoProfile =
             videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
-        val videoCapture = VideoCapture.Builder(recorder).apply {
-            if (forceEnableSurfaceProcessing) {
-                setSurfaceProcessingForceEnabled()
-            }
-        }.build()
+        val videoCapture =
+            VideoCapture.Builder(recorder)
+                .apply {
+                    if (forceEnableSurfaceProcessing) {
+                        setSurfaceProcessingForceEnabled()
+                    }
+                }
+                .build()
         val preview = Preview.Builder().build()
         assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture))
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         val latchForRecordingStatus = CountDownLatch(5)
         val latchForRecordingFinalized = CountDownLatch(1)
         var finalizedEvent: VideoRecordEvent.Finalize? = null
-        val eventListener = Consumer<VideoRecordEvent> { event ->
-            when (event) {
-                is VideoRecordEvent.Status -> {
-                    // Make sure the recording proceed for a while.
-                    latchForRecordingStatus.countDown()
-                }
-
-                is VideoRecordEvent.Finalize -> {
-                    finalizedEvent = event
-                    latchForRecordingFinalized.countDown()
-                }
-
-                else -> {
-                    // Ignore other events.
+        val eventListener =
+            Consumer<VideoRecordEvent> { event ->
+                when (event) {
+                    is VideoRecordEvent.Status -> {
+                        // Make sure the recording proceed for a while.
+                        latchForRecordingStatus.countDown()
+                    }
+                    is VideoRecordEvent.Finalize -> {
+                        finalizedEvent = event
+                        latchForRecordingFinalized.countDown()
+                    }
+                    else -> {
+                        // Ignore other events.
+                    }
                 }
             }
-        }
 
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
-            val useCaseGroup = UseCaseGroup.Builder().apply {
-                addUseCase(preview)
-                addUseCase(videoCapture)
-                if (forceEnableStreamSharing) {
-                    addEffect(StreamSharingForceEnabledEffect())
-                }
-            }.build()
-            cameraProvider.bindToLifecycle(
-                lifecycleOwner,
-                cameraSelector,
-                useCaseGroup
-            )
+            val useCaseGroup =
+                UseCaseGroup.Builder()
+                    .apply {
+                        addUseCase(preview)
+                        addUseCase(videoCapture)
+                        if (forceEnableStreamSharing) {
+                            addEffect(StreamSharingForceEnabledEffect())
+                        }
+                    }
+                    .build()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup)
         }
 
         if (forceEnableSurfaceProcessing) {
@@ -295,11 +299,14 @@ class SupportedQualitiesVerificationTest(
         // * The device has size can not encode quirk as the final resolution will be modified.
         // * Flexible quality settings such as using HIGHEST and LOWEST. This is because the
         //   surface combination will affect the final resolution.
-        if (!hasExtraCroppingQuirk(implName) && !hasSizeCannotEncodeVideoQuirk(
-                resolutionToVerify,
-                rotationDegrees,
-                isSurfaceProcessingEnabled(videoCapture)
-            ) && !isFlexibleQuality(quality)
+        if (
+            !hasExtraCroppingQuirk(implName) &&
+                !hasSizeCannotEncodeVideoQuirk(
+                    resolutionToVerify,
+                    rotationDegrees,
+                    isSurfaceProcessingEnabled(videoCapture)
+                ) &&
+                !isFlexibleQuality(quality)
         ) {
             verifyVideoResolution(
                 context,
@@ -319,11 +326,9 @@ class SupportedQualitiesVerificationTest(
         file: File,
         eventListener: Consumer<VideoRecordEvent>
     ): Recording =
-        output.prepareRecording(
-            context, FileOutputOptions.Builder(file).build()
-        ).start(
-            CameraXExecutors.directExecutor(), eventListener
-        )
+        output
+            .prepareRecording(context, FileOutputOptions.Builder(file).build())
+            .start(CameraXExecutors.directExecutor(), eventListener)
 
     private fun hasSizeCannotEncodeVideoQuirk(
         resolution: Size,
@@ -333,8 +338,10 @@ class SupportedQualitiesVerificationTest(
         // The quirk will adjust the video resolution so the resolution of VideoProfile can't be
         // used to verify the saved video.
         val quirk = DeviceQuirks.get(SizeCannotEncodeVideoQuirk::class.java)
-        return quirk != null && quirk.isProblematicEncodeSize(
-            if (isSurfaceProcessingEnabled) rotateSize(resolution, rotationDegrees) else resolution
-        )
+        return quirk != null &&
+            quirk.isProblematicEncodeSize(
+                if (isSurfaceProcessingEnabled) rotateSize(resolution, rotationDegrees)
+                else resolution
+            )
     }
 }

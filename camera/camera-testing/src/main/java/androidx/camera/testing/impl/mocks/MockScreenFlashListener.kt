@@ -21,26 +21,19 @@ import androidx.camera.core.ImageCapture.ScreenFlashListener
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-/**
- * A mock implementations of [ScreenFlashListener] for testing purpose.
- */
+/** A mock implementations of [ScreenFlashListener] for testing purpose. */
 class MockScreenFlashListener : ScreenFlashListener {
     private val lock = Object()
 
-    @GuardedBy("lock")
-    private var completeCount: Int = 0
+    @GuardedBy("lock") private var completeCount: Int = 0
     private val completeLatch = CountDownLatch(1)
 
     override fun onCompleted() {
-        synchronized(lock) {
-            completeCount++
-        }
+        synchronized(lock) { completeCount++ }
         completeLatch.countDown()
     }
 
-    /**
-     * Gets the number of times [onCompleted] was invoked.
-     */
+    /** Gets the number of times [onCompleted] was invoked. */
     fun getCompleteCount() = synchronized(lock) { completeCount }
 
     /**

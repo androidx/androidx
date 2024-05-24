@@ -34,8 +34,9 @@ import androidx.camera.camera2.pipe.integration.internal.ZoomMath.nearZero
  * @return the value of the characteristic
  */
 fun <T> CameraMetadata.getSafely(key: CameraCharacteristics.Key<T>): T? {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
-        key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
+    if (
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+            key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
     ) {
         @Suppress("UNCHECKED_CAST") // T is guaranteed to be Range<Float>
         return getControlZoomRatioRangeSafely() as T?
@@ -57,50 +58,52 @@ fun <T> CameraMetadata.getSafely(key: CameraCharacteristics.Key<T>): T? {
  * @return the CONTROL_ZOOM_RATIO_RANGE characteristic value, null in case of [AssertionError].
  */
 @RequiresApi(Build.VERSION_CODES.R)
-fun CameraMetadata.getControlZoomRatioRangeSafely(): Range<Float>? = try {
-    var range = get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-    if (range == null) {
-        Log.warn { "Failed to read CONTROL_ZOOM_RATIO_RANGE for $camera!" }
-        Range(1.0f, 1.0f)
-    } else {
-        val lower = if (nearZero(range.lower) || range.lower < 0.0f) {
-            Log.warn { "Invalid lower zoom range detected: ${range.lower}" }
-            1.0f
+fun CameraMetadata.getControlZoomRatioRangeSafely(): Range<Float>? =
+    try {
+        var range = get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+        if (range == null) {
+            Log.warn { "Failed to read CONTROL_ZOOM_RATIO_RANGE for $camera!" }
+            Range(1.0f, 1.0f)
         } else {
-            range.lower
+            val lower =
+                if (nearZero(range.lower) || range.lower < 0.0f) {
+                    Log.warn { "Invalid lower zoom range detected: ${range.lower}" }
+                    1.0f
+                } else {
+                    range.lower
+                }
+            val upper =
+                if (nearZero(range.upper) || range.upper < 0.0f) {
+                    Log.warn { "Invalid upper zoom range detected: ${range.upper}" }
+                    1.0f
+                } else {
+                    range.upper
+                }
+            Range(lower, upper)
         }
-        val upper = if (nearZero(range.upper) || range.upper < 0.0f) {
-            Log.warn { "Invalid upper zoom range detected: ${range.upper}" }
-            1.0f
+    } catch (e: AssertionError) {
+        if (DeviceQuirks[ControlZoomRatioRangeAssertionErrorQuirk::class.java] != null) {
+            Log.debug {
+                "Device is known to throw an exception while retrieving" +
+                    " the value for CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE." +
+                    " CONTROL_ZOOM_RATIO_RANGE is not supported." +
+                    " [Manufacturer: ${Build.MANUFACTURER}, Model:" +
+                    " ${Build.MODEL}, API Level: ${Build.VERSION.SDK_INT}]."
+            }
         } else {
-            range.upper
+            Log.error(e) {
+                "Exception thrown while retrieving the value for" +
+                    " CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE on devices not known to " +
+                    "throw exceptions during this operation. Please file an issue at " +
+                    "https://issuetracker.google.com/issues/new?component=618491&template=1257717" +
+                    " with this error message [Manufacturer: ${Build.MANUFACTURER}, Model:" +
+                    " ${Build.MODEL}, API Level: ${Build.VERSION.SDK_INT}]." +
+                    " CONTROL_ZOOM_RATIO_RANGE is not available."
+            }
         }
-        Range(lower, upper)
-    }
-} catch (e: AssertionError) {
-    if (DeviceQuirks[ControlZoomRatioRangeAssertionErrorQuirk::class.java] != null) {
-        Log.debug {
-            "Device is known to throw an exception while retrieving" +
-                " the value for CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE." +
-                " CONTROL_ZOOM_RATIO_RANGE is not supported." +
-                " [Manufacturer: ${Build.MANUFACTURER}, Model:" +
-                " ${Build.MODEL}, API Level: ${Build.VERSION.SDK_INT}]."
-        }
-    } else {
-        Log.error(e) {
-            "Exception thrown while retrieving the value for" +
-                " CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE on devices not known to " +
-                "throw exceptions during this operation. Please file an issue at " +
-                "https://issuetracker.google.com/issues/new?component=618491&template=1257717" +
-                " with this error message [Manufacturer: ${Build.MANUFACTURER}, Model:" +
-                " ${Build.MODEL}, API Level: ${Build.VERSION.SDK_INT}]." +
-                " CONTROL_ZOOM_RATIO_RANGE is not available."
-        }
-    }
 
-    Log.warn(e) {
-        "AssertionError: " +
-            "failed to get CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE"
+        Log.warn(e) {
+            "AssertionError: " + "failed to get CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE"
+        }
+        null
     }
-    null
-}

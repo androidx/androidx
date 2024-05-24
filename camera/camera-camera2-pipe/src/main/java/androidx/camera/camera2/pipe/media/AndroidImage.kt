@@ -25,14 +25,10 @@ import kotlin.reflect.KClass
  * An [ImageWrapper] backed by an [Image].
  *
  * Note: [Image] is not thread-safe, so all interactions with the underlying properties must be
- *   copied into local fields or guarded by a lock.
+ * copied into local fields or guarded by a lock.
  */
-class AndroidImage(
-    private val image: Image
-) : ImageWrapper {
-    /**
-     * A [Plane] backed by an [ImagePlane].
-     */
+class AndroidImage(private val image: Image) : ImageWrapper {
+    /** A [Plane] backed by an [ImagePlane]. */
     class Plane(private val imagePlane: Image.Plane) : ImagePlane {
         // Copying out the contents of the Image.Plane means that this Plane
         // implementation can be thread-safe (without requiring any locking)
@@ -43,16 +39,16 @@ class AndroidImage(
         override val buffer: ByteBuffer = imagePlane.buffer
 
         @Suppress("UNCHECKED_CAST")
-        override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-            Image.Plane::class -> imagePlane as T
-            else -> null
-        }
+        override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+            when (type) {
+                Image.Plane::class -> imagePlane as T
+                else -> null
+            }
     }
 
     private val lock = Any()
 
-    @Volatile
-    private var _planes: List<ImagePlane>? = null
+    @Volatile private var _planes: List<ImagePlane>? = null
 
     // Copying out the contents of the Image means that this Image
     // implementation can be thread-safe (without requiring any locking)
@@ -64,16 +60,18 @@ class AndroidImage(
     override val timestamp: Long = image.timestamp
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-        Image::class -> image as T
-        else -> null
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            Image::class -> image as T
+            else -> null
+        }
 
     override val planes: List<ImagePlane>
         get() = readPlanes()
 
     override fun toString(): String {
-        // Image will be written as "Image-YUV_444_888w640h480-1234567890" with format, width, height, and timestamp
+        // Image will be written as "Image-YUV_444_888w640h480-1234567890" with format, width,
+        // height, and timestamp
         return "Image-${StreamFormat(format).name}-w${width}h$height-$timestamp"
     }
 
@@ -82,8 +80,8 @@ class AndroidImage(
     }
 
     /**
-     * Read and cache the result of [Image.getPlanes]. Each [ImagePlane], in turn,
-     * reads out and caches the buffer data for that specific plane.
+     * Read and cache the result of [Image.getPlanes]. Each [ImagePlane], in turn, reads out and
+     * caches the buffer data for that specific plane.
      *
      * @return a list of [ImagePlane]
      */
@@ -96,8 +94,7 @@ class AndroidImage(
                 if (result == null) {
                     val imagePlanes = image.planes
                     val wrappedPlanes =
-                        imagePlanes?.map { imagePlane -> Plane(imagePlane) }
-                            ?: emptyList()
+                        imagePlanes?.map { imagePlane -> Plane(imagePlane) } ?: emptyList()
                     _planes = wrappedPlanes
                     result = wrappedPlanes
                 }

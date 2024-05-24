@@ -100,10 +100,7 @@ internal class AndroidLSessionFactory @Inject constructor(private val threads: T
         surfaces: Map<StreamId, Surface>,
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        if (!cameraDevice.createCaptureSession(
-                surfaces.map { it.value }, captureSessionState
-            )
-        ) {
+        if (!cameraDevice.createCaptureSession(surfaces.map { it.value }, captureSessionState)) {
             Log.warn {
                 "Failed to create capture session from $cameraDevice for $captureSessionState!"
             }
@@ -125,7 +122,8 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
     ): Map<StreamId, OutputConfigurationWrapper> {
         if (graphConfig.input != null) {
             val outputConfig = graphConfig.input.single().stream.outputs.single()
-            if (!cameraDevice.createReprocessableCaptureSession(
+            if (
+                !cameraDevice.createReprocessableCaptureSession(
                     InputConfiguration(
                         outputConfig.size.width,
                         outputConfig.size.height,
@@ -142,9 +140,8 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
                 captureSessionState.disconnect()
             }
         } else {
-            if (!cameraDevice.createCaptureSession(
-                    surfaces.map { it.value }, captureSessionState
-                )
+            if (
+                !cameraDevice.createCaptureSession(surfaces.map { it.value }, captureSessionState)
             ) {
                 Log.warn {
                     "Failed to create captures session from $cameraDevice for $captureSessionState!"
@@ -164,8 +161,10 @@ internal class AndroidMHighSpeedSessionFactory @Inject constructor(private val t
         surfaces: Map<StreamId, Surface>,
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        if (!cameraDevice.createConstrainedHighSpeedCaptureSession(
-                surfaces.map { it.value }, captureSessionState
+        if (
+            !cameraDevice.createConstrainedHighSpeedCaptureSession(
+                surfaces.map { it.value },
+                captureSessionState
             )
         ) {
             Log.warn {
@@ -192,35 +191,38 @@ constructor(
         surfaces: Map<StreamId, Surface>,
         captureSessionState: CaptureSessionState
     ): Map<StreamId, OutputConfigurationWrapper> {
-        val outputs = buildOutputConfigurations(
-            graphConfig,
-            streamGraph,
-            surfaces,
-            camera2MetadataProvider,
-            cameraDevice.cameraId
-        )
+        val outputs =
+            buildOutputConfigurations(
+                graphConfig,
+                streamGraph,
+                surfaces,
+                camera2MetadataProvider,
+                cameraDevice.cameraId
+            )
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
             captureSessionState.onSessionFinalized()
             return emptyMap()
         }
 
-        val result = if (graphConfig.input == null) {
-            cameraDevice.createCaptureSessionByOutputConfigurations(
-                outputs.all, captureSessionState
-            )
-        } else {
-            val outputConfig = graphConfig.input.single().stream.outputs.single()
-            cameraDevice.createReprocessableCaptureSessionByConfigurations(
-                InputConfigData(
-                    outputConfig.size.width,
-                    outputConfig.size.height,
-                    outputConfig.format.value
-                ),
-                outputs.all,
-                captureSessionState
-            )
-        }
+        val result =
+            if (graphConfig.input == null) {
+                cameraDevice.createCaptureSessionByOutputConfigurations(
+                    outputs.all,
+                    captureSessionState
+                )
+            } else {
+                val outputConfig = graphConfig.input.single().stream.outputs.single()
+                cameraDevice.createReprocessableCaptureSessionByConfigurations(
+                    InputConfigData(
+                        outputConfig.size.width,
+                        outputConfig.size.height,
+                        outputConfig.format.value
+                    ),
+                    outputs.all,
+                    captureSessionState
+                )
+            }
         if (!result) {
             Log.warn {
                 "Failed to create capture session from $cameraDevice for $captureSessionState!"
@@ -250,34 +252,36 @@ constructor(
             when (graphConfig.sessionMode) {
                 CameraGraph.OperatingMode.NORMAL -> Camera2SessionTypes.SESSION_TYPE_REGULAR
                 CameraGraph.OperatingMode.HIGH_SPEED -> Camera2SessionTypes.SESSION_TYPE_HIGH_SPEED
-                CameraGraph.OperatingMode.EXTENSION -> throw IllegalArgumentException(
-                    "Unsupported session mode: ${graphConfig.sessionMode}"
-                )
-
+                CameraGraph.OperatingMode.EXTENSION ->
+                    throw IllegalArgumentException(
+                        "Unsupported session mode: ${graphConfig.sessionMode}"
+                    )
                 else -> graphConfig.sessionMode.mode
             }
 
-        val outputs = buildOutputConfigurations(
-            graphConfig,
-            streamGraph,
-            surfaces,
-            camera2MetadataProvider,
-            cameraDevice.cameraId
-        )
+        val outputs =
+            buildOutputConfigurations(
+                graphConfig,
+                streamGraph,
+                surfaces,
+                camera2MetadataProvider,
+                cameraDevice.cameraId
+            )
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
             captureSessionState.onSessionFinalized()
             return emptyMap()
         }
 
-        val inputs = graphConfig.input?.map { inputConfig ->
-            val outputConfig = inputConfig.stream.outputs.single()
-            InputConfigData(
-                outputConfig.size.width,
-                outputConfig.size.height,
-                outputConfig.format.value
-            )
-        }
+        val inputs =
+            graphConfig.input?.map { inputConfig ->
+                val outputConfig = inputConfig.stream.outputs.single()
+                InputConfigData(
+                    outputConfig.size.width,
+                    outputConfig.size.height,
+                    outputConfig.format.value
+                )
+            }
 
         inputs?.let {
             check(it.all { input -> input.format == inputs[0].format }) {
@@ -340,25 +344,27 @@ internal fun buildOutputConfigurations(
         }
 
         if (outputConfig.deferrable && outputSurfaces.size != outputConfig.streams.size) {
-            val output = AndroidOutputConfiguration.create(
-                null,
-                size = outputConfig.size,
-                outputType = outputConfig.deferredOutputType!!,
-                mirrorMode = outputConfig.mirrorMode,
-                timestampBase = outputConfig.timestampBase,
-                dynamicRangeProfile = outputConfig.dynamicRangeProfile,
-                streamUseCase = outputConfig.streamUseCase,
-                sensorPixelModes = outputConfig.sensorPixelModes,
-                surfaceSharing = outputConfig.surfaceSharing,
-                surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
-                physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
-                    outputConfig.camera
-                } else {
-                    null
-                },
-                cameraId = cameraId,
-                camera2MetadataProvider = camera2MetadataProvider
-            )
+            val output =
+                AndroidOutputConfiguration.create(
+                    null,
+                    size = outputConfig.size,
+                    outputType = outputConfig.deferredOutputType!!,
+                    mirrorMode = outputConfig.mirrorMode,
+                    timestampBase = outputConfig.timestampBase,
+                    dynamicRangeProfile = outputConfig.dynamicRangeProfile,
+                    streamUseCase = outputConfig.streamUseCase,
+                    sensorPixelModes = outputConfig.sensorPixelModes,
+                    surfaceSharing = outputConfig.surfaceSharing,
+                    surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
+                    physicalCameraId =
+                        if (outputConfig.camera != graphConfig.camera) {
+                            outputConfig.camera
+                        } else {
+                            null
+                        },
+                    cameraId = cameraId,
+                    camera2MetadataProvider = camera2MetadataProvider
+                )
             if (output == null) {
                 Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
                 continue
@@ -376,24 +382,26 @@ internal fun buildOutputConfigurations(
             "Surfaces are not yet available for $outputConfig!" +
                 " Missing surfaces for $missingStreams!"
         }
-        val output = AndroidOutputConfiguration.create(
-            outputSurfaces.first(),
-            mirrorMode = outputConfig.mirrorMode,
-            timestampBase = outputConfig.timestampBase,
-            dynamicRangeProfile = outputConfig.dynamicRangeProfile,
-            streamUseCase = outputConfig.streamUseCase,
-            sensorPixelModes = outputConfig.sensorPixelModes,
-            size = outputConfig.size,
-            surfaceSharing = outputConfig.surfaceSharing,
-            surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
-            physicalCameraId = if (outputConfig.camera != graphConfig.camera) {
-                outputConfig.camera
-            } else {
-                null
-            },
-            cameraId = cameraId,
-            camera2MetadataProvider = camera2MetadataProvider
-        )
+        val output =
+            AndroidOutputConfiguration.create(
+                outputSurfaces.first(),
+                mirrorMode = outputConfig.mirrorMode,
+                timestampBase = outputConfig.timestampBase,
+                dynamicRangeProfile = outputConfig.dynamicRangeProfile,
+                streamUseCase = outputConfig.streamUseCase,
+                sensorPixelModes = outputConfig.sensorPixelModes,
+                size = outputConfig.size,
+                surfaceSharing = outputConfig.surfaceSharing,
+                surfaceGroupId = outputConfig.groupNumber ?: SURFACE_GROUP_ID_NONE,
+                physicalCameraId =
+                    if (outputConfig.camera != graphConfig.camera) {
+                        outputConfig.camera
+                    } else {
+                        null
+                    },
+                cameraId = cameraId,
+                camera2MetadataProvider = camera2MetadataProvider
+            )
         if (output == null) {
             Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
             continue
@@ -436,17 +444,18 @@ constructor(
         val operatingMode =
             when (graphConfig.sessionMode) {
                 CameraGraph.OperatingMode.EXTENSION -> Camera2SessionTypes.SESSION_TYPE_EXTENSION
-                else -> throw IllegalArgumentException(
-                    "Unsupported session mode: ${graphConfig.sessionMode} for Extension CameraGraph"
-                )
+                else ->
+                    throw IllegalArgumentException(
+                        "Unsupported session mode: ${graphConfig.sessionMode} for Extension CameraGraph"
+                    )
             }
-        val extensionMode = checkNotNull(
-            graphConfig.sessionParameters
-                [CameraPipeKeys.camera2ExtensionMode] as? Int
-        ) {
-            "The CameraPipeKeys.camera2ExtensionMode must be set in the sessionParameters of the " +
-                "CameraGraph.Config when creating an Extension CameraGraph."
-        }
+        val extensionMode =
+            checkNotNull(
+                graphConfig.sessionParameters[CameraPipeKeys.camera2ExtensionMode] as? Int
+            ) {
+                "The CameraPipeKeys.camera2ExtensionMode must be set in the sessionParameters of the " +
+                    "CameraGraph.Config when creating an Extension CameraGraph."
+            }
 
         val cameraMetadata = camera2MetadataProvider.awaitCameraMetadata(cameraDevice.cameraId)
 
@@ -467,13 +476,14 @@ constructor(
             }
         }
 
-        val outputs = buildOutputConfigurations(
-            graphConfig,
-            streamGraph,
-            surfaces,
-            camera2MetadataProvider,
-            cameraDevice.cameraId
-        )
+        val outputs =
+            buildOutputConfigurations(
+                graphConfig,
+                streamGraph,
+                surfaces,
+                camera2MetadataProvider,
+                cameraDevice.cameraId
+            )
 
         if (outputs.all.isEmpty()) {
             Log.warn { "Failed to create OutputConfigurations for $graphConfig" }

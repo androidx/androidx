@@ -38,11 +38,9 @@ constructor(
 ) {
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private var openableCameras: List<CameraId>? = null
+    @GuardedBy("lock") private var openableCameras: List<CameraId>? = null
 
-    @GuardedBy("lock")
-    private var concurrentCameras: Set<Set<CameraId>>? = null
+    @GuardedBy("lock") private var concurrentCameras: Set<Set<CameraId>>? = null
 
     suspend fun getCameraIds(): List<CameraId> {
         val cameras = synchronized(lock) { openableCameras }
@@ -136,8 +134,8 @@ constructor(
                 Log.warn(e) { "Failed to query CameraManager#getConcurrentStreamingCameraIds" }
                 return null
             }
-        return cameraIdsSet.map {
-            it.map { cameraIdString -> CameraId(cameraIdString) }.toSet()
-        }.toSet()
+        return cameraIdsSet
+            .map { it.map { cameraIdString -> CameraId(cameraIdString) }.toSet() }
+            .toSet()
     }
 }

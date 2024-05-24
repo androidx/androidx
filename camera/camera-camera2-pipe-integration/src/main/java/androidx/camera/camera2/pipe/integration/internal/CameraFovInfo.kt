@@ -31,34 +31,33 @@ import javax.inject.Inject
 import kotlin.math.atan
 
 @CameraScope
-class CameraFovInfo @Inject constructor(
+class CameraFovInfo
+@Inject
+constructor(
     private val cameraDevices: CameraDevices,
     private val cameraProperties: CameraProperties,
 ) {
     /**
      * Gets the default focal length from a [CameraMetadata].
      *
-     * If the camera is a logical camera that consists of multiple physical cameras, the
-     * default focal length is the focal length of the physical camera that produces image at
-     * zoom ratio `1.0`.
+     * If the camera is a logical camera that consists of multiple physical cameras, the default
+     * focal length is the focal length of the physical camera that produces image at zoom ratio
+     * `1.0`.
      *
      * @throws NullPointerException If any of the required [CameraCharacteristics] is not available.
-     *
      * @throws IllegalStateException If [CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS] is
-     * empty.
+     *   empty.
      */
     private fun getDefaultFocalLength(
         cameraMetadata: CameraMetadata = cameraProperties.metadata
     ): Float {
-        val focalLengths: FloatArray = Preconditions.checkNotNull(
-            cameraMetadata[CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS],
-            "The focal lengths can not be empty."
-        )
+        val focalLengths: FloatArray =
+            Preconditions.checkNotNull(
+                cameraMetadata[CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS],
+                "The focal lengths can not be empty."
+            )
 
-        Preconditions.checkState(
-            focalLengths.isNotEmpty(),
-            "The focal lengths can not be empty."
-        )
+        Preconditions.checkState(focalLengths.isNotEmpty(), "The focal lengths can not be empty.")
 
         // Assume the first focal length is the default focal length. This will not be true if the
         // camera is a logical camera consist of multiple physical cameras and reports multiple
@@ -70,33 +69,36 @@ class CameraFovInfo @Inject constructor(
     /**
      * Gets the length of the horizontal side of the sensor.
      *
-     * The horizontal side is the width of the sensor size after rotated by the sensor
-     * orientation.
+     * The horizontal side is the width of the sensor size after rotated by the sensor orientation.
      *
      * @throws NullPointerException If any of the required [CameraCharacteristics] is not available.
      */
     private fun getSensorHorizontalLength(
         cameraMetadata: CameraMetadata = cameraProperties.metadata
     ): Float {
-        var sensorSize: SizeF = Preconditions.checkNotNull(
-            cameraMetadata[CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE],
-            "The sensor size can't be null."
-        )
+        var sensorSize: SizeF =
+            Preconditions.checkNotNull(
+                cameraMetadata[CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE],
+                "The sensor size can't be null."
+            )
 
-        val activeArrayRect: Rect = Preconditions.checkNotNull(
-            cameraMetadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE],
-            "The sensor orientation can't be null."
-        )
+        val activeArrayRect: Rect =
+            Preconditions.checkNotNull(
+                cameraMetadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE],
+                "The sensor orientation can't be null."
+            )
 
-        var pixelArraySize: Size = Preconditions.checkNotNull(
-            cameraMetadata[CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE],
-            "The active array size can't be null."
-        )
+        var pixelArraySize: Size =
+            Preconditions.checkNotNull(
+                cameraMetadata[CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE],
+                "The active array size can't be null."
+            )
 
-        val sensorOrientation: Int = Preconditions.checkNotNull(
-            cameraMetadata[CameraCharacteristics.SENSOR_ORIENTATION],
-            "The pixel array size can't be null."
-        )
+        val sensorOrientation: Int =
+            Preconditions.checkNotNull(
+                cameraMetadata[CameraCharacteristics.SENSOR_ORIENTATION],
+                "The pixel array size can't be null."
+            )
 
         var activeArraySize = TransformUtils.rectToSize(activeArrayRect)
         if (TransformUtils.is90or270(sensorOrientation)) {
@@ -110,21 +112,20 @@ class CameraFovInfo @Inject constructor(
     /**
      * Calculates view angle by focal length and sensor length.
      *
-     * The returned view angle is inexact and might not be hundred percent accurate comparing
-     * to the output image.
+     * The returned view angle is inexact and might not be hundred percent accurate comparing to the
+     * output image.
      *
      * The returned view angle should between 0 and 360.
      *
      * @throws IllegalArgumentException If the provided focal length or sensor length is not
-     * positive, or results in an invalid view angle.
+     *   positive, or results in an invalid view angle.
      */
     @IntRange(from = 0, to = 360)
     private fun focalLengthToViewAngleDegrees(focalLength: Float, sensorLength: Float): Int {
         Preconditions.checkArgument(focalLength > 0, "Focal length should be positive.")
         Preconditions.checkArgument(sensorLength > 0, "Sensor length should be positive.")
-        val viewAngleDegrees = Math.toDegrees(
-            2 * atan((sensorLength / (2 * focalLength)).toDouble())
-        ).toInt()
+        val viewAngleDegrees =
+            Math.toDegrees(2 * atan((sensorLength / (2 * focalLength)).toDouble())).toInt()
         Preconditions.checkArgumentInRange(
             viewAngleDegrees,
             0,
@@ -155,36 +156,39 @@ class CameraFovInfo @Inject constructor(
     /**
      * Gets the angle of view of the default camera on the device.
      *
-     *
      * The default cameras is the camera selected by
      * [androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA] or
-     * [androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA]
-     * depending on the specified lens facing.
+     * [androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA] depending on the specified lens
+     * facing.
      *
      * @throws IllegalStateException If a valid view angle could not be found.
      */
     @Throws(IllegalStateException::class)
     fun getDefaultCameraDefaultViewAngleDegrees(): Int {
         try {
-            val cameraIds = Preconditions.checkNotNull(
-                cameraDevices.awaitCameraIds(),
-                "Failed to get available camera IDs",
-            )
+            val cameraIds =
+                Preconditions.checkNotNull(
+                    cameraDevices.awaitCameraIds(),
+                    "Failed to get available camera IDs",
+                )
 
             cameraIds.forEach { cameraId ->
-                val cameraMetadata = Preconditions.checkNotNull(
-                    cameraDevices.awaitCameraMetadata(cameraId),
-                    "Failed to get CameraMetadata for $cameraId",
-                )
-                val cameraLensFacing = Preconditions.checkNotNull(
-                    cameraMetadata[CameraCharacteristics.LENS_FACING],
-                    "Failed to get CameraCharacteristics.LENS_FACING for $cameraId"
-                )
-                val currentLensFacing = Preconditions.checkNotNull(
-                    cameraProperties.metadata[CameraCharacteristics.LENS_FACING],
-                    "Failed to get the required LENS_FACING" +
-                        " for ${cameraProperties.cameraId}"
-                )
+                val cameraMetadata =
+                    Preconditions.checkNotNull(
+                        cameraDevices.awaitCameraMetadata(cameraId),
+                        "Failed to get CameraMetadata for $cameraId",
+                    )
+                val cameraLensFacing =
+                    Preconditions.checkNotNull(
+                        cameraMetadata[CameraCharacteristics.LENS_FACING],
+                        "Failed to get CameraCharacteristics.LENS_FACING for $cameraId"
+                    )
+                val currentLensFacing =
+                    Preconditions.checkNotNull(
+                        cameraProperties.metadata[CameraCharacteristics.LENS_FACING],
+                        "Failed to get the required LENS_FACING" +
+                            " for ${cameraProperties.cameraId}"
+                    )
                 if (cameraLensFacing == currentLensFacing) {
                     return focalLengthToViewAngleDegrees(
                         getDefaultFocalLength(cameraMetadata),

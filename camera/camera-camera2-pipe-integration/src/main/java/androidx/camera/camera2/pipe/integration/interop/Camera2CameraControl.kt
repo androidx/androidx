@@ -35,13 +35,13 @@ import kotlinx.coroutines.async
 /**
  * An class that provides ability to interoperate with the [android.hardware.camera2] APIs.
  *
- * Camera2 specific controls, like capture request options, can be applied through this class.
- * A Camera2CameraControl can be created from a general [CameraControl] which is associated
- * to a camera. Then the controls will affect all use cases that are using that camera.
+ * Camera2 specific controls, like capture request options, can be applied through this class. A
+ * Camera2CameraControl can be created from a general [CameraControl] which is associated to a
+ * camera. Then the controls will affect all use cases that are using that camera.
  *
- * If any option applied by Camera2CameraControl conflicts with the options required by
- * CameraX internally. The options from Camera2CameraControl will override, which may result in
- * unexpected behavior depends on the options being applied.
+ * If any option applied by Camera2CameraControl conflicts with the options required by CameraX
+ * internally. The options from Camera2CameraControl will override, which may result in unexpected
+ * behavior depends on the options being applied.
  */
 @SuppressWarnings("HiddenSuperclass")
 @ExperimentalCamera2Interop
@@ -49,14 +49,12 @@ class Camera2CameraControl
 private constructor(
     private val compat: Camera2CameraControlCompat,
     private val threads: UseCaseThreads,
-    @VisibleForTesting internal val requestListener:
-    ComboRequestListener,
+    @VisibleForTesting internal val requestListener: ComboRequestListener,
 ) : UseCaseCameraControl {
 
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        get() = _useCaseCamera
+        @RestrictTo(RestrictTo.Scope.LIBRARY) get() = _useCaseCamera
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         set(value) {
             _useCaseCamera = value
@@ -81,16 +79,16 @@ private constructor(
      * This will first clear all options that have already been set, then apply the new options.
      *
      * Any values which are in conflict with values already set by CameraX, such as by
-     * [androidx.camera.core.CameraControl], will overwrite the existing values. The
-     * values will be submitted with every repeating and single capture requests issued by
-     * CameraX, which may result in unexpected behavior depending on the values being applied.
+     * [androidx.camera.core.CameraControl], will overwrite the existing values. The values will be
+     * submitted with every repeating and single capture requests issued by CameraX, which may
+     * result in unexpected behavior depending on the values being applied.
      *
      * @param bundle The [CaptureRequestOptions] which will be set.
      * @return a [ListenableFuture] which completes when the repeating
-     * [android.hardware.camera2.CaptureResult] shows the options have be submitted
-     * completely. The future fails with [CameraControl.OperationCanceledException] if newer
-     * options are set or camera is closed before the current request completes.
-     * Cancelling the ListenableFuture is a no-op.
+     *   [android.hardware.camera2.CaptureResult] shows the options have be submitted completely.
+     *   The future fails with [CameraControl.OperationCanceledException] if newer options are set
+     *   or camera is closed before the current request completes. Cancelling the ListenableFuture
+     *   is a no-op.
      */
     @SuppressWarnings("AsyncSuffixFuture")
     fun setCaptureRequestOptions(bundle: CaptureRequestOptions): ListenableFuture<Void?> {
@@ -102,24 +100,22 @@ private constructor(
     /**
      * Adds a [CaptureRequestOptions] updates the session with the options it contains.
      *
-     * The options will be merged with the existing options. If one option is set with a
-     * different value, it will overwrite the existing value.
+     * The options will be merged with the existing options. If one option is set with a different
+     * value, it will overwrite the existing value.
      *
      * Any values which are in conflict with values already set by CameraX, such as by
-     * [androidx.camera.core.CameraControl], will overwrite the existing values. The
-     * values will be submitted with every repeating and single capture requests issued by
-     * CameraX, which may result in unexpected behavior depends on the values being applied.
+     * [androidx.camera.core.CameraControl], will overwrite the existing values. The values will be
+     * submitted with every repeating and single capture requests issued by CameraX, which may
+     * result in unexpected behavior depends on the values being applied.
      *
      * @param bundle The [CaptureRequestOptions] which will be set.
      * @return a [ListenableFuture] which completes when the repeating
-     * [android.hardware.camera2.CaptureResult] shows the options have be submitted
-     * completely. The future fails with [CameraControl.OperationCanceledException] if newer
-     * options are set or camera is closed before the current request completes.
+     *   [android.hardware.camera2.CaptureResult] shows the options have be submitted completely.
+     *   The future fails with [CameraControl.OperationCanceledException] if newer options are set
+     *   or camera is closed before the current request completes.
      */
     @SuppressWarnings("AsyncSuffixFuture")
-    fun addCaptureRequestOptions(
-        bundle: CaptureRequestOptions
-    ): ListenableFuture<Void?> {
+    fun addCaptureRequestOptions(bundle: CaptureRequestOptions): ListenableFuture<Void?> {
         compat.addRequestOption(bundle)
         return updateAsync("addCaptureRequestOptions")
     }
@@ -127,8 +123,8 @@ private constructor(
     /**
      * Gets all the capture request options that is currently applied by the [Camera2CameraControl].
      *
-     * It doesn't include the capture request options applied by
-     * the [android.hardware.camera2.CameraDevice] templates or by CameraX.
+     * It doesn't include the capture request options applied by the
+     * [android.hardware.camera2.CameraDevice] templates or by CameraX.
      *
      * @return The [CaptureRequestOptions].
      */
@@ -138,9 +134,9 @@ private constructor(
      * Clears all capture request options that is currently applied by the [Camera2CameraControl].
      *
      * @return a [ListenableFuture] which completes when the repeating
-     * [android.hardware.camera2.CaptureResult] shows the options have be submitted
-     * completely. The future fails with [CameraControl.OperationCanceledException] if newer
-     * options are set or camera is closed before the current request completes.
+     *   [android.hardware.camera2.CaptureResult] shows the options have be submitted completely.
+     *   The future fails with [CameraControl.OperationCanceledException] if newer options are set
+     *   or camera is closed before the current request completes.
      */
     @SuppressWarnings("AsyncSuffixFuture")
     fun clearCaptureRequestOptions(): ListenableFuture<Void?> {
@@ -150,9 +146,9 @@ private constructor(
 
     private fun updateAsync(tag: String): ListenableFuture<Void?> =
         Futures.nonCancellationPropagating(
-            threads.sequentialScope.async {
-                compat.applyAsync(useCaseCamera).await()
-            }.asListenableFuture(tag)
+            threads.sequentialScope
+                .async { compat.applyAsync(useCaseCamera).await() }
+                .asListenableFuture(tag)
         )
 
     companion object {
@@ -160,19 +156,18 @@ private constructor(
         /**
          * Gets the [Camera2CameraControl] from a [CameraControl].
          *
-         * The [CameraControl] is still usable after a [Camera2CameraControl] is
-         * obtained from it. Note that the [Camera2CameraControl] has higher priority than the
-         * [CameraControl]. For example, if
-         * [android.hardware.camera2.CaptureRequest.FLASH_MODE] is set through the
+         * The [CameraControl] is still usable after a [Camera2CameraControl] is obtained from it.
+         * Note that the [Camera2CameraControl] has higher priority than the [CameraControl]. For
+         * example, if [android.hardware.camera2.CaptureRequest.FLASH_MODE] is set through the
          * [Camera2CameraControl]. All [CameraControl] features that required
-         * [android.hardware.camera2.CaptureRequest.FLASH_MODE] internally like torch may not
-         * work properly.
+         * [android.hardware.camera2.CaptureRequest.FLASH_MODE] internally like torch may not work
+         * properly.
          *
          * @param cameraControl The [CameraControl] to get from.
          * @return The camera control with Camera2 implementation.
          * @throws IllegalArgumentException if the camera control does not contain the camera2
-         * information (e.g., if CameraX was not initialized with a
-         * [androidx.camera.camera2.pipe.integration.CameraPipeConfig]).
+         *   information (e.g., if CameraX was not initialized with a
+         *   [androidx.camera.camera2.pipe.integration.CameraPipeConfig]).
          */
         @JvmStatic
         fun from(cameraControl: CameraControl): Camera2CameraControl {
@@ -184,9 +179,7 @@ private constructor(
             return (cameraControlImpl as CameraControlAdapter).camera2cameraControl
         }
 
-        /**
-         * This is the workaround to prevent constructor from being added to public API.
-         */
+        /** This is the workaround to prevent constructor from being added to public API. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun create(
@@ -194,11 +187,7 @@ private constructor(
             threads: UseCaseThreads,
             requestListener: ComboRequestListener,
         ): Camera2CameraControl {
-            return Camera2CameraControl(
-                compat,
-                threads,
-                requestListener
-            )
+            return Camera2CameraControl(compat, threads, requestListener)
         }
     }
 }

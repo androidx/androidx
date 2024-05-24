@@ -41,9 +41,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [Image2JpegBytes]
- */
+/** Unit tests for [Image2JpegBytes] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -57,14 +55,15 @@ class Image2JpegBytesTest {
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
         val exif = createExif(jpegBytes)
         val image = createJpegFakeImageProxy(jpegBytes)
-        val input = Packet.of(
-            image,
-            exif,
-            CROP_RECT,
-            ROTATION_DEGREES,
-            SENSOR_TO_BUFFER,
-            CAMERA_CAPTURE_RESULT
-        )
+        val input =
+            Packet.of(
+                image,
+                exif,
+                CROP_RECT,
+                ROTATION_DEGREES,
+                SENSOR_TO_BUFFER,
+                CAMERA_CAPTURE_RESULT
+            )
 
         // Act.
         val output = operation.apply(Image2JpegBytes.In.of(input, 100))
@@ -91,14 +90,15 @@ class Image2JpegBytesTest {
         val jpegBytes = createJpegrBytes(WIDTH, HEIGHT)
         val exif = createExif(jpegBytes)
         val image = createJpegrFakeImageProxy(jpegBytes)
-        val input = Packet.of(
-            image,
-            exif,
-            CROP_RECT,
-            ROTATION_DEGREES,
-            SENSOR_TO_BUFFER,
-            CAMERA_CAPTURE_RESULT
-        )
+        val input =
+            Packet.of(
+                image,
+                exif,
+                CROP_RECT,
+                ROTATION_DEGREES,
+                SENSOR_TO_BUFFER,
+                CAMERA_CAPTURE_RESULT
+            )
 
         // Act.
         val output = operation.apply(Image2JpegBytes.In.of(input, 100))

@@ -62,9 +62,10 @@ class MediaStoreOutputOptionsTest {
     fun equals_consistent() {
         val options1 = MediaStoreOutputOptions.Builder(context.contentResolver, Uri.EMPTY).build()
         val options2 = MediaStoreOutputOptions.Builder(context.contentResolver, Uri.EMPTY).build()
-        val options3 = MediaStoreOutputOptions.Builder(context.contentResolver, Uri.EMPTY)
-            .setFileSizeLimit(100)
-            .build()
+        val options3 =
+            MediaStoreOutputOptions.Builder(context.contentResolver, Uri.EMPTY)
+                .setFileSizeLimit(100)
+                .build()
 
         assertThat(options1 == options2 && options1 == options2).isTrue()
         assertThat(options1 != options3 && options1 != options3).isTrue()

@@ -16,12 +16,8 @@
 
 package androidx.camera.integration.extensions.util
 
-/**
- * The basic package name of the extensions test app
- */
+/** The basic package name of the extensions test app */
 const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions"
 
-/**
- * Timeout duration to wait for idle after pressing HOME key
- */
+/** Timeout duration to wait for idle after pressing HOME key */
 const val HOME_TIMEOUT_MS = 3000L

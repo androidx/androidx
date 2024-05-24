@@ -29,9 +29,9 @@ abstract class DiagnosisTask(private val name: String) {
     }
 
     /**
-     *  Called by diagnose function in {@link Diagnosis} to execute tasks implemented by children.
-     *  Children can use {@link LifecycleCameraController} to access CameraX features on the device
-     *  and use @{link DataStore} to save results to a report file.
+     * Called by diagnose function in {@link Diagnosis} to execute tasks implemented by children.
+     * Children can use {@link LifecycleCameraController} to access CameraX features on the device
+     * and use @{link DataStore} to save results to a report file.
      */
     abstract suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,

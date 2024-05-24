@@ -47,8 +47,7 @@ value class AfMode(val value: Int) {
 
         val values = listOf(OFF, AUTO, MACRO, CONTINUOUS_VIDEO, CONTINUOUS_PICTURE, EDOF)
 
-        @JvmStatic
-        fun fromIntOrNull(value: Int): AfMode? = values.firstOrNull { it.value == value }
+        @JvmStatic fun fromIntOrNull(value: Int): AfMode? = values.firstOrNull { it.value == value }
     }
 }
 
@@ -71,8 +70,7 @@ value class AeMode(val value: Int) {
         val values =
             listOf(OFF, ON, ON_AUTO_FLASH, ON_ALWAYS_FLASH, ON_AUTO_FLASH_REDEYE, ON_EXTERNAL_FLASH)
 
-        @JvmStatic
-        fun fromIntOrNull(value: Int): AeMode? = values.firstOrNull { it.value == value }
+        @JvmStatic fun fromIntOrNull(value: Int): AeMode? = values.firstOrNull { it.value == value }
     }
 }
 
@@ -144,8 +142,8 @@ value class Lock3ABehavior private constructor(val value: Int) {
         /**
          * This requirement means that we want to lock the values for 3A immediately.
          *
-         * For AE/AWB this is achieved by asking the camera device to lock them immediately by setting
-         * [android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK],
+         * For AE/AWB this is achieved by asking the camera device to lock them immediately by
+         * setting [android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK],
          * [android.hardware.camera2.CaptureRequest.CONTROL_AWB_LOCK] to true right away.
          *
          * For AF we immediately ask the camera device to trigger AF by setting the
@@ -155,8 +153,8 @@ value class Lock3ABehavior private constructor(val value: Int) {
         val IMMEDIATE = Lock3ABehavior(1)
 
         /**
-         * Lock 3A values after their current scan is finished. If there is no active ongoing scan then
-         * the values will be locked to the current values.
+         * Lock 3A values after their current scan is finished. If there is no active ongoing scan
+         * then the values will be locked to the current values.
          */
         val AFTER_CURRENT_SCAN = Lock3ABehavior(2)
 

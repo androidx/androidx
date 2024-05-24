@@ -24,26 +24,23 @@ import java.util.concurrent.Future
  * Cloned from concurrent-futures package in Guava to AndroidX namespace since we would need
  * ListenableFuture related implementation but not want to include whole Guava library.
  *
- * A callback for accepting the results of a [Future] computation
- * asynchronously.
- *
+ * A callback for accepting the results of a [Future] computation asynchronously.
  *
  * To attach to a [ListenableFuture] use [Futures.addCallback].
  *
+ * @param <V> </V>
  * @author Anthony Zana
  * @since 10.0
- * @param <V>
-</V> */
+ */
 interface FutureCallback<V> {
-    /** Invoked with the result of the `Future` computation when it is successful.  */
+    /** Invoked with the result of the `Future` computation when it is successful. */
     fun onSuccess(result: V?)
 
     /**
      * Invoked when a `Future` computation fails or is canceled.
      *
-     *
-     * If the future's [get][Future.get] method throws an [ExecutionException], then
-     * the cause is passed to this method. Any other thrown object is passed unaltered.
+     * If the future's [get][Future.get] method throws an [ExecutionException], then the cause is
+     * passed to this method. Any other thrown object is passed unaltered.
      */
     fun onFailure(t: Throwable)
 }

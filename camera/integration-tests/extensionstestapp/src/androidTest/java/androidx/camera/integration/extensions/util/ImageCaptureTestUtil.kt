@@ -23,9 +23,7 @@ import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertTrue
 
-/**
- * Validate the image can be correctly decoded from a jpeg format to a bitmap.
- */
+/** Validate the image can be correctly decoded from a jpeg format to a bitmap. */
 fun assertImageIsValid(image: Image, width: Int, height: Int) {
     assertThat(image.width).isEqualTo(width)
     assertThat(image.height).isEqualTo(height)
@@ -34,9 +32,7 @@ fun assertImageIsValid(image: Image, width: Int, height: Int) {
     val data = imageData(image)
     assertTrue("Invalid image data", data.isNotEmpty())
 
-    val bmpOptions = BitmapFactory.Options().apply {
-        inJustDecodeBounds = true
-    }
+    val bmpOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
 
     BitmapFactory.decodeByteArray(data, 0, data.size, bmpOptions)
 

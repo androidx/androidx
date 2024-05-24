@@ -62,18 +62,16 @@ class FrameImplTest {
 
     private val imageStreams = setOf(stream1Id, stream2Id)
     private val request = Request(streams = listOf(stream1Id, stream2Id))
-    private val fakeRequestMetadata = FakeRequestMetadata.from(
-        request,
-        streamToSurfaceMap,
-        repeating = false
-    )
+    private val fakeRequestMetadata =
+        FakeRequestMetadata.from(request, streamToSurfaceMap, repeating = false)
 
-    private val frameState = FrameState(
-        requestMetadata = fakeRequestMetadata,
-        frameNumber = frameNumber,
-        frameTimestamp = frameTimestamp,
-        imageStreams
-    )
+    private val frameState =
+        FrameState(
+            requestMetadata = fakeRequestMetadata,
+            frameNumber = frameNumber,
+            frameTimestamp = frameTimestamp,
+            imageStreams
+        )
 
     private val frameInfoResult = frameState.frameInfoOutput
     private val streamResult1 = frameState.imageOutputs.first { it.streamId == stream1Id }
@@ -317,8 +315,7 @@ class FrameImplTest {
 
         sharedOutputFrame.close()
 
-        assertThat(sharedOutputFrame.imageStatus(stream1Id))
-            .isEqualTo(OutputStatus.UNAVAILABLE)
+        assertThat(sharedOutputFrame.imageStatus(stream1Id)).isEqualTo(OutputStatus.UNAVAILABLE)
         assertThat(sharedOutputFrame.getImage(stream1Id)).isNull()
     }
 

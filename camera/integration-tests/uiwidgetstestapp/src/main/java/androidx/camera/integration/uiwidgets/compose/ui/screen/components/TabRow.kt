@@ -66,11 +66,7 @@ fun ComposeCameraScreenTabRow(
     onTabSelected: (ComposeCameraScreen) -> Unit,
     currentScreen: ComposeCameraScreen
 ) {
-    Surface(
-        Modifier
-            .height(TabHeight)
-            .fillMaxWidth()
-    ) {
+    Surface(Modifier.height(TabHeight).fillMaxWidth()) {
         Row(Modifier.selectableGroup()) {
             allScreens.forEach { screen ->
                 ComposeCameraTab(
@@ -102,28 +98,26 @@ private fun ComposeCameraTab(
         )
     }
 
-    val tabTintColor by animateColorAsState(
-        targetValue = if (selected) color else color.copy(alpha = InactiveTabOpacity),
-        animationSpec = animSpec
-    )
+    val tabTintColor by
+        animateColorAsState(
+            targetValue = if (selected) color else color.copy(alpha = InactiveTabOpacity),
+            animationSpec = animSpec
+        )
 
     Row(
-        modifier = Modifier
-            .padding(TabPadding)
-            .animateContentSize()
-            .height(TabHeight)
-            .selectable(
-                selected = selected,
-                onClick = onSelected,
-                role = Role.Tab,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(
-                    bounded = false,
-                    radius = Dp.Unspecified,
-                    color = Color.Unspecified
+        modifier =
+            Modifier.padding(TabPadding)
+                .animateContentSize()
+                .height(TabHeight)
+                .selectable(
+                    selected = selected,
+                    onClick = onSelected,
+                    role = Role.Tab,
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication =
+                        ripple(bounded = false, radius = Dp.Unspecified, color = Color.Unspecified)
                 )
-            )
-            .clearAndSetSemantics { contentDescription = text }
+                .clearAndSetSemantics { contentDescription = text }
     ) {
         Icon(imageVector = icon, contentDescription = text, tint = tabTintColor)
         if (selected) {

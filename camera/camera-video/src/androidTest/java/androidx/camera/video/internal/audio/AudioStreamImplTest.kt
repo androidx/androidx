@@ -59,9 +59,8 @@ class AudioStreamImplTest {
     }
 
     @get:Rule
-    var mAudioPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        Manifest.permission.RECORD_AUDIO
-    )
+    var mAudioPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
 
     private val byteBuffer = ByteBuffer.allocateDirect(1024)
     private lateinit var audioStream: AudioStreamImpl
@@ -72,15 +71,16 @@ class AudioStreamImplTest {
         assumeTrue(AudioStreamImpl.isSettingsSupported(SAMPLE_RATE, CHANNEL_COUNT, AUDIO_FORMAT))
         assumeTrue(AudioUtil.canStartAudioRecord(AUDIO_SOURCE))
 
-        audioStream = AudioStreamImpl(
-            AudioSettings.builder()
-                .setAudioSource(AUDIO_SOURCE)
-                .setSampleRate(SAMPLE_RATE)
-                .setChannelCount(CHANNEL_COUNT)
-                .setAudioFormat(AUDIO_FORMAT)
-                .build(),
-            /*attributionContext=*/null
-        )
+        audioStream =
+            AudioStreamImpl(
+                AudioSettings.builder()
+                    .setAudioSource(AUDIO_SOURCE)
+                    .setSampleRate(SAMPLE_RATE)
+                    .setChannelCount(CHANNEL_COUNT)
+                    .setAudioFormat(AUDIO_FORMAT)
+                    .build(),
+                /*attributionContext=*/ null
+            )
         audioStreamCallback = AudioStreamCallback()
         audioStream.setCallback(audioStreamCallback, ioExecutor())
     }
@@ -95,9 +95,7 @@ class AudioStreamImplTest {
     @RequiresDevice // b/264902324
     @Test
     fun readBeforeStart_throwException() {
-        assertThrows(IllegalStateException::class.java) {
-            audioStream.read(byteBuffer)
-        }
+        assertThrows(IllegalStateException::class.java) { audioStream.read(byteBuffer) }
     }
 
     @RequiresDevice // b/264902324
@@ -105,18 +103,14 @@ class AudioStreamImplTest {
     fun readAfterStop_throwException() {
         audioStream.start()
         audioStream.stop()
-        assertThrows(IllegalStateException::class.java) {
-            audioStream.read(byteBuffer)
-        }
+        assertThrows(IllegalStateException::class.java) { audioStream.read(byteBuffer) }
     }
 
     @RequiresDevice // b/264902324
     @Test
     fun startAfterReleased_throwException() {
         audioStream.release()
-        assertThrows(IllegalStateException::class.java) {
-            audioStream.start()
-        }
+        assertThrows(IllegalStateException::class.java) { audioStream.start() }
     }
 
     @RequiresDevice // b/264902324

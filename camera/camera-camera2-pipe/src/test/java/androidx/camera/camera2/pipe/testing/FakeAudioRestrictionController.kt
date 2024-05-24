@@ -28,8 +28,7 @@ internal class FakeAudioRestrictionController @Inject constructor() : AudioRestr
     override fun updateCameraGraphAudioRestrictionMode(
         cameraGraph: CameraGraph,
         mode: AudioRestrictionMode
-    ) {
-    }
+    ) {}
 
     override fun removeCameraGraph(cameraGraph: CameraGraph) {}
 

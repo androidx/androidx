@@ -21,10 +21,7 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.core.DynamicRange
 
-/**
- * Utilities for converting between [DynamicRange] and profiles from
- * [DynamicRangeProfiles].
- */
+/** Utilities for converting between [DynamicRange] and profiles from [DynamicRangeProfiles]. */
 @RequiresApi(33)
 internal object DynamicRangeConversions {
     private val PROFILE_TO_DR_MAP: MutableMap<Long, DynamicRange> = mutableMapOf()
@@ -53,35 +50,33 @@ internal object DynamicRangeConversions {
         // takes a DynamicRange with dolby vision encoding will attempt to convert to these
         // profiles in order, using the first one that is supported. We will need to add a
         // mechanism for choosing between these
-        val dolbyVision10BitProfilesOrdered = listOf(
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO
-        )
+        val dolbyVision10BitProfilesOrdered =
+            listOf(
+                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM,
+                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO,
+                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF,
+                DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO
+            )
         for (profile in dolbyVision10BitProfilesOrdered) {
             PROFILE_TO_DR_MAP[profile] = DynamicRange.DOLBY_VISION_10_BIT
         }
-        DR_TO_PROFILE_MAP[DynamicRange.DOLBY_VISION_10_BIT] =
-            dolbyVision10BitProfilesOrdered
+        DR_TO_PROFILE_MAP[DynamicRange.DOLBY_VISION_10_BIT] = dolbyVision10BitProfilesOrdered
 
         // Dolby vision 8-bit
-        val dolbyVision8BitProfilesOrdered = listOf(
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO
-        )
+        val dolbyVision8BitProfilesOrdered =
+            listOf(
+                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM,
+                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO,
+                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF,
+                DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO
+            )
         for (profile in dolbyVision8BitProfilesOrdered) {
             PROFILE_TO_DR_MAP[profile] = DynamicRange.DOLBY_VISION_8_BIT
         }
-        DR_TO_PROFILE_MAP[DynamicRange.DOLBY_VISION_8_BIT] =
-            dolbyVision8BitProfilesOrdered
+        DR_TO_PROFILE_MAP[DynamicRange.DOLBY_VISION_8_BIT] = dolbyVision8BitProfilesOrdered
     }
 
-    /**
-     * Converts Camera2 dynamic range profile constants to [DynamicRange].
-     */
+    /** Converts Camera2 dynamic range profile constants to [DynamicRange]. */
     @DoNotInline
     fun profileToDynamicRange(profile: Long): DynamicRange? {
         return PROFILE_TO_DR_MAP[profile]
@@ -90,15 +85,13 @@ internal object DynamicRangeConversions {
     /**
      * Converts a [DynamicRange] to a Camera2 dynamic range profile.
      *
+     * For dynamic ranges which can resolve to multiple profiles, the first supported profile from
+     * the passed [android.hardware.camera2.params.DynamicRangeProfiles] will be returned. The order
+     * in which profiles are checked for support is internally defined.
      *
-     * For dynamic ranges which can resolve to multiple profiles, the first supported profile
-     * from the passed [android.hardware.camera2.params.DynamicRangeProfiles] will be
-     * returned. The order in which profiles are checked for support is internally defined.
-     *
-     *
-     * This will only return profiles for fully defined dynamic ranges. For instance, if the
-     * format returned by [DynamicRange.getEncoding] is
-     * [DynamicRange.ENCODING_HDR_UNSPECIFIED], this will return `null`.
+     * This will only return profiles for fully defined dynamic ranges. For instance, if the format
+     * returned by [DynamicRange.getEncoding] is [DynamicRange.ENCODING_HDR_UNSPECIFIED], this will
+     * return `null`.
      */
     @DoNotInline
     fun dynamicRangeToFirstSupportedProfile(

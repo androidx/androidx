@@ -26,10 +26,8 @@ data class GraphDataHolderStateImpl(
     init {
         if (stateMap.isEmpty()) throw IllegalArgumentException("Must have at least 1 state")
         stateMap.forEach {
-            if (it.value == "") throw IllegalArgumentException(
-                "State description must not be" +
-                    " empty string"
-            )
+            if (it.value == "")
+                throw IllegalArgumentException("State description must not be" + " empty string")
         }
     }
 

@@ -21,9 +21,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 
-/**
- * Fake [ImageCaptureControl] that records method calls.
- */
+/** Fake [ImageCaptureControl] that records method calls. */
 class FakeImageCaptureControl : ImageCaptureControl {
 
     companion object {
@@ -39,10 +37,11 @@ class FakeImageCaptureControl : ImageCaptureControl {
     lateinit var pendingResultCompleter: CallbackToFutureAdapter.Completer<Void>
     var pendingResult = createPendingResult()
 
-    private fun createPendingResult() = CallbackToFutureAdapter.getFuture { completer ->
-        pendingResultCompleter = completer
-        "FakeImageCaptureControl's pendingResult"
-    }
+    private fun createPendingResult() =
+        CallbackToFutureAdapter.getFuture { completer ->
+            pendingResultCompleter = completer
+            "FakeImageCaptureControl's pendingResult"
+        }
 
     fun resetPendingResult() {
         pendingResult = createPendingResult()

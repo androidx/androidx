@@ -29,7 +29,7 @@ import androidx.concurrent.futures.await
  * @param context The application context.
  * @return A fully initialized ProcessCameraProvider for the current process.
  * @throws InitializationException If failed to retrieve the ProcessCameraProvider, use
- * [InitializationException.cause] to get the error cause.
+ *   [InitializationException.cause] to get the error cause.
  * @see ProcessCameraProvider.getInstance
  */
 suspend fun ProcessCameraProvider.Companion.awaitInstance(context: Context) =

@@ -16,7 +16,5 @@
 
 package androidx.camera.integration.extensions.utils
 
-/**
- * Represents a pair of Camera ID and Camera Extension Mode type
- */
+/** Represents a pair of Camera ID and Camera Extension Mode type */
 data class CameraIdExtensionModePair(val cameraId: String, val extensionMode: Int)

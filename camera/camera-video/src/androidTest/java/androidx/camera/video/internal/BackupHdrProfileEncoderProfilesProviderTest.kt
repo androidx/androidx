@@ -62,28 +62,30 @@ class BackupHdrProfileEncoderProfilesProviderTest(
     private val quality: Int
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
+    @get:Rule val labTest: LabTestRule = LabTestRule()
 
     companion object {
 
         // Reference to the available values listed in Quality.
         @JvmStatic
-        private val qualities = arrayOf(
-            CamcorderProfile.QUALITY_480P,
-            CamcorderProfile.QUALITY_720P,
-            CamcorderProfile.QUALITY_1080P,
-            CamcorderProfile.QUALITY_2160P,
-        )
+        private val qualities =
+            arrayOf(
+                CamcorderProfile.QUALITY_480P,
+                CamcorderProfile.QUALITY_720P,
+                CamcorderProfile.QUALITY_1080P,
+                CamcorderProfile.QUALITY_2160P,
+            )
 
         @JvmStatic
         private val cameraXConfigs =
@@ -91,27 +93,25 @@ class BackupHdrProfileEncoderProfilesProviderTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "config={0}, quality={2}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            cameraXConfigs.forEach { configImplName ->
-                qualities.forEach { quality ->
-                    add(
-                        arrayOf(
-                            configImplName,
-                            when (configImplName) {
-                                CameraPipeConfig::class.simpleName ->
-                                    CameraPipeConfig.defaultConfig()
-
-                                Camera2Config::class.simpleName ->
-                                    Camera2Config.defaultConfig()
-
-                                else -> Camera2Config.defaultConfig()
-                            },
-                            quality
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                cameraXConfigs.forEach { configImplName ->
+                    qualities.forEach { quality ->
+                        add(
+                            arrayOf(
+                                configImplName,
+                                when (configImplName) {
+                                    CameraPipeConfig::class.simpleName ->
+                                        CameraPipeConfig.defaultConfig()
+                                    Camera2Config::class.simpleName -> Camera2Config.defaultConfig()
+                                    else -> Camera2Config.defaultConfig()
+                                },
+                                quality
+                            )
                         )
-                    )
+                    }
                 }
             }
-        }
 
         private fun hasMediaCodecIncorrectInfoQuirk(): Boolean {
             return DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk::class.java) != null
@@ -132,15 +132,15 @@ class BackupHdrProfileEncoderProfilesProviderTest(
         CameraXUtil.initialize(context, cameraConfig).get()
 
         cameraId = CameraUtil.getCameraIdWithLensFacing(cameraSelector.lensFacing!!)!!
-        cameraInfo = CameraUtil.createCameraUseCaseAdapter(
-            context,
-            cameraSelector
-        ).cameraInfo as CameraInfoInternal
-        baseProvider = if (implName == CameraPipeConfig::class.simpleName) {
-            EncoderProfilesProviderAdapter(cameraId, cameraInfo.cameraQuirks)
-        } else {
-            Camera2EncoderProfilesProvider(cameraId, cameraInfo.cameraQuirks)
-        }
+        cameraInfo =
+            CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
+                as CameraInfoInternal
+        baseProvider =
+            if (implName == CameraPipeConfig::class.simpleName) {
+                EncoderProfilesProviderAdapter(cameraId, cameraInfo.cameraQuirks)
+            } else {
+                Camera2EncoderProfilesProvider(cameraId, cameraInfo.cameraQuirks)
+            }
     }
 
     @After

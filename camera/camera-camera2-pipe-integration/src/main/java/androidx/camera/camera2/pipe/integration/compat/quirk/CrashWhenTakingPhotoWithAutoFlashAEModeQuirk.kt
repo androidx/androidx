@@ -37,23 +37,24 @@ class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk : Quirk {
 
     companion object {
 
-        private val AFFECTED_MODELS = listOf(
-            // Enables on all Galaxy A3 devices.
-            "SM-A3000",
-            "SM-A3009",
-            "SM-A300F",
-            "SM-A300FU",
-            "SM-A300G",
-            "SM-A300H",
-            "SM-A300M",
-            "SM-A300X",
-            "SM-A300XU",
-            "SM-A300XZ",
-            "SM-A300Y",
-            "SM-A300YZ",
-            "SM-J510FN", // Galaxy J5
-            "5059X" // TCT Alcatel 1X
-        )
+        private val AFFECTED_MODELS =
+            listOf(
+                // Enables on all Galaxy A3 devices.
+                "SM-A3000",
+                "SM-A3009",
+                "SM-A300F",
+                "SM-A300FU",
+                "SM-A300G",
+                "SM-A300H",
+                "SM-A300M",
+                "SM-A300X",
+                "SM-A300XU",
+                "SM-A300XZ",
+                "SM-A300Y",
+                "SM-A300YZ",
+                "SM-J510FN", // Galaxy J5
+                "5059X" // TCT Alcatel 1X
+            )
 
         @JvmStatic
         fun isEnabled(): Boolean {

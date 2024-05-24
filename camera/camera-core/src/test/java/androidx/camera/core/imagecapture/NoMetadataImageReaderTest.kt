@@ -31,9 +31,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [NoMetadataImageReader].
- */
+/** Unit tests for [NoMetadataImageReader]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -56,9 +54,7 @@ class NoMetadataImageReaderTest {
         val noMetadataImageReader = NoMetadataImageReader(fakeImageReader)
         var image: ImageProxy? = null
         noMetadataImageReader.setOnImageAvailableListener(
-            { imageReader ->
-                image = getImageProxy(imageReader)
-            },
+            { imageReader -> image = getImageProxy(imageReader) },
             directExecutor()
         )
         noMetadataImageReader.acceptProcessingRequest(createProcessingRequest())

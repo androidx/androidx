@@ -31,20 +31,18 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 
-/** A activity uses ViewPager2 as container to include {@link CameraFragment} and
- * {@link TextViewFragment} */
+/**
+ * A activity uses ViewPager2 as container to include {@link CameraFragment} and {@link
+ * TextViewFragment}
+ */
 class ViewPager2Activity : BaseActivity() {
 
     companion object {
-        private val REQUIRED_PERMISSIONS = arrayOf(
-            Manifest.permission.CAMERA
-        )
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
         private const val TAG = " ViewPager2Activity"
         private const val REQUEST_CODE_PERMISSIONS = 6
-        @VisibleForTesting
-        val BLANK_VIEW_ID = View.generateViewId()
-        @VisibleForTesting
-        val CAMERA_VIEW_ID = View.generateViewId()
+        @VisibleForTesting val BLANK_VIEW_ID = View.generateViewId()
+        @VisibleForTesting val CAMERA_VIEW_ID = View.generateViewId()
     }
 
     private lateinit var binding: ActivityViewpager2Binding
@@ -74,18 +72,19 @@ class ViewPager2Activity : BaseActivity() {
     private fun setupAdapter() {
         binding.viewPager2.adapter = ViewPager2Adapter(this@ViewPager2Activity)
         TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
-            when (position) {
-                0 -> {
-                    tab.text = "CAMERA_VIEW"
-                    tab.view.id = CAMERA_VIEW_ID
+                when (position) {
+                    0 -> {
+                        tab.text = "CAMERA_VIEW"
+                        tab.view.id = CAMERA_VIEW_ID
+                    }
+                    1 -> {
+                        tab.text = "BLANK_VIEW"
+                        tab.view.id = BLANK_VIEW_ID
+                    }
+                    else -> throw IllegalArgumentException()
                 }
-                1 -> {
-                    tab.text = "BLANK_VIEW"
-                    tab.view.id = BLANK_VIEW_ID
-                }
-                else -> throw IllegalArgumentException()
             }
-        }.attach()
+            .attach()
     }
 
     @Deprecated("Deprecated in ComponentActivity")
@@ -107,8 +106,9 @@ class ViewPager2Activity : BaseActivity() {
 
     private fun allPermissionsGranted(): Boolean {
         for (permission in REQUIRED_PERMISSIONS) {
-            if (ContextCompat.checkSelfPermission(this, permission)
-                != PackageManager.PERMISSION_GRANTED
+            if (
+                ContextCompat.checkSelfPermission(this, permission) !=
+                    PackageManager.PERMISSION_GRANTED
             ) {
                 return false
             }
@@ -123,10 +123,11 @@ class ViewPager2Activity : BaseActivity() {
             return 2
         }
 
-        override fun createFragment(position: Int): Fragment = when (position) {
-            0 -> CameraFragment.newInstance()
-            1 -> TextViewFragment.newInstance()
-            else -> throw IllegalArgumentException()
-        }
+        override fun createFragment(position: Int): Fragment =
+            when (position) {
+                0 -> CameraFragment.newInstance()
+                1 -> TextViewFragment.newInstance()
+                else -> throw IllegalArgumentException()
+            }
     }
 }

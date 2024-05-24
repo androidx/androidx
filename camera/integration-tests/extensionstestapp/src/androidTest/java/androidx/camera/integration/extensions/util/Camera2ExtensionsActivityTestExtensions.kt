@@ -27,14 +27,10 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.testutils.withActivity
 
-/**
- * Waits until the capture session has been configured and its idling resource has become idle.
- */
+/** Waits until the capture session has been configured and its idling resource has become idle. */
 @RequiresApi(31)
 internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForCaptureSessionConfiguredIdle() {
-    val idlingResource = withActivity {
-        getCaptureSessionConfiguredIdlingResource()
-    }
+    val idlingResource = withActivity { getCaptureSessionConfiguredIdlingResource() }
     try {
         IdlingRegistry.getInstance().register(idlingResource)
         // Waits for the CaptureSessionConfiguredIdlingResource becoming idle
@@ -44,9 +40,7 @@ internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForCaptureSessionCo
     }
 }
 
-/**
- * Waits until the preview has received frames and its idling resource has become idle.
- */
+/** Waits until the preview has received frames and its idling resource has become idle. */
 @RequiresApi(31)
 internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForPreviewIdle() {
     val idlingResource = withActivity {
@@ -63,14 +57,10 @@ internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForPreviewIdle() {
     }
 }
 
-/**
- * Waits until captured image has been saved and its idling resource has become idle.
- */
+/** Waits until captured image has been saved and its idling resource has become idle. */
 @RequiresApi(31)
 internal fun ActivityScenario<Camera2ExtensionsActivity>.waitForImageSavedIdle() {
-    val idlingResource = withActivity {
-        getImageSavedIdlingResource()
-    }
+    val idlingResource = withActivity { getImageSavedIdlingResource() }
     try {
         IdlingRegistry.getInstance().register(idlingResource)
         // Performs click action and waits for the ImageSavedIdlingResource becoming idle

@@ -47,10 +47,7 @@ class CoroutineMutexTest {
         val sequence2 = CoroutineMutex()
 
         val internalResult =
-            sequence1.withLockAsync(scope) {
-                sequence2.withLockAsync(scope) { 42 }.await()
-            }
-                .await()
+            sequence1.withLockAsync(scope) { sequence2.withLockAsync(scope) { 42 }.await() }.await()
 
         assertThat(internalResult).isEqualTo(42)
     }
@@ -75,15 +72,17 @@ class CoroutineMutexTest {
         coroutineScope {
             val sharedMutex = Mutex(locked = true)
 
-            sequence.withLockAsync(this) {
-                // Note: The receiver is `this@coroutineScope`. The `sequenceAsync {}` block will return
-                // racing the launched block.
-                this@coroutineScope.launch {
-                    sharedMutex.lock()
-                    // Doesn't throw as no block reentered `sequenceAsync {}`.
-                    sequence.withLockAsync(this) { output = 42 }.await()
+            sequence
+                .withLockAsync(this) {
+                    // Note: The receiver is `this@coroutineScope`. The `sequenceAsync {}` block
+                    // will return
+                    // racing the launched block.
+                    this@coroutineScope.launch {
+                        sharedMutex.lock()
+                        // Doesn't throw as no block reentered `sequenceAsync {}`.
+                        sequence.withLockAsync(this) { output = 42 }.await()
+                    }
                 }
-            }
                 .await()
 
             sharedMutex.unlock()

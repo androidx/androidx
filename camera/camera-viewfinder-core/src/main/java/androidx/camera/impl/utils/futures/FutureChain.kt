@@ -27,38 +27,30 @@ import java.util.concurrent.TimeoutException
 
 /**
  * A [ListenableFuture] that supports chains of operations. For example:
- *
  * <pre>`ListenableFuture<Boolean> adminIsLoggedIn =
  * FutureChain.from(usersDatabase.getAdminUser())
  * .transform(User::getId, directExecutor())
  * .transform(ActivityService::isLoggedIn, threadPool);
-`</pre> *
- * @param <V>
-</V> */
-
+ * `</pre> *
+ *
+ * @param <V> </V>
+ */
 open class FutureChain<V> : ListenableFuture<V> {
     private val mDelegate: ListenableFuture<V>
     private var mCompleter: CallbackToFutureAdapter.Completer<V>? = null
 
     /**
-     * Returns a new `Future` whose result is derived from the result of this `Future`.
-     * If this input `Future` fails, the returned `Future` fails with the same
-     * exception (and the function is not invoked).
+     * Returns a new `Future` whose result is derived from the result of this `Future`. If this
+     * input `Future` fails, the returned `Future` fails with the same exception (and the function
+     * is not invoked).
      *
      * @param function A Function to transform the results of this future to the results of the
-     * returned future.
+     *   returned future.
      * @param executor Executor to run the function in.
      * @return A future that holds result of the transformation.
      */
-    fun <T> transform(
-        function: Function<in V?, out T>,
-        executor: Executor
-    ): FutureChain<T> {
-        return Futures.transform(
-            this,
-            function,
-            executor
-        ) as FutureChain<T>
+    fun <T> transform(function: Function<in V?, out T>, executor: Executor): FutureChain<T> {
+        return Futures.transform(this, function, executor) as FutureChain<T>
     }
 
     internal constructor(delegate: ListenableFuture<V>) {
@@ -66,14 +58,12 @@ open class FutureChain<V> : ListenableFuture<V> {
     }
 
     internal constructor() {
-        mDelegate = CallbackToFutureAdapter.getFuture { completer ->
-            Preconditions.checkState(
-                mCompleter == null,
-                "The result can only set once!"
-            )
-            mCompleter = completer
-            "FutureChain[" + this@FutureChain + "]"
-        }
+        mDelegate =
+            CallbackToFutureAdapter.getFuture { completer ->
+                Preconditions.checkState(mCompleter == null, "The result can only set once!")
+                mCompleter = completer
+                "FutureChain[" + this@FutureChain + "]"
+            }
     }
 
     override fun addListener(listener: Runnable, executor: Executor) {
@@ -97,11 +87,7 @@ open class FutureChain<V> : ListenableFuture<V> {
         return mDelegate.get()
     }
 
-    @Throws(
-        InterruptedException::class,
-        ExecutionException::class,
-        TimeoutException::class
-    )
+    @Throws(InterruptedException::class, ExecutionException::class, TimeoutException::class)
     override fun get(timeout: Long, unit: TimeUnit): V? {
         return mDelegate[timeout, unit]
     }
@@ -122,10 +108,9 @@ open class FutureChain<V> : ListenableFuture<V> {
         /**
          * Converts the given `ListenableFuture` to an equivalent `FutureChain`.
          *
-         *
-         * If the given `ListenableFuture` is already a `FutureChain`, it is returned
-         * directly. If not, it is wrapped in a `FutureChain` that delegates all calls to the
-         * original `ListenableFuture`.
+         * If the given `ListenableFuture` is already a `FutureChain`, it is returned directly. If
+         * not, it is wrapped in a `FutureChain` that delegates all calls to the original
+         * `ListenableFuture`.
          *
          * @return directly if input a FutureChain or a ListenableFuture wrapped by FutureChain.
          */

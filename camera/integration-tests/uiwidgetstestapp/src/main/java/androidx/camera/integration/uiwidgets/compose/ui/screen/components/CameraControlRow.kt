@@ -30,15 +30,13 @@ import androidx.compose.ui.unit.dp
 private val CAMERA_CONTROL_ROW_PADDING = 24.dp
 
 @Composable
-fun CameraControlRow(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
+fun CameraControlRow(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colors.secondary)
-            .padding(CAMERA_CONTROL_ROW_PADDING),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.secondary)
+                .padding(CAMERA_CONTROL_ROW_PADDING),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {

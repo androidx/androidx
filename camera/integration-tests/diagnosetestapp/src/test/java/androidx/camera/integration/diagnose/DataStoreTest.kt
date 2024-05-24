@@ -79,14 +79,10 @@ class DataStoreTest {
         // Assert: correct Bitmap stored in zip
         assertThat(bitmaps.size).isEqualTo(1)
         assertThat(bitmaps).containsKey("$TEST_BITMAP_FILE.jpeg")
-        bitmaps["$TEST_BITMAP_FILE.jpeg"]?.let {
-            assertBitmapColorAndSize(it, Color.BLUE, 5, 5)
-        }
+        bitmaps["$TEST_BITMAP_FILE.jpeg"]?.let { assertBitmapColorAndSize(it, Color.BLUE, 5, 5) }
     }
 
-    /**
-     * Returns a map of jpeg filename and bitmap contained in the file
-     */
+    /** Returns a map of jpeg filename and bitmap contained in the file */
     fun loadBitmapsFromZipFile(file: File): Map<String, Bitmap> {
         val zipFile = ZipFile(file)
         val zipEntries = zipFile.entries().toList()

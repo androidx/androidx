@@ -48,37 +48,40 @@ class FakeAudioSourceCallback : AudioSource.AudioSourceCallback {
         timeoutMs: Long = NO_TIMEOUT,
         inOder: Boolean = false,
         onSuspendStateChanged: ((List<Boolean>) -> Unit)? = null,
-    ) = onSuspendedCallbacks.verifyAcceptCallExt(
-        java.lang.Boolean::class.java,
-        inOder,
-        timeoutMs,
-        callTimes,
-        onSuspendStateChanged,
-    )
+    ) =
+        onSuspendedCallbacks.verifyAcceptCallExt(
+            java.lang.Boolean::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+            onSuspendStateChanged,
+        )
 
     fun verifyOnSilenceStateChanged(
         callTimes: CallTimes,
         timeoutMs: Long = NO_TIMEOUT,
         inOder: Boolean = false,
         onSilenceStateChanged: ((List<Boolean>) -> Unit)? = null,
-    ) = onSilencedCallbacks.verifyAcceptCallExt(
-        java.lang.Boolean::class.java,
-        inOder,
-        timeoutMs,
-        callTimes,
-        onSilenceStateChanged,
-    )
+    ) =
+        onSilencedCallbacks.verifyAcceptCallExt(
+            java.lang.Boolean::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+            onSilenceStateChanged,
+        )
 
     fun verifyOnError(
         callTimes: CallTimes,
         timeoutMs: Long = NO_TIMEOUT,
         inOder: Boolean = false,
         onError: ((List<Throwable>) -> Unit)? = null,
-    ) = onErrorCallbacks.verifyAcceptCallExt(
-        Throwable::class.java,
-        inOder,
-        timeoutMs,
-        callTimes,
-        onError,
-    )
+    ) =
+        onErrorCallbacks.verifyAcceptCallExt(
+            Throwable::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+            onError,
+        )
 }

@@ -36,9 +36,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [InternalImageProcessor].
- */
+/** Unit tests for [InternalImageProcessor]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -53,25 +51,14 @@ class InternalImageProcessorTest {
         // Arrange.
         val exception = ProcessingException()
         var errorReceived: Throwable? = null
-        val cameraEffect = FakeImageEffect(
-            directExecutor(),
-            {
-                throw exception
-            },
-            {
-                errorReceived = it
-            })
+        val cameraEffect =
+            FakeImageEffect(directExecutor(), { throw exception }, { errorReceived = it })
         val imageProcessor = InternalImageProcessor(cameraEffect)
 
         // Act.
         try {
             imageProcessor.safeProcess(
-                ImageProcessorRequest(
-                    FakeImageProxy(
-                        FakeImageInfo()
-                    ),
-                    PixelFormat.RGBA_8888
-                )
+                ImageProcessorRequest(FakeImageProxy(FakeImageInfo()), PixelFormat.RGBA_8888)
             )
             fail("Processor should throw exception")
         } catch (ex: ImageCaptureException) {
@@ -84,25 +71,22 @@ class InternalImageProcessorTest {
     @Test
     fun process_appCallbackInvokedOnAppExecutor() {
         // Arrange.
-        val imageToEffect =
-            FakeImageProxy(FakeImageInfo())
-        val imageFromEffect =
-            FakeImageProxy(FakeImageInfo())
+        val imageToEffect = FakeImageProxy(FakeImageInfo())
+        val imageFromEffect = FakeImageProxy(FakeImageInfo())
         var calledThreadName = ""
         val processor = ImageProcessor {
             calledThreadName = currentThread().name
-            Response {
-                imageFromEffect
-            }
+            Response { imageFromEffect }
         }
         val executor = newSingleThreadExecutor { Thread(it, THREAD_NAME) }
         val cameraEffect = FakeImageEffect(executor, processor)
         val imageProcessor = InternalImageProcessor(cameraEffect)
 
         // Act.
-        val outputImage = imageProcessor.safeProcess(
-            ImageProcessorRequest(imageToEffect, PixelFormat.RGBA_8888)
-        ).outputImage
+        val outputImage =
+            imageProcessor
+                .safeProcess(ImageProcessorRequest(imageToEffect, PixelFormat.RGBA_8888))
+                .outputImage
 
         // Assert.
         assertThat(outputImage).isEqualTo(imageFromEffect)

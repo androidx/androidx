@@ -34,64 +34,60 @@ import java.util.stream.Collectors
 
 private const val TAG = "Camera2ExtensionsUtil"
 
-/**
- * Util functions for Camera2 Extensions implementation
- */
+/** Util functions for Camera2 Extensions implementation */
 object Camera2ExtensionsUtil {
 
-    /**
-     * Camera2 extension modes
-     */
+    /** Camera2 extension modes */
     @Suppress("DEPRECATION") // EXTENSION_BEAUTY
     @RequiresApi(31)
     @JvmStatic
-    val AVAILABLE_CAMERA2_EXTENSION_MODES = arrayOf(
-        CameraExtensionCharacteristics.EXTENSION_AUTOMATIC,
-        CameraExtensionCharacteristics.EXTENSION_BEAUTY,
-        CameraExtensionCharacteristics.EXTENSION_BOKEH,
-        CameraExtensionCharacteristics.EXTENSION_HDR,
-        CameraExtensionCharacteristics.EXTENSION_NIGHT,
-    )
+    val AVAILABLE_CAMERA2_EXTENSION_MODES =
+        arrayOf(
+            CameraExtensionCharacteristics.EXTENSION_AUTOMATIC,
+            CameraExtensionCharacteristics.EXTENSION_BEAUTY,
+            CameraExtensionCharacteristics.EXTENSION_BOKEH,
+            CameraExtensionCharacteristics.EXTENSION_HDR,
+            CameraExtensionCharacteristics.EXTENSION_NIGHT,
+        )
 
-    /**
-     * Converts extension mode from integer to string.
-     */
+    /** Converts extension mode from integer to string. */
     @Suppress("DEPRECATION") // EXTENSION_BEAUTY
     @RequiresApi(31)
     @JvmStatic
-    fun getCamera2ExtensionModeStringFromId(extension: Int): String = when (extension) {
-        EXTENSION_MODE_NONE -> "None"
-        CameraExtensionCharacteristics.EXTENSION_HDR -> "HDR"
-        CameraExtensionCharacteristics.EXTENSION_NIGHT -> "NIGHT"
-        CameraExtensionCharacteristics.EXTENSION_BOKEH -> "BOKEH"
-        CameraExtensionCharacteristics.EXTENSION_BEAUTY -> "FACE RETOUCH"
-        CameraExtensionCharacteristics.EXTENSION_AUTOMATIC -> "AUTO"
-        else -> throw IllegalArgumentException("Invalid extension mode id!")
-    }
+    fun getCamera2ExtensionModeStringFromId(extension: Int): String =
+        when (extension) {
+            EXTENSION_MODE_NONE -> "None"
+            CameraExtensionCharacteristics.EXTENSION_HDR -> "HDR"
+            CameraExtensionCharacteristics.EXTENSION_NIGHT -> "NIGHT"
+            CameraExtensionCharacteristics.EXTENSION_BOKEH -> "BOKEH"
+            CameraExtensionCharacteristics.EXTENSION_BEAUTY -> "FACE RETOUCH"
+            CameraExtensionCharacteristics.EXTENSION_AUTOMATIC -> "AUTO"
+            else -> throw IllegalArgumentException("Invalid extension mode id!")
+        }
 
     @Suppress("DEPRECATION") // EXTENSION_BEAUTY
     @RequiresApi(31)
     @JvmStatic
-    fun getCamera2ExtensionModeIdFromString(mode: String): Int = when (mode) {
-        "None" -> EXTENSION_MODE_NONE
-        "HDR" -> CameraExtensionCharacteristics.EXTENSION_HDR
-        "NIGHT" -> CameraExtensionCharacteristics.EXTENSION_NIGHT
-        "BOKEH" -> CameraExtensionCharacteristics.EXTENSION_BOKEH
-        "FACE RETOUCH" -> CameraExtensionCharacteristics.EXTENSION_BEAUTY
-        "AUTO" -> CameraExtensionCharacteristics.EXTENSION_AUTOMATIC
-        else -> throw IllegalArgumentException("Invalid extension mode string!")
-    }
+    fun getCamera2ExtensionModeIdFromString(mode: String): Int =
+        when (mode) {
+            "None" -> EXTENSION_MODE_NONE
+            "HDR" -> CameraExtensionCharacteristics.EXTENSION_HDR
+            "NIGHT" -> CameraExtensionCharacteristics.EXTENSION_NIGHT
+            "BOKEH" -> CameraExtensionCharacteristics.EXTENSION_BOKEH
+            "FACE RETOUCH" -> CameraExtensionCharacteristics.EXTENSION_BEAUTY
+            "AUTO" -> CameraExtensionCharacteristics.EXTENSION_AUTOMATIC
+            else -> throw IllegalArgumentException("Invalid extension mode string!")
+        }
 
-    /**
-     * Gets the first camera id of the specified lens facing.
-     */
+    /** Gets the first camera id of the specified lens facing. */
     @JvmStatic
     fun getLensFacingCameraId(cameraManager: CameraManager, lensFacing: Int): String {
         cameraManager.cameraIdList.forEach { cameraId ->
             val characteristics = cameraManager.getCameraCharacteristics(cameraId)
             if (characteristics[CameraCharacteristics.LENS_FACING] == lensFacing) {
                 characteristics[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]?.let {
-                    if (it.contains(
+                    if (
+                        it.contains(
                             CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE
                         )
                     ) {
@@ -118,8 +114,8 @@ object Camera2ExtensionsUtil {
     }
 
     /**
-     * Picks a preview resolution that is both close/same as the display size and supported by camera
-     * and extensions.
+     * Picks a preview resolution that is both close/same as the display size and supported by
+     * camera and extensions.
      */
     @SuppressLint("ClassVerificationFailure")
     @RequiresApi(Build.VERSION_CODES.S)
@@ -131,12 +127,8 @@ object Camera2ExtensionsUtil {
         extensionMode: Int
     ): Size? {
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-        val map = characteristics.get(
-            CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP
-        )
-        val textureSizes = map!!.getOutputSizes(
-            SurfaceTexture::class.java
-        )
+        val map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+        val textureSizes = map!!.getOutputSizes(SurfaceTexture::class.java)
         val displaySize = Point()
         displaySize.x = displayMetrics.widthPixels
         displaySize.y = displayMetrics.heightPixels
@@ -156,7 +148,7 @@ object Camera2ExtensionsUtil {
         var previewSize = previewSizes[0]
         var currentDistance = Int.MAX_VALUE
         if (extensionMode == EXTENSION_MODE_NONE) {
-             for (sz in previewSizes) {
+            for (sz in previewSizes) {
                 val distance = Math.abs(sz.width * sz.height - displaySize.x * displaySize.y)
                 if (currentDistance > distance) {
                     currentDistance = distance
@@ -167,16 +159,21 @@ object Camera2ExtensionsUtil {
         }
 
         val extensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
-        val extensionSizes = extensionCharacteristics.getExtensionSupportedSizes(
-            extensionMode, SurfaceTexture::class.java
-        )
+        val extensionSizes =
+            extensionCharacteristics.getExtensionSupportedSizes(
+                extensionMode,
+                SurfaceTexture::class.java
+            )
         if (extensionSizes.isEmpty()) {
             return null
         }
 
         previewSize = extensionSizes[0]
         val supportedPreviewSizes =
-            previewSizes.stream().distinct().filter { o: Size -> extensionSizes.contains(o) }
+            previewSizes
+                .stream()
+                .distinct()
+                .filter { o: Size -> extensionSizes.contains(o) }
                 .collect(Collectors.toList())
         if (supportedPreviewSizes.isNotEmpty()) {
             currentDistance = Int.MAX_VALUE
@@ -189,7 +186,8 @@ object Camera2ExtensionsUtil {
             }
         } else {
             Log.w(
-                TAG, "No overlap between supported camera and extensions preview sizes using" +
+                TAG,
+                "No overlap between supported camera and extensions preview sizes using" +
                     " first available!"
             )
         }
@@ -197,9 +195,7 @@ object Camera2ExtensionsUtil {
         return previewSize
     }
 
-    /**
-     * Picks a resolution for still image capture.
-     */
+    /** Picks a resolution for still image capture. */
     @SuppressLint("ClassVerificationFailure")
     @RequiresApi(Build.VERSION_CODES.S)
     @JvmStatic
@@ -208,26 +204,27 @@ object Camera2ExtensionsUtil {
         extensionCharacteristics: CameraExtensionCharacteristics,
         extensionMode: Int
     ): Pair<Size, Int> {
-        val yuvColorEncodingSystemSizes = if (extensionMode == EXTENSION_MODE_NONE) {
-            cameraCharacteristics.get(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-                .getOutputSizes(ImageFormat.YUV_420_888)
-                .toList()
-        } else {
-            extensionCharacteristics.getExtensionSupportedSizes(
-                extensionMode, ImageFormat.YUV_420_888
-            )
-        }
-        val jpegSizes = if (extensionMode == EXTENSION_MODE_NONE) {
-            cameraCharacteristics.get(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-                .getOutputSizes(ImageFormat.JPEG)
-                .toList()
-        } else {
-            extensionCharacteristics.getExtensionSupportedSizes(
-                extensionMode, ImageFormat.JPEG
-            )
-        }
+        val yuvColorEncodingSystemSizes =
+            if (extensionMode == EXTENSION_MODE_NONE) {
+                cameraCharacteristics
+                    .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                    .getOutputSizes(ImageFormat.YUV_420_888)
+                    .toList()
+            } else {
+                extensionCharacteristics.getExtensionSupportedSizes(
+                    extensionMode,
+                    ImageFormat.YUV_420_888
+                )
+            }
+        val jpegSizes =
+            if (extensionMode == EXTENSION_MODE_NONE) {
+                cameraCharacteristics
+                    .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+                    .getOutputSizes(ImageFormat.JPEG)
+                    .toList()
+            } else {
+                extensionCharacteristics.getExtensionSupportedSizes(extensionMode, ImageFormat.JPEG)
+            }
         val stillFormat = if (jpegSizes.isEmpty()) ImageFormat.YUV_420_888 else ImageFormat.JPEG
         val stillCaptureSize =
             if (jpegSizes.isEmpty()) yuvColorEncodingSystemSizes[0] else jpegSizes[0]

@@ -88,9 +88,7 @@ public class StateObservableTest {
         val observable = MutableStateObservable.withInitialState(INITIAL_STATE)
         observable.setState(MAGIC_STATE)
 
-        val fetched = observable.asFlow().dropWhile {
-            it != MAGIC_STATE
-        }.first()
+        val fetched = observable.asFlow().dropWhile { it != MAGIC_STATE }.first()
         assertThat(fetched).isEqualTo(MAGIC_STATE)
     }
 
@@ -110,9 +108,8 @@ public class StateObservableTest {
             observable.setState(MAGIC_STATE)
         }
 
-        val fetched = async(Dispatchers.IO) {
-            observable.asFlow().dropWhile { it != MAGIC_STATE }.first()
-        }
+        val fetched =
+            async(Dispatchers.IO) { observable.asFlow().dropWhile { it != MAGIC_STATE }.first() }
 
         assertThat(fetched.await()).isEqualTo(MAGIC_STATE)
     }
@@ -175,11 +172,12 @@ public class StateObservableTest {
         val observable = MutableStateObservable.withInitialState(INITIAL_STATE)
 
         // Create 20 observers to ensure they all complete
-        val receiveJob = launch(Dispatchers.IO) {
-            repeat(20) {
-                launch { observable.asFlow().dropWhile { it != MAGIC_STATE }.first() }
+        val receiveJob =
+            launch(Dispatchers.IO) {
+                repeat(20) {
+                    launch { observable.asFlow().dropWhile { it != MAGIC_STATE }.first() }
+                }
             }
-        }
 
         // Create another coroutine to set states
         launch(Dispatchers.IO) {

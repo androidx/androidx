@@ -32,9 +32,9 @@ interface GraphDataHolder {
     fun addPoint(dataPoint: GraphDataPoint) = graphData.addPoint(dataPoint)
 
     /** Fetches data points in time window with the given end and of the given length */
-    fun getPointsInTimeWindow(timeWindowLengthNanos: Long, timeWindowEndNanos: Long):
-        List<GraphDataPoint> = graphData.getPointsInTimeWindow(
-            timeWindowLengthNanos,
-            timeWindowEndNanos
-        )
+    fun getPointsInTimeWindow(
+        timeWindowLengthNanos: Long,
+        timeWindowEndNanos: Long
+    ): List<GraphDataPoint> =
+        graphData.getPointsInTimeWindow(timeWindowLengthNanos, timeWindowEndNanos)
 }

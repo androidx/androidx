@@ -25,12 +25,13 @@ import dagger.Module
 
 /** Dependency bindings for adding camera compat related classes (e.g. workarounds, quirks etc.) */
 @Module(
-    includes = [
-        AutoFlashAEModeDisabler.Bindings::class,
-        InactiveSurfaceCloser.Bindings::class,
-        MeteringRegionCorrection.Bindings::class,
-        UseFlashModeTorchFor3aUpdate.Bindings::class,
-        UseTorchAsFlash.Bindings::class,
-    ],
+    includes =
+        [
+            AutoFlashAEModeDisabler.Bindings::class,
+            InactiveSurfaceCloser.Bindings::class,
+            MeteringRegionCorrection.Bindings::class,
+            UseFlashModeTorchFor3aUpdate.Bindings::class,
+            UseTorchAsFlash.Bindings::class,
+        ],
 )
 abstract class CameraCompatModule

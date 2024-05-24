@@ -101,19 +101,12 @@ internal class CameraGraphImplTest {
         val streamGraph = StreamGraphImpl(metadata, graphConfig)
         val imageSourceMap = ImageSourceMap(graphConfig, streamGraph, threads)
         val frameCaptureQueue = FrameCaptureQueue()
-        val frameDistributor = FrameDistributor(
-            imageSourceMap.imageSources,
-            frameCaptureQueue
-        ) { }
+        val frameDistributor = FrameDistributor(imageSourceMap.imageSources, frameCaptureQueue) {}
         cameraController =
             CameraControllerSimulator(cameraContext, graphConfig, fakeGraphProcessor, streamGraph)
         cameraSurfaceManager.addListener(fakeSurfaceListener)
-        val surfaceGraph = SurfaceGraph(
-            streamGraph,
-            cameraController,
-            cameraSurfaceManager,
-            emptyMap()
-        )
+        val surfaceGraph =
+            SurfaceGraph(streamGraph, cameraController, cameraSurfaceManager, emptyMap())
         val audioRestriction = FakeAudioRestrictionController()
         val cameraGraphId = CameraGraphId.nextId()
         val graph =

@@ -46,16 +46,15 @@ interface MeteringRegionCorrection {
 }
 
 object MeteringRegionQuirkCorrection : MeteringRegionCorrection {
-    /**
-     * Return corrected normalized point by given MeteringPoint, MeteringMode and Quirks.
-     */
+    /** Return corrected normalized point by given MeteringPoint, MeteringMode and Quirks. */
     override fun getCorrectedPoint(
         meteringPoint: MeteringPoint,
         @FocusMeteringAction.MeteringMode meteringMode: Int,
-    ) = when (meteringMode) {
-        FocusMeteringAction.FLAG_AF -> PointF(1f - meteringPoint.x, meteringPoint.y)
-        else -> PointF(meteringPoint.x, meteringPoint.y)
-    }
+    ) =
+        when (meteringMode) {
+            FocusMeteringAction.FLAG_AF -> PointF(1f - meteringPoint.x, meteringPoint.y)
+            else -> PointF(meteringPoint.x, meteringPoint.y)
+        }
 }
 
 object NoOpMeteringRegionCorrection : MeteringRegionCorrection {
