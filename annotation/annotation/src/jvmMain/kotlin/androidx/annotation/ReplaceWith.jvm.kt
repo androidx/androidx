@@ -29,9 +29,5 @@ package androidx.annotation
  * static int getActionType(AccessibilityEvent event, int slot) { ... }
  * </pre>
  */
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.FIELD,
-    AnnotationTarget.CONSTRUCTOR
-)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.FIELD, AnnotationTarget.CONSTRUCTOR)
 public annotation class ReplaceWith(val expression: String, vararg val imports: String = [])
