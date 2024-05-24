@@ -19,6 +19,7 @@ package androidx.compose.ui.platform
 import android.os.Build
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.center
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.CompositingStrategy as OldCompositingStrategy
@@ -30,7 +31,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
-import androidx.compose.ui.graphics.drawscope.draw
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.layer.CompositingStrategy
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -42,8 +43,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.center
-import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.unit.toSize
 
 internal class GraphicsLayerOwnerLayer(
@@ -134,10 +133,14 @@ internal class GraphicsLayerOwnerLayer(
             graphicsLayer.cameraDistance = scope.cameraDistance
         }
         if (maybeChangedFields and Fields.TransformOrigin != 0) {
-            graphicsLayer.pivotOffset = Offset(
-                transformOrigin.pivotFractionX * size.width,
-                transformOrigin.pivotFractionY * size.height
-            )
+            if (transformOrigin == TransformOrigin.Center) {
+                graphicsLayer.pivotOffset = Offset.Unspecified
+            } else {
+                graphicsLayer.pivotOffset = Offset(
+                    transformOrigin.pivotFractionX * size.width,
+                    transformOrigin.pivotFractionY * size.height
+                )
+            }
         }
         if (maybeChangedFields and Fields.Clip != 0) {
             graphicsLayer.clip = scope.clip
@@ -220,26 +223,29 @@ internal class GraphicsLayerOwnerLayer(
     override fun drawLayer(canvas: Canvas, parentLayer: GraphicsLayer?) {
         updateDisplayList()
         drawnWithEnabledZ = graphicsLayer.shadowElevation > 0
-        scope.draw(density, layoutDirection, canvas, size.toSize(), parentLayer) {
-            drawLayer(graphicsLayer)
+        scope.drawContext.also {
+            it.canvas = canvas
+            it.graphicsLayer = parentLayer
         }
+        scope.drawLayer(graphicsLayer)
     }
 
     override fun updateDisplayList() {
         if (isDirty) {
-            if (graphicsLayer.size != size) {
+            if (transformOrigin != TransformOrigin.Center && graphicsLayer.size != size) {
                 graphicsLayer.pivotOffset = Offset(
                     transformOrigin.pivotFractionX * size.width,
                     transformOrigin.pivotFractionY * size.height
                 )
-                updateOutline()
             }
-            graphicsLayer.record(density, layoutDirection, size) {
-                drawIntoCanvas { canvas ->
-                    drawBlock?.let { it(canvas, drawContext.graphicsLayer) }
-                }
-            }
+            graphicsLayer.record(density, layoutDirection, size, recordLambda)
             isDirty = false
+        }
+    }
+
+    private val recordLambda: DrawScope.() -> Unit = {
+        drawIntoCanvas { canvas ->
+            this@GraphicsLayerOwnerLayer.drawBlock?.let { it(canvas, drawContext.graphicsLayer) }
         }
     }
 
@@ -340,7 +346,7 @@ internal class GraphicsLayerOwnerLayer(
 
     private fun updateMatrix() = with(graphicsLayer) {
         val pivot = if (pivotOffset.isUnspecified) {
-            this@GraphicsLayerOwnerLayer.size.center.toOffset()
+            this@GraphicsLayerOwnerLayer.size.toSize().center
         } else {
             pivotOffset
         }

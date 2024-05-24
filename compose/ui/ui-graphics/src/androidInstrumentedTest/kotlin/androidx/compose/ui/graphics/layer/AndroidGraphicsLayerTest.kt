@@ -433,6 +433,36 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
+    fun testResettingToDefaultPivot() {
+        var layer: GraphicsLayer? = null
+        val topLeft = IntOffset.Zero
+        val size = TEST_SIZE
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                layer = graphicsContext.createGraphicsLayer().apply {
+                    record {
+                        inset(this.size.width / 4, this.size.height / 4) {
+                            drawRect(Color.Red)
+                        }
+                    }
+                    scaleY = 2f
+                    scaleX = 2f
+                    // first set to some custom value
+                    pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
+                    // and then get back to the default
+                    pivotOffset = Offset.Unspecified
+                }
+                drawLayer(layer!!)
+            },
+            verify = {
+                assertEquals(topLeft, layer!!.topLeft)
+                assertEquals(size, layer!!.size)
+                it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
+            }
+        )
+    }
+
+    @Test
     fun testTranslationX() {
         var layer: GraphicsLayer? = null
         val topLeft = IntOffset.Zero
