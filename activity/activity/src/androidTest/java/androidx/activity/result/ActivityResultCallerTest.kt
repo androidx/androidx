@@ -45,6 +45,6 @@ class ActivityResultCallerTest {
 
 class EmptyContentActivity : ComponentActivity() {
     val contract = StartActivityForResult()
-    val javaLauncher = registerForActivityResult(contract) { }
-    val kotlinLauncher = registerForActivityResult(contract, Intent()) { }
+    val javaLauncher = registerForActivityResult(contract) {}
+    val kotlinLauncher = registerForActivityResult(contract, Intent()) {}
 }

@@ -37,23 +37,28 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
     companion object {
         const val FRAGMENT_VERSION = "1.3.0"
 
-        val ISSUE = Issue.create(
-            id = "InvalidFragmentVersionForActivityResult",
-            briefDescription = "Update to Fragment $FRAGMENT_VERSION to use ActivityResult APIs",
-            explanation = """In order to use the ActivityResult APIs you must upgrade your \
+        val ISSUE =
+            Issue.create(
+                    id = "InvalidFragmentVersionForActivityResult",
+                    briefDescription =
+                        "Update to Fragment $FRAGMENT_VERSION to use ActivityResult APIs",
+                    explanation =
+                        """In order to use the ActivityResult APIs you must upgrade your \
                 Fragment version to $FRAGMENT_VERSION. Previous versions of FragmentActivity \
                 failed to call super.onRequestPermissionsResult() and used invalid request codes""",
-            category = Category.CORRECTNESS,
-            severity = Severity.FATAL,
-            implementation = Implementation(
-                ActivityResultFragmentVersionDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.GRADLE_FILE),
-                Scope.JAVA_FILE_SCOPE,
-                Scope.GRADLE_SCOPE
-            )
-        ).addMoreInfo(
-            "https://developer.android.com/training/permissions/requesting#make-the-request"
-        )
+                    category = Category.CORRECTNESS,
+                    severity = Severity.FATAL,
+                    implementation =
+                        Implementation(
+                            ActivityResultFragmentVersionDetector::class.java,
+                            EnumSet.of(Scope.JAVA_FILE, Scope.GRADLE_FILE),
+                            Scope.JAVA_FILE_SCOPE,
+                            Scope.GRADLE_SCOPE
+                        )
+                )
+                .addMoreInfo(
+                    "https://developer.android.com/training/permissions/requesting#make-the-request"
+                )
     }
 
     var locations = ArrayList<Location>()
@@ -95,32 +100,32 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         } else if (!checkedImplementationDependencies) {
             context.project.buildVariant.mainArtifact.dependencies.getAll().forEach { lmLibrary ->
                 reportIssue(
-                    (lmLibrary as? LintModelAndroidLibrary)
-                        ?.resolvedCoordinates.toString(), context, false
+                    (lmLibrary as? LintModelAndroidLibrary)?.resolvedCoordinates.toString(),
+                    context,
+                    false
                 )
             }
             checkedImplementationDependencies = true
         }
     }
 
-    private fun reportIssue(
-        value: String,
-        context: GradleContext,
-        removeQuotes: Boolean = true
-    ) {
-        val library = if (removeQuotes) {
-            getStringLiteralValue(value)
-        } else {
-            value
-        }
+    private fun reportIssue(value: String, context: GradleContext, removeQuotes: Boolean = true) {
+        val library =
+            if (removeQuotes) {
+                getStringLiteralValue(value)
+            } else {
+                value
+            }
 
         if (library.isNotEmpty()) {
-            val currentVersion = library.substringAfter("androidx.fragment:fragment:")
-                .substringBeforeLast("-")
+            val currentVersion =
+                library.substringAfter("androidx.fragment:fragment:").substringBeforeLast("-")
             if (library != currentVersion && currentVersion < FRAGMENT_VERSION) {
                 locations.forEach { location ->
                     context.report(
-                        ISSUE, expression, location,
+                        ISSUE,
+                        expression,
+                        location,
                         "Upgrade Fragment version to at least $FRAGMENT_VERSION."
                     )
                 }
@@ -134,10 +139,10 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
      * Returns an empty string if [value] is not a string literal.
      */
     private fun getStringLiteralValue(value: String): String {
-        if (value.length > 2 && (
-            value.startsWith("'") && value.endsWith("'") ||
-                value.startsWith("\"") && value.endsWith("\"")
-            )
+        if (
+            value.length > 2 &&
+                (value.startsWith("'") && value.endsWith("'") ||
+                    value.startsWith("\"") && value.endsWith("\""))
         ) {
             return value.substring(1, value.length - 1)
         }

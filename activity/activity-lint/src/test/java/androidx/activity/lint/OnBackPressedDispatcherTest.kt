@@ -28,14 +28,14 @@ import org.junit.runners.JUnit4
 class OnBackPressedDispatcherTest : LintDetectorTest() {
     override fun getDetector(): Detector = OnBackPressedDetector()
 
-    override fun getIssues(): MutableList<Issue> =
-        mutableListOf(OnBackPressedDetector.ISSUE)
+    override fun getIssues(): MutableList<Issue> = mutableListOf(OnBackPressedDetector.ISSUE)
 
     @Test
     fun expectPassOnBackPressed() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.activity.ComponentActivity
@@ -48,17 +48,19 @@ class OnBackPressedDispatcherTest : LintDetectorTest() {
                     dispatcher.onBackPressed()
                 }
             """
-            ),
-            *STUBS
-        )
-            .run().expectClean()
+                ),
+                *STUBS
+            )
+            .run()
+            .expectClean()
     }
 
     @Test
     fun expectFailOnBackPressed() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.activity.ComponentActivity
@@ -76,9 +78,9 @@ class OnBackPressedDispatcherTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            *STUBS
-        )
+                ),
+                *STUBS
+            )
             .run()
             .expect(
                 """

@@ -15,13 +15,11 @@
  */
 package androidx.activity
 
-/**
- * Token representing a cancellable operation.
- */
+/** Token representing a cancellable operation. */
 internal interface Cancellable {
     /**
-     * Cancel the subscription. This call should be idempotent, making it safe to
-     * call multiple times.
+     * Cancel the subscription. This call should be idempotent, making it safe to call multiple
+     * times.
      */
     fun cancel()
 }

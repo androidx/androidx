@@ -20,8 +20,8 @@ package androidx.activity.result
  * [ActivityResultCallback] for handling an
  * [androidx.activity.result.contract.ActivityResultContract].
  *
- * If it is not safe to call [ActivityResultRegistry.register]
- * in the constructor, it is strongly recommended to also implement [ActivityResultCaller].
+ * If it is not safe to call [ActivityResultRegistry.register] in the constructor, it is strongly
+ * recommended to also implement [ActivityResultCaller].
  *
  * @see ActivityResultRegistry
  */

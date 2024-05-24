@@ -20,16 +20,16 @@ import androidx.annotation.MainThread
 import androidx.core.app.ActivityOptionsCompat
 
 /**
- * A launcher for a previously-[prepared call][ActivityResultCaller.registerForActivityResult]
- * to start the process of executing an [ActivityResultContract] that takes an [I] as its required
+ * A launcher for a previously-[prepared call][ActivityResultCaller.registerForActivityResult] to
+ * start the process of executing an [ActivityResultContract] that takes an [I] as its required
  * input.
  */
 abstract class ActivityResultLauncher<I> {
     /**
      * Executes an [ActivityResultContract] given the required [input].
      *
-     * This method throws [android.content.ActivityNotFoundException]
-     * if there was no Activity found to run the given Intent.
+     * This method throws [android.content.ActivityNotFoundException] if there was no Activity found
+     * to run the given Intent.
      *
      * @throws android.content.ActivityNotFoundException
      */
@@ -38,11 +38,11 @@ abstract class ActivityResultLauncher<I> {
     }
 
     /**
-     * Executes an [ActivityResultContract] given the required [input] and optional
-     * [options] for how the Activity should be started.
+     * Executes an [ActivityResultContract] given the required [input] and optional [options] for
+     * how the Activity should be started.
      *
-     * This method throws [android.content.ActivityNotFoundException]
-     * if there was no Activity found to run the given Intent.
+     * This method throws [android.content.ActivityNotFoundException] if there was no Activity found
+     * to run the given Intent.
      *
      * @throws android.content.ActivityNotFoundException
      */
@@ -55,25 +55,18 @@ abstract class ActivityResultLauncher<I> {
      * You should call this if the registry may live longer than the callback registered for this
      * launcher.
      */
-    @MainThread
-    abstract fun unregister()
+    @MainThread abstract fun unregister()
 
-    /**
-     * Returns the [ActivityResultContract] that was used to create this launcher.
-     */
+    /** Returns the [ActivityResultContract] that was used to create this launcher. */
     abstract val contract: ActivityResultContract<I, *>
 }
 
-/**
- * Convenience method to launch a no-argument registered call without needing to pass in `null`.
- */
+/** Convenience method to launch a no-argument registered call without needing to pass in `null`. */
 fun ActivityResultLauncher<Void?>.launch(options: ActivityOptionsCompat? = null) {
     launch(null, options)
 }
 
-/**
- * Convenience method to launch a no-argument registered call without needing to pass in `Unit`.
- */
+/** Convenience method to launch a no-argument registered call without needing to pass in `Unit`. */
 @JvmName("launchUnit")
 fun ActivityResultLauncher<Unit>.launch(options: ActivityOptionsCompat? = null) {
     launch(Unit, options)

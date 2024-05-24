@@ -25,11 +25,12 @@ class LeakCanaryApp : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         @Suppress("UNCHECKED_CAST")
-        LeakCanary.config = LeakCanary.config.copy(
-            referenceMatchers = (
-                AndroidReferenceMatchers.appDefaults - AndroidReferenceMatchers
-                    .INPUT_METHOD_MANAGER_IS_TERRIBLE
-                ) as List<ReferenceMatcher>
-        )
+        LeakCanary.config =
+            LeakCanary.config.copy(
+                referenceMatchers =
+                    (AndroidReferenceMatchers.appDefaults -
+                        AndroidReferenceMatchers.INPUT_METHOD_MANAGER_IS_TERRIBLE)
+                        as List<ReferenceMatcher>
+            )
     }
 }

@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityRunOnNextRecreateTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     private class Restarted2 : SavedStateRegistry.AutoRecreated {
         override fun onRecreated(owner: SavedStateRegistryOwner) {
@@ -46,10 +45,8 @@ class ComponentActivityRunOnNextRecreateTest {
 
     @Test
     fun test() {
-       withUse(ActivityScenario.launch(AutoRestarterActivity::class.java)) {
-            withActivity {
-                savedStateRegistry.runOnNextRecreation(Restarted2::class.java)
-            }
+        withUse(ActivityScenario.launch(AutoRestarterActivity::class.java)) {
+            withActivity { savedStateRegistry.runOnNextRecreation(Restarted2::class.java) }
             recreate()
             assertThat(withActivity { observerExecuted }).isTrue()
         }
