@@ -874,7 +874,7 @@ class ApproachLayoutTest {
                                         .run {
                                             layout(width, height) {
                                                 if (toggleDmp) {
-                                                    withCurrentFrameOfReferencePlacement {
+                                                    withMotionFrameOfReferencePlacement {
                                                         place(0, 200)
                                                     }
                                                 } else {
@@ -895,9 +895,10 @@ class ApproachLayoutTest {
                                                 positionExcludingDmp = it
                                                     .parentLayoutCoordinates!!
                                                     .toLookaheadCoordinates()
-                                                    .positionInLocalLookaheadFrameOfReference(
+                                                    .localLookaheadPositionOf(
                                                         sourceCoordinates = it
                                                             .toLookaheadCoordinates(),
+                                                        includeMotionFrameOfReference = false
                                                     )
                                             }
                                             placeable.place(0, 0)

@@ -85,8 +85,8 @@ internal abstract class NodeCoordinator(
     override val coordinates: LayoutCoordinates
         get() = this
 
-    override val introducesFrameOfReference: Boolean
-        get() = !isPlacedUsingCurrentFrameOfReference
+    override val introducesMotionFrameOfReference: Boolean
+        get() = isPlacedUnderMotionFrameOfReference
 
     private var released = false
 
@@ -847,27 +847,23 @@ internal abstract class NodeCoordinator(
     override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset
-    ): Offset = localPositionOf(sourceCoordinates, relativeToSource, false)
+    ): Offset = localPositionOf(
+        sourceCoordinates = sourceCoordinates,
+        relativeToSource = relativeToSource,
+        includeMotionFrameOfReference = true
+    )
 
-    override fun positionInLocalFrameOfReference(
-        sourceCoordinates: LayoutCoordinates,
-        relativeToSource: Offset
-    ): Offset = localPositionOf(sourceCoordinates, relativeToSource, true)
-
-    /**
-     * Common call
-     */
-    internal fun localPositionOf(
+    override fun localPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset,
-        excludeDirectManipulationOffset: Boolean
+        includeMotionFrameOfReference: Boolean
     ): Offset {
         if (sourceCoordinates is LookaheadLayoutCoordinates) {
             sourceCoordinates.coordinator.onCoordinatesUsed()
             return -sourceCoordinates.localPositionOf(
                 sourceCoordinates = this,
                 relativeToSource = -relativeToSource,
-                excludeDirectManipulationOffset = excludeDirectManipulationOffset
+                includeMotionFrameOfReference = includeMotionFrameOfReference
             )
         }
 
@@ -878,11 +874,11 @@ internal abstract class NodeCoordinator(
         var position = relativeToSource
         var coordinator = nodeCoordinator
         while (coordinator !== commonAncestor) {
-            position = coordinator.toParentPosition(position, excludeDirectManipulationOffset)
+            position = coordinator.toParentPosition(position, includeMotionFrameOfReference)
             coordinator = coordinator.wrappedBy!!
         }
 
-        return ancestorToLocal(commonAncestor, position, excludeDirectManipulationOffset)
+        return ancestorToLocal(commonAncestor, position, includeMotionFrameOfReference)
     }
 
     override fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {
@@ -965,18 +961,18 @@ internal abstract class NodeCoordinator(
     private fun ancestorToLocal(
         ancestor: NodeCoordinator,
         offset: Offset,
-        excludeDirectManipulationOffset: Boolean,
+        includeMotionFrameOfReference: Boolean,
     ): Offset {
         if (ancestor === this) {
             return offset
         }
         val wrappedBy = wrappedBy
         if (wrappedBy == null || ancestor == wrappedBy) {
-            return fromParentPosition(offset, excludeDirectManipulationOffset)
+            return fromParentPosition(offset, includeMotionFrameOfReference)
         }
         return fromParentPosition(
-            position = wrappedBy.ancestorToLocal(ancestor, offset, excludeDirectManipulationOffset),
-            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            position = wrappedBy.ancestorToLocal(ancestor, offset, includeMotionFrameOfReference),
+            includeMotionFrameOfReference = includeMotionFrameOfReference
         )
     }
 
@@ -1018,11 +1014,11 @@ internal abstract class NodeCoordinator(
      */
     open fun toParentPosition(
         position: Offset,
-        excludeDirectManipulationOffset: Boolean = false
+        includeMotionFrameOfReference: Boolean = true
     ): Offset {
         val layer = layer
         val targetPosition = layer?.mapOffset(position, inverse = false) ?: position
-        return if (excludeDirectManipulationOffset && isPlacedUsingCurrentFrameOfReference) {
+        return if (!includeMotionFrameOfReference && isPlacedUnderMotionFrameOfReference) {
             targetPosition
         } else {
             targetPosition + this.position
@@ -1035,10 +1031,10 @@ internal abstract class NodeCoordinator(
      */
     open fun fromParentPosition(
         position: Offset,
-        excludeDirectManipulationOffset: Boolean = false
+        includeMotionFrameOfReference: Boolean = true
     ): Offset {
         val relativeToPosition =
-            if (excludeDirectManipulationOffset && isPlacedUsingCurrentFrameOfReference) {
+            if (!includeMotionFrameOfReference && this.isPlacedUnderMotionFrameOfReference) {
                 position
             } else {
                 position - this.position
