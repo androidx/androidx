@@ -22,26 +22,20 @@ import sample.optin.foo.AnnotatedJavaPackage
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 class UseJavaPackageFromKt {
 
-    /**
-     * Unsafe call into a method on a class within an experimental package.
-     */
+    /** Unsafe call into a method on a class within an experimental package. */
     fun callPackageUnsafe() {
         val experimentalObject = AnnotatedJavaPackage()
         experimentalObject.method()
     }
 
-    /**
-     * Safe call due to propagation of experimental marker.
-     */
+    /** Safe call due to propagation of experimental marker. */
     @ExperimentalJavaAnnotation
     fun callPackageExperimental() {
         val experimentalObject = AnnotatedJavaPackage()
         experimentalObject.method()
     }
 
-    /**
-     * Safe call due to opt-in to experimental marker.
-     */
+    /** Safe call due to opt-in to experimental marker. */
     @OptIn(ExperimentalJavaAnnotation::class)
     fun callPackageUseExperimental() {
         val experimentalObject = AnnotatedJavaPackage()
@@ -49,23 +43,19 @@ class UseJavaPackageFromKt {
     }
 
     /**
-     * Unsafe call into a method with an unsafe call. This should not be flagged, as the
-     * called method itself is not experimental.
+     * Unsafe call into a method with an unsafe call. This should not be flagged, as the called
+     * method itself is not experimental.
      */
     fun callSelfUnsafe() {
         callPackageUnsafe()
     }
 
-    /**
-     * Unsafe call into an experimental method within this class.
-     */
+    /** Unsafe call into an experimental method within this class. */
     fun callSelfExperimental() {
         callPackageExperimental()
     }
 
-    /**
-     * Safe call into an opted-in method within this class.
-     */
+    /** Safe call into an opted-in method within this class. */
     fun callSelfUseExperimental() {
         callPackageUseExperimental()
     }

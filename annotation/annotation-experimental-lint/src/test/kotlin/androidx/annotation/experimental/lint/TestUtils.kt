@@ -19,24 +19,22 @@ package androidx.annotation.experimental.lint
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
 
-/**
- * Loads a [TestFile] from Java source code included in the JAR resources.
- */
+/** Loads a [TestFile] from Java source code included in the JAR resources. */
 fun javaSample(className: String): TestFile {
     return TestFiles.java(
-        RequiresOptInDetectorTest::class.java.getResource(
-            "/java/${className.replace('.', '/')}.java"
-        )!!.readText()
+        RequiresOptInDetectorTest::class
+            .java
+            .getResource("/java/${className.replace('.', '/')}.java")!!
+            .readText()
     )
 }
 
-/**
- * Loads a [TestFile] from Kotlin source code included in the JAR resources.
- */
+/** Loads a [TestFile] from Kotlin source code included in the JAR resources. */
 fun ktSample(className: String): TestFile {
     return TestFiles.kotlin(
-        RequiresOptInDetectorTest::class.java.getResource(
-            "/java/${className.replace('.', '/')}.kt"
-        )!!.readText()
+        RequiresOptInDetectorTest::class
+            .java
+            .getResource("/java/${className.replace('.', '/')}.kt")!!
+            .readText()
     )
 }

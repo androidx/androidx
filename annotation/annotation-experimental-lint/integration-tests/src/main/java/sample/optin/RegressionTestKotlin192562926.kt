@@ -18,8 +18,8 @@
 package sample.optin
 
 /**
- * Regression test for b/192562926 where the lint check should not flag overrides where there is
- * no dependency on the superclass, e.g. calls to super().
+ * Regression test for b/192562926 where the lint check should not flag overrides where there is no
+ * dependency on the superclass, e.g. calls to super().
  */
 class RegressionTestKotlin192562926 {
     internal fun interface StableInterface {
@@ -27,24 +27,20 @@ class RegressionTestKotlin192562926 {
         // not the method that we want to inspect since it has a concrete implementation.
         fun abstractMethodWithDefault() {}
 
-        @ExperimentalKotlinAnnotation
-        fun experimentalMethod()
+        @ExperimentalKotlinAnnotation fun experimentalMethod()
     }
 
-    /**
-     * Unsafe override since super is not called.
-     */
+    /** Unsafe override since super is not called. */
     internal class ConcreteStableInterface : StableInterface {
         override fun experimentalMethod() {} // unsafe override
     }
 
-    /**
-     * Test different approaches to overriding interface methods.
-     */
+    /** Test different approaches to overriding interface methods. */
     fun regressionTestOverrides() {
-        val anonymous: StableInterface = object : StableInterface {
-            override fun experimentalMethod() {} // unsafe override
-        }
+        val anonymous: StableInterface =
+            object : StableInterface {
+                override fun experimentalMethod() {} // unsafe override
+            }
         val lambda = StableInterface {} // unsafe override, but Kotlin compiler does not detect
     }
 }

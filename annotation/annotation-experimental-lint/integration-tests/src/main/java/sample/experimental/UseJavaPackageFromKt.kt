@@ -24,9 +24,7 @@ import sample.experimental.foo.ExperimentalPackage
 
 @Suppress("unused")
 class UseJavaPackageFromKt {
-    /**
-     * Unsafe call into a class within an experimental package.
-     */
+    /** Unsafe call into a class within an experimental package. */
     fun callPackageUnsafe() {
         val bar = Bar()
         bar.baz()
@@ -48,9 +46,7 @@ class UseJavaPackageFromKt {
         callPackageUnsafe()
     }
 
-    /**
-     * Unsafe call into an experimental method within this class.
-     */
+    /** Unsafe call into an experimental method within this class. */
     fun callSelfExperimental() {
         callPackageExperimental()
     }

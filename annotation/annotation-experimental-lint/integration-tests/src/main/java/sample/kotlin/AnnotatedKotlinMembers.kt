@@ -17,11 +17,9 @@
 package sample.kotlin
 
 open class AnnotatedKotlinMembers {
-    @ExperimentalKotlinAnnotation
-    var field: Int = -1
+    @ExperimentalKotlinAnnotation var field: Int = -1
 
-    @set:ExperimentalKotlinAnnotation
-    var fieldWithSetMarker: Int = -1
+    @set:ExperimentalKotlinAnnotation var fieldWithSetMarker: Int = -1
 
     @ExperimentalKotlinAnnotation
     fun method(): Int {
@@ -40,8 +38,6 @@ open class AnnotatedKotlinMembers {
             return -1
         }
 
-        @JvmStatic
-        @ExperimentalKotlinAnnotation
-        val fieldStatic: Int = -1
+        @JvmStatic @ExperimentalKotlinAnnotation val fieldStatic: Int = -1
     }
 }
