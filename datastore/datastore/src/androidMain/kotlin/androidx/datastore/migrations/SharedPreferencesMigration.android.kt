@@ -26,9 +26,7 @@ import java.io.File
 import java.io.IOException
 import kotlin.jvm.Throws
 
-/**
- * DataMigration instance for migrating from SharedPreferences to DataStore.
- */
+/** DataMigration instance for migrating from SharedPreferences to DataStore. */
 public class SharedPreferencesMigration<T>
 private constructor(
     produceSharedPreferences: () -> SharedPreferences,
@@ -56,20 +54,20 @@ private constructor(
      * ```
      *
      * @param produceSharedPreferences Should return the instance of SharedPreferences to migrate
-     * from.
+     *   from.
      * @param keysToMigrate The list of keys to migrate. The keys will be mapped to datastore
-     * .Preferences with their same values. If the key is already present in the new Preferences,
-     * the key will not be migrated again. If the key is not present in the SharedPreferences it
-     * will not be migrated. If keysToMigrate is not set, all keys will be migrated from
-     * the existing SharedPreferences.
+     *   .Preferences with their same values. If the key is already present in the new Preferences,
+     *   the key will not be migrated again. If the key is not present in the SharedPreferences it
+     *   will not be migrated. If keysToMigrate is not set, all keys will be migrated from the
+     *   existing SharedPreferences.
      * @param shouldRunMigration A lambda which accepts current data of type `T` and returns whether
-     * migration should run.
-     * @param migrate maps SharedPreferences into T. Implementations should be idempotent
-     * since this may be called multiple times. See [DataMigration.migrate] for more
-     * information. The lambda accepts a SharedPreferencesView which is the view of the
-     * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data. If SharedPreferences is
-     * empty or does not contain any keys which you specified, this callback will not run.
+     *   migration should run.
+     * @param migrate maps SharedPreferences into T. Implementations should be idempotent since this
+     *   may be called multiple times. See [DataMigration.migrate] for more information. The lambda
+     *   accepts a SharedPreferencesView which is the view of the SharedPreferences to migrate from
+     *   (limited to [keysToMigrate] and a T which represent the current data. The function must
+     *   return the migrated data. If SharedPreferences is empty or does not contain any keys which
+     *   you specified, this callback will not run.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
@@ -89,11 +87,10 @@ private constructor(
     /**
      * DataMigration from SharedPreferences to DataStore.
      *
-     * If the SharedPreferences is empty once the migration completes, this migration will
-     * attempt to delete it.
+     * If the SharedPreferences is empty once the migration completes, this migration will attempt
+     * to delete it.
      *
      * Example usage:
-     *
      * ```
      * val sharedPrefsMigration = SharedPreferencesMigration(
      *   context,
@@ -106,18 +103,18 @@ private constructor(
      * @param context Context used for getting SharedPreferences.
      * @param sharedPreferencesName The name of the SharedPreferences.
      * @param keysToMigrate The list of keys to migrate. The keys will be mapped to datastore
-     * .Preferences with their same values. If the key is already present in the new Preferences,
-     * the key will not be migrated again. If the key is not present in the SharedPreferences it
-     * will not be migrated. If keysToMigrate is not set, all keys will be migrated from
-     * the existing SharedPreferences.
+     *   .Preferences with their same values. If the key is already present in the new Preferences,
+     *   the key will not be migrated again. If the key is not present in the SharedPreferences it
+     *   will not be migrated. If keysToMigrate is not set, all keys will be migrated from the
+     *   existing SharedPreferences.
      * @param shouldRunMigration A lambda which accepts current data of type `T` and returns whether
-     * migration should run.
-     * @param migrate maps SharedPreferences into T. Implementations should be idempotent
-     * since this may be called multiple times. See [DataMigration.migrate] for more
-     * information. The lambda accepts a SharedPreferencesView which is the view of the
-     * SharedPreferences to migrate from (limited to [keysToMigrate] and a T which represent
-     * the current data. The function must return the migrated data. If SharedPreferences is
-     * empty or does not contain any keys which you specified, this callback will not run.
+     *   migration should run.
+     * @param migrate maps SharedPreferences into T. Implementations should be idempotent since this
+     *   may be called multiple times. See [DataMigration.migrate] for more information. The lambda
+     *   accepts a SharedPreferencesView which is the view of the SharedPreferences to migrate from
+     *   (limited to [keysToMigrate] and a T which represent the current data. The function must
+     *   return the migrated data. If SharedPreferences is empty or does not contain any keys which
+     *   you specified, this callback will not run.
      */
     @JvmOverloads // Generate constructors for default params for java users.
     public constructor(
@@ -137,9 +134,7 @@ private constructor(
 
     private val sharedPrefs: SharedPreferences by lazy(produceSharedPreferences)
 
-    /**
-     * keySet is null if the user specified [MIGRATE_ALL_KEYS].
-     */
+    /** keySet is null if the user specified [MIGRATE_ALL_KEYS]. */
     private val keySet: MutableSet<String>? =
         if (keysToMigrate === MIGRATE_ALL_KEYS) {
             null
@@ -160,13 +155,7 @@ private constructor(
     }
 
     override suspend fun migrate(currentData: T): T =
-        migrate(
-            SharedPreferencesView(
-                sharedPrefs,
-                keySet
-            ),
-            currentData
-        )
+        migrate(SharedPreferencesView(sharedPrefs, keySet), currentData)
 
     @Throws(IOException::class)
     override suspend fun cleanUp() {
@@ -175,9 +164,7 @@ private constructor(
         if (keySet == null) {
             sharedPrefsEditor.clear()
         } else {
-            keySet.forEach { key ->
-                sharedPrefsEditor.remove(key)
-            }
+            keySet.forEach { key -> sharedPrefsEditor.remove(key) }
         }
 
         if (!sharedPrefsEditor.commit()) {
@@ -225,13 +212,9 @@ private constructor(
     }
 }
 
-/**
- *  Read-only wrapper around SharedPreferences. This will be passed in to your migration.
- */
-public class SharedPreferencesView internal constructor(
-    private val prefs: SharedPreferences,
-    private val keySet: Set<String>?
-) {
+/** Read-only wrapper around SharedPreferences. This will be passed in to your migration. */
+public class SharedPreferencesView
+internal constructor(private val prefs: SharedPreferences, private val keySet: Set<String>?) {
     /**
      * Checks whether the preferences contains a preference.
      *
@@ -300,20 +283,18 @@ public class SharedPreferencesView internal constructor(
 
     /** Retrieve all values from the preferences that are in the specified keySet. */
     public fun getAll(): Map<String, Any?> =
-        prefs.all.filter { (key, _) ->
-            keySet?.contains(key) ?: true
-        }.mapValues { (_, value) ->
-            if (value is Set<*>) {
-                value.toSet()
-            } else {
-                value
+        prefs.all
+            .filter { (key, _) -> keySet?.contains(key) ?: true }
+            .mapValues { (_, value) ->
+                if (value is Set<*>) {
+                    value.toSet()
+                } else {
+                    value
+                }
             }
-        }
 
     private fun checkKey(key: String): String {
-        keySet?.let {
-            check(key in it) { "Can't access key outside migration: $key" }
-        }
+        keySet?.let { check(key in it) { "Can't access key outside migration: $key" } }
 
         return key
     }

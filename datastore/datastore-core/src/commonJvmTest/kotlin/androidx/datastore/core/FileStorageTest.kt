@@ -56,284 +56,289 @@ class FileStorageTest {
     }
 
     @Test
-    fun readEmpty() = testScope.runTest {
+    fun readEmpty() =
+        testScope.runTest {
+            val data = testConnection.readData()
 
-        val data = testConnection.readData()
-
-        assertThat(data).isEqualTo(0)
-    }
-
-    @Test
-    fun readAfterDisposeFails() = testScope.runTest {
-
-        testConnection.writeScope { writeData(1) }
-        testConnection.close()
-
-        assertThrows<IllegalStateException> { testConnection.readData() }
-    }
+            assertThat(data).isEqualTo(0)
+        }
 
     @Test
-    fun writeAfterDisposeFails() = testScope.runTest {
-
-        testConnection.writeScope { writeData(1) }
-        testConnection.close()
-
-        assertThrows<IllegalStateException> { testConnection.writeScope { writeData(1) } }
-    }
-
-    @Test
-    fun multipleOpensFail() = testScope.runTest {
-        val block1WriteDone = CompletableDeferred<Unit>()
-        val block1BeforeClose = CompletableDeferred<Unit>()
-        val block2BeforeCreate = CompletableDeferred<Unit>()
-
-        val block1 = async {
-            testConnection.writeData(1)
-            block1WriteDone.complete(Unit)
-            block1BeforeClose.await()
+    fun readAfterDisposeFails() =
+        testScope.runTest {
+            testConnection.writeScope { writeData(1) }
             testConnection.close()
+
+            assertThrows<IllegalStateException> { testConnection.readData() }
         }
 
-        val block2 = async {
-            block2BeforeCreate.await()
-            assertThrows<IllegalStateException> { testStorage.createConnection() }
+    @Test
+    fun writeAfterDisposeFails() =
+        testScope.runTest {
+            testConnection.writeScope { writeData(1) }
+            testConnection.close()
+
+            assertThrows<IllegalStateException> { testConnection.writeScope { writeData(1) } }
+        }
+
+    @Test
+    fun multipleOpensFail() =
+        testScope.runTest {
+            val block1WriteDone = CompletableDeferred<Unit>()
+            val block1BeforeClose = CompletableDeferred<Unit>()
+            val block2BeforeCreate = CompletableDeferred<Unit>()
+
+            val block1 = async {
+                testConnection.writeData(1)
+                block1WriteDone.complete(Unit)
+                block1BeforeClose.await()
+                testConnection.close()
+            }
+
+            val block2 = async {
+                block2BeforeCreate.await()
+                assertThrows<IllegalStateException> { testStorage.createConnection() }
+                block1.await()
+                assertThat(testStorage.createConnection().readData()).isEqualTo(1)
+            }
+
+            block1WriteDone.await()
+            block2BeforeCreate.complete(Unit)
+            block1BeforeClose.complete(Unit)
+
             block1.await()
-            assertThat(testStorage.createConnection().readData()).isEqualTo(1)
+            block2.await()
         }
 
-        block1WriteDone.await()
-        block2BeforeCreate.complete(Unit)
-        block1BeforeClose.complete(Unit)
-
-        block1.await()
-        block2.await()
-    }
-
     @Test
-    fun blockWithNoWriteSucceeds() = testScope.runTest {
-        val count = AtomicInt(0)
+    fun blockWithNoWriteSucceeds() =
+        testScope.runTest {
+            val count = AtomicInt(0)
 
-        testConnection.writeScope {
-            // do no writes in here
-            count.incrementAndGet()
+            testConnection.writeScope {
+                // do no writes in here
+                count.incrementAndGet()
+            }
+
+            assertThat(count.get()).isEqualTo(1)
         }
 
-        assertThat(count.get()).isEqualTo(1)
-    }
-
     @Test
-    fun readWrite() = testScope.runTest {
-        val expected: Byte = 1
+    fun readWrite() =
+        testScope.runTest {
+            val expected: Byte = 1
 
-        testConnection.writeData(1)
-        val data = testConnection.readData()
-
-        assertThat(data).isEqualTo(expected)
-    }
-
-    @Test
-    fun fileCreatedAfterWrite() = testScope.runTest {
-        testFile.delete()
-        assertThat(testFile.exists()).isFalse()
-
-        testConnection.writeData(1)
-
-        assertThat(testFile.exists()).isTrue()
-    }
-
-    @Test
-    fun readWriteTwice() = testScope.runTest {
-        val expected: Byte = 1
-        val expected2: Byte = 2
-
-        testConnection.writeData(expected)
-        val data1 = testConnection.readData()
-        testConnection.writeData(expected2)
-        val data2 = testConnection.readData()
-
-        assertThat(data1).isEqualTo(expected)
-        assertThat(data2).isEqualTo(expected2)
-    }
-
-    @Test
-    fun readAfterDelete() = testScope.runTest {
-
-        testConnection.writeData(1)
-        val beforeDelete = testConnection.readData()
-
-        testFile.delete()
-
-        val afterDelete = testConnection.readData()
-
-        assertThat(beforeDelete).isEqualTo(1)
-        assertThat(afterDelete).isEqualTo(0)
-    }
-
-    @Test
-    fun readAfterTransientBadWrite() = testScope.runTest {
-
-        coroutineScope {
             testConnection.writeData(1)
-            testingSerializerConfig.failingWrite = true
-            assertThrows<IOException> { testConnection.writeData(1) }
-        }
+            val data = testConnection.readData()
 
-        coroutineScope {
-            assertThat(testConnection.readData()).isEqualTo(1)
+            assertThat(data).isEqualTo(expected)
         }
-    }
 
     @Test
-    fun leakedReadTransactionDoesntWork() = testScope.runTest {
-        var scope: ReadScope<Byte>? = null
-        testConnection.readScope {
-            readData()
-            scope = this
+    fun fileCreatedAfterWrite() =
+        testScope.runTest {
+            testFile.delete()
+            assertThat(testFile.exists()).isFalse()
+
+            testConnection.writeData(1)
+
+            assertThat(testFile.exists()).isTrue()
         }
-        assertThrows<IllegalStateException> { scope!!.readData() }
-    }
 
     @Test
-    fun leakedWriteTransactionDoesntWork() = testScope.runTest {
-        var scope: WriteScope<Byte>? = null
-        testConnection.writeScope {
-            writeData(1)
-            scope = this
+    fun readWriteTwice() =
+        testScope.runTest {
+            val expected: Byte = 1
+            val expected2: Byte = 2
+
+            testConnection.writeData(expected)
+            val data1 = testConnection.readData()
+            testConnection.writeData(expected2)
+            val data2 = testConnection.readData()
+
+            assertThat(data1).isEqualTo(expected)
+            assertThat(data2).isEqualTo(expected2)
         }
-        assertThrows<IllegalStateException> { scope!!.writeData(1) }
-    }
 
     @Test
-    fun onlyOneWriter() = testScope.runTest {
-        val hook1 = CompletableDeferred<Unit>()
-        val count = AtomicInt(0)
+    fun readAfterDelete() =
+        testScope.runTest {
+            testConnection.writeData(1)
+            val beforeDelete = testConnection.readData()
 
-        val async1 = async {
-            hook1.await()
-            testConnection.writeScope {
-                assertThat(count.incrementAndGet()).isEqualTo(3)
+            testFile.delete()
+
+            val afterDelete = testConnection.readData()
+
+            assertThat(beforeDelete).isEqualTo(1)
+            assertThat(afterDelete).isEqualTo(0)
+        }
+
+    @Test
+    fun readAfterTransientBadWrite() =
+        testScope.runTest {
+            coroutineScope {
+                testConnection.writeData(1)
+                testingSerializerConfig.failingWrite = true
+                assertThrows<IOException> { testConnection.writeData(1) }
             }
-        }
-        val async2 = async {
-            testConnection.writeScope {
-                hook1.complete(Unit)
-                assertThat(count.incrementAndGet()).isEqualTo(1)
-                yield()
-                assertThat(count.incrementAndGet()).isEqualTo(2)
-            }
+
+            coroutineScope { assertThat(testConnection.readData()).isEqualTo(1) }
         }
 
-        async1.await()
-        async2.await()
-    }
+    @Test
+    fun leakedReadTransactionDoesntWork() =
+        testScope.runTest {
+            var scope: ReadScope<Byte>? = null
+            testConnection.readScope {
+                readData()
+                scope = this
+            }
+            assertThrows<IllegalStateException> { scope!!.readData() }
+        }
+
+    @Test
+    fun leakedWriteTransactionDoesntWork() =
+        testScope.runTest {
+            var scope: WriteScope<Byte>? = null
+            testConnection.writeScope {
+                writeData(1)
+                scope = this
+            }
+            assertThrows<IllegalStateException> { scope!!.writeData(1) }
+        }
+
+    @Test
+    fun onlyOneWriter() =
+        testScope.runTest {
+            val hook1 = CompletableDeferred<Unit>()
+            val count = AtomicInt(0)
+
+            val async1 = async {
+                hook1.await()
+                testConnection.writeScope { assertThat(count.incrementAndGet()).isEqualTo(3) }
+            }
+            val async2 = async {
+                testConnection.writeScope {
+                    hook1.complete(Unit)
+                    assertThat(count.incrementAndGet()).isEqualTo(1)
+                    yield()
+                    assertThat(count.incrementAndGet()).isEqualTo(2)
+                }
+            }
+
+            async1.await()
+            async2.await()
+        }
 
     // TODO:(b/234153817) Add remaining readLock tests.  Refactor is making this hard currently
 
     @Test
-    fun noWriteDuringRead() = testScope.runTest {
-        val hook1 = CompletableDeferred<Unit>()
-        val count = AtomicInt(0)
+    fun noWriteDuringRead() =
+        testScope.runTest {
+            val hook1 = CompletableDeferred<Unit>()
+            val count = AtomicInt(0)
 
-        val async1 = async {
-            hook1.await()
-            testConnection.writeScope {
-                assertThat(count.incrementAndGet()).isEqualTo(3)
+            val async1 = async {
+                hook1.await()
+                testConnection.writeScope { assertThat(count.incrementAndGet()).isEqualTo(3) }
             }
-        }
-        val async2 = async {
-            testConnection.readScope {
-                hook1.complete(Unit)
-                assertThat(count.incrementAndGet()).isEqualTo(1)
-                yield()
-                assertThat(count.incrementAndGet()).isEqualTo(2)
-            }
-        }
-
-        async1.await()
-        async2.await()
-    }
-
-    @Test
-    fun readFromTwoStorage() = testScope.runTest {
-        testConnection.writeData(1)
-
-        coroutineScope {
-            assertThat(testConnection.readData()).isEqualTo(1)
-            testConnection.close()
-        }
-
-        coroutineScope {
-            val connection = FileStorage(testingSerializer) { testFile }.createConnection()
-            assertThat(connection.readData()).isEqualTo(1)
-        }
-    }
-
-    @Test
-    fun testWriteToNonExistentDir() = testScope.runTest {
-        val fileInNonExistentDir =
-            File(getTempFolder(), "/this/does/not/exist/foo.tst")
-        coroutineScope {
-            FileStorage(testingSerializer) { fileInNonExistentDir }
-                .createConnection().use {
-                    it.writeData(1)
-                    assertThat(it.readData()).isEqualTo(1)
+            val async2 = async {
+                testConnection.readScope {
+                    hook1.complete(Unit)
+                    assertThat(count.incrementAndGet()).isEqualTo(1)
+                    yield()
+                    assertThat(count.incrementAndGet()).isEqualTo(2)
                 }
-        }
-
-        coroutineScope {
-            val connection = FileStorage(testingSerializer) { fileInNonExistentDir }
-                .createConnection()
-            assertThat(connection.readData()).isEqualTo(1)
-        }
-    }
-
-    @Test
-    fun writeToDirFails() = testScope.runTest {
-        val directoryFile =
-            File(getTempFolder(), "/this/is/a${Random.nextInt()}}/directory")
-        directoryFile.mkdirs()
-
-        val connection = FileStorage(testingSerializer) { directoryFile }
-            .createConnection()
-
-        assertThat(directoryFile.isDirectory).isTrue()
-        assertThrows<IOException> { connection.readData() }
-    }
-
-    @Test
-    fun exceptionWhenCreatingFilePropagates() = testScope.runTest {
-        var failFileProducer = true
-
-        val fileProducer = {
-            if (failFileProducer) {
-                throw IOException("Exception when producing file")
             }
-            testFile
-        }
-        assertThrows<IOException> {
-            FileStorage(
-                serializer = testingSerializer,
-                produceFile = fileProducer
-            ).createConnection()
-        }
-            .hasMessageThat().isEqualTo("Exception when producing file")
 
-        failFileProducer = false
-
-        assertThat(testConnection.readData()).isEqualTo(0)
-    }
+            async1.await()
+            async2.await()
+        }
 
     @Test
-    fun writeAfterTransientBadRead() = testScope.runTest {
-        testingSerializerConfig.failingRead = true
+    fun readFromTwoStorage() =
+        testScope.runTest {
+            testConnection.writeData(1)
 
-        assertThrows<IOException> { testConnection.readData() }
+            coroutineScope {
+                assertThat(testConnection.readData()).isEqualTo(1)
+                testConnection.close()
+            }
 
-        testingSerializerConfig.failingRead = false
+            coroutineScope {
+                val connection = FileStorage(testingSerializer) { testFile }.createConnection()
+                assertThat(connection.readData()).isEqualTo(1)
+            }
+        }
 
-        testConnection.writeData(1)
-        assertThat(testConnection.readData()).isEqualTo(1)
-    }
+    @Test
+    fun testWriteToNonExistentDir() =
+        testScope.runTest {
+            val fileInNonExistentDir = File(getTempFolder(), "/this/does/not/exist/foo.tst")
+            coroutineScope {
+                FileStorage(testingSerializer) { fileInNonExistentDir }
+                    .createConnection()
+                    .use {
+                        it.writeData(1)
+                        assertThat(it.readData()).isEqualTo(1)
+                    }
+            }
+
+            coroutineScope {
+                val connection =
+                    FileStorage(testingSerializer) { fileInNonExistentDir }.createConnection()
+                assertThat(connection.readData()).isEqualTo(1)
+            }
+        }
+
+    @Test
+    fun writeToDirFails() =
+        testScope.runTest {
+            val directoryFile = File(getTempFolder(), "/this/is/a${Random.nextInt()}}/directory")
+            directoryFile.mkdirs()
+
+            val connection = FileStorage(testingSerializer) { directoryFile }.createConnection()
+
+            assertThat(directoryFile.isDirectory).isTrue()
+            assertThrows<IOException> { connection.readData() }
+        }
+
+    @Test
+    fun exceptionWhenCreatingFilePropagates() =
+        testScope.runTest {
+            var failFileProducer = true
+
+            val fileProducer = {
+                if (failFileProducer) {
+                    throw IOException("Exception when producing file")
+                }
+                testFile
+            }
+            assertThrows<IOException> {
+                    FileStorage(serializer = testingSerializer, produceFile = fileProducer)
+                        .createConnection()
+                }
+                .hasMessageThat()
+                .isEqualTo("Exception when producing file")
+
+            failFileProducer = false
+
+            assertThat(testConnection.readData()).isEqualTo(0)
+        }
+
+    @Test
+    fun writeAfterTransientBadRead() =
+        testScope.runTest {
+            testingSerializerConfig.failingRead = true
+
+            assertThrows<IOException> { testConnection.readData() }
+
+            testingSerializerConfig.failingRead = false
+
+            testConnection.writeData(1)
+            assertThat(testConnection.readData()).isEqualTo(1)
+        }
 
     private fun getTempFolder(): File {
         return File.createTempFile("test", "test").parentFile!!

@@ -22,17 +22,15 @@ import kotlin.contracts.contract
 import kotlinx.coroutines.sync.Mutex
 
 /**
- * Provide similar functionality of {@link kotlinx.coroutines.sync.Mutex#withLock} but don't
- * wait for the lock if unavailable, instead it passes a Boolean into the [block] lambda to
- * indicate if it is able to get the lock and run [block] immediately.
+ * Provide similar functionality of {@link kotlinx.coroutines.sync.Mutex#withLock} but don't wait
+ * for the lock if unavailable, instead it passes a Boolean into the [block] lambda to indicate if
+ * it is able to get the lock and run [block] immediately.
  *
  * [block] is guaranteed to be called once and only once by this function.
  */
 @ExperimentalContracts
 internal inline fun <R> Mutex.withTryLock(owner: Any? = null, block: (Boolean) -> R): R {
-    contract {
-        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-    }
+    contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
     val locked: Boolean = tryLock(owner)
     try {
         return block(locked)

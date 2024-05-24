@@ -65,11 +65,14 @@ internal class MultiProcessCoordinator(
                 var lock: FileLock? = null
                 try {
                     try {
-                        lock = lockFileStream.getChannel().tryLock(
-                            /* position= */ 0L,
-                            /* size= */ Long.MAX_VALUE,
-                            /* shared= */ true
-                        )
+                        lock =
+                            lockFileStream
+                                .getChannel()
+                                .tryLock(
+                                    /* position= */ 0L,
+                                    /* size= */ Long.MAX_VALUE,
+                                    /* shared= */ true
+                                )
                     } catch (ex: IOException) {
                         // TODO(b/255419657): Update the shared lock IOException handling logic for
                         // KMM.
@@ -79,8 +82,10 @@ internal class MultiProcessCoordinator(
                         // will throw an IOException with EAGAIN error, instead of returning null as
                         // specified in {@link FileChannel#tryLock}. We only continue if the error
                         // message is EAGAIN, otherwise just throw it.
-                        if ((ex.message?.startsWith(LOCK_ERROR_MESSAGE) != true) &&
-                            (ex.message?.startsWith(DEADLOCK_ERROR_MESSAGE) != true)) {
+                        if (
+                            (ex.message?.startsWith(LOCK_ERROR_MESSAGE) != true) &&
+                                (ex.message?.startsWith(DEADLOCK_ERROR_MESSAGE) != true)
+                        ) {
                             throw ex
                         }
                     }
@@ -159,9 +164,7 @@ internal class MultiProcessCoordinator(
         return if (lazySharedCounter.isInitialized()) {
             block(sharedCounter)
         } else {
-            withContext(context) {
-                block(sharedCounter)
-            }
+            withContext(context) { block(sharedCounter) }
         }
     }
 
@@ -196,7 +199,7 @@ internal class MultiProcessCoordinator(
  * Create a coordinator for multiple process use cases.
  *
  * @param context the coroutine context to be used by the [MultiProcessCoordinator] for IO
- * operations.
+ *   operations.
  * @param file the File in which [DataStore] stores the data.
  */
 @Suppress("StreamFiles")

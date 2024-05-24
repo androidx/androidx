@@ -20,13 +20,14 @@ import android.os.ParcelFileDescriptor
 import java.io.File
 import java.io.IOException
 
-/**
- * Put the JNI methods in a separate class to make them internal to the package.
- */
+/** Put the JNI methods in a separate class to make them internal to the package. */
 internal class NativeSharedCounter {
     external fun nativeTruncateFile(fd: Int): Int
+
     external fun nativeCreateSharedCounter(fd: Int): Long
+
     external fun nativeGetCounterValue(address: Long): Int
+
     external fun nativeIncrementAndGetCounterValue(address: Long): Int
 }
 
@@ -36,10 +37,9 @@ internal class NativeSharedCounter {
  * of the `datastore-multiprocess` AAR artifact, users don't need extra steps other than adding it
  * as dependency.
  */
-internal class SharedCounter private constructor(
-    /**
-     * The memory address to be mapped.
-     */
+internal class SharedCounter
+private constructor(
+    /** The memory address to be mapped. */
     private val mappedAddress: Long
 ) {
 
@@ -72,10 +72,11 @@ internal class SharedCounter private constructor(
             val file = produceFile()
             var pfd: ParcelFileDescriptor? = null
             try {
-                pfd = ParcelFileDescriptor.open(
-                    file,
-                    ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
-                )
+                pfd =
+                    ParcelFileDescriptor.open(
+                        file,
+                        ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
+                    )
                 return createCounterFromFd(pfd)
             } finally {
                 pfd?.close()

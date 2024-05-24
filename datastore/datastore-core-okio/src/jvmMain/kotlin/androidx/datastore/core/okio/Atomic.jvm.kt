@@ -21,13 +21,17 @@ import java.util.concurrent.atomic.AtomicInteger as JavaAtomicInteger
 
 internal actual class AtomicInt {
     private val delegate: JavaAtomicInteger
+
     actual constructor(initialValue: Int) {
         delegate = JavaAtomicInteger(initialValue)
     }
 
     actual fun getAndIncrement(): Int = delegate.getAndIncrement()
+
     actual fun decrementAndGet(): Int = delegate.decrementAndGet()
+
     actual fun get(): Int = delegate.get()
+
     actual fun incrementAndGet(): Int = delegate.incrementAndGet()
 }
 
@@ -42,12 +46,10 @@ internal actual class AtomicBoolean actual constructor(initialValue: Boolean) {
 }
 
 internal actual class Synchronizer {
-    actual inline fun<T> withLock(block: () -> T): T {
+    actual inline fun <T> withLock(block: () -> T): T {
         // technically, it is wrong to sync on `this` but we are only using it from common
         // code hence there is no way to access JVM/ART's sync; so I decided to be cheap here
         // and avoid another object.
-        return synchronized(this) {
-            block()
-        }
+        return synchronized(this) { block() }
     }
 }

@@ -45,9 +45,9 @@ class ProtoDataStoreActivity : AppCompatActivity() {
     private val PROTO_STORE_FILE_NAME = "datastore_test_app.pb"
 
     private val settingsStore: DataStore<Settings> by lazy {
-        DataStoreFactory.create(
-            serializer = SettingsSerializer
-        ) { File(applicationContext.filesDir, PROTO_STORE_FILE_NAME) }
+        DataStoreFactory.create(serializer = SettingsSerializer) {
+            File(applicationContext.filesDir, PROTO_STORE_FILE_NAME)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,8 +96,7 @@ class ProtoDataStoreActivity : AppCompatActivity() {
                 .map { it.counter }
                 .distinctUntilChanged()
                 .collect { counterValue ->
-                    findViewById<TextView>(R.id.counter_text_view).text =
-                        counterValue.toString()
+                    findViewById<TextView>(R.id.counter_text_view).text = counterValue.toString()
                 }
         }
     }

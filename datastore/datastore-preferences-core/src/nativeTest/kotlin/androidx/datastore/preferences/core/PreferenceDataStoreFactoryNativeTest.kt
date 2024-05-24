@@ -50,78 +50,75 @@ class PreferenceDataStoreFactoryNativeTest {
 
     @Test
     fun testNewInstance() = runTest {
-        val store = PreferenceDataStoreFactory.createWithPath(
-            scope = dataStoreScope
-        ) { testFile }
+        val store = PreferenceDataStoreFactory.createWithPath(scope = dataStoreScope) { testFile }
 
-        val expectedPreferences =
-            preferencesOf(stringKey to "value")
+        val expectedPreferences = preferencesOf(stringKey to "value")
 
-        assertEquals(
-            store.edit { prefs ->
-                prefs[stringKey] = "value"
-            },
-            expectedPreferences
-        )
+        assertEquals(store.edit { prefs -> prefs[stringKey] = "value" }, expectedPreferences)
         assertEquals(expectedPreferences, store.data.first())
     }
 
     @Test
     fun testCorruptionHandlerInstalled() = runTest {
         FileSystem.SYSTEM.createDirectories(testFile.parent!!, false)
-        FileSystem.SYSTEM.write(testFile, false) {
-            write("BadData".encodeToByteArray())
-        }
+        FileSystem.SYSTEM.write(testFile, false) { write("BadData".encodeToByteArray()) }
 
         val valueToReplace = preferencesOf(booleanKey to true)
 
-        val store = PreferenceDataStoreFactory.createWithPath(
-            corruptionHandler = ReplaceFileCorruptionHandler<Preferences> {
-                valueToReplace
-            },
-            scope = dataStoreScope
-        ) { testFile }
+        val store =
+            PreferenceDataStoreFactory.createWithPath(
+                corruptionHandler = ReplaceFileCorruptionHandler<Preferences> { valueToReplace },
+                scope = dataStoreScope
+            ) {
+                testFile
+            }
         assertEquals(valueToReplace, store.data.first())
     }
 
     @Test
     fun testMigrationsInstalled() = runTest {
+        val expectedPreferences = preferencesOf(stringKey to "value", booleanKey to true)
 
-        val expectedPreferences = preferencesOf(
-            stringKey to "value",
-            booleanKey to true
-        )
+        val migrateTo5 =
+            object : DataMigration<Preferences> {
+                override suspend fun shouldMigrate(currentData: Preferences) = true
 
-        val migrateTo5 = object : DataMigration<Preferences> {
-            override suspend fun shouldMigrate(currentData: Preferences) = true
+                override suspend fun migrate(currentData: Preferences) =
+                    currentData
+                        .toMutablePreferences()
+                        .apply { set(stringKey, "value") }
+                        .toPreferences()
 
-            override suspend fun migrate(currentData: Preferences) =
-                currentData.toMutablePreferences().apply { set(stringKey, "value") }.toPreferences()
+                override suspend fun cleanUp() {}
+            }
 
-            override suspend fun cleanUp() {}
-        }
+        val migratePlus1 =
+            object : DataMigration<Preferences> {
+                override suspend fun shouldMigrate(currentData: Preferences) = true
 
-        val migratePlus1 = object : DataMigration<Preferences> {
-            override suspend fun shouldMigrate(currentData: Preferences) = true
+                override suspend fun migrate(currentData: Preferences) =
+                    currentData
+                        .toMutablePreferences()
+                        .apply { set(booleanKey, true) }
+                        .toPreferences()
 
-            override suspend fun migrate(currentData: Preferences) =
-                currentData.toMutablePreferences().apply { set(booleanKey, true) }.toPreferences()
+                override suspend fun cleanUp() {}
+            }
 
-            override suspend fun cleanUp() {}
-        }
-
-        val store = PreferenceDataStoreFactory.createWithPath(
-            migrations = listOf(migrateTo5, migratePlus1),
-            scope = dataStoreScope
-        ) { testFile }
+        val store =
+            PreferenceDataStoreFactory.createWithPath(
+                migrations = listOf(migrateTo5, migratePlus1),
+                scope = dataStoreScope
+            ) {
+                testFile
+            }
 
         assertEquals(expectedPreferences, store.data.first())
     }
 
     @Test
     fun testCantMutateInternalState() = runTest {
-        val store =
-            PreferenceDataStoreFactory.createWithPath(scope = dataStoreScope) { testFile }
+        val store = PreferenceDataStoreFactory.createWithPath(scope = dataStoreScope) { testFile }
 
         var mutableReference: MutablePreferences? = null
         store.edit {
@@ -129,41 +126,25 @@ class PreferenceDataStoreFactoryNativeTest {
             it[stringKey] = "ABCDEF"
         }
 
-        assertEquals(
-            store.data.first(),
-            preferencesOf(stringKey to "ABCDEF")
-        )
+        assertEquals(store.data.first(), preferencesOf(stringKey to "ABCDEF"))
 
-        assertFailsWith<IllegalStateException> {
-            mutableReference!!.clear()
-        }
+        assertFailsWith<IllegalStateException> { mutableReference!!.clear() }
 
         assertFailsWith<IllegalStateException> {
             mutableReference!! += preferencesOf(stringKey to "abc")
         }
 
-        assertFailsWith<IllegalStateException> {
-            mutableReference!! += stringKey to "abc"
-        }
+        assertFailsWith<IllegalStateException> { mutableReference!! += stringKey to "abc" }
 
-        assertFailsWith<IllegalStateException> {
-            mutableReference!! -= stringKey
-        }
+        assertFailsWith<IllegalStateException> { mutableReference!! -= stringKey }
 
-        assertFailsWith<IllegalStateException> {
-            mutableReference!!.remove(stringKey)
-        }
+        assertFailsWith<IllegalStateException> { mutableReference!!.remove(stringKey) }
 
-        assertFailsWith<IllegalStateException> {
-            mutableReference!!.putAll(stringKey to "abc")
-        }
+        assertFailsWith<IllegalStateException> { mutableReference!!.putAll(stringKey to "abc") }
 
         assertFailsWith<IllegalStateException> {
             mutableReference!![stringKey] = "asdjkfajksdhljkasdhf"
         }
-        assertEquals(
-            store.data.first(),
-            preferencesOf(stringKey to "ABCDEF")
-        )
+        assertEquals(store.data.first(), preferencesOf(stringKey to "ABCDEF"))
     }
 }

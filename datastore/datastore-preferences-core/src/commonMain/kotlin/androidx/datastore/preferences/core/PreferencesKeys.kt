@@ -106,7 +106,7 @@ public fun stringSetPreferencesKey(name: String): Preferences.Key<Set<String>> =
  * ClassCastException.
  *
  * Note: ByteArrays returned by DataStore are copies. Mutating their state will do nothing to the
- *       underlying data store.  They must be set explicitly.
+ * underlying data store. They must be set explicitly.
  *
  * @param name the name of the preference
  * @return the Preferences.Key<ByteArray> for [name]

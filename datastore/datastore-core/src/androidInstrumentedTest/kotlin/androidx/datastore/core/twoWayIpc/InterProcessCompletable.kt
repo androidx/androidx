@@ -21,10 +21,7 @@ import java.util.UUID
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.parcelize.Parcelize
 
-/**
- * A [Parcelable] [CompletableDeferred] implementation that can be shared
- * across processes.
- */
+/** A [Parcelable] [CompletableDeferred] implementation that can be shared across processes. */
 @Parcelize
 internal class InterProcessCompletable<T : Parcelable>(
     private val key: String = UUID.randomUUID().toString(),
@@ -44,21 +41,17 @@ internal class InterProcessCompletable<T : Parcelable>(
 }
 
 /**
- * Manages [InterProcessCompletable] instances across processes.
- * When an instance is completed in one process, its value will be dispatched
- * to the other process as well.
+ * Manages [InterProcessCompletable] instances across processes. When an instance is completed in
+ * one process, its value will be dispatched to the other process as well.
  */
-private class CrossProcessCompletableController(
-    private val subject: TwoWayIpcSubject
-) {
+private class CrossProcessCompletableController(private val subject: TwoWayIpcSubject) {
     private val completables = mutableMapOf<String, CompletableDeferred<*>>()
 
-    private fun <T> get(key: String) = synchronized(this) {
-        @Suppress("UNCHECKED_CAST")
-        completables.getOrPut(key) {
-            CompletableDeferred<T>()
-        } as CompletableDeferred<T>
-    }
+    private fun <T> get(key: String) =
+        synchronized(this) {
+            @Suppress("UNCHECKED_CAST")
+            completables.getOrPut(key) { CompletableDeferred<T>() } as CompletableDeferred<T>
+        }
 
     private fun <T : Parcelable> completeInCurrentProcess(key: String, value: T) {
         IpcLogger.log("complete internal $key")
@@ -72,12 +65,7 @@ private class CrossProcessCompletableController(
     suspend fun <T : Parcelable> complete(key: String, value: T) {
         completeInCurrentProcess(key, value)
         IpcLogger.log("will complete $key in remote process")
-        subject.invokeInRemoteProcess(
-            CompleteCompletableAction(
-                key = key,
-                value = value
-            )
-        )
+        subject.invokeInRemoteProcess(CompleteCompletableAction(key = key, value = value))
         IpcLogger.log("completed $key in remote process")
     }
 
@@ -86,9 +74,7 @@ private class CrossProcessCompletableController(
         private val key: String,
         private val value: T
     ) : IpcAction<IpcUnit>() {
-        override suspend fun invokeInRemoteProcess(
-            subject: TwoWayIpcSubject
-        ): IpcUnit {
+        override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): IpcUnit {
             subject.crossProcessCompletableController.completeInCurrentProcess(key, value)
             return IpcUnit
         }
@@ -99,7 +85,5 @@ private val COMPLETABLE_CONTROLLER_KEY =
     CompositeServiceSubjectModel.Key<CrossProcessCompletableController>()
 private val TwoWayIpcSubject.crossProcessCompletableController: CrossProcessCompletableController
     get() {
-        return data.getOrPut(COMPLETABLE_CONTROLLER_KEY) {
-            CrossProcessCompletableController(this)
-        }
+        return data.getOrPut(COMPLETABLE_CONTROLLER_KEY) { CrossProcessCompletableController(this) }
     }

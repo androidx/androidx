@@ -38,31 +38,34 @@ val intKey = intPreferencesKey("int_key")
 
 val Context.rxDataStore by rxPreferencesDataStore("file1")
 
-val Context.rxdsWithMigration by rxPreferencesDataStore(
-    "file2",
-    produceMigrations = {
-        listOf(
-            object : DataMigration<Preferences> {
-                override suspend fun shouldMigrate(currentData: Preferences) = true
-                override suspend fun migrate(currentData: Preferences) =
-                    preferencesOf(intKey to 123)
+val Context.rxdsWithMigration by
+    rxPreferencesDataStore(
+        "file2",
+        produceMigrations = {
+            listOf(
+                object : DataMigration<Preferences> {
+                    override suspend fun shouldMigrate(currentData: Preferences) = true
 
-                override suspend fun cleanUp() {}
-            })
-    }
-)
+                    override suspend fun migrate(currentData: Preferences) =
+                        preferencesOf(intKey to 123)
 
-val Context.rxdsWithCorruptionHandler by rxPreferencesDataStore(
-    "file3",
-    corruptionHandler = ReplaceFileCorruptionHandler { preferencesOf(intKey to 123) }
-)
+                    override suspend fun cleanUp() {}
+                }
+            )
+        }
+    )
+
+val Context.rxdsWithCorruptionHandler by
+    rxPreferencesDataStore(
+        "file3",
+        corruptionHandler = ReplaceFileCorruptionHandler { preferencesOf(intKey to 123) }
+    )
 
 val Context.rxDataStoreForFileNameCheck by rxPreferencesDataStore("file5")
 
 @ExperimentalCoroutinesApi
 class RxPreferenceDataStoreDelegateTest {
-    @get:Rule
-    val tmp = TemporaryFolder()
+    @get:Rule val tmp = TemporaryFolder()
 
     private lateinit var context: Context
 
@@ -76,17 +79,17 @@ class RxPreferenceDataStoreDelegateTest {
     fun testBasic() {
         assertThat(context.rxDataStore.data().blockingFirst()).isEqualTo(preferencesOf())
         assertThat(
-            context.rxDataStore.updateDataAsync {
-                Single.just(mutablePreferencesOf(intKey to 123))
-            }.blockingGet()
-        ).isEqualTo(mutablePreferencesOf(intKey to 123))
+                context.rxDataStore
+                    .updateDataAsync { Single.just(mutablePreferencesOf(intKey to 123)) }
+                    .blockingGet()
+            )
+            .isEqualTo(mutablePreferencesOf(intKey to 123))
     }
 
     @Test
     fun testWithMigration() {
-        assertThat(
-            context.rxdsWithMigration.data().blockingFirst()
-        ).isEqualTo(preferencesOf(intKey to 123))
+        assertThat(context.rxdsWithMigration.data().blockingFirst())
+            .isEqualTo(preferencesOf(intKey to 123))
     }
 
     @Test
@@ -99,24 +102,27 @@ class RxPreferenceDataStoreDelegateTest {
             }
         }
 
-        assertThat(
-            context.rxdsWithCorruptionHandler.data().blockingFirst()
-        ).isEqualTo(preferencesOf(intKey to 123))
+        assertThat(context.rxdsWithCorruptionHandler.data().blockingFirst())
+            .isEqualTo(preferencesOf(intKey to 123))
     }
 
     @Test
     fun testCorrectFileNameUsed() {
-        context.rxDataStoreForFileNameCheck.updateDataAsync {
-            Single.just(preferencesOf(intKey to 99))
-        }.blockingGet()
+        context.rxDataStoreForFileNameCheck
+            .updateDataAsync { Single.just(preferencesOf(intKey to 99)) }
+            .blockingGet()
 
         context.rxDataStoreForFileNameCheck.dispose()
         context.rxDataStoreForFileNameCheck.shutdownComplete().blockingGet()
 
         assertThat(
-            RxPreferenceDataStoreBuilder {
-                File(context.filesDir, "datastore/file5.preferences_pb")
-            }.build().data().blockingFirst()
-        ).isEqualTo(preferencesOf(intKey to 99))
+                RxPreferenceDataStoreBuilder {
+                        File(context.filesDir, "datastore/file5.preferences_pb")
+                    }
+                    .build()
+                    .data()
+                    .blockingFirst()
+            )
+            .isEqualTo(preferencesOf(intKey to 99))
     }
 }

@@ -28,22 +28,21 @@ import okio.Path
 
 actual object PreferenceDataStoreFactory {
     /**
-     * Create an instance of [DataStore]. Never create more than one instance of
-     * DataStore for a given file; doing so can break all DataStore functionality. You should
-     * consider managing your DataStore instance as a singleton.
+     * Create an instance of [DataStore]. Never create more than one instance of DataStore for a
+     * given file; doing so can break all DataStore functionality. You should consider managing your
+     * DataStore instance as a singleton.
      *
      * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
-     * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
-     * serializers when data cannot be de-serialized.
+     *   [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
+     *   serializers when data cannot be de-serialized.
      * @param migrations are run before any access to data can occur. Each producer and migration
-     * may be run more than once whether or not it already succeeded (potentially because another
-     * migration failed or a write to disk failed.)
+     *   may be run more than once whether or not it already succeeded (potentially because another
+     *   migration failed or a write to disk failed.)
      * @param scope The scope in which IO operations and transform functions will execute.
-     * @param produceFile Function which returns the file that the new DataStore will act on.
-     * The function must return the same path every time. No two instances of PreferenceDataStore
-     * should act on the same file at the same time. The file must have the extension
-     * preferences_pb. File will be created if it doesn't exist.
-     *
+     * @param produceFile Function which returns the file that the new DataStore will act on. The
+     *   function must return the same path every time. No two instances of PreferenceDataStore
+     *   should act on the same file at the same time. The file must have the extension
+     *   preferences_pb. File will be created if it doesn't exist.
      * @return a new DataStore instance with the provided configuration
      */
     @kotlin.jvm.JvmOverloads // annotation has to match common
@@ -53,36 +52,37 @@ actual object PreferenceDataStoreFactory {
         scope: CoroutineScope,
         produceFile: () -> Path
     ): DataStore<Preferences> {
-        val delegate = create(
-            storage = OkioStorage(FileSystem.SYSTEM, PreferencesSerializer) {
-                val file = produceFile()
-                check(file.name.endsWith(".${PreferencesSerializer.fileExtension}")) {
-                    "File extension for file: $file does not match required extension for" +
-                        " Preferences file: ${PreferencesSerializer.fileExtension}"
-                }
-                file
-            },
-            corruptionHandler = corruptionHandler,
-            migrations = migrations,
-            scope = scope
-        )
+        val delegate =
+            create(
+                storage =
+                    OkioStorage(FileSystem.SYSTEM, PreferencesSerializer) {
+                        val file = produceFile()
+                        check(file.name.endsWith(".${PreferencesSerializer.fileExtension}")) {
+                            "File extension for file: $file does not match required extension for" +
+                                " Preferences file: ${PreferencesSerializer.fileExtension}"
+                        }
+                        file
+                    },
+                corruptionHandler = corruptionHandler,
+                migrations = migrations,
+                scope = scope
+            )
         return PreferenceDataStore(delegate)
     }
 
     /**
-     * Create an instance of [DataStore]. Never create more than one instance of
-     * DataStore for a given file; doing so can break all DataStore functionality. You should
-     * consider managing your DataStore instance as a singleton.
+     * Create an instance of [DataStore]. Never create more than one instance of DataStore for a
+     * given file; doing so can break all DataStore functionality. You should consider managing your
+     * DataStore instance as a singleton.
      *
      * @param storage The storage object defines where and how the preferences will be stored.
      * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
-     * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
-     * serializers when data cannot be de-serialized.
+     *   [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
+     *   serializers when data cannot be de-serialized.
      * @param migrations are run before any access to data can occur. Each producer and migration
-     * may be run more than once whether or not it already succeeded (potentially because another
-     * migration failed or a write to disk failed.)
+     *   may be run more than once whether or not it already succeeded (potentially because another
+     *   migration failed or a write to disk failed.)
      * @param scope The scope in which IO operations and transform functions will execute.
-     *
      * @return a new DataStore instance with the provided configuration
      */
     @kotlin.jvm.JvmOverloads // annotation has to match common
@@ -94,10 +94,11 @@ actual object PreferenceDataStoreFactory {
     ): DataStore<Preferences> {
         return PreferenceDataStore(
             DataStoreFactory.create(
-            storage = storage,
-            corruptionHandler = corruptionHandler,
-            migrations = migrations,
-            scope = scope
-        ))
+                storage = storage,
+                corruptionHandler = corruptionHandler,
+                migrations = migrations,
+                scope = scope
+            )
+        )
     }
 }

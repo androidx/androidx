@@ -37,33 +37,35 @@ import org.junit.rules.TemporaryFolder
 
 val Context.globalDs by dataStore("file1", TestingSerializer())
 
-val Context.corruptedDs by dataStore(
-    fileName = "file2",
-    corruptionHandler = ReplaceFileCorruptionHandler { 123 },
-    serializer = TestingSerializer(failReadWithCorruptionException = true),
-)
+val Context.corruptedDs by
+    dataStore(
+        fileName = "file2",
+        corruptionHandler = ReplaceFileCorruptionHandler { 123 },
+        serializer = TestingSerializer(failReadWithCorruptionException = true),
+    )
 
-val Context.dsWithMigrationTo123 by dataStore(
-    fileName = "file4",
-    serializer = TestingSerializer(),
-    produceMigrations = {
-        listOf(
-            object : DataMigration<Byte> {
-                override suspend fun shouldMigrate(currentData: Byte) = true
-                override suspend fun migrate(currentData: Byte): Byte =
-                    currentData.plus(123).toByte()
+val Context.dsWithMigrationTo123 by
+    dataStore(
+        fileName = "file4",
+        serializer = TestingSerializer(),
+        produceMigrations = {
+            listOf(
+                object : DataMigration<Byte> {
+                    override suspend fun shouldMigrate(currentData: Byte) = true
 
-                override suspend fun cleanUp() {}
-            }
-        )
-    }
-)
+                    override suspend fun migrate(currentData: Byte): Byte =
+                        currentData.plus(123).toByte()
+
+                    override suspend fun cleanUp() {}
+                }
+            )
+        }
+    )
 
 @ExperimentalCoroutinesApi
 class DataStoreDelegateTest {
 
-    @get:Rule
-    val tmp = TemporaryFolder()
+    @get:Rule val tmp = TemporaryFolder()
 
     private lateinit var context: Context
 
@@ -74,35 +76,35 @@ class DataStoreDelegateTest {
     }
 
     @Test
-    fun testBasic() = runBlocking<Unit> {
-        assertThat(context.globalDs.updateData { 1 }).isEqualTo(1)
-        context.globalDs.data.first()
-    }
+    fun testBasic() =
+        runBlocking<Unit> {
+            assertThat(context.globalDs.updateData { 1 }).isEqualTo(1)
+            context.globalDs.data.first()
+        }
 
     @Test
     @SdkSuppress(minSdkVersion = 24)
-    fun testBasicWithDifferentContext() = runBlocking<Unit> {
-        context.createDeviceProtectedStorageContext().globalDs.updateData { 123 }
-        assertThat(context.globalDs.data.first()).isEqualTo(123)
-    }
-
-    @Test
-    fun testCorruptedDs_runsCorruptionHandler() = runBlocking<Unit> {
-        // File needs to exist or we don't actually hit the serializer:
-        context.dataStoreFile("file2").let { file ->
-            file.parentFile!!.mkdirs()
-            FileOutputStream(file).use {
-                it.write(0)
-            }
+    fun testBasicWithDifferentContext() =
+        runBlocking<Unit> {
+            context.createDeviceProtectedStorageContext().globalDs.updateData { 123 }
+            assertThat(context.globalDs.data.first()).isEqualTo(123)
         }
 
-        assertThat(context.corruptedDs.data.first()).isEqualTo(123)
-    }
+    @Test
+    fun testCorruptedDs_runsCorruptionHandler() =
+        runBlocking<Unit> {
+            // File needs to exist or we don't actually hit the serializer:
+            context.dataStoreFile("file2").let { file ->
+                file.parentFile!!.mkdirs()
+                FileOutputStream(file).use { it.write(0) }
+            }
+
+            assertThat(context.corruptedDs.data.first()).isEqualTo(123)
+        }
 
     @Test
-    fun testDsWithMigrationRunsMigration() = runBlocking<Unit> {
-        assertThat(context.dsWithMigrationTo123.data.first()).isEqualTo(123)
-    }
+    fun testDsWithMigrationRunsMigration() =
+        runBlocking<Unit> { assertThat(context.dsWithMigrationTo123.data.first()).isEqualTo(123) }
 
     @Test
     fun testCreateWithContextAndName() {
@@ -124,22 +126,13 @@ class DataStoreDelegateTest {
         val helper1 = GlobalDataStoreTestHelper("file_name2", backgroundScope)
         val helper2 = GlobalDataStoreTestHelper("file_name2", backgroundScope)
 
-        with(helper1) {
-            context.ds.data.first()
-        }
+        with(helper1) { context.ds.data.first() }
 
-        with(helper2) {
-            assertThrows<IllegalStateException> {
-                context.ds.data.first()
-            }
-        }
+        with(helper2) { assertThrows<IllegalStateException> { context.ds.data.first() } }
     }
 
     internal class GlobalDataStoreTestHelper(fileName: String, scope: CoroutineScope) {
-        val Context.ds by dataStore(
-            fileName = fileName,
-            serializer = TestingSerializer(),
-            scope = scope
-        )
+        val Context.ds by
+            dataStore(fileName = fileName, serializer = TestingSerializer(), scope = scope)
     }
 }

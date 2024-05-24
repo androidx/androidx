@@ -40,26 +40,25 @@ import org.junit.rules.TemporaryFolder
 
 private const val sharedPrefsName = "shared_prefs_name"
 
-private val Context.dsWithSpMigration by dataStore(
-    "ds_with_sp_migration",
-    serializer = TestingSerializer(),
-    produceMigrations = { applicationContext ->
-        listOf(
-            SharedPreferencesMigration(
-                applicationContext,
-                sharedPrefsName
-            ) { sharedPreferencesView: SharedPreferencesView, t: Byte ->
-                t.plus(sharedPreferencesView.getInt("integer_key", -1)).toByte()
-            }
-        )
-    }
-)
+private val Context.dsWithSpMigration by
+    dataStore(
+        "ds_with_sp_migration",
+        serializer = TestingSerializer(),
+        produceMigrations = { applicationContext ->
+            listOf(
+                SharedPreferencesMigration(applicationContext, sharedPrefsName) {
+                    sharedPreferencesView: SharedPreferencesView,
+                    t: Byte ->
+                    t.plus(sharedPreferencesView.getInt("integer_key", -1)).toByte()
+                }
+            )
+        }
+    )
 
 @MediumTest
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class SharedPreferencesMigrationTest {
-    @get:Rule
-    val temporaryFolder = TemporaryFolder()
+    @get:Rule val temporaryFolder = TemporaryFolder()
 
     private lateinit var context: Context
     private lateinit var sharedPrefs: SharedPreferences
@@ -76,13 +75,14 @@ class SharedPreferencesMigrationTest {
 
     @Test
     fun testShouldMigrateSkipsMigration() = runTest {
-        val sharedPrefsMigration = SharedPreferencesMigration<Byte>(
-            context = context,
-            sharedPreferencesName = sharedPrefsName,
-            shouldRunMigration = { false }
-        ) { _: SharedPreferencesView, _: Byte ->
-            throw IllegalStateException("Migration should've been skipped.")
-        }
+        val sharedPrefsMigration =
+            SharedPreferencesMigration<Byte>(
+                context = context,
+                sharedPreferencesName = sharedPrefsName,
+                shouldRunMigration = { false }
+            ) { _: SharedPreferencesView, _: Byte ->
+                throw IllegalStateException("Migration should've been skipped.")
+            }
 
         val dataStore = getDataStoreWithMigrations(listOf(sharedPrefsMigration))
 
@@ -97,22 +97,26 @@ class SharedPreferencesMigrationTest {
         val notMigratedKey = "key2"
 
         assertThat(
-            sharedPrefs.edit()
-                .putInt(includedKey, includedVal)
-                .putInt(notMigratedKey, 123).commit()
-        ).isTrue()
+                sharedPrefs
+                    .edit()
+                    .putInt(includedKey, includedVal)
+                    .putInt(notMigratedKey, 123)
+                    .commit()
+            )
+            .isTrue()
 
-        val sharedPrefsMigration = SharedPreferencesMigration(
-            context = context,
-            sharedPreferencesName = sharedPrefsName,
-            keysToMigrate = setOf(includedKey)
-        ) { prefs: SharedPreferencesView, _: Byte ->
-            assertThat(prefs.getInt(includedKey, -1)).isEqualTo(includedVal)
-            assertThrows<IllegalStateException> { prefs.getInt(notMigratedKey, -1) }
-            assertThat(prefs.getAll()).isEqualTo(mapOf(includedKey to includedVal))
+        val sharedPrefsMigration =
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = sharedPrefsName,
+                keysToMigrate = setOf(includedKey)
+            ) { prefs: SharedPreferencesView, _: Byte ->
+                assertThat(prefs.getInt(includedKey, -1)).isEqualTo(includedVal)
+                assertThrows<IllegalStateException> { prefs.getInt(notMigratedKey, -1) }
+                assertThat(prefs.getAll()).isEqualTo(mapOf(includedKey to includedVal))
 
-            99.toByte()
-        }
+                99.toByte()
+            }
 
         val dataStore = getDataStoreWithMigrations(listOf(sharedPrefsMigration))
 
@@ -128,24 +132,20 @@ class SharedPreferencesMigrationTest {
         val key2 = "key2"
         val val2 = 2
 
-        assertThat(
-            sharedPrefs.edit()
-                .putInt(key1, val1)
-                .putInt(key2, val2)
-                .commit()
-        ).isTrue()
+        assertThat(sharedPrefs.edit().putInt(key1, val1).putInt(key2, val2).commit()).isTrue()
 
-        val sharedPrefsMigration = SharedPreferencesMigration(
-            context = context,
-            sharedPreferencesName = sharedPrefsName
-        ) { prefs: SharedPreferencesView, _: Byte ->
-            assertThat(prefs.getInt(key1, -1)).isEqualTo(val1)
-            assertThat(prefs.getInt(key2, -1)).isEqualTo(val2)
+        val sharedPrefsMigration =
+            SharedPreferencesMigration(
+                context = context,
+                sharedPreferencesName = sharedPrefsName
+            ) { prefs: SharedPreferencesView, _: Byte ->
+                assertThat(prefs.getInt(key1, -1)).isEqualTo(val1)
+                assertThat(prefs.getInt(key2, -1)).isEqualTo(val2)
 
-            assertThat(prefs.getAll()).isEqualTo(mapOf(key1 to val1, key2 to val2))
+                assertThat(prefs.getAll()).isEqualTo(mapOf(key1 to val1, key2 to val2))
 
-            99.toByte()
-        }
+                99.toByte()
+            }
 
         val dataStore = getDataStoreWithMigrations(listOf(sharedPrefsMigration))
 
@@ -155,51 +155,53 @@ class SharedPreferencesMigrationTest {
     }
 
     @Test
-    fun testSharedPrefsViewWithAllKeysSpecified_doesntThrowErrorWhenKeyDoesntExist() =
-        runTest {
-            assertThat(sharedPrefs.edit().putInt("unrelated_key", -123).commit()).isTrue()
+    fun testSharedPrefsViewWithAllKeysSpecified_doesntThrowErrorWhenKeyDoesntExist() = runTest {
+        assertThat(sharedPrefs.edit().putInt("unrelated_key", -123).commit()).isTrue()
 
-            val migration = SharedPreferencesMigration(
+        val migration =
+            SharedPreferencesMigration(
                 produceSharedPreferences = { sharedPrefs },
             ) { prefs: SharedPreferencesView, _: Byte ->
                 prefs.getInt("this_key_doesnt_exist_yet", 123).toByte()
             }
-
-            val dataStore = getDataStoreWithMigrations(listOf(migration))
-            assertThat(dataStore.data.first()).isEqualTo(123)
-        }
-
-    @Test
-    fun producedSharedPreferencesIsUsed() = runTest {
-        assertThat(sharedPrefs.edit().putInt("integer_key", 123).commit()).isTrue()
-
-        val migration = SharedPreferencesMigration(
-            produceSharedPreferences = { sharedPrefs }
-        ) { prefs: SharedPreferencesView, _: Byte ->
-            assertThat(prefs.getAll().size).isEqualTo(1)
-            assertThat(prefs.getInt("integer_key", 0)).isEqualTo(123)
-            123
-        }
 
         val dataStore = getDataStoreWithMigrations(listOf(migration))
         assertThat(dataStore.data.first()).isEqualTo(123)
     }
 
     @Test
-    fun testWithTopLevelDataStoreDelegate() = runBlocking<Unit> {
-        File(context.filesDir, "/datastore").deleteRecursively()
+    fun producedSharedPreferencesIsUsed() = runTest {
         assertThat(sharedPrefs.edit().putInt("integer_key", 123).commit()).isTrue()
 
-        assertThat(context.dsWithSpMigration.data.first()).isEqualTo(123)
+        val migration =
+            SharedPreferencesMigration(produceSharedPreferences = { sharedPrefs }) {
+                prefs: SharedPreferencesView,
+                _: Byte ->
+                assertThat(prefs.getAll().size).isEqualTo(1)
+                assertThat(prefs.getInt("integer_key", 0)).isEqualTo(123)
+                123
+            }
+
+        val dataStore = getDataStoreWithMigrations(listOf(migration))
+        assertThat(dataStore.data.first()).isEqualTo(123)
     }
 
-    private fun getDataStoreWithMigrations(
-        migrations: List<DataMigration<Byte>>
-    ): DataStore<Byte> {
+    @Test
+    fun testWithTopLevelDataStoreDelegate() =
+        runBlocking<Unit> {
+            File(context.filesDir, "/datastore").deleteRecursively()
+            assertThat(sharedPrefs.edit().putInt("integer_key", 123).commit()).isTrue()
+
+            assertThat(context.dsWithSpMigration.data.first()).isEqualTo(123)
+        }
+
+    private fun getDataStoreWithMigrations(migrations: List<DataMigration<Byte>>): DataStore<Byte> {
         return DataStoreFactory.create(
             serializer = TestingSerializer(),
             migrations = migrations,
             scope = TestScope(UnconfinedTestDispatcher())
-        ) { datastoreFile }
+        ) {
+            datastoreFile
+        }
     }
 }

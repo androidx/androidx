@@ -18,7 +18,7 @@ package androidx.datastore.core
 
 /**
  * Storage provides a way to create StorageConnections that allow read and write a particular type
- * <T> of data.  Storage is used to construct DataStore objects, and encapsulates all the specifics
+ * <T> of data. Storage is used to construct DataStore objects, and encapsulates all the specifics
  * of the data format and persistence.
  *
  * Implementers provide the specifics of how and where the data is stored.

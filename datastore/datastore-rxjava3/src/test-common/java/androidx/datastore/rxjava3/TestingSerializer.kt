@@ -29,10 +29,7 @@ class TestingSerializer(
 ) : Serializer<Byte> {
     override suspend fun readFrom(input: InputStream): Byte {
         if (failReadWithCorruptionException) {
-            throw CorruptionException(
-                "CorruptionException",
-                IOException()
-            )
+            throw CorruptionException("CorruptionException", IOException())
         }
 
         if (failingRead) {

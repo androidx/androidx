@@ -32,20 +32,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.rx3.asCoroutineDispatcher
 import kotlinx.coroutines.rx3.await
 
-/**
- * Builder class for an RxDataStore that works on a single process.
- */
+/** Builder class for an RxDataStore that works on a single process. */
 @SuppressLint("TopLevelBuilder")
 public class RxDataStoreBuilder<T : Any> {
 
     /**
      * Create a RxDataStoreBuilder with the callable which returns the File that DataStore acts on.
-     * The user is responsible for ensuring that there is never more than one DataStore acting on
-     * a file at a time.
+     * The user is responsible for ensuring that there is never more than one DataStore acting on a
+     * file at a time.
      *
      * @param produceFile Function which returns the file that the new DataStore will act on. The
-     * function must return the same path every time. No two instances of DataStore should act on
-     * the same file at the same time.
+     *   function must return the same path every time. No two instances of DataStore should act on
+     *   the same file at the same time.
      * @param serializer the serializer for the type that this DataStore acts on.
      */
     public constructor(produceFile: Callable<File>, serializer: Serializer<T>) {
@@ -61,8 +59,8 @@ public class RxDataStoreBuilder<T : Any> {
      *
      * @param context the context from which we retrieve files directory.
      * @param fileName the filename relative to Context.applicationContext.filesDir that DataStore
-     * acts on. The File is obtained from [dataStoreFile]. It is created in the "/datastore"
-     * subdirectory.
+     *   acts on. The File is obtained from [dataStoreFile]. It is created in the "/datastore"
+     *   subdirectory.
      * @param serializer the serializer for the type that this DataStore acts on.
      */
     public constructor(context: Context, fileName: String, serializer: Serializer<T>) {
@@ -87,8 +85,8 @@ public class RxDataStoreBuilder<T : Any> {
     private val dataMigrations: MutableList<DataMigration<T>> = mutableListOf()
 
     /**
-     * Set the Scheduler on which to perform IO and transform operations. This is converted into
-     * a CoroutineDispatcher before being added to DataStore.
+     * Set the Scheduler on which to perform IO and transform operations. This is converted into a
+     * CoroutineDispatcher before being added to DataStore.
      *
      * This parameter is optional and defaults to Schedulers.io().
      *
@@ -96,8 +94,9 @@ public class RxDataStoreBuilder<T : Any> {
      * @return this
      */
     @Suppress("MissingGetterMatchingBuilder")
-    public fun setIoScheduler(ioScheduler: Scheduler): RxDataStoreBuilder<T> =
-        apply { this.ioScheduler = ioScheduler }
+    public fun setIoScheduler(ioScheduler: Scheduler): RxDataStoreBuilder<T> = apply {
+        this.ioScheduler = ioScheduler
+    }
 
     /**
      * Sets the corruption handler to install into the DataStore.
@@ -108,8 +107,9 @@ public class RxDataStoreBuilder<T : Any> {
      * @return this
      */
     @Suppress("MissingGetterMatchingBuilder")
-    public fun setCorruptionHandler(corruptionHandler: ReplaceFileCorruptionHandler<T>):
-        RxDataStoreBuilder<T> = apply { this.corruptionHandler = corruptionHandler }
+    public fun setCorruptionHandler(
+        corruptionHandler: ReplaceFileCorruptionHandler<T>
+    ): RxDataStoreBuilder<T> = apply { this.corruptionHandler = corruptionHandler }
 
     /**
      * Add an RxDataMigration to the DataStore. Migrations are run in the order they are added.
@@ -142,25 +142,28 @@ public class RxDataStoreBuilder<T : Any> {
     public fun build(): RxDataStore<T> {
         val scope = CoroutineScope(ioScheduler.asCoroutineDispatcher() + Job())
 
-        val delegateDs = if (produceFile != null) {
-            DataStoreFactory.create(
-                produceFile = { produceFile!!.call() },
-                serializer = serializer!!,
-                scope = scope,
-                corruptionHandler = corruptionHandler,
-                migrations = dataMigrations
-            )
-        } else if (context != null && name != null) {
-            DataStoreFactory.create(
-                produceFile = { context!!.dataStoreFile(name!!) },
-                serializer = serializer!!,
-                scope = scope,
-                corruptionHandler = corruptionHandler,
-                migrations = dataMigrations
-            )
-        } else {
-            error("Either produceFile or context and name must be set. This should never happen.")
-        }
+        val delegateDs =
+            if (produceFile != null) {
+                DataStoreFactory.create(
+                    produceFile = { produceFile!!.call() },
+                    serializer = serializer!!,
+                    scope = scope,
+                    corruptionHandler = corruptionHandler,
+                    migrations = dataMigrations
+                )
+            } else if (context != null && name != null) {
+                DataStoreFactory.create(
+                    produceFile = { context!!.dataStoreFile(name!!) },
+                    serializer = serializer!!,
+                    scope = scope,
+                    corruptionHandler = corruptionHandler,
+                    migrations = dataMigrations
+                )
+            } else {
+                error(
+                    "Either produceFile or context and name must be set. This should never happen."
+                )
+            }
 
         return RxDataStore.create(delegateDs, scope)
     }

@@ -17,12 +17,12 @@
 package androidx.datastore.core
 
 /**
- * The initializer API allows changes to be made to store before data is accessed through
- * data or updateData.
+ * The initializer API allows changes to be made to store before data is accessed through data or
+ * updateData.
  *
- * Initializers are executed in the order in which they are added. They must be idempotent
- * since they are run each time the DataStore starts, and they may be run multiple times by a
- * single instance if a downstream initializer fails.
+ * Initializers are executed in the order in which they are added. They must be idempotent since
+ * they are run each time the DataStore starts, and they may be run multiple times by a single
+ * instance if a downstream initializer fails.
  *
  * Note: Initializers are internal only. Instead, see [DataMigration].
  */

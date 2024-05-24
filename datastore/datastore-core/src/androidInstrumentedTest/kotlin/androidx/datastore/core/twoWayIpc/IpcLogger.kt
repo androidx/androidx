@@ -21,9 +21,8 @@ import android.os.Build
 import android.util.Log
 
 /**
- * Used for logging in multi process tests.
- * Multi process tests are really hard to debug, hence it is useful to have logs
- * around when needed.
+ * Used for logging in multi process tests. Multi process tests are really hard to debug, hence it
+ * is useful to have logs around when needed.
  */
 object IpcLogger {
     fun log(message: Any) {
@@ -40,6 +39,5 @@ object IpcLogger {
         }
     }
 
-    @Suppress("MayBeConstant")
-    val ENABLED = false
+    @Suppress("MayBeConstant") val ENABLED = false
 }

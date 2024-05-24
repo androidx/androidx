@@ -34,17 +34,13 @@ import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * A duplicated test of {@link androidx.datastore.core.DataStoreFactoryTest} with minor changes.
- */
+/** A duplicated test of {@link androidx.datastore.core.DataStoreFactoryTest} with minor changes. */
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class MultiProcessDataStoreFactoryTest {
-    @get:Rule
-    val timeout = Timeout(10, TimeUnit.SECONDS)
+    @get:Rule val timeout = Timeout(10, TimeUnit.SECONDS)
 
-    @get:Rule
-    val tmpFolder = TemporaryFolder()
+    @get:Rule val tmpFolder = TemporaryFolder()
 
     private lateinit var testFile: File
     private lateinit var dataStoreScope: TestScope
@@ -57,18 +53,17 @@ class MultiProcessDataStoreFactoryTest {
 
     @Test
     fun testNewInstance() = runTest {
-        val store = MultiProcessDataStoreFactory.create(
-            serializer = TestingSerializer(),
-            scope = dataStoreScope
-        ) { testFile }
+        val store =
+            MultiProcessDataStoreFactory.create(
+                serializer = TestingSerializer(),
+                scope = dataStoreScope
+            ) {
+                testFile
+            }
 
         val expectedByte = 123.toByte()
 
-        assertThat(
-            store.updateData {
-                expectedByte
-            }
-        ).isEqualTo(expectedByte)
+        assertThat(store.updateData { expectedByte }).isEqualTo(expectedByte)
         assertThat(store.data.first()).isEqualTo(expectedByte)
     }
 
@@ -76,15 +71,17 @@ class MultiProcessDataStoreFactoryTest {
     fun testCorruptionHandlerInstalled() = runTest {
         val valueToReplace = 123.toByte()
 
-        val store = MultiProcessDataStoreFactory.create(
-            serializer = TestingSerializer(
-                TestingSerializerConfig(failReadWithCorruptionException = true)
-            ),
-            corruptionHandler = ReplaceFileCorruptionHandler<Byte> {
-                valueToReplace
-            },
-            scope = dataStoreScope
-        ) { testFile }
+        val store =
+            MultiProcessDataStoreFactory.create(
+                serializer =
+                    TestingSerializer(
+                        TestingSerializerConfig(failReadWithCorruptionException = true)
+                    ),
+                corruptionHandler = ReplaceFileCorruptionHandler<Byte> { valueToReplace },
+                scope = dataStoreScope
+            ) {
+                testFile
+            }
 
         assertThat(store.data.first()).isEqualTo(valueToReplace)
     }
@@ -93,24 +90,31 @@ class MultiProcessDataStoreFactoryTest {
     fun testMigrationsInstalled() = runTest {
         val migratedByte = 1
 
-        val migratePlus2 = object : DataMigration<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = true
-            override suspend fun migrate(currentData: Byte) = currentData.inc().inc()
-            override suspend fun cleanUp() {}
-        }
-        val migrateMinus1 = object : DataMigration<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = true
+        val migratePlus2 =
+            object : DataMigration<Byte> {
+                override suspend fun shouldMigrate(currentData: Byte) = true
 
-            override suspend fun migrate(currentData: Byte) = currentData.dec()
+                override suspend fun migrate(currentData: Byte) = currentData.inc().inc()
 
-            override suspend fun cleanUp() {}
-        }
+                override suspend fun cleanUp() {}
+            }
+        val migrateMinus1 =
+            object : DataMigration<Byte> {
+                override suspend fun shouldMigrate(currentData: Byte) = true
 
-        val store = MultiProcessDataStoreFactory.create(
-            serializer = TestingSerializer(),
-            migrations = listOf(migratePlus2, migrateMinus1),
-            scope = dataStoreScope
-        ) { testFile }
+                override suspend fun migrate(currentData: Byte) = currentData.dec()
+
+                override suspend fun cleanUp() {}
+            }
+
+        val store =
+            MultiProcessDataStoreFactory.create(
+                serializer = TestingSerializer(),
+                migrations = listOf(migratePlus2, migrateMinus1),
+                scope = dataStoreScope
+            ) {
+                testFile
+            }
 
         assertThat(store.data.first()).isEqualTo(migratedByte)
     }

@@ -50,13 +50,13 @@ import org.junit.runners.Parameterized.Parameters
 internal class MultipleDataStoresInMultipleProcessesTest(
     private val storageVariant: StorageVariant,
     /**
-     * if set to true, we'll run remote subjects in 2 different processes.
-     * if set to false, we'll run them on the same remote process.
+     * if set to true, we'll run remote subjects in 2 different processes. if set to false, we'll
+     * run them on the same remote process.
      */
     private val useMultipleRemoteProcesses: Boolean,
     /**
-     * If true, both datastores will be created in the same folder.
-     * If false, their parent folders will be different.
+     * If true, both datastores will be created in the same folder. If false, their parent folders
+     * will be different.
      */
     private val useTheSameParentFolder: Boolean,
 ) {
@@ -76,118 +76,108 @@ internal class MultipleDataStoresInMultipleProcessesTest(
         }
     }
 
-    @get:Rule
-    val multiProcessRule = MultiProcessTestRule()
+    @get:Rule val multiProcessRule = MultiProcessTestRule()
 
-    @get:Rule
-    val tmpFolder = TemporaryFolder()
+    @get:Rule val tmpFolder = TemporaryFolder()
 
     @Test
-    fun test() = multiProcessRule.runTest {
-        // create subjects in 2 different processes.
-        // our main process serves as the subject that has the case of observing 2 different files
-        // in the same folder.
-        val (subject1, subject2) = if (useMultipleRemoteProcesses) {
-            // create a process per remote subject
-            multiProcessRule.createConnection().createSubject(this) to
-                multiProcessRule.createConnection().createSubject(this)
-        } else {
-            // reuse the same remote process for both remote subjects
-            val connection = multiProcessRule.createConnection()
-            connection.createSubject(this) to connection.createSubject(this)
-        }
-        val (file1, file2) = if (useTheSameParentFolder) {
-            val parent = tmpFolder.newFolder()
-            parent.resolve("ds1.pb") to parent.resolve("ds2.pb")
-        } else {
-            val parent1 = tmpFolder.newFolder()
-            val parent2 = tmpFolder.newFolder()
-            parent1.resolve("ds1.pb") to parent2.resolve("ds2.pb")
-        }
+    fun test() =
+        multiProcessRule.runTest {
+            // create subjects in 2 different processes.
+            // our main process serves as the subject that has the case of observing 2 different
+            // files
+            // in the same folder.
+            val (subject1, subject2) =
+                if (useMultipleRemoteProcesses) {
+                    // create a process per remote subject
+                    multiProcessRule.createConnection().createSubject(this) to
+                        multiProcessRule.createConnection().createSubject(this)
+                } else {
+                    // reuse the same remote process for both remote subjects
+                    val connection = multiProcessRule.createConnection()
+                    connection.createSubject(this) to connection.createSubject(this)
+                }
+            val (file1, file2) =
+                if (useTheSameParentFolder) {
+                    val parent = tmpFolder.newFolder()
+                    parent.resolve("ds1.pb") to parent.resolve("ds2.pb")
+                } else {
+                    val parent1 = tmpFolder.newFolder()
+                    val parent2 = tmpFolder.newFolder()
+                    parent1.resolve("ds1.pb") to parent2.resolve("ds2.pb")
+                }
 
-        val datastore1 = createMultiProcessTestDatastore(
-            filePath = file1.canonicalPath,
-            storageVariant = storageVariant,
-            hostDatastoreScope = multiProcessRule.datastoreScope,
-            subjects = arrayOf(subject1)
-        )
-        val datastore2 = createMultiProcessTestDatastore(
-            filePath = file2.canonicalPath,
-            storageVariant = storageVariant,
-            hostDatastoreScope = multiProcessRule.datastoreScope,
-            subjects = arrayOf(subject2)
-        )
-        val ds1Value = datastore1.data.stateIn(multiProcessRule.datastoreScope)
-        val ds2Value = datastore2.data.stateIn(multiProcessRule.datastoreScope)
-        ds1Value.awaitValue("")
-        ds2Value.awaitValue("")
-        // simple assertions of host process reading the value after an after in the remote process
-        subject1.invokeInRemoteProcess(SetTextAction("ds1-version-1"))
-        subject2.invokeInRemoteProcess(SetTextAction("ds2-version-1"))
-        ds1Value.awaitValue("ds1-version-1")
-        ds2Value.awaitValue("ds2-version-1")
+            val datastore1 =
+                createMultiProcessTestDatastore(
+                    filePath = file1.canonicalPath,
+                    storageVariant = storageVariant,
+                    hostDatastoreScope = multiProcessRule.datastoreScope,
+                    subjects = arrayOf(subject1)
+                )
+            val datastore2 =
+                createMultiProcessTestDatastore(
+                    filePath = file2.canonicalPath,
+                    storageVariant = storageVariant,
+                    hostDatastoreScope = multiProcessRule.datastoreScope,
+                    subjects = arrayOf(subject2)
+                )
+            val ds1Value = datastore1.data.stateIn(multiProcessRule.datastoreScope)
+            val ds2Value = datastore2.data.stateIn(multiProcessRule.datastoreScope)
+            ds1Value.awaitValue("")
+            ds2Value.awaitValue("")
+            // simple assertions of host process reading the value after an after in the remote
+            // process
+            subject1.invokeInRemoteProcess(SetTextAction("ds1-version-1"))
+            subject2.invokeInRemoteProcess(SetTextAction("ds2-version-1"))
+            ds1Value.awaitValue("ds1-version-1")
+            ds2Value.awaitValue("ds2-version-1")
 
-        // create an observer in subject1
-        val subject1Observer = ObserveFileAction()
-        subject1.invokeInRemoteProcess(subject1Observer)
-        subject1.assertRemoteObservedValue("ds1-version-1")
+            // create an observer in subject1
+            val subject1Observer = ObserveFileAction()
+            subject1.invokeInRemoteProcess(subject1Observer)
+            subject1.assertRemoteObservedValue("ds1-version-1")
 
-        // create an observer in subject2
-        val subject2Observer = ObserveFileAction()
-        subject2.invokeInRemoteProcess(subject2Observer)
-        subject2.assertRemoteObservedValue("ds2-version-1")
+            // create an observer in subject2
+            val subject2Observer = ObserveFileAction()
+            subject2.invokeInRemoteProcess(subject2Observer)
+            subject2.assertRemoteObservedValue("ds2-version-1")
 
-        // while the observers are active in the subjects, update the value in main process and
-        // ensure they get the new value
-        datastore1.updateData {
-            it.toBuilder().setText("ds1-version-2").build()
+            // while the observers are active in the subjects, update the value in main process and
+            // ensure they get the new value
+            datastore1.updateData { it.toBuilder().setText("ds1-version-2").build() }
+            datastore2.updateData { it.toBuilder().setText("ds2-version-2").build() }
+            // everyone gets the value
+            ds1Value.awaitValue("ds1-version-2")
+            subject1.assertRemoteObservedValue("ds1-version-2")
+            ds2Value.awaitValue("ds2-version-2")
+            subject2.assertRemoteObservedValue("ds2-version-2")
+
+            // stop subject 1, it should not get the update
+            subject1Observer.stopObserving.complete(subject1, IpcUnit)
+            subject1Observer.stoppedObserving.await(subject1)
+            subject1.invokeInRemoteProcess(SetTextAction(value = "ds1-version-3"))
+            ds1Value.awaitValue("ds1-version-3")
+            // observation is stopped so the observed value should stay the same
+            assertThat(subject1.invokeInRemoteProcess(ReadRemoteObservedValue()).value)
+                .isEqualTo("ds1-version-2")
+            // a new observer in subject1 process would see the new value
+            assertThat(subject1.invokeInRemoteProcess(ReadTextAction()).value)
+                .isEqualTo("ds1-version-3")
+            // make sure the observer for the other process is still working well even after we
+            // stopped
+            // the observer in process 1
+            subject2.invokeInRemoteProcess(SetTextAction("ds2-version-3"))
+            ds2Value.awaitValue("ds2-version-3")
+            subject2.assertRemoteObservedValue("ds2-version-3")
+            datastore2.updateData { it.toBuilder().setText("ds2-version-4").build() }
+            subject2.assertRemoteObservedValue("ds2-version-4")
         }
-        datastore2.updateData {
-            it.toBuilder().setText("ds2-version-2").build()
-        }
-        // everyone gets the value
-        ds1Value.awaitValue("ds1-version-2")
-        subject1.assertRemoteObservedValue("ds1-version-2")
-        ds2Value.awaitValue("ds2-version-2")
-        subject2.assertRemoteObservedValue("ds2-version-2")
-
-        // stop subject 1, it should not get the update
-        subject1Observer.stopObserving.complete(subject1, IpcUnit)
-        subject1Observer.stoppedObserving.await(subject1)
-        subject1.invokeInRemoteProcess(
-            SetTextAction(value = "ds1-version-3")
-        )
-        ds1Value.awaitValue("ds1-version-3")
-        // observation is stopped so the observed value should stay the same
-        assertThat(
-            subject1.invokeInRemoteProcess(ReadRemoteObservedValue()).value
-        ).isEqualTo("ds1-version-2")
-        // a new observer in subject1 process would see the new value
-        assertThat(
-            subject1.invokeInRemoteProcess(ReadTextAction()).value
-        ).isEqualTo("ds1-version-3")
-        // make sure the observer for the other process is still working well even after we stopped
-        // the observer in process 1
-        subject2.invokeInRemoteProcess(
-            SetTextAction("ds2-version-3")
-        )
-        ds2Value.awaitValue("ds2-version-3")
-        subject2.assertRemoteObservedValue("ds2-version-3")
-        datastore2.updateData {
-            it.toBuilder().setText("ds2-version-4").build()
-        }
-        subject2.assertRemoteObservedValue("ds2-version-4")
-    }
 }
 
-/**
- * key used in test to keep a StateFlow of the datastore value
- */
+/** key used in test to keep a StateFlow of the datastore value */
 private val REMOTE_OBSERVER_KEY = CompositeServiceSubjectModel.Key<StateFlow<FooProto>>()
 
-/**
- * The StateFlow value for test that is created by the [ObserveFileAction].
- */
+/** The StateFlow value for test that is created by the [ObserveFileAction]. */
 private var TwoWayIpcSubject.remoteProcessStateFlow by SubjectReadWriteProperty(REMOTE_OBSERVER_KEY)
 
 /**
@@ -200,38 +190,33 @@ private var TwoWayIpcSubject.remoteProcessStateFlow by SubjectReadWriteProperty(
  */
 @Parcelize
 internal class ObserveFileAction(
-    /**
-     * When completed, we'll stop the StateFlow
-     */
+    /** When completed, we'll stop the StateFlow */
     val stopObserving: InterProcessCompletable<IpcUnit> = InterProcessCompletable(),
-    /**
-     * We'll complete this action when the StateFlow is stopped.
-     */
+    /** We'll complete this action when the StateFlow is stopped. */
     val stoppedObserving: InterProcessCompletable<IpcUnit> = InterProcessCompletable(),
 ) : IpcAction<IpcUnit>() {
     override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): IpcUnit {
-        subject.remoteProcessStateFlow = subject.datastore.data.stateIn(
-            subject.datastoreScope,
-            started = {
-                flow {
-                    // immediately start observing
-                    emit(SharingCommand.START)
-                    // wait until stop observing is called
-                    stopObserving.await(subject)
-                    // stop observing
-                    emit(SharingCommand.STOP)
-                    stoppedObserving.complete(subject, IpcUnit)
-                }
-            },
-            initialValue = FooProto.getDefaultInstance()
-        )
+        subject.remoteProcessStateFlow =
+            subject.datastore.data.stateIn(
+                subject.datastoreScope,
+                started = {
+                    flow {
+                        // immediately start observing
+                        emit(SharingCommand.START)
+                        // wait until stop observing is called
+                        stopObserving.await(subject)
+                        // stop observing
+                        emit(SharingCommand.STOP)
+                        stoppedObserving.complete(subject, IpcUnit)
+                    }
+                },
+                initialValue = FooProto.getDefaultInstance()
+            )
         return IpcUnit
     }
 }
 
-/**
- * Asserts the value of the [remoteProcessStateFlow] by waiting it to dispatch [expectedValue].
- */
+/** Asserts the value of the [remoteProcessStateFlow] by waiting it to dispatch [expectedValue]. */
 @Parcelize
 internal class AssertRemoteObservedValue(
     private val expectedValue: String,
@@ -242,17 +227,13 @@ internal class AssertRemoteObservedValue(
     }
 }
 
-/**
- * Reads the current value of [remoteProcessStateFlow].
- */
+/** Reads the current value of [remoteProcessStateFlow]. */
 @Parcelize
 internal class ReadRemoteObservedValue : IpcAction<ReadTextAction.TextValue>() {
     override suspend fun invokeInRemoteProcess(
         subject: TwoWayIpcSubject
     ): ReadTextAction.TextValue {
-        return ReadTextAction.TextValue(
-            subject.remoteProcessStateFlow.value.text
-        )
+        return ReadTextAction.TextValue(subject.remoteProcessStateFlow.value.text)
     }
 }
 
@@ -261,22 +242,17 @@ internal class ReadRemoteObservedValue : IpcAction<ReadTextAction.TextValue>() {
  *
  * @see assertRemoteObservedValue
  */
-private suspend fun StateFlow<FooProto>.awaitValue(
-    value: String
-) {
+private suspend fun StateFlow<FooProto>.awaitValue(value: String) {
     try {
         // 5 seconds is what we use for IPC action timeouts, hence we pick a lower number
         // here to get this timeout before the IPC
-        withTimeout(4.seconds) {
-            this@awaitValue.takeWhile {
-                it.text != value
-            }.collect()
-        }
+        withTimeout(4.seconds) { this@awaitValue.takeWhile { it.text != value }.collect() }
     } catch (timeout: TimeoutCancellationException) {
         throw AssertionError(
             """
                 expected "$value" didn't arrive, current value: "${this@awaitValue.value.text}"
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 }
@@ -286,12 +262,6 @@ private suspend fun StateFlow<FooProto>.awaitValue(
  *
  * @see awaitValue
  */
-private suspend fun TwoWayIpcSubject.assertRemoteObservedValue(
-    expectedValue: String
-) {
-    invokeInRemoteProcess(
-        AssertRemoteObservedValue(
-            expectedValue = expectedValue
-        )
-    )
+private suspend fun TwoWayIpcSubject.assertRemoteObservedValue(expectedValue: String) {
+    invokeInRemoteProcess(AssertRemoteObservedValue(expectedValue = expectedValue))
 }
