@@ -51,6 +51,9 @@ import androidx.credentials.R
  *   default credential type icon when you are the only available provider; see individual
  *   subclasses for these default icons (e.g. for [PublicKeyCredentialEntry], it is based on
  *   [R.drawable.ic_password])
+ * @property biometricPromptData the data that is set optionally to utilize a credential manager
+ *   flow that directly handles the biometric verification and presents back the response; set to
+ *   null by default, so if not opted in, the embedded biometric prompt flow will not show
  */
 abstract class CredentialEntry
 internal constructor(
@@ -59,7 +62,7 @@ internal constructor(
     val entryGroupId: CharSequence,
     val isDefaultIconPreferredAsSingleProvider: Boolean,
     val affiliatedDomain: CharSequence? = null,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val biometricPromptData: BiometricPromptData? = null,
+    val biometricPromptData: BiometricPromptData? = null,
 ) {
 
     @RequiresApi(34)
