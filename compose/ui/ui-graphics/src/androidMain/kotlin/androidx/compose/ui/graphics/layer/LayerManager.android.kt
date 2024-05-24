@@ -115,6 +115,8 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
         imageReader = null
     }
 
+    fun hasImageReader(): Boolean = imageReader != null
+
     /**
      * Discards the corresponding ImageReader used to increment the ref count of each layer
      * and persists the current layer list creating a new ImageReader. This is useful in scenarios

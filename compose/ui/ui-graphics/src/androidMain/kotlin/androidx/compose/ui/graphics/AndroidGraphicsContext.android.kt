@@ -103,9 +103,12 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
                 // When the View is detached from the window, remove the component callbacks
                 // used to listen to trim memory signals
                 unregisterComponentCallback(v.context)
+                layerManager.destroy()
             }
         })
     }
+
+    fun isLayerManagerInitialized(): Boolean = layerManager.hasImageReader()
 
     private fun registerComponentCallback(context: Context) {
         if (!componentCallbackRegistered) {
@@ -188,3 +191,6 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
         fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
     }
 }
+
+internal fun GraphicsContext.isLayerManagerInitialized(): Boolean =
+    (this as AndroidGraphicsContext).isLayerManagerInitialized()
