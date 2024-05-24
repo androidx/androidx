@@ -154,6 +154,7 @@ class TimePickerTest {
 
     @Test
     fun timePicker_selectHour() {
+        rule.mainClock.autoAdvance = false
         val state = TimePickerState(initialHour = 14, initialMinute = 23, is24Hour = false)
         rule.setMaterialContent(lightColorScheme()) {
             TimePicker(state)
@@ -162,6 +163,7 @@ class TimePickerTest {
         rule.onNodeWithTimeValue(number = 6, selection = TimePickerSelectionMode.Hour)
             .performClick()
 
+        rule.mainClock.advanceTimeBy(1000)
         // shows 06 in display
         rule.onNodeWithText("06").assertExists()
 
