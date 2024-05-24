@@ -42,19 +42,20 @@ public object SuspendToFutureAdapter {
     // To make SuspendToFutureAdapter behave as much like a "regular" ListenableFuture-returning
     // task as possible we don't want to hold additional references to child jobs from a global/root
     // scope, hence no SupervisorJob either.
-    private val GlobalListenableFutureScope = object : CoroutineScope {
-        override val coroutineContext: CoroutineContext = Dispatchers.Main
-    }
+    private val GlobalListenableFutureScope =
+        object : CoroutineScope {
+            override val coroutineContext: CoroutineContext = Dispatchers.Main
+        }
     private val GlobalListenableFutureAwaitContext = Dispatchers.Unconfined
 
     /**
      * Launch [block] in [context], returning a [ListenableFuture] to manage the launched operation.
      * [block] will run **synchronously** to its first suspend point, behaving as
-     * [CoroutineStart.UNDISPATCHED] by default; set [launchUndispatched] to false to override
-     * and behave as [CoroutineStart.DEFAULT].
+     * [CoroutineStart.UNDISPATCHED] by default; set [launchUndispatched] to false to override and
+     * behave as [CoroutineStart.DEFAULT].
      *
-     * [launchFuture] can be used to write adapters for calling suspending functions from the
-     * Java programming language, e.g.
+     * [launchFuture] can be used to write adapters for calling suspending functions from the Java
+     * programming language, e.g.
      *
      * ```
      * @file:JvmName("FancyServices")
@@ -73,16 +74,16 @@ public object SuspendToFutureAdapter {
      *
      * If no [kotlinx.coroutines.CoroutineDispatcher] is provided in [context], [Dispatchers.Main]
      * is used as the default. [ListenableFuture.get] should not be called from the main thread
-     * prior to the future's completion (whether it was obtained from [SuspendToFutureAdapter]
-     * or not) as any operation performed in the process of completing the future may require
-     * main thread event processing in order to proceed, leading to potential main thread deadlock.
+     * prior to the future's completion (whether it was obtained from [SuspendToFutureAdapter] or
+     * not) as any operation performed in the process of completing the future may require main
+     * thread event processing in order to proceed, leading to potential main thread deadlock.
      *
      * If the operation performed by [block] is known to be safe for potentially reentrant
      * continuation resumption, immediate dispatchers such as [Dispatchers.Unconfined] may be used
-     * as part of [context] to avoid additional thread dispatch latency. This should not be used
-     * as a means of supporting clients blocking the main thread using [ListenableFuture.get];
-     * this support can be broken by valid internal implementation changes to any transitive
-     * dependencies of the operation performed by [block].
+     * as part of [context] to avoid additional thread dispatch latency. This should not be used as
+     * a means of supporting clients blocking the main thread using [ListenableFuture.get]; this
+     * support can be broken by valid internal implementation changes to any transitive dependencies
+     * of the operation performed by [block].
      */
     @Suppress("AsyncSuffixFuture")
     public fun <T> launchFuture(
@@ -90,11 +91,13 @@ public object SuspendToFutureAdapter {
         launchUndispatched: Boolean = true,
         block: suspend CoroutineScope.() -> T,
     ): ListenableFuture<T> {
-        val resultDeferred = GlobalListenableFutureScope.async(
-            context = context,
-            start = if (launchUndispatched) CoroutineStart.UNDISPATCHED else CoroutineStart.DEFAULT,
-            block = block
-        )
+        val resultDeferred =
+            GlobalListenableFutureScope.async(
+                context = context,
+                start =
+                    if (launchUndispatched) CoroutineStart.UNDISPATCHED else CoroutineStart.DEFAULT,
+                block = block
+            )
         return DeferredFuture(resultDeferred).also { future ->
             // Deferred.getCompleted is marked experimental, so external libraries can't rely on it.
             // Instead, use await in a raw coroutine that will invoke [resumeWith] when it returns
@@ -103,9 +106,8 @@ public object SuspendToFutureAdapter {
         }
     }
 
-    private class DeferredFuture<T>(
-        private val resultDeferred: Deferred<T>
-    ) : ListenableFuture<T>, Continuation<T> {
+    private class DeferredFuture<T>(private val resultDeferred: Deferred<T>) :
+        ListenableFuture<T>, Continuation<T> {
 
         private val delegateFuture = ResolvableFuture.create<T>()
 
@@ -134,14 +136,12 @@ public object SuspendToFutureAdapter {
             get() = GlobalListenableFutureAwaitContext
 
         /**
-         * Implementation of [Continuation] that will resume for the raw call to await
-         * to resolve the [delegateFuture]
+         * Implementation of [Continuation] that will resume for the raw call to await to resolve
+         * the [delegateFuture]
          */
         override fun resumeWith(result: Result<T>) {
             result.fold(
-                onSuccess = {
-                    delegateFuture.set(it)
-                },
+                onSuccess = { delegateFuture.set(it) },
                 onFailure = {
                     if (it is CancellationException) {
                         delegateFuture.cancel(false)
