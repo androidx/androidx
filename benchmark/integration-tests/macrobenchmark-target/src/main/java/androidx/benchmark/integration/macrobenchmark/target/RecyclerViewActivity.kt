@@ -33,9 +33,7 @@ class RecyclerViewActivity : AppCompatActivity() {
         recycler.adapter = adapter
     }
 
-    private fun entries(size: Int) = List(size) {
-        Entry("Item $it")
-    }
+    private fun entries(size: Int) = List(size) { Entry("Item $it") }
 
     companion object {
         const val EXTRA_ITEM_COUNT = "ITEM_COUNT"

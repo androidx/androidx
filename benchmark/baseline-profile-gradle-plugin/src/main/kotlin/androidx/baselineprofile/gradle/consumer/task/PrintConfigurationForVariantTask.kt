@@ -27,8 +27,8 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 /**
- * Only used for testing, this task does not have description or group so that it doesn't show up
- * in the task list. It prints internal properties to facilitate assertions in integration tests.
+ * Only used for testing, this task does not have description or group so that it doesn't show up in
+ * the task list. It prints internal properties to facilitate assertions in integration tests.
  */
 @DisableCachingByDefault(because = "Not worth caching. Used only for tests.")
 abstract class PrintConfigurationForVariantTask : DefaultTask() {
@@ -42,25 +42,26 @@ abstract class PrintConfigurationForVariantTask : DefaultTask() {
             variant: Variant,
             variantConfig: PerVariantConsumerExtensionManager.VariantConfigurationProxy
         ) {
-            project
-                .tasks
-                .maybeRegister<PrintConfigurationForVariantTask>(TASK_NAME_PREFIX, variant.name) {
-                    it.text.set(
-                        """
+            project.tasks.maybeRegister<PrintConfigurationForVariantTask>(
+                TASK_NAME_PREFIX,
+                variant.name
+            ) {
+                it.text.set(
+                    """
                     mergeIntoMain=`${variantConfig.mergeIntoMain}`
                     baselineProfileOutputDir=`${variantConfig.baselineProfileOutputDir}`
                     baselineProfileRulesRewrite=`${variantConfig.baselineProfileRulesRewrite}`
                     dexLayoutOptimization=`${variantConfig.dexLayoutOptimization}`
                     saveInSrc=`${variantConfig.saveInSrc}`
                     automaticGenerationDuringBuild=`${variantConfig.automaticGenerationDuringBuild}`
-                    """.trimIndent()
-                    )
-                }
+                    """
+                        .trimIndent()
+                )
+            }
         }
     }
 
-    @get: Input
-    abstract val text: Property<String>
+    @get:Input abstract val text: Property<String>
 
     @TaskAction
     fun exec() {

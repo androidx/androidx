@@ -28,17 +28,13 @@ private class Allocator {
 
         fun allocate(numberToAllocate: Int) {
             count = 0
-            repeat(numberToAllocate) {
-                Allocator()
-            }
+            repeat(numberToAllocate) { Allocator() }
             Assert.assertEquals(numberToAllocate, count)
         }
     }
 }
 
-/**
- * Allocates the specified number of objects, used for allocation tracker verification.
- */
+/** Allocates the specified number of objects, used for allocation tracker verification. */
 fun allocate(objectsToAllocate: Int) {
     Allocator.allocate(objectsToAllocate)
 }

@@ -18,9 +18,7 @@ package androidx.baselineprofile.gradle.utils
 
 import org.gradle.api.plugins.ExtensionContainer
 
-/**
- * Extensions to enable/disable each warnings separately.
- */
+/** Extensions to enable/disable each warnings separately. */
 abstract class WarningsExtension : Warnings() {
 
     companion object {
@@ -35,9 +33,7 @@ abstract class WarningsExtension : Warnings() {
 
 open class Warnings {
 
-    /**
-     * Controls all the warnings printed by the baseline profile gradle plugin.
-     */
+    /** Controls all the warnings printed by the baseline profile gradle plugin. */
     fun setAll(value: Boolean) {
         this.maxAgpVersion = value
         this.disabledVariants = value
@@ -47,37 +43,35 @@ open class Warnings {
     }
 
     /**
-     * Controls the warning for when the Android Gradle Plugin version is higher than the max
-     * tested one.
+     * Controls the warning for when the Android Gradle Plugin version is higher than the max tested
+     * one.
      */
     var maxAgpVersion = true
 
-    /**
-     * Controls the warning for when a benchmark or baseline profile variant has been disabled.
-     */
+    /** Controls the warning for when a benchmark or baseline profile variant has been disabled. */
     var disabledVariants = true
 
     /**
-     * Controls the warning printed when invoking `generateBaselineProfile` with AGP 8.0, that
-     * does not support running instrumentation tests for multiple build types at once.
+     * Controls the warning printed when invoking `generateBaselineProfile` with AGP 8.0, that does
+     * not support running instrumentation tests for multiple build types at once.
      */
     var multipleBuildTypesWithAgp80 = true
 
     /**
-     * Controls the warning printed when no baseline profile are generated after running
-     * the generate baseline profile command.
+     * Controls the warning printed when no baseline profile are generated after running the
+     * generate baseline profile command.
      */
     var noBaselineProfileRulesGenerated = true
 
     /**
-     * Controls the warning printed when no startup profile are generated after running
-     * the generate baseline profile command.
+     * Controls the warning printed when no startup profile are generated after running the generate
+     * baseline profile command.
      */
     var noStartupProfileRulesGenerated = true
 
     /**
-     * Controls the warning printed when a variant has no baseline profile dependency set,
-     * either globally or a specific one.
+     * Controls the warning printed when a variant has no baseline profile dependency set, either
+     * globally or a specific one.
      */
     var variantHasNoBaselineProfileDependency = true
 }

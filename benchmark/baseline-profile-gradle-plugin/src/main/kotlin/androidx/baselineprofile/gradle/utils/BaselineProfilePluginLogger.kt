@@ -20,15 +20,16 @@ import org.gradle.api.logging.Logger
 
 internal class BaselineProfilePluginLogger(private val logger: Logger) {
 
-    private var warnings = Warnings().apply {
-        // Note that this is a shared warning across all the plugins.
-        // By setting it by default `false` here, it will be disabled in all the plugins.
-        // Single plugins can re-enable it using the default `Warnings` configuration or the
-        // user specified one through #setWarnings. Currently only the consumer plugin supports
-        // warnings because it's the only plugin that prints any, beside this shared max agp
-        // version warning.
-        maxAgpVersion = false
-    }
+    private var warnings =
+        Warnings().apply {
+            // Note that this is a shared warning across all the plugins.
+            // By setting it by default `false` here, it will be disabled in all the plugins.
+            // Single plugins can re-enable it using the default `Warnings` configuration or the
+            // user specified one through #setWarnings. Currently only the consumer plugin supports
+            // warnings because it's the only plugin that prints any, beside this shared max agp
+            // version warning.
+            maxAgpVersion = false
+        }
 
     fun setWarnings(warnings: Warnings) {
         this.warnings = warnings
@@ -38,11 +39,7 @@ internal class BaselineProfilePluginLogger(private val logger: Logger) {
 
     fun info(message: String) = logger.info(message)
 
-    fun warn(
-        property: Warnings.() -> (Boolean),
-        propertyName: String?,
-        message: String
-    ) {
+    fun warn(property: Warnings.() -> (Boolean), propertyName: String?, message: String) {
         if (property(warnings)) {
             logger.warn(message)
             if (propertyName != null) {
@@ -55,7 +52,8 @@ internal class BaselineProfilePluginLogger(private val logger: Logger) {
                         $propertyName = false
                     }
                 }
-            """.trimIndent()
+            """
+                        .trimIndent()
                 )
             }
         }

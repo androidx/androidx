@@ -37,41 +37,36 @@ import perfetto.protos.TrackEvent
  * - can customize presentation of events in trace
  *
  * After trace processing, the extra events (before _and_ after the measureBlock section of a
- * benchmark) can be added to the trace by calling [commitToTrace], and appending that to the
- * trace on-disk.
+ * benchmark) can be added to the trace by calling [commitToTrace], and appending that to the trace
+ * on-disk.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object InMemoryTracing {
     /**
-     * All events emitted by the benchmark annotation should have the same value.
-     * the value needs to not conflict with any sequence id emitted in the trace.
-     * You can rely on the fact that traces will never contain an ID >
-     * kMaxProducerID * kMaxWriterID (65536 * 1024) = 67108864. A high number will
-     * be good enough without having to read the trace (unless something else
-     * outside of your control is also emitting fake slices)
+     * All events emitted by the benchmark annotation should have the same value. the value needs to
+     * not conflict with any sequence id emitted in the trace. You can rely on the fact that traces
+     * will never contain an ID > kMaxProducerID * kMaxWriterID (65536 * 1024) = 67108864. A high
+     * number will be good enough without having to read the trace (unless something else outside of
+     * your control is also emitting fake slices)
      */
     private const val TRUSTED_PACKET_SEQUENCE_ID: Int = 1_234_543_210
 
     /**
-     * This is a unique ID of the track. The state is global and 64 bit. Tracks are
-     * obtained by hashing pids/tids. Just picked an arbitrary 64 bit value. You have
-     * more probability of winning the lottery than hitting a collision.
+     * This is a unique ID of the track. The state is global and 64 bit. Tracks are obtained by
+     * hashing pids/tids. Just picked an arbitrary 64 bit value. You have more probability of
+     * winning the lottery than hitting a collision.
      */
     private const val UUID = 123_456_543_210L
 
-    /**
-     * Clock id for clock used by tracing events - this corresponds to CLOCK_MONOTONIC
-     */
+    /** Clock id for clock used by tracing events - this corresponds to CLOCK_MONOTONIC */
     private const val CLOCK_ID = 3
 
-    /**
-     * Tag to enable post-filtering of events in the trace.
-     */
+    /** Tag to enable post-filtering of events in the trace. */
     private val TRACK_EVENT_CATEGORIES = listOf("benchmark")
 
     /**
-     * For perf/simplicity, this isn't protected by a lock - it should only every be
-     * accessed by the test thread, and dumped/reset between tests.
+     * For perf/simplicity, this isn't protected by a lock - it should only every be accessed by the
+     * test thread, and dumped/reset between tests.
      */
     val events = mutableListOf<TracePacket>()
 
@@ -79,12 +74,8 @@ object InMemoryTracing {
         events.clear()
     }
 
-    /**
-     * Capture trace state, and return as a Trace(), which can be appended to a trace file.
-     */
-    fun commitToTrace(
-        label: String
-    ): Trace {
+    /** Capture trace state, and return as a Trace(), which can be appended to a trace file. */
+    fun commitToTrace(label: String): Trace {
         val capturedEvents = events.toList()
         clearEvents()
         return Trace(
@@ -92,14 +83,16 @@ object InMemoryTracing {
                 TracePacket(
                     timestamp_clock_id = CLOCK_ID,
                     incremental_state_cleared = true,
-                    track_descriptor = TrackDescriptor(
-                        uuid = UUID,
-                        name = label,
-                        thread = ThreadDescriptor(pid = Process.myPid(), tid = Process.myTid()),
-                        // currently separate for clarity, to allow InMemoryTrace events to have a visible
-                        // track name, but not override the thread name
-                        disallow_merging_with_system_tracks = true
-                    )
+                    track_descriptor =
+                        TrackDescriptor(
+                            uuid = UUID,
+                            name = label,
+                            thread = ThreadDescriptor(pid = Process.myPid(), tid = Process.myTid()),
+                            // currently separate for clarity, to allow InMemoryTrace events to have
+                            // a visible
+                            // track name, but not override the thread name
+                            disallow_merging_with_system_tracks = true
+                        )
                 )
             ) + capturedEvents
         )
@@ -111,12 +104,13 @@ object InMemoryTracing {
                 timestamp = nanoTime,
                 timestamp_clock_id = CLOCK_ID,
                 trusted_packet_sequence_id = TRUSTED_PACKET_SEQUENCE_ID,
-                track_event = TrackEvent(
-                    type = TrackEvent.Type.TYPE_SLICE_BEGIN,
-                    track_uuid = UUID,
-                    categories = TRACK_EVENT_CATEGORIES,
-                    name = label
-                )
+                track_event =
+                    TrackEvent(
+                        type = TrackEvent.Type.TYPE_SLICE_BEGIN,
+                        track_uuid = UUID,
+                        categories = TRACK_EVENT_CATEGORIES,
+                        name = label
+                    )
             )
         )
     }
@@ -127,10 +121,11 @@ object InMemoryTracing {
                 timestamp = nanoTime,
                 timestamp_clock_id = CLOCK_ID,
                 trusted_packet_sequence_id = TRUSTED_PACKET_SEQUENCE_ID,
-                track_event = TrackEvent(
-                    type = TrackEvent.Type.TYPE_SLICE_END,
-                    track_uuid = UUID,
-                )
+                track_event =
+                    TrackEvent(
+                        type = TrackEvent.Type.TYPE_SLICE_END,
+                        track_uuid = UUID,
+                    )
             )
         )
     }

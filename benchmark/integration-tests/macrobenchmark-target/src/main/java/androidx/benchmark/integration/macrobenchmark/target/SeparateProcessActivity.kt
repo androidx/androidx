@@ -20,9 +20,7 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
-/**
- * Trivial activity which lives in a separate ":ui" process
- */
+/** Trivial activity which lives in a separate ":ui" process */
 class SeparateProcessActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

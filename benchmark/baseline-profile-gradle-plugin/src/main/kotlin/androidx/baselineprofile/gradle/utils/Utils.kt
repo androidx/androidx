@@ -20,11 +20,13 @@ import org.gradle.configurationcache.extensions.capitalized
 
 fun camelCase(vararg strings: String): String {
     if (strings.isEmpty()) return ""
-    return StringBuilder().apply {
-        var shouldCapitalize = false
-        for (str in strings.filter { it.isNotBlank() }) {
-            append(if (shouldCapitalize) str.capitalized() else str)
-            shouldCapitalize = true
+    return StringBuilder()
+        .apply {
+            var shouldCapitalize = false
+            for (str in strings.filter { it.isNotBlank() }) {
+                append(if (shouldCapitalize) str.capitalized() else str)
+                shouldCapitalize = true
+            }
         }
-    }.toString()
+        .toString()
 }

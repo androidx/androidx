@@ -27,8 +27,8 @@ class PerfettoTrace(
     /**
      * Absolute file path of the trace.
      *
-     * Note that the trace is not guaranteed to be placed into an app-accessible directory, and
-     * may require shell commands to access.
+     * Note that the trace is not guaranteed to be placed into an app-accessible directory, and may
+     * require shell commands to access.
      */
     val path: String
 ) {
@@ -62,9 +62,8 @@ class PerfettoTrace(
              *
              * By default, traces this process.
              */
-            appTagPackages: List<String> = listOf(
-                InstrumentationRegistry.getInstrumentation().targetContext.packageName
-            ),
+            appTagPackages: List<String> =
+                listOf(InstrumentationRegistry.getInstrumentation().targetContext.packageName),
             /**
              * Process to trace with userspace tracing, i.e. `androidx.tracing:tracing-perfetto`,
              * ignored below API 30.
@@ -76,24 +75,24 @@ class PerfettoTrace(
             /**
              * Callback for trace capture.
              *
-             * This callback allows you to process the trace even if the block throws, e.g. during
-             * a test failure.
+             * This callback allows you to process the trace even if the block throws, e.g. during a
+             * test failure.
              */
             traceCallback: ((PerfettoTrace) -> Unit)? = null,
-            /**
-             * Block to be traced.
-             */
+            /** Block to be traced. */
             block: () -> Unit
-        ) = record(
-            fileLabel = fileLabel,
-            config = PerfettoConfig.Benchmark(
-                appTagPackages = appTagPackages,
-                useStackSamplingConfig = true
-            ),
-            userspaceTracingPackage = userspaceTracingPackage,
-            traceCallback = traceCallback,
-            block = block
-        )
+        ) =
+            record(
+                fileLabel = fileLabel,
+                config =
+                    PerfettoConfig.Benchmark(
+                        appTagPackages = appTagPackages,
+                        useStackSamplingConfig = true
+                    ),
+                userspaceTracingPackage = userspaceTracingPackage,
+                traceCallback = traceCallback,
+                block = block
+            )
 
         /**
          * Record a Perfetto System Trace for the specified [block], with a fully custom Perfetto
@@ -120,9 +119,7 @@ class PerfettoTrace(
              * Studio.
              */
             fileLabel: String,
-            /**
-             * Trace recording configuration.
-             */
+            /** Trace recording configuration. */
             config: PerfettoConfig,
             /**
              * Process to emphasize in the tracing UI.
@@ -146,36 +143,34 @@ class PerfettoTrace(
             /**
              * Callback for trace capture.
              *
-             * This callback allows you to process the trace even if the block throws, e.g. during
-             * a test failure.
+             * This callback allows you to process the trace even if the block throws, e.g. during a
+             * test failure.
              */
             traceCallback: ((PerfettoTrace) -> Unit)? = null,
-            /**
-             * Block to be traced.
-             */
+            /** Block to be traced. */
             block: () -> Unit
         ) {
-            PerfettoCaptureWrapper().record(
-                fileLabel = fileLabel,
-                config,
-                perfettoSdkConfig = userspaceTracingPackage?.let {
-                    PerfettoCapture.PerfettoSdkConfig(
-                        it,
-                        InitialProcessState.Unknown
-                    )
-                },
-                traceCallback = { path ->
-                    File(path).appendUiState(
-                        UiState(
-                            timelineStart = null,
-                            timelineEnd = null,
-                            highlightPackage = highlightPackage
-                        )
-                    )
-                    traceCallback?.invoke(PerfettoTrace(path))
-                },
-                block = block
-            )
+            PerfettoCaptureWrapper()
+                .record(
+                    fileLabel = fileLabel,
+                    config,
+                    perfettoSdkConfig =
+                        userspaceTracingPackage?.let {
+                            PerfettoCapture.PerfettoSdkConfig(it, InitialProcessState.Unknown)
+                        },
+                    traceCallback = { path ->
+                        File(path)
+                            .appendUiState(
+                                UiState(
+                                    timelineStart = null,
+                                    timelineEnd = null,
+                                    highlightPackage = highlightPackage
+                                )
+                            )
+                        traceCallback?.invoke(PerfettoTrace(path))
+                    },
+                    block = block
+                )
         }
     }
 }

@@ -35,16 +35,13 @@ import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 
-/**
- *
- */
+/**  */
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 @OptIn(ExperimentalMacrobenchmarkApi::class)
 class CompilationModeTest {
 
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
     fun compilationModeFull_shouldSetProfileSpeed() {
@@ -73,7 +70,7 @@ class CompilationModeTest {
      *     path: /data/app/~~Jn8HSPcIEU6RRXJknWt2ZA==/androidx.benchmark.integration.macrobenchmark.target-CM7MqDZo6wGLb-7Auxqv8g==/base.apk
      *       arm64: [status=speed] [reason=unknown]
      * ```
-    */
+     */
     @Test
     fun compilationModeNone_shouldSetProfileVerified() {
         assumeTrue(Build.VERSION.SDK_INT >= 31 || !Shell.isSessionRooted())
@@ -114,8 +111,10 @@ class CompilationModeTest {
         }
 
     private fun getCompilationMode(): String {
-        val dump = Shell.executeScriptCaptureStdoutStderr("cmd package dump $TARGET_PACKAGE_NAME")
-            .stdout.trim()
+        val dump =
+            Shell.executeScriptCaptureStdoutStderr("cmd package dump $TARGET_PACKAGE_NAME")
+                .stdout
+                .trim()
 
         // Find `Dexopt state:` line
         var firstMarkerFound = false
@@ -141,30 +140,34 @@ class CompilationModeTest {
     fun compileResetErrorString() {
         assertEquals(
             expected = "Unable to reset compilation of pkg (out=out).",
-            actual = CompilationMode.compileResetErrorString(
-                packageName = "pkg",
-                output = "out",
-                isEmulator = true
-            )
+            actual =
+                CompilationMode.compileResetErrorString(
+                    packageName = "pkg",
+                    output = "out",
+                    isEmulator = true
+                )
         )
         assertEquals(
             expected = "Unable to reset compilation of pkg (out=pkg could not be compiled).",
-            actual = CompilationMode.compileResetErrorString(
-                packageName = "pkg",
-                output = "pkg could not be compiled",
-                isEmulator = false
-            )
+            actual =
+                CompilationMode.compileResetErrorString(
+                    packageName = "pkg",
+                    output = "pkg could not be compiled",
+                    isEmulator = false
+                )
         )
         // verbose message requires emulator + specific "could not be compiled" output from --reset
         assertEquals(
-            expected = "Unable to reset compilation of pkg (out=pkg could not be compiled)." +
-                " Try updating your emulator - see" +
-                " https://issuetracker.google.com/issue?id=251540646",
-            actual = CompilationMode.compileResetErrorString(
-                packageName = "pkg",
-                output = "pkg could not be compiled",
-                isEmulator = true
-            )
+            expected =
+                "Unable to reset compilation of pkg (out=pkg could not be compiled)." +
+                    " Try updating your emulator - see" +
+                    " https://issuetracker.google.com/issue?id=251540646",
+            actual =
+                CompilationMode.compileResetErrorString(
+                    packageName = "pkg",
+                    output = "pkg could not be compiled",
+                    isEmulator = true
+                )
         )
     }
 

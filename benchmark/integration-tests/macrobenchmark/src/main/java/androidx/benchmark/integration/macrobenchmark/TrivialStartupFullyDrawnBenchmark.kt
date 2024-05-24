@@ -34,8 +34,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Fully drawn benchmark, used to create sample startup
- * traces with reportFullyDrawn ~500ms after resume
+ * Fully drawn benchmark, used to create sample startup traces with reportFullyDrawn ~500ms after
+ * resume
  *
  * As this is just used to provide sample / test traces, it's only ever one iteration with no
  * parameterization beyond startup mode
@@ -43,33 +43,35 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TrivialStartupFullyDrawnBenchmark {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
-    private fun startup(startupMode: StartupMode) = benchmarkRule.measureRepeated(
-        compilationMode = if (Build.VERSION.SDK_INT >= 24) {
-            CompilationMode.None()
-        } else {
-            CompilationMode.Full()
-        },
-        packageName = TARGET_PACKAGE_NAME,
-        metrics = getStartupMetrics(),
-        startupMode = startupMode,
-        iterations = 1,
-        setupBlock = {
-            pressHome()
+    private fun startup(startupMode: StartupMode) =
+        benchmarkRule.measureRepeated(
+            compilationMode =
+                if (Build.VERSION.SDK_INT >= 24) {
+                    CompilationMode.None()
+                } else {
+                    CompilationMode.Full()
+                },
+            packageName = TARGET_PACKAGE_NAME,
+            metrics = getStartupMetrics(),
+            startupMode = startupMode,
+            iterations = 1,
+            setupBlock = { pressHome() }
+        ) {
+            startActivityAndWait(
+                Intent().apply {
+                    setPackage(TARGET_PACKAGE_NAME)
+                    action =
+                        "androidx.benchmark.integration.macrobenchmark.target" +
+                            ".TRIVIAL_STARTUP_FULLY_DRAWN_ACTIVITY"
+                }
+            )
+            val fullDisplayComplete =
+                UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+                    .wait(Until.findObject(By.text("FULL DISPLAY")), 3000) != null
+            check(fullDisplayComplete)
         }
-    ) {
-        startActivityAndWait(Intent().apply {
-            setPackage(TARGET_PACKAGE_NAME)
-            action = "androidx.benchmark.integration.macrobenchmark.target" +
-                ".TRIVIAL_STARTUP_FULLY_DRAWN_ACTIVITY"
-        })
-        val fullDisplayComplete = UiDevice
-            .getInstance(InstrumentationRegistry.getInstrumentation())
-            .wait(Until.findObject(By.text("FULL DISPLAY")), 3000) != null
-        check(fullDisplayComplete)
-    }
 
     @Test
     fun hot() {
@@ -79,11 +81,9 @@ class TrivialStartupFullyDrawnBenchmark {
         startup(StartupMode.HOT)
     }
 
-    @Test
-    fun warm() = startup(StartupMode.WARM)
+    @Test fun warm() = startup(StartupMode.WARM)
 
-    @Test
-    fun cold() = startup(StartupMode.COLD)
+    @Test fun cold() = startup(StartupMode.COLD)
 
     companion object {
         const val TARGET_PACKAGE_NAME = "androidx.benchmark.integration.macrobenchmark.target"

@@ -28,8 +28,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * This class collects tests of strange shell behavior, for the purpose of documenting
- * and validating how general the problems are.
+ * This class collects tests of strange shell behavior, for the purpose of documenting and
+ * validating how general the problems are.
  */
 @MediumTest
 @SdkSuppress(minSdkVersion = 21)
@@ -129,7 +129,6 @@ class ShellBehaviorTest {
          * Regex for matching ps output label row
          *
          * Note that `ps` output changes over time, e.g.:
-         *
          * * API 23 - `USER\s+PID\s+PPID\s+VSIZE\s+RSS\s+WCHAN\s+PC\s+NAME`
          * * API 33 - `USER\s+PID\s+PPID\s+VSZ\s+RSS\s+WCHAN\s+ADDR\s+S\s+NAME\s`
          */

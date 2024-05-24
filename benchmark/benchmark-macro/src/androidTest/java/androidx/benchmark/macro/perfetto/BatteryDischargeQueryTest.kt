@@ -41,25 +41,23 @@ class BatteryDischargeQueryTest {
 
         val traceFile = createTempFileFromAsset("api31_battery_discharge", ".perfetto-trace")
 
-        val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            val slice =
-                querySlices(PowerMetric.MEASURE_BLOCK_SECTION_NAME, packageName = null).first()
-            BatteryDischargeQuery.getBatteryDischargeMetrics(this, slice)
-        }
+        val actualMetrics =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+                val slice =
+                    querySlices(PowerMetric.MEASURE_BLOCK_SECTION_NAME, packageName = null).first()
+                BatteryDischargeQuery.getBatteryDischargeMetrics(this, slice)
+            }
 
-        assertEquals(listOf(
-            BatteryDischargeQuery.BatteryDischargeMeasurement(
-                name = "Start",
-                chargeMah = 1020.0
+        assertEquals(
+            listOf(
+                BatteryDischargeQuery.BatteryDischargeMeasurement(
+                    name = "Start",
+                    chargeMah = 1020.0
+                ),
+                BatteryDischargeQuery.BatteryDischargeMeasurement(name = "End", chargeMah = 1007.0),
+                BatteryDischargeQuery.BatteryDischargeMeasurement(name = "Diff", chargeMah = 13.0)
             ),
-            BatteryDischargeQuery.BatteryDischargeMeasurement(
-                name = "End",
-                chargeMah = 1007.0
-            ),
-            BatteryDischargeQuery.BatteryDischargeMeasurement(
-                name = "Diff",
-                chargeMah = 13.0
-            )
-        ), actualMetrics)
+            actualMetrics
+        )
     }
 }

@@ -32,26 +32,25 @@ import org.junit.runner.RunWith
 @LargeTest
 class StartupBenchmarks {
 
-    @get:Rule
-    val rule = MacrobenchmarkRule()
+    @get:Rule val rule = MacrobenchmarkRule()
 
     @Test
     fun startupCompilationBaselineProfiles() =
         benchmark(CompilationMode.Partial(BaselineProfileMode.Require))
 
-    private fun benchmark(compilationMode: CompilationMode) = rule.measureRepeated(
-        packageName = PACKAGE_NAME,
-        metrics = listOf(StartupTimingMetric()),
-        compilationMode = compilationMode,
-        startupMode = StartupMode.COLD,
-        iterations = 10,
-        setupBlock = { pressHome() },
-        measureBlock = { startActivityAndWait(Intent(ACTION)) }
-    )
+    private fun benchmark(compilationMode: CompilationMode) =
+        rule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = listOf(StartupTimingMetric()),
+            compilationMode = compilationMode,
+            startupMode = StartupMode.COLD,
+            iterations = 10,
+            setupBlock = { pressHome() },
+            measureBlock = { startActivityAndWait(Intent(ACTION)) }
+        )
 
     companion object {
-        private const val PACKAGE_NAME =
-            "androidx.benchmark.integration.baselineprofile.consumer"
+        private const val PACKAGE_NAME = "androidx.benchmark.integration.baselineprofile.consumer"
         private const val ACTION =
             "androidx.benchmark.integration.baselineprofile.consumer.EMPTY_ACTIVITY"
     }

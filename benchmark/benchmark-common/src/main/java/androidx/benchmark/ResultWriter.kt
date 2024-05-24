@@ -30,11 +30,11 @@ import okio.Path.Companion.toPath
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object ResultWriter {
 
-    @VisibleForTesting
-    internal val reports = mutableListOf<BenchmarkData.TestResult>()
+    @VisibleForTesting internal val reports = mutableListOf<BenchmarkData.TestResult>()
 
     internal val adapter =
-        Moshi.Builder().build()
+        Moshi.Builder()
+            .build()
             .adapter(BenchmarkData::class.java)
             .indent("    ") // chosen for test compat, will be changed later
 
@@ -43,18 +43,14 @@ public object ResultWriter {
         if (Arguments.outputEnable) {
             // Currently, we just overwrite the whole file
             // Ideally, append for efficiency
-            val packageName = InstrumentationRegistry.getInstrumentation()
-                .targetContext!!
-                .packageName
+            val packageName =
+                InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
 
             Outputs.writeFile(
                 fileName = "$packageName-benchmarkData.json",
                 reportOnRunEndOnly = true
             ) {
-                Log.d(
-                    BenchmarkState.TAG,
-                    "writing results to ${it.absolutePath}"
-                )
+                Log.d(BenchmarkState.TAG, "writing results to ${it.absolutePath}")
                 writeReport(it, reports)
             }
         } else {
@@ -81,20 +77,17 @@ public object ResultWriter {
                             Plugin that doesn't support additionalTestOutputDir, ensure your app's
                             manifest file enables legacy storage behavior by adding the
                             application attribute: android:requestLegacyExternalStorage="true"
-                        """.trimIndent(),
+                        """
+                        .trimIndent(),
                     exception
                 )
             }
         }
 
-        val benchmarkData = BenchmarkData(
-            context = BenchmarkData.Context(),
-            benchmarks = benchmarks
-        )
+        val benchmarkData =
+            BenchmarkData(context = BenchmarkData.Context(), benchmarks = benchmarks)
 
-        FileSystem.SYSTEM.write(file.absolutePath.toPath()) {
-            adapter.toJson(this, benchmarkData)
-        }
+        FileSystem.SYSTEM.write(file.absolutePath.toPath()) { adapter.toJson(this, benchmarkData) }
     }
 
     fun getParams(testName: String): Map<String, String> {

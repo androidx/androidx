@@ -28,23 +28,21 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Validates metrics coming from an app's sub-process.
- */
+/** Validates metrics coming from an app's sub-process. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class SeparateProcessBenchmark {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = benchmarkRule.measureRepeated(
-        compilationMode = CompilationMode.DEFAULT,
-        startupMode = StartupMode.COLD,
-        packageName = "androidx.benchmark.integration.macrobenchmark.target",
-        metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
-        iterations = 2
-    ) {
-        startActivityAndWait(Intent("$packageName.SEPARATE_PROCESS_ACTIVITY"))
-    }
+    fun startup() =
+        benchmarkRule.measureRepeated(
+            compilationMode = CompilationMode.DEFAULT,
+            startupMode = StartupMode.COLD,
+            packageName = "androidx.benchmark.integration.macrobenchmark.target",
+            metrics = listOf(StartupTimingMetric(), FrameTimingMetric()),
+            iterations = 2
+        ) {
+            startActivityAndWait(Intent("$packageName.SEPARATE_PROCESS_ACTIVITY"))
+        }
 }

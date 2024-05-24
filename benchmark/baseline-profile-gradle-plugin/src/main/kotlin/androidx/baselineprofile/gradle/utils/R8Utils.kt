@@ -48,7 +48,8 @@ internal class R8Utils(private val project: Project) {
                 due to minimum AGP version requirement not met. This functionality requires at
                 least AGP version 8.1.0. Please check your module build.gradle file and ensure
                 the property `baselineProfileRulesRewrite` is not set.
-                """.trimIndent()
+                """
+                        .trimIndent()
                 )
             }
             return
@@ -75,7 +76,8 @@ internal class R8Utils(private val project: Project) {
                 minimum AGP version requirement not met. This functionality requires at least AGP
                 version 8.1.0. Please check your module build.gradle file and ensure the property
                 `dexLayoutOptimization` is not set.
-                """.trimIndent()
+                """
+                        .trimIndent()
                 )
             }
         }
@@ -89,42 +91,34 @@ internal class R8Utils(private val project: Project) {
 abstract class GenerateDummyBaselineProfileTask : DefaultTask() {
 
     companion object {
-        internal fun setupForVariant(
-            project: Project,
-            variant: Variant
-        ) {
-            val taskProvider = project
-                .tasks
-                .maybeRegister<GenerateDummyBaselineProfileTask>(
-                    "generate", variant.name, "profileForR8RuleRewrite"
+        internal fun setupForVariant(project: Project, variant: Variant) {
+            val taskProvider =
+                project.tasks.maybeRegister<GenerateDummyBaselineProfileTask>(
+                    "generate",
+                    variant.name,
+                    "profileForR8RuleRewrite"
                 ) {
                     it.outputDir.set(
-                        project
-                            .layout
-                            .buildDirectory
-                            .dir("$INTERMEDIATES_BASE_FOLDER/${variant.name}/empty/")
+                        project.layout.buildDirectory.dir(
+                            "$INTERMEDIATES_BASE_FOLDER/${variant.name}/empty/"
+                        )
                     )
                     it.variantName.set(variant.name)
                 }
             @Suppress("UnstableApiUsage")
             variant.sources.baselineProfiles?.addGeneratedSourceDirectory(
-                taskProvider, GenerateDummyBaselineProfileTask::outputDir
+                taskProvider,
+                GenerateDummyBaselineProfileTask::outputDir
             )
         }
     }
 
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
-    @get:Input
-    abstract val variantName: Property<String>
+    @get:Input abstract val variantName: Property<String>
 
     @TaskAction
     fun exec() {
-        outputDir
-            .file("empty-baseline-prof.txt")
-            .get()
-            .asFile
-            .writeText("Lignore/This;")
+        outputDir.file("empty-baseline-prof.txt").get().asFile.writeText("Lignore/This;")
     }
 }

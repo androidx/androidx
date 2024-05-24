@@ -18,9 +18,7 @@ package androidx.benchmark
 
 import androidx.annotation.RestrictTo
 
-/**
- * Represents an error in configuration of a benchmark.
- */
+/** Represents an error in configuration of a benchmark. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class ConfigurationError(
     /**
@@ -30,14 +28,10 @@ data class ConfigurationError(
      */
     val id: String,
 
-    /**
-     * One-line summary of the problem.
-     */
+    /** One-line summary of the problem. */
     val summary: String,
 
-    /**
-     * Multi-line, preformatted detailed description of the problem.
-     */
+    /** Multi-line, preformatted detailed description of the problem. */
     val message: String
 ) {
     init {
@@ -45,34 +39,23 @@ data class ConfigurationError(
     }
 
     companion object {
-        internal fun validateParams(
-            id: String,
-            summary: String
-        ) {
+        internal fun validateParams(id: String, summary: String) {
             require(!id.contains("[a-z]".toRegex())) {
                 "IDs must be ALL-CAPs by convention (id=$id)"
             }
             require(!id.contains("_")) {
                 "Use hyphen instead of underscore for consistency (id=$id)"
             }
-            require(!summary.contains("\n")) {
-                "Summary must be one line"
-            }
+            require(!summary.contains("\n")) { "Summary must be one line" }
         }
     }
 
-    /**
-     * Representation of suppressed errors during a running benchmark.
-     */
+    /** Representation of suppressed errors during a running benchmark. */
     class SuppressionState(
-        /**
-         * Prefix for output data to mark as potentially invalid.
-         */
+        /** Prefix for output data to mark as potentially invalid. */
         val prefix: String,
 
-        /**
-         * Warning message to present to the user.
-         */
+        /** Warning message to present to the user. */
         val warningMessage: String
     )
 }
@@ -92,9 +75,7 @@ fun conditionalError(
 }
 
 internal fun List<ConfigurationError>.prettyPrint(prefix: String): String {
-    return joinToString("\n") {
-        prefix + it.summary + "\n" + it.message.prependIndent() + "\n"
-    }
+    return joinToString("\n") { prefix + it.summary + "\n" + it.message.prependIndent() + "\n" }
 }
 
 /**
@@ -109,9 +90,7 @@ fun List<ConfigurationError>.checkAndGetSuppressionState(
         return null
     }
 
-    val (suppressed, unsuppressed) = partition {
-        suppressedErrorIds.contains(it.id)
-    }
+    val (suppressed, unsuppressed) = partition { suppressedErrorIds.contains(it.id) }
 
     val prefix = this.joinToString("_") { it.id } + "_"
 
@@ -135,7 +114,8 @@ fun List<ConfigurationError>.checkAndGetSuppressionState(
                 |        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "$howToSuppressString"
                 |    }
                 |}
-            """.trimMargin()
+            """
+                .trimMargin()
         )
     }
 

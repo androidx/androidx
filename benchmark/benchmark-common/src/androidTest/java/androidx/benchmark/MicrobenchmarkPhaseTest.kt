@@ -45,8 +45,6 @@ class MicrobenchmarkPhaseTest {
         assertEquals(LoopMode.MAX_TEST_ITERATIONS, durationLoopMode.getIterations(0))
 
         // fail - warmup hasn't occurred
-        assertFailsWith<IllegalStateException> {
-            durationLoopMode.getIterations(-1)
-        }
+        assertFailsWith<IllegalStateException> { durationLoopMode.getIterations(-1) }
     }
 }

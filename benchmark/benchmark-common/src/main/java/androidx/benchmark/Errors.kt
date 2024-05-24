@@ -25,14 +25,10 @@ import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
-/**
- * Lazy-initialized test-suite global state for errors around measurement inaccuracy.
- */
+/** Lazy-initialized test-suite global state for errors around measurement inaccuracy. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 object Errors {
-    /**
-     * Same as trimMargins, but add newlines on either side.
-     */
+    /** Same as trimMargins, but add newlines on either side. */
     @Suppress("MemberVisibilityCanBePrivate")
     internal fun String.trimMarginWrapNewlines(): String {
         return "\n" + trimMargin() + " \n"
@@ -58,90 +54,104 @@ object Errors {
 
     private val isDeviceRooted =
         arrayOf(
-            "/system/app/Superuser.apk",
-            "/sbin/su",
-            "/system/bin/su",
-            "/system/xbin/su",
-            "/data/local/xbin/su",
-            "/data/local/bin/su",
-            "/system/sd/xbin/su",
-            "/system/bin/failsafe/su",
-            "/data/local/su",
-            "/su/bin/su"
-        ).any { File(it).exists() }
+                "/system/app/Superuser.apk",
+                "/sbin/su",
+                "/system/bin/su",
+                "/system/xbin/su",
+                "/data/local/xbin/su",
+                "/data/local/bin/su",
+                "/system/sd/xbin/su",
+                "/system/bin/failsafe/su",
+                "/data/local/su",
+                "/su/bin/su"
+            )
+            .any { File(it).exists() }
 
     /**
-     * Note: initialization may not occur before entering BenchmarkState code, since we assert
-     * state (like activity presence) that only happens during benchmark run. For this reason, be
-     * _very_ careful about where this object is accessed.
+     * Note: initialization may not occur before entering BenchmarkState code, since we assert state
+     * (like activity presence) that only happens during benchmark run. For this reason, be _very_
+     * careful about where this object is accessed.
      */
     init {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val appInfo = context.applicationInfo
         var warningPrefix = ""
         var warningString = ""
-        if (Arguments.profiler?.requiresDebuggable != true &&
-            (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)
+        if (
+            Arguments.profiler?.requiresDebuggable != true &&
+                (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)
         ) {
             warningPrefix += "DEBUGGABLE_"
-            warningString += """
+            warningString +=
+                """
                 |WARNING: Debuggable Benchmark
                 |    Benchmark is running with debuggable=true, which drastically reduces
                 |    runtime performance in order to support debugging features. Run
                 |    benchmarks with debuggable=false. Debuggable affects execution speed
                 |    in ways that mean benchmark improvements might not carry over to a
                 |    real user's experience (or even regress release performance).
-            """.trimMarginWrapNewlines()
+            """
+                    .trimMarginWrapNewlines()
         }
         if (DeviceInfo.isEmulator) {
             warningPrefix += "EMULATOR_"
-            warningString += """
+            warningString +=
+                """
                 |WARNING: Running on Emulator
                 |    Benchmark is running on an emulator, which is not representative of
                 |    real user devices. Use a physical device to benchmark. Emulator
                 |    benchmark improvements might not carry over to a real user's
                 |    experience (or even regress real device performance).
-            """.trimMarginWrapNewlines()
+            """
+                    .trimMarginWrapNewlines()
         }
         if (Build.FINGERPRINT.contains(":eng/")) {
             warningPrefix += "ENG-BUILD_"
-            warningString += """
+            warningString +=
+                """
                 |WARNING: Running on Eng Build
                 |    Benchmark is running on device flashed with a '-eng' build. Eng builds
                 |    of the platform drastically reduce performance to enable testing
                 |    changes quickly. For this reason they should not be used for
                 |    benchmarking. Use a '-user' or '-userdebug' system image.
-            """.trimMarginWrapNewlines()
+            """
+                    .trimMarginWrapNewlines()
         }
 
         val arguments = InstrumentationRegistry.getArguments()
         if (arguments.getString("coverage") == "true") {
             warningPrefix += "CODE-COVERAGE_"
-            warningString += """
+            warningString +=
+                """
                 |WARNING: Code coverage enabled
                 |    Benchmark is running with code coverage enabled, which typically alters the dex
                 |    in a way that can affect performance. Ensure that code coverage is disabled by
                 |    setting testCoverageEnabled to false in the buildType your benchmarks run in.
-            """.trimMarginWrapNewlines()
+            """
+                    .trimMarginWrapNewlines()
         }
 
         if (isDeviceRooted && !CpuInfo.locked) {
             warningPrefix += "UNLOCKED_"
-            warningString += """
+            warningString +=
+                """
                 |WARNING: Unlocked CPU clocks
                 |    Benchmark appears to be running on a rooted device with unlocked CPU
                 |    clocks. Unlocked CPU clocks can lead to inconsistent results due to
                 |    dynamic frequency scaling, and thermal throttling. On a rooted device,
                 |    lock your device clocks to a stable frequency with `./gradlew lockClocks`
-            """.trimMarginWrapNewlines()
+            """
+                    .trimMarginWrapNewlines()
         }
 
-        if (!CpuInfo.locked &&
-            IsolationActivity.isSustainedPerformanceModeSupported() &&
-            !IsolationActivity.sustainedPerformanceModeInUse
+        if (
+            !CpuInfo.locked &&
+                IsolationActivity.isSustainedPerformanceModeSupported() &&
+                !IsolationActivity.sustainedPerformanceModeInUse
         ) {
             warningPrefix += "UNSUSTAINED-ACTIVITY-MISSING_"
-            warningString += """
+            warningString +=
+                """
                 |WARNING: Cannot use SustainedPerformanceMode without IsolationActivity
                 |    Benchmark running on device that supports Window.setSustainedPerformanceMode,
                 |    but not launching IsolationActivity via the AndroidBenchmarkRunner. This
@@ -150,68 +160,81 @@ object Errors {
                 |    build.gradle:
                 |        android.defaultConfig.testInstrumentationRunner
                 |            = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
-            """.trimMarginWrapNewlines()
+            """
+                    .trimMarginWrapNewlines()
         } else if (IsolationActivity.singleton.get() == null) {
             warningPrefix += "ACTIVITY-MISSING_"
-            warningString += """
+            warningString +=
+                """
                 |WARNING: Not using IsolationActivity via AndroidBenchmarkRunner
                 |    AndroidBenchmarkRunner should be used to isolate benchmarks from interference
                 |    from other visible apps. To fix this, add the following to your module-level
                 |    build.gradle:
                 |        android.defaultConfig.testInstrumentationRunner
                 |            = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
-            """.trimMarginWrapNewlines()
+            """
+                    .trimMarginWrapNewlines()
         }
         if (Arguments.profiler == StackSamplingSimpleperf) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                 warningPrefix += "SIMPLEPERF_"
-                warningString += """
+                warningString +=
+                    """
                     |ERROR: Cannot use Simpleperf on this device's API level (${Build.VERSION.SDK_INT})
                     |    Simpleperf prior to API 28 (P) requires AOT compilation, and isn't 
                     |    currently supported by the benchmark library.
-                """.trimMarginWrapNewlines()
+                """
+                        .trimMarginWrapNewlines()
             } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && !isDeviceRooted) {
                 warningPrefix += "SIMPLEPERF_"
-                warningString += """
+                warningString +=
+                    """
                     |ERROR: Cannot use Simpleperf on this device's API level (${Build.VERSION.SDK_INT})
                     |    without root. Simpleperf on API 28 (P) can only be used on a rooted device,
                     |    or when the APK is debuggable. Debuggable performance measurements should
                     |    be avoided, due to measurement inaccuracy.
-                """.trimMarginWrapNewlines()
+                """
+                        .trimMarginWrapNewlines()
             } else if (
                 DeviceInfo.profileableEnforced &&
-                Build.VERSION.SDK_INT >= 29 &&
-                !context.isProfileableByShell()
+                    Build.VERSION.SDK_INT >= 29 &&
+                    !context.isProfileableByShell()
             ) {
                 warningPrefix += "SIMPLEPERF_"
-                warningString += """
+                warningString +=
+                    """
                     |ERROR: Apk must be profileable to use simpleperf.
                     |    ensure you put <profileable android:shell="true"/> within the
                     |    <application ...> tag of your benchmark module
-                """.trimMarginWrapNewlines()
+                """
+                        .trimMarginWrapNewlines()
             }
         }
 
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val batteryPercent = context.registerReceiver(null, filter)?.run {
-            val level = if (getBooleanExtra(BatteryManager.EXTRA_PRESENT, true)) {
-                getIntExtra(BatteryManager.EXTRA_LEVEL, 100)
-            } else {
-                // If the device has no battery consider it full for this check.
-                100
-            }
-            val scale = getIntExtra(BatteryManager.EXTRA_SCALE, 100)
-            level * 100 / scale
-        } ?: 100
+        val batteryPercent =
+            context.registerReceiver(null, filter)?.run {
+                val level =
+                    if (getBooleanExtra(BatteryManager.EXTRA_PRESENT, true)) {
+                        getIntExtra(BatteryManager.EXTRA_LEVEL, 100)
+                    } else {
+                        // If the device has no battery consider it full for this check.
+                        100
+                    }
+                val scale = getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+                level * 100 / scale
+            } ?: 100
         if (batteryPercent < MINIMUM_BATTERY_PERCENT) {
             warningPrefix += "LOW-BATTERY_"
-            warningString += """
+            warningString +=
+                """
                 |WARNING: Device has low battery ($batteryPercent%)
                 |    When battery is low, devices will often reduce performance (e.g. disabling big
                 |    cores) to save remaining battery. This occurs even when they are plugged in.
                 |    Wait for your battery to charge to at least $MINIMUM_BATTERY_PERCENT%.
                 |    Currently at $batteryPercent%.
-            """.trimMarginWrapNewlines()
+            """
+                    .trimMarginWrapNewlines()
         }
 
         PREFIX = warningPrefix
@@ -219,16 +242,14 @@ object Errors {
             InstrumentationResults.scheduleIdeWarningOnNextReport(warningString)
         }
 
-        val warningSet = PREFIX
-            .split('_')
-            .filter { it.isNotEmpty() }
-            .toSet()
+        val warningSet = PREFIX.split('_').filter { it.isNotEmpty() }.toSet()
 
         val neverSuppressed = setOf("SIMPLEPERF")
         val suppressedWarnings = Arguments.suppressedErrors - neverSuppressed
         val unsuppressedWarningSet = warningSet - suppressedWarnings
-        UNSUPPRESSED_WARNING_MESSAGE = if (unsuppressedWarningSet.isNotEmpty()) {
-            """
+        UNSUPPRESSED_WARNING_MESSAGE =
+            if (unsuppressedWarningSet.isNotEmpty()) {
+                """
                 |ERRORS (not suppressed): ${unsuppressedWarningSet.toDisplayString()}
                 |(Suppressed errors: ${Arguments.suppressedErrors.toDisplayString()})
                 |$warningString
@@ -242,10 +263,11 @@ object Errors {
                 |        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR,LOW-BATTERY"
                 |    }
                 |}
-            """.trimMargin()
-        } else {
-            null
-        }
+            """
+                    .trimMargin()
+            } else {
+                null
+            }
     }
 
     /**

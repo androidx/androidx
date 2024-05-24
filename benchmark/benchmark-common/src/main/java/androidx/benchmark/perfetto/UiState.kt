@@ -22,21 +22,15 @@ import perfetto.protos.Trace
 import perfetto.protos.TracePacket
 import perfetto.protos.UiState
 
-/**
- * Convenience for UiState construction with specified package
- */
+/** Convenience for UiState construction with specified package */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun UiState(
-    timelineStart: Long? = null,
-    timelineEnd: Long? = null,
-    highlightPackage: String?
-) = UiState(
-    timeline_start_ts = timelineStart,
-    timeline_end_ts = timelineEnd,
-    highlight_process = highlightPackage?.run {
-        UiState.HighlightProcess(cmdline = highlightPackage)
-    }
-)
+fun UiState(timelineStart: Long? = null, timelineEnd: Long? = null, highlightPackage: String?) =
+    UiState(
+        timeline_start_ts = timelineStart,
+        timeline_end_ts = timelineEnd,
+        highlight_process =
+            highlightPackage?.run { UiState.HighlightProcess(cmdline = highlightPackage) }
+    )
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun File.appendUiState(state: UiState) {

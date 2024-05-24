@@ -36,9 +36,7 @@ class VectorsListActivity : AppCompatActivity() {
         recycler.adapter = adapter
     }
 
-    private fun entries() = List(1000) {
-        VectorEntry("ViewXYZ$it")
-    }
+    private fun entries() = List(1000) { VectorEntry("ViewXYZ$it") }
 }
 
 private data class VectorEntry(val contents: String)

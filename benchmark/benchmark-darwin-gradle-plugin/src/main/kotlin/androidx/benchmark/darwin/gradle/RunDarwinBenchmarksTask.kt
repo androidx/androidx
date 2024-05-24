@@ -30,21 +30,18 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 
 @CacheableTask
-abstract class RunDarwinBenchmarksTask @Inject constructor(
-    private val execOperations: ExecOperations
-) : DefaultTask() {
+abstract class RunDarwinBenchmarksTask
+@Inject
+constructor(private val execOperations: ExecOperations) : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val xcodeProjectPath: DirectoryProperty
 
-    @get:Input
-    abstract val destination: Property<String>
+    @get:Input abstract val destination: Property<String>
 
-    @get:Input
-    abstract val scheme: Property<String>
+    @get:Input abstract val scheme: Property<String>
 
-    @get:OutputDirectory
-    abstract val xcResultPath: DirectoryProperty
+    @get:OutputDirectory abstract val xcResultPath: DirectoryProperty
 
     @TaskAction
     fun runBenchmarks() {
@@ -58,27 +55,31 @@ abstract class RunDarwinBenchmarksTask @Inject constructor(
             xcResultFile.deleteRecursively()
         }
         simCtrl.start { destinationDesc ->
-            val args = listOf(
-                "xcodebuild",
-                "test",
-                "-project", xcodeProject.absolutePath.toString(),
-                "-scheme", scheme.get(),
-                "-destination", destinationDesc,
-                "-resultBundlePath", xcResultFile.absolutePath,
-            )
+            val args =
+                listOf(
+                    "xcodebuild",
+                    "test",
+                    "-project",
+                    xcodeProject.absolutePath.toString(),
+                    "-scheme",
+                    scheme.get(),
+                    "-destination",
+                    destinationDesc,
+                    "-resultBundlePath",
+                    xcResultFile.absolutePath,
+                )
             logger.info("Command : ${args.joinToString(" ")}")
             execOperations.executeQuietly(args)
         }
     }
 
     private fun requireXcodeBuild() {
-        val result = execOperations.exec { spec ->
-            spec.commandLine = listOf("which", "xcodebuild")
-            // Ignore exit value here to return a better exception message
-            spec.isIgnoreExitValue = true
-        }
-        require(result.exitValue == 0) {
-            "xcodebuild is missing on this machine."
-        }
+        val result =
+            execOperations.exec { spec ->
+                spec.commandLine = listOf("which", "xcodebuild")
+                // Ignore exit value here to return a better exception message
+                spec.isIgnoreExitValue = true
+            }
+        require(result.exitValue == 0) { "xcodebuild is missing on this machine." }
     }
 }

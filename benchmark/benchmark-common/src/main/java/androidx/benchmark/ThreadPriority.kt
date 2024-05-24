@@ -33,9 +33,7 @@ internal object ThreadPriority {
     const val HIGH_PRIORITY = -20
 
     private const val BENCH_THREAD_PRIORITY = HIGH_PRIORITY
-    /**
-     * Set JIT lower than bench thread, to reduce chance of it preempting during measurement
-     */
+    /** Set JIT lower than bench thread, to reduce chance of it preempting during measurement */
     private const val JIT_THREAD_PRIORITY =
         HIGH_PRIORITY + Process.THREAD_PRIORITY_LESS_FAVORABLE * 5
 
@@ -47,23 +45,27 @@ internal object ThreadPriority {
     init {
         if (Build.VERSION.SDK_INT >= 24) {
             // JIT thread expected to exist on N+ devices
-            val tidsToNames = File(TASK_PATH).listFiles()?.associateBy(
-                {
-                    // tid
-                    it.name.toInt()
-                },
-                {
-                    // thread name
-                    try {
-                        File(it, "comm").readLines().firstOrNull() ?: ""
-                    } catch (e: IOException) {
-                        // if we fail to read thread name, file may not exist because thread
-                        // died. Expect no error reading Jit thread name, so just name thread
-                        // incorrectly.
-                        "ERROR READING THREAD NAME"
-                    }
-                }
-            )
+            val tidsToNames =
+                File(TASK_PATH)
+                    .listFiles()
+                    ?.associateBy(
+                        {
+                            // tid
+                            it.name.toInt()
+                        },
+                        {
+                            // thread name
+                            try {
+                                File(it, "comm").readLines().firstOrNull() ?: ""
+                            } catch (e: IOException) {
+                                // if we fail to read thread name, file may not exist because thread
+                                // died. Expect no error reading Jit thread name, so just name
+                                // thread
+                                // incorrectly.
+                                "ERROR READING THREAD NAME"
+                            }
+                        }
+                    )
             if (tidsToNames.isNullOrEmpty()) {
                 Log.d(TAG, "NOTE: Couldn't find threads in this process for priority pinning.")
                 JIT_TID = null
@@ -72,9 +74,7 @@ internal object ThreadPriority {
                     tidsToNames.filter { it.value.startsWith(JIT_THREAD_NAME) }.keys.firstOrNull()
                 if (JIT_TID == null) {
                     Log.d(TAG, "NOTE: Couldn't JIT thread, threads found:")
-                    tidsToNames.forEach {
-                        Log.d(TAG, "    tid: ${it.key}, name:'${it.value}'")
-                    }
+                    tidsToNames.forEach { Log.d(TAG, "    tid: ${it.key}, name:'${it.value}'") }
                 }
             }
         } else {
@@ -86,10 +86,8 @@ internal object ThreadPriority {
 
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private var initialTid: Int = -1
-    @GuardedBy("lock")
-    private var initialPriority: Int = Int.MAX_VALUE
+    @GuardedBy("lock") private var initialTid: Int = -1
+    @GuardedBy("lock") private var initialPriority: Int = Int.MAX_VALUE
 
     /*
      * [android.os.Process.getThreadPriority] is not very clear in which conditions it will fail,
@@ -98,11 +96,12 @@ internal object ThreadPriority {
     private fun setThreadPriority(label: String, tid: Int, priority: Int): Boolean {
 
         // Tries to acquire the thread priority
-        val previousPriority = try {
-            Process.getThreadPriority(tid)
-        } catch (e: IllegalArgumentException) {
-            return false
-        }
+        val previousPriority =
+            try {
+                Process.getThreadPriority(tid)
+            } catch (e: IllegalArgumentException) {
+                return false
+            }
 
         // Tries to set the thread priority
         try {
@@ -129,34 +128,36 @@ internal object ThreadPriority {
      *
      * Only one benchmark thread can be be bumped at a time.
      */
-    fun bumpCurrentThreadPriority() = synchronized(lock) {
-        val myTid = Process.myTid()
-        if (initialTid == myTid) {
-            // already bumped
-            return
-        }
-
-        // ensure we don't have multiple threads bumped at once
-        resetBumpedThread()
-
-        initialTid = myTid
-        initialPriority = Process.getThreadPriority(initialTid)
-
-        setThreadPriority("Bench thread", initialTid, BENCH_THREAD_PRIORITY)
-        if (JIT_TID != null) {
-            setThreadPriority("Jit", JIT_TID, JIT_THREAD_PRIORITY)
-        }
-    }
-
-    fun resetBumpedThread() = synchronized(lock) {
-        if (initialTid > 0) {
-            setThreadPriority("Bench thread", initialTid, initialPriority)
-            if (JIT_TID != null) {
-                setThreadPriority("Jit", JIT_TID, JIT_INITIAL_PRIORITY)
+    fun bumpCurrentThreadPriority() =
+        synchronized(lock) {
+            val myTid = Process.myTid()
+            if (initialTid == myTid) {
+                // already bumped
+                return
             }
-            initialTid = -1
+
+            // ensure we don't have multiple threads bumped at once
+            resetBumpedThread()
+
+            initialTid = myTid
+            initialPriority = Process.getThreadPriority(initialTid)
+
+            setThreadPriority("Bench thread", initialTid, BENCH_THREAD_PRIORITY)
+            if (JIT_TID != null) {
+                setThreadPriority("Jit", JIT_TID, JIT_THREAD_PRIORITY)
+            }
         }
-    }
+
+    fun resetBumpedThread() =
+        synchronized(lock) {
+            if (initialTid > 0) {
+                setThreadPriority("Bench thread", initialTid, initialPriority)
+                if (JIT_TID != null) {
+                    setThreadPriority("Jit", JIT_TID, JIT_INITIAL_PRIORITY)
+                }
+                initialTid = -1
+            }
+        }
 
     fun getJit(): Int {
         checkNotNull(JIT_TID) { "Jit thread not found!" }

@@ -33,18 +33,18 @@ class SmallListStartupBenchmark(
     private val startupMode: StartupMode,
     private val compilationMode: CompilationMode
 ) {
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = benchmarkRule.measureStartup(
-        compilationMode = compilationMode,
-        startupMode = startupMode,
-        packageName = "androidx.benchmark.integration.macrobenchmark.target"
-    ) {
-        action = "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
-        putExtra("ITEM_COUNT", 5)
-    }
+    fun startup() =
+        benchmarkRule.measureStartup(
+            compilationMode = compilationMode,
+            startupMode = startupMode,
+            packageName = "androidx.benchmark.integration.macrobenchmark.target"
+        ) {
+            action = "androidx.benchmark.integration.macrobenchmark.target.RECYCLER_VIEW"
+            putExtra("ITEM_COUNT", 5)
+        }
 
     companion object {
         @Parameterized.Parameters(name = "startup={0},compilation={1}")

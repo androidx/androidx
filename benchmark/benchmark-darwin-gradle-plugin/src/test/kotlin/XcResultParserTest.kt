@@ -31,17 +31,16 @@ class XcResultParserTest {
         // Only run this test on an `Mac OS X` machine.
         assumeTrue(operatingSystem.contains("Mac", ignoreCase = true))
         val xcResultFile = testData("sample-xcode.xcresult")
-        val parser = XcResultParser(xcResultFile) { args ->
-            val builder = ProcessBuilder(*args.toTypedArray())
-            val process = builder.start()
-            val resultCode = process.waitFor()
-            require(resultCode == 0) {
-                "Process terminated unexpectedly (${args.joinToString(separator = " ")})"
+        val parser =
+            XcResultParser(xcResultFile) { args ->
+                val builder = ProcessBuilder(*args.toTypedArray())
+                val process = builder.start()
+                val resultCode = process.waitFor()
+                require(resultCode == 0) {
+                    "Process terminated unexpectedly (${args.joinToString(separator = " ")})"
+                }
+                process.inputStream.use { it.reader().readText() }
             }
-            process.inputStream.use {
-                it.reader().readText()
-            }
-        }
         val (record, summaries) = parser.parseResults()
         // Usually corresponds to the size of the test suite
         // In the case of KMP benchmarks, this is always 1 per module.
@@ -51,10 +50,7 @@ class XcResultParserTest {
         assertThat(record.metrics.size()).isEqualTo(2)
         assertThat(summaries.isNotEmpty()).isTrue()
         val metrics = Metrics.buildMetrics(record, summaries, referenceSha = null)
-        val json = GsonHelpers.gsonBuilder()
-            .setPrettyPrinting()
-            .create()
-            .toJson(metrics)
+        val json = GsonHelpers.gsonBuilder().setPrettyPrinting().create().toJson(metrics)
         println()
         println(json)
         println()

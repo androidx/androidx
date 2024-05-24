@@ -48,15 +48,14 @@ class BaselineProfileAppTargetPlugin : Plugin<Project> {
     override fun apply(project: Project) = BaselineProfileAppTargetAgpPlugin(project).onApply()
 }
 
-private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : AgpPlugin(
-    project = project,
-    supportedAgpPlugins = setOf(
-        AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN,
-        AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN
-    ),
-    minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
-    maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
-) {
+private class BaselineProfileAppTargetAgpPlugin(private val project: Project) :
+    AgpPlugin(
+        project = project,
+        supportedAgpPlugins =
+            setOf(AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN, AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN),
+        minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
+        maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
+    ) {
 
     private val ApplicationExtension.debugSigningConfig
         get() = buildTypes.getByName("debug").signingConfig
@@ -88,7 +87,8 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             applied. The `androidx.baselineprofile.apptarget` plugin supports only
             android application modules. Please review your build.gradle to ensure this
             plugin is applied to the correct module.
-            """.trimIndent()
+            """
+                .trimIndent()
         )
     }
 
@@ -107,14 +107,15 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
             running the code of the library for which you want to generate the profile.
             Please review your build.gradle to ensure this plugin is applied to the
             correct module.
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
         }
 
         // Otherwise, just log the plugin was applied.
-        project
-            .logger
-            .debug("[BaselineProfileAppTargetPlugin] afterEvaluate check: app plugin was applied")
+        project.logger.debug(
+            "[BaselineProfileAppTargetPlugin] afterEvaluate check: app plugin was applied"
+        )
     }
 
     override fun onApplicationFinalizeDsl(extension: ApplicationExtension) {
@@ -131,8 +132,9 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
 
         // Process all the extended build types for both baseline profile and benchmark to
         // disable unit tests.
-        if (variantBuilder.buildType in baselineProfileExtendedToOriginalTypeMap.keys ||
-            variantBuilder.buildType in benchmarkExtendedToOriginalTypeMap.keys
+        if (
+            variantBuilder.buildType in baselineProfileExtendedToOriginalTypeMap.keys ||
+                variantBuilder.buildType in benchmarkExtendedToOriginalTypeMap.keys
         ) {
 
             if (supportsFeature(AgpFeature.APPLICATION_VARIANT_HAS_UNIT_TEST_BUILDER)) {
@@ -154,48 +156,49 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
         // `release` -> `benchmark`.
         data class MappingAndPrefix(val mapping: Map<String, String>, val prefix: String)
         listOf(
-            MappingAndPrefix(
-                baselineProfileOriginalToExtendedTypeMap,
-                BUILD_TYPE_BASELINE_PROFILE_PREFIX
-            ),
-            MappingAndPrefix(
-                benchmarkOriginalToExtendedTypeMap,
-                BUILD_TYPE_BENCHMARK_PREFIX
-            ),
-        ).forEach {
-            if (variant.buildType !in it.mapping.keys) {
-                return@forEach
+                MappingAndPrefix(
+                    baselineProfileOriginalToExtendedTypeMap,
+                    BUILD_TYPE_BASELINE_PROFILE_PREFIX
+                ),
+                MappingAndPrefix(benchmarkOriginalToExtendedTypeMap, BUILD_TYPE_BENCHMARK_PREFIX),
+            )
+            .forEach {
+                if (variant.buildType !in it.mapping.keys) {
+                    return@forEach
+                }
+
+                // This would be, for example, `release`.
+                val originalBuildTypeName =
+                    variant.buildType
+                        ?: throw IllegalStateException(
+                            // Note that this exception cannot happen due to user configuration.
+                            "Variant `${variant.name}` does not have a build type."
+                        )
+
+                // This would be, for example, `nonMinifiedRelease`.
+                val extendedBuildTypeName =
+                    it.mapping[originalBuildTypeName]
+                        ?: throw IllegalStateException(
+                            // Note that this exception cannot happen due to user configuration.
+                            "Build type `${variant.buildType}` was not extended."
+                        )
+
+                // Copy build type specific dependencies
+                dependencies.copy(
+                    fromPrefix = originalBuildTypeName,
+                    toPrefix = extendedBuildTypeName
+                )
+
+                // Copy variant specific dependencies
+                dependencies.copy(
+                    fromPrefix = variant.name,
+                    toPrefix = camelCase(variant.flavorName ?: "", extendedBuildTypeName)
+                )
+
+                // Note that we don't need to copy flavor specific dependencies because they're
+                // applied
+                // to all the build types, including the extended ones.
             }
-
-            // This would be, for example, `release`.
-            val originalBuildTypeName = variant.buildType
-                ?: throw IllegalStateException(
-                    // Note that this exception cannot happen due to user configuration.
-                    "Variant `${variant.name}` does not have a build type."
-                )
-
-            // This would be, for example, `nonMinifiedRelease`.
-            val extendedBuildTypeName = it.mapping[originalBuildTypeName]
-                ?: throw IllegalStateException(
-                    // Note that this exception cannot happen due to user configuration.
-                    "Build type `${variant.buildType}` was not extended."
-                )
-
-            // Copy build type specific dependencies
-            dependencies.copy(
-                fromPrefix = originalBuildTypeName,
-                toPrefix = extendedBuildTypeName
-            )
-
-            // Copy variant specific dependencies
-            dependencies.copy(
-                fromPrefix = variant.name,
-                toPrefix = camelCase(variant.flavorName ?: "", extendedBuildTypeName)
-            )
-
-            // Note that we don't need to copy flavor specific dependencies because they're applied
-            // to all the build types, including the extended ones.
-        }
 
         // This behavior is only for AGP 8.0: since we cannot support multiple build types in the
         // same gradle invocation (including `assemble` or `build` due to b/265438201), we use a
@@ -203,13 +206,14 @@ private class BaselineProfileAppTargetAgpPlugin(private val project: Project) : 
         // This build type is minified but not obfuscated. Here we add a fixed proguard file that
         // disables the obfuscation. Also we want to skip the build types that were NOT created by
         // this plugin.
-        if (agpVersion() < AndroidPluginVersion(8, 1, 0) &&
-            variant.buildType in baselineProfileExtendedToOriginalTypeMap.keys
+        if (
+            agpVersion() < AndroidPluginVersion(8, 1, 0) &&
+                variant.buildType in baselineProfileExtendedToOriginalTypeMap.keys
         ) {
             variant.proguardFiles.add(
-                GenerateKeepRulesForBaselineProfilesTask
-                    .maybeRegister(project)
-                    .flatMap { it.keepRuleFile }
+                GenerateKeepRulesForBaselineProfilesTask.maybeRegister(project).flatMap {
+                    it.keepRuleFile
+                }
             )
         }
     }

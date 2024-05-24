@@ -32,8 +32,7 @@ import org.junit.Test
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 class TrivialListScrollBaselineProfile {
-    @get:Rule
-    val baselineRule = BaselineProfileRule()
+    @get:Rule val baselineRule = BaselineProfileRule()
 
     private lateinit var device: UiDevice
 
@@ -51,15 +50,8 @@ class TrivialListScrollBaselineProfile {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-                val recycler = device.wait(
-                    Until.findObject(
-                        By.res(
-                            PACKAGE_NAME,
-                            RESOURCE_ID
-                        )
-                    ),
-                    TIMEOUT
-                )
+                val recycler =
+                    device.wait(Until.findObject(By.res(PACKAGE_NAME, RESOURCE_ID)), TIMEOUT)
                 // Setting a gesture margin is important otherwise gesture nav is triggered.
                 recycler.setGestureMargin(device.displayWidth / 5)
                 repeat(10) {
@@ -81,15 +73,8 @@ class TrivialListScrollBaselineProfile {
                 val intent = Intent()
                 intent.action = ACTION
                 startActivityAndWait(intent)
-                val recycler = device.wait(
-                    Until.findObject(
-                        By.res(
-                            PACKAGE_NAME,
-                            RESOURCE_ID
-                        )
-                    ),
-                    TIMEOUT
-                )
+                val recycler =
+                    device.wait(Until.findObject(By.res(PACKAGE_NAME, RESOURCE_ID)), TIMEOUT)
                 // Setting a gesture margin is important otherwise gesture nav is triggered.
                 recycler.setGestureMargin(device.displayWidth / 5)
                 repeat(10) {

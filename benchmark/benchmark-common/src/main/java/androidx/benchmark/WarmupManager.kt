@@ -22,22 +22,21 @@ import java.util.concurrent.TimeUnit
 /**
  * Used to detect when a benchmark has warmed up, given time taken for each iteration.
  *
- * Uses emperically determined constants, primarily looking for the convergence of two
- * exponential moving averages.
+ * Uses empirically determined constants, primarily looking for the convergence of two exponential
+ * moving averages.
  *
  * Tuned to do minimal amount of intrusive work in onNextIteration to avoid polluting the benchmark.
  */
 internal class WarmupManager(
-    /**
-     * If non-null, defines number of iterations to perform
-     */
+    /** If non-null, defines number of iterations to perform */
     val overrideCount: Int? = null
 ) {
     private var fastMovingAvg: Float = 0f
     private var slowMovingAvg: Float = 0f
     private var similarIterationCount: Int = 0
 
-    val estimatedIterationTimeNs: Float get() = fastMovingAvg
+    val estimatedIterationTimeNs: Float
+        get() = fastMovingAvg
 
     var iteration = 0
         private set
@@ -84,8 +83,8 @@ internal class WarmupManager(
         }
 
         if (iteration >= MIN_ITERATIONS && totalDurationNs >= MIN_DURATION_NS) {
-            if (similarIterationCount > MIN_SIMILAR_ITERATIONS ||
-                totalDurationNs >= MAX_DURATION_NS
+            if (
+                similarIterationCount > MIN_SIMILAR_ITERATIONS || totalDurationNs >= MAX_DURATION_NS
             ) {
                 // benchmark has stabilized, or we're out of time
                 return true
@@ -99,12 +98,7 @@ internal class WarmupManager(
             Log.d(
                 BenchmarkState.TAG,
                 "Warmup: t=%.3f, iter=%d, fastAvg=%3.0f, slowAvg=%3.0f"
-                    .format(
-                        totalDurationNs / 1e9,
-                        iteration,
-                        fastMovingAvg,
-                        slowMovingAvg
-                    )
+                    .format(totalDurationNs / 1e9, iteration, fastMovingAvg, slowMovingAvg)
             )
         }
     }

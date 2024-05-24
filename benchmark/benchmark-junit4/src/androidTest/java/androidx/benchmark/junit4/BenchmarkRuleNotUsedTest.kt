@@ -25,16 +25,13 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 public class BenchmarkRuleNotUsedTest {
-    @get:Rule
-    public val benchmarkRule: BenchmarkRule = BenchmarkRule()
+    @get:Rule public val benchmarkRule: BenchmarkRule = BenchmarkRule()
 
     /**
-     * Previously this test would fail, because BenchmarkState().report(...) used in the
-     * post-test BenchmarkRule logic would fail, due to not yet being initialized.
+     * Previously this test would fail, because BenchmarkState().report(...) used in the post-test
+     * BenchmarkRule logic would fail, due to not yet being initialized.
      *
      * Now, this test passes to enable other tests to be written without using the BenchmarkRule.
      */
-    @Test
-    public fun testWithoutMeasurement() {
-    }
+    @Test public fun testWithoutMeasurement() {}
 }

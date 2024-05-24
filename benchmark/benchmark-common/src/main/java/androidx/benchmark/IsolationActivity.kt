@@ -41,7 +41,6 @@ import kotlin.concurrent.thread
  * - hotword detection
  * - status bar repaints
  * - running in background (some cores may be foreground-app only)
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IsolationActivity : android.app.Activity() {
@@ -52,8 +51,7 @@ public class IsolationActivity : android.app.Activity() {
         setContentView(R.layout.isolation_activity)
 
         // disable launch animation
-        @Suppress("Deprecation")
-        overridePendingTransition(0, 0)
+        @Suppress("Deprecation") overridePendingTransition(0, 0)
 
         if (firstInit) {
             if (!CpuInfo.locked && isSustainedPerformanceModeSupported()) {
@@ -74,8 +72,7 @@ public class IsolationActivity : android.app.Activity() {
                 // Note, thread names have 15 char max in Systrace
                 thread(name = "BenchSpinThread") {
                     Process.setThreadPriority(Process.THREAD_PRIORITY_LOWEST)
-                    while (true) {
-                    }
+                    while (true) {}
                 }
             }
             firstInit = false
@@ -86,11 +83,12 @@ public class IsolationActivity : android.app.Activity() {
             throw IllegalStateException("Only one IsolationActivity should exist")
         }
 
-        findViewById<TextView>(R.id.clock_state).text = when {
-            CpuInfo.locked -> "Locked Clocks"
-            sustainedPerformanceModeInUse -> "Sustained Performance Mode"
-            else -> ""
-        }
+        findViewById<TextView>(R.id.clock_state).text =
+            when {
+                CpuInfo.locked -> "Locked Clocks"
+                sustainedPerformanceModeInUse -> "Sustained Performance Mode"
+                else -> ""
+            }
     }
 
     override fun onResume() {
@@ -109,13 +107,11 @@ public class IsolationActivity : android.app.Activity() {
     }
 
     /** finish is ignored! we defer until [actuallyFinish] is called. */
-    override fun finish() {
-    }
+    override fun finish() {}
 
     public fun actuallyFinish() {
         // disable close animation
-        @Suppress("Deprecation")
-        overridePendingTransition(0, 0)
+        @Suppress("Deprecation") overridePendingTransition(0, 0)
         super.finish()
     }
 
@@ -125,71 +121,74 @@ public class IsolationActivity : android.app.Activity() {
         private var firstInit = true
         internal var sustainedPerformanceModeInUse = false
             private set
+
         public var resumed: Boolean = false
             private set
 
         @WorkerThread
         public fun launchSingleton() {
-            val intent = Intent(Intent.ACTION_MAIN).apply {
-                Log.d(TAG, "launching Benchmark IsolationActivity")
-                setClassName(
-                    InstrumentationRegistry.getInstrumentation().targetContext.packageName,
-                    IsolationActivity::class.java.name
-                )
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            }
+            val intent =
+                Intent(Intent.ACTION_MAIN).apply {
+                    Log.d(TAG, "launching Benchmark IsolationActivity")
+                    setClassName(
+                        InstrumentationRegistry.getInstrumentation().targetContext.packageName,
+                        IsolationActivity::class.java.name
+                    )
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                }
             InstrumentationRegistry.getInstrumentation().startActivitySync(intent)
         }
 
         @AnyThread
         public fun finishSingleton() {
             Log.d(TAG, "Benchmark runner being destroyed, tearing down activities")
-            singleton.getAndSet(null)?.apply {
-                runOnUiThread {
-                    actuallyFinish()
-                }
-            }
+            singleton.getAndSet(null)?.apply { runOnUiThread { actuallyFinish() } }
         }
 
         internal fun isSustainedPerformanceModeSupported(): Boolean =
             if (Build.VERSION.SDK_INT >= 24) {
-                InstrumentationRegistry
-                    .getInstrumentation()
-                    .isSustainedPerformanceModeSupported()
+                InstrumentationRegistry.getInstrumentation().isSustainedPerformanceModeSupported()
             } else {
                 false
             }
 
-        private val activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
-            override fun onActivityCreated(activity: Activity, bundle: Bundle?) {
-                if (sustainedPerformanceModeInUse && Build.VERSION.SDK_INT >= 24) {
-                    activity.setSustainedPerformanceMode(true)
+        private val activityLifecycleCallbacks =
+            object : Application.ActivityLifecycleCallbacks {
+                override fun onActivityCreated(activity: Activity, bundle: Bundle?) {
+                    if (sustainedPerformanceModeInUse && Build.VERSION.SDK_INT >= 24) {
+                        activity.setSustainedPerformanceMode(true)
+                    }
+
+                    // Forcibly wake the device, and keep the screen on to prevent benchmark
+                    // failures.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                        activity.requestDismissKeyguard()
+                        activity.setShowWhenLocked()
+                        activity.setTurnScreenOn()
+                        activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        activity.window.addFlags(
+                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        )
+                    }
                 }
 
-                // Forcibly wake the device, and keep the screen on to prevent benchmark failures.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                    activity.requestDismissKeyguard()
-                    activity.setShowWhenLocked()
-                    activity.setTurnScreenOn()
-                    activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                } else {
-                    @Suppress("DEPRECATION")
-                    activity.window.addFlags(
-                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                            or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
-                            or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                            or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                    )
-                }
+                override fun onActivityDestroyed(activity: Activity) {}
+
+                override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
+
+                override fun onActivityStarted(activity: Activity) {}
+
+                override fun onActivityStopped(activity: Activity) {}
+
+                override fun onActivityPaused(activity: Activity) {}
+
+                override fun onActivityResumed(activity: Activity) {}
             }
-
-            override fun onActivityDestroyed(activity: Activity) {}
-            override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
-            override fun onActivityStarted(activity: Activity) {}
-            override fun onActivityStopped(activity: Activity) {}
-            override fun onActivityPaused(activity: Activity) {}
-            override fun onActivityResumed(activity: Activity) {}
-        }
     }
 }

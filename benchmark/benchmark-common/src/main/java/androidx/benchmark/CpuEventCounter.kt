@@ -25,14 +25,13 @@ import java.io.Closeable
  * Exposes CPU counters from perf_event_open based on libs/utils/src/Profiler.cpp from
  * Google/Filament.
  *
- * This layer is extremely simple to reduce overhead, though it does not yet use
- * fast/critical JNI.
+ * This layer is extremely simple to reduce overhead, though it does not yet use fast/critical JNI.
  *
  * This counter must be closed to avoid leaking the associated native allocation.
  *
  * This class does not yet help callers with prerequisites to getting counter values on API 30+:
- *  - setenforce 0 (requires root)
- *  - security.perf_harden 0
+ * - setenforce 0 (requires root)
+ * - security.perf_harden 0
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class CpuEventCounter : Closeable {
@@ -56,7 +55,9 @@ class CpuEventCounter : Closeable {
     fun reset() {
         CpuCounterJni.reset(profilerPtr)
     }
+
     fun start() = CpuCounterJni.start(profilerPtr)
+
     fun stop() = CpuCounterJni.stop(profilerPtr)
 
     fun read(outValues: Values) {
@@ -65,9 +66,7 @@ class CpuEventCounter : Closeable {
         CpuCounterJni.read(profilerPtr, outValues.longArray)
     }
 
-    enum class Event(
-        val id: Int
-    ) {
+    enum class Event(val id: Int) {
         Instructions(0),
         CpuCycles(1),
         L1DReferences(2),
@@ -95,8 +94,10 @@ class CpuEventCounter : Closeable {
 
         inline val numberOfCounters: Long
             get() = longArray[0]
+
         inline val timeEnabled: Long
             get() = longArray[1]
+
         inline val timeRunning: Long
             get() = longArray[2]
 
@@ -114,10 +115,13 @@ class CpuEventCounter : Closeable {
          */
         fun forceEnable(): String? {
             if (Build.VERSION.SDK_INT >= 29) {
-                Api29Enabler.forceEnable()?.let { return it }
+                Api29Enabler.forceEnable()?.let {
+                    return it
+                }
             }
             return checkPerfEventSupport()
         }
+
         fun reset() {
             if (Build.VERSION.SDK_INT >= 29) {
                 Api29Enabler.reset()
@@ -131,6 +135,7 @@ class CpuEventCounter : Closeable {
         object Api29Enabler {
             private val perfHardenProp = PropOverride("security.perf_harden", "0")
             private var shouldResetEnforce1 = false
+
             fun forceEnable(): String? {
                 if (Shell.isSELinuxEnforced()) {
                     if (DeviceInfo.isRooted) {
@@ -162,15 +167,20 @@ private object CpuCounterJni {
 
     // Profiler methods
     external fun checkPerfEventSupport(): String?
+
     external fun newProfiler(): Long
+
     external fun freeProfiler(profilerPtr: Long)
+
     external fun resetEvents(profilerPtr: Long, mask: Int): Int
+
     external fun reset(profilerPtr: Long)
+
     external fun start(profilerPtr: Long)
+
     external fun stop(profilerPtr: Long)
+
     external fun read(profilerPtr: Long, outData: LongArray)
 }
 
-internal fun List<CpuEventCounter.Event>.getFlags() = fold(0) { acc, event ->
-    acc.or(event.flag)
-}
+internal fun List<CpuEventCounter.Event>.getFlags() = fold(0) { acc, event -> acc.or(event.flag) }

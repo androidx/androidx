@@ -22,19 +22,21 @@ internal fun String.unquote(): String {
     require(this.first() == '"' && this.last() == '"')
     return this.substring(1, length - 1)
 }
+
 internal fun String.camelCase(): String {
-    val words = this
-        .lowercase()
-        .replace('_', '.')
-        .replace("power", "")
-        .replace("uws", "")
-        .replace("rails", "")
-        .split('.')
+    val words =
+        this.lowercase()
+            .replace('_', '.')
+            .replace("power", "")
+            .replace("uws", "")
+            .replace("rails", "")
+            .split('.')
     var case = ""
     for (word in words) {
-        case += word.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
-        }
+        case +=
+            word.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+            }
     }
     return case
 }

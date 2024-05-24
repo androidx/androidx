@@ -29,27 +29,19 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SynchronizedBenchmark {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
-    @Volatile
-    private var volatileInt = 0
+    @Volatile private var volatileInt = 0
 
     private val atomicInt = AtomicInteger(0)
 
     @Test
     fun atomicIncrementBenchmark() {
-        benchmarkRule.measureRepeated {
-            atomicInt.getAndIncrement()
-        }
+        benchmarkRule.measureRepeated { atomicInt.getAndIncrement() }
     }
 
     @Test
     fun synchronizedIncrementBenchmark() {
-        benchmarkRule.measureRepeated {
-            synchronized(this@SynchronizedBenchmark) {
-                volatileInt++
-            }
-        }
+        benchmarkRule.measureRepeated { synchronized(this@SynchronizedBenchmark) { volatileInt++ } }
     }
 }

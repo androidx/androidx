@@ -23,9 +23,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 
-/**
- * This allows tests to override arguments from code
- */
+/** This allows tests to override arguments from code */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @get:RestrictTo(RestrictTo.Scope.LIBRARY)
 @set:RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -44,14 +42,11 @@ object Arguments {
      * startup to initialize tracing.
      */
     private val _perfettoSdkTracingEnable: Boolean
-    val perfettoSdkTracingEnable: Boolean get() =
-        perfettoSdkTracingEnableOverride ?: _perfettoSdkTracingEnable
+    val perfettoSdkTracingEnable: Boolean
+        get() = perfettoSdkTracingEnableOverride ?: _perfettoSdkTracingEnable
 
-    /**
-     * Allows tests to override whether full tracing is enabled
-     */
-    @VisibleForTesting
-    var perfettoSdkTracingEnableOverride: Boolean? = null
+    /** Allows tests to override whether full tracing is enabled */
+    @VisibleForTesting var perfettoSdkTracingEnableOverride: Boolean? = null
 
     val enabledRules: Set<RuleType>
 
@@ -117,18 +112,20 @@ object Arguments {
                     only run one test at a time.
 
                     For more information, see https://issuetracker.google.com/issues/316174880
-                    """.trimIndent()
+                    """
+                        .trimIndent()
                 )
                 null to true
             } else MethodTracing to true
         }
 
         val profiler = Profiler.getByName(argumentValue)
-        if (profiler == null &&
-            argumentValue.isNotEmpty() &&
-            // 'none' is documented as noop (and works better in gradle than
-            // an empty string, if a value must be specified)
-            argumentValue.trim().lowercase() != "none"
+        if (
+            profiler == null &&
+                argumentValue.isNotEmpty() &&
+                // 'none' is documented as noop (and works better in gradle than
+                // an empty string, if a value must be specified)
+                argumentValue.trim().lowercase() != "none"
         ) {
             error = "Could not parse $prefix$argumentName=$argumentValue"
             return null to false
@@ -146,59 +143,66 @@ object Arguments {
 
         dryRunMode = arguments.getBenchmarkArgument("dryRunMode.enable")?.toBoolean() ?: false
 
-        startupMode = !dryRunMode &&
-            (arguments.getBenchmarkArgument("startupMode.enable")?.toBoolean() ?: false)
+        startupMode =
+            !dryRunMode &&
+                (arguments.getBenchmarkArgument("startupMode.enable")?.toBoolean() ?: false)
 
-        outputEnable = !dryRunMode &&
-            (arguments.getBenchmarkArgument("output.enable")?.toBoolean() ?: true)
+        outputEnable =
+            !dryRunMode && (arguments.getBenchmarkArgument("output.enable")?.toBoolean() ?: true)
 
-        iterations =
-            arguments.getBenchmarkArgument("iterations")?.toInt()
+        iterations = arguments.getBenchmarkArgument("iterations")?.toInt()
 
-        targetPackageName =
-            arguments.getBenchmarkArgument("targetPackageName", defaultValue = null)
+        targetPackageName = arguments.getBenchmarkArgument("targetPackageName", defaultValue = null)
 
         _perfettoSdkTracingEnable =
             arguments.getBenchmarkArgument("perfettoSdkTracing.enable")?.toBoolean()
                 // fullTracing.enable is the legacy/compat name
                 ?: arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean()
-                    ?: false
+                ?: false
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
-        suppressedErrors = arguments.getBenchmarkArgument("suppressErrors", "")
-            .split(',')
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .toSet()
+        suppressedErrors =
+            arguments
+                .getBenchmarkArgument("suppressErrors", "")
+                .split(',')
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .toSet()
 
-        enabledRules = arguments.getBenchmarkArgument(
-            key = "enabledRules",
-            defaultValue = RuleType.values().joinToString(separator = ",") { it.toString() }
-        ).run {
-            if (this.lowercase() == "none") {
-                emptySet()
-            } else {
-                // parse comma-delimited list
-                try {
-                    this.split(',')
-                        .map { it.trim() }
-                        .filter { it.isNotEmpty() }
-                        .map { arg ->
-                            RuleType.values().find { arg.lowercase() == it.toString().lowercase() }
-                                ?: throw Throwable("unable to find $arg")
+        enabledRules =
+            arguments
+                .getBenchmarkArgument(
+                    key = "enabledRules",
+                    defaultValue = RuleType.values().joinToString(separator = ",") { it.toString() }
+                )
+                .run {
+                    if (this.lowercase() == "none") {
+                        emptySet()
+                    } else {
+                        // parse comma-delimited list
+                        try {
+                            this.split(',')
+                                .map { it.trim() }
+                                .filter { it.isNotEmpty() }
+                                .map { arg ->
+                                    RuleType.values().find {
+                                        arg.lowercase() == it.toString().lowercase()
+                                    } ?: throw Throwable("unable to find $arg")
+                                }
+                                .toSet()
+                        } catch (e: Throwable) {
+                            // defer parse error, so it doesn't show up as a missing class
+                            val allRules = RuleType.values()
+                            val allRulesString = allRules.joinToString(",") { it.toString() }
+                            error =
+                                "unable to parse enabledRules='$this', should be 'None' or" +
+                                    " comma-separated list of supported ruletypes: $allRulesString"
+                            allRules
+                                .toSet() // don't filter tests, so we have an opportunity to throw
                         }
-                        .toSet()
-                } catch (e: Throwable) {
-                    // defer parse error, so it doesn't show up as a missing class
-                    val allRules = RuleType.values()
-                    val allRulesString = allRules.joinToString(",") { it.toString() }
-                    error = "unable to parse enabledRules='$this', should be 'None' or" +
-                        " comma-separated list of supported ruletypes: $allRulesString"
-                    allRules.toSet() // don't filter tests, so we have an opportunity to throw
+                    }
                 }
-            }
-        }
 
         // compilation defaults to disabled if dryRunMode is on
         enableCompilation =
@@ -208,13 +212,13 @@ object Arguments {
         profiler = profilerState.first
         profilerDefault = profilerState.second
         profilerSampleFrequency =
-            arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
-                ?.toInt()
+            arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }?.toInt()
                 ?: 1000
         profilerSampleDurationSeconds =
-            arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
-                ?.toLong()
-                ?: 5
+            arguments
+                .getBenchmarkArgument("profiling.sampleDurationSeconds")
+                ?.ifBlank { null }
+                ?.toLong() ?: 5
         profilerSkipWhenDurationRisksAnr =
             arguments.getBenchmarkArgument("profiling.skipWhenDurationRisksAnr")?.toBoolean()
                 ?: true
@@ -232,22 +236,25 @@ object Arguments {
             arguments.getBenchmarkArgument("cpuEventCounter.enable")?.toBoolean() ?: false
         cpuEventCounterMask =
             if (cpuEventCounterEnable) {
-                arguments.getBenchmarkArgument("cpuEventCounter.events", "Instructions,CpuCycles")
-                    .split(",").map { eventName ->
-                            CpuEventCounter.Event.valueOf(eventName)
-                    }.getFlags()
+                arguments
+                    .getBenchmarkArgument("cpuEventCounter.events", "Instructions,CpuCycles")
+                    .split(",")
+                    .map { eventName -> CpuEventCounter.Event.valueOf(eventName) }
+                    .getFlags()
             } else {
                 0x0
             }
         if (cpuEventCounterEnable && cpuEventCounterMask == 0x0) {
-            error = "Must set a cpu event counters mask to use counters." +
-                " See CpuEventCounters.Event for flag definitions."
+            error =
+                "Must set a cpu event counters mask to use counters." +
+                    " See CpuEventCounters.Event for flag definitions."
         }
 
         thermalThrottleSleepDurationSeconds =
-            arguments.getBenchmarkArgument("thermalThrottle.sleepDurationSeconds")?.ifBlank { null }
-                ?.toLong()
-                ?: 90
+            arguments
+                .getBenchmarkArgument("thermalThrottle.sleepDurationSeconds")
+                ?.ifBlank { null }
+                ?.toLong() ?: 90
 
         additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
         Log.d(BenchmarkState.TAG, "additionalTestOutputDir=$additionalTestOutputDir")
@@ -277,7 +284,8 @@ object Arguments {
                     AndroidX benchmarks (micro and macro) produce one JSON file per test module,
                     which together with Test Orchestrator restarting the process frequently causes
                     benchmark output JSON files to be repeatedly overwritten during the test.
-                    """.trimIndent()
+                    """
+                    .trimIndent()
             )
         }
     }
@@ -297,16 +305,19 @@ object Arguments {
     }
 
     /**
-     * Retrieves the target app package name from the instrumentation runner arguments.
-     * Note that this is supported only when MacrobenchmarkRule and BaselineProfileRule are used
-     * with the baseline profile gradle plugin. This feature requires AGP 8.3.0-alpha10 as minimum
-     * version.
+     * Retrieves the target app package name from the instrumentation runner arguments. Note that
+     * this is supported only when MacrobenchmarkRule and BaselineProfileRule are used with the
+     * baseline profile gradle plugin. This feature requires AGP 8.3.0-alpha10 as minimum version.
      */
-    fun getTargetPackageNameOrThrow(): String = targetPackageName
-            ?: throw IllegalArgumentException("""
+    fun getTargetPackageNameOrThrow(): String =
+        targetPackageName
+            ?: throw IllegalArgumentException(
+                """
         Can't retrieve the target package name from instrumentation arguments.
         This feature requires the baseline profile gradle plugin with minimum version 1.3.0-alpha01
         and the Android Gradle Plugin minimum version 8.3.0-alpha10.
         Please ensure your project has the correct versions in order to use this feature.
-    """.trimIndent())
+    """
+                    .trimIndent()
+            )
 }
