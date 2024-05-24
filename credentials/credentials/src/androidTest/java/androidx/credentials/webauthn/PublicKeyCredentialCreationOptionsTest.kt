@@ -26,12 +26,12 @@ import org.junit.runner.RunWith
 @SmallTest
 class PublicKeyCredentialCreationOptionsTest {
 
-  @Test
-  fun constructor() {
-    val rawId = byteArrayOf(1)
+    @Test
+    fun constructor() {
+        val rawId = byteArrayOf(1)
 
-    val json =
-      """
+        val json =
+            """
             {
                 "challenge": "AQ",
                 "rp": {
@@ -53,24 +53,24 @@ class PublicKeyCredentialCreationOptionsTest {
                 "attestation": "enabled"
             }
          """
-    var options = PublicKeyCredentialCreationOptions(json)
-    assertThat(options.challenge).isEqualTo(rawId)
-    assertThat(options.attestation).isEqualTo("enabled")
-    assertThat(options.timeout).isEqualTo(1)
-    assertThat(options.user.name).isEqualTo("user name")
-    assertThat(options.user.displayName).isEqualTo("user display name")
-    assertThat(options.rp.name).isEqualTo("rp name")
-    assertThat(options.rp.id).isEqualTo("rp id")
-    assertThat(options.pubKeyCredParams.get(0).type).isEqualTo("pubkey type")
-    assertThat(options.pubKeyCredParams.get(0).alg).isEqualTo(10)
-  }
+        var options = PublicKeyCredentialCreationOptions(json)
+        assertThat(options.challenge).isEqualTo(rawId)
+        assertThat(options.attestation).isEqualTo("enabled")
+        assertThat(options.timeout).isEqualTo(1)
+        assertThat(options.user.name).isEqualTo("user name")
+        assertThat(options.user.displayName).isEqualTo("user display name")
+        assertThat(options.rp.name).isEqualTo("rp name")
+        assertThat(options.rp.id).isEqualTo("rp id")
+        assertThat(options.pubKeyCredParams.get(0).type).isEqualTo("pubkey type")
+        assertThat(options.pubKeyCredParams.get(0).alg).isEqualTo(10)
+    }
 
-  @Test
-  fun constructor_withoutAttestation() {
-    val rawId = byteArrayOf(1)
+    @Test
+    fun constructor_withoutAttestation() {
+        val rawId = byteArrayOf(1)
 
-    val json =
-      """
+        val json =
+            """
             {
                 "challenge": "AQ",
                 "rp": {
@@ -91,15 +91,15 @@ class PublicKeyCredentialCreationOptionsTest {
                 "timeout": 1
             }
          """
-    var options = PublicKeyCredentialCreationOptions(json)
-    assertThat(options.challenge).isEqualTo(rawId)
-    assertThat(options.attestation).isEqualTo("none")
-    assertThat(options.timeout).isEqualTo(1)
-    assertThat(options.user.name).isEqualTo("user name")
-    assertThat(options.user.displayName).isEqualTo("user display name")
-    assertThat(options.rp.name).isEqualTo("rp name")
-    assertThat(options.rp.id).isEqualTo("rp id")
-    assertThat(options.pubKeyCredParams.get(0).type).isEqualTo("pubkey type")
-    assertThat(options.pubKeyCredParams.get(0).alg).isEqualTo(10)
-  }
+        var options = PublicKeyCredentialCreationOptions(json)
+        assertThat(options.challenge).isEqualTo(rawId)
+        assertThat(options.attestation).isEqualTo("none")
+        assertThat(options.timeout).isEqualTo(1)
+        assertThat(options.user.name).isEqualTo("user name")
+        assertThat(options.user.displayName).isEqualTo("user display name")
+        assertThat(options.rp.name).isEqualTo("rp name")
+        assertThat(options.rp.id).isEqualTo("rp id")
+        assertThat(options.pubKeyCredParams.get(0).type).isEqualTo("pubkey type")
+        assertThat(options.pubKeyCredParams.get(0).alg).isEqualTo(10)
+    }
 }

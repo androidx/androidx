@@ -26,12 +26,12 @@ import org.junit.runner.RunWith
 @SmallTest
 class AuthenticatorAssertionResponseTest {
 
-  @Test
-  fun constructor() {
-    val rawId = byteArrayOf(1)
-    val rawUserHandle = byteArrayOf(2)
-    val rawJson =
-      """
+    @Test
+    fun constructor() {
+        val rawId = byteArrayOf(1)
+        val rawUserHandle = byteArrayOf(2)
+        val rawJson =
+            """
              {
                  "challenge": "AQ",
                  "rpId": "rp id",
@@ -39,22 +39,22 @@ class AuthenticatorAssertionResponseTest {
                  "userVerification": "enabled"
              }
           """
-    var options = PublicKeyCredentialRequestOptions(rawJson)
-    var response =
-      AuthenticatorAssertionResponse(
-        options,
-        rawId,
-        "origin",
-        false,
-        true,
-        false,
-        true,
-        rawUserHandle
-      )
-    var json = response.json()
-    var authData = response.defaultAuthenticatorData()
+        var options = PublicKeyCredentialRequestOptions(rawJson)
+        var response =
+            AuthenticatorAssertionResponse(
+                options,
+                rawId,
+                "origin",
+                false,
+                true,
+                false,
+                true,
+                rawUserHandle
+            )
+        var json = response.json()
+        var authData = response.defaultAuthenticatorData()
 
-    assertThat(json.getString("authenticatorData")).isEqualTo(WebAuthnUtils.b64Encode(authData))
-    assertThat(json.getString("userHandle")).isEqualTo(WebAuthnUtils.b64Encode(rawUserHandle))
-  }
+        assertThat(json.getString("authenticatorData")).isEqualTo(WebAuthnUtils.b64Encode(authData))
+        assertThat(json.getString("userHandle")).isEqualTo(WebAuthnUtils.b64Encode(rawUserHandle))
+    }
 }

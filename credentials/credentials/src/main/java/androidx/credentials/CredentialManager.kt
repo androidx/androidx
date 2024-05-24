@@ -36,11 +36,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * register a new credential or to consent to a saved credential from supported credential
  * providers, which can then be used to authenticate to the app.
  *
- * This class contains its own exception types.
- * They represent unique failures during the Credential Manager flow. As required, they
- * can be extended for unique types containing new and unique versions of the exception - either
- * with new 'exception types' (same credential class, different exceptions), or inner subclasses
- * and their exception types (a subclass credential class and all their exception types).
+ * This class contains its own exception types. They represent unique failures during the Credential
+ * Manager flow. As required, they can be extended for unique types containing new and unique
+ * versions of the exception - either with new 'exception types' (same credential class, different
+ * exceptions), or inner subclasses and their exception types (a subclass credential class and all
+ * their exception types).
  *
  * For example, if there is an UNKNOWN exception type, assuming the base Exception is
  * [ClearCredentialException], we can add an 'exception type' class for it as follows:
@@ -56,9 +56,9 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * }
  * ```
  *
- * Furthermore, the base class can be subclassed to a new more specific credential type, which
- * then can further be subclassed into individual exception types. The first is an example of a
- * 'inner credential type exception', and the next is a 'exception type' of this subclass exception.
+ * Furthermore, the base class can be subclassed to a new more specific credential type, which then
+ * can further be subclassed into individual exception types. The first is an example of a 'inner
+ * credential type exception', and the next is a 'exception type' of this subclass exception.
  *
  * ```
  * class UniqueCredentialBasedOnClearCredentialException(
@@ -80,8 +80,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *   }
  * }
  * ```
- *
- *
  */
 @SuppressLint("ObsoleteSdkInt") // Accommodate dependencies with a lower min sdk requirement
 interface CredentialManager {
@@ -91,8 +89,7 @@ interface CredentialManager {
          *
          * @param context the context with which the CredentialManager should be associated
          */
-        @JvmStatic
-        fun create(context: Context): CredentialManager = CredentialManagerImpl(context)
+        @JvmStatic fun create(context: Context): CredentialManager = CredentialManagerImpl(context)
     }
 
     /**
@@ -103,8 +100,8 @@ interface CredentialManager {
      *
      * @sample androidx.credentials.samples.callGetCredential
      *
-     * @param context the context used to launch any UI needed; use an activity context to make
-     * sure the UI will be launched within the same task stack
+     * @param context the context used to launch any UI needed; use an activity context to make sure
+     *   the UI will be launched within the same task stack
      * @param request the request for getting the credential
      * @throws GetCredentialException If the request fails
      */
@@ -117,20 +114,20 @@ interface CredentialManager {
         val canceller = CancellationSignal()
         continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<GetCredentialResponse,
-            GetCredentialException> {
-            override fun onResult(result: GetCredentialResponse) {
-                if (continuation.isActive) {
-                    continuation.resume(result)
+        val callback =
+            object : CredentialManagerCallback<GetCredentialResponse, GetCredentialException> {
+                override fun onResult(result: GetCredentialResponse) {
+                    if (continuation.isActive) {
+                        continuation.resume(result)
+                    }
                 }
-            }
 
-            override fun onError(e: GetCredentialException) {
-                if (continuation.isActive) {
-                    continuation.resumeWithException(e)
+                override fun onError(e: GetCredentialException) {
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(e)
+                    }
                 }
             }
-        }
 
         getCredentialAsync(
             context,
@@ -139,23 +136,24 @@ interface CredentialManager {
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
             Runnable::run,
-            callback)
+            callback
+        )
     }
 
     /**
      * Requests a credential from the user.
      *
      * Different from the other `getCredential(GetCredentialRequest, Activity)` API, this API
-     * launches the remaining flows to retrieve an app credential from the user, after the
-     * completed prefetch work corresponding to the given `pendingGetCredentialHandle`. Use this
-     * API to complete the full credential retrieval operation after you initiated a request through
-     * the [prepareGetCredential] API.
+     * launches the remaining flows to retrieve an app credential from the user, after the completed
+     * prefetch work corresponding to the given `pendingGetCredentialHandle`. Use this API to
+     * complete the full credential retrieval operation after you initiated a request through the
+     * [prepareGetCredential] API.
      *
-     * The execution can potentially launch UI flows to collect user consent to using a
-     * credential, display a picker when multiple credentials exist, etc.
+     * The execution can potentially launch UI flows to collect user consent to using a credential,
+     * display a picker when multiple credentials exist, etc.
      *
-     * @param context the context used to launch any UI needed; use an activity context to make
-     * sure the UI will be launched within the same task stack
+     * @param context the context used to launch any UI needed; use an activity context to make sure
+     *   the UI will be launched within the same task stack
      * @param pendingGetCredentialHandle the handle representing the pending operation to resume
      * @throws GetCredentialException If the request fails
      */
@@ -169,20 +167,20 @@ interface CredentialManager {
         val canceller = CancellationSignal()
         continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<GetCredentialResponse,
-            GetCredentialException> {
-            override fun onResult(result: GetCredentialResponse) {
-                if (continuation.isActive) {
-                    continuation.resume(result)
+        val callback =
+            object : CredentialManagerCallback<GetCredentialResponse, GetCredentialException> {
+                override fun onResult(result: GetCredentialResponse) {
+                    if (continuation.isActive) {
+                        continuation.resume(result)
+                    }
                 }
-            }
 
-            override fun onError(e: GetCredentialException) {
-                if (continuation.isActive) {
-                    continuation.resumeWithException(e)
+                override fun onError(e: GetCredentialException) {
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(e)
+                    }
                 }
             }
-        }
 
         getCredentialAsync(
             context,
@@ -191,17 +189,18 @@ interface CredentialManager {
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
             Runnable::run,
-            callback)
+            callback
+        )
     }
 
     /**
-     * Prepares for a get-credential operation. Returns a [PrepareGetCredentialResponse]
-     * that can later be used to launch the credential retrieval UI flow to finalize a user
-     * credential for your app.
+     * Prepares for a get-credential operation. Returns a [PrepareGetCredentialResponse] that can
+     * later be used to launch the credential retrieval UI flow to finalize a user credential for
+     * your app.
      *
-     * This API doesn't invoke any UI. It only performs the preparation work so that you can
-     * later launch the remaining get-credential operation (involves UIs) through the
-     * [getCredential] API which incurs less latency than executing the whole operation in one call.
+     * This API doesn't invoke any UI. It only performs the preparation work so that you can later
+     * launch the remaining get-credential operation (involves UIs) through the [getCredential] API
+     * which incurs less latency than executing the whole operation in one call.
      *
      * @param request the request for getting the credential
      * @throws GetCredentialException If the request fails
@@ -215,20 +214,21 @@ interface CredentialManager {
         val canceller = CancellationSignal()
         continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<PrepareGetCredentialResponse,
-            GetCredentialException> {
-            override fun onResult(result: PrepareGetCredentialResponse) {
-                if (continuation.isActive) {
-                    continuation.resume(result)
+        val callback =
+            object :
+                CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException> {
+                override fun onResult(result: PrepareGetCredentialResponse) {
+                    if (continuation.isActive) {
+                        continuation.resume(result)
+                    }
                 }
-            }
 
-            override fun onError(e: GetCredentialException) {
-                if (continuation.isActive) {
-                    continuation.resumeWithException(e)
+                override fun onError(e: GetCredentialException) {
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(e)
+                    }
                 }
             }
-        }
 
         prepareGetCredentialAsync(
             request,
@@ -236,18 +236,19 @@ interface CredentialManager {
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
             Runnable::run,
-            callback)
+            callback
+        )
     }
 
     /**
-     * Registers a user credential that can be used to authenticate the user to
-     * the app in the future.
+     * Registers a user credential that can be used to authenticate the user to the app in the
+     * future.
      *
      * The execution potentially launches framework UI flows for a user to view their registration
      * options, grant consent, etc.
      *
-     * @param context the context used to launch any UI needed; use an activity context to make
-     * sure the UI will be launched within the same task stack
+     * @param context the context used to launch any UI needed; use an activity context to make sure
+     *   the UI will be launched within the same task stack
      * @param request the request for creating the credential
      * @throws CreateCredentialException If the request fails
      */
@@ -260,20 +261,21 @@ interface CredentialManager {
         val canceller = CancellationSignal()
         continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<CreateCredentialResponse,
-            CreateCredentialException> {
-            override fun onResult(result: CreateCredentialResponse) {
-                if (continuation.isActive) {
-                    continuation.resume(result)
+        val callback =
+            object :
+                CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException> {
+                override fun onResult(result: CreateCredentialResponse) {
+                    if (continuation.isActive) {
+                        continuation.resume(result)
+                    }
                 }
-            }
 
-            override fun onError(e: CreateCredentialException) {
-                if (continuation.isActive) {
-                    continuation.resumeWithException(e)
+                override fun onError(e: CreateCredentialException) {
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(e)
+                    }
                 }
             }
-        }
 
         createCredentialAsync(
             context,
@@ -282,7 +284,8 @@ interface CredentialManager {
             // Use a direct executor to avoid extra dispatch. Resuming the continuation will
             // handle getting to the right thread or pool via the ContinuationInterceptor.
             Runnable::run,
-            callback)
+            callback
+        )
     }
 
     /**
@@ -300,36 +303,37 @@ interface CredentialManager {
      * @param request the request for clearing the app user's credential state
      * @throws ClearCredentialException If the request fails
      */
-    suspend fun clearCredentialState(
-        request: ClearCredentialStateRequest
-    ): Unit = suspendCancellableCoroutine { continuation ->
-        // Any Android API that supports cancellation should be configured to propagate
-        // coroutine cancellation as follows:
-        val canceller = CancellationSignal()
-        continuation.invokeOnCancellation { canceller.cancel() }
+    suspend fun clearCredentialState(request: ClearCredentialStateRequest): Unit =
+        suspendCancellableCoroutine { continuation ->
+            // Any Android API that supports cancellation should be configured to propagate
+            // coroutine cancellation as follows:
+            val canceller = CancellationSignal()
+            continuation.invokeOnCancellation { canceller.cancel() }
 
-        val callback = object : CredentialManagerCallback<Void?, ClearCredentialException> {
-            override fun onResult(result: Void?) {
-                if (continuation.isActive) {
-                    continuation.resume(Unit)
-                }
-            }
+            val callback =
+                object : CredentialManagerCallback<Void?, ClearCredentialException> {
+                    override fun onResult(result: Void?) {
+                        if (continuation.isActive) {
+                            continuation.resume(Unit)
+                        }
+                    }
 
-            override fun onError(e: ClearCredentialException) {
-                if (continuation.isActive) {
-                    continuation.resumeWithException(e)
+                    override fun onError(e: ClearCredentialException) {
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(e)
+                        }
+                    }
                 }
-            }
+
+            clearCredentialStateAsync(
+                request,
+                canceller,
+                // Use a direct executor to avoid extra dispatch. Resuming the continuation will
+                // handle getting to the right thread or pool via the ContinuationInterceptor.
+                Runnable::run,
+                callback
+            )
         }
-
-        clearCredentialStateAsync(
-            request,
-            canceller,
-            // Use a direct executor to avoid extra dispatch. Resuming the continuation will
-            // handle getting to the right thread or pool via the ContinuationInterceptor.
-            Runnable::run,
-            callback)
-    }
 
     /**
      * Requests a credential from the user.
@@ -339,8 +343,8 @@ interface CredentialManager {
      * The execution potentially launches framework UI flows for a user to view available
      * credentials, consent to using one of them, etc.
      *
-     * @param context the context used to launch any UI needed; use an activity context to make
-     * sure the UI will be launched within the same task stack
+     * @param context the context used to launch any UI needed; use an activity context to make sure
+     *   the UI will be launched within the same task stack
      * @param request the request for getting the credential
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
@@ -360,16 +364,16 @@ interface CredentialManager {
      * This API uses callbacks instead of Kotlin coroutines.
      *
      * Different from the other `getCredentialAsync(GetCredentialRequest, Activity)` API, this API
-     * launches the remaining flows to retrieve an app credential from the user, after the
-     * completed prefetch work corresponding to the given `pendingGetCredentialHandle`. Use this
-     * API to complete the full credential retrieval operation after you initiated a request through
-     * the [prepareGetCredentialAsync] API.
+     * launches the remaining flows to retrieve an app credential from the user, after the completed
+     * prefetch work corresponding to the given `pendingGetCredentialHandle`. Use this API to
+     * complete the full credential retrieval operation after you initiated a request through the
+     * [prepareGetCredentialAsync] API.
      *
-     * The execution can potentially launch UI flows to collect user consent to using a
-     * credential, display a picker when multiple credentials exist, etc.
+     * The execution can potentially launch UI flows to collect user consent to using a credential,
+     * display a picker when multiple credentials exist, etc.
      *
-     * @param context the context used to launch any UI needed; use an activity context to make
-     * sure the UI will be launched within the same task stack
+     * @param context the context used to launch any UI needed; use an activity context to make sure
+     *   the UI will be launched within the same task stack
      * @param pendingGetCredentialHandle the handle representing the pending operation to resume
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
@@ -385,16 +389,15 @@ interface CredentialManager {
     )
 
     /**
-     * Prepares for a get-credential operation. Returns a [PrepareGetCredentialResponse]
-     * that can later be used to launch the credential retrieval UI flow to finalize a user
-     * credential for your app.
+     * Prepares for a get-credential operation. Returns a [PrepareGetCredentialResponse] that can
+     * later be used to launch the credential retrieval UI flow to finalize a user credential for
+     * your app.
      *
      * This API uses callbacks instead of Kotlin coroutines.
      *
-     * This API doesn't invoke any UI. It only performs the preparation work so that you can
-     * later launch the remaining get-credential operation (involves UIs) through the
-     * [getCredentialAsync] API which incurs less latency than executing the whole operation in one
-     * call.
+     * This API doesn't invoke any UI. It only performs the preparation work so that you can later
+     * launch the remaining get-credential operation (involves UIs) through the [getCredentialAsync]
+     * API which incurs less latency than executing the whole operation in one call.
      *
      * @param request the request for getting the credential
      * @param cancellationSignal an optional signal that allows for cancelling this call
@@ -410,16 +413,16 @@ interface CredentialManager {
     )
 
     /**
-     * Registers a user credential that can be used to authenticate the user to
-     * the app in the future.
+     * Registers a user credential that can be used to authenticate the user to the app in the
+     * future.
      *
      * This API uses callbacks instead of Kotlin coroutines.
      *
      * The execution potentially launches framework UI flows for a user to view their registration
      * options, grant consent, etc.
      *
-     * @param context the context used to launch any UI needed; use an activity context to make
-     * sure the UI will be launched within the same task stack
+     * @param context the context used to launch any UI needed; use an activity context to make sure
+     *   the UI will be launched within the same task stack
      * @param request the request for creating the credential
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
@@ -460,9 +463,10 @@ interface CredentialManager {
     )
 
     /**
-     * Returns a pending intent that shows a screen that lets a user enable a Credential Manager provider.
+     * Returns a pending intent that shows a screen that lets a user enable a Credential Manager
+     * provider.
+     *
      * @return the pending intent that can be launched
      */
-    @RequiresApi(34)
-    fun createSettingsPendingIntent(): PendingIntent
+    @RequiresApi(34) fun createSettingsPendingIntent(): PendingIntent
 }

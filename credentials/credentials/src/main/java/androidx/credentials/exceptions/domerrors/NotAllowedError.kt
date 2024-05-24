@@ -24,8 +24,7 @@ package androidx.credentials.exceptions.domerrors
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
  */
 @Suppress("ExtendsError") // This is not a real java `Error`
-class NotAllowedError :
-    DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR) {
+class NotAllowedError : DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR) {
     internal companion object {
         internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_NOT_ALLOWED_ERROR: String =
             "androidx.credentials.TYPE_NOT_ALLOWED_ERROR"

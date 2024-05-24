@@ -32,8 +32,7 @@ class CredentialProviderServiceTestImpl : CredentialProviderService() {
     public final override fun onClearCredentialStateRequest(
         request: ProviderClearCredentialStateRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<Void?,
-            ClearCredentialException>
+        callback: OutcomeReceiver<Void?, ClearCredentialException>
     ) {
         Log.i(LOG_TAG, "onClearCredentialStateRequest")
     }
@@ -41,8 +40,11 @@ class CredentialProviderServiceTestImpl : CredentialProviderService() {
     public final override fun onBeginGetCredentialRequest(
         request: BeginGetCredentialRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<BeginGetCredentialResponse,
-            androidx.credentials.exceptions.GetCredentialException>
+        callback:
+            OutcomeReceiver<
+                BeginGetCredentialResponse,
+                androidx.credentials.exceptions.GetCredentialException
+            >
     ) {
         Log.i(LOG_TAG, "onBeginGetCredentialRequest")
     }
@@ -50,8 +52,7 @@ class CredentialProviderServiceTestImpl : CredentialProviderService() {
     public final override fun onBeginCreateCredentialRequest(
         request: BeginCreateCredentialRequest,
         cancellationSignal: CancellationSignal,
-        callback: OutcomeReceiver<BeginCreateCredentialResponse,
-            CreateCredentialException>
+        callback: OutcomeReceiver<BeginCreateCredentialResponse, CreateCredentialException>
     ) {
         Log.i(LOG_TAG, "onBeginCreateCredentialRequest")
     }

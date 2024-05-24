@@ -38,8 +38,7 @@ class ClearCredentialUnsupportedExceptionTest {
     @Test
     fun getter_success() {
         val expectedType =
-            ClearCredentialUnsupportedException
-                .TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION
+            ClearCredentialUnsupportedException.TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION
         val expectedMessage = "message"
         val exception = ClearCredentialUnsupportedException(expectedMessage)
         assertThat(exception.type).isEqualTo(expectedType)

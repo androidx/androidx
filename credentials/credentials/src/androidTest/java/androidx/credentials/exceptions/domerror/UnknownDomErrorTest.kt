@@ -34,9 +34,7 @@ class UnknownDomErrorTest {
     @Test
     fun getter_success() {
         val error = UnknownError()
-        val expectedType =
-            UnknownError
-                .TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_ERROR
+        val expectedType = UnknownError.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_UNKNOWN_ERROR
         assertThat(error.type).isEqualTo(expectedType)
     }
 }

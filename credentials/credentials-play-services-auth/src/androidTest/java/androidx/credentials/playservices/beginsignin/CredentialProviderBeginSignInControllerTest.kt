@@ -37,73 +37,49 @@ import org.junit.runner.RunWith
 class CredentialProviderBeginSignInControllerTest {
     @Test
     fun convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-            val actualResponse = getInstance(activity!!)
-                .convertRequestToPlayServices(
-                    GetCredentialRequest(
-                        listOf(
-                            GetPasswordOption()
-                        )
-                    )
-                )
-            assertThat(
-                actualResponse.passwordRequestOptions.isSupported
-            ).isTrue()
+            val actualResponse =
+                getInstance(activity!!)
+                    .convertRequestToPlayServices(GetCredentialRequest(listOf(GetPasswordOption())))
+            assertThat(actualResponse.passwordRequestOptions.isSupported).isTrue()
             assertThat(actualResponse.isAutoSelectEnabled).isFalse()
         }
     }
 
     @Test
     fun convertRequestToPlayServices_setPasswordOptionRequestAndTrueAutoSelect_success() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-            val actualResponse = getInstance(activity!!)
-                .convertRequestToPlayServices(
-                    GetCredentialRequest(
-                        listOf(
-                            GetPasswordOption(isAutoSelectAllowed = true)
-                        )
+            val actualResponse =
+                getInstance(activity!!)
+                    .convertRequestToPlayServices(
+                        GetCredentialRequest(listOf(GetPasswordOption(isAutoSelectAllowed = true)))
                     )
-                )
-            assertThat(
-                actualResponse.passwordRequestOptions.isSupported
-            ).isTrue()
+            assertThat(actualResponse.passwordRequestOptions.isSupported).isTrue()
             assertThat(actualResponse.isAutoSelectEnabled).isTrue()
         }
     }
 
     @Test
     fun convertRequestToPlayServices_setGoogleIdOptionRequest_success() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
 
-        val option = GetGoogleIdOption.Builder()
-            .setServerClientId("server_client_id")
-            .setNonce("nonce")
-            .setFilterByAuthorizedAccounts(true)
-            .setRequestVerifiedPhoneNumber(false)
-            .associateLinkedAccounts("link_service_id", listOf("a", "b", "c"))
-            .setAutoSelectEnabled(true)
-            .build()
+        val option =
+            GetGoogleIdOption.Builder()
+                .setServerClientId("server_client_id")
+                .setNonce("nonce")
+                .setFilterByAuthorizedAccounts(true)
+                .setRequestVerifiedPhoneNumber(false)
+                .associateLinkedAccounts("link_service_id", listOf("a", "b", "c"))
+                .setAutoSelectEnabled(true)
+                .build()
 
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-            val actualRequest = getInstance(activity!!)
-                .convertRequestToPlayServices(
-                    GetCredentialRequest(
-                        listOf(
-                            option
-                        )
-                    )
-                )
-            assertThat(
-                actualRequest.googleIdTokenRequestOptions.isSupported
-            ).isTrue()
+            val actualRequest =
+                getInstance(activity!!)
+                    .convertRequestToPlayServices(GetCredentialRequest(listOf(option)))
+            assertThat(actualRequest.googleIdTokenRequestOptions.isSupported).isTrue()
             assertThat(actualRequest.isAutoSelectEnabled).isTrue()
             val actualOption = actualRequest.googleIdTokenRequestOptions
             assertThat(actualOption.serverClientId).isEqualTo(option.serverClientId)
@@ -120,9 +96,7 @@ class CredentialProviderBeginSignInControllerTest {
 
     @Test
     fun duplicateGetInstance_shouldBeUnequal() {
-        val activityScenario = ActivityScenario.launch(
-            TestCredentialsActivity::class.java
-        )
+        val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
             val firstInstance = getInstance(activity!!)
             val secondInstance = getInstance(activity)

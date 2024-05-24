@@ -19,25 +19,20 @@ package androidx.credentials.provider
 import androidx.credentials.CreateCredentialRequest
 
 /**
- * Final request received by the provider after the user has selected a given [CreateEntry]
- * on the UI.
+ * Final request received by the provider after the user has selected a given [CreateEntry] on the
+ * UI.
  *
- * This request contains the actual request coming from the calling app,
- * and the application information associated with the calling app.
+ * This request contains the actual request coming from the calling app, and the application
+ * information associated with the calling app.
  *
+ * @param callingRequest the complete [CreateCredentialRequest] coming from the calling app that is
+ *   requesting for credential creation
+ * @param callingAppInfo information pertaining to the calling app making the request
  * @constructor constructs an instance of [ProviderCreateCredentialRequest]
- *
- * @param callingRequest the complete [CreateCredentialRequest] coming from
- * the calling app that is requesting for credential creation
- * @param callingAppInfo information pertaining to the calling app making
- * the request
- *
  * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
-class ProviderCreateCredentialRequest constructor(
-    val callingRequest: CreateCredentialRequest,
-    val callingAppInfo: CallingAppInfo
-)
+class ProviderCreateCredentialRequest
+constructor(val callingRequest: CreateCredentialRequest, val callingAppInfo: CallingAppInfo)

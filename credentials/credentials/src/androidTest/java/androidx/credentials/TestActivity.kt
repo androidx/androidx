@@ -19,7 +19,7 @@ package androidx.credentials
 import androidx.core.app.ComponentActivity
 
 /**
- * This is a test activity used by the Robolectric Activity Scenario tests. It acts
- * as a calling activity in our test cases.
+ * This is a test activity used by the Robolectric Activity Scenario tests. It acts as a calling
+ * activity in our test cases.
  */
 class TestActivity : ComponentActivity()

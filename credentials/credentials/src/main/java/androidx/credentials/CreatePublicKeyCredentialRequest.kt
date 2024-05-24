@@ -26,20 +26,23 @@ import org.json.JSONObject
 /**
  * A request to register a passkey from the user's public key credential provider.
  *
- * @property requestJson the request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
- * @property clientDataHash a clientDataHash value to sign over in place of assembling and hashing
- * clientDataJSON during the signature request; only meaningful when [origin] is set
- * @param requestJson the request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+ * @param requestJson the request in JSON format in the
+ *   [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
  * @param clientDataHash a clientDataHash value to sign over in place of assembling and hashing
- * clientDataJSON during the signature request; only meaningful when [origin] is set
+ *   clientDataJSON during the signature request; only meaningful when [origin] is set
  * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
- * immediately when there is no available passkey registration offering instead of falling back to
- * discovering remote options, and false (default) otherwise
+ *   immediately when there is no available passkey registration offering instead of falling back to
+ *   discovering remote options, and false (default) otherwise
  * @param origin the origin of a different application if the request is being made on behalf of
- * that application (Note: for API level >=34, setting a non-null value for this parameter will
- * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ *   that application (Note: for API level >=34, setting a non-null value for this parameter will
+ *   throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+ * @property requestJson the request in JSON format in the
+ *   [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+ * @property clientDataHash a clientDataHash value to sign over in place of assembling and hashing
+ *   clientDataJSON during the signature request; only meaningful when [origin] is set
  */
-class CreatePublicKeyCredentialRequest private constructor(
+class CreatePublicKeyCredentialRequest
+private constructor(
     val requestJson: String,
     val clientDataHash: ByteArray?,
     isAutoSelectAllowed: Boolean,
@@ -48,40 +51,43 @@ class CreatePublicKeyCredentialRequest private constructor(
     origin: String? = null,
     credentialData: Bundle = toCredentialDataBundle(requestJson, clientDataHash),
     candidateQueryData: Bundle = toCandidateDataBundle(requestJson, clientDataHash),
-) : CreateCredentialRequest(
-    type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
-    credentialData = credentialData,
-    // The whole request data should be passed during the query phase.
-    candidateQueryData = candidateQueryData,
-    isSystemProviderRequired = false,
-    isAutoSelectAllowed = isAutoSelectAllowed,
-    displayInfo,
-    origin,
-    preferImmediatelyAvailableCredentials
-) {
+) :
+    CreateCredentialRequest(
+        type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
+        credentialData = credentialData,
+        // The whole request data should be passed during the query phase.
+        candidateQueryData = candidateQueryData,
+        isSystemProviderRequired = false,
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        displayInfo,
+        origin,
+        preferImmediatelyAvailableCredentials
+    ) {
 
     /**
      * Constructs a [CreatePublicKeyCredentialRequest] to register a passkey from the user's public
      * key credential provider.
      *
-     * @param requestJson the privileged request in JSON format in the [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+     * @param requestJson the privileged request in JSON format in the
+     *   [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
      * @param clientDataHash a hash that is used to verify the relying party identity
      * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
-     * immediately when there is no available passkey registration offering instead of falling back to
-     * discovering remote options, and false (default) otherwise
+     *   immediately when there is no available passkey registration offering instead of falling
+     *   back to discovering remote options, and false (default) otherwise
      * @param origin the origin of a different application if the request is being made on behalf of
-     * that application (Note: for API level >=34, setting a non-null value for this parameter will
-     * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
-     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is
-     * the only one available to the user (note that there is a chance that the crendeiatl provider
-     * does not support auto-select even if you turn this bit on)
+     *   that application (Note: for API level >=34, setting a non-null value for this parameter
+     *   will throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not
+     *   present)
+     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is the
+     *   only one available to the user (note that there is a chance that the crendeiatl provider
+     *   does not support auto-select even if you turn this bit on)
      * @throws NullPointerException If [requestJson] is null
-     * @throws IllegalArgumentException If [requestJson] is empty, or if it is not a valid JSON,
-     * or if it doesn't have a valid `user.name` defined according to the
-     * [webauthn spec]
-     * (https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
+     * @throws IllegalArgumentException If [requestJson] is empty, or if it is not a valid JSON, or
+     *   if it doesn't have a valid `user.name` defined according to the [webauthn spec]
+     *   (https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
      */
-    @JvmOverloads constructor(
+    @JvmOverloads
+    constructor(
         requestJson: String,
         clientDataHash: ByteArray? = null,
         preferImmediatelyAvailableCredentials: Boolean = false,
@@ -100,27 +106,28 @@ class CreatePublicKeyCredentialRequest private constructor(
      * Constructs a [CreatePublicKeyCredentialRequest] to register a passkey from the user's public
      * key credential provider.
      *
-     * @param requestJson the privileged request in JSON format in the [standard webauthn web
-     * json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
+     * @param requestJson the privileged request in JSON format in the
+     *   [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
      * @param clientDataHash a hash that is used to verify the relying party identity
      * @param preferImmediatelyAvailableCredentials true if you prefer the operation to return
-     * immediately when there is no available passkey registration offering instead of falling back to
-     * discovering remote options, and false (preferably) otherwise
+     *   immediately when there is no available passkey registration offering instead of falling
+     *   back to discovering remote options, and false (preferably) otherwise
      * @param origin the origin of a different application if the request is being made on behalf of
-     * that application (Note: for API level >=34, setting a non-null value for this parameter will
-     * throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not present)
+     *   that application (Note: for API level >=34, setting a non-null value for this parameter
+     *   will throw a SecurityException if android.permission.CREDENTIAL_MANAGER_SET_ORIGIN is not
+     *   present)
      * @param preferDefaultProvider the preferred default provider component name to prioritize in
-     * the selection UI flows (Note: tour app must have the permission
-     * android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it
-     * would not take effect; also this bit may not take effect for Android API level 33 and below,
-     * depending on the pre-34 provider(s) you have chosen)
-     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is
-     * the only one available to the user (note that there is a chance that the credential provider
-     * does not support auto-select even if you turn this bit on)
+     *   the selection UI flows (Note: tour app must have the permission
+     *   android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS to specify this, or it would
+     *   not take effect; also this bit may not take effect for Android API level 33 and below,
+     *   depending on the pre-34 provider(s) you have chosen)
+     * @param isAutoSelectAllowed whether a create option will be automatically chosen if it is the
+     *   only one available to the user (note that there is a chance that the credential provider
+     *   does not support auto-select even if you turn this bit on)
      * @throws NullPointerException If [requestJson] is null
      * @throws IllegalArgumentException If [requestJson] is empty, or if it doesn't have a valid
-     * `user.name` defined according to the [webauthn
-     * spec](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
+     *   `user.name` defined according to the
+     *   [webauthn spec](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
      */
     constructor(
         requestJson: String,
@@ -140,7 +147,8 @@ class CreatePublicKeyCredentialRequest private constructor(
 
     init {
         require(RequestValidationHelper.isValidJSON(requestJson)) {
-            "requestJson must not be empty, and must be a valid JSON" }
+            "requestJson must not be empty, and must be a valid JSON"
+        }
     }
 
     internal companion object {
@@ -204,20 +212,23 @@ class CreatePublicKeyCredentialRequest private constructor(
 
         @JvmStatic
         @RequiresApi(23)
-        internal fun createFrom(data: Bundle, origin: String?, candidateQueryData: Bundle):
-            CreatePublicKeyCredentialRequest {
+        internal fun createFrom(
+            data: Bundle,
+            origin: String?,
+            candidateQueryData: Bundle
+        ): CreatePublicKeyCredentialRequest {
             try {
                 val requestJson = data.getString(BUNDLE_KEY_REQUEST_JSON)!!
                 val clientDataHash = data.getByteArray(BUNDLE_KEY_CLIENT_DATA_HASH)
                 val preferImmediatelyAvailableCredentials =
                     data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS, false)
-                val displayInfo = try {
-                    DisplayInfo.createFrom(data)
-                } catch (e: IllegalArgumentException) {
-                    getRequestDisplayInfo(requestJson)
-                }
-                val isAutoSelectAllowed =
-                    data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
+                val displayInfo =
+                    try {
+                        DisplayInfo.createFrom(data)
+                    } catch (e: IllegalArgumentException) {
+                        getRequestDisplayInfo(requestJson)
+                    }
+                val isAutoSelectAllowed = data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, false)
                 return CreatePublicKeyCredentialRequest(
                     requestJson = requestJson,
                     clientDataHash = clientDataHash,

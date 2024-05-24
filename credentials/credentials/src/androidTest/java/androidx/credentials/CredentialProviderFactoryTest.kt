@@ -91,9 +91,8 @@ class CredentialProviderFactoryTest {
         credentialProviderFactory.testPreUProvider = expectedPreUProvider
         credentialProviderFactory.testPostUProvider = null
 
-        val actualProvider = credentialProviderFactory.getBestAvailableProvider(
-            shouldFallbackToPreU = false
-        )
+        val actualProvider =
+            credentialProviderFactory.getBestAvailableProvider(shouldFallbackToPreU = false)
 
         assertNull(actualProvider)
     }

@@ -43,7 +43,8 @@ import java.util.Collections
  * @throws IllegalArgumentException If [accountName] is empty
  */
 @RequiresApi(26)
-class CreateEntry internal constructor(
+class CreateEntry
+internal constructor(
     val accountName: CharSequence,
     val pendingIntent: PendingIntent,
     val icon: Icon?,
@@ -56,31 +57,28 @@ class CreateEntry internal constructor(
     /**
      * Creates an entry to be displayed on the selector during create flows.
      *
-     * @constructor constructs an instance of [CreateEntry]
-     *
      * @param accountName the name of the account where the credential will be saved
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with a unique request code per entry,
-     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
-     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
-     * times
+     *   entry, must be created with a unique request code per entry, with flag
+     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
+     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
      * @param description the localized description shown on UI about where the credential is stored
      * @param icon the icon to be displayed with this entry on the UI, must be created using
-     * [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
-     * the latter consumes more memory and may cause undefined behavior due to memory implications
-     * on internal transactions
+     *   [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
+     *   the latter consumes more memory and may cause undefined behavior due to memory implications
+     *   on internal transactions
      * @param lastUsedTime the last time the account underlying this entry was used by the user,
-     * distinguishable up to the milli second mark only such that if two entries have the same
-     * millisecond precision, they will be considered to have been used at the same time
+     *   distinguishable up to the milli second mark only such that if two entries have the same
+     *   millisecond precision, they will be considered to have been used at the same time
      * @param passwordCredentialCount the no. of password credentials contained by the provider
      * @param publicKeyCredentialCount the no. of public key credentials contained by the provider
      * @param totalCredentialCount the total no. of credentials contained by the provider
-     * @param isAutoSelectAllowed whether this entry should be auto selected if it is the only
-     * entry on the selector
-     *
+     * @param isAutoSelectAllowed whether this entry should be auto selected if it is the only entry
+     *   on the selector
+     * @constructor constructs an instance of [CreateEntry]
      * @throws IllegalArgumentException If [accountName] is empty, or if [description] is longer
-     * than 300 characters (important: make sure your descriptions across all locales are within
-     * this limit)
+     *   than 300 characters (important: make sure your descriptions across all locales are within
+     *   this limit)
      * @throws NullPointerException If [accountName] or [pendingIntent] is null
      */
     constructor(
@@ -89,12 +87,9 @@ class CreateEntry internal constructor(
         description: CharSequence? = null,
         lastUsedTime: Instant? = null,
         icon: Icon? = null,
-        @Suppress("AutoBoxing")
-        passwordCredentialCount: Int? = null,
-        @Suppress("AutoBoxing")
-        publicKeyCredentialCount: Int? = null,
-        @Suppress("AutoBoxing")
-        totalCredentialCount: Int? = null,
+        @Suppress("AutoBoxing") passwordCredentialCount: Int? = null,
+        @Suppress("AutoBoxing") publicKeyCredentialCount: Int? = null,
+        @Suppress("AutoBoxing") totalCredentialCount: Int? = null,
         isAutoSelectAllowed: Boolean = false
     ) : this(
         accountName,
@@ -131,11 +126,11 @@ class CreateEntry internal constructor(
         return credentialCountInformationMap[PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL]
     }
 
-    /** Returns the no. of total credentials that the provider with this entry has.
+    /**
+     * Returns the no. of total credentials that the provider with this entry has.
      *
-     * This total count is not necessarily equal to the sum of [getPasswordCredentialCount]
-     * and [getPublicKeyCredentialCount].
-     *
+     * This total count is not necessarily equal to the sum of [getPasswordCredentialCount] and
+     * [getPublicKeyCredentialCount].
      */
     @Suppress("AutoBoxing")
     fun getTotalCredentialCount(): Int? {
@@ -145,22 +140,17 @@ class CreateEntry internal constructor(
     /**
      * A builder for [CreateEntry]
      *
-     * @constructor constructs an instance of [CreateEntry.Builder]
-     *
      * @param accountName the name of the account where the credential will be registered
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
-     * entry, must be created with a unique request code per entry,
-     * with flag [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the
-     * final request, and NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple
-     * times
+     *   entry, must be created with a unique request code per entry, with flag
+     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
+     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
+     * @constructor constructs an instance of [CreateEntry.Builder]
      */
-    class Builder constructor(
-        private val accountName: CharSequence,
-        private val pendingIntent: PendingIntent
-    ) {
+    class Builder
+    constructor(private val accountName: CharSequence, private val pendingIntent: PendingIntent) {
 
-        private var credentialCountInformationMap: MutableMap<String, Int?> =
-            mutableMapOf()
+        private var credentialCountInformationMap: MutableMap<String, Int?> = mutableMapOf()
         private var icon: Icon? = null
         private var description: CharSequence? = null
         private var lastUsedTime: Instant? = null
@@ -169,21 +159,18 @@ class CreateEntry internal constructor(
         private var totalCredentialCount: Int? = null
         private var autoSelectAllowed: Boolean = false
 
-        /**
-         * Sets whether the entry should be auto-selected.
-         * The value is false by default.
-         */
+        /** Sets whether the entry should be auto-selected. The value is false by default. */
         @Suppress("MissingGetterMatchingBuilder")
         fun setAutoSelectAllowed(autoSelectAllowed: Boolean): Builder {
             this.autoSelectAllowed = autoSelectAllowed
             return this
         }
 
-        /** Sets the password credential count, denoting how many credentials of type
+        /**
+         * Sets the password credential count, denoting how many credentials of type
          * [PasswordCredential.TYPE_PASSWORD_CREDENTIAL] does the provider have stored.
          *
-         * This information will be displayed on the [CreateEntry] to help the user
-         * make a choice.
+         * This information will be displayed on the [CreateEntry] to help the user make a choice.
          */
         fun setPasswordCredentialCount(count: Int): Builder {
             passwordCredentialCount = count
@@ -191,11 +178,11 @@ class CreateEntry internal constructor(
             return this
         }
 
-        /** Sets the password credential count, denoting how many credentials of type
+        /**
+         * Sets the password credential count, denoting how many credentials of type
          * [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] does the provider have stored.
          *
-         * This information will be displayed on the [CreateEntry] to help the user
-         * make a choice.
+         * This information will be displayed on the [CreateEntry] to help the user make a choice.
          */
         fun setPublicKeyCredentialCount(count: Int): Builder {
             publicKeyCredentialCount = count
@@ -203,14 +190,14 @@ class CreateEntry internal constructor(
             return this
         }
 
-        /** Sets the total credential count, denoting how many credentials in total
-         * does the provider have stored.
+        /**
+         * Sets the total credential count, denoting how many credentials in total does the provider
+         * have stored.
          *
          * This total count no. does not need to be a total of the counts set through
          * [setPasswordCredentialCount] and [setPublicKeyCredentialCount].
          *
-         * This information will be displayed on the [CreateEntry] to help the user
-         * make a choice.
+         * This information will be displayed on the [CreateEntry] to help the user make a choice.
          */
         fun setTotalCredentialCount(count: Int): Builder {
             totalCredentialCount = count
@@ -229,11 +216,11 @@ class CreateEntry internal constructor(
          * creation.
          *
          * Typically this description should contain information informing the user of the
-         * credential being created, and where it is being stored. Providers are free
-         * to phrase this however they see fit.
+         * credential being created, and where it is being stored. Providers are free to phrase this
+         * however they see fit.
          *
          * @throws IllegalArgumentException if [description] is longer than 300 characters (
-         * important: make sure your descriptions across all locales are within this limit).
+         *   important: make sure your descriptions across all locales are within this limit).
          */
         fun setDescription(description: CharSequence?): Builder {
             if (description?.length != null && description.length > DESCRIPTION_MAX_CHAR_LIMIT) {
@@ -256,8 +243,13 @@ class CreateEntry internal constructor(
          */
         fun build(): CreateEntry {
             return CreateEntry(
-                accountName, pendingIntent, icon, description, lastUsedTime,
-                credentialCountInformationMap, autoSelectAllowed
+                accountName,
+                pendingIntent,
+                icon,
+                description,
+                lastUsedTime,
+                credentialCountInformationMap,
+                autoSelectAllowed
             )
         }
     }
@@ -276,69 +268,58 @@ class CreateEntry internal constructor(
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun toSlice(
-            createEntry: CreateEntry
-        ): Slice {
+        fun toSlice(createEntry: CreateEntry): Slice {
             val accountName = createEntry.accountName
             val icon = createEntry.icon
             val description = createEntry.description
             val lastUsedTime = createEntry.lastUsedTime
             val credentialCountInformationMap = createEntry.credentialCountInformationMap
             val pendingIntent = createEntry.pendingIntent
-            val sliceBuilder = Slice.Builder(Uri.EMPTY,
-                SliceSpec(SLICE_SPEC_TYPE, REVISION_ID))
+            val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE, REVISION_ID))
 
-            val autoSelectAllowed = if (createEntry.isAutoSelectAllowed) {
-                AUTO_SELECT_TRUE_STRING
-            } else {
-                AUTO_SELECT_FALSE_STRING
-            }
+            val autoSelectAllowed =
+                if (createEntry.isAutoSelectAllowed) {
+                    AUTO_SELECT_TRUE_STRING
+                } else {
+                    AUTO_SELECT_FALSE_STRING
+                }
 
-            sliceBuilder.addText(
-                accountName, /*subType=*/null,
-                listOf(SLICE_HINT_ACCOUNT_NAME)
-            )
+            sliceBuilder.addText(accountName, /* subType= */ null, listOf(SLICE_HINT_ACCOUNT_NAME))
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
-                    lastUsedTime.toEpochMilli(), /*subType=*/null, listOf(
-                        SLICE_HINT_LAST_USED_TIME_MILLIS
-                    )
+                    lastUsedTime.toEpochMilli(),
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_LAST_USED_TIME_MILLIS)
                 )
             }
             if (description != null) {
-                sliceBuilder.addText(
-                    description, null,
-                    listOf(SLICE_HINT_NOTE)
-                )
+                sliceBuilder.addText(description, null, listOf(SLICE_HINT_NOTE))
             }
             if (icon != null) {
-                sliceBuilder.addIcon(
-                    icon, /*subType=*/null,
-                    listOf(SLICE_HINT_ICON)
-                )
+                sliceBuilder.addIcon(icon, /* subType= */ null, listOf(SLICE_HINT_ICON))
             }
-            val credentialCountBundle = convertCredentialCountInfoToBundle(
-                credentialCountInformationMap
-            )
+            val credentialCountBundle =
+                convertCredentialCountInfoToBundle(credentialCountInformationMap)
             if (credentialCountBundle != null) {
                 sliceBuilder.addBundle(
-                    convertCredentialCountInfoToBundle(
-                        credentialCountInformationMap
-                    ), null, listOf(
-                        SLICE_HINT_CREDENTIAL_COUNT_INFORMATION
-                    )
+                    convertCredentialCountInfoToBundle(credentialCountInformationMap),
+                    null,
+                    listOf(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION)
                 )
             }
-            sliceBuilder.addAction(
-                pendingIntent,
-                Slice.Builder(sliceBuilder)
-                    .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
-                    .build(),
-                /*subType=*/null
-            ).addText(
-                autoSelectAllowed, /*subType=*/null,
-                listOf(SLICE_HINT_AUTO_SELECT_ALLOWED)
-            )
+            sliceBuilder
+                .addAction(
+                    pendingIntent,
+                    Slice.Builder(sliceBuilder)
+                        .addHints(Collections.singletonList(SLICE_HINT_PENDING_INTENT))
+                        .build(),
+                    /*subType=*/ null
+                )
+                .addText(
+                    autoSelectAllowed,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_AUTO_SELECT_ALLOWED)
+                )
             return sliceBuilder.build()
         }
 
@@ -361,8 +342,8 @@ class CreateEntry internal constructor(
                 } else if (it.hasHint(SLICE_HINT_PENDING_INTENT)) {
                     pendingIntent = it.action
                 } else if (it.hasHint(SLICE_HINT_CREDENTIAL_COUNT_INFORMATION)) {
-                    credentialCountInfo = convertBundleToCredentialCountInfo(it.bundle)
-                        as MutableMap<String, Int?>
+                    credentialCountInfo =
+                        convertBundleToCredentialCountInfo(it.bundle) as MutableMap<String, Int?>
                 } else if (it.hasHint(SLICE_HINT_LAST_USED_TIME_MILLIS)) {
                     lastUsedTime = Instant.ofEpochMilli(it.long)
                 } else if (it.hasHint(SLICE_HINT_NOTE)) {
@@ -378,8 +359,13 @@ class CreateEntry internal constructor(
             }
             return try {
                 CreateEntry(
-                    accountName!!, pendingIntent!!, icon, description,
-                    lastUsedTime, credentialCountInfo, autoSelectAllowed
+                    accountName!!,
+                    pendingIntent!!,
+                    icon,
+                    description,
+                    lastUsedTime,
+                    credentialCountInfo,
+                    autoSelectAllowed
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -388,8 +374,7 @@ class CreateEntry internal constructor(
         }
 
         @JvmStatic
-        internal fun convertBundleToCredentialCountInfo(bundle: Bundle?):
-            Map<String, Int?> {
+        internal fun convertBundleToCredentialCountInfo(bundle: Bundle?): Map<String, Int?> {
             val credentialCountMap = HashMap<String, Int?>()
             if (bundle == null) {
                 return credentialCountMap
@@ -461,15 +446,12 @@ class CreateEntry internal constructor(
         /**
          * Converts an instance of [CreateEntry] to a [Slice].
          *
-         * This method is only expected to be called on an API > 28
-         * impl, hence returning null for other levels as the
-         * visibility is only restricted to the library.
+         * This method is only expected to be called on an API > 28 impl, hence returning null for
+         * other levels as the visibility is only restricted to the library.
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun toSlice(
-            createEntry: CreateEntry
-        ): Slice? {
+        fun toSlice(createEntry: CreateEntry): Slice? {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.toSlice(createEntry)
             }
@@ -483,9 +465,7 @@ class CreateEntry internal constructor(
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun fromSlice(
-            slice: Slice
-        ): CreateEntry? {
+        fun fromSlice(slice: Slice): CreateEntry? {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.fromSlice(slice)
             }
@@ -496,10 +476,9 @@ class CreateEntry internal constructor(
          * Converts a framework [android.service.credentials.CreateEntry] class to a Jetpack
          * [CreateEntry] class
          *
-         * Note that this API is not needed in a general credential creation
-         * flow that is implemented using this jetpack library, where you are
-         * only required to construct an instance of [CreateEntry]
-         * to populate the [BeginCreateCredentialResponse].
+         * Note that this API is not needed in a general credential creation flow that is
+         * implemented using this jetpack library, where you are only required to construct an
+         * instance of [CreateEntry] to populate the [BeginCreateCredentialResponse].
          *
          * @param createEntry the instance of framework class to be converted
          */

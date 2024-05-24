@@ -43,10 +43,8 @@ import org.junit.runner.RunWith
 class CreateEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
     private val mIntent = Intent()
-    private val mPendingIntent = PendingIntent.getActivity(
-        mContext, 0, mIntent,
-        PendingIntent.FLAG_IMMUTABLE
-    )
+    private val mPendingIntent =
+        PendingIntent.getActivity(mContext, 0, mIntent, PendingIntent.FLAG_IMMUTABLE)
 
     @Test
     fun constructor_success_autoSelectDefaultFalse() {
@@ -89,9 +87,7 @@ class CreateEntryTest {
             "Expected empty account name to throw NPE",
             IllegalArgumentException::class.java
         ) {
-            CreateEntry(
-                "", mPendingIntent
-            )
+            CreateEntry("", mPendingIntent)
         }
     }
 
@@ -107,9 +103,7 @@ class CreateEntryTest {
         val entry = fromSlice(CreateEntry.toSlice(originalEntry)!!)
 
         assertNotNull(entry)
-        entry?.let {
-            assertEntryWithRequiredParams(entry)
-        }
+        entry?.let { assertEntryWithRequiredParams(entry) }
     }
 
     @Test
@@ -124,9 +118,7 @@ class CreateEntryTest {
         val entry = fromSlice(slice!!)
 
         assertNotNull(entry)
-        entry?.let {
-            assertEntryWithAllParams(entry)
-        }
+        entry?.let { assertEntryWithAllParams(entry) }
     }
 
     @Test
@@ -136,19 +128,14 @@ class CreateEntryTest {
         val slice = toSlice(originalEntry)
         assertNotNull(slice)
 
-        val entry = fromCreateEntry(
-            android.service.credentials.CreateEntry(slice!!)
-        )
+        val entry = fromCreateEntry(android.service.credentials.CreateEntry(slice!!))
 
         assertNotNull(entry)
         assertEntryWithAllParams(entry!!)
     }
 
     private fun constructEntryWithRequiredParams(): CreateEntry {
-        return CreateEntry(
-            ACCOUNT_NAME,
-            mPendingIntent
-        )
+        return CreateEntry(ACCOUNT_NAME, mPendingIntent)
     }
 
     private fun assertEntryWithRequiredParams(entry: CreateEntry) {
@@ -171,25 +158,13 @@ class CreateEntryTest {
     }
 
     private fun assertEntryWithAllParams(entry: CreateEntry) {
-        Truth.assertThat(ACCOUNT_NAME).isEqualTo(
-            entry.accountName
-        )
+        Truth.assertThat(ACCOUNT_NAME).isEqualTo(entry.accountName)
         Truth.assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
-        Truth.assertThat(ICON).isEqualTo(
-            entry.icon
-        )
-        Truth.assertThat(LAST_USED_TIME).isEqualTo(
-            entry.lastUsedTime?.toEpochMilli()
-        )
-        Truth.assertThat(PASSWORD_COUNT).isEqualTo(
-            entry.getPasswordCredentialCount()
-        )
-        Truth.assertThat(PUBLIC_KEY_CREDENTIAL_COUNT).isEqualTo(
-            entry.getPublicKeyCredentialCount()
-        )
-        Truth.assertThat(TOTAL_COUNT).isEqualTo(
-            entry.getTotalCredentialCount()
-        )
+        Truth.assertThat(ICON).isEqualTo(entry.icon)
+        Truth.assertThat(LAST_USED_TIME).isEqualTo(entry.lastUsedTime?.toEpochMilli())
+        Truth.assertThat(PASSWORD_COUNT).isEqualTo(entry.getPasswordCredentialCount())
+        Truth.assertThat(PUBLIC_KEY_CREDENTIAL_COUNT).isEqualTo(entry.getPublicKeyCredentialCount())
+        Truth.assertThat(TOTAL_COUNT).isEqualTo(entry.getTotalCredentialCount())
         Truth.assertThat(AUTO_SELECT_BIT).isTrue()
     }
 
@@ -201,10 +176,7 @@ class CreateEntryTest {
         private const val TOTAL_COUNT = 10
         private const val AUTO_SELECT_BIT = true
         private const val LAST_USED_TIME = 10L
-        private val ICON = Icon.createWithBitmap(
-            Bitmap.createBitmap(
-                100, 100, Bitmap.Config.ARGB_8888
-            )
-        )
+        private val ICON =
+            Icon.createWithBitmap(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
     }
 }

@@ -35,9 +35,7 @@ class BeginGetCustomCredentialOptionTest {
         expectedBundle.putString("random", "random_value")
         val expectedType = "type"
         val expectedId = "id"
-        val option = BeginGetCustomCredentialOption(
-            expectedId, expectedType, expectedBundle
-        )
+        val option = BeginGetCustomCredentialOption(expectedId, expectedType, expectedBundle)
         Truth.assertThat(option.type).isEqualTo(expectedType)
         Truth.assertThat(option.id).isEqualTo(expectedId)
         Truth.assertThat(equals(option.candidateQueryData, expectedBundle)).isTrue()
@@ -45,29 +43,15 @@ class BeginGetCustomCredentialOptionTest {
 
     @Test
     fun constructor_emptyType_throwsIAE() {
-        assertThrows(
-            "Expected empty Json to throw error",
-            IllegalArgumentException::class.java
-        ) {
-            BeginGetCustomCredentialOption(
-                "id",
-                "",
-                Bundle()
-            )
+        assertThrows("Expected empty Json to throw error", IllegalArgumentException::class.java) {
+            BeginGetCustomCredentialOption("id", "", Bundle())
         }
     }
 
     @Test
     fun constructor_emptyId_throwsIAE() {
-        assertThrows(
-            "Expected empty Json to throw error",
-            IllegalArgumentException::class.java
-        ) {
-            BeginGetCustomCredentialOption(
-                "",
-                "type",
-                Bundle()
-            )
+        assertThrows("Expected empty Json to throw error", IllegalArgumentException::class.java) {
+            BeginGetCustomCredentialOption("", "type", Bundle())
         }
     }
 }

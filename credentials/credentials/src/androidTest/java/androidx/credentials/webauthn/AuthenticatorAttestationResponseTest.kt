@@ -26,12 +26,12 @@ import org.junit.runner.RunWith
 @SmallTest
 class AuthenticatorAttestationResponseTest {
 
-  @Test
-  fun constructor() {
-    val rawId = byteArrayOf(1)
-    val rawPublicKey = byteArrayOf(2)
-    val rawJson =
-      """
+    @Test
+    fun constructor() {
+        val rawId = byteArrayOf(1)
+        val rawPublicKey = byteArrayOf(2)
+        val rawJson =
+            """
              {
                  "challenge": "AQ",
                  "rp": {
@@ -53,23 +53,23 @@ class AuthenticatorAttestationResponseTest {
                  "attestation": "enabled"
              }
           """
-    var options = PublicKeyCredentialCreationOptions(rawJson)
-    var response =
-      AuthenticatorAttestationResponse(
-        options,
-        rawId,
-        rawPublicKey,
-        "origin",
-        false,
-        true,
-        false,
-        true
-      )
-    var json = response.json()
-    var attestationObject = response.defaultAttestationObject()
+        var options = PublicKeyCredentialCreationOptions(rawJson)
+        var response =
+            AuthenticatorAttestationResponse(
+                options,
+                rawId,
+                rawPublicKey,
+                "origin",
+                false,
+                true,
+                false,
+                true
+            )
+        var json = response.json()
+        var attestationObject = response.defaultAttestationObject()
 
-    assertThat(json.getString("attestationObject"))
-      .isEqualTo(WebAuthnUtils.b64Encode(attestationObject))
-    assertThat(json.getString("transports")).isEqualTo("[\"internal\",\"hybrid\"]")
-  }
+        assertThat(json.getString("attestationObject"))
+            .isEqualTo(WebAuthnUtils.b64Encode(attestationObject))
+        assertThat(json.getString("transports")).isEqualTo("[\"internal\",\"hybrid\"]")
+    }
 }
