@@ -34,7 +34,7 @@ import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Text
 
-class SwipeActivity : ComponentActivity() {
+class SwipeToDismissActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

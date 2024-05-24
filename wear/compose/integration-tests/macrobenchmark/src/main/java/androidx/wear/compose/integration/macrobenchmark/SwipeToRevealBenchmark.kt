@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.macrobenchmark.test
+package androidx.wear.compose.integration.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
@@ -24,6 +24,9 @@ import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.testutils.createCompilationParams
+import androidx.wear.compose.integration.macrobenchmark.test.CONTENT_DESCRIPTION
+import androidx.wear.compose.integration.macrobenchmark.test.disableChargingExperience
+import androidx.wear.compose.integration.macrobenchmark.test.enableChargingExperience
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -33,7 +36,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class SwipeBenchmark(
+class SwipeToRevealBenchmark(
     private val compilationMode: CompilationMode
 ) {
     @get:Rule
@@ -62,17 +65,16 @@ class SwipeBenchmark(
                 startActivityAndWait(intent)
             }
         ) {
-            val swipeToDismissBox = device.findObject(By.desc(CONTENT_DESCRIPTION))
+            val swipeToReveal = device.findObject(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
-            swipeToDismissBox.setGestureMargin(device.displayWidth / 5)
+            swipeToReveal.setGestureMargin(device.displayWidth / 5)
             repeat(3) {
-                swipeToDismissBox.swipe(Direction.RIGHT, 1f, SWIPE_SPEED)
-                // Sleeping the current thread for sometime before swiping again. This is required
-                // for cuttlefish_wear emulator as swipes are not completed when performed
-                // repeatedly. See b/328016250 for more details.
-                // TODO(b/329837878): Remove the sleep once infra improves
-                Thread.sleep(500)
+                swipeToReveal.swipe(Direction.LEFT, 0.5f, SWIPE_SPEED)
                 device.waitForIdle()
+                Thread.sleep(500)
+                swipeToReveal.swipe(Direction.RIGHT, 1f, SWIPE_SPEED)
+                device.waitForIdle()
+                Thread.sleep(500)
             }
         }
     }
@@ -80,7 +82,7 @@ class SwipeBenchmark(
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
         private const val ACTION =
-            "androidx.wear.compose.integration.macrobenchmark.target.SWIPE_ACTIVITY"
+            "androidx.wear.compose.integration.macrobenchmark.target.SWIPE_TO_REVEAL_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic
