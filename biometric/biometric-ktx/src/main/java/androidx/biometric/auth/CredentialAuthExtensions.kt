@@ -29,18 +29,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * @param host A wrapper for the component that will host the prompt.
  * @param crypto A cryptographic object to be associated with this authentication.
- *
  * @return [AuthenticationResult] for a successful authentication.
- *
- * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
- * authentication has stopped.
+ * @throws AuthPromptErrorException when an unrecoverable error has been encountered and
+ *   authentication has stopped.
  * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
- *
- * @see CredentialAuthPrompt.authenticate(
- *     AuthPromptHost host,
- *     BiometricPrompt.CryptoObject,
- *     AuthPromptCallback
- * )
+ * @see CredentialAuthPrompt.authenticate( AuthPromptHost host, BiometricPrompt.CryptoObject,
+ *   AuthPromptCallback )
  *
  * @sample androidx.biometric.samples.auth.credentialAuth
  */
@@ -50,16 +44,15 @@ public suspend fun CredentialAuthPrompt.authenticate(
     crypto: BiometricPrompt.CryptoObject?,
 ): AuthenticationResult {
     return suspendCancellableCoroutine { continuation ->
-        val authPrompt = startAuthentication(
-            host,
-            crypto,
-            Runnable::run,
-            CoroutineAuthPromptCallback(continuation)
-        )
+        val authPrompt =
+            startAuthentication(
+                host,
+                crypto,
+                Runnable::run,
+                CoroutineAuthPromptCallback(continuation)
+            )
 
-        continuation.invokeOnCancellation {
-            authPrompt.cancelAuthentication()
-        }
+        continuation.invokeOnCancellation { authPrompt.cancelAuthentication() }
     }
 }
 
@@ -73,7 +66,6 @@ public suspend fun CredentialAuthPrompt.authenticate(
  * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
  * @return An [AuthPrompt] handle to the shown prompt.
- *
  * @see CredentialAuthPrompt
  */
 @RequiresApi(Build.VERSION_CODES.R)
@@ -102,11 +94,9 @@ public fun FragmentActivity.startCredentialAuthentication(
  * @param title The title to be displayed on the prompt.
  * @param description An optional description to be displayed on the prompt.
  * @return [AuthenticationResult] for a successful authentication.
- *
- * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
- * authentication has stopped.
+ * @throws AuthPromptErrorException when an unrecoverable error has been encountered and
+ *   authentication has stopped.
  * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
- *
  * @see CredentialAuthPrompt
  */
 @RequiresApi(Build.VERSION_CODES.R)
@@ -129,7 +119,6 @@ public suspend fun FragmentActivity.authenticateWithCredentials(
  * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
  * @return An [AuthPrompt] handle to the shown prompt.
- *
  * @see CredentialAuthPrompt
  */
 @RequiresApi(Build.VERSION_CODES.R)
@@ -158,11 +147,9 @@ public fun Fragment.startCredentialAuthentication(
  * @param title The title to be displayed on the prompt.
  * @param description An optional description to be displayed on the prompt.
  * @return [AuthenticationResult] for a successful authentication.
- *
- * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
- * authentication has stopped.
+ * @throws AuthPromptErrorException when an unrecoverable error has been encountered and
+ *   authentication has stopped.
  * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
- *
  * @see CredentialAuthPrompt
  */
 @RequiresApi(Build.VERSION_CODES.R)
@@ -175,9 +162,7 @@ public suspend fun Fragment.authenticateWithCredentials(
     return authPrompt.authenticate(AuthPromptHost(this), crypto)
 }
 
-/**
- * Creates a [CredentialAuthPrompt] with the given parameters and starts authentication.
- */
+/** Creates a [CredentialAuthPrompt] with the given parameters and starts authentication. */
 @RequiresApi(Build.VERSION_CODES.R)
 private fun startCredentialAuthenticationInternal(
     host: AuthPromptHost,
@@ -195,13 +180,10 @@ private fun startCredentialAuthenticationInternal(
     }
 }
 
-/**
- * Creates a [CredentialAuthPrompt] with the given parameters.
- */
+/** Creates a [CredentialAuthPrompt] with the given parameters. */
 @RequiresApi(Build.VERSION_CODES.R)
 private fun buildCredentialAuthPrompt(
     title: CharSequence,
     description: CharSequence?
-): CredentialAuthPrompt = CredentialAuthPrompt.Builder(title)
-    .apply { description?.let { setDescription(it) } }
-    .build()
+): CredentialAuthPrompt =
+    CredentialAuthPrompt.Builder(title).apply { description?.let { setDescription(it) } }.build()

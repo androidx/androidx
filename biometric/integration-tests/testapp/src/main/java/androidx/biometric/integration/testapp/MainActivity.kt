@@ -21,9 +21,7 @@ import android.os.Bundle
 import androidx.biometric.integration.testapp.databinding.MainActivityBinding
 import androidx.fragment.app.FragmentActivity
 
-/**
- * Main activity for the AndroidX Biometric test app.
- */
+/** Main activity for the AndroidX Biometric test app. */
 class MainActivity : FragmentActivity() {
     private lateinit var binding: MainActivityBinding
 
@@ -37,9 +35,7 @@ class MainActivity : FragmentActivity() {
         binding.authPromptButton.setOnClickListener { launch<AuthPromptTestActivity>() }
     }
 
-    /**
-     * Launches an instance of the given test activity [T].
-     */
+    /** Launches an instance of the given test activity [T]. */
     private inline fun <reified T : FragmentActivity> launch() {
         startActivity(Intent(this, T::class.java))
     }
