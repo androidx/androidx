@@ -215,54 +215,31 @@ interface LookaheadScope {
      * [toLookaheadCoordinates], and 2) invoking [LayoutCoordinates.localPositionOf] with the
      * converted coordinates.
      *
-     * For layouts where [LayoutCoordinates.introducesFrameOfReference] returns false (placed under
-     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement]) you may use
-     * [positionInLocalLookaheadFrameOfReference] to get their position while excluding the
+     * For layouts where [LayoutCoordinates.introducesMotionFrameOfReference] returns `true` (placed
+     * under [Placeable.PlacementScope.withMotionFrameOfReferencePlacement]) you may pass
+     * [includeMotionFrameOfReference] as `false` to get their position while excluding the
      * additional Offset.
      */
     fun LayoutCoordinates.localLookaheadPositionOf(
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset = Offset.Zero,
+        includeMotionFrameOfReference: Boolean = true,
     ): Offset = localLookaheadPositionOf(
         coordinates = this,
         sourceCoordinates = sourceCoordinates,
         relativeToSource = relativeToSource,
-        excludeDirectManipulationOffset = false
-    )
-
-    /**
-     * Similar to [localLookaheadPositionOf], converts [relativeToSource] in [sourceCoordinates]'s
-     * lookahead coordinate space into local lookahead coordinates.
-     *
-     * However, the Offset introduced on [LayoutCoordinates] when their
-     * [LayoutCoordinates.introducesFrameOfReference] property is false, will be excluded from the
-     * calculation.
-     *
-     * Those [LayoutCoordinates] correspond to when they are placed by their parent under
-     * [Placeable.PlacementScope.withCurrentFrameOfReferencePlacement], which is typically done by
-     * Layouts that change their children positioning without affecting the overall hierarchy, or
-     * they do so in small increments (such as Scroll).
-     */
-    fun LayoutCoordinates.positionInLocalLookaheadFrameOfReference(
-        sourceCoordinates: LayoutCoordinates,
-        relativeToSource: Offset = Offset.Zero,
-    ): Offset = localLookaheadPositionOf(
-        coordinates = this,
-        sourceCoordinates = sourceCoordinates,
-        relativeToSource = relativeToSource,
-        excludeDirectManipulationOffset = true
+        includeMotionFrameOfReference = includeMotionFrameOfReference
     )
 }
 
 /**
- * Internal implementation to handle [LookaheadScope.localLookaheadPositionOf] and
- * [LookaheadScope.positionInLocalLookaheadFrameOfReference].
+ * Internal implementation to handle [LookaheadScope.localLookaheadPositionOf].
  */
 internal fun LookaheadScope.localLookaheadPositionOf(
     coordinates: LayoutCoordinates,
     sourceCoordinates: LayoutCoordinates,
     relativeToSource: Offset,
-    excludeDirectManipulationOffset: Boolean
+    includeMotionFrameOfReference: Boolean
 ): Offset {
     val lookaheadCoords = coordinates.toLookaheadCoordinates()
     val source = sourceCoordinates.toLookaheadCoordinates()
@@ -271,27 +248,21 @@ internal fun LookaheadScope.localLookaheadPositionOf(
         lookaheadCoords.localPositionOf(
             sourceCoordinates = source,
             relativeToSource = relativeToSource,
-            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            includeMotionFrameOfReference = includeMotionFrameOfReference
         )
     } else if (source is LookaheadLayoutCoordinates) {
         // Relative from source, so we take its negative position
         -source.localPositionOf(
             sourceCoordinates = lookaheadCoords,
             relativeToSource = relativeToSource,
-            excludeDirectManipulationOffset = excludeDirectManipulationOffset
+            includeMotionFrameOfReference = includeMotionFrameOfReference
         )
     } else {
-        if (excludeDirectManipulationOffset) {
-            lookaheadCoords.positionInLocalFrameOfReference(
-                sourceCoordinates = source,
-                relativeToSource = relativeToSource
-            )
-        } else {
-            lookaheadCoords.localPositionOf(
-                sourceCoordinates = lookaheadCoords,
-                relativeToSource = relativeToSource
-            )
-        }
+        lookaheadCoords.localPositionOf(
+            sourceCoordinates = lookaheadCoords,
+            relativeToSource = relativeToSource,
+            includeMotionFrameOfReference = includeMotionFrameOfReference
+        )
     }
 }
 
