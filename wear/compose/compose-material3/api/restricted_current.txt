@@ -34,12 +34,14 @@ package androidx.wear.compose.material3 {
     method public androidx.compose.foundation.layout.PaddingValues getCompactButtonContentPadding();
     method public float getCompactButtonHeight();
     method public float getCompactButtonHorizontalPadding();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getCompactButtonShape();
     method public androidx.compose.foundation.layout.PaddingValues getCompactButtonTapTargetPadding();
     method public float getCompactButtonVerticalPadding();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method public float getHeight();
     method public float getIconSize();
     method public float getLargeIconSize();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
     method public float getSmallIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors imageBackgroundButtonColors(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedButtonBorder(boolean enabled, optional long borderColor, optional long disabledBorderColor, optional float borderWidth);
@@ -57,6 +59,8 @@ package androidx.wear.compose.material3 {
     property public final float IconSize;
     property public final float LargeIconSize;
     property public final float SmallIconSize;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape compactButtonShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
     field public static final androidx.wear.compose.material3.ButtonDefaults INSTANCE;
   }
 
@@ -758,11 +762,15 @@ package androidx.wear.compose.material3 {
 
   public final class ToggleButtonDefaults {
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getSplitToggleButtonShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getToggleButtonShape();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitToggleButtonColors splitToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.SplitToggleButtonColors splitToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedSplitContainerColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedSplitContainerColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedSplitContainerColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedSplitContainerColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ToggleButtonColors toggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ToggleButtonColors toggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long checkedSecondaryContentColor, optional long checkedIconColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long uncheckedSecondaryContentColor, optional long uncheckedIconColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledCheckedSecondaryContentColor, optional long disabledCheckedIconColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor, optional long disabledUncheckedSecondaryContentColor, optional long disabledUncheckedIconColor);
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape splitToggleButtonShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape toggleButtonShape;
     field public static final androidx.wear.compose.material3.ToggleButtonDefaults INSTANCE;
   }
 

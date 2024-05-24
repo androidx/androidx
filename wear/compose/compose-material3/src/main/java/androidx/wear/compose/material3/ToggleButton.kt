@@ -97,7 +97,7 @@ fun ToggleButton(
     toggleControl: @Composable ToggleControlScope.() -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = ToggleButtonTokens.ContainerShape.value,
+    shape: Shape = ToggleButtonDefaults.toggleButtonShape,
     colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
     contentPadding: PaddingValues = ToggleButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
@@ -216,7 +216,7 @@ fun SplitToggleButton(
     toggleControl: @Composable ToggleControlScope.() -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = SplitToggleButtonTokens.ContainerShape.value,
+    shape: Shape = ToggleButtonDefaults.splitToggleButtonShape,
     colors: SplitToggleButtonColors = ToggleButtonDefaults.splitToggleButtonColors(),
     checkedInteractionSource: MutableInteractionSource? = null,
     clickInteractionSource: MutableInteractionSource? = null,
@@ -270,6 +270,17 @@ fun SplitToggleButton(
  * Contains the default values used by [ToggleButton]s and [SplitToggleButton]s
  */
 object ToggleButtonDefaults {
+    /**
+     * Recommended [Shape] for [ToggleButton].
+     */
+    val toggleButtonShape: Shape
+        @Composable get() = ToggleButtonTokens.ContainerShape.value
+
+    /**
+     * Recommended [Shape] for [SplitToggleButton].
+     */
+    val splitToggleButtonShape: Shape
+        @Composable get() = SplitToggleButtonTokens.ContainerShape.value
 
     /**
      * Creates a [ToggleButtonColors] for use in a [ToggleButton].
