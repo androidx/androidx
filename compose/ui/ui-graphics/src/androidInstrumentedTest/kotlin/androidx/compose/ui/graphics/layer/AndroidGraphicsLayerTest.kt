@@ -22,6 +22,7 @@ import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.StrictMode
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.isLayerManagerInitialized
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
@@ -68,6 +70,7 @@ import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
@@ -1421,20 +1424,41 @@ class AndroidGraphicsLayerTest {
         verifySoftwareRender: Boolean = true
     ) {
         var scenario: ActivityScenario<TestActivity>? = null
+        var androidGraphicsContext: GraphicsContext? = null
+        var container: ViewGroup? = null
         try {
-            var container: ViewGroup? = null
             var contentView: View? = null
             var rootGraphicsLayer: GraphicsLayer? = null
             var density = Density(1f)
             scenario = ActivityScenario.launch(TestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
+                    // See b/167533582 In the API 30 platform release, there was a StrictMode
+                    // violation with SurfaceControl#readFromParcel that would cause the tests to
+                    // crash on an issue not related to this test suite. So skip StrictMode tests
+                    // for this platform version.
+                    // See ag/283838 as Surface also violated StrictMode policies
+                    val sdk = Build.VERSION.SDK_INT
+                    val supportsStrictMode = sdk != Build.VERSION_CODES.R &&
+                        sdk >= Build.VERSION_CODES.M
+                    if (supportsStrictMode) {
+                        StrictMode.setVmPolicy(
+                            StrictMode.VmPolicy.Builder()
+                                .detectLeakedClosableObjects()
+                                .penaltyLog()
+                                .penaltyDeath()
+                                .build()
+                        )
+                    }
+
                     container = FrameLayout(it).apply {
                         setBackgroundColor(Color.White.toArgb())
                         clipToPadding = false
                         clipChildren = false
                     }
-                    val graphicsContext = GraphicsContext(container!!)
+                    val graphicsContext = GraphicsContext(container!!).also {
+                        androidGraphicsContext = it
+                    }
                     rootGraphicsLayer = graphicsContext.createGraphicsLayer()
                     density = Density(it)
                     val content = FrameLayout(it).apply {
@@ -1457,6 +1481,10 @@ class AndroidGraphicsLayerTest {
                 .onActivity { activity ->
                     testActivity = activity
                     activity.runOnUiThread {
+                        // Layer persistence is only required on M+
+                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                            assertTrue(androidGraphicsContext!!.isLayerManagerInitialized())
+                        }
                         resumed.countDown()
                     }
                 }
@@ -1507,6 +1535,20 @@ class AndroidGraphicsLayerTest {
                 }
             }
         } finally {
+            val detachLatch = CountDownLatch(1)
+            scenario?.onActivity {
+                it.runOnUiThread {
+                    // Force removal of View first to ensure layers are destroyed on
+                    // window detachment
+                    (container!!.parent as ViewGroup).removeView(container!!)
+                    detachLatch.countDown()
+                }
+            }
+            assertTrue(detachLatch.await(3000, TimeUnit.MILLISECONDS))
+            // Layer persistence is only required on M+
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                assertFalse(androidGraphicsContext!!.isLayerManagerInitialized())
+            }
             scenario?.moveToState(Lifecycle.State.DESTROYED)
         }
     }
