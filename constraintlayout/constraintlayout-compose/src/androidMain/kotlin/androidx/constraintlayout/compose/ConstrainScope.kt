@@ -38,59 +38,39 @@ import kotlin.reflect.KProperty
  */
 @LayoutScopeMarker
 @Stable
-class ConstrainScope internal constructor(
-    internal val id: Any,
-    internal val containerObject: CLObject
-) {
+class ConstrainScope
+internal constructor(internal val id: Any, internal val containerObject: CLObject) {
     /**
-     * Reference to the [ConstraintLayout] itself, which can be used to specify constraints
-     * between itself and its children.
+     * Reference to the [ConstraintLayout] itself, which can be used to specify constraints between
+     * itself and its children.
      */
     val parent = ConstrainedLayoutReference("parent")
 
-    /**
-     * The start anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
-     */
+    /** The start anchor of the layout - can be constrained using [VerticalAnchorable.linkTo]. */
     val start: VerticalAnchorable = ConstraintVerticalAnchorable(-2, containerObject)
 
-    /**
-     * The left anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
-     */
+    /** The left anchor of the layout - can be constrained using [VerticalAnchorable.linkTo]. */
     val absoluteLeft: VerticalAnchorable = ConstraintVerticalAnchorable(0, containerObject)
 
-    /**
-     * The top anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo].
-     */
+    /** The top anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo]. */
     val top: HorizontalAnchorable = ConstraintHorizontalAnchorable(0, containerObject)
 
-    /**
-     * The end anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
-     */
+    /** The end anchor of the layout - can be constrained using [VerticalAnchorable.linkTo]. */
     val end: VerticalAnchorable = ConstraintVerticalAnchorable(-1, containerObject)
 
-    /**
-     * The right anchor of the layout - can be constrained using [VerticalAnchorable.linkTo].
-     */
+    /** The right anchor of the layout - can be constrained using [VerticalAnchorable.linkTo]. */
     val absoluteRight: VerticalAnchorable = ConstraintVerticalAnchorable(1, containerObject)
 
-    /**
-     * The bottom anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo].
-     */
+    /** The bottom anchor of the layout - can be constrained using [HorizontalAnchorable.linkTo]. */
     val bottom: HorizontalAnchorable = ConstraintHorizontalAnchorable(1, containerObject)
 
-    /**
-     * The [FirstBaseline] of the layout - can be constrained using [BaselineAnchorable.linkTo].
-     */
+    /** The [FirstBaseline] of the layout - can be constrained using [BaselineAnchorable.linkTo]. */
     val baseline: BaselineAnchorable = ConstraintBaselineAnchorable(containerObject)
 
-    /**
-     * The width of the [ConstraintLayout] child.
-     */
+    /** The width of the [ConstraintLayout] child. */
     var width: Dimension by DimensionProperty(Dimension.wrapContent)
 
-    /**
-     * The height of the [ConstraintLayout] child.
-     */
+    /** The height of the [ConstraintLayout] child. */
     var height: Dimension by DimensionProperty(Dimension.wrapContent)
 
     /**
@@ -98,19 +78,18 @@ class ConstrainScope internal constructor(
      *
      * [Visibility.Visible] by default.
      */
-    var visibility: Visibility by object : ObservableProperty<Visibility>(Visibility.Visible) {
-        override fun afterChange(
-            property: KProperty<*>,
-            oldValue: Visibility,
-            newValue: Visibility
-        ) {
-            containerObject.putString(property.name, newValue.name)
+    var visibility: Visibility by
+        object : ObservableProperty<Visibility>(Visibility.Visible) {
+            override fun afterChange(
+                property: KProperty<*>,
+                oldValue: Visibility,
+                newValue: Visibility
+            ) {
+                containerObject.putString(property.name, newValue.name)
+            }
         }
-    }
 
-    /**
-     * The transparency value when rendering the content.
-     */
+    /** The transparency value when rendering the content. */
     @FloatRange(from = 0.0, to = 1.0)
     var alpha: Float = 1.0f
         set(value) {
@@ -121,44 +100,28 @@ class ConstrainScope internal constructor(
             }
         }
 
-    /**
-     * The percent scaling value on the horizontal axis. Where 1 is 100%.
-     */
+    /** The percent scaling value on the horizontal axis. Where 1 is 100%. */
     var scaleX: Float by FloatProperty(1.0f)
 
-    /**
-     * The percent scaling value on the vertical axis. Where 1 is 100%.
-     */
+    /** The percent scaling value on the vertical axis. Where 1 is 100%. */
     var scaleY: Float by FloatProperty(1.0f)
 
-    /**
-     * The degrees to rotate the content over the horizontal axis.
-     */
+    /** The degrees to rotate the content over the horizontal axis. */
     var rotationX: Float by FloatProperty(0.0f)
 
-    /**
-     * The degrees to rotate the content over the vertical axis.
-     */
+    /** The degrees to rotate the content over the vertical axis. */
     var rotationY: Float by FloatProperty(0.0f)
 
-    /**
-     * The degrees to rotate the content on the screen plane.
-     */
+    /** The degrees to rotate the content on the screen plane. */
     var rotationZ: Float by FloatProperty(0.0f)
 
-    /**
-     * The distance to offset the content over the X axis.
-     */
+    /** The distance to offset the content over the X axis. */
     var translationX: Dp by DpProperty(0.dp)
 
-    /**
-     * The distance to offset the content over the Y axis.
-     */
+    /** The distance to offset the content over the Y axis. */
     var translationY: Dp by DpProperty(0.dp)
 
-    /**
-     * The distance to offset the content over the Z axis.
-     */
+    /** The distance to offset the content over the Z axis. */
     var translationZ: Dp by DpProperty(0.dp)
 
     /**
@@ -223,9 +186,7 @@ class ConstrainScope internal constructor(
             }
         }
 
-    /**
-     * Adds both start and end links towards other [ConstraintLayoutBaseScope.VerticalAnchor]s.
-     */
+    /** Adds both start and end links towards other [ConstraintLayoutBaseScope.VerticalAnchor]s. */
     fun linkTo(
         start: ConstraintLayoutBaseScope.VerticalAnchor,
         end: ConstraintLayoutBaseScope.VerticalAnchor,
@@ -240,11 +201,7 @@ class ConstrainScope internal constructor(
             margin = startMargin,
             goneMargin = startGoneMargin
         )
-        this@ConstrainScope.end.linkTo(
-            anchor = end,
-            margin = endMargin,
-            goneMargin = endGoneMargin
-        )
+        this@ConstrainScope.end.linkTo(anchor = end, margin = endMargin, goneMargin = endGoneMargin)
         containerObject.putNumber("hRtlBias", bias)
     }
 
@@ -260,11 +217,7 @@ class ConstrainScope internal constructor(
         bottomGoneMargin: Dp = 0.dp,
         @FloatRange(from = 0.0, to = 1.0) bias: Float = 0.5f
     ) {
-        this@ConstrainScope.top.linkTo(
-            anchor = top,
-            margin = topMargin,
-            goneMargin = topGoneMargin
-        )
+        this@ConstrainScope.top.linkTo(anchor = top, margin = topMargin, goneMargin = topGoneMargin)
         this@ConstrainScope.bottom.linkTo(
             anchor = bottom,
             margin = bottomMargin,
@@ -274,8 +227,8 @@ class ConstrainScope internal constructor(
     }
 
     /**
-     * Adds all start, top, end, bottom links towards
-     * other [ConstraintLayoutBaseScope.HorizontalAnchor]s.
+     * Adds all start, top, end, bottom links towards other
+     * [ConstraintLayoutBaseScope.HorizontalAnchor]s.
      */
     fun linkTo(
         start: ConstraintLayoutBaseScope.VerticalAnchor,
@@ -314,17 +267,16 @@ class ConstrainScope internal constructor(
     }
 
     /**
-     * Adds all start, top, end, bottom links towards the corresponding anchors of [other].
-     * This will center the current layout inside or around (depending on size) [other].
+     * Adds all start, top, end, bottom links towards the corresponding anchors of [other]. This
+     * will center the current layout inside or around (depending on size) [other].
      */
     fun centerTo(other: ConstrainedLayoutReference) {
         linkTo(other.start, other.top, other.end, other.bottom)
     }
 
     /**
-     * Adds start and end links towards the corresponding anchors of [other].
-     * This will center horizontally the current layout inside or around (depending on size)
-     * [other].
+     * Adds start and end links towards the corresponding anchors of [other]. This will center
+     * horizontally the current layout inside or around (depending on size) [other].
      */
     fun centerHorizontallyTo(
         other: ConstrainedLayoutReference,
@@ -334,9 +286,8 @@ class ConstrainScope internal constructor(
     }
 
     /**
-     * Adds top and bottom links towards the corresponding anchors of [other].
-     * This will center vertically the current layout inside or around (depending on size)
-     * [other].
+     * Adds top and bottom links towards the corresponding anchors of [other]. This will center
+     * vertically the current layout inside or around (depending on size) [other].
      */
     fun centerVerticallyTo(
         other: ConstrainedLayoutReference,
@@ -346,31 +297,32 @@ class ConstrainScope internal constructor(
     }
 
     /**
-     * Adds start and end links towards a vertical [anchor].
-     * This will center the current layout around the vertical [anchor].
+     * Adds start and end links towards a vertical [anchor]. This will center the current layout
+     * around the vertical [anchor].
      */
     fun centerAround(anchor: ConstraintLayoutBaseScope.VerticalAnchor) {
         linkTo(anchor, anchor)
     }
 
     /**
-     * Adds top and bottom links towards a horizontal [anchor].
-     * This will center the current layout around the horizontal [anchor].
+     * Adds top and bottom links towards a horizontal [anchor]. This will center the current layout
+     * around the horizontal [anchor].
      */
     fun centerAround(anchor: ConstraintLayoutBaseScope.HorizontalAnchor) {
         linkTo(anchor, anchor)
     }
 
     /**
-     * Set a circular constraint relative to the center of [other].
-     * This will position the current widget at a relative angle and distance from [other].
+     * Set a circular constraint relative to the center of [other]. This will position the current
+     * widget at a relative angle and distance from [other].
      */
     fun circular(other: ConstrainedLayoutReference, angle: Float, distance: Dp) {
-        val circularParams = CLArray(charArrayOf()).apply {
-            add(CLString.from(other.id.toString()))
-            add(CLNumber(angle))
-            add(CLNumber(distance.value))
-        }
+        val circularParams =
+            CLArray(charArrayOf()).apply {
+                add(CLString.from(other.id.toString()))
+                add(CLNumber(angle))
+                add(CLNumber(distance.value))
+            }
         containerObject.put("circular", circularParams)
     }
 
@@ -464,10 +416,8 @@ class ConstrainScope internal constructor(
         }
     }
 
-    private inner class DpProperty(
-        initialValue: Dp,
-        private val nameOverride: String? = null
-    ) : ObservableProperty<Dp>(initialValue) {
+    private inner class DpProperty(initialValue: Dp, private val nameOverride: String? = null) :
+        ObservableProperty<Dp>(initialValue) {
         override fun afterChange(property: KProperty<*>, oldValue: Dp, newValue: Dp) {
             if (!newValue.value.isNaN()) {
                 containerObject.putNumber(nameOverride ?: property.name, newValue.value)
@@ -477,62 +427,55 @@ class ConstrainScope internal constructor(
 }
 
 /**
- * Represents a vertical side of a layout (i.e start and end) that can be anchored using
- * [linkTo] in their `Modifier.constrainAs` blocks.
+ * Represents a vertical side of a layout (i.e start and end) that can be anchored using [linkTo] in
+ * their `Modifier.constrainAs` blocks.
  */
-private class ConstraintVerticalAnchorable constructor(
-    index: Int,
-    containerObject: CLObject
-) : BaseVerticalAnchorable(containerObject, index)
+private class ConstraintVerticalAnchorable constructor(index: Int, containerObject: CLObject) :
+    BaseVerticalAnchorable(containerObject, index)
 
 /**
- * Represents a horizontal side of a layout (i.e top and bottom) that can be anchored using
- * [linkTo] in their `Modifier.constrainAs` blocks.
+ * Represents a horizontal side of a layout (i.e top and bottom) that can be anchored using [linkTo]
+ * in their `Modifier.constrainAs` blocks.
  */
-private class ConstraintHorizontalAnchorable constructor(
-    index: Int,
-    containerObject: CLObject
-) : BaseHorizontalAnchorable(containerObject, index)
+private class ConstraintHorizontalAnchorable constructor(index: Int, containerObject: CLObject) :
+    BaseHorizontalAnchorable(containerObject, index)
 
 /**
- * Represents the [FirstBaseline] of a layout that can be anchored
- * using [linkTo] in their `Modifier.constrainAs` blocks.
+ * Represents the [FirstBaseline] of a layout that can be anchored using [linkTo] in their
+ * `Modifier.constrainAs` blocks.
  */
-private class ConstraintBaselineAnchorable constructor(
-    private val containerObject: CLObject
-) : BaselineAnchorable {
-    /**
-     * Adds a link towards a [ConstraintLayoutBaseScope.BaselineAnchor].
-     */
+private class ConstraintBaselineAnchorable constructor(private val containerObject: CLObject) :
+    BaselineAnchorable {
+    /** Adds a link towards a [ConstraintLayoutBaseScope.BaselineAnchor]. */
     override fun linkTo(
         anchor: ConstraintLayoutBaseScope.BaselineAnchor,
         margin: Dp,
         goneMargin: Dp
     ) {
-        val constraintArray = CLArray(charArrayOf()).apply {
-            add(CLString.from(anchor.id.toString()))
-            add(CLString.from("baseline"))
-            add(CLNumber(margin.value))
-            add(CLNumber(goneMargin.value))
-        }
+        val constraintArray =
+            CLArray(charArrayOf()).apply {
+                add(CLString.from(anchor.id.toString()))
+                add(CLString.from("baseline"))
+                add(CLNumber(margin.value))
+                add(CLNumber(goneMargin.value))
+            }
         containerObject.put("baseline", constraintArray)
     }
 
-    /**
-     * Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor].
-     */
+    /** Adds a link towards a [ConstraintLayoutBaseScope.HorizontalAnchor]. */
     override fun linkTo(
         anchor: ConstraintLayoutBaseScope.HorizontalAnchor,
         margin: Dp,
         goneMargin: Dp
     ) {
         val targetAnchorName = AnchorFunctions.horizontalAnchorIndexToAnchorName(anchor.index)
-        val constraintArray = CLArray(charArrayOf()).apply {
-            add(CLString.from(anchor.id.toString()))
-            add(CLString.from(targetAnchorName))
-            add(CLNumber(margin.value))
-            add(CLNumber(goneMargin.value))
-        }
+        val constraintArray =
+            CLArray(charArrayOf()).apply {
+                add(CLString.from(anchor.id.toString()))
+                add(CLString.from(targetAnchorName))
+                add(CLNumber(margin.value))
+                add(CLNumber(goneMargin.value))
+            }
         containerObject.put("baseline", constraintArray)
     }
 }

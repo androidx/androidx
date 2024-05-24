@@ -64,8 +64,8 @@ import kotlinx.coroutines.launch
 /**
  * State of the [carouselSwipeable] modifier.
  *
- * This contains necessary information about any ongoing swipe or animation and provides methods
- * to change the state either immediately or by starting an animation. To create and remember a
+ * This contains necessary information about any ongoing swipe or animation and provides methods to
+ * change the state either immediately or by starting an animation. To create and remember a
  * [CarouselSwipeableState] with the default animation clock, use [rememberCarouselSwipeableState].
  *
  * @param initialValue The initial value of the state.
@@ -82,30 +82,29 @@ internal open class CarouselSwipeableState<T>(
      * The current value of the state.
      *
      * If no swipe or animation is in progress, this corresponds to the anchor at which the
-     * [carouselSwipeable] is currently settled. If a swipe or animation is in progress, this corresponds
-     * the last anchor at which the [carouselSwipeable] was settled before the swipe or animation started.
+     * [carouselSwipeable] is currently settled. If a swipe or animation is in progress, this
+     * corresponds the last anchor at which the [carouselSwipeable] was settled before the swipe or
+     * animation started.
      */
     var currentValue: T by mutableStateOf(initialValue)
         private set
 
-    /**
-     * Whether the state is currently animating.
-     */
+    /** Whether the state is currently animating. */
     var isAnimationRunning: Boolean by mutableStateOf(false)
         private set
 
     /**
      * The current position (in pixels) of the [carouselSwipeable].
      *
-     * You should use this state to offset your content accordingly. The recommended way is to
-     * use `Modifier.offsetPx`. This includes the resistance by default, if resistance is enabled.
+     * You should use this state to offset your content accordingly. The recommended way is to use
+     * `Modifier.offsetPx`. This includes the resistance by default, if resistance is enabled.
      */
-    val offset: FloatState get() = offsetState
+    val offset: FloatState
+        get() = offsetState
 
-    /**
-     * The amount by which the [carouselSwipeable] has been swiped past its bounds.
-     */
-    val overflow: FloatState get() = overflowState
+    /** The amount by which the [carouselSwipeable] has been swiped past its bounds. */
+    val overflow: FloatState
+        get() = overflowState
 
     // Use `Float.NaN` as a placeholder while the state is uninitialised.
     private val offsetState = mutableFloatStateOf(0f)
@@ -121,9 +120,7 @@ internal open class CarouselSwipeableState<T>(
     internal var anchors by mutableStateOf(emptyMap<Float, T>())
 
     private val latestNonEmptyAnchorsFlow: Flow<Map<Float, T>> =
-        snapshotFlow { anchors }
-            .filter { it.isNotEmpty() }
-            .take(1)
+        snapshotFlow { anchors }.filter { it.isNotEmpty() }.take(1)
 
     internal var minBound = Float.NEGATIVE_INFINITY
     internal var maxBound = Float.POSITIVE_INFINITY
@@ -132,27 +129,20 @@ internal open class CarouselSwipeableState<T>(
         if (anchors.isEmpty()) {
             // need to do initial synchronization synchronously :(
             val initialOffset = newAnchors.getOffset(currentValue)
-            requireNotNull(initialOffset) {
-                "The initial value must have an associated anchor."
-            }
+            requireNotNull(initialOffset) { "The initial value must have an associated anchor." }
             offsetState.floatValue = initialOffset
             absoluteOffset.floatValue = initialOffset
         }
     }
 
-    internal suspend fun processNewAnchors(
-        oldAnchors: Map<Float, T>,
-        newAnchors: Map<Float, T>
-    ) {
+    internal suspend fun processNewAnchors(oldAnchors: Map<Float, T>, newAnchors: Map<Float, T>) {
         if (oldAnchors.isEmpty()) {
             // If this is the first time that we receive anchors, then we need to initialise
             // the state so we snap to the offset associated to the initial value.
             minBound = newAnchors.keys.minOrNull()!!
             maxBound = newAnchors.keys.maxOrNull()!!
             val initialOffset = newAnchors.getOffset(currentValue)
-            requireNotNull(initialOffset) {
-                "The initial value must have an associated anchor."
-            }
+            requireNotNull(initialOffset) { "The initial value must have an associated anchor." }
             snapInternalToOffset(initialOffset)
         } else if (newAnchors != oldAnchors) {
             // If we have received new anchors, then the offset of the current value might
@@ -163,19 +153,20 @@ internal open class CarouselSwipeableState<T>(
             maxBound = Float.POSITIVE_INFINITY
             val animationTargetValue = animationTarget.value
             // if we're in the animation already, let's find it a new home
-            val targetOffset = if (animationTargetValue != null) {
-                // first, try to map old state to the new state
-                val oldState = oldAnchors[animationTargetValue]
-                val newState = newAnchors.getOffset(oldState)
-                // return new state if exists, or find the closes one among new anchors
-                newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) }!!
-            } else {
-                // we're not animating, proceed by finding the new anchors for an old value
-                val actualOldValue = oldAnchors[offset.floatValue]
-                val value = if (actualOldValue == currentValue) currentValue else actualOldValue
-                newAnchors.getOffset(value) ?: newAnchors
-                    .keys.minByOrNull { abs(it - offset.floatValue) }!!
-            }
+            val targetOffset =
+                if (animationTargetValue != null) {
+                    // first, try to map old state to the new state
+                    val oldState = oldAnchors[animationTargetValue]
+                    val newState = newAnchors.getOffset(oldState)
+                    // return new state if exists, or find the closes one among new anchors
+                    newState ?: newAnchors.keys.minByOrNull { abs(it - animationTargetValue) }!!
+                } else {
+                    // we're not animating, proceed by finding the new anchors for an old value
+                    val actualOldValue = oldAnchors[offset.floatValue]
+                    val value = if (actualOldValue == currentValue) currentValue else actualOldValue
+                    newAnchors.getOffset(value)
+                        ?: newAnchors.keys.minByOrNull { abs(it - offset.floatValue) }!!
+                }
             try {
                 animateInternalToOffset(targetOffset, animationSpec)
             } catch (c: CancellationException) {
@@ -206,9 +197,7 @@ internal open class CarouselSwipeableState<T>(
     }
 
     private suspend fun snapInternalToOffset(target: Float) {
-        draggableState.drag {
-            dragBy(target - absoluteOffset.floatValue)
-        }
+        draggableState.drag { dragBy(target - absoluteOffset.floatValue) }
     }
 
     private suspend fun animateInternalToOffset(target: Float, spec: AnimationSpec<Float>) {
@@ -231,21 +220,23 @@ internal open class CarouselSwipeableState<T>(
     /**
      * The target value of the state.
      *
-     * If a swipe is in progress, this is the value that the [carouselSwipeable] would animate to if the
-     * swipe finished. If an animation is running, this is the target value of that animation.
+     * If a swipe is in progress, this is the value that the [carouselSwipeable] would animate to if
+     * the swipe finished. If an animation is running, this is the target value of that animation.
      * Finally, if no swipe or animation is in progress, this is the same as the [currentValue].
      */
     val targetValue: T
         get() {
             // TODO(calintat): Track current velocity (b/149549482) and use that here.
-            val target = animationTarget.value ?: computeTarget(
-                offset = offset.floatValue,
-                lastValue = anchors.getOffset(currentValue) ?: offset.floatValue,
-                anchors = anchors.keys,
-                thresholds = thresholds,
-                velocity = 0f,
-                velocityThreshold = Float.POSITIVE_INFINITY
-            )
+            val target =
+                animationTarget.value
+                    ?: computeTarget(
+                        offset = offset.floatValue,
+                        lastValue = anchors.getOffset(currentValue) ?: offset.floatValue,
+                        anchors = anchors.keys,
+                        thresholds = thresholds,
+                        velocity = 0f,
+                        velocityThreshold = Float.POSITIVE_INFINITY
+                    )
             return anchors[target] ?: currentValue
         }
 
@@ -287,7 +278,8 @@ internal open class CarouselSwipeableState<T>(
         }
 
     /**
-     * The direction in which the [carouselSwipeable] is moving, relative to the current [currentValue].
+     * The direction in which the [carouselSwipeable] is moving, relative to the current
+     * [currentValue].
      *
      * This will be either 1f if it is is moving from left to right or top to bottom, -1f if it is
      * moving from right to left or bottom to top, or 0f if no swipe or animation is in progress.
@@ -303,9 +295,7 @@ internal open class CarouselSwipeableState<T>(
     suspend fun snapTo(targetValue: T) {
         latestNonEmptyAnchorsFlow.collect { anchors ->
             val targetOffset = anchors.getOffset(targetValue)
-            requireNotNull(targetOffset) {
-                "The target value must have an associated anchor."
-            }
+            requireNotNull(targetOffset) { "The target value must have an associated anchor." }
             snapInternalToOffset(targetOffset)
             currentValue = targetValue
         }
@@ -321,16 +311,17 @@ internal open class CarouselSwipeableState<T>(
         latestNonEmptyAnchorsFlow.collect { anchors ->
             try {
                 val targetOffset = anchors.getOffset(targetValue)
-                requireNotNull(targetOffset) {
-                    "The target value must have an associated anchor."
-                }
+                requireNotNull(targetOffset) { "The target value must have an associated anchor." }
                 animateInternalToOffset(targetOffset, anim)
             } finally {
                 val endOffset = absoluteOffset.floatValue
-                val endValue = anchors
-                    // fighting rounding error once again, anchor should be as close as 0.5 pixels
-                    .filterKeys { anchorOffset -> abs(anchorOffset - endOffset) < 0.5f }
-                    .values.firstOrNull() ?: currentValue
+                val endValue =
+                    anchors
+                        // fighting rounding error once again, anchor should be as close as 0.5
+                        // pixels
+                        .filterKeys { anchorOffset -> abs(anchorOffset - endOffset) < 0.5f }
+                        .values
+                        .firstOrNull() ?: currentValue
                 currentValue = endValue
             }
         }
@@ -338,28 +329,29 @@ internal open class CarouselSwipeableState<T>(
 
     /**
      * Perform fling with settling to one of the anchors which is determined by the given
-     * [velocity]. Fling with settling [carouselSwipeable] will always consume all the velocity provided
-     * since it will settle at the anchor.
+     * [velocity]. Fling with settling [carouselSwipeable] will always consume all the velocity
+     * provided since it will settle at the anchor.
      *
-     * In general cases, [carouselSwipeable] flings by itself when being swiped. This method is to be
-     * used for nested scroll logic that wraps the [carouselSwipeable]. In nested scroll developer may
-     * want to trigger settling fling when the child scroll container reaches the bound.
+     * In general cases, [carouselSwipeable] flings by itself when being swiped. This method is to
+     * be used for nested scroll logic that wraps the [carouselSwipeable]. In nested scroll
+     * developer may want to trigger settling fling when the child scroll container reaches the
+     * bound.
      *
      * @param velocity velocity to fling and settle with
-     *
      * @return the reason fling ended
      */
     suspend fun performFling(velocity: Float) {
         latestNonEmptyAnchorsFlow.collect { anchors ->
             val lastAnchor = anchors.getOffset(currentValue)!!
-            val targetValue = computeTarget(
-                offset = offset.floatValue,
-                lastValue = lastAnchor,
-                anchors = anchors.keys,
-                thresholds = thresholds,
-                velocity = velocity,
-                velocityThreshold = velocityThreshold
-            )
+            val targetValue =
+                computeTarget(
+                    offset = offset.floatValue,
+                    lastValue = lastAnchor,
+                    anchors = anchors.keys,
+                    thresholds = thresholds,
+                    velocity = velocity,
+                    velocityThreshold = velocityThreshold
+                )
             val targetState = anchors[targetValue]
             if (targetState != null && confirmStateChange(targetState)) animateTo(targetState)
             // If the user vetoed the state change, rollback to the previous state.
@@ -368,19 +360,18 @@ internal open class CarouselSwipeableState<T>(
     }
 
     /**
-     * Force [carouselSwipeable] to consume drag delta provided from outside of the regular [carouselSwipeable]
-     * gesture flow.
+     * Force [carouselSwipeable] to consume drag delta provided from outside of the regular
+     * [carouselSwipeable] gesture flow.
      *
      * Note: This method performs generic drag and it won't settle to any particular anchor, *
-     * leaving swipeable in between anchors. When done dragging, [performFling] must be
-     * called as well to ensure swipeable will settle at the anchor.
+     * leaving swipeable in between anchors. When done dragging, [performFling] must be called as
+     * well to ensure swipeable will settle at the anchor.
      *
      * In general cases, [carouselSwipeable] drags by itself when being swiped. This method is to be
-     * used for nested scroll logic that wraps the [carouselSwipeable]. In nested scroll developer may
-     * want to force drag when the child scroll container reaches the bound.
+     * used for nested scroll logic that wraps the [carouselSwipeable]. In nested scroll developer
+     * may want to force drag when the child scroll container reaches the bound.
      *
      * @param delta delta in pixels to drag by
-     *
      * @return the amount of [delta] consumed
      */
     fun performDrag(delta: Float): Float {
@@ -394,16 +385,15 @@ internal open class CarouselSwipeableState<T>(
     }
 
     companion object {
-        /**
-         * The default [Saver] implementation for [CarouselSwipeableState].
-         */
+        /** The default [Saver] implementation for [CarouselSwipeableState]. */
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
             confirmStateChange: (T) -> Boolean
-        ) = Saver<CarouselSwipeableState<T>, T>(
-            save = { it.currentValue },
-            restore = { CarouselSwipeableState(it, animationSpec, confirmStateChange) }
-        )
+        ) =
+            Saver<CarouselSwipeableState<T>, T>(
+                save = { it.currentValue },
+                restore = { CarouselSwipeableState(it, animationSpec, confirmStateChange) }
+            )
     }
 }
 
@@ -414,8 +404,8 @@ internal open class CarouselSwipeableState<T>(
  *
  * @param from The state corresponding to the anchor we are moving away from.
  * @param to The state corresponding to the anchor we are moving towards.
- * @param fraction The fraction that the current position represents between [from] and [to].
- * Must be between `0` and `1`.
+ * @param fraction The fraction that the current position represents between [from] and [to]. Must
+ *   be between `0` and `1`.
  */
 @Immutable
 internal class SwipeProgress<T>(
@@ -461,10 +451,11 @@ internal fun <T : Any> rememberCarouselSwipeableState(
     confirmStateChange: (newValue: T) -> Boolean = { true }
 ): CarouselSwipeableState<T> {
     return rememberSaveable(
-        saver = CarouselSwipeableState.Saver(
-            animationSpec = animationSpec,
-            confirmStateChange = confirmStateChange
-        )
+        saver =
+            CarouselSwipeableState.Saver(
+                animationSpec = animationSpec,
+                confirmStateChange = confirmStateChange
+            )
     ) {
         CarouselSwipeableState(
             initialValue = initialValue,
@@ -476,11 +467,12 @@ internal fun <T : Any> rememberCarouselSwipeableState(
 
 /**
  * Create and [remember] a [CarouselSwipeableState] which is kept in sync with another state, i.e.:
- *  1. Whenever the [value] changes, the [CarouselSwipeableState] will be animated to that new value.
- *  2. Whenever the value of the [CarouselSwipeableState] changes (e.g. after a swipe), the owner of the
- *  [value] will be notified to update their state to the new value of the [CarouselSwipeableState] by
- *  invoking [onValueChange]. If the owner does not update their state to the provided value for
- *  some reason, then the [CarouselSwipeableState] will perform a rollback to the previous, correct value.
+ * 1. Whenever the [value] changes, the [CarouselSwipeableState] will be animated to that new value.
+ * 2. Whenever the value of the [CarouselSwipeableState] changes (e.g. after a swipe), the owner of
+ *    the [value] will be notified to update their state to the new value of the
+ *    [CarouselSwipeableState] by invoking [onValueChange]. If the owner does not update their state
+ *    to the provided value for some reason, then the [CarouselSwipeableState] will perform a
+ *    rollback to the previous, correct value.
  */
 @Composable
 internal fun <T : Any> rememberCarouselSwipeableStateFor(
@@ -506,7 +498,7 @@ internal fun <T : Any> rememberCarouselSwipeableStateFor(
             onValueChange(swipeableState.currentValue)
             forceAnimationCheck.value = !forceAnimationCheck.value
         }
-        onDispose { }
+        onDispose {}
     }
     return swipeableState
 }
@@ -514,14 +506,15 @@ internal fun <T : Any> rememberCarouselSwipeableStateFor(
 /**
  * Enable swipe gestures between a set of predefined states.
  *
- * To use this, you must provide a map of anchors (in pixels) to states (of type [T]).
- * Note that this map cannot be empty and cannot have two anchors mapped to the same state.
+ * To use this, you must provide a map of anchors (in pixels) to states (of type [T]). Note that
+ * this map cannot be empty and cannot have two anchors mapped to the same state.
  *
- * When a swipe is detected, the offset of the [CarouselSwipeableState] will be updated with the swipe
- * delta. You should use this offset to move your content accordingly (see `Modifier.offsetPx`).
- * When the swipe ends, the offset will be animated to one of the anchors and when that anchor is
- * reached, the value of the [CarouselSwipeableState] will also be updated to the state corresponding to
- * the new anchor. The target anchor is calculated based on the provided positional [thresholds].
+ * When a swipe is detected, the offset of the [CarouselSwipeableState] will be updated with the
+ * swipe delta. You should use this offset to move your content accordingly (see
+ * `Modifier.offsetPx`). When the swipe ends, the offset will be animated to one of the anchors and
+ * when that anchor is reached, the value of the [CarouselSwipeableState] will also be updated to
+ * the state corresponding to the new anchor. The target anchor is calculated based on the provided
+ * positional [thresholds].
  *
  * Swiping is constrained between the minimum and maximum anchors. If the user attempts to swipe
  * past these bounds, a resistance effect will be applied by default. The amount of resistance at
@@ -533,18 +526,18 @@ internal fun <T : Any> rememberCarouselSwipeableStateFor(
  * @param state The state of the [carouselSwipeable].
  * @param anchors Pairs of anchors and states, used to map anchors to states and vice versa.
  * @param thresholds Specifies where the thresholds between the states are. The thresholds will be
- * used to determine which state to animate to when swiping stops. This is represented as a lambda
- * that takes two states and returns the threshold between them in the form of a [ThresholdConfig].
- * Note that the order of the states corresponds to the swipe direction.
+ *   used to determine which state to animate to when swiping stops. This is represented as a lambda
+ *   that takes two states and returns the threshold between them in the form of a
+ *   [ThresholdConfig]. Note that the order of the states corresponds to the swipe direction.
  * @param orientation The orientation in which the [carouselSwipeable] can be swiped.
  * @param enabled Whether this [carouselSwipeable] is enabled and should react to the user's input.
- * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom
- * swipe will behave like bottom to top, and a left to right swipe will behave like right to left.
- * @param interactionSource Optional [MutableInteractionSource] that will passed on to
- * the internal [Modifier.draggable].
+ * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom swipe
+ *   will behave like bottom to top, and a left to right swipe will behave like right to left.
+ * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
+ *   [Modifier.draggable].
  * @param resistance Controls how much resistance will be applied when swiping past the bounds.
- * @param velocityThreshold The threshold (in dp per second) that the end velocity has to exceed
- * in order to animate to the next state, even if the positional [thresholds] have not been reached.
+ * @param velocityThreshold The threshold (in dp per second) that the end velocity has to exceed in
+ *   order to animate to the next state, even if the positional [thresholds] have not been reached.
  */
 internal fun <T> Modifier.carouselSwipeable(
     state: CarouselSwipeableState<T>,
@@ -556,53 +549,51 @@ internal fun <T> Modifier.carouselSwipeable(
     thresholds: (from: T, to: T) -> ThresholdConfig = { _, _ -> FixedThreshold(56.dp) },
     resistance: ResistanceConfig? = SwipeableDefaults.resistanceConfig(anchors.keys),
     velocityThreshold: Dp = SwipeableDefaults.VelocityThreshold
-) = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "swipeable"
-        properties["state"] = state
-        properties["anchors"] = anchors
-        properties["orientation"] = orientation
-        properties["enabled"] = enabled
-        properties["reverseDirection"] = reverseDirection
-        properties["interactionSource"] = interactionSource
-        properties["thresholds"] = thresholds
-        properties["resistance"] = resistance
-        properties["velocityThreshold"] = velocityThreshold
-    }
-) {
-    require(anchors.isNotEmpty()) {
-        "You must have at least one anchor."
-    }
-    require(anchors.values.distinct().count() == anchors.size) {
-        "You cannot have two anchors mapped to the same state."
-    }
-    val density = LocalDensity.current
-    state.ensureInit(anchors)
-    LaunchedEffect(anchors, state) {
-        val oldAnchors = state.anchors
-        state.anchors = anchors
-        state.resistance = resistance
-        state.thresholds = { a, b ->
-            val from = anchors.getValue(a)
-            val to = anchors.getValue(b)
-            with(thresholds(from, to)) { density.computeThreshold(a, b) }
+) =
+    composed(
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "swipeable"
+                properties["state"] = state
+                properties["anchors"] = anchors
+                properties["orientation"] = orientation
+                properties["enabled"] = enabled
+                properties["reverseDirection"] = reverseDirection
+                properties["interactionSource"] = interactionSource
+                properties["thresholds"] = thresholds
+                properties["resistance"] = resistance
+                properties["velocityThreshold"] = velocityThreshold
+            }
+    ) {
+        require(anchors.isNotEmpty()) { "You must have at least one anchor." }
+        require(anchors.values.distinct().count() == anchors.size) {
+            "You cannot have two anchors mapped to the same state."
         }
-        with(density) {
-            state.velocityThreshold = velocityThreshold.toPx()
+        val density = LocalDensity.current
+        state.ensureInit(anchors)
+        LaunchedEffect(anchors, state) {
+            val oldAnchors = state.anchors
+            state.anchors = anchors
+            state.resistance = resistance
+            state.thresholds = { a, b ->
+                val from = anchors.getValue(a)
+                val to = anchors.getValue(b)
+                with(thresholds(from, to)) { density.computeThreshold(a, b) }
+            }
+            with(density) { state.velocityThreshold = velocityThreshold.toPx() }
+            state.processNewAnchors(oldAnchors, anchors)
         }
-        state.processNewAnchors(oldAnchors, anchors)
-    }
 
-    Modifier.draggable(
-        orientation = orientation,
-        enabled = enabled,
-        reverseDirection = reverseDirection,
-        interactionSource = interactionSource,
-        startDragImmediately = state.isAnimationRunning,
-        onDragStopped = { velocity -> launch { state.performFling(velocity) } },
-        state = state.draggableState
-    )
-}
+        Modifier.draggable(
+            orientation = orientation,
+            enabled = enabled,
+            reverseDirection = reverseDirection,
+            interactionSource = interactionSource,
+            startDragImmediately = state.isAnimationRunning,
+            onDragStopped = { velocity -> launch { state.performFling(velocity) } },
+            state = state.draggableState
+        )
+    }
 
 /**
  * Interface to compute a threshold between two anchors/states in a [carouselSwipeable].
@@ -611,9 +602,7 @@ internal fun <T> Modifier.carouselSwipeable(
  */
 @Stable
 internal interface ThresholdConfig {
-    /**
-     * Compute the value of the threshold (in pixels), once the values of the anchors are known.
-     */
+    /** Compute the value of the threshold (in pixels), once the values of the anchors are known. */
     fun Density.computeThreshold(fromValue: Float, toValue: Float): Float
 }
 
@@ -648,23 +637,23 @@ internal data class FractionalThreshold(
  * Specifies how resistance is calculated in [carouselSwipeable].
  *
  * There are two things needed to calculate resistance: the resistance basis determines how much
- * overflow will be consumed to achieve maximum resistance, and the resistance factor determines
- * the amount of resistance (the larger the resistance factor, the stronger the resistance).
+ * overflow will be consumed to achieve maximum resistance, and the resistance factor determines the
+ * amount of resistance (the larger the resistance factor, the stronger the resistance).
  *
- * The resistance basis is usually either the size of the component which [carouselSwipeable] is applied
- * to, or the distance between the minimum and maximum anchors. For a constructor in which the
- * resistance basis defaults to the latter, consider using [resistanceConfig].
+ * The resistance basis is usually either the size of the component which [carouselSwipeable] is
+ * applied to, or the distance between the minimum and maximum anchors. For a constructor in which
+ * the resistance basis defaults to the latter, consider using [resistanceConfig].
  *
  * You may specify different resistance factors for each bound. Consider using one of the default
- * resistance factors in [SwipeableDefaults]: `StandardResistanceFactor` to convey that the user
- * has run out of things to see, and `StiffResistanceFactor` to convey that the user cannot swipe
- * this right now. Also, you can set either factor to 0 to disable resistance at that bound.
+ * resistance factors in [SwipeableDefaults]: `StandardResistanceFactor` to convey that the user has
+ * run out of things to see, and `StiffResistanceFactor` to convey that the user cannot swipe this
+ * right now. Also, you can set either factor to 0 to disable resistance at that bound.
  *
  * @param basis Specifies the maximum amount of overflow that will be consumed. Must be positive.
- * @param factorAtMin The factor by which to scale the resistance at the minimum bound.
- * Must not be negative.
- * @param factorAtMax The factor by which to scale the resistance at the maximum bound.
- * Must not be negative.
+ * @param factorAtMin The factor by which to scale the resistance at the minimum bound. Must not be
+ *   negative.
+ * @param factorAtMax The factor by which to scale the resistance at the maximum bound. Must not be
+ *   negative.
  */
 @Immutable
 internal class ResistanceConfig(
@@ -706,18 +695,15 @@ internal class ResistanceConfig(
 }
 
 /**
- *  Given an offset x and a set of anchors, return a list of anchors:
- *   1. [ ] if the set of anchors is empty,
- *   2. [ x' ] if x is equal to one of the anchors, accounting for a small rounding error, where x'
- *      is x rounded to the exact value of the matching anchor,
- *   3. [ min ] if min is the minimum anchor and x < min,
- *   4. [ max ] if max is the maximum anchor and x > max, or
- *   5. [ a , b ] if a and b are anchors such that a < x < b and b - a is minimal.
+ * Given an offset x and a set of anchors, return a list of anchors:
+ * 1. [ ] if the set of anchors is empty,
+ * 2. [ x' ] if x is equal to one of the anchors, accounting for a small rounding error, where x' is
+ *    x rounded to the exact value of the matching anchor,
+ * 3. [ min ] if min is the minimum anchor and x < min,
+ * 4. [ max ] if max is the maximum anchor and x > max, or
+ * 5. [ a , b ] if a and b are anchors such that a < x < b and b - a is minimal.
  */
-private fun findBounds(
-    offset: Float,
-    anchors: Set<Float>
-): List<Float> {
+private fun findBounds(offset: Float, anchors: Set<Float>): List<Float> {
     // Find the anchors the target lies between with a little bit of rounding error.
     val a = anchors.filter { it <= offset + 0.001 }.fastMaxBy { it }
     val b = anchors.filter { it >= offset - 0.001 }.fastMinByOrNull { it }
@@ -780,35 +766,25 @@ private fun <T> Map<Float, T>.getOffset(state: T): Float? {
     return entries.firstOrNull { it.value == state }?.key
 }
 
-/**
- * Contains useful defaults for [carouselSwipeable] and [CarouselSwipeableState].
- */
+/** Contains useful defaults for [carouselSwipeable] and [CarouselSwipeableState]. */
 internal object SwipeableDefaults {
-    /**
-     * The default animation used by [CarouselSwipeableState].
-     */
+    /** The default animation used by [CarouselSwipeableState]. */
     val AnimationSpec = SpringSpec<Float>()
 
-    /**
-     * The default velocity threshold (1.8 dp per millisecond) used by [carouselSwipeable].
-     */
+    /** The default velocity threshold (1.8 dp per millisecond) used by [carouselSwipeable]. */
     val VelocityThreshold = 125.dp
 
-    /**
-     * A stiff resistance factor which indicates that swiping isn't available right now.
-     */
+    /** A stiff resistance factor which indicates that swiping isn't available right now. */
     const val StiffResistanceFactor = 20f
 
-    /**
-     * A standard resistance factor which indicates that the user has run out of things to see.
-     */
+    /** A standard resistance factor which indicates that the user has run out of things to see. */
     const val StandardResistanceFactor = 10f
 
     /**
      * The default resistance config used by [carouselSwipeable].
      *
-     * This returns `null` if there is one anchor. If there are at least two anchors, it returns
-     * a [ResistanceConfig] with the resistance basis equal to the distance between the two bounds.
+     * This returns `null` if there is one anchor. If there are at least two anchors, it returns a
+     * [ResistanceConfig] with the resistance basis equal to the distance between the two bounds.
      */
     fun resistanceConfig(
         anchors: Set<Float>,
@@ -828,45 +804,46 @@ internal object SwipeableDefaults {
 // revisit in b/174756744 as all types will have their own specific connection probably
 internal val <T> CarouselSwipeableState<T>.PreUpPostDownNestedScrollConnection:
     NestedScrollConnection
-    get() = object : NestedScrollConnection {
-        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            val delta = available.toFloat()
-            return if (delta < 0 && source == NestedScrollSource.UserInput) {
-                performDrag(delta).toOffset()
-            } else {
-                Offset.Zero
+    get() =
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.toFloat()
+                return if (delta < 0 && source == NestedScrollSource.UserInput) {
+                    performDrag(delta).toOffset()
+                } else {
+                    Offset.Zero
+                }
             }
-        }
 
-        override fun onPostScroll(
-            consumed: Offset,
-            available: Offset,
-            source: NestedScrollSource
-        ): Offset {
-            return if (source == NestedScrollSource.UserInput) {
-                performDrag(available.toFloat()).toOffset()
-            } else {
-                Offset.Zero
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource
+            ): Offset {
+                return if (source == NestedScrollSource.UserInput) {
+                    performDrag(available.toFloat()).toOffset()
+                } else {
+                    Offset.Zero
+                }
             }
-        }
 
-        override suspend fun onPreFling(available: Velocity): Velocity {
-            val toFling = Offset(available.x, available.y).toFloat()
-            return if (toFling < 0 && offset.floatValue > minBound) {
-                performFling(velocity = toFling)
-                // since we go to the anchor with tween settling, consume all for the best UX
-                available
-            } else {
-                Velocity.Zero
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                val toFling = Offset(available.x, available.y).toFloat()
+                return if (toFling < 0 && offset.floatValue > minBound) {
+                    performFling(velocity = toFling)
+                    // since we go to the anchor with tween settling, consume all for the best UX
+                    available
+                } else {
+                    Velocity.Zero
+                }
             }
+
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                performFling(velocity = Offset(available.x, available.y).toFloat())
+                return available
+            }
+
+            private fun Float.toOffset(): Offset = Offset(0f, this)
+
+            private fun Offset.toFloat(): Float = this.y
         }
-
-        override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-            performFling(velocity = Offset(available.x, available.y).toFloat())
-            return available
-        }
-
-        private fun Float.toOffset(): Offset = Offset(0f, this)
-
-        private fun Offset.toFloat(): Float = this.y
-    }

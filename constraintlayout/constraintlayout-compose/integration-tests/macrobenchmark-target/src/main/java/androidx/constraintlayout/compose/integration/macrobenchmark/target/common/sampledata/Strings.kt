@@ -16,10 +16,9 @@
 
 package androidx.constraintlayout.compose.integration.macrobenchmark.target.common.sampledata
 
-/**
- * From [androidx.compose.ui.tooling.preview.datasource.LoremIpsum]
- */
-private val LOREM_IPSUM = """
+/** From [androidx.compose.ui.tooling.preview.datasource.LoremIpsum] */
+private val LOREM_IPSUM =
+    """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer sodales
 laoreet commodo. Phasellus a purus eu risus elementum consequat. Aenean eu
 elit ut nunc convallis laoreet non ut libero. Suspendisse interdum placerat
@@ -36,81 +35,85 @@ quam ante, rutrum at pellentesque gravida, pretium in dui. Cras eget sapien
 velit. Suspendisse ut sem nec tellus vehicula eleifend sit amet quis velit.
 Phasellus quis suscipit nisi. Nam elementum malesuada tincidunt. Curabitur
 iaculis pretium eros, malesuada faucibus leo eleifend a. Curabitur congue
-orci in neque euismod a blandit libero vehicula.""".trim()
+orci in neque euismod a blandit libero vehicula."""
+        .trim()
 
 private val LOREM_IPSUM_WORDS = LOREM_IPSUM.split(" ")
 
-private val names = listOf(
-    "Jacob",
-    "Sophia",
-    "Noah",
-    "Emma",
-    "Mason",
-    "Isabella",
-    "William",
-    "Olivia",
-    "Ethan",
-    "Ava",
-    "Liam",
-    "Emily",
-    "Michael",
-    "Abigail",
-    "Alexander",
-    "Mia",
-    "Jayden",
-    "Madison",
-    "Daniel",
-    "Elizabeth",
-    "Aiden",
-    "Chloe",
-    "James",
-    "Ella",
-    "Elijah",
-    "Avery",
-    "Matthew",
-    "Charlotte",
-    "Benjamin",
-    "Sofia"
-)
+private val names =
+    listOf(
+        "Jacob",
+        "Sophia",
+        "Noah",
+        "Emma",
+        "Mason",
+        "Isabella",
+        "William",
+        "Olivia",
+        "Ethan",
+        "Ava",
+        "Liam",
+        "Emily",
+        "Michael",
+        "Abigail",
+        "Alexander",
+        "Mia",
+        "Jayden",
+        "Madison",
+        "Daniel",
+        "Elizabeth",
+        "Aiden",
+        "Chloe",
+        "James",
+        "Ella",
+        "Elijah",
+        "Avery",
+        "Matthew",
+        "Charlotte",
+        "Benjamin",
+        "Sofia"
+    )
 
-private val surnames = arrayOf(
-    "Smith",
-    "Johnson",
-    "Williams",
-    "Brown",
-    "Jones",
-    "Garcia",
-    "Miller",
-    "Davis",
-    "Rodriguez",
-    "Martinez"
-)
+private val surnames =
+    arrayOf(
+        "Smith",
+        "Johnson",
+        "Williams",
+        "Brown",
+        "Jones",
+        "Garcia",
+        "Miller",
+        "Davis",
+        "Rodriguez",
+        "Martinez"
+    )
 
-private val cities = arrayOf(
-    "Shanghai",
-    "Karachi",
-    "Beijing",
-    "Delhi",
-    "Lagos",
-    "Tianjin",
-    "Istanbul",
-    "Tokyo",
-    "Guangzhou",
-    "Mumbai",
-    "Moscow",
-    "São Paulo",
-    "Shenzhen",
-    "Jakarta",
-    "Lahore",
-    "Seoul",
-    "Wuhan",
-    "Kinshasa",
-    "Cairo",
-    "Mexico City",
-    "Lima",
-    "London",
-    "New York City"
-)
+private val cities =
+    arrayOf(
+        "Shanghai",
+        "Karachi",
+        "Beijing",
+        "Delhi",
+        "Lagos",
+        "Tianjin",
+        "Istanbul",
+        "Tokyo",
+        "Guangzhou",
+        "Mumbai",
+        "Moscow",
+        "São Paulo",
+        "Shenzhen",
+        "Jakarta",
+        "Lahore",
+        "Seoul",
+        "Wuhan",
+        "Kinshasa",
+        "Cairo",
+        "Mexico City",
+        "Lima",
+        "London",
+        "New York City"
+    )
 
 internal fun randomFirstName(): String = names.random()
 
@@ -129,7 +132,8 @@ internal object LoremIpsum {
             // Source includes line breaks
             LOREM_IPSUM_WORDS.take(wordCount.coerceIn(1, LOREM_IPSUM_WORDS.size))
         } else {
-            LOREM_IPSUM.filter { it != '\n' }.split(' ')
+            LOREM_IPSUM.filter { it != '\n' }
+                .split(' ')
                 .take(wordCount.coerceIn(1, LOREM_IPSUM_WORDS.size))
         }
 }

@@ -67,13 +67,7 @@ fun DynamicGraphsPreview(modifier: Modifier = Modifier) {
     }
     LazyColumn(modifier.testTag("LazyColumn")) {
         items(graphs.size) {
-            Box(
-                modifier = Modifier
-                    .padding(3.dp)
-                    .height(200.dp)
-            ) {
-                DynamicGraph(graphs[it])
-            }
+            Box(modifier = Modifier.padding(3.dp).height(200.dp)) { DynamicGraph(graphs[it]) }
         }
     }
 }
@@ -120,27 +114,24 @@ private fun DynamicGraph(
 
     // Animate on reveal
     LaunchedEffect(animateToEnd) {
-        progress.animateTo(
-            if (animateToEnd) 1f else 0f,
-            animationSpec = tween(800)
-        )
+        progress.animateTo(if (animateToEnd) 1f else 0f, animationSpec = tween(800))
     }
 
     MotionLayout(
-        modifier = Modifier
-            .background(Color(0xFF221010))
-            .fillMaxSize()
-            .clickable { animateToEnd = !animateToEnd }
-            .padding(1.dp),
+        modifier =
+            Modifier.background(Color(0xFF221010))
+                .fillMaxSize()
+                .clickable { animateToEnd = !animateToEnd }
+                .padding(1.dp),
         motionScene = scene,
         progress = progress.value
     ) {
         for (i in 0..values.size) {
             Box(
-                modifier = Modifier
-                    .layoutId("foo$i")
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color.hsv(i * 240f / values.size, 0.6f, 0.6f))
+                modifier =
+                    Modifier.layoutId("foo$i")
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color.hsv(i * 240f / values.size, 0.6f, 0.6f))
             )
         }
     }

@@ -45,10 +45,10 @@ class MotionLayoutActivity : ComponentActivity() {
             MaterialTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        // Required to reference UI elements by Macrobenchmark
-                        .semantics { testTagsAsResourceId = true },
+                    modifier =
+                        Modifier.fillMaxSize()
+                            // Required to reference UI elements by Macrobenchmark
+                            .semantics { testTagsAsResourceId = true },
                     color = MaterialTheme.colors.background
                 ) {
                     // Here we resolve the Composable requested by Macrobenchark
@@ -56,23 +56,18 @@ class MotionLayoutActivity : ComponentActivity() {
                         "NewMessageJson" -> {
                             NewMotionMessagePreview()
                         }
-
                         "NewMessageDsl" -> {
                             NewMotionMessagePreviewWithDsl()
                         }
-
                         "OptimizedNewMessageDsl" -> {
                             NewMotionMessagePreviewWithDslOptimized()
                         }
-
                         "CollapsibleToolbar" -> {
                             MotionCollapseToolbarPreview()
                         }
-
                         "DynamicGraphs" -> {
                             DynamicGraphsPreview()
                         }
-
                         else -> {
                             throw IllegalArgumentException("No Composable with name: $name")
                         }
@@ -86,16 +81,17 @@ class MotionLayoutActivity : ComponentActivity() {
     // Copied from LazyColumnActivity.kt
     private fun ComponentActivity.launchIdlenessTracking() {
         val contentView: View = findViewById(android.R.id.content)
-        val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
-            override fun doFrame(frameTimeNanos: Long) {
-                if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
-                    contentView.contentDescription = "COMPOSE-BUSY"
-                } else {
-                    contentView.contentDescription = "COMPOSE-IDLE"
+        val callback: Choreographer.FrameCallback =
+            object : Choreographer.FrameCallback {
+                override fun doFrame(frameTimeNanos: Long) {
+                    if (Recomposer.runningRecomposers.value.any { it.hasPendingWork }) {
+                        contentView.contentDescription = "COMPOSE-BUSY"
+                    } else {
+                        contentView.contentDescription = "COMPOSE-IDLE"
+                    }
+                    Choreographer.getInstance().postFrameCallback(this)
                 }
-                Choreographer.getInstance().postFrameCallback(this)
             }
-        }
         Choreographer.getInstance().postFrameCallback(callback)
     }
 }

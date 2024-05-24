@@ -119,7 +119,6 @@ import org.intellij.lang.annotations.Language
  *
  * Items in the layout that are to be constrained are initialized with
  * [ConstraintLayoutScope.createRef]:
- *
  * ```
  * val textRef = createRef()
  * val imageRef = createRef()
@@ -127,13 +126,13 @@ import org.intellij.lang.annotations.Language
  *
  * You may also use [ConstraintLayoutScope.createRefs] to declare up to 16 items using the
  * destructuring declaration pattern:
- *
  * ```
  * val (textRef, imageRef) = createRefs()
  * ```
  *
- * Individual constraints are defined with [Modifier.constrainAs][ConstraintLayoutScope.constrainAs],
- * this will also bind the Composable to the given [ConstrainedLayoutReference].
+ * Individual constraints are defined with
+ * [Modifier.constrainAs][ConstraintLayoutScope.constrainAs], this will also bind the Composable to
+ * the given [ConstrainedLayoutReference].
  *
  * So, a simple layout with a text in the middle and an image next to it may be declared like this
  * (keep in mind, when using `center...`, `start` or `end` the layout direction will automatically
@@ -157,12 +156,13 @@ import org.intellij.lang.annotations.Language
  *     )
  * }
  * ```
+ *
  * See [ConstrainScope] to learn more about how to constrain elements together.
  *
  * ## Helpers
  * You may also use helpers, a set of virtual (not shown on screen) components that provide special
- * layout behaviors, you may find these in the [ConstraintLayoutScope] with the '`create...`' prefix,
- * a few of these are **Guidelines**, **Chains** and **Barriers**.
+ * layout behaviors, you may find these in the [ConstraintLayoutScope] with the '`create...`'
+ * prefix, a few of these are **Guidelines**, **Chains** and **Barriers**.
  *
  * ### Guidelines
  * Lines to which other [ConstrainedLayoutReference]s may be constrained to, these are defined at
@@ -193,7 +193,8 @@ import org.intellij.lang.annotations.Language
  * ### Chains
  * Chains may be either horizontal or vertical, these, take a set of [ConstrainedLayoutReference]s
  * and create bi-directional constraints on each of them at the same orientation of the chain in the
- * given order, meaning that an horizontal chain will create constraints between the start and end anchors.
+ * given order, meaning that an horizontal chain will create constraints between the start and end
+ * anchors.
  *
  * The result, a layout that evenly distributes the space within its elements.
  *
@@ -209,7 +210,6 @@ import org.intellij.lang.annotations.Language
  * ```
  *
  * You may set margins within elements in a chain with [ConstraintLayoutScope.withChainParams]:
- *
  * ```
  * val (textRef0, textRef1, textRef2) = createRefs()
  * createHorizontalChain(
@@ -225,26 +225,25 @@ import org.intellij.lang.annotations.Language
  * ```
  *
  * You can also change the way space is distributed, as chains have three different styles:
- * - [ChainStyle.Spread]  Layouts are evenly distributed after margins are accounted for (the space
- * around and between each item is even). This is the **default** style for chains.
- * - [ChainStyle.SpreadInside]  The first and last layouts are affixed to each end of the chain,
- * and the rest of the items are evenly distributed (after margins are accounted for).
- * I.e.: Items are spread from the inside, distributing the space between them with no space around
- * the first and last items.
+ * - [ChainStyle.Spread] Layouts are evenly distributed after margins are accounted for (the space
+ *   around and between each item is even). This is the **default** style for chains.
+ * - [ChainStyle.SpreadInside] The first and last layouts are affixed to each end of the chain, and
+ *   the rest of the items are evenly distributed (after margins are accounted for). I.e.: Items are
+ *   spread from the inside, distributing the space between them with no space around the first and
+ *   last items.
  * - [ChainStyle.Packed] The layouts are packed together after margins are accounted for, by
- * default, they're packed together at the middle, you can change this behavior with the **bias**
- * parameter of [ChainStyle.Packed].
+ *   default, they're packed together at the middle, you can change this behavior with the **bias**
+ *   parameter of [ChainStyle.Packed].
  * - Alternatively, you can make every Layout in the chain to be [Dimension.fillToConstraints] and
- * then set a particular weight to each of them to create a **weighted chain**.
+ *   then set a particular weight to each of them to create a **weighted chain**.
  *
  * #### Weighted Chain
  * Weighted chains are useful when you want the size of the elements to depend on the remaining size
  * of the chain. As opposed to just distributing the space around and/or in-between the items.
  *
  * For example, to create a layout with three text elements in a row where each element takes the
- * exact same size regardless of content, you can use a simple weighted chain where each item has the
- * same weight:
- *
+ * exact same size regardless of content, you can use a simple weighted chain where each item has
+ * the same weight:
  * ```
  * val (textRef0, textRef1, textRef2) = createRefs()
  * createHorizontalChain(
@@ -288,7 +287,6 @@ import org.intellij.lang.annotations.Language
  * This is useful in situations where elements in a layout may have different sizes but you want to
  * always constrain to the largest item, for example, if you have a text element on top of another
  * and want an image to always be constrained to the end of them:
- *
  * ```
  * val (textRef0, textRef1, imageRef) = createRefs()
  *
@@ -333,21 +331,21 @@ import org.intellij.lang.annotations.Language
  * - [ConstraintLayoutScope.createAbsoluteLeftBarrier]
  * - [ConstraintLayoutScope.createAbsoluteRightBarrier]
  *
- * **Tip**: If you notice that you are creating many different constraints based on [State][androidx.compose.runtime.State]
- * variables or configuration changes, consider using the [ConstraintSet] pattern instead, makes it
- * clearer to distinguish different layouts and allows you to automatically animate the layout when
- * the provided [ConstraintSet] is different.
+ * **Tip**: If you notice that you are creating many different constraints based on
+ * [State][androidx.compose.runtime.State] variables or configuration changes, consider using the
+ * [ConstraintSet] pattern instead, makes it clearer to distinguish different layouts and allows you
+ * to automatically animate the layout when the provided [ConstraintSet] is different.
  *
  * @param modifier Modifier to apply to this layout node.
  * @param optimizationLevel Optimization flags for ConstraintLayout. The default is
- * [Optimizer.OPTIMIZATION_STANDARD].
- * @param animateChangesSpec Null by default. Otherwise, ConstraintLayout will animate the layout
- * if there were any changes on the constraints during recomposition using the given
- * [AnimationSpec]. If there's a change while the layout is still animating, the current animation
- * will complete before animating to the latest changes. For more control in the animation consider
- * using [MotionLayout] instead.
+ *   [Optimizer.OPTIMIZATION_STANDARD].
+ * @param animateChangesSpec Null by default. Otherwise, ConstraintLayout will animate the layout if
+ *   there were any changes on the constraints during recomposition using the given [AnimationSpec].
+ *   If there's a change while the layout is still animating, the current animation will complete
+ *   before animating to the latest changes. For more control in the animation consider using
+ *   [MotionLayout] instead.
  * @param finishedAnimationListener Lambda called whenever an animation due to [animateChangesSpec]
- * finishes.
+ *   finishes.
  * @param content Content of this layout node.
  */
 @Composable
@@ -363,8 +361,9 @@ inline fun ConstraintLayout(
         val end: MutableState<ConstraintSet?> = remember { mutableStateOf(null) }
         val scope = remember { ConstraintLayoutScope().apply { isAnimateChanges = true } }
         val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
-        val compositionSource =
-            remember { Ref<CompositionSource>().apply { value = CompositionSource.Unknown } }
+        val compositionSource = remember {
+            Ref<CompositionSource>().apply { value = CompositionSource.Unknown }
+        }
         val channel = remember { Channel<ConstraintSet>(Channel.CONFLATED) }
 
         val contentDelegate: @Composable () -> Unit = {
@@ -422,13 +421,14 @@ inline fun ConstraintLayout(
 
     val measurePolicy = MeasurePolicy { measurables, constraints ->
         contentTracker.value
-        val layoutSize = measurer.performMeasure(
-            constraints,
-            layoutDirection,
-            constraintSet,
-            measurables,
-            optimizationLevel
-        )
+        val layoutSize =
+            measurer.performMeasure(
+                constraints,
+                layoutDirection,
+                constraintSet,
+                measurables,
+                optimizationLevel
+            )
         // We read the remeasurement requester state, to request remeasure when the value
         // changes. This will happen when the scope helpers are changing at recomposition.
         remeasureRequesterState.value
@@ -469,14 +469,15 @@ inline fun ConstraintLayout(
 @Deprecated(
     message = "Prefer version that takes a nullable AnimationSpec to animate changes.",
     level = DeprecationLevel.WARNING,
-    replaceWith = ReplaceWith(
-        "ConstraintLayout(" +
-            "modifier = modifier, " +
-            "optimizationLevel = optimizationLevel, " +
-            "animateChangesSpec = animationSpec, " +
-            "finishedAnimationListener = finishedAnimationListener" +
-            ") { content() }"
-    )
+    replaceWith =
+        ReplaceWith(
+            "ConstraintLayout(" +
+                "modifier = modifier, " +
+                "optimizationLevel = optimizationLevel, " +
+                "animateChangesSpec = animationSpec, " +
+                "finishedAnimationListener = finishedAnimationListener" +
+                ") { content() }"
+        )
 )
 @Composable
 inline fun ConstraintLayout(
@@ -497,9 +498,8 @@ inline fun ConstraintLayout(
 }
 
 @PublishedApi
-internal class ConstraintSetForInlineDsl(
-    val scope: ConstraintLayoutScope
-) : ConstraintSet, RememberObserver {
+internal class ConstraintSetForInlineDsl(val scope: ConstraintLayoutScope) :
+    ConstraintSet, RememberObserver {
     private var handler: Handler? = null
     private val observer = SnapshotStateObserver {
         if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -565,11 +565,10 @@ internal class ConstraintSetForInlineDsl(
  * This [Composable] of [ConstraintLayout] takes a [ConstraintSet] where the layout is defined using
  * references and constraints.
  *
- * Layouts referenced in the given [constraintSet] can be bound to immediate child Composables
- * using [Modifier.layoutId], where the given layoutIds match each named reference.
+ * Layouts referenced in the given [constraintSet] can be bound to immediate child Composables using
+ * [Modifier.layoutId], where the given layoutIds match each named reference.
  *
  * So, a simple layout with a text in the middle and an image next to it may be declared like this:
- *
  * ```
  * // IDs
  * val textId = "text"
@@ -606,18 +605,18 @@ internal class ConstraintSetForInlineDsl(
  *     )
  * }
  * ```
+ *
  * See [ConstraintSet] to learn more on how to declare layouts using constraints.
  *
  * ### Handling of ConstraintSet objects
  *
  * You typically want to *`remember`* declared [ConstraintSet]s, to avoid unnecessary allocations on
- * recomposition, if the [ConstraintSetScope] block consumes any [State][androidx.compose.runtime.State]
- * variables, then something like *`remember { derivedStateOf { ConstraintSet { ... } } }`* would be
- * more appropriate.
+ * recomposition, if the [ConstraintSetScope] block consumes any
+ * [State][androidx.compose.runtime.State] variables, then something like *`remember {
+ * derivedStateOf { ConstraintSet { ... } } }`* would be more appropriate.
  *
  * However, note in the example above that our ConstraintSet is constant, so we can declare it at a
  * top level, improving overall Composition performance:
- *
  * ```
  * private const val TEXT_ID = "text"
  * private const val IMAGE_ID = "image"
@@ -655,10 +654,10 @@ internal class ConstraintSetForInlineDsl(
  * ```
  *
  * This pattern (as opposed to defining constraints with [ConstraintLayoutScope.constrainAs]) is
- * preferred when you want different layouts to be produced on different [State][androidx.compose.runtime.State]
- * variables or configuration changes. As it makes it easier to create distinguishable layouts, for
- * example when building adaptive layouts based on Window size class:
- *
+ * preferred when you want different layouts to be produced on different
+ * [State][androidx.compose.runtime.State] variables or configuration changes. As it makes it easier
+ * to create distinguishable layouts, for example when building adaptive layouts based on Window
+ * size class:
  * ```
  * private const val NAV_BAR_ID = "navBar"
  * private const val CONTENT_ID = "content"
@@ -739,17 +738,17 @@ internal class ConstraintSetForInlineDsl(
  * pattern through the [MotionScene] object.
  *
  * @param constraintSet The [ConstraintSet] that describes the expected layout, defined references
- * should be bound to Composables with [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
+ *   should be bound to Composables with [Modifier.layoutId][androidx.compose.ui.layout.layoutId].
  * @param modifier Modifier to apply to this layout node.
  * @param optimizationLevel Optimization flags for ConstraintLayout. The default is
- * [Optimizer.OPTIMIZATION_STANDARD].
- * @param animateChangesSpec Null by default. Otherwise, ConstraintLayout will animate the layout
- * if a different [ConstraintSet] is provided on recomposition using the given [AnimationSpec].
- * If there's a change in [ConstraintSet] while the layout is still animating, the current animation
- * will complete before animating to the latest changes. For more control in the animation consider
- * using [MotionLayout] instead.
+ *   [Optimizer.OPTIMIZATION_STANDARD].
+ * @param animateChangesSpec Null by default. Otherwise, ConstraintLayout will animate the layout if
+ *   a different [ConstraintSet] is provided on recomposition using the given [AnimationSpec]. If
+ *   there's a change in [ConstraintSet] while the layout is still animating, the current animation
+ *   will complete before animating to the latest changes. For more control in the animation
+ *   consider using [MotionLayout] instead.
  * @param finishedAnimationListener Lambda called whenever an animation due to [animateChangesSpec]
- * finishes.
+ *   finishes.
  * @param content Content of this layout node.
  */
 @OptIn(ExperimentalMotionApi::class) // To support animateChangesSpec
@@ -769,9 +768,7 @@ inline fun ConstraintLayout(
         val channel = remember { Channel<ConstraintSet>(Channel.CONFLATED) }
         val direction = remember { mutableIntStateOf(1) }
 
-        SideEffect {
-            channel.trySend(constraintSet)
-        }
+        SideEffect { channel.trySend(constraintSet) }
 
         LaunchedEffect(channel) {
             for (constraints in channel) {
@@ -795,11 +792,10 @@ inline fun ConstraintLayout(
             end = endConstraint,
             progress = progress.value,
             modifier = modifier,
-            content = { content() })
+            content = { content() }
+        )
     } else {
-        val needsUpdate = remember {
-            mutableLongStateOf(0L)
-        }
+        val needsUpdate = remember { mutableLongStateOf(0L) }
 
         val contentTracker = remember { mutableStateOf(Unit, neverEqualPolicy()) }
         val density = LocalDensity.current
@@ -810,13 +806,14 @@ inline fun ConstraintLayout(
         }
         val measurePolicy = MeasurePolicy { measurables, constraints ->
             contentTracker.value
-            val layoutSize = measurer.performMeasure(
-                constraints,
-                layoutDirection,
-                constraintSet,
-                measurables,
-                optimizationLevel
-            )
+            val layoutSize =
+                measurer.performMeasure(
+                    constraints,
+                    layoutDirection,
+                    constraintSet,
+                    measurables,
+                    optimizationLevel
+                )
             layout(layoutSize.width, layoutSize.height) {
                 with(measurer) { performLayout(measurables) }
             }
@@ -839,9 +836,7 @@ inline fun ConstraintLayout(
                         content()
                     }
                 )
-                with(measurer) {
-                    drawDebugBounds(forcedScaleFactor)
-                }
+                with(measurer) { drawDebugBounds(forcedScaleFactor) }
             }
         } else {
             @Suppress("DEPRECATION")
@@ -864,15 +859,16 @@ inline fun ConstraintLayout(
 @Deprecated(
     message = "Prefer version that takes a nullable AnimationSpec to animate changes.",
     level = DeprecationLevel.WARNING,
-    replaceWith = ReplaceWith(
-        "ConstraintLayout(" +
-            "constraintSet = constraintSet, " +
-            "modifier = modifier, " +
-            "optimizationLevel = optimizationLevel, " +
-            "animateChangesSpec = animationSpec, " +
-            "finishedAnimationListener = finishedAnimationListener" +
-            ") { content() }"
-    )
+    replaceWith =
+        ReplaceWith(
+            "ConstraintLayout(" +
+                "constraintSet = constraintSet, " +
+                "modifier = modifier, " +
+                "optimizationLevel = optimizationLevel, " +
+                "animateChangesSpec = animationSpec, " +
+                "finishedAnimationListener = finishedAnimationListener" +
+                ") { content() }"
+        )
 )
 @Composable
 inline fun ConstraintLayout(
@@ -894,23 +890,22 @@ inline fun ConstraintLayout(
     )
 }
 
-/**
- * Scope used by the inline DSL of [ConstraintLayout].
- */
+/** Scope used by the inline DSL of [ConstraintLayout]. */
 @LayoutScopeMarker
 class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLayoutBaseScope(null) {
     /**
      * Creates one [ConstrainedLayoutReference], which needs to be assigned to a layout within the
-     * [ConstraintLayout] as part of [Modifier.constrainAs]. To create more references at the
-     * same time, see [createRefs].
+     * [ConstraintLayout] as part of [Modifier.constrainAs]. To create more references at the same
+     * time, see [createRefs].
      */
-    fun createRef(): ConstrainedLayoutReference = childrenRefs.getOrNull(childId++)
-        ?: ConstrainedLayoutReference(childId).also { childrenRefs.add(it) }
+    fun createRef(): ConstrainedLayoutReference =
+        childrenRefs.getOrNull(childId++)
+            ?: ConstrainedLayoutReference(childId).also { childrenRefs.add(it) }
 
     /**
-     * Convenient way to create multiple [ConstrainedLayoutReference]s, which need to be assigned
-     * to layouts within the [ConstraintLayout] as part of [Modifier.constrainAs]. To create just
-     * one reference, see [createRef].
+     * Convenient way to create multiple [ConstrainedLayoutReference]s, which need to be assigned to
+     * layouts within the [ConstraintLayout] as part of [Modifier.constrainAs]. To create just one
+     * reference, see [createRef].
      */
     @Stable
     fun createRefs(): ConstraintLayoutScope.ConstrainedLayoutReferences =
@@ -921,38 +916,51 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
      * ConstraintLayout evaluates constraints at the measure step, but MotionLayout needs to know
      * the constraints to enter the measure step.
      */
-    @PublishedApi
-    internal var isAnimateChanges = false
+    @PublishedApi internal var isAnimateChanges = false
 
     private var referencesObject: ConstrainedLayoutReferences? = null
 
     private val ChildrenStartIndex = 0
     private var childId = ChildrenStartIndex
     private val childrenRefs = ArrayList<ConstrainedLayoutReference>()
+
     override fun reset() {
         super.reset()
         childId = ChildrenStartIndex
     }
 
-    /**
-     * Convenience API for creating multiple [ConstrainedLayoutReference] via [createRefs].
-     */
+    /** Convenience API for creating multiple [ConstrainedLayoutReference] via [createRefs]. */
     inner class ConstrainedLayoutReferences internal constructor() {
         operator fun component1(): ConstrainedLayoutReference = createRef()
+
         operator fun component2(): ConstrainedLayoutReference = createRef()
+
         operator fun component3(): ConstrainedLayoutReference = createRef()
+
         operator fun component4(): ConstrainedLayoutReference = createRef()
+
         operator fun component5(): ConstrainedLayoutReference = createRef()
+
         operator fun component6(): ConstrainedLayoutReference = createRef()
+
         operator fun component7(): ConstrainedLayoutReference = createRef()
+
         operator fun component8(): ConstrainedLayoutReference = createRef()
+
         operator fun component9(): ConstrainedLayoutReference = createRef()
+
         operator fun component10(): ConstrainedLayoutReference = createRef()
+
         operator fun component11(): ConstrainedLayoutReference = createRef()
+
         operator fun component12(): ConstrainedLayoutReference = createRef()
+
         operator fun component13(): ConstrainedLayoutReference = createRef()
+
         operator fun component14(): ConstrainedLayoutReference = createRef()
+
         operator fun component15(): ConstrainedLayoutReference = createRef()
+
         operator fun component16(): ConstrainedLayoutReference = createRef()
     }
 
@@ -978,13 +986,15 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
     private class ConstrainAsModifier(
         private val ref: ConstrainedLayoutReference,
         private val constrainBlock: ConstrainScope.() -> Unit
-    ) : ParentDataModifier, InspectorValueInfo(
-        debugInspectorInfo {
-            name = "constrainAs"
-            properties["ref"] = ref
-            properties["constrainBlock"] = constrainBlock
-        }
-    ) {
+    ) :
+        ParentDataModifier,
+        InspectorValueInfo(
+            debugInspectorInfo {
+                name = "constrainAs"
+                properties["ref"] = ref
+                properties["constrainBlock"] = constrainBlock
+            }
+        ) {
         override fun Density.modifyParentData(parentData: Any?) =
             ConstraintLayoutParentData(ref, constrainBlock)
 
@@ -995,9 +1005,7 @@ class ConstraintLayoutScope @PublishedApi internal constructor() : ConstraintLay
     }
 }
 
-/**
- * Scope used by the [ConstraintSet] DSL.
- */
+/** Scope used by the [ConstraintSet] DSL. */
 @LayoutScopeMarker
 class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
     ConstraintLayoutBaseScope(extendFrom) {
@@ -1012,8 +1020,8 @@ class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
     private fun nextId() = "androidx.constraintlayout.id" + generatedCount++
 
     /**
-     * Creates one [ConstrainedLayoutReference] corresponding to the [ConstraintLayout] element
-     * with [id].
+     * Creates one [ConstrainedLayoutReference] corresponding to the [ConstraintLayout] element with
+     * [id].
      */
     fun createRefFor(id: Any): ConstrainedLayoutReference = ConstrainedLayoutReference(id)
 
@@ -1025,6 +1033,7 @@ class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
      * ```
      * val (box, text, button) = createRefsFor("box", "text", "button")
      * ```
+     *
      * Note that the number of ids should match the number of variables assigned.
      *
      * To create a singular [ConstrainedLayoutReference] see [createRefFor].
@@ -1032,9 +1041,7 @@ class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
     fun createRefsFor(vararg ids: Any): ConstrainedLayoutReferences =
         ConstrainedLayoutReferences(arrayOf(*ids))
 
-    inner class ConstrainedLayoutReferences internal constructor(
-        private val ids: Array<Any>
-    ) {
+    inner class ConstrainedLayoutReferences internal constructor(private val ids: Array<Any>) {
         operator fun component1(): ConstrainedLayoutReference =
             ConstrainedLayoutReference(ids.getOrElse(0) { nextId() })
 
@@ -1085,9 +1092,7 @@ class ConstraintSetScope internal constructor(extendFrom: CLObject?) :
     }
 }
 
-/**
- * Parent data provided by `Modifier.constrainAs`.
- */
+/** Parent data provided by `Modifier.constrainAs`. */
 @Stable
 private class ConstraintLayoutParentData(
     val ref: ConstrainedLayoutReference,
@@ -1095,16 +1100,17 @@ private class ConstraintLayoutParentData(
 ) : LayoutIdParentData {
     override val layoutId: Any = ref.id
 
-    override fun equals(other: Any?) = other is ConstraintLayoutParentData &&
-        ref.id == other.ref.id && constrain === other.constrain
+    override fun equals(other: Any?) =
+        other is ConstraintLayoutParentData &&
+            ref.id == other.ref.id &&
+            constrain === other.constrain
 
     override fun hashCode() = ref.id.hashCode() * 31 + constrain.hashCode()
 }
 
 /**
- * Convenience for creating ids corresponding to layout references that cannot be referred
- * to from the outside of the scope (e.g. barriers, layout references in the modifier-based API,
- * etc.).
+ * Convenience for creating ids corresponding to layout references that cannot be referred to from
+ * the outside of the scope (e.g. barriers, layout references in the modifier-based API, etc.).
  */
 internal fun createId() = object : Any() {}
 
@@ -1116,19 +1122,13 @@ internal fun createId() = object : Any() {}
 // `foundation-layout`. This will be ok if we move constraint layout to its own module or at
 // least subpackage.
 interface Dimension {
-    /**
-     * A [Dimension] that can be assigned both min and max bounds.
-     */
+    /** A [Dimension] that can be assigned both min and max bounds. */
     interface Coercible : Dimension
 
-    /**
-     * A [Dimension] that can be assigned a min bound.
-     */
+    /** A [Dimension] that can be assigned a min bound. */
     interface MinCoercible : Dimension
 
-    /**
-     * A [Dimension] that can be assigned a max bound.
-     */
+    /** A [Dimension] that can be assigned a max bound. */
     interface MaxCoercible : Dimension
 
     companion object {
@@ -1141,50 +1141,46 @@ interface Dimension {
          *
          * This is effectively a shorthand for [fillToConstraints] with a max value.
          *
-         * To make the value fixed (respected regardless the [ConstraintSet]), [value] should
-         * be used instead.
+         * To make the value fixed (respected regardless the [ConstraintSet]), [value] should be
+         * used instead.
          */
         fun preferredValue(dp: Dp): Dimension.MinCoercible =
-            DimensionDescription("spread").apply {
-                max.update(dp)
-            }
+            DimensionDescription("spread").apply { max.update(dp) }
 
         /**
-         * Creates a [Dimension] representing a fixed dp size. The size will not change
-         * according to the constraints in the [ConstraintSet].
+         * Creates a [Dimension] representing a fixed dp size. The size will not change according to
+         * the constraints in the [ConstraintSet].
          */
-        fun value(dp: Dp): Dimension =
-            DimensionDescription(dp)
+        fun value(dp: Dp): Dimension = DimensionDescription(dp)
 
         /**
          * Sets the dimensions to be defined as a ratio of the width and height. The assigned
          * dimension will be considered to also be [fillToConstraints].
          *
-         * The string to define a ratio is defined by the format: 'W:H'.
-         * Where H is the height as a proportion of W (the width).
+         * The string to define a ratio is defined by the format: 'W:H'. Where H is the height as a
+         * proportion of W (the width).
          *
          * Eg: width = Dimension.ratio('1:2') sets the width to be half as large as the height.
          *
          * Note that only one dimension should be defined as a ratio.
          */
-        fun ratio(ratio: String): Dimension =
-            DimensionDescription(ratio)
+        fun ratio(ratio: String): Dimension = DimensionDescription(ratio)
 
         /**
          * Links should be specified from both sides corresponding to this dimension, in order for
          * this to work.
          *
-         * A [Dimension] with suggested wrap content behavior. The wrap content size
-         * will be respected unless the constraints in the [ConstraintSet] do not allow it.
-         * To make the value fixed (respected regardless the [ConstraintSet]), [wrapContent]
-         * should be used instead.
+         * A [Dimension] with suggested wrap content behavior. The wrap content size will be
+         * respected unless the constraints in the [ConstraintSet] do not allow it. To make the
+         * value fixed (respected regardless the [ConstraintSet]), [wrapContent] should be used
+         * instead.
          */
         val preferredWrapContent: Dimension.Coercible
             get() = DimensionDescription("preferWrap")
 
         /**
-         * A fixed [Dimension] with wrap content behavior. The size will not change
-         * according to the constraints in the [ConstraintSet].
+         * A fixed [Dimension] with wrap content behavior. The size will not change according to the
+         * constraints in the [ConstraintSet].
          */
         val wrapContent: Dimension
             get() = DimensionDescription("wrap")
@@ -1210,81 +1206,57 @@ interface Dimension {
          *
          * Where 1f is 100% and 0f is 0%.
          */
-        fun percent(percent: Float): Dimension =
-            DimensionDescription("${percent * 100f}%")
+        fun percent(percent: Float): Dimension = DimensionDescription("${percent * 100f}%")
     }
 }
 
-/**
- * Sets the lower bound of the current [Dimension] to be the wrap content size of the child.
- */
+/** Sets the lower bound of the current [Dimension] to be the wrap content size of the child. */
 val Dimension.Coercible.atLeastWrapContent: Dimension.MaxCoercible
     get() = (this as DimensionDescription).also { it.min.update("wrap") }
 
-/**
- * Sets the lower bound of the current [Dimension] to a fixed [dp] value.
- */
+/** Sets the lower bound of the current [Dimension] to a fixed [dp] value. */
 fun Dimension.Coercible.atLeast(dp: Dp): Dimension.MaxCoercible =
     (this as DimensionDescription).also { it.min.update(dp) }
 
-/**
- * Sets the upper bound of the current [Dimension] to a fixed [dp] value.
- */
+/** Sets the upper bound of the current [Dimension] to a fixed [dp] value. */
 fun Dimension.Coercible.atMost(dp: Dp): Dimension.MinCoercible =
     (this as DimensionDescription).also { it.max.update(dp) }
 
-/**
- * Sets the upper bound of the current [Dimension] to be the wrap content size of the child.
- */
+/** Sets the upper bound of the current [Dimension] to be the wrap content size of the child. */
 val Dimension.Coercible.atMostWrapContent: Dimension.MinCoercible
     get() = (this as DimensionDescription).also { it.max.update("wrap") }
 
-/**
- * Sets the lower bound of the current [Dimension] to a fixed [dp] value.
- */
+/** Sets the lower bound of the current [Dimension] to a fixed [dp] value. */
 @Deprecated(
     message = "Unintended method name, use atLeast(dp) instead",
-    replaceWith = ReplaceWith(
-        "this.atLeast(dp)",
-        "androidx.constraintlayout.compose.atLeast"
-    )
+    replaceWith = ReplaceWith("this.atLeast(dp)", "androidx.constraintlayout.compose.atLeast")
 )
 fun Dimension.MinCoercible.atLeastWrapContent(dp: Dp): Dimension =
     (this as DimensionDescription).also { it.min.update(dp) }
 
-/**
- * Sets the lower bound of the current [Dimension] to a fixed [dp] value.
- */
+/** Sets the lower bound of the current [Dimension] to a fixed [dp] value. */
 fun Dimension.MinCoercible.atLeast(dp: Dp): Dimension =
     (this as DimensionDescription).also { it.min.update(dp) }
 
-/**
- * Sets the lower bound of the current [Dimension] to be the wrap content size of the child.
- */
+/** Sets the lower bound of the current [Dimension] to be the wrap content size of the child. */
 val Dimension.MinCoercible.atLeastWrapContent: Dimension
     get() = (this as DimensionDescription).also { it.min.update("wrap") }
 
-/**
- * Sets the upper bound of the current [Dimension] to a fixed [dp] value.
- */
+/** Sets the upper bound of the current [Dimension] to a fixed [dp] value. */
 fun Dimension.MaxCoercible.atMost(dp: Dp): Dimension =
     (this as DimensionDescription).also { it.max.update(dp) }
 
-/**
- * Sets the upper bound of the current [Dimension] to be the [WRAP_DIMENSION] size of the child.
- */
+/** Sets the upper bound of the current [Dimension] to be the [WRAP_DIMENSION] size of the child. */
 val Dimension.MaxCoercible.atMostWrapContent: Dimension
     get() = (this as DimensionDescription).also { it.max.update("wrap") }
 
 /**
- * Describes a sizing behavior that can be applied to the width or height of a
- * [ConstraintLayout] child. The content of this class should not be instantiated
- * directly; helpers available in the [Dimension]'s companion object should be used.
+ * Describes a sizing behavior that can be applied to the width or height of a [ConstraintLayout]
+ * child. The content of this class should not be instantiated directly; helpers available in the
+ * [Dimension]'s companion object should be used.
  */
-internal class DimensionDescription private constructor(
-    value: Dp?,
-    valueSymbol: String?
-) : Dimension.Coercible, Dimension.MinCoercible, Dimension.MaxCoercible, Dimension {
+internal class DimensionDescription private constructor(value: Dp?, valueSymbol: String?) :
+    Dimension.Coercible, Dimension.MinCoercible, Dimension.MaxCoercible, Dimension {
     constructor(value: Dp) : this(value, null)
 
     constructor(valueSymbol: String) : this(null, valueSymbol)
@@ -1317,8 +1289,8 @@ internal class DimensionDescription private constructor(
 }
 
 /**
- * Dimension that may be represented by either a fixed [Dp] value or a symbol of a specific
- * behavior (such as "wrap", "spread", "parent", etc).
+ * Dimension that may be represented by either a fixed [Dp] value or a symbol of a specific behavior
+ * (such as "wrap", "spread", "parent", etc).
  *
  * [asCLElement] may be used to parse the symbol into it's corresponding [CLElement], depending if
  * the dimension is represented by a value ([CLNumber]) or a symbol ([CLString]).
@@ -1359,11 +1331,11 @@ internal class DimensionSymbol(
  *
  * Eg:
  *
- *  For `Variables: { margin: { from: 'initialMargin', step: 10 } }`
+ * For `Variables: { margin: { from: 'initialMargin', step: 10 } }`
  *
- *  overrideVariables = `"{ 'initialMargin' = 50 }"`
+ * overrideVariables = `"{ 'initialMargin' = 50 }"`
  *
- *  Will create a ConstraintSet where `initialMargin` is 50.
+ * Will create a ConstraintSet where `initialMargin` is 50.
  */
 @SuppressLint("ComposableNaming")
 @Composable
@@ -1371,22 +1343,18 @@ fun ConstraintSet(
     @Language("json5") content: String,
     @Language("json5") overrideVariables: String? = null
 ): ConstraintSet {
-    val constraintset = remember(content, overrideVariables) {
-        JSONConstraintSet(content, overrideVariables)
-    }
+    val constraintset =
+        remember(content, overrideVariables) { JSONConstraintSet(content, overrideVariables) }
     return constraintset
 }
 
-/**
- * Handles update back to the composable
- */
+/** Handles update back to the composable */
 @PublishedApi
 internal abstract class EditableJSONLayout(@Language("json5") content: String) :
     LayoutInformationReceiver {
     private var forcedWidth: Int = Int.MIN_VALUE
     private var forcedHeight: Int = Int.MIN_VALUE
-    private var forcedDrawDebug: MotionLayoutDebugFlags =
-        MotionLayoutDebugFlags.UNKNOWN
+    private var forcedDrawDebug: MotionLayoutDebugFlags = MotionLayoutDebugFlags.UNKNOWN
     private var updateFlag: MutableState<Long>? = null
     private var layoutInformationMode: LayoutInfoFlags = LayoutInfoFlags.NONE
     private var layoutInformation = ""
@@ -1399,47 +1367,47 @@ internal abstract class EditableJSONLayout(@Language("json5") content: String) :
         try {
             onNewContent(currentContent)
             if (debugName != null) {
-                val callback = object : RegistryCallback {
-                    override fun onNewMotionScene(content: String?) {
-                        if (content == null) {
-                            return
+                val callback =
+                    object : RegistryCallback {
+                        override fun onNewMotionScene(content: String?) {
+                            if (content == null) {
+                                return
+                            }
+                            onNewContent(content)
                         }
-                        onNewContent(content)
-                    }
 
-                    override fun onProgress(progress: Float) {
-                        onNewProgress(progress)
-                    }
+                        override fun onProgress(progress: Float) {
+                            onNewProgress(progress)
+                        }
 
-                    override fun onDimensions(width: Int, height: Int) {
-                        onNewDimensions(width, height)
-                    }
+                        override fun onDimensions(width: Int, height: Int) {
+                            onNewDimensions(width, height)
+                        }
 
-                    override fun currentMotionScene(): String {
-                        return currentContent
-                    }
+                        override fun currentMotionScene(): String {
+                            return currentContent
+                        }
 
-                    override fun currentLayoutInformation(): String {
-                        return layoutInformation
-                    }
+                        override fun currentLayoutInformation(): String {
+                            return layoutInformation
+                        }
 
-                    override fun setLayoutInformationMode(mode: Int) {
-                        onLayoutInformation(mode)
-                    }
+                        override fun setLayoutInformationMode(mode: Int) {
+                            onLayoutInformation(mode)
+                        }
 
-                    override fun getLastModified(): Long {
-                        return last
-                    }
+                        override fun getLastModified(): Long {
+                            return last
+                        }
 
-                    override fun setDrawDebug(debugMode: Int) {
-                        onDrawDebug(debugMode)
+                        override fun setDrawDebug(debugMode: Int) {
+                            onDrawDebug(debugMode)
+                        }
                     }
-                }
                 val registry = Registry.getInstance()
                 registry.register(debugName, callback)
             }
-        } catch (_: CLParsingException) {
-        }
+        } catch (_: CLParsingException) {}
     }
 
     // region Accessors
@@ -1493,6 +1461,7 @@ internal abstract class EditableJSONLayout(@Language("json5") content: String) :
     override fun getLayoutInformationMode(): LayoutInfoFlags {
         return layoutInformationMode
     }
+
     // endregion
 
     // region on update methods
@@ -1535,13 +1504,14 @@ internal abstract class EditableJSONLayout(@Language("json5") content: String) :
     }
 
     protected fun onDrawDebug(debugMode: Int) {
-        forcedDrawDebug = when (debugMode) {
-            MotionLayoutDebugFlags.UNKNOWN.ordinal -> MotionLayoutDebugFlags.UNKNOWN
-            MotionLayoutDebugFlags.NONE.ordinal -> MotionLayoutDebugFlags.NONE
-            MotionLayoutDebugFlags.SHOW_ALL.ordinal -> MotionLayoutDebugFlags.SHOW_ALL
-            -1 -> MotionLayoutDebugFlags.UNKNOWN
-            else -> MotionLayoutDebugFlags.UNKNOWN
-        }
+        forcedDrawDebug =
+            when (debugMode) {
+                MotionLayoutDebugFlags.UNKNOWN.ordinal -> MotionLayoutDebugFlags.UNKNOWN
+                MotionLayoutDebugFlags.NONE.ordinal -> MotionLayoutDebugFlags.NONE
+                MotionLayoutDebugFlags.SHOW_ALL.ordinal -> MotionLayoutDebugFlags.SHOW_ALL
+                -1 -> MotionLayoutDebugFlags.UNKNOWN
+                else -> MotionLayoutDebugFlags.UNKNOWN
+            }
         signalUpdate()
     }
     // endregion
@@ -1556,7 +1526,9 @@ internal data class DesignElement(
 /**
  * Parses the given JSON5 into a [ConstraintSet].
  *
- * See the official [Github Wiki](https://github.com/androidx/constraintlayout/wiki/ConstraintSet-JSON5-syntax) to learn the syntax.
+ * See the official
+ * [GitHub Wiki](https://github.com/androidx/constraintlayout/wiki/ConstraintSet-JSON5-syntax) to
+ * learn the syntax.
  */
 fun ConstraintSet(@Language(value = "json5") jsonContent: String): ConstraintSet =
     JSONConstraintSet(content = jsonContent)
@@ -1568,8 +1540,7 @@ fun ConstraintSet(@Language(value = "json5") jsonContent: String): ConstraintSet
 fun ConstraintSet(
     extendConstraintSet: ConstraintSet,
     @Language(value = "json5") jsonContent: String
-): ConstraintSet =
-    JSONConstraintSet(content = jsonContent, extendFrom = extendConstraintSet)
+): ConstraintSet = JSONConstraintSet(content = jsonContent, extendFrom = extendConstraintSet)
 
 /**
  * Creates a [ConstraintSet] with the constraints defined in the [description] block.
@@ -1587,16 +1558,12 @@ fun ConstraintSet(description: ConstraintSetScope.() -> Unit): ConstraintSet =
 fun ConstraintSet(
     extendConstraintSet: ConstraintSet,
     description: ConstraintSetScope.() -> Unit
-): ConstraintSet =
-    DslConstraintSet(description, extendConstraintSet)
+): ConstraintSet = DslConstraintSet(description, extendConstraintSet)
 
-/**
- * The state of the [ConstraintLayout] solver.
- */
+/** The state of the [ConstraintLayout] solver. */
 class State(val density: Density) : SolverState() {
     var rootIncomingConstraints: Constraints = Constraints()
-    @Deprecated("Use #isLtr instead")
-    var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+    @Deprecated("Use #isLtr instead") var layoutDirection: LayoutDirection = LayoutDirection.Ltr
 
     init {
         setDpToPixel { dp -> density.density * dp }
@@ -1617,20 +1584,21 @@ class State(val density: Density) : SolverState() {
 
 interface LayoutInformationReceiver {
     fun setLayoutInformation(information: String)
+
     fun getLayoutInformationMode(): LayoutInfoFlags
+
     fun getForcedWidth(): Int
+
     fun getForcedHeight(): Int
+
     fun setUpdateFlag(needsUpdate: MutableState<Long>)
+
     fun getForcedDrawDebug(): MotionLayoutDebugFlags
 
-    /**
-     * reset the force progress flag
-     */
+    /** reset the force progress flag */
     fun resetForcedProgress()
 
-    /**
-     * Get the progress of the force progress
-     */
+    /** Get the progress of the force progress */
     fun getForcedProgress(): Float
 
     fun onNewProgress(progress: Float)
@@ -1655,6 +1623,7 @@ internal open class Measurer(
     var forcedScaleFactor = Float.NaN
     val layoutCurrentWidth: Int
         get() = root.width
+
     val layoutCurrentHeight: Int
         get() = root.height
 
@@ -1665,18 +1634,12 @@ internal open class Measurer(
     override fun getDesignInfo(startX: Int, startY: Int, args: String) =
         parseConstraintsToJson(root, state, startX, startY, args)
 
-    /**
-     * Measure the given [constraintWidget] with the specs defined by [measure].
-     */
+    /** Measure the given [constraintWidget] with the specs defined by [measure]. */
     override fun measure(constraintWidget: ConstraintWidget, measure: BasicMeasure.Measure) {
         val widgetId = constraintWidget.stringId
 
         if (DEBUG) {
-            Log.d(
-                "CCL",
-                "Measuring $widgetId with: " +
-                    constraintWidget.toDebugString() + "\n"
-            )
+            Log.d("CCL", "Measuring $widgetId with: " + constraintWidget.toDebugString() + "\n")
         }
 
         val measurableLastMeasures = lastMeasures[widgetId]
@@ -1701,19 +1664,21 @@ internal open class Measurer(
             heightConstraintsHolder
         )
 
-        var constraints = Constraints(
-            widthConstraintsHolder[0],
-            widthConstraintsHolder[1],
-            heightConstraintsHolder[0],
-            heightConstraintsHolder[1]
-        )
+        var constraints =
+            Constraints(
+                widthConstraintsHolder[0],
+                widthConstraintsHolder[1],
+                heightConstraintsHolder[0],
+                heightConstraintsHolder[1]
+            )
 
-        if ((measure.measureStrategy == TRY_GIVEN_DIMENSIONS ||
+        if (
+            (measure.measureStrategy == TRY_GIVEN_DIMENSIONS ||
                 measure.measureStrategy == USE_GIVEN_DIMENSIONS) ||
-            !(measure.horizontalBehavior == MATCH_CONSTRAINT &&
-                constraintWidget.mMatchConstraintDefaultWidth == MATCH_CONSTRAINT_SPREAD &&
-                measure.verticalBehavior == MATCH_CONSTRAINT &&
-                constraintWidget.mMatchConstraintDefaultHeight == MATCH_CONSTRAINT_SPREAD)
+                !(measure.horizontalBehavior == MATCH_CONSTRAINT &&
+                    constraintWidget.mMatchConstraintDefaultWidth == MATCH_CONSTRAINT_SPREAD &&
+                    measure.verticalBehavior == MATCH_CONSTRAINT &&
+                    constraintWidget.mMatchConstraintDefaultHeight == MATCH_CONSTRAINT_SPREAD)
         ) {
             if (DEBUG) {
                 Log.d("CCL", "Measuring $widgetId with $constraints")
@@ -1721,38 +1686,39 @@ internal open class Measurer(
             val result = measureWidget(constraintWidget, constraints)
             constraintWidget.isMeasureRequested = false
             if (DEBUG) {
-                Log.d(
-                    "CCL",
-                    "$widgetId is size ${result.first} ${result.second}"
-                )
+                Log.d("CCL", "$widgetId is size ${result.first} ${result.second}")
             }
 
-            val coercedWidth = result.first.coerceIn(
-                constraintWidget.mMatchConstraintMinWidth.takeIf { it > 0 },
-                constraintWidget.mMatchConstraintMaxWidth.takeIf { it > 0 }
-            )
-            val coercedHeight = result.second.coerceIn(
-                constraintWidget.mMatchConstraintMinHeight.takeIf { it > 0 },
-                constraintWidget.mMatchConstraintMaxHeight.takeIf { it > 0 }
-            )
+            val coercedWidth =
+                result.first.coerceIn(
+                    constraintWidget.mMatchConstraintMinWidth.takeIf { it > 0 },
+                    constraintWidget.mMatchConstraintMaxWidth.takeIf { it > 0 }
+                )
+            val coercedHeight =
+                result.second.coerceIn(
+                    constraintWidget.mMatchConstraintMinHeight.takeIf { it > 0 },
+                    constraintWidget.mMatchConstraintMaxHeight.takeIf { it > 0 }
+                )
 
             var remeasure = false
             if (coercedWidth != result.first) {
-                constraints = Constraints(
-                    minWidth = coercedWidth,
-                    minHeight = constraints.minHeight,
-                    maxWidth = coercedWidth,
-                    maxHeight = constraints.maxHeight
-                )
+                constraints =
+                    Constraints(
+                        minWidth = coercedWidth,
+                        minHeight = constraints.minHeight,
+                        maxWidth = coercedWidth,
+                        maxHeight = constraints.maxHeight
+                    )
                 remeasure = true
             }
             if (coercedHeight != result.second) {
-                constraints = Constraints(
-                    minWidth = constraints.minWidth,
-                    minHeight = coercedHeight,
-                    maxWidth = constraints.maxWidth,
-                    maxHeight = coercedHeight
-                )
+                constraints =
+                    Constraints(
+                        minWidth = constraints.minWidth,
+                        minHeight = coercedHeight,
+                        maxWidth = constraints.maxWidth,
+                        maxHeight = coercedHeight
+                    )
                 remeasure = true
             }
             if (remeasure) {
@@ -1775,11 +1741,13 @@ internal open class Measurer(
             }
         measure.measuredHasBaseline = baseline != AlignmentLine.Unspecified
         measure.measuredBaseline = baseline
-        lastMeasures.getOrPut(widgetId) { arrayOf(0, 0, AlignmentLine.Unspecified) }
+        lastMeasures
+            .getOrPut(widgetId) { arrayOf(0, 0, AlignmentLine.Unspecified) }
             .copyFrom(measure)
 
-        measure.measuredNeedsSolverPass = measure.measuredWidth != measure.horizontalDimension ||
-            measure.measuredHeight != measure.verticalDimension
+        measure.measuredNeedsSolverPass =
+            measure.measuredWidth != measure.horizontalDimension ||
+                measure.measuredHeight != measure.verticalDimension
     }
 
     fun addLayoutInformationReceiver(layoutReceiver: LayoutInformationReceiver?) {
@@ -1837,9 +1805,9 @@ internal open class Measurer(
     }
 
     /**
-     * Calculates the [Constraints] in one direction that should be used to measure a child,
-     * based on the solver measure request. Returns `true` if the constraints correspond to a
-     * wrap content measurement.
+     * Calculates the [Constraints] in one direction that should be used to measure a child, based
+     * on the solver measure request. Returns `true` if the constraints correspond to a wrap content
+     * measurement.
      */
     private fun obtainConstraints(
         dimensionBehaviour: ConstraintWidget.DimensionBehaviour,
@@ -1850,46 +1818,48 @@ internal open class Measurer(
         currentDimensionResolved: Boolean,
         rootMaxConstraint: Int,
         outConstraints: IntArray
-    ): Boolean = when (dimensionBehaviour) {
-        FIXED -> {
-            outConstraints[0] = dimension
-            outConstraints[1] = dimension
-            false
-        }
-        WRAP_CONTENT -> {
-            outConstraints[0] = 0
-            outConstraints[1] = rootMaxConstraint
-            true
-        }
-        MATCH_CONSTRAINT -> {
-            if (DEBUG) {
-                Log.d("CCL", "Measure strategy $measureStrategy")
-                Log.d("CCL", "DW $matchConstraintDefaultDimension")
-                Log.d("CCL", "ODR $otherDimensionResolved")
-                Log.d("CCL", "IRH $currentDimensionResolved")
+    ): Boolean =
+        when (dimensionBehaviour) {
+            FIXED -> {
+                outConstraints[0] = dimension
+                outConstraints[1] = dimension
+                false
             }
-            val useDimension = currentDimensionResolved ||
-                (measureStrategy == TRY_GIVEN_DIMENSIONS ||
-                    measureStrategy == USE_GIVEN_DIMENSIONS) &&
-                (measureStrategy == USE_GIVEN_DIMENSIONS ||
-                    matchConstraintDefaultDimension != MATCH_CONSTRAINT_WRAP ||
-                    otherDimensionResolved)
-            if (DEBUG) {
-                Log.d("CCL", "UD $useDimension")
+            WRAP_CONTENT -> {
+                outConstraints[0] = 0
+                outConstraints[1] = rootMaxConstraint
+                true
             }
-            outConstraints[0] = if (useDimension) dimension else 0
-            outConstraints[1] = if (useDimension) dimension else rootMaxConstraint
-            !useDimension
+            MATCH_CONSTRAINT -> {
+                if (DEBUG) {
+                    Log.d("CCL", "Measure strategy $measureStrategy")
+                    Log.d("CCL", "DW $matchConstraintDefaultDimension")
+                    Log.d("CCL", "ODR $otherDimensionResolved")
+                    Log.d("CCL", "IRH $currentDimensionResolved")
+                }
+                val useDimension =
+                    currentDimensionResolved ||
+                        (measureStrategy == TRY_GIVEN_DIMENSIONS ||
+                            measureStrategy == USE_GIVEN_DIMENSIONS) &&
+                            (measureStrategy == USE_GIVEN_DIMENSIONS ||
+                                matchConstraintDefaultDimension != MATCH_CONSTRAINT_WRAP ||
+                                otherDimensionResolved)
+                if (DEBUG) {
+                    Log.d("CCL", "UD $useDimension")
+                }
+                outConstraints[0] = if (useDimension) dimension else 0
+                outConstraints[1] = if (useDimension) dimension else rootMaxConstraint
+                !useDimension
+            }
+            MATCH_PARENT -> {
+                outConstraints[0] = rootMaxConstraint
+                outConstraints[1] = rootMaxConstraint
+                false
+            }
+            else -> {
+                error("$dimensionBehaviour is not supported")
+            }
         }
-        MATCH_PARENT -> {
-            outConstraints[0] = rootMaxConstraint
-            outConstraints[1] = rootMaxConstraint
-            false
-        }
-        else -> {
-            error("$dimensionBehaviour is not supported")
-        }
-    }
 
     private fun Array<Int>.copyFrom(measure: BasicMeasure.Measure) {
         this[0] = measure.measuredWidth
@@ -1945,9 +1915,7 @@ internal open class Measurer(
             }
             Log.d("CCL", "ConstraintLayout is asked to measure with $constraints")
             Log.d("CCL", root.toDebugString())
-            root.children.fastForEach { child ->
-                Log.d("CCL", child.toDebugString())
-            }
+            root.children.fastForEach { child -> Log.d("CCL", child.toDebugString()) }
         }
 
         // No need to set sizes and size modes as we passed them to the state above.
@@ -1970,8 +1938,9 @@ internal open class Measurer(
         root.width = constraints.maxWidth
         root.height = constraints.maxHeight
         forcedScaleFactor = Float.NaN
-        if (layoutInformationReceiver != null &&
-            layoutInformationReceiver?.getForcedWidth() != Int.MIN_VALUE
+        if (
+            layoutInformationReceiver != null &&
+                layoutInformationReceiver?.getForcedWidth() != Int.MIN_VALUE
         ) {
             val forcedWidth = layoutInformationReceiver!!.getForcedWidth()
             if (forcedWidth > root.width) {
@@ -1982,8 +1951,9 @@ internal open class Measurer(
             }
             root.width = forcedWidth
         }
-        if (layoutInformationReceiver != null &&
-            layoutInformationReceiver?.getForcedHeight() != Int.MIN_VALUE
+        if (
+            layoutInformationReceiver != null &&
+                layoutInformationReceiver?.getForcedHeight() != Int.MIN_VALUE
         ) {
             val forcedHeight = layoutInformationReceiver!!.getForcedHeight()
             var scaleFactor = 1f
@@ -2010,14 +1980,15 @@ internal open class Measurer(
             }
         }
         measurables.fastForEach { measurable ->
-            val matchedMeasurable: Measurable = if (!frameCache.containsKey(measurable)) {
-                // TODO: Workaround for lookaheadLayout, the measurable is a different instance
-                frameCache.keys.firstOrNull {
-                    it.layoutId != null && it.layoutId == measurable.layoutId
-                } ?: return@fastForEach
-            } else {
-                measurable
-            }
+            val matchedMeasurable: Measurable =
+                if (!frameCache.containsKey(measurable)) {
+                    // TODO: Workaround for lookaheadLayout, the measurable is a different instance
+                    frameCache.keys.firstOrNull {
+                        it.layoutId != null && it.layoutId == measurable.layoutId
+                    } ?: return@fastForEach
+                } else {
+                    measurable
+                }
             val frame = frameCache[matchedMeasurable] ?: return
             val placeable = placeables[matchedMeasurable] ?: return
             if (!frameCache.containsKey(measurable)) {
@@ -2057,16 +2028,18 @@ internal open class Measurer(
             constraintWidget is VirtualLayout -> {
                 // TODO: This step should really be performed within ConstraintWidgetContainer,
                 //  compose-ConstraintLayout should only have to measure Composables/Measurables
-                val widthMode = when {
-                    constraints.hasFixedWidth -> BasicMeasure.EXACTLY
-                    constraints.hasBoundedWidth -> BasicMeasure.AT_MOST
-                    else -> BasicMeasure.UNSPECIFIED
-                }
-                val heightMode = when {
-                    constraints.hasFixedHeight -> BasicMeasure.EXACTLY
-                    constraints.hasBoundedHeight -> BasicMeasure.AT_MOST
-                    else -> BasicMeasure.UNSPECIFIED
-                }
+                val widthMode =
+                    when {
+                        constraints.hasFixedWidth -> BasicMeasure.EXACTLY
+                        constraints.hasBoundedWidth -> BasicMeasure.AT_MOST
+                        else -> BasicMeasure.UNSPECIFIED
+                    }
+                val heightMode =
+                    when {
+                        constraints.hasFixedHeight -> BasicMeasure.EXACTLY
+                        constraints.hasBoundedHeight -> BasicMeasure.AT_MOST
+                        else -> BasicMeasure.UNSPECIFIED
+                    }
                 constraintWidget.measure(
                     widthMode,
                     constraints.maxWidth,
@@ -2088,9 +2061,7 @@ internal open class Measurer(
 
     @Composable
     fun BoxScope.drawDebugBounds(forcedScaleFactor: Float) {
-        Canvas(modifier = Modifier.matchParentSize()) {
-            drawDebugBounds(forcedScaleFactor)
-        }
+        Canvas(modifier = Modifier.matchParentSize()) { drawDebugBounds(forcedScaleFactor) }
     }
 
     fun DrawScope.drawDebugBounds(forcedScaleFactor: Float) {
@@ -2153,26 +2124,24 @@ internal open class Measurer(
                         val colorBackground =
                             getColor(element.params["backgroundColor"], Color.LightGray)
                         BasicText(
-                            modifier = Modifier
-                                .layoutId(id)
-                                .clip(RoundedCornerShape(20))
-                                .background(colorBackground)
-                                .padding(8.dp),
-                            text = text, style = getTextStyle(element.params)
+                            modifier =
+                                Modifier.layoutId(id)
+                                    .clip(RoundedCornerShape(20))
+                                    .background(colorBackground)
+                                    .padding(8.dp),
+                            text = text,
+                            style = getTextStyle(element.params)
                         )
                     }
                     "box" -> {
                         val text = element.params["text"] ?: ""
                         val colorBackground =
                             getColor(element.params["backgroundColor"], Color.LightGray)
-                        Box(
-                            modifier = Modifier
-                                .layoutId(id)
-                                .background(colorBackground)
-                        ) {
+                        Box(modifier = Modifier.layoutId(id).background(colorBackground)) {
                             BasicText(
                                 modifier = Modifier.padding(8.dp),
-                                text = text, style = getTextStyle(element.params)
+                                text = text,
+                                style = getTextStyle(element.params)
                             )
                         }
                     }
@@ -2180,7 +2149,8 @@ internal open class Measurer(
                         val text = element.params["text"] ?: "text"
                         BasicText(
                             modifier = Modifier.layoutId(id),
-                            text = text, style = getTextStyle(element.params)
+                            text = text,
+                            style = getTextStyle(element.params)
                         )
                     }
                     "textfield" -> {
@@ -2261,21 +2231,14 @@ internal fun Placeable.PlacementScope.placeWithFrameTransform(
         val x = frame.left - offset.x
         val y = frame.top - offset.y
         val zIndex = if (frame.translationZ.isNaN()) 0f else frame.translationZ
-        placeable.placeWithLayer(
-            x = x,
-            y = y,
-            layerBlock = layerBlock,
-            zIndex = zIndex
-        )
+        placeable.placeWithLayer(x = x, y = y, layerBlock = layerBlock, zIndex = zIndex)
     }
 }
 
 object DesignElements {
     var map = HashMap<String, @Composable (String, HashMap<String, String>) -> Unit>()
-    fun define(
-        name: String,
-        function: @Composable (String, HashMap<String, String>) -> Unit
-    ) {
+
+    fun define(name: String, function: @Composable (String, HashMap<String, String>) -> Unit) {
         map[name] = function
     }
 }
@@ -2289,9 +2252,9 @@ object DesignElements {
  * The Tag is set from [ConstraintLayoutTagParentData.constraintLayoutTag].
  *
  * This should always be performed for every Measure call, since there's no guarantee that the
- * [Measurable]s will be the same instance, even if there's seemingly no changes.
- * Should be called before applying the [State] or, if there's no need to apply it, should be called
- * before measuring.
+ * [Measurable]s will be the same instance, even if there's seemingly no changes. Should be called
+ * before applying the [State] or, if there's no need to apply it, should be called before
+ * measuring.
  */
 internal fun buildMapping(state: State, measurables: List<Measurable>) {
     measurables.fastForEach { measurable ->
@@ -2306,9 +2269,11 @@ internal fun buildMapping(state: State, measurables: List<Measurable>) {
 }
 
 internal typealias SolverDimension = androidx.constraintlayout.core.state.Dimension
+
 internal typealias SolverState = androidx.constraintlayout.core.state.State
 
 private val DEBUG = false
+
 private fun ConstraintWidget.toDebugString() =
     "$debugName " +
         "width $width minWidth $minWidth maxWidth $maxWidth " +

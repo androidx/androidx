@@ -45,8 +45,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FlowTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setup() {
@@ -227,180 +226,174 @@ class FlowTest {
     }
 
     @Test
-    fun testChainModeRespectsMaxElements_horizontal() = with(rule.density) {
-        val baseBoxSizePx = 40
-        val itemCount = 6
-        val maxColumns = 3
+    fun testChainModeRespectsMaxElements_horizontal() =
+        with(rule.density) {
+            val baseBoxSizePx = 40
+            val itemCount = 6
+            val maxColumns = 3
 
-        // Make one item twice as big so that it pushes the next element into another row
-        val indexOfBigItem = 4
+            // Make one item twice as big so that it pushes the next element into another row
+            val indexOfBigItem = 4
 
-        val horizontalPadding = 10
+            val horizontalPadding = 10
 
-        // Limit the width to fit the desired columns plus some padding
-        val flowWidth = baseBoxSizePx * maxColumns + horizontalPadding
+            // Limit the width to fit the desired columns plus some padding
+            val flowWidth = baseBoxSizePx * maxColumns + horizontalPadding
 
-        val positions = mutableMapOf<Int, IntOffset>()
+            val positions = mutableMapOf<Int, IntOffset>()
 
-        val constraintSet = ConstraintSet {
-            val itemRefs = List(itemCount) { createRefFor("item$it") }.toTypedArray()
-            val flow = createFlow(
-                elements = itemRefs,
-                flowVertically = false,
-                maxElement = maxColumns,
-                wrapMode = Wrap.Chain,
-                horizontalStyle = FlowStyle.SpreadInside
-            )
-
-            constrain(flow) {
-                width = flowWidth.toDp().asDimension()
-
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-            }
-            itemRefs.forEachIndexed { index, itemRef ->
-                constrain(itemRef) {
-                    val widthPx =
-                        if (index == indexOfBigItem) baseBoxSizePx.times(2) else baseBoxSizePx
-                    width = widthPx.toDp().asDimension()
-                    height = baseBoxSizePx.toDp().asDimension()
-                }
-            }
-        }
-
-        rule.setContent {
-            ConstraintLayout(constraintSet) {
-                for (i in 0 until itemCount) {
-                    Box(
-                        Modifier
-                            .layoutId("item$i")
-                            .background(Color.Red)
-                            .onGloballyPositioned {
-                                positions[i] = it
-                                    .positionInParent()
-                                    .round()
-                            }
+            val constraintSet = ConstraintSet {
+                val itemRefs = List(itemCount) { createRefFor("item$it") }.toTypedArray()
+                val flow =
+                    createFlow(
+                        elements = itemRefs,
+                        flowVertically = false,
+                        maxElement = maxColumns,
+                        wrapMode = Wrap.Chain,
+                        horizontalStyle = FlowStyle.SpreadInside
                     )
+
+                constrain(flow) {
+                    width = flowWidth.toDp().asDimension()
+
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                }
+                itemRefs.forEachIndexed { index, itemRef ->
+                    constrain(itemRef) {
+                        val widthPx =
+                            if (index == indexOfBigItem) baseBoxSizePx.times(2) else baseBoxSizePx
+                        width = widthPx.toDp().asDimension()
+                        height = baseBoxSizePx.toDp().asDimension()
+                    }
                 }
             }
+
+            rule.setContent {
+                ConstraintLayout(constraintSet) {
+                    for (i in 0 until itemCount) {
+                        Box(
+                            Modifier.layoutId("item$i").background(Color.Red).onGloballyPositioned {
+                                positions[i] = it.positionInParent().round()
+                            }
+                        )
+                    }
+                }
+            }
+
+            rule.runOnIdle {
+                assertEquals(6, positions.size)
+
+                // Row 0
+                var expectedX = 0
+                var expectedY = baseBoxSizePx * 0
+                assertEquals(IntOffset(expectedX, expectedY), positions[0])
+
+                expectedX += baseBoxSizePx + horizontalPadding / 2 // padding split in 2 spaces
+                assertEquals(IntOffset(expectedX, expectedY), positions[1])
+
+                expectedX += baseBoxSizePx + horizontalPadding / 2 // padding split in 2 spaces
+                assertEquals(IntOffset(expectedX, expectedY), positions[2])
+
+                // Row 1
+                expectedX = 0
+                expectedY = baseBoxSizePx * 1
+                assertEquals(IntOffset(expectedX, expectedY), positions[3])
+
+                expectedX = baseBoxSizePx + horizontalPadding
+                assertEquals(IntOffset(expectedX, expectedY), positions[4])
+
+                // Row 2
+                expectedX = 0
+                expectedY = baseBoxSizePx * 2
+                assertEquals(IntOffset(expectedX, expectedY), positions[5])
+            }
         }
-
-        rule.runOnIdle {
-            assertEquals(6, positions.size)
-
-            // Row 0
-            var expectedX = 0
-            var expectedY = baseBoxSizePx * 0
-            assertEquals(IntOffset(expectedX, expectedY), positions[0])
-
-            expectedX += baseBoxSizePx + horizontalPadding / 2 // padding split in 2 spaces
-            assertEquals(IntOffset(expectedX, expectedY), positions[1])
-
-            expectedX += baseBoxSizePx + horizontalPadding / 2 // padding split in 2 spaces
-            assertEquals(IntOffset(expectedX, expectedY), positions[2])
-
-            // Row 1
-            expectedX = 0
-            expectedY = baseBoxSizePx * 1
-            assertEquals(IntOffset(expectedX, expectedY), positions[3])
-
-            expectedX = baseBoxSizePx + horizontalPadding
-            assertEquals(IntOffset(expectedX, expectedY), positions[4])
-
-            // Row 2
-            expectedX = 0
-            expectedY = baseBoxSizePx * 2
-            assertEquals(IntOffset(expectedX, expectedY), positions[5])
-        }
-    }
 
     @Test
-    fun testChainModeRespectsMaxElements_vertical() = with(rule.density) {
-        val baseBoxSizePx = 40
-        val itemCount = 6
-        val maxRows = 3
+    fun testChainModeRespectsMaxElements_vertical() =
+        with(rule.density) {
+            val baseBoxSizePx = 40
+            val itemCount = 6
+            val maxRows = 3
 
-        // Make one item twice as big so that it pushes the next element into another column
-        val indexOfBigItem = 4
+            // Make one item twice as big so that it pushes the next element into another column
+            val indexOfBigItem = 4
 
-        val verticalPadding = 10
+            val verticalPadding = 10
 
-        // Limit the height to fit the desired rows plus some padding
-        val flowHeight = baseBoxSizePx * maxRows + verticalPadding
+            // Limit the height to fit the desired rows plus some padding
+            val flowHeight = baseBoxSizePx * maxRows + verticalPadding
 
-        val positions = mutableMapOf<Int, IntOffset>()
+            val positions = mutableMapOf<Int, IntOffset>()
 
-        val constraintSet = ConstraintSet {
-            val itemRefs = List(itemCount) { createRefFor("item$it") }.toTypedArray()
-            val flow = createFlow(
-                elements = itemRefs,
-                flowVertically = true,
-                maxElement = maxRows,
-                wrapMode = Wrap.Chain,
-                verticalStyle = FlowStyle.SpreadInside
-            )
-
-            constrain(flow) {
-                height = flowHeight.toDp().asDimension()
-
-                top.linkTo(parent.top)
-                start.linkTo(parent.start)
-            }
-            itemRefs.forEachIndexed { index, itemRef ->
-                constrain(itemRef) {
-                    val widthPx =
-                        if (index == indexOfBigItem) baseBoxSizePx.times(2) else baseBoxSizePx
-                    height = widthPx.toDp().asDimension()
-                    width = baseBoxSizePx.toDp().asDimension()
-                }
-            }
-        }
-
-        rule.setContent {
-            ConstraintLayout(constraintSet) {
-                for (i in 0 until itemCount) {
-                    Box(
-                        Modifier
-                            .layoutId("item$i")
-                            .background(Color.Red)
-                            .onGloballyPositioned {
-                                positions[i] = it
-                                    .positionInParent()
-                                    .round()
-                            }
+            val constraintSet = ConstraintSet {
+                val itemRefs = List(itemCount) { createRefFor("item$it") }.toTypedArray()
+                val flow =
+                    createFlow(
+                        elements = itemRefs,
+                        flowVertically = true,
+                        maxElement = maxRows,
+                        wrapMode = Wrap.Chain,
+                        verticalStyle = FlowStyle.SpreadInside
                     )
+
+                constrain(flow) {
+                    height = flowHeight.toDp().asDimension()
+
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                }
+                itemRefs.forEachIndexed { index, itemRef ->
+                    constrain(itemRef) {
+                        val widthPx =
+                            if (index == indexOfBigItem) baseBoxSizePx.times(2) else baseBoxSizePx
+                        height = widthPx.toDp().asDimension()
+                        width = baseBoxSizePx.toDp().asDimension()
+                    }
                 }
             }
+
+            rule.setContent {
+                ConstraintLayout(constraintSet) {
+                    for (i in 0 until itemCount) {
+                        Box(
+                            Modifier.layoutId("item$i").background(Color.Red).onGloballyPositioned {
+                                positions[i] = it.positionInParent().round()
+                            }
+                        )
+                    }
+                }
+            }
+
+            rule.runOnIdle {
+                assertEquals(6, positions.size)
+
+                // Column 0
+                var expectedX = baseBoxSizePx * 0
+                var expectedY = 0
+                assertEquals(IntOffset(expectedX, expectedY), positions[0])
+
+                expectedY += baseBoxSizePx + verticalPadding / 2 // padding split in 2 spaces
+                assertEquals(IntOffset(expectedX, expectedY), positions[1])
+
+                expectedY += baseBoxSizePx + verticalPadding / 2 // padding split in 2 spaces
+                assertEquals(IntOffset(expectedX, expectedY), positions[2])
+
+                // Column 1
+                expectedX = baseBoxSizePx * 1
+                expectedY = 0
+                assertEquals(IntOffset(expectedX, expectedY), positions[3])
+
+                expectedY = baseBoxSizePx + verticalPadding
+                assertEquals(IntOffset(expectedX, expectedY), positions[4])
+
+                // Column 2
+                expectedX = baseBoxSizePx * 2
+                expectedY = 0
+                assertEquals(IntOffset(expectedX, expectedY), positions[5])
+            }
         }
-
-        rule.runOnIdle {
-            assertEquals(6, positions.size)
-
-            // Column 0
-            var expectedX = baseBoxSizePx * 0
-            var expectedY = 0
-            assertEquals(IntOffset(expectedX, expectedY), positions[0])
-
-            expectedY += baseBoxSizePx + verticalPadding / 2 // padding split in 2 spaces
-            assertEquals(IntOffset(expectedX, expectedY), positions[1])
-
-            expectedY += baseBoxSizePx + verticalPadding / 2 // padding split in 2 spaces
-            assertEquals(IntOffset(expectedX, expectedY), positions[2])
-
-            // Column 1
-            expectedX = baseBoxSizePx * 1
-            expectedY = 0
-            assertEquals(IntOffset(expectedX, expectedY), positions[3])
-
-            expectedY = baseBoxSizePx + verticalPadding
-            assertEquals(IntOffset(expectedX, expectedY), positions[4])
-
-            // Column 2
-            expectedX = baseBoxSizePx * 2
-            expectedY = 0
-            assertEquals(IntOffset(expectedX, expectedY), positions[5])
-        }
-    }
 }
 
 @Composable
@@ -417,8 +410,9 @@ private fun FlowComposableTest(
 
     ConstraintLayout(
         modifier = modifier,
-        constraintSet = ConstraintSet(
-            """
+        constraintSet =
+            ConstraintSet(
+                """
         {
             flow1: {
                 width: $width,
@@ -429,17 +423,12 @@ private fun FlowComposableTest(
                 contains: [$flowContains],
               }
         }
-        """.trimIndent()
-        )
+        """
+                    .trimIndent()
+            )
     ) {
         ids.forEach { id ->
-            Box(
-                Modifier
-                    .layoutId(id)
-                    .size(10.dp)
-                    .background(Color.Red)
-                    .testTag(id)
-            )
+            Box(Modifier.layoutId(id).size(10.dp).background(Color.Red).testTag(id))
         }
     }
 }

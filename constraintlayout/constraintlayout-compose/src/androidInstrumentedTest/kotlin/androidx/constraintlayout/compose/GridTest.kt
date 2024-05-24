@@ -38,14 +38,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests for the Grid Helper
- */
+/** Tests for the Grid Helper */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class GridTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setup() {
@@ -598,8 +595,9 @@ class GridTest {
         val gridContains = ids.joinToString(separator = ", ") { "'$it'" }
         ConstraintLayout(
             modifier = modifier,
-            constraintSet = ConstraintSet(
-                """
+            constraintSet =
+                ConstraintSet(
+                    """
         {
             grid: {
                 width: $width,
@@ -618,17 +616,12 @@ class GridTest {
                 flags: $flags,
               }
         }
-        """.trimIndent()
-            )
+        """
+                        .trimIndent()
+                )
         ) {
             ids.forEach { id ->
-                Box(
-                    Modifier
-                        .layoutId(id)
-                        .size(10.dp)
-                        .background(Color.Red)
-                        .testTag(id)
-                )
+                Box(Modifier.layoutId(id).size(10.dp).background(Color.Red).testTag(id))
             }
         }
     }
@@ -646,8 +639,9 @@ class GridTest {
 
         ConstraintLayout(
             modifier = modifier,
-            constraintSet = ConstraintSet(
-                """
+            constraintSet =
+                ConstraintSet(
+                    """
         {
             grid: {
                 width: $width,
@@ -676,17 +670,11 @@ class GridTest {
                 height: 'spread',
               }
         }
-        """.trimIndent()
-            )
-        ) {
-            ids.forEach { id ->
-                Box(
-                    Modifier
-                        .layoutId(id)
-                        .background(Color.Red)
-                        .testTag(id)
+        """
+                        .trimIndent()
                 )
-            }
+        ) {
+            ids.forEach { id -> Box(Modifier.layoutId(id).background(Color.Red).testTag(id)) }
         }
     }
 }

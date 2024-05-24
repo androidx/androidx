@@ -42,8 +42,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DesignInfoProviderTest {
-    @get:Rule
-    internal val rule = TestRule(createComposeRule())
+    @get:Rule internal val rule = TestRule(createComposeRule())
 
     @Test
     fun designInfoProviderInRemember_withConstraintSet() {
@@ -114,9 +113,7 @@ class DesignInfoProviderTest {
     }
 }
 
-/**
- * Utility test rule
- */
+/** Utility test rule */
 internal class TestRule(rule: ComposeContentTestRule) : ComposeContentTestRule by rule {
     private var recomposed by mutableStateOf(false)
 
@@ -137,43 +134,35 @@ internal class TestRule(rule: ComposeContentTestRule) : ComposeContentTestRule b
                 recomposed // Read value so recomposition covers ConstraintLayout
                 ConstraintLayout(
                     modifier = Modifier.size(50.dp),
-                    constraintSet = ConstraintSet {
-                        val box1 = createRefFor("box1")
-                        val box2 = createRefFor("box2")
-                        val guideline = createGuidelineFromStart(fraction = 0.5f)
-                        val barrier = createEndBarrier(box1, box2)
-                        val box3 = createRefFor("box3")
+                    constraintSet =
+                        ConstraintSet {
+                            val box1 = createRefFor("box1")
+                            val box2 = createRefFor("box2")
+                            val guideline = createGuidelineFromStart(fraction = 0.5f)
+                            val barrier = createEndBarrier(box1, box2)
+                            val box3 = createRefFor("box3")
 
-                        constrain(box1) {
-                            top.linkTo(parent.top)
-                            end.linkTo(guideline)
-                        }
-                        constrain(box2) {
-                            top.linkTo(box1.bottom)
-                            start.linkTo(guideline)
-                        }
+                            constrain(box1) {
+                                top.linkTo(parent.top)
+                                end.linkTo(guideline)
+                            }
+                            constrain(box2) {
+                                top.linkTo(box1.bottom)
+                                start.linkTo(guideline)
+                            }
 
-                        constrain(box3) {
-                            start.linkTo(barrier)
-                            top.linkTo(box2.bottom)
+                            constrain(box3) {
+                                start.linkTo(barrier)
+                                top.linkTo(box2.bottom)
+                            }
                         }
-                    }
                 ) {
                     Box(
-                        Modifier
-                            .layoutId("box1")
+                        Modifier.layoutId("box1")
                             .size(if (recomposed) 10.dp else 5.dp) // Recompose part of the content
                     )
-                    Box(
-                        Modifier
-                            .layoutId("box2")
-                            .size(10.dp)
-                    )
-                    Box(
-                        Modifier
-                            .layoutId("box3")
-                            .size(10.dp)
-                    )
+                    Box(Modifier.layoutId("box2").size(10.dp))
+                    Box(Modifier.layoutId("box3").size(10.dp))
                 }
             }
         }
@@ -186,30 +175,34 @@ internal class TestRule(rule: ComposeContentTestRule) : ComposeContentTestRule b
             NoInlineWrapper {
                 @Suppress("UNUSED_EXPRESSION")
                 recomposed // Read value so recomposition covers ConstraintLayout
-                ConstraintLayout(
-                    modifier = Modifier.size(50.dp)
-                ) {
+                ConstraintLayout(modifier = Modifier.size(50.dp)) {
                     val (box1, box2, box3) = createRefs()
                     val guideline = createGuidelineFromStart(fraction = 0.5f)
                     val barrier = createEndBarrier(box1, box2)
-                    Box(modifier = Modifier
-                        .size(if (recomposed) 10.dp else 5.dp) // Recompose part of the content
-                        .constrainAs(box1) {
-                            top.linkTo(parent.top)
-                            end.linkTo(guideline)
-                        })
-                    Box(modifier = Modifier
-                        .size(10.dp)
-                        .constrainAs(box2) {
-                            top.linkTo(box1.bottom)
-                            start.linkTo(guideline)
-                        })
-                    Box(modifier = Modifier
-                        .size(10.dp)
-                        .constrainAs(box3) {
-                            top.linkTo(box2.bottom)
-                            start.linkTo(barrier)
-                        })
+                    Box(
+                        modifier =
+                            Modifier.size(
+                                    if (recomposed) 10.dp else 5.dp
+                                ) // Recompose part of the content
+                                .constrainAs(box1) {
+                                    top.linkTo(parent.top)
+                                    end.linkTo(guideline)
+                                }
+                    )
+                    Box(
+                        modifier =
+                            Modifier.size(10.dp).constrainAs(box2) {
+                                top.linkTo(box1.bottom)
+                                start.linkTo(guideline)
+                            }
+                    )
+                    Box(
+                        modifier =
+                            Modifier.size(10.dp).constrainAs(box3) {
+                                top.linkTo(box2.bottom)
+                                start.linkTo(barrier)
+                            }
+                    )
                 }
             }
         }
@@ -229,7 +222,5 @@ internal class TestRule(rule: ComposeContentTestRule) : ComposeContentTestRule b
  */
 @Composable
 private fun NoInlineWrapper(content: @Composable () -> Unit) {
-    Box {
-        content()
-    }
+    Box { content() }
 }

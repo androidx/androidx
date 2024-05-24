@@ -89,16 +89,18 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
         compositionSource: CompositionSource,
         invalidateOnConstraintsCallback: ShouldInvalidateCallback?
     ): IntSize {
-        val needsRemeasure = needsRemeasure(
-            constraints = constraints,
-            source = compositionSource,
-            invalidateOnConstraintsCallback = invalidateOnConstraintsCallback
-        )
+        val needsRemeasure =
+            needsRemeasure(
+                constraints = constraints,
+                source = compositionSource,
+                invalidateOnConstraintsCallback = invalidateOnConstraintsCallback
+            )
 
-        if (lastProgressInInterpolation != progress ||
-            (layoutInformationReceiver?.getForcedWidth() != Int.MIN_VALUE &&
-                layoutInformationReceiver?.getForcedHeight() != Int.MIN_VALUE) ||
-            needsRemeasure
+        if (
+            lastProgressInInterpolation != progress ||
+                (layoutInformationReceiver?.getForcedWidth() != Int.MIN_VALUE &&
+                    layoutInformationReceiver?.getForcedHeight() != Int.MIN_VALUE) ||
+                needsRemeasure
         ) {
             recalculateInterpolation(
                 constraints = constraints,
@@ -149,8 +151,9 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
             }
         } else {
             // Default behavior, only take this path if there's no user logic to invalidate
-            if ((constraints.hasFixedHeight && !state.sameFixedHeight(constraints.maxHeight)) ||
-                (constraints.hasFixedWidth && !state.sameFixedWidth(constraints.maxWidth))
+            if (
+                (constraints.hasFixedHeight && !state.sameFixedHeight(constraints.maxHeight)) ||
+                    (constraints.hasFixedWidth && !state.sameFixedWidth(constraints.maxWidth))
             ) {
                 // Layout size changed
                 return true
@@ -202,13 +205,9 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
             state.rootIncomingConstraints = constraints
             state.isRtl = layoutDirection == LayoutDirection.Rtl
 
-            measureConstraintSet(
-                optimizationLevel, constraintSetStart, measurables, constraints
-            )
+            measureConstraintSet(optimizationLevel, constraintSetStart, measurables, constraints)
             this.transition.updateFrom(root, Transition.START)
-            measureConstraintSet(
-                optimizationLevel, constraintSetEnd, measurables, constraints
-            )
+            measureConstraintSet(optimizationLevel, constraintSetEnd, measurables, constraints)
             this.transition.updateFrom(root, Transition.END)
             transition?.applyKeyFramesTo(this.transition)
         } else {
@@ -223,12 +222,10 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
             // Update measurables to the interpolated dimensions
             val measurable = (child.companionWidget as? Measurable) ?: return@fastForEach
             val interpolatedFrame = this.transition.getInterpolated(child) ?: return@fastForEach
-            placeables[measurable] = measurable.measure(
-                Constraints.fixed(
-                    interpolatedFrame.width(),
-                    interpolatedFrame.height()
+            placeables[measurable] =
+                measurable.measure(
+                    Constraints.fixed(interpolatedFrame.width(), interpolatedFrame.height())
                 )
-            )
             frameCache[measurable] = interpolatedFrame
         }
 
@@ -383,18 +380,21 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
         val debugRender = MotionRenderDebug(23f)
 
         debugRender.draw(
-            drawContext.canvas.nativeCanvas, transition.getMotion(startFrame.widget.stringId),
-            1000, Motion.DRAW_PATH_BASIC,
-            parentWidth.toInt(), parentHeight.toInt()
+            drawContext.canvas.nativeCanvas,
+            transition.getMotion(startFrame.widget.stringId),
+            1000,
+            Motion.DRAW_PATH_BASIC,
+            parentWidth.toInt(),
+            parentHeight.toInt()
         )
         if (numKeyPositions == 0) {
-//            drawLine(
-//                start = Offset(startFrame.centerX(), startFrame.centerY()),
-//                end = Offset(endFrame.centerX(), endFrame.centerY()),
-//                color = color,
-//                strokeWidth = 3f,
-//                pathEffect = pathEffect
-//            )
+            //            drawLine(
+            //                start = Offset(startFrame.centerX(), startFrame.centerY()),
+            //                end = Offset(endFrame.centerX(), endFrame.centerY()),
+            //                color = color,
+            //                strokeWidth = 3f,
+            //                pathEffect = pathEffect
+            //            )
         } else {
             val x = FloatArray(numKeyPositions)
             val y = FloatArray(numKeyPositions)
@@ -411,13 +411,13 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
                         (keyFrameProgress * endFrame.height())
                 val curX = x[i] * parentWidth + frameWidth / 2f
                 val curY = y[i] * parentHeight + frameHeight / 2f
-//                drawLine(
-//                    start = Offset(prex, prey),
-//                    end = Offset(curX, curY),
-//                    color = color,
-//                    strokeWidth = 3f,
-//                    pathEffect = pathEffect
-//                )
+                //                drawLine(
+                //                    start = Offset(prex, prey),
+                //                    end = Offset(curX, curY),
+                //                    color = color,
+                //                    strokeWidth = 3f,
+                //                    pathEffect = pathEffect
+                //                )
                 val path = Path()
                 val pathSize = 20f
                 path.moveTo(curX - pathSize, curY)
@@ -429,26 +429,24 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
                 val stroke = Stroke(width = 3f)
                 drawPath(path, color, 1f, stroke)
             }
-//            drawLine(
-//                start = Offset(prex, prey),
-//                end = Offset(endFrame.centerX(), endFrame.centerY()),
-//                color = color,
-//                strokeWidth = 3f,
-//                pathEffect = pathEffect
-//            )
+            //            drawLine(
+            //                start = Offset(prex, prey),
+            //                end = Offset(endFrame.centerX(), endFrame.centerY()),
+            //                color = color,
+            //                strokeWidth = 3f,
+            //                pathEffect = pathEffect
+            //            )
         }
     }
 
-    private fun DrawScope.drawFrame(
-        frame: WidgetFrame,
-        pathEffect: PathEffect,
-        color: Color
-    ) {
+    private fun DrawScope.drawFrame(frame: WidgetFrame, pathEffect: PathEffect, color: Color) {
         if (frame.isDefaultTransform) {
             val drawStyle = Stroke(width = 3f, pathEffect = pathEffect)
             drawRect(
-                color, Offset(frame.left.toFloat(), frame.top.toFloat()),
-                Size(frame.width().toFloat(), frame.height().toFloat()), style = drawStyle
+                color,
+                Offset(frame.left.toFloat(), frame.top.toFloat()),
+                Size(frame.width().toFloat(), frame.height().toFloat()),
+                style = drawStyle
             )
         } else {
             val matrix = Matrix()
@@ -457,18 +455,18 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
             }
             val scaleX = if (frame.scaleX.isNaN()) 1f else frame.scaleX
             val scaleY = if (frame.scaleY.isNaN()) 1f else frame.scaleY
-            matrix.preScale(
-                scaleX,
-                scaleY,
-                frame.centerX(),
-                frame.centerY()
-            )
-            val points = floatArrayOf(
-                frame.left.toFloat(), frame.top.toFloat(),
-                frame.right.toFloat(), frame.top.toFloat(),
-                frame.right.toFloat(), frame.bottom.toFloat(),
-                frame.left.toFloat(), frame.bottom.toFloat()
-            )
+            matrix.preScale(scaleX, scaleY, frame.centerX(), frame.centerY())
+            val points =
+                floatArrayOf(
+                    frame.left.toFloat(),
+                    frame.top.toFloat(),
+                    frame.right.toFloat(),
+                    frame.top.toFloat(),
+                    frame.right.toFloat(),
+                    frame.bottom.toFloat(),
+                    frame.left.toFloat(),
+                    frame.bottom.toFloat()
+                )
             matrix.mapPoints(points)
             drawLine(
                 start = Offset(points[0], points[1]),
@@ -571,8 +569,8 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
 }
 
 /**
- * Functional interface to represent the callback of type
- * `(old: Constraints, new: Constraints) -> Boolean`
+ * Functional interface to represent the callback of type `(old: Constraints, new: Constraints) ->
+ * Boolean`
  */
 internal fun interface ShouldInvalidateCallback {
     operator fun invoke(old: Constraints, new: Constraints): Boolean

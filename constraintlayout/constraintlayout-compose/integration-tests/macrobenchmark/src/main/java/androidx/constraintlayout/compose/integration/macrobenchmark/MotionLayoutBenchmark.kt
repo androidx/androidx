@@ -36,81 +36,81 @@ private const val ACTION =
     "androidx.constraintlayout.compose.integration.macrobenchmark.target.MOTION_LAYOUT_ACTIVITY"
 
 /**
- * Run locally using `./gradlew :constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark:connectedCheck`
+ * Run locally using `./gradlew
+ * :constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark:connectedCheck`
  */
 @LargeTest
 class MotionLayoutBenchmark {
 
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     /**
      * Transitions the Layout through its three different ConstraintSets using the MotionScene DSL.
      */
-    @Test
-    fun messageDsl() = benchmarkRule.testNewMessage(NewMessageMode.Dsl)
+    @Test fun messageDsl() = benchmarkRule.testNewMessage(NewMessageMode.Dsl)
 
-    @Test
-    fun messageOptimizedDsl() = benchmarkRule.testNewMessage(NewMessageMode.OptimizedDsl)
+    @Test fun messageOptimizedDsl() = benchmarkRule.testNewMessage(NewMessageMode.OptimizedDsl)
 
     /**
      * Transitions the Layout through its three different ConstraintSets using the MotionScene JSON.
      */
-    @Test
-    fun messageJson() = benchmarkRule.testNewMessage(NewMessageMode.Json)
+    @Test fun messageJson() = benchmarkRule.testNewMessage(NewMessageMode.Json)
 
     @Test
-    fun collapsibleToolbar() = benchmarkRule.motionBenchmark("CollapsibleToolbar") {
-        val column = device.findObject(By.res("LazyColumn"))
-        val bounds = column.visibleBounds
+    fun collapsibleToolbar() =
+        benchmarkRule.motionBenchmark("CollapsibleToolbar") {
+            val column = device.findObject(By.res("LazyColumn"))
+            val bounds = column.visibleBounds
 
-        // Margin to reduce the amount of pixels scrolled and avoid the navigation pill
-        val vMargin = (bounds.height() * 0.2f).roundToInt()
-        val x = (bounds.width() * 0.5f).roundToInt()
-        val y1 = bounds.bottom - vMargin
-        val y2 = bounds.top + vMargin
+            // Margin to reduce the amount of pixels scrolled and avoid the navigation pill
+            val vMargin = (bounds.height() * 0.2f).roundToInt()
+            val x = (bounds.width() * 0.5f).roundToInt()
+            val y1 = bounds.bottom - vMargin
+            val y2 = bounds.top + vMargin
 
-        // Scroll down
-        device.swipe(x, y1, x, y2, 50)
-        device.waitForIdle()
+            // Scroll down
+            device.swipe(x, y1, x, y2, 50)
+            device.waitForIdle()
 
-        // Scroll up
-        device.swipe(x, y2, x, y1, 50)
-        device.waitForIdle()
-    }
+            // Scroll up
+            device.swipe(x, y2, x, y1, 50)
+            device.waitForIdle()
+        }
 
     /**
      * LazyList based layout, where every item is a MotionLayout Composable and are animated as they
      * are revealed.
      */
     @Test
-    fun dynamicGraphs() = benchmarkRule.motionBenchmark("DynamicGraphs") {
-        val column = device.findObject(By.res("LazyColumn"))
-        val bounds = column.visibleBounds
+    fun dynamicGraphs() =
+        benchmarkRule.motionBenchmark("DynamicGraphs") {
+            val column = device.findObject(By.res("LazyColumn"))
+            val bounds = column.visibleBounds
 
-        // Margin to avoid swiping the navigation pill
-        val vMargin = (bounds.height() * 0.1f).roundToInt()
-        val x = (bounds.width() * 0.5f).roundToInt()
-        val y1 = bounds.bottom - vMargin
-        val y2 = bounds.top + vMargin
+            // Margin to avoid swiping the navigation pill
+            val vMargin = (bounds.height() * 0.1f).roundToInt()
+            val x = (bounds.width() * 0.5f).roundToInt()
+            val y1 = bounds.bottom - vMargin
+            val y2 = bounds.top + vMargin
 
-        repeat(5) {
-            // Fast swipe upwards, to scroll down through multiple animated items at a time
-            device.swipe(x, y1, x, y2, 6)
-            device.waitForComposeIdle()
+            repeat(5) {
+                // Fast swipe upwards, to scroll down through multiple animated items at a time
+                device.swipe(x, y1, x, y2, 6)
+                device.waitForComposeIdle()
+            }
         }
-    }
 
     /**
-     * The base method to benchmark FrameTimings of a Composable from the macrobenchmark-target module.
+     * The base method to benchmark FrameTimings of a Composable from the macrobenchmark-target
+     * module.
      *
      * [composableName] should be a registered Composable in **MotionLayoutBenchmarkActivity**
      *
-     * The [setupBlock] is run after the activity starts with the given [composableName]. You may use
-     * this as a chance to set the UI in the way you wish it to be measured.
+     * The [setupBlock] is run after the activity starts with the given [composableName]. You may
+     * use this as a chance to set the UI in the way you wish it to be measured.
      *
-     * The [measureBlock] is called after the setup. [FrameTimingMetric] measures UI performance during
-     * this block.
+     * The [measureBlock] is called after the setup. [FrameTimingMetric] measures UI performance
+     * during this block.
      */
     private fun MacrobenchmarkRule.motionBenchmark(
         composableName: String,
@@ -138,12 +138,8 @@ class MotionLayoutBenchmark {
         )
     }
 
-    private fun MacrobenchmarkRule.testNewMessage(
-        mode: NewMessageMode
-    ) {
-        motionBenchmark(
-            mode.composableName
-        ) {
+    private fun MacrobenchmarkRule.testNewMessage(mode: NewMessageMode) {
+        motionBenchmark(mode.composableName) {
             val toFab = device.findObject(By.res("Fab"))
             val toFull = device.findObject(By.res("Full"))
             val toMini = device.findObject(By.res("Mini"))

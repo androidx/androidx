@@ -53,10 +53,11 @@ private const val STAGGERED_VALUE = 0.4f
 fun SimpleStaggeredDemo() {
     var mode by remember { mutableStateOf(StaggeredMode.Normal) }
     var animateToEnd by remember { mutableStateOf(false) }
-    val progress by animateFloatAsState(
-        targetValue = if (animateToEnd) 1f else 0f,
-        animationSpec = tween(3000),
-    )
+    val progress by
+        animateFloatAsState(
+            targetValue = if (animateToEnd) 1f else 0f,
+            animationSpec = tween(3000),
+        )
     val boxesId: IntArray = remember { IntArray(10) { it } }
     val staggeredValue by remember {
         derivedStateOf {
@@ -72,25 +73,22 @@ fun SimpleStaggeredDemo() {
             remember(mode) {
                 MotionScene {
                     val refs = boxesId.map { createRefFor(it) }.toTypedArray()
-                    val weights = when (mode) {
-                        StaggeredMode.Custom -> boxesId.map { it.toFloat() }.shuffled()
-                        else -> boxesId.map { Float.NaN }
-                    }
+                    val weights =
+                        when (mode) {
+                            StaggeredMode.Custom -> boxesId.map { it.toFloat() }.shuffled()
+                            else -> boxesId.map { Float.NaN }
+                        }
 
                     defaultTransition(
                         constraintSet {
                             createHorizontalChain(*refs, chainStyle = ChainStyle.Packed(0f))
                             refs.forEachIndexed { index, ref ->
-                                constrain(ref) {
-                                    staggeredWeight = weights[index]
-                                }
+                                constrain(ref) { staggeredWeight = weights[index] }
                             }
                         },
                         constraintSet {
                             createVerticalChain(*refs, chainStyle = ChainStyle.Packed(1f))
-                            constrain(*refs) {
-                                end.linkTo(parent.end)
-                            }
+                            constrain(*refs) { end.linkTo(parent.end) }
                         }
                     ) {
                         maxStaggerDelay = staggeredValue
@@ -98,33 +96,22 @@ fun SimpleStaggeredDemo() {
                 }
             },
             progress = progress,
-            Modifier
-                .fillMaxWidth()
-                .weight(1f, true)
+            Modifier.fillMaxWidth().weight(1f, true)
         ) {
             for (id in boxesId) {
-                Box(
-                    modifier = Modifier
-                        .size(25.dp)
-                        .background(Color.Red)
-                        .layoutId(id)
-                )
+                Box(modifier = Modifier.size(25.dp).background(Color.Red).layoutId(id))
             }
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Button(onClick = { animateToEnd = !animateToEnd }) {
-                Text(text = "Run")
-            }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Button(onClick = { animateToEnd = !animateToEnd }) { Text(text = "Run") }
             Button(
                 onClick = {
-                    mode = when (mode) {
-                        StaggeredMode.Normal -> StaggeredMode.Inverted
-                        StaggeredMode.Inverted -> StaggeredMode.Custom
-                        else -> StaggeredMode.Normal
-                    }
+                    mode =
+                        when (mode) {
+                            StaggeredMode.Normal -> StaggeredMode.Inverted
+                            StaggeredMode.Inverted -> StaggeredMode.Custom
+                            else -> StaggeredMode.Normal
+                        }
                 }
             ) {
                 Text(text = "Mode: ${mode.name}, Value: $staggeredValue")

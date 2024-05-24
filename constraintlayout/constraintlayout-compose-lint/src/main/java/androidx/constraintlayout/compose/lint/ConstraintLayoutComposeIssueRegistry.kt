@@ -29,15 +29,17 @@ class ConstraintLayoutComposeIssueRegistry : IssueRegistry() {
 
     override val minApi = CURRENT_API
 
-    override val issues = listOf(
-        ConstraintLayoutDslDetector.IncorrectReferencesDeclarationIssue,
-        ConstraintLayoutDslDetector.IncorrectMatchParentUsageIssue,
-        ConstraintLayoutDslDetector.IncorrectChainMarginsUsageIssue
-    )
+    override val issues =
+        listOf(
+            ConstraintLayoutDslDetector.IncorrectReferencesDeclarationIssue,
+            ConstraintLayoutDslDetector.IncorrectMatchParentUsageIssue,
+            ConstraintLayoutDslDetector.IncorrectChainMarginsUsageIssue
+        )
 
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/$CL_COMPOSE_NEW_ISSUE",
-        identifier = "androidx.constraintlayout.compose",
-        vendorName = "Android Open Source Project",
-    )
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/$CL_COMPOSE_NEW_ISSUE",
+            identifier = "androidx.constraintlayout.compose",
+            vendorName = "Android Open Source Project",
+        )
 }

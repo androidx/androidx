@@ -85,8 +85,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ConstraintLayoutTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private var displaySize: IntSize = IntSize.Zero
 
@@ -95,8 +94,8 @@ class ConstraintLayoutTest {
     @Before
     fun before() {
         isDebugInspectorInfoEnabled = true
-        displaySize = ApplicationProvider
-            .getApplicationContext<Context>().resources.displayMetrics.let {
+        displaySize =
+            ApplicationProvider.getApplicationContext<Context>().resources.displayMetrics.let {
                 IntSize(it.widthPixels, it.heightPixels)
             }
     }
@@ -107,1093 +106,953 @@ class ConstraintLayoutTest {
     }
 
     @Test
-    fun dividerMatchTextHeight_spread() = with(rule.density) {
-        val aspectRatioBoxSize = Ref<IntSize>()
-        val dividerSize = Ref<IntSize>()
+    fun dividerMatchTextHeight_spread() =
+        with(rule.density) {
+            val aspectRatioBoxSize = Ref<IntSize>()
+            val dividerSize = Ref<IntSize>()
 
-        rule.setContent {
-            ConstraintLayout(
-                // Make CL fixed width and wrap content height.
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
+            rule.setContent {
+                ConstraintLayout(
+                    // Make CL fixed width and wrap content height.
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val (aspectRatioBox, divider) = createRefs()
+                    val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
-                Box(
-                    Modifier
-                        .constrainAs(aspectRatioBox) {
-                            centerTo(parent)
-                            start.linkTo(guideline)
-                            width = Dimension.preferredWrapContent
-                            height = Dimension.wrapContent
-                        }
-                        // Try to be large to make wrap content impossible.
-                        .width((displaySize.width).toDp())
-                        // This could be any (width in height out child) e.g. text
-                        .aspectRatio(2f)
-                        .onGloballyPositioned { coordinates ->
-                            aspectRatioBoxSize.value = coordinates.size
-                        }
+                    Box(
+                        Modifier.constrainAs(aspectRatioBox) {
+                                centerTo(parent)
+                                start.linkTo(guideline)
+                                width = Dimension.preferredWrapContent
+                                height = Dimension.wrapContent
+                            }
+                            // Try to be large to make wrap content impossible.
+                            .width((displaySize.width).toDp())
+                            // This could be any (width in height out child) e.g. text
+                            .aspectRatio(2f)
+                            .onGloballyPositioned { coordinates ->
+                                aspectRatioBoxSize.value = coordinates.size
+                            }
+                    )
+                    Box(
+                        Modifier.constrainAs(divider) {
+                                centerTo(parent)
+                                width = Dimension.value(1.dp)
+                                height = Dimension.fillToConstraints
+                            }
+                            .onGloballyPositioned { coordinates ->
+                                dividerSize.value = coordinates.size
+                            }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                // The aspect ratio could not wrap and it is wrap suggested, so it respects
+                // constraints.
+                assertEquals(
+                    (displaySize.width / 2f).roundToInt(),
+                    aspectRatioBoxSize.value!!.width
                 )
-                Box(
-                    Modifier
-                        .constrainAs(divider) {
-                            centerTo(parent)
-                            width = Dimension.value(1.dp)
-                            height = Dimension.fillToConstraints
-                        }
-                        .onGloballyPositioned { coordinates ->
-                            dividerSize.value = coordinates.size
-                        }
+                // Aspect ratio is preserved.
+                assertEquals(
+                    (displaySize.width / 2f / 2f).roundToInt(),
+                    aspectRatioBoxSize.value!!.height
                 )
+                // Divider has fixed width 1.dp in constraint set.
+                assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
+                // Divider has spread height so it should spread to fill the height of the CL,
+                // which in turns is given by the size of the aspect ratio box.
+                assertEquals(aspectRatioBoxSize.value!!.height, dividerSize.value!!.height)
             }
         }
-
-        rule.runOnIdle {
-            // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
-            assertEquals(
-                (displaySize.width / 2f).roundToInt(),
-                aspectRatioBoxSize.value!!.width
-            )
-            // Aspect ratio is preserved.
-            assertEquals(
-                (displaySize.width / 2f / 2f).roundToInt(),
-                aspectRatioBoxSize.value!!.height
-            )
-            // Divider has fixed width 1.dp in constraint set.
-            assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
-            // Divider has spread height so it should spread to fill the height of the CL,
-            // which in turns is given by the size of the aspect ratio box.
-            assertEquals(aspectRatioBoxSize.value!!.height, dividerSize.value!!.height)
-        }
-    }
 
     @Test
-    fun dividerMatchTextHeight_spread_withPreferredWrapHeightText() = with(rule.density) {
-        val aspectRatioBoxSize = Ref<IntSize>()
-        val dividerSize = Ref<IntSize>()
-        rule.setContent {
-            ConstraintLayout(
-                // Make CL fixed width and wrap content height.
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
+    fun dividerMatchTextHeight_spread_withPreferredWrapHeightText() =
+        with(rule.density) {
+            val aspectRatioBoxSize = Ref<IntSize>()
+            val dividerSize = Ref<IntSize>()
+            rule.setContent {
+                ConstraintLayout(
+                    // Make CL fixed width and wrap content height.
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val (aspectRatioBox, divider) = createRefs()
+                    val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
-                Box(
-                    Modifier
-                        .constrainAs(aspectRatioBox) {
-                            centerTo(parent)
-                            start.linkTo(guideline)
-                            width = Dimension.preferredWrapContent
-                            height = Dimension.preferredWrapContent
-                        }
-                        // Try to be large to make wrap content impossible.
-                        .width((displaySize.width).toDp())
-                        // This could be any (width in height out child) e.g. text
-                        .aspectRatio(2f)
-                        .onGloballyPositioned { coordinates ->
-                            aspectRatioBoxSize.value = coordinates.size
-                        }
+                    Box(
+                        Modifier.constrainAs(aspectRatioBox) {
+                                centerTo(parent)
+                                start.linkTo(guideline)
+                                width = Dimension.preferredWrapContent
+                                height = Dimension.preferredWrapContent
+                            }
+                            // Try to be large to make wrap content impossible.
+                            .width((displaySize.width).toDp())
+                            // This could be any (width in height out child) e.g. text
+                            .aspectRatio(2f)
+                            .onGloballyPositioned { coordinates ->
+                                aspectRatioBoxSize.value = coordinates.size
+                            }
+                    )
+                    Box(
+                        Modifier.constrainAs(divider) {
+                                centerTo(parent)
+                                width = Dimension.value(1.dp)
+                                height = Dimension.fillToConstraints
+                            }
+                            .onGloballyPositioned { coordinates ->
+                                dividerSize.value = coordinates.size
+                            }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                // The aspect ratio could not wrap and it is wrap suggested, so it respects
+                // constraints.
+                assertEquals(
+                    (displaySize.width / 2f).roundToInt(),
+                    aspectRatioBoxSize.value!!.width
                 )
-                Box(
-                    Modifier
-                        .constrainAs(divider) {
-                            centerTo(parent)
-                            width = Dimension.value(1.dp)
-                            height = Dimension.fillToConstraints
-                        }
-                        .onGloballyPositioned { coordinates ->
-                            dividerSize.value = coordinates.size
-                        }
+                // Aspect ratio is preserved.
+                assertEquals(
+                    (displaySize.width / 2f / 2f).roundToInt(),
+                    aspectRatioBoxSize.value!!.height
                 )
+                // Divider has fixed width 1.dp in constraint set.
+                assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
+                // Divider has spread height so it should spread to fill the height of the CL,
+                // which in turns is given by the size of the aspect ratio box.
+                assertEquals(aspectRatioBoxSize.value!!.height, dividerSize.value!!.height)
             }
         }
-
-        rule.runOnIdle {
-            // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
-            assertEquals(
-                (displaySize.width / 2f).roundToInt(),
-                aspectRatioBoxSize.value!!.width
-            )
-            // Aspect ratio is preserved.
-            assertEquals(
-                (displaySize.width / 2f / 2f).roundToInt(),
-                aspectRatioBoxSize.value!!.height
-            )
-            // Divider has fixed width 1.dp in constraint set.
-            assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
-            // Divider has spread height so it should spread to fill the height of the CL,
-            // which in turns is given by the size of the aspect ratio box.
-            assertEquals(aspectRatioBoxSize.value!!.height, dividerSize.value!!.height)
-        }
-    }
 
     @Test
-    fun dividerMatchTextHeight_percent() = with(rule.density) {
-        val aspectRatioBoxSize = Ref<IntSize>()
-        val dividerSize = Ref<IntSize>()
-        rule.setContent {
-            ConstraintLayout(
-                // Make CL fixed width and wrap content height.
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
+    fun dividerMatchTextHeight_percent() =
+        with(rule.density) {
+            val aspectRatioBoxSize = Ref<IntSize>()
+            val dividerSize = Ref<IntSize>()
+            rule.setContent {
+                ConstraintLayout(
+                    // Make CL fixed width and wrap content height.
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    val (aspectRatioBox, divider) = createRefs()
+                    val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
-                Box(
-                    Modifier
-                        .constrainAs(aspectRatioBox) {
-                            centerTo(parent)
-                            start.linkTo(guideline)
-                            width = Dimension.preferredWrapContent
-                            height = Dimension.wrapContent
-                        }
-                        // Try to be large to make wrap content impossible.
-                        .width((displaySize.width).toDp())
-                        // This could be any (width in height out child) e.g. text
-                        .aspectRatio(2f)
-                        .onGloballyPositioned { coordinates ->
-                            aspectRatioBoxSize.value = coordinates.size
-                        }
+                    Box(
+                        Modifier.constrainAs(aspectRatioBox) {
+                                centerTo(parent)
+                                start.linkTo(guideline)
+                                width = Dimension.preferredWrapContent
+                                height = Dimension.wrapContent
+                            }
+                            // Try to be large to make wrap content impossible.
+                            .width((displaySize.width).toDp())
+                            // This could be any (width in height out child) e.g. text
+                            .aspectRatio(2f)
+                            .onGloballyPositioned { coordinates ->
+                                aspectRatioBoxSize.value = coordinates.size
+                            }
+                    )
+                    Box(
+                        Modifier.constrainAs(divider) {
+                                centerTo(parent)
+                                width = Dimension.value(1.dp)
+                                height = Dimension.percent(0.8f)
+                            }
+                            .onGloballyPositioned { coordinates ->
+                                dividerSize.value = coordinates.size
+                            }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                // The aspect ratio could not wrap and it is wrap suggested, so it respects
+                // constraints.
+                assertEquals(
+                    (displaySize.width / 2f).roundToInt(),
+                    aspectRatioBoxSize.value!!.width
                 )
-                Box(
-                    Modifier
-                        .constrainAs(divider) {
-                            centerTo(parent)
-                            width = Dimension.value(1.dp)
-                            height = Dimension.percent(0.8f)
-                        }
-                        .onGloballyPositioned { coordinates ->
-                            dividerSize.value = coordinates.size
-                        }
+                // Aspect ratio is preserved.
+                assertEquals(
+                    (displaySize.width / 2f / 2f).roundToInt(),
+                    aspectRatioBoxSize.value!!.height
+                )
+                // Divider has fixed width 1.dp in constraint set.
+                assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
+                // Divider has percent height so it should spread to fill 0.8 of the height of the
+                // CL,
+                // which in turns is given by the size of the aspect ratio box.
+                assertEquals(
+                    (aspectRatioBoxSize.value!!.height * 0.8f).roundToInt(),
+                    dividerSize.value!!.height
                 )
             }
         }
-
-        rule.runOnIdle {
-            // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
-            assertEquals(
-                (displaySize.width / 2f).roundToInt(),
-                aspectRatioBoxSize.value!!.width
-            )
-            // Aspect ratio is preserved.
-            assertEquals(
-                (displaySize.width / 2f / 2f).roundToInt(),
-                aspectRatioBoxSize.value!!.height
-            )
-            // Divider has fixed width 1.dp in constraint set.
-            assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
-            // Divider has percent height so it should spread to fill 0.8 of the height of the CL,
-            // which in turns is given by the size of the aspect ratio box.
-            assertEquals(
-                (aspectRatioBoxSize.value!!.height * 0.8f).roundToInt(),
-                dividerSize.value!!.height
-            )
-        }
-    }
 
     @Test
     @Ignore
-    fun dividerMatchTextHeight_inWrapConstraintLayout_longText() = with(rule.density) {
-        val aspectRatioBoxSize = Ref<IntSize>()
-        val dividerSize = Ref<IntSize>()
-        rule.setContent {
-            // CL is wrap content.
-            ConstraintLayout {
-                val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
+    fun dividerMatchTextHeight_inWrapConstraintLayout_longText() =
+        with(rule.density) {
+            val aspectRatioBoxSize = Ref<IntSize>()
+            val dividerSize = Ref<IntSize>()
+            rule.setContent {
+                // CL is wrap content.
+                ConstraintLayout {
+                    val (aspectRatioBox, divider) = createRefs()
+                    val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
-                Box(
-                    Modifier
-                        .constrainAs(aspectRatioBox) {
-                            centerTo(parent)
-                            start.linkTo(guideline)
-                            width = Dimension.preferredWrapContent
-                            height = Dimension.wrapContent
-                        }
-                        // Try to be large to make wrap content impossible.
-                        .width((displaySize.width).toDp())
-                        // This could be any (width in height out child) e.g. text
-                        .aspectRatio(2f)
-                        .onGloballyPositioned { coordinates ->
-                            aspectRatioBoxSize.value = coordinates.size
-                        }
+                    Box(
+                        Modifier.constrainAs(aspectRatioBox) {
+                                centerTo(parent)
+                                start.linkTo(guideline)
+                                width = Dimension.preferredWrapContent
+                                height = Dimension.wrapContent
+                            }
+                            // Try to be large to make wrap content impossible.
+                            .width((displaySize.width).toDp())
+                            // This could be any (width in height out child) e.g. text
+                            .aspectRatio(2f)
+                            .onGloballyPositioned { coordinates ->
+                                aspectRatioBoxSize.value = coordinates.size
+                            }
+                    )
+                    Box(
+                        Modifier.constrainAs(divider) {
+                                centerTo(parent)
+                                width = Dimension.value(1.dp)
+                                height = Dimension.percent(0.8f)
+                            }
+                            .onGloballyPositioned { coordinates ->
+                                dividerSize.value = coordinates.size
+                            }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                // The aspect ratio could not wrap and it is wrap suggested, so it respects
+                // constraints.
+                assertEquals((displaySize.width / 2), aspectRatioBoxSize.value!!.width)
+                // Aspect ratio is preserved.
+                assertEquals((displaySize.width / 2 / 2), aspectRatioBoxSize.value!!.height)
+                // Divider has fixed width 1.dp in constraint set.
+                assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
+                // Divider has percent height so it should spread to fill 0.8 of the height of the
+                // CL,
+                // which in turns is given by the size of the aspect ratio box.
+                // TODO(popam; b/150277566): uncomment
+                assertEquals(
+                    "broken, display size ${displaySize.width}x${displaySize.height} aspect" +
+                        " height ${aspectRatioBoxSize.value!!.width}x" +
+                        "${aspectRatioBoxSize.value!!.height}, " +
+                        "divider: ${dividerSize.value!!.height}",
+                    (aspectRatioBoxSize.value!!.height * 0.8f).roundToInt(),
+                    dividerSize.value!!.height
                 )
-                Box(
-                    Modifier
-                        .constrainAs(divider) {
-                            centerTo(parent)
-                            width = Dimension.value(1.dp)
-                            height = Dimension.percent(0.8f)
-                        }
-                        .onGloballyPositioned { coordinates ->
-                            dividerSize.value = coordinates.size
-                        }
+                assertEquals(
+                    "broken, aspect height ${aspectRatioBoxSize.value!!.width}x" +
+                        "${aspectRatioBoxSize.value!!.height}," +
+                        " divider: ${dividerSize.value!!.height}",
+                    aspectRatioBoxSize.value!!.width,
+                    540
                 )
             }
         }
-
-        rule.runOnIdle {
-            // The aspect ratio could not wrap and it is wrap suggested, so it respects constraints.
-            assertEquals(
-                (displaySize.width / 2),
-                aspectRatioBoxSize.value!!.width
-            )
-            // Aspect ratio is preserved.
-            assertEquals(
-                (displaySize.width / 2 / 2),
-                aspectRatioBoxSize.value!!.height
-            )
-            // Divider has fixed width 1.dp in constraint set.
-            assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
-            // Divider has percent height so it should spread to fill 0.8 of the height of the CL,
-            // which in turns is given by the size of the aspect ratio box.
-            // TODO(popam; b/150277566): uncomment
-            assertEquals(
-                "broken, display size ${displaySize.width}x${displaySize.height} aspect" +
-                    " height ${aspectRatioBoxSize.value!!.width}x" +
-                    "${aspectRatioBoxSize.value!!.height}, " +
-                    "divider: ${dividerSize.value!!.height}",
-                (aspectRatioBoxSize.value!!.height * 0.8f).roundToInt(),
-                dividerSize.value!!.height
-            )
-            assertEquals(
-                "broken, aspect height ${aspectRatioBoxSize.value!!.width}x" +
-                    "${aspectRatioBoxSize.value!!.height}," +
-                    " divider: ${dividerSize.value!!.height}",
-                aspectRatioBoxSize.value!!.width,
-                540
-            )
-        }
-    }
 
     @Test
-    fun dividerMatchTextHeight_inWrapConstraintLayout_shortText() = with(rule.density) {
-        val constraintLayoutSize = Ref<IntSize>()
-        val aspectRatioBoxSize = Ref<IntSize>()
-        val dividerSize = Ref<IntSize>()
-        val size = 40.toDp()
-        rule.setContent {
-            ConstraintLayout(
-                // CL is wrapping width and height.
-                modifier = Modifier.onGloballyPositioned {
-                    constraintLayoutSize.value = it.size
-                }
-            ) {
-                val (aspectRatioBox, divider) = createRefs()
-                val guideline = createGuidelineFromAbsoluteLeft(0.5f)
+    fun dividerMatchTextHeight_inWrapConstraintLayout_shortText() =
+        with(rule.density) {
+            val constraintLayoutSize = Ref<IntSize>()
+            val aspectRatioBoxSize = Ref<IntSize>()
+            val dividerSize = Ref<IntSize>()
+            val size = 40.toDp()
+            rule.setContent {
+                ConstraintLayout(
+                    // CL is wrapping width and height.
+                    modifier =
+                        Modifier.onGloballyPositioned { constraintLayoutSize.value = it.size }
+                ) {
+                    val (aspectRatioBox, divider) = createRefs()
+                    val guideline = createGuidelineFromAbsoluteLeft(0.5f)
 
-                Box(
-                    Modifier
-                        .constrainAs(aspectRatioBox) {
-                            centerTo(parent)
-                            start.linkTo(guideline)
-                            width = Dimension.preferredWrapContent
-                            height = Dimension.wrapContent
-                        }
-                        // Small width for the CL to wrap it.
-                        .width(size)
-                        // This could be any (width in height out child) e.g. text
-                        .aspectRatio(2f)
-                        .onGloballyPositioned { coordinates ->
-                            aspectRatioBoxSize.value = coordinates.size
-                        }
-                )
-                Box(
-                    Modifier
-                        .constrainAs(divider) {
-                            centerTo(parent)
-                            width = Dimension.value(1.dp)
-                            height = Dimension.fillToConstraints
-                        }
-                        .onGloballyPositioned { coordinates ->
-                            dividerSize.value = coordinates.size
-                        }
-                )
+                    Box(
+                        Modifier.constrainAs(aspectRatioBox) {
+                                centerTo(parent)
+                                start.linkTo(guideline)
+                                width = Dimension.preferredWrapContent
+                                height = Dimension.wrapContent
+                            }
+                            // Small width for the CL to wrap it.
+                            .width(size)
+                            // This could be any (width in height out child) e.g. text
+                            .aspectRatio(2f)
+                            .onGloballyPositioned { coordinates ->
+                                aspectRatioBoxSize.value = coordinates.size
+                            }
+                    )
+                    Box(
+                        Modifier.constrainAs(divider) {
+                                centerTo(parent)
+                                width = Dimension.value(1.dp)
+                                height = Dimension.fillToConstraints
+                            }
+                            .onGloballyPositioned { coordinates ->
+                                dividerSize.value = coordinates.size
+                            }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                // The width of the ConstraintLayout should be twice the width of the aspect ratio
+                // box.
+                assertEquals(size.roundToPx() * 2, constraintLayoutSize.value!!.width)
+                // The height of the ConstraintLayout should be the height of the aspect ratio box.
+                assertEquals(size.roundToPx() / 2, constraintLayoutSize.value!!.height)
+                // The aspect ratio gets the requested size.
+                assertEquals(size.roundToPx(), aspectRatioBoxSize.value!!.width)
+                // Aspect ratio is preserved.
+                assertEquals(size.roundToPx() / 2, aspectRatioBoxSize.value!!.height)
+                // Divider has fixed width 1.dp in constraint set.
+                assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
+                // Divider should have the height of the aspect ratio box.
+                assertEquals(aspectRatioBoxSize.value!!.height, dividerSize.value!!.height)
             }
         }
-
-        rule.runOnIdle {
-            // The width of the ConstraintLayout should be twice the width of the aspect ratio box.
-            assertEquals(size.roundToPx() * 2, constraintLayoutSize.value!!.width)
-            // The height of the ConstraintLayout should be the height of the aspect ratio box.
-            assertEquals(size.roundToPx() / 2, constraintLayoutSize.value!!.height)
-            // The aspect ratio gets the requested size.
-            assertEquals(size.roundToPx(), aspectRatioBoxSize.value!!.width)
-            // Aspect ratio is preserved.
-            assertEquals(size.roundToPx() / 2, aspectRatioBoxSize.value!!.height)
-            // Divider has fixed width 1.dp in constraint set.
-            assertEquals(1.dp.roundToPx(), dividerSize.value!!.width)
-            // Divider should have the height of the aspect ratio box.
-            assertEquals(aspectRatioBoxSize.value!!.height, dividerSize.value!!.height)
-        }
-    }
 
     // endregion
 
     // region positioning tests
 
     @Test
-    fun testConstraintLayout_withInlineDSL() = with(rule.density) {
-        var rootSize: IntSize = IntSize.Zero
-        val boxSize = 100
-        val offset = 150
+    fun testConstraintLayout_withInlineDSL() =
+        with(rule.density) {
+            var rootSize: IntSize = IntSize.Zero
+            val boxSize = 100
+            val offset = 150
 
-        val position: Array<IntOffset> = Array(3) { IntOffset.Zero }
+            val position: Array<IntOffset> = Array(3) { IntOffset.Zero }
 
-        rule.setContent {
-            ConstraintLayout(
-                Modifier
-                    .fillMaxSize()
-                    .onGloballyPositioned {
-                        rootSize = it.size
-                    }) {
-                val (box0, box1, box2) = createRefs()
-                Box(
-                    Modifier
-                        .constrainAs(box0) {
-                            centerTo(parent)
-                        }
-                        .size(boxSize.toDp(), boxSize.toDp())
-                        .onGloballyPositioned {
-                            position[0] = it
-                                .positionInRoot()
-                                .round()
-                        }
-                )
-                val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
-                Box(
-                    Modifier
-                        .constrainAs(box1) {
-                            start.linkTo(half, margin = offset.toDp())
-                            bottom.linkTo(box0.top)
-                        }
-                        .size(boxSize.toDp(), boxSize.toDp())
-                        .onGloballyPositioned {
-                            position[1] = it
-                                .positionInRoot()
-                                .round()
-                        }
-                )
-                Box(
-                    Modifier
-                        .constrainAs(box2) {
-                            start.linkTo(parent.start, margin = offset.toDp())
-                            bottom.linkTo(parent.bottom, margin = offset.toDp())
-                        }
-                        .size(boxSize.toDp(), boxSize.toDp())
-                        .onGloballyPositioned {
-                            position[2] = it
-                                .positionInRoot()
-                                .round()
-                        }
-                )
-            }
-        }
-
-        val displayWidth = rootSize.width
-        val displayHeight = rootSize.height
-
-        rule.runOnIdle {
-            assertEquals(
-                Offset(
-                    ((displayWidth - boxSize) / 2f),
-                    ((displayHeight - boxSize) / 2f)
-                ).round(),
-                position[0]
-            )
-            assertEquals(
-                Offset(
-                    (displayWidth / 2f + offset),
-                    ((displayHeight - boxSize) / 2f - boxSize)
-                ).round(),
-                position[1]
-            )
-            assertEquals(
-                IntOffset(
-                    offset,
-                    (displayHeight - boxSize - offset)
-                ),
-                position[2]
-            )
-        }
-    }
-
-    @Test
-    fun testConstraintLayout_withConstraintSet() = with(rule.density) {
-        var rootSize: IntSize = IntSize.Zero
-        val boxSize = 100
-        val offset = 150
-
-        val position: Array<IntOffset> = Array(3) { IntOffset.Zero }
-
-        rule.setContent {
-            ConstraintLayout(
-                constraintSet = ConstraintSet {
-                    val box0 = createRefFor("box0")
-                    val box1 = createRefFor("box1")
-                    val box2 = createRefFor("box2")
-
-                    constrain(box0) {
-                        centerTo(parent)
-                    }
-
-                    val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
-                    constrain(box1) {
-                        start.linkTo(half, margin = offset.toDp())
-                        bottom.linkTo(box0.top)
-                    }
-
-                    constrain(box2) {
-                        start.linkTo(parent.start, margin = offset.toDp())
-                        bottom.linkTo(parent.bottom, margin = offset.toDp())
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .onGloballyPositioned {
-                        rootSize = it.size
-                    }
-            ) {
-                for (i in 0..2) {
-                    Box(
-                        Modifier
-                            .layoutId("box$i")
-                            .size(boxSize.toDp(), boxSize.toDp())
-                            .onGloballyPositioned {
-                                position[i] = it
-                                    .positionInRoot()
-                                    .round()
-                            }
-                    )
-                }
-            }
-        }
-
-        val displayWidth = rootSize.width
-        val displayHeight = rootSize.height
-
-        rule.runOnIdle {
-            assertEquals(
-                Offset(
-                    (displayWidth - boxSize) / 2f,
-                    (displayHeight - boxSize) / 2f
-                ).round(),
-                position[0]
-            )
-            assertEquals(
-                Offset(
-                    (displayWidth / 2f + offset),
-                    ((displayHeight - boxSize) / 2f - boxSize)
-                ).round(),
-                position[1]
-            )
-            assertEquals(
-                IntOffset(
-                    offset,
-                    (displayHeight - boxSize - offset)
-                ),
-                position[2]
-            )
-        }
-    }
-
-    @Test
-    @Ignore
-    fun testConstraintLayout_rtl() = with(rule.density) {
-        val boxSize = 100
-        val offset = 150
-
-        val position = Array(3) { Ref<Offset>() }
-
-        rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                ConstraintLayout(Modifier.fillMaxSize()) {
+            rule.setContent {
+                ConstraintLayout(
+                    Modifier.fillMaxSize().onGloballyPositioned { rootSize = it.size }
+                ) {
                     val (box0, box1, box2) = createRefs()
                     Box(
-                        Modifier
-                            .constrainAs(box0) {
-                                centerTo(parent)
-                            }
+                        Modifier.constrainAs(box0) { centerTo(parent) }
                             .size(boxSize.toDp(), boxSize.toDp())
-                            .onGloballyPositioned {
-                                position[0].value = it.positionInRoot()
-                            }
+                            .onGloballyPositioned { position[0] = it.positionInRoot().round() }
                     )
                     val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
                     Box(
-                        Modifier
-                            .constrainAs(box1) {
+                        Modifier.constrainAs(box1) {
                                 start.linkTo(half, margin = offset.toDp())
                                 bottom.linkTo(box0.top)
                             }
                             .size(boxSize.toDp(), boxSize.toDp())
-                            .onGloballyPositioned {
-                                position[1].value = it.positionInRoot()
-                            }
+                            .onGloballyPositioned { position[1] = it.positionInRoot().round() }
                     )
                     Box(
-                        Modifier
-                            .constrainAs(box2) {
+                        Modifier.constrainAs(box2) {
                                 start.linkTo(parent.start, margin = offset.toDp())
                                 bottom.linkTo(parent.bottom, margin = offset.toDp())
                             }
                             .size(boxSize.toDp(), boxSize.toDp())
-                            .onGloballyPositioned {
-                                position[2].value = it.positionInRoot()
-                            }
+                            .onGloballyPositioned { position[2] = it.positionInRoot().round() }
                     )
                 }
             }
-        }
 
-        val displayWidth = displaySize.width
-        val displayHeight = displaySize.height
+            val displayWidth = rootSize.width
+            val displayHeight = rootSize.height
 
-        rule.runOnIdle {
-            assertEquals(
-                Offset(
-                    (displayWidth - boxSize) / 2f,
-                    (displayHeight - boxSize) / 2f
-                ),
-                position[0].value
-            )
-            assertEquals(
-                Offset(
-                    (displayWidth / 2 - offset - boxSize).toFloat(),
-                    ((displayHeight - boxSize) / 2 - boxSize).toFloat()
-                ),
-                position[1].value
-            )
-            assertEquals(
-                Offset(
-                    (displayWidth - offset - boxSize).toFloat(),
-                    (displayHeight - boxSize - offset).toFloat()
-                ),
-                position[2].value
-            )
-        }
-    }
-
-    @Test
-    fun testConstraintLayout_guidelines_ltr() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
-
-        val position = Array(8) { 0f }
-        rule.setContent {
-            ConstraintLayout(Modifier.size(size)) {
-                val guidelines = arrayOf(
-                    createGuidelineFromStart(offset),
-                    createGuidelineFromAbsoluteLeft(offset),
-                    createGuidelineFromEnd(offset),
-                    createGuidelineFromAbsoluteRight(offset),
-                    createGuidelineFromStart(0.25f),
-                    createGuidelineFromAbsoluteLeft(0.25f),
-                    createGuidelineFromEnd(0.25f),
-                    createGuidelineFromAbsoluteRight(0.25f)
+            rule.runOnIdle {
+                assertEquals(
+                    Offset(((displayWidth - boxSize) / 2f), ((displayHeight - boxSize) / 2f))
+                        .round(),
+                    position[0]
                 )
-
-                guidelines.forEachIndexed { index, guideline ->
-                    val ref = createRef()
-                    Box(
-                        Modifier
-                            .size(1.dp)
-                            .constrainAs(ref) {
-                                absoluteLeft.linkTo(guideline)
-                            }
-                            .onGloballyPositioned {
-                                position[index] = it.positionInParent().x
-                            }
-                    )
-                }
+                assertEquals(
+                    Offset((displayWidth / 2f + offset), ((displayHeight - boxSize) / 2f - boxSize))
+                        .round(),
+                    position[1]
+                )
+                assertEquals(IntOffset(offset, (displayHeight - boxSize - offset)), position[2])
             }
         }
 
-        assertGuidelinesLtrPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_json_guidelines_ltr() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_withConstraintSet() =
+        with(rule.density) {
+            var rootSize: IntSize = IntSize.Zero
+            val boxSize = 100
+            val offset = 150
 
-        val position = Array(8) { 0f }
-        rule.setContent {
-            ConstraintLayout(
-                constraintSet = ConstraintSet(getJsonGuidelinesContent(offset.value)),
-                Modifier.size(size)
-            ) {
-                position.forEachIndexed { index, _ ->
-                    Box(
-                        Modifier
-                            .size(1.dp)
-                            .layoutId("box$index")
-                            .onGloballyPositioned {
-                                position[index] = it.positionInParent().x
+            val position: Array<IntOffset> = Array(3) { IntOffset.Zero }
+
+            rule.setContent {
+                ConstraintLayout(
+                    constraintSet =
+                        ConstraintSet {
+                            val box0 = createRefFor("box0")
+                            val box1 = createRefFor("box1")
+                            val box2 = createRefFor("box2")
+
+                            constrain(box0) { centerTo(parent) }
+
+                            val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
+                            constrain(box1) {
+                                start.linkTo(half, margin = offset.toDp())
+                                bottom.linkTo(box0.top)
                             }
-                    )
-                }
-            }
-        }
 
-        assertGuidelinesLtrPositions(position)
-    }
-
-    @Test
-    fun testConstraintLayout_guidelines_rtl() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
-
-        val position = Array(8) { 0f }
-        rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                ConstraintLayout(Modifier.size(size)) {
-                    val guidelines = arrayOf(
-                        createGuidelineFromStart(offset),
-                        createGuidelineFromAbsoluteLeft(offset),
-                        createGuidelineFromEnd(offset),
-                        createGuidelineFromAbsoluteRight(offset),
-                        createGuidelineFromStart(0.25f),
-                        createGuidelineFromAbsoluteLeft(0.25f),
-                        createGuidelineFromEnd(0.25f),
-                        createGuidelineFromAbsoluteRight(0.25f)
-                    )
-
-                    guidelines.forEachIndexed { index, guideline ->
-                        val ref = createRef()
+                            constrain(box2) {
+                                start.linkTo(parent.start, margin = offset.toDp())
+                                bottom.linkTo(parent.bottom, margin = offset.toDp())
+                            }
+                        },
+                    modifier = Modifier.fillMaxSize().onGloballyPositioned { rootSize = it.size }
+                ) {
+                    for (i in 0..2) {
                         Box(
-                            Modifier
-                                .size(1.dp)
-                                .constrainAs(ref) {
-                                    absoluteLeft.linkTo(guideline)
-                                }
-                                .onGloballyPositioned {
-                                    position[index] = it.positionInParent().x
-                                }
+                            Modifier.layoutId("box$i")
+                                .size(boxSize.toDp(), boxSize.toDp())
+                                .onGloballyPositioned { position[i] = it.positionInRoot().round() }
                         )
                     }
                 }
             }
+
+            val displayWidth = rootSize.width
+            val displayHeight = rootSize.height
+
+            rule.runOnIdle {
+                assertEquals(
+                    Offset((displayWidth - boxSize) / 2f, (displayHeight - boxSize) / 2f).round(),
+                    position[0]
+                )
+                assertEquals(
+                    Offset((displayWidth / 2f + offset), ((displayHeight - boxSize) / 2f - boxSize))
+                        .round(),
+                    position[1]
+                )
+                assertEquals(IntOffset(offset, (displayHeight - boxSize - offset)), position[2])
+            }
         }
 
-        assertGuidelinesRtlPositions(position)
-    }
+    @Test
+    @Ignore
+    fun testConstraintLayout_rtl() =
+        with(rule.density) {
+            val boxSize = 100
+            val offset = 150
+
+            val position = Array(3) { Ref<Offset>() }
+
+            rule.setContent {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    ConstraintLayout(Modifier.fillMaxSize()) {
+                        val (box0, box1, box2) = createRefs()
+                        Box(
+                            Modifier.constrainAs(box0) { centerTo(parent) }
+                                .size(boxSize.toDp(), boxSize.toDp())
+                                .onGloballyPositioned { position[0].value = it.positionInRoot() }
+                        )
+                        val half = createGuidelineFromAbsoluteLeft(fraction = 0.5f)
+                        Box(
+                            Modifier.constrainAs(box1) {
+                                    start.linkTo(half, margin = offset.toDp())
+                                    bottom.linkTo(box0.top)
+                                }
+                                .size(boxSize.toDp(), boxSize.toDp())
+                                .onGloballyPositioned { position[1].value = it.positionInRoot() }
+                        )
+                        Box(
+                            Modifier.constrainAs(box2) {
+                                    start.linkTo(parent.start, margin = offset.toDp())
+                                    bottom.linkTo(parent.bottom, margin = offset.toDp())
+                                }
+                                .size(boxSize.toDp(), boxSize.toDp())
+                                .onGloballyPositioned { position[2].value = it.positionInRoot() }
+                        )
+                    }
+                }
+            }
+
+            val displayWidth = displaySize.width
+            val displayHeight = displaySize.height
+
+            rule.runOnIdle {
+                assertEquals(
+                    Offset((displayWidth - boxSize) / 2f, (displayHeight - boxSize) / 2f),
+                    position[0].value
+                )
+                assertEquals(
+                    Offset(
+                        (displayWidth / 2 - offset - boxSize).toFloat(),
+                        ((displayHeight - boxSize) / 2 - boxSize).toFloat()
+                    ),
+                    position[1].value
+                )
+                assertEquals(
+                    Offset(
+                        (displayWidth - offset - boxSize).toFloat(),
+                        (displayHeight - boxSize - offset).toFloat()
+                    ),
+                    position[2].value
+                )
+            }
+        }
 
     @Test
-    fun testConstraintLayout_json_guidelines_rtl() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_guidelines_ltr() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(8) { 0f }
-        rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            val position = Array(8) { 0f }
+            rule.setContent {
+                ConstraintLayout(Modifier.size(size)) {
+                    val guidelines =
+                        arrayOf(
+                            createGuidelineFromStart(offset),
+                            createGuidelineFromAbsoluteLeft(offset),
+                            createGuidelineFromEnd(offset),
+                            createGuidelineFromAbsoluteRight(offset),
+                            createGuidelineFromStart(0.25f),
+                            createGuidelineFromAbsoluteLeft(0.25f),
+                            createGuidelineFromEnd(0.25f),
+                            createGuidelineFromAbsoluteRight(0.25f)
+                        )
+
+                    guidelines.forEachIndexed { index, guideline ->
+                        val ref = createRef()
+                        Box(
+                            Modifier.size(1.dp)
+                                .constrainAs(ref) { absoluteLeft.linkTo(guideline) }
+                                .onGloballyPositioned { position[index] = it.positionInParent().x }
+                        )
+                    }
+                }
+            }
+
+            assertGuidelinesLtrPositions(position)
+        }
+
+    @Test
+    fun testConstraintLayout_json_guidelines_ltr() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
+
+            val position = Array(8) { 0f }
+            rule.setContent {
                 ConstraintLayout(
                     constraintSet = ConstraintSet(getJsonGuidelinesContent(offset.value)),
                     Modifier.size(size)
                 ) {
                     position.forEachIndexed { index, _ ->
                         Box(
-                            Modifier
-                                .size(1.dp)
-                                .layoutId("box$index")
-                                .onGloballyPositioned {
-                                    position[index] = it.positionInParent().x
-                                }
+                            Modifier.size(1.dp).layoutId("box$index").onGloballyPositioned {
+                                position[index] = it.positionInParent().x
+                            }
                         )
                     }
                 }
             }
+
+            assertGuidelinesLtrPositions(position)
         }
 
-        assertGuidelinesRtlPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_barriers_ltr() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_guidelines_rtl() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(4) { 0f }
-        rule.setContent {
-            ConstraintLayout(Modifier.size(size)) {
-                val (box1, box2) = createRefs()
-                val guideline1 = createGuidelineFromAbsoluteLeft(offset)
-                val guideline2 = createGuidelineFromAbsoluteRight(offset)
-                Box(
-                    Modifier
-                        .size(1.toDp())
-                        .constrainAs(box1) {
-                            absoluteLeft.linkTo(guideline1)
+            val position = Array(8) { 0f }
+            rule.setContent {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    ConstraintLayout(Modifier.size(size)) {
+                        val guidelines =
+                            arrayOf(
+                                createGuidelineFromStart(offset),
+                                createGuidelineFromAbsoluteLeft(offset),
+                                createGuidelineFromEnd(offset),
+                                createGuidelineFromAbsoluteRight(offset),
+                                createGuidelineFromStart(0.25f),
+                                createGuidelineFromAbsoluteLeft(0.25f),
+                                createGuidelineFromEnd(0.25f),
+                                createGuidelineFromAbsoluteRight(0.25f)
+                            )
+
+                        guidelines.forEachIndexed { index, guideline ->
+                            val ref = createRef()
+                            Box(
+                                Modifier.size(1.dp)
+                                    .constrainAs(ref) { absoluteLeft.linkTo(guideline) }
+                                    .onGloballyPositioned {
+                                        position[index] = it.positionInParent().x
+                                    }
+                            )
                         }
-                )
-                Box(
-                    Modifier
-                        .size(1.toDp())
-                        .constrainAs(box2) {
-                            absoluteLeft.linkTo(guideline2)
-                        }
-                )
-
-                val barriers = arrayOf(
-                    createStartBarrier(box1, box2),
-                    createAbsoluteLeftBarrier(box1, box2),
-                    createEndBarrier(box1, box2),
-                    createAbsoluteRightBarrier(box1, box2)
-                )
-
-                barriers.forEachIndexed { index, barrier ->
-                    val ref = createRef()
-                    Box(
-                        Modifier
-                            .size(1.dp)
-                            .constrainAs(ref) {
-                                absoluteLeft.linkTo(barrier)
-                            }
-                            .onGloballyPositioned {
-                                position[index] = it.positionInParent().x
-                            }
-                    )
+                    }
                 }
             }
+
+            assertGuidelinesRtlPositions(position)
         }
 
-        assertBarriersLtrPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_json_barriers_ltr() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_json_guidelines_rtl() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(4) { 0f }
-        rule.setContent {
-            ConstraintLayout(
-                constraintSet = ConstraintSet(getJsonBarriersContent(offset.value)),
-                Modifier.size(size)
-            ) {
-                Box(
-                    Modifier
-                        .size(1.toDp())
-                        .layoutId("boxA")
-                )
-                Box(
-                    Modifier
-                        .size(1.toDp())
-                        .layoutId("boxB")
-                )
-                position.forEachIndexed { index, _ ->
-                    Box(
-                        Modifier
-                            .size(1.dp)
-                            .layoutId("box$index")
-                            .onGloballyPositioned {
-                                position[index] = it.positionInParent().x
-                            }
-                    )
+            val position = Array(8) { 0f }
+            rule.setContent {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    ConstraintLayout(
+                        constraintSet = ConstraintSet(getJsonGuidelinesContent(offset.value)),
+                        Modifier.size(size)
+                    ) {
+                        position.forEachIndexed { index, _ ->
+                            Box(
+                                Modifier.size(1.dp).layoutId("box$index").onGloballyPositioned {
+                                    position[index] = it.positionInParent().x
+                                }
+                            )
+                        }
+                    }
                 }
             }
+
+            assertGuidelinesRtlPositions(position)
         }
 
-        assertBarriersLtrPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_barriers_rtl() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_barriers_ltr() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(4) { 0f }
-        rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            val position = Array(4) { 0f }
+            rule.setContent {
                 ConstraintLayout(Modifier.size(size)) {
                     val (box1, box2) = createRefs()
                     val guideline1 = createGuidelineFromAbsoluteLeft(offset)
                     val guideline2 = createGuidelineFromAbsoluteRight(offset)
                     Box(
-                        Modifier
-                            .size(1.toDp())
-                            .constrainAs(box1) {
-                                absoluteLeft.linkTo(guideline1)
-                            }
+                        Modifier.size(1.toDp()).constrainAs(box1) {
+                            absoluteLeft.linkTo(guideline1)
+                        }
                     )
                     Box(
-                        Modifier
-                            .size(1.toDp())
-                            .constrainAs(box2) {
-                                absoluteLeft.linkTo(guideline2)
-                            }
+                        Modifier.size(1.toDp()).constrainAs(box2) {
+                            absoluteLeft.linkTo(guideline2)
+                        }
                     )
 
-                    val barriers = arrayOf(
-                        createStartBarrier(box1, box2),
-                        createAbsoluteLeftBarrier(box1, box2),
-                        createEndBarrier(box1, box2),
-                        createAbsoluteRightBarrier(box1, box2)
-                    )
+                    val barriers =
+                        arrayOf(
+                            createStartBarrier(box1, box2),
+                            createAbsoluteLeftBarrier(box1, box2),
+                            createEndBarrier(box1, box2),
+                            createAbsoluteRightBarrier(box1, box2)
+                        )
 
                     barriers.forEachIndexed { index, barrier ->
                         val ref = createRef()
                         Box(
-                            Modifier
-                                .size(1.dp)
-                                .constrainAs(ref) {
-                                    absoluteLeft.linkTo(barrier)
-                                }
-                                .onGloballyPositioned {
-                                    position[index] = it.positionInParent().x
-                                }
+                            Modifier.size(1.dp)
+                                .constrainAs(ref) { absoluteLeft.linkTo(barrier) }
+                                .onGloballyPositioned { position[index] = it.positionInParent().x }
                         )
                     }
                 }
             }
+
+            assertBarriersLtrPositions(position)
         }
 
-        assertBarriersRtlPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_json_barriers_rtl() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_json_barriers_ltr() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(4) { 0f }
-        rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            val position = Array(4) { 0f }
+            rule.setContent {
                 ConstraintLayout(
                     constraintSet = ConstraintSet(getJsonBarriersContent(offset.value)),
                     Modifier.size(size)
                 ) {
-                    Box(
-                        Modifier
-                            .size(1.toDp())
-                            .layoutId("boxA")
-                    )
-                    Box(
-                        Modifier
-                            .size(1.toDp())
-                            .layoutId("boxB")
-                    )
+                    Box(Modifier.size(1.toDp()).layoutId("boxA"))
+                    Box(Modifier.size(1.toDp()).layoutId("boxB"))
                     position.forEachIndexed { index, _ ->
                         Box(
-                            Modifier
-                                .size(1.dp)
-                                .layoutId("box$index")
-                                .onGloballyPositioned {
-                                    position[index] = it.positionInParent().x
-                                }
+                            Modifier.size(1.dp).layoutId("box$index").onGloballyPositioned {
+                                position[index] = it.positionInParent().x
+                            }
                         )
                     }
                 }
             }
+
+            assertBarriersLtrPositions(position)
         }
 
-        assertBarriersRtlPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_anchors_ltr() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_barriers_rtl() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(16) { 0f }
-        rule.setContent {
-            ConstraintLayout(Modifier.size(size)) {
-                val box = createRef()
-                val guideline = createGuidelineFromAbsoluteLeft(offset)
-                Box(
-                    Modifier
-                        .size(1.toDp())
-                        .constrainAs(box) {
-                            absoluteLeft.linkTo(guideline)
+            val position = Array(4) { 0f }
+            rule.setContent {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    ConstraintLayout(Modifier.size(size)) {
+                        val (box1, box2) = createRefs()
+                        val guideline1 = createGuidelineFromAbsoluteLeft(offset)
+                        val guideline2 = createGuidelineFromAbsoluteRight(offset)
+                        Box(
+                            Modifier.size(1.toDp()).constrainAs(box1) {
+                                absoluteLeft.linkTo(guideline1)
+                            }
+                        )
+                        Box(
+                            Modifier.size(1.toDp()).constrainAs(box2) {
+                                absoluteLeft.linkTo(guideline2)
+                            }
+                        )
+
+                        val barriers =
+                            arrayOf(
+                                createStartBarrier(box1, box2),
+                                createAbsoluteLeftBarrier(box1, box2),
+                                createEndBarrier(box1, box2),
+                                createAbsoluteRightBarrier(box1, box2)
+                            )
+
+                        barriers.forEachIndexed { index, barrier ->
+                            val ref = createRef()
+                            Box(
+                                Modifier.size(1.dp)
+                                    .constrainAs(ref) { absoluteLeft.linkTo(barrier) }
+                                    .onGloballyPositioned {
+                                        position[index] = it.positionInParent().x
+                                    }
+                            )
                         }
-                )
-
-                val anchors = listAnchors(box)
-
-                anchors.forEachIndexed { index, anchor ->
-                    val ref = createRef()
-                    Box(
-                        Modifier
-                            .size(1.toDp())
-                            .constrainAs(ref) {
-                                anchor()
-                            }
-                            .onGloballyPositioned {
-                                position[index] = it.positionInParent().x
-                            }
-                    )
+                    }
                 }
             }
+
+            assertBarriersRtlPositions(position)
         }
 
-        assertAnchorsLtrPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_json_anchors_ltr() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_json_barriers_rtl() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(16) { 0f }
-        rule.setContent {
-            ConstraintLayout(
-                constraintSet = ConstraintSet(getJsonAnchorsContent(offset.value)),
-                Modifier.size(size)
-            ) {
-                Box(
-                    Modifier
-                        .size(1.toDp())
-                        .layoutId("box")
-                )
-                position.forEachIndexed { index, _ ->
-                    Box(
-                        Modifier
-                            .size(1.toDp())
-                            .layoutId("box$index")
-                            .onGloballyPositioned {
-                                position[index] = it.positionInParent().x
-                            }
-                    )
+            val position = Array(4) { 0f }
+            rule.setContent {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    ConstraintLayout(
+                        constraintSet = ConstraintSet(getJsonBarriersContent(offset.value)),
+                        Modifier.size(size)
+                    ) {
+                        Box(Modifier.size(1.toDp()).layoutId("boxA"))
+                        Box(Modifier.size(1.toDp()).layoutId("boxB"))
+                        position.forEachIndexed { index, _ ->
+                            Box(
+                                Modifier.size(1.dp).layoutId("box$index").onGloballyPositioned {
+                                    position[index] = it.positionInParent().x
+                                }
+                            )
+                        }
+                    }
                 }
             }
+
+            assertBarriersRtlPositions(position)
         }
 
-        assertAnchorsLtrPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_anchors_rtl() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_anchors_ltr() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(16) { 0f }
-        rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            val position = Array(16) { 0f }
+            rule.setContent {
                 ConstraintLayout(Modifier.size(size)) {
                     val box = createRef()
                     val guideline = createGuidelineFromAbsoluteLeft(offset)
-                    Box(
-                        Modifier
-                            .size(1.toDp())
-                            .constrainAs(box) {
-                                absoluteLeft.linkTo(guideline)
-                            }
-                    )
+                    Box(Modifier.size(1.toDp()).constrainAs(box) { absoluteLeft.linkTo(guideline) })
 
                     val anchors = listAnchors(box)
 
                     anchors.forEachIndexed { index, anchor ->
                         val ref = createRef()
                         Box(
-                            Modifier
-                                .size(1.toDp())
-                                .constrainAs(ref) {
-                                    anchor()
-                                }
-                                .onGloballyPositioned {
-                                    position[index] = it.positionInParent().x
-                                }
+                            Modifier.size(1.toDp())
+                                .constrainAs(ref) { anchor() }
+                                .onGloballyPositioned { position[index] = it.positionInParent().x }
                         )
                     }
                 }
             }
+
+            assertAnchorsLtrPositions(position)
         }
 
-        assertAnchorsRtlPositions(position)
-    }
-
     @Test
-    fun testConstraintLayout_json_anchors_rtl() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_json_anchors_ltr() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(16) { 0f }
-        rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            val position = Array(16) { 0f }
+            rule.setContent {
                 ConstraintLayout(
                     constraintSet = ConstraintSet(getJsonAnchorsContent(offset.value)),
                     Modifier.size(size)
                 ) {
-                    Box(
-                        Modifier
-                            .size(1.toDp())
-                            .layoutId("box")
-                    )
+                    Box(Modifier.size(1.toDp()).layoutId("box"))
                     position.forEachIndexed { index, _ ->
                         Box(
-                            Modifier
-                                .size(1.toDp())
-                                .layoutId("box$index")
-                                .onGloballyPositioned {
-                                    position[index] = it.positionInParent().x
-                                }
+                            Modifier.size(1.toDp()).layoutId("box$index").onGloballyPositioned {
+                                position[index] = it.positionInParent().x
+                            }
                         )
                     }
                 }
             }
+
+            assertAnchorsLtrPositions(position)
         }
 
-        assertAnchorsRtlPositions(position)
-    }
+    @Test
+    fun testConstraintLayout_anchors_rtl() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
+
+            val position = Array(16) { 0f }
+            rule.setContent {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    ConstraintLayout(Modifier.size(size)) {
+                        val box = createRef()
+                        val guideline = createGuidelineFromAbsoluteLeft(offset)
+                        Box(
+                            Modifier.size(1.toDp()).constrainAs(box) {
+                                absoluteLeft.linkTo(guideline)
+                            }
+                        )
+
+                        val anchors = listAnchors(box)
+
+                        anchors.forEachIndexed { index, anchor ->
+                            val ref = createRef()
+                            Box(
+                                Modifier.size(1.toDp())
+                                    .constrainAs(ref) { anchor() }
+                                    .onGloballyPositioned {
+                                        position[index] = it.positionInParent().x
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+
+            assertAnchorsRtlPositions(position)
+        }
 
     @Test
-    fun testConstraintLayout_barriers_margins() = with(rule.density) {
-        val size = 200.toDp()
-        val offset = 50.toDp()
+    fun testConstraintLayout_json_anchors_rtl() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
 
-        val position = Array(2) { Offset(0f, 0f) }
-        rule.setContent {
-            ConstraintLayout(Modifier.size(size)) {
-                val box = createRef()
-                val guideline1 = createGuidelineFromAbsoluteLeft(offset)
-                val guideline2 = createGuidelineFromTop(offset)
-                Box(
-                    Modifier
-                        .size(1.toDp())
-                        .constrainAs(box) {
+            val position = Array(16) { 0f }
+            rule.setContent {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                    ConstraintLayout(
+                        constraintSet = ConstraintSet(getJsonAnchorsContent(offset.value)),
+                        Modifier.size(size)
+                    ) {
+                        Box(Modifier.size(1.toDp()).layoutId("box"))
+                        position.forEachIndexed { index, _ ->
+                            Box(
+                                Modifier.size(1.toDp()).layoutId("box$index").onGloballyPositioned {
+                                    position[index] = it.positionInParent().x
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            assertAnchorsRtlPositions(position)
+        }
+
+    @Test
+    fun testConstraintLayout_barriers_margins() =
+        with(rule.density) {
+            val size = 200.toDp()
+            val offset = 50.toDp()
+
+            val position = Array(2) { Offset(0f, 0f) }
+            rule.setContent {
+                ConstraintLayout(Modifier.size(size)) {
+                    val box = createRef()
+                    val guideline1 = createGuidelineFromAbsoluteLeft(offset)
+                    val guideline2 = createGuidelineFromTop(offset)
+                    Box(
+                        Modifier.size(1.toDp()).constrainAs(box) {
                             absoluteLeft.linkTo(guideline1)
                             top.linkTo(guideline2)
                         }
-                )
+                    )
 
-                val leftBarrier = createAbsoluteLeftBarrier(box, margin = 10.toDp())
-                val topBarrier = createTopBarrier(box, margin = 10.toDp())
-                val rightBarrier = createAbsoluteRightBarrier(box, margin = 10.toDp())
-                val bottomBarrier = createBottomBarrier(box, margin = 10.toDp())
+                    val leftBarrier = createAbsoluteLeftBarrier(box, margin = 10.toDp())
+                    val topBarrier = createTopBarrier(box, margin = 10.toDp())
+                    val rightBarrier = createAbsoluteRightBarrier(box, margin = 10.toDp())
+                    val bottomBarrier = createBottomBarrier(box, margin = 10.toDp())
 
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .constrainAs(createRef()) {
-                            absoluteLeft.linkTo(leftBarrier)
-                            top.linkTo(topBarrier)
-                        }
-                        .onGloballyPositioned {
-                            position[0] = it.positionInParent()
-                        }
-                )
+                    Box(
+                        Modifier.size(1.dp)
+                            .constrainAs(createRef()) {
+                                absoluteLeft.linkTo(leftBarrier)
+                                top.linkTo(topBarrier)
+                            }
+                            .onGloballyPositioned { position[0] = it.positionInParent() }
+                    )
 
-                Box(
-                    Modifier
-                        .size(1.dp)
-                        .constrainAs(createRef()) {
-                            absoluteLeft.linkTo(rightBarrier)
-                            top.linkTo(bottomBarrier)
-                        }
-                        .onGloballyPositioned {
-                            position[1] = it.positionInParent()
-                        }
-                )
+                    Box(
+                        Modifier.size(1.dp)
+                            .constrainAs(createRef()) {
+                                absoluteLeft.linkTo(rightBarrier)
+                                top.linkTo(bottomBarrier)
+                            }
+                            .onGloballyPositioned { position[1] = it.positionInParent() }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                assertEquals(Offset(60f, 60f), position[0])
+                assertEquals(Offset(61f, 61f), position[1])
             }
         }
-
-        rule.runOnIdle {
-            assertEquals(Offset(60f, 60f), position[0])
-            assertEquals(Offset(61f, 61f), position[1])
-        }
-    }
 
     @Test
     fun links_canBeOverridden() {
@@ -1201,14 +1060,11 @@ class ConstraintLayoutTest {
             ConstraintLayout(Modifier.width(10.dp)) {
                 val box = createRef()
                 Box(
-                    Modifier
-                        .constrainAs(box) {
+                    Modifier.constrainAs(box) {
                             start.linkTo(parent.end)
                             start.linkTo(parent.start)
                         }
-                        .onGloballyPositioned {
-                            assertEquals(0f, it.positionInParent().x)
-                        }
+                        .onGloballyPositioned { assertEquals(0f, it.positionInParent().x) }
                 )
             }
         }
@@ -1217,47 +1073,46 @@ class ConstraintLayoutTest {
 
     @Test
     @Ignore
-    fun chains_defaultOutsideConstraintsCanBeOverridden() = with(rule.density) {
-        val size = 100.toDp()
-        val boxSize = 10.toDp()
-        val guidelinesOffset = 20.toDp()
-        rule.setContent {
-            ConstraintLayout(Modifier.size(size)) {
-                val (box1, box2) = createRefs()
-                val startGuideline = createGuidelineFromStart(guidelinesOffset)
-                val topGuideline = createGuidelineFromTop(guidelinesOffset)
-                val endGuideline = createGuidelineFromEnd(guidelinesOffset)
-                val bottomGuideline = createGuidelineFromBottom(guidelinesOffset)
-                createHorizontalChain(box1, box2, chainStyle = ChainStyle.SpreadInside)
-                createVerticalChain(box1, box2, chainStyle = ChainStyle.SpreadInside)
-                Box(
-                    Modifier
-                        .size(boxSize)
-                        .constrainAs(box1) {
-                            start.linkTo(startGuideline)
-                            top.linkTo(topGuideline)
-                        }
-                        .onGloballyPositioned {
-                            assertEquals(20f, it.boundsInParent().left)
-                            assertEquals(20f, it.boundsInParent().top)
-                        }
-                )
-                Box(
-                    Modifier
-                        .size(boxSize)
-                        .constrainAs(box2) {
-                            end.linkTo(endGuideline)
-                            bottom.linkTo(bottomGuideline)
-                        }
-                        .onGloballyPositioned {
-                            assertEquals(80f, it.boundsInParent().right)
-                            assertEquals(80f, it.boundsInParent().bottom)
-                        }
-                )
+    fun chains_defaultOutsideConstraintsCanBeOverridden() =
+        with(rule.density) {
+            val size = 100.toDp()
+            val boxSize = 10.toDp()
+            val guidelinesOffset = 20.toDp()
+            rule.setContent {
+                ConstraintLayout(Modifier.size(size)) {
+                    val (box1, box2) = createRefs()
+                    val startGuideline = createGuidelineFromStart(guidelinesOffset)
+                    val topGuideline = createGuidelineFromTop(guidelinesOffset)
+                    val endGuideline = createGuidelineFromEnd(guidelinesOffset)
+                    val bottomGuideline = createGuidelineFromBottom(guidelinesOffset)
+                    createHorizontalChain(box1, box2, chainStyle = ChainStyle.SpreadInside)
+                    createVerticalChain(box1, box2, chainStyle = ChainStyle.SpreadInside)
+                    Box(
+                        Modifier.size(boxSize)
+                            .constrainAs(box1) {
+                                start.linkTo(startGuideline)
+                                top.linkTo(topGuideline)
+                            }
+                            .onGloballyPositioned {
+                                assertEquals(20f, it.boundsInParent().left)
+                                assertEquals(20f, it.boundsInParent().top)
+                            }
+                    )
+                    Box(
+                        Modifier.size(boxSize)
+                            .constrainAs(box2) {
+                                end.linkTo(endGuideline)
+                                bottom.linkTo(bottomGuideline)
+                            }
+                            .onGloballyPositioned {
+                                assertEquals(80f, it.boundsInParent().right)
+                                assertEquals(80f, it.boundsInParent().bottom)
+                            }
+                    )
+                }
             }
+            rule.waitForIdle()
         }
-        rule.waitForIdle()
-    }
 
     @Test(expected = Test.None::class)
     fun testConstraintLayout_inlineDSL_recompositionDoesNotCrash() {
@@ -1266,15 +1121,13 @@ class ConstraintLayoutTest {
             ConstraintLayout {
                 val box = createRef()
                 if (first.value) {
-                    Box(Modifier.constrainAs(box) { })
+                    Box(Modifier.constrainAs(box) {})
                 } else {
-                    Box(Modifier.constrainAs(box) { })
+                    Box(Modifier.constrainAs(box) {})
                 }
             }
         }
-        rule.runOnIdle {
-            first.value = false
-        }
+        rule.runOnIdle { first.value = false }
         rule.waitForIdle()
     }
 
@@ -1285,7 +1138,7 @@ class ConstraintLayoutTest {
             ConstraintLayout(
                 ConstraintSet {
                     val box = createRefFor("box")
-                    constrain(box) { }
+                    constrain(box) {}
                 }
             ) {
                 if (first.value) {
@@ -1295,9 +1148,7 @@ class ConstraintLayoutTest {
                 }
             }
         }
-        rule.runOnIdle {
-            first.value = false
-        }
+        rule.runOnIdle { first.value = false }
         rule.waitForIdle()
     }
 
@@ -1309,9 +1160,7 @@ class ConstraintLayoutTest {
                 Box(if (first.value) Modifier else Modifier.size(20.dp))
             }
         }
-        rule.runOnIdle {
-            first.value = false
-        }
+        rule.runOnIdle { first.value = false }
         rule.waitForIdle()
     }
 
@@ -1321,14 +1170,12 @@ class ConstraintLayoutTest {
         rule.setContent {
             ConstraintLayout(
                 modifier = if (first.value) Modifier else Modifier.padding(10.dp),
-                constraintSet = ConstraintSet { }
+                constraintSet = ConstraintSet {}
             ) {
                 Box(if (first.value) Modifier else Modifier.size(20.dp))
             }
         }
-        rule.runOnIdle {
-            first.value = false
-        }
+        rule.runOnIdle { first.value = false }
         rule.waitForIdle()
     }
 
@@ -1340,17 +1187,12 @@ class ConstraintLayoutTest {
                 ConstraintLayout {
                     val (box1, _) = createRefs()
                     createBottomBarrier(box1)
-                    Box(
-                        Modifier
-                            .height(if (smallSize) 30.dp else 40.dp)
-                            .constrainAs(box1) {})
+                    Box(Modifier.height(if (smallSize) 30.dp else 40.dp).constrainAs(box1) {})
                     Box(Modifier)
                 }
             }
         }
-        rule.runOnIdle {
-            smallSize = false
-        }
+        rule.runOnIdle { smallSize = false }
         rule.waitForIdle()
     }
 
@@ -1385,8 +1227,7 @@ class ConstraintLayoutTest {
                 val barrier = createAbsoluteLeftBarrier(box1)
 
                 // Make sure the content is reexecuted when first changes.
-                @Suppress("UNUSED_EXPRESSION")
-                first
+                @Suppress("UNUSED_EXPRESSION") first
 
                 // If the reference changed, we would remeasure and reexecute the DSL.
                 Box(Modifier.constrainAs(box1) {})
@@ -1428,16 +1269,8 @@ class ConstraintLayoutTest {
                     createVerticalChain(box1, box2)
                 }
 
-                Box(
-                    Modifier
-                        .size(sizeDp)
-                        .then(box1PositionUpdater)
-                        .constrainAs(box1) {})
-                Box(
-                    Modifier
-                        .size(sizeDp)
-                        .then(box2PositionUpdater)
-                        .constrainAs(box2) {})
+                Box(Modifier.size(sizeDp).then(box1PositionUpdater).constrainAs(box1) {})
+                Box(Modifier.size(sizeDp).then(box2PositionUpdater).constrainAs(box2) {})
             }
         }
         rule.runOnIdle {
@@ -1469,22 +1302,15 @@ class ConstraintLayoutTest {
                 val topBarrier = createTopBarrier(box1)
                 val bottomBarrier = createBottomBarrier(box1)
 
+                Box(Modifier.size(sizeDp).then(box1PositionUpdater).constrainAs(box1) {})
                 Box(
-                    Modifier
-                        .size(sizeDp)
-                        .then(box1PositionUpdater)
-                        .constrainAs(box1) {})
-                Box(
-                    Modifier
-                        .size(sizeDp)
-                        .then(box2PositionUpdater)
-                        .constrainAs(box2) {
-                            if (first) {
-                                top.linkTo(topBarrier)
-                            } else {
-                                top.linkTo(bottomBarrier)
-                            }
+                    Modifier.size(sizeDp).then(box2PositionUpdater).constrainAs(box2) {
+                        if (first) {
+                            top.linkTo(topBarrier)
+                        } else {
+                            top.linkTo(bottomBarrier)
                         }
+                    }
                 )
             }
         }
@@ -1500,53 +1326,40 @@ class ConstraintLayoutTest {
     }
 
     @Test
-    fun testConstraintLayout_updates_whenConstraintSetChanges() = with(rule.density) {
-        val box1Size = 20
-        var first by mutableStateOf(true)
-        val constraintSet1 = ConstraintSet {
-            val box1 = createRefFor("box1")
-            val box2 = createRefFor("box2")
-            constrain(box2) {
-                start.linkTo(box1.end)
+    fun testConstraintLayout_updates_whenConstraintSetChanges() =
+        with(rule.density) {
+            val box1Size = 20
+            var first by mutableStateOf(true)
+            val constraintSet1 = ConstraintSet {
+                val box1 = createRefFor("box1")
+                val box2 = createRefFor("box2")
+                constrain(box2) { start.linkTo(box1.end) }
             }
-        }
-        val constraintSet2 = ConstraintSet {
-            val box1 = createRefFor("box1")
-            val box2 = createRefFor("box2")
-            constrain(box2) {
-                top.linkTo(box1.bottom)
+            val constraintSet2 = ConstraintSet {
+                val box1 = createRefFor("box1")
+                val box2 = createRefFor("box2")
+                constrain(box2) { top.linkTo(box1.bottom) }
             }
-        }
 
-        var box2Position = IntOffset.Zero
-        rule.setContent {
-            ConstraintLayout(if (first) constraintSet1 else constraintSet2) {
-                Box(
-                    Modifier
-                        .size(box1Size.toDp())
-                        .layoutId("box1")
-                )
-                Box(
-                    Modifier
-                        .layoutId("box2")
-                        .onGloballyPositioned {
-                            box2Position = it
-                                .positionInRoot()
-                                .round()
+            var box2Position = IntOffset.Zero
+            rule.setContent {
+                ConstraintLayout(if (first) constraintSet1 else constraintSet2) {
+                    Box(Modifier.size(box1Size.toDp()).layoutId("box1"))
+                    Box(
+                        Modifier.layoutId("box2").onGloballyPositioned {
+                            box2Position = it.positionInRoot().round()
                         }
-                )
+                    )
+                }
             }
-        }
 
-        rule.runOnIdle {
-            assertEquals(IntOffset(box1Size, 0), box2Position)
-            first = false
-        }
+            rule.runOnIdle {
+                assertEquals(IntOffset(box1Size, 0), box2Position)
+                first = false
+            }
 
-        rule.runOnIdle {
-            assertEquals(IntOffset(0, box1Size), box2Position)
+            rule.runOnIdle { assertEquals(IntOffset(0, box1Size), box2Position) }
         }
-    }
 
     @Test
     fun testConstraintLayout_doesNotRebuildFromDsl_whenResizedOnly() {
@@ -1565,41 +1378,40 @@ class ConstraintLayoutTest {
             size = 200.dp
         }
 
-        rule.runOnIdle {
-            assertEquals(1, builds)
-        }
+        rule.runOnIdle { assertEquals(1, builds) }
     }
 
     @Test
-    fun testConstraintLayout_rebuildsConstraintSet_whenHelpersChange() = with(rule.density) {
-        var offset by mutableStateOf(10.dp)
-        var builds = 0
-        var obtainedX = 0f
-        rule.setContent {
-            ConstraintLayout {
-                val box = createRef()
-                val g = createGuidelineFromStart(offset)
-                Box(
-                    Modifier
-                        .constrainAs(box) {
-                            start.linkTo(g)
-                            ++builds
-                        }
-                        .onGloballyPositioned { obtainedX = it.positionInRoot().x })
+    fun testConstraintLayout_rebuildsConstraintSet_whenHelpersChange() =
+        with(rule.density) {
+            var offset by mutableStateOf(10.dp)
+            var builds = 0
+            var obtainedX = 0f
+            rule.setContent {
+                ConstraintLayout {
+                    val box = createRef()
+                    val g = createGuidelineFromStart(offset)
+                    Box(
+                        Modifier.constrainAs(box) {
+                                start.linkTo(g)
+                                ++builds
+                            }
+                            .onGloballyPositioned { obtainedX = it.positionInRoot().x }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                assertEquals(offset.roundToPx().toFloat(), obtainedX)
+                offset = 20.dp
+                assertEquals(1, builds)
+            }
+
+            rule.runOnIdle {
+                assertEquals(offset.roundToPx().toFloat(), obtainedX)
+                assertEquals(2, builds)
             }
         }
-
-        rule.runOnIdle {
-            assertEquals(offset.roundToPx().toFloat(), obtainedX)
-            offset = 20.dp
-            assertEquals(1, builds)
-        }
-
-        rule.runOnIdle {
-            assertEquals(offset.roundToPx().toFloat(), obtainedX)
-            assertEquals(2, builds)
-        }
-    }
 
     @Test
     fun testConstraintLayout_doesNotRecomposeAgain_whenHelpersChange() {
@@ -1610,12 +1422,7 @@ class ConstraintLayoutTest {
                 ++compositions
                 val box = createRef()
                 val g = createGuidelineFromStart(offset)
-                Box(
-                    Modifier
-                        .constrainAs(box) {
-                            start.linkTo(g)
-                        }
-                )
+                Box(Modifier.constrainAs(box) { start.linkTo(g) })
             }
         }
 
@@ -1624,133 +1431,115 @@ class ConstraintLayoutTest {
             assertEquals(1, compositions)
         }
 
-        rule.runOnIdle {
-            assertEquals(2, compositions)
-        }
+        rule.runOnIdle { assertEquals(2, compositions) }
     }
 
     @Test
-    fun testConstraintLayout_rebuilds_whenLambdaChanges() = with(rule.density) {
-        var first by mutableStateOf(true)
-        var obtainedX = 0f
-        rule.setContent {
-            ConstraintLayout {
-                val l1 = remember<ConstrainScope.() -> Unit> {
-                    { start.linkTo(parent.start, 10.dp) }
-                }
-                val l2 = remember<ConstrainScope.() -> Unit> {
-                    { start.linkTo(parent.start, 20.dp) }
-                }
-                val box = createRef()
-                Box(
-                    Modifier
-                        .constrainAs(box, if (first) l1 else l2)
-                        .onGloballyPositioned {
-                            obtainedX = it.positionInRoot().x
-                        })
-            }
-        }
-
-        rule.runOnIdle {
-            assertEquals(10.dp.roundToPx().toFloat(), obtainedX)
-            first = false
-        }
-
-        rule.runOnIdle {
-            assertEquals(20.dp.roundToPx().toFloat(), obtainedX)
-        }
-    }
-
-    @Test
-    fun testConstraintLayout_updates_whenConstraintSetChangesConstraints() = with(rule.density) {
-        val box1Size = 20
-        var first by mutableStateOf(true)
-
-        var box2Position = IntOffset.Zero
-        rule.setContent {
-            val constraintSet = ConstraintSet {
-                val box1 = createRefFor("box1")
-                val box2 = createRefFor("box2")
-                constrain(box2) {
-                    if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
-                }
-            }
-            ConstraintLayout(constraintSet) {
-                Box(
-                    Modifier
-                        .size(box1Size.toDp())
-                        .layoutId("box1")
-                )
-                Box(
-                    Modifier
-                        .layoutId("box2")
-                        .onGloballyPositioned {
-                            box2Position = it
-                                .positionInRoot()
-                                .round()
+    fun testConstraintLayout_rebuilds_whenLambdaChanges() =
+        with(rule.density) {
+            var first by mutableStateOf(true)
+            var obtainedX = 0f
+            rule.setContent {
+                ConstraintLayout {
+                    val l1 =
+                        remember<ConstrainScope.() -> Unit> {
+                            { start.linkTo(parent.start, 10.dp) }
                         }
-                )
+                    val l2 =
+                        remember<ConstrainScope.() -> Unit> {
+                            { start.linkTo(parent.start, 20.dp) }
+                        }
+                    val box = createRef()
+                    Box(
+                        Modifier.constrainAs(box, if (first) l1 else l2).onGloballyPositioned {
+                            obtainedX = it.positionInRoot().x
+                        }
+                    )
+                }
             }
-        }
 
-        rule.runOnIdle {
-            assertEquals(IntOffset(box1Size, 0), box2Position)
-            first = false
-        }
+            rule.runOnIdle {
+                assertEquals(10.dp.roundToPx().toFloat(), obtainedX)
+                first = false
+            }
 
-        rule.runOnIdle {
-            assertEquals(IntOffset(0, box1Size), box2Position)
+            rule.runOnIdle { assertEquals(20.dp.roundToPx().toFloat(), obtainedX) }
         }
-    }
 
     @Test
-    fun testConstraintLayout_doesNotUpdate_withRememberConstraintSet() = with(rule.density) {
-        val box1Size = 20
-        var first by mutableStateOf(true)
-        var compCount = 0
+    fun testConstraintLayout_updates_whenConstraintSetChangesConstraints() =
+        with(rule.density) {
+            val box1Size = 20
+            var first by mutableStateOf(true)
 
-        var box2Position = IntOffset.Zero
-        rule.setContent {
-            // ConstraintSet should be immutable and shouldn't recompose if "remembered"
-            val constraintSet = remember {
-                ConstraintSet {
+            var box2Position = IntOffset.Zero
+            rule.setContent {
+                val constraintSet = ConstraintSet {
                     val box1 = createRefFor("box1")
                     val box2 = createRefFor("box2")
                     constrain(box2) {
                         if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
                     }
                 }
-            }
-            compCount++
-            ConstraintLayout(constraintSet) {
-                Box(
-                    Modifier
-                        .size(box1Size.toDp())
-                        .layoutId("box1")
-                )
-                Box(
-                    Modifier
-                        .layoutId("box2")
-                        .onGloballyPositioned {
-                            box2Position = it
-                                .positionInRoot()
-                                .round()
+                ConstraintLayout(constraintSet) {
+                    Box(Modifier.size(box1Size.toDp()).layoutId("box1"))
+                    Box(
+                        Modifier.layoutId("box2").onGloballyPositioned {
+                            box2Position = it.positionInRoot().round()
                         }
-                )
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                assertEquals(IntOffset(box1Size, 0), box2Position)
+                first = false
+            }
+
+            rule.runOnIdle { assertEquals(IntOffset(0, box1Size), box2Position) }
+        }
+
+    @Test
+    fun testConstraintLayout_doesNotUpdate_withRememberConstraintSet() =
+        with(rule.density) {
+            val box1Size = 20
+            var first by mutableStateOf(true)
+            var compCount = 0
+
+            var box2Position = IntOffset.Zero
+            rule.setContent {
+                // ConstraintSet should be immutable and shouldn't recompose if "remembered"
+                val constraintSet = remember {
+                    ConstraintSet {
+                        val box1 = createRefFor("box1")
+                        val box2 = createRefFor("box2")
+                        constrain(box2) {
+                            if (first) start.linkTo(box1.end) else top.linkTo(box1.bottom)
+                        }
+                    }
+                }
+                compCount++
+                ConstraintLayout(constraintSet) {
+                    Box(Modifier.size(box1Size.toDp()).layoutId("box1"))
+                    Box(
+                        Modifier.layoutId("box2").onGloballyPositioned {
+                            box2Position = it.positionInRoot().round()
+                        }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                assertEquals(IntOffset(box1Size, 0), box2Position)
+                assertEquals(1, compCount)
+                first = false
+            }
+
+            rule.runOnIdle {
+                assertEquals(IntOffset(box1Size, 0), box2Position)
+                assertEquals(2, compCount)
             }
         }
-
-        rule.runOnIdle {
-            assertEquals(IntOffset(box1Size, 0), box2Position)
-            assertEquals(1, compCount)
-            first = false
-        }
-
-        rule.runOnIdle {
-            assertEquals(IntOffset(box1Size, 0), box2Position)
-            assertEquals(2, compCount)
-        }
-    }
 
     @Test
     fun testClearDerivedConstraints_withConstraintSet() {
@@ -1780,147 +1569,128 @@ class ConstraintLayoutTest {
                 modifier = Modifier.size(200.dp),
                 constraintSet = if (startOrEnd) start else end
             ) {
-                Box(
-                    modifier = Modifier
-                        .background(Color.Red)
-                        .testTag(boxTag)
-                        .layoutId(boxTag)
-                )
+                Box(modifier = Modifier.background(Color.Red).testTag(boxTag).layoutId(boxTag))
             }
         }
         rule.waitForIdle()
         rule.onNodeWithTag(boxTag).assertPositionInRootIsEqualTo(10.dp, 170.dp)
-        rule.runOnIdle {
-            startOrEnd = !startOrEnd
-        }
+        rule.runOnIdle { startOrEnd = !startOrEnd }
         rule.waitForIdle()
         rule.onNodeWithTag(boxTag).assertPositionInRootIsEqualTo(175.dp, 5.dp)
     }
 
     @Test
-    fun testLayoutReference_withConstraintSet() = with(rule.density) {
-        val rootSizePx = 500
-        val boxSizePx = 100
-        val g1DistancePx = 50
-        val marginToHelper = 10
+    fun testLayoutReference_withConstraintSet() =
+        with(rule.density) {
+            val rootSizePx = 500
+            val boxSizePx = 100
+            val g1DistancePx = 50
+            val marginToHelper = 10
 
-        val boxTag1 = "box1"
-        val boxTag2 = "box2"
+            val boxTag1 = "box1"
+            val boxTag2 = "box2"
 
-        var boxPosition1 = IntOffset.Zero
-        var boxPosition2 = IntOffset.Zero
+            var boxPosition1 = IntOffset.Zero
+            var boxPosition2 = IntOffset.Zero
 
-        val constraintSet = ConstraintSet {
-            val box1 = createRefFor(boxTag1)
-            val g1 = createGuidelineFromEnd(g1DistancePx.toDp())
-            val b1 = createEndBarrier(g1.reference, box1)
-
-            constrain(box1) {
-                width = Dimension.value(boxSizePx.toDp())
-                height = Dimension.value(boxSizePx.toDp())
-                top.linkTo(parent.top)
-                end.linkTo(g1, marginToHelper.toDp())
-            }
-            constrain(createRefFor(boxTag2)) {
-                width = Dimension.value(boxSizePx.toDp())
-                height = Dimension.value(boxSizePx.toDp())
-                top.linkTo(parent.top)
-                start.linkTo(b1, marginToHelper.toDp())
-            }
-        }
-        rule.setContent {
-            ConstraintLayout(
-                modifier = Modifier.size(rootSizePx.toDp()),
-                constraintSet = constraintSet
-            ) {
-                Box(
-                    modifier = Modifier
-                        .layoutTestId(boxTag1)
-                        .background(Color.Red)
-                        .onGloballyPositioned {
-                            boxPosition1 = it
-                                .positionInRoot()
-                                .round()
-                        }
-                )
-                Box(
-                    modifier = Modifier
-                        .layoutTestId(boxTag2)
-                        .background(Color.Blue)
-                        .onGloballyPositioned {
-                            boxPosition2 = it
-                                .positionInRoot()
-                                .round()
-                        }
-                )
-            }
-        }
-        rule.waitForIdle()
-
-        assertEquals(rootSizePx - g1DistancePx - marginToHelper - boxSizePx, boxPosition1.x)
-        assertEquals(0, boxPosition1.y)
-
-        assertEquals(rootSizePx - g1DistancePx + marginToHelper, boxPosition2.x)
-        assertEquals(0, boxPosition2.y)
-    }
-
-    @Test
-    fun testLayoutReference_withInlineDsl() = with(rule.density) {
-        val rootSizePx = 500
-        val boxSizePx = 100
-        val g1DistancePx = 50
-        val marginToHelper = 10
-
-        val boxTag1 = "box1"
-        val boxTag2 = "box2"
-
-        var boxPosition1 = IntOffset.Zero
-        var boxPosition2 = IntOffset.Zero
-        rule.setContent {
-            ConstraintLayout(modifier = Modifier.size(rootSizePx.toDp())) {
-                val (box1, box2) = createRefs()
+            val constraintSet = ConstraintSet {
+                val box1 = createRefFor(boxTag1)
                 val g1 = createGuidelineFromEnd(g1DistancePx.toDp())
                 val b1 = createEndBarrier(g1.reference, box1)
-                Box(modifier = Modifier
-                    .constrainAs(box1) {
-                        width = Dimension.value(boxSizePx.toDp())
-                        height = Dimension.value(boxSizePx.toDp())
-                        top.linkTo(parent.top)
-                        end.linkTo(g1, marginToHelper.toDp())
-                    }
-                    .layoutTestId(boxTag1)
-                    .background(Color.Red)
-                    .onGloballyPositioned {
-                        boxPosition1 = it
-                            .positionInRoot()
-                            .round()
-                    }
-                )
-                Box(modifier = Modifier
-                    .constrainAs(box2) {
-                        width = Dimension.value(boxSizePx.toDp())
-                        height = Dimension.value(boxSizePx.toDp())
-                        top.linkTo(parent.top)
-                        start.linkTo(b1, marginToHelper.toDp())
-                    }
-                    .layoutTestId(boxTag2)
-                    .background(Color.Blue)
-                    .onGloballyPositioned {
-                        boxPosition2 = it
-                            .positionInRoot()
-                            .round()
-                    }
-                )
+
+                constrain(box1) {
+                    width = Dimension.value(boxSizePx.toDp())
+                    height = Dimension.value(boxSizePx.toDp())
+                    top.linkTo(parent.top)
+                    end.linkTo(g1, marginToHelper.toDp())
+                }
+                constrain(createRefFor(boxTag2)) {
+                    width = Dimension.value(boxSizePx.toDp())
+                    height = Dimension.value(boxSizePx.toDp())
+                    top.linkTo(parent.top)
+                    start.linkTo(b1, marginToHelper.toDp())
+                }
             }
+            rule.setContent {
+                ConstraintLayout(
+                    modifier = Modifier.size(rootSizePx.toDp()),
+                    constraintSet = constraintSet
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.layoutTestId(boxTag1)
+                                .background(Color.Red)
+                                .onGloballyPositioned { boxPosition1 = it.positionInRoot().round() }
+                    )
+                    Box(
+                        modifier =
+                            Modifier.layoutTestId(boxTag2)
+                                .background(Color.Blue)
+                                .onGloballyPositioned { boxPosition2 = it.positionInRoot().round() }
+                    )
+                }
+            }
+            rule.waitForIdle()
+
+            assertEquals(rootSizePx - g1DistancePx - marginToHelper - boxSizePx, boxPosition1.x)
+            assertEquals(0, boxPosition1.y)
+
+            assertEquals(rootSizePx - g1DistancePx + marginToHelper, boxPosition2.x)
+            assertEquals(0, boxPosition2.y)
         }
-        rule.waitForIdle()
 
-        assertEquals(rootSizePx - g1DistancePx - marginToHelper - boxSizePx, boxPosition1.x)
-        assertEquals(0, boxPosition1.y)
+    @Test
+    fun testLayoutReference_withInlineDsl() =
+        with(rule.density) {
+            val rootSizePx = 500
+            val boxSizePx = 100
+            val g1DistancePx = 50
+            val marginToHelper = 10
 
-        assertEquals(rootSizePx - g1DistancePx + marginToHelper, boxPosition2.x)
-        assertEquals(0, boxPosition2.y)
-    }
+            val boxTag1 = "box1"
+            val boxTag2 = "box2"
+
+            var boxPosition1 = IntOffset.Zero
+            var boxPosition2 = IntOffset.Zero
+            rule.setContent {
+                ConstraintLayout(modifier = Modifier.size(rootSizePx.toDp())) {
+                    val (box1, box2) = createRefs()
+                    val g1 = createGuidelineFromEnd(g1DistancePx.toDp())
+                    val b1 = createEndBarrier(g1.reference, box1)
+                    Box(
+                        modifier =
+                            Modifier.constrainAs(box1) {
+                                    width = Dimension.value(boxSizePx.toDp())
+                                    height = Dimension.value(boxSizePx.toDp())
+                                    top.linkTo(parent.top)
+                                    end.linkTo(g1, marginToHelper.toDp())
+                                }
+                                .layoutTestId(boxTag1)
+                                .background(Color.Red)
+                                .onGloballyPositioned { boxPosition1 = it.positionInRoot().round() }
+                    )
+                    Box(
+                        modifier =
+                            Modifier.constrainAs(box2) {
+                                    width = Dimension.value(boxSizePx.toDp())
+                                    height = Dimension.value(boxSizePx.toDp())
+                                    top.linkTo(parent.top)
+                                    start.linkTo(b1, marginToHelper.toDp())
+                                }
+                                .layoutTestId(boxTag2)
+                                .background(Color.Blue)
+                                .onGloballyPositioned { boxPosition2 = it.positionInRoot().round() }
+                    )
+                }
+            }
+            rule.waitForIdle()
+
+            assertEquals(rootSizePx - g1DistancePx - marginToHelper - boxSizePx, boxPosition1.x)
+            assertEquals(0, boxPosition1.y)
+
+            assertEquals(rootSizePx - g1DistancePx + marginToHelper, boxPosition2.x)
+            assertEquals(0, boxPosition2.y)
+        }
 
     @Test
     fun testBias_withConstraintSet() {
@@ -1931,28 +1701,25 @@ class ConstraintLayoutTest {
         rule.setContent {
             ConstraintLayout(
                 modifier = Modifier.size(rootSize),
-                constraintSet = ConstraintSet {
-                    constrain(createRefFor("box")) {
-                        width = Dimension.value(boxSize)
-                        height = Dimension.value(boxSize)
+                constraintSet =
+                    ConstraintSet {
+                        constrain(createRefFor("box")) {
+                            width = Dimension.value(boxSize)
+                            height = Dimension.value(boxSize)
 
-                        centerTo(parent)
-                        horizontalBias = horBias
-                        verticalBias = verBias
+                            centerTo(parent)
+                            horizontalBias = horBias
+                            verticalBias = verBias
+                        }
                     }
-                }) {
-                Box(
-                    modifier = Modifier
-                        .background(Color.Red)
-                        .layoutTestId("box")
-                )
+            ) {
+                Box(modifier = Modifier.background(Color.Red).layoutTestId("box"))
             }
         }
         rule.waitForIdle()
-        rule.onNodeWithTag("box").assertPositionInRootIsEqualTo(
-            (rootSize - boxSize) * 0.2f,
-            (rootSize - boxSize) * 0.8f
-        )
+        rule
+            .onNodeWithTag("box")
+            .assertPositionInRootIsEqualTo((rootSize - boxSize) * 0.2f, (rootSize - boxSize) * 0.8f)
     }
 
     @Test
@@ -1965,524 +1732,492 @@ class ConstraintLayoutTest {
             ConstraintLayout(Modifier.size(rootSize)) {
                 val box = createRef()
                 Box(
-                    modifier = Modifier
-                        .background(Color.Red)
-                        .constrainAs(box) {
-                            width = Dimension.value(boxSize)
-                            height = Dimension.value(boxSize)
-
-                            centerTo(parent)
-                            horizontalBias = horBias
-                            verticalBias = verBias
-                        }
-                        .layoutTestId("box")
-                )
-            }
-        }
-        rule.waitForIdle()
-        rule.onNodeWithTag("box").assertPositionInRootIsEqualTo(
-            (rootSize - boxSize) * 0.2f,
-            (rootSize - boxSize) * 0.8f
-        )
-    }
-
-    @Test
-    fun testConstraintSet_multipleRefs() = with(rule.density) {
-        val rootSize = 50
-        val boxSize = 20
-        val margin = 10
-        val positions = Array(3) { IntOffset.Zero }
-        rule.setContent {
-            ConstraintLayout(
-                constraintSet = ConstraintSet {
-                    // Note that not enough IDs were provided, box2 will have a generated ID
-                    val (box0, box1, box2) = createRefsFor("box0", "box1")
-
-                    constrain(box0, box1) {
-                        width = boxSize.toDp().asDimension()
-                        height = boxSize.toDp().asDimension()
-                        top.linkTo(parent.top, margin.toDp())
-                        start.linkTo(parent.start, margin.toDp())
-                    }
-                    constrain(box2) {
-                        width = boxSize.toDp().asDimension()
-                        height = boxSize.toDp().asDimension()
-
-                        top.linkTo(box0.bottom)
-                        start.linkTo(box0.end)
-                    }
-                },
-                Modifier.size(rootSize.toDp())
-            ) {
-                Box(
-                    Modifier
-                        .layoutId("box0")
-                        .onGloballyPositioned {
-                            positions[0] = it
-                                .positionInRoot()
-                                .round()
-                        }
-                )
-                Box(
-                    Modifier
-                        .layoutId("box1")
-                        .onGloballyPositioned {
-                            positions[1] = it
-                                .positionInRoot()
-                                .round()
-                        }
-                )
-                Box(
-                    Modifier
-                        // Generated id, tho normally, the user wouldn't know what the ID is
-                        .layoutId("androidx.constraintlayout.id0")
-                        .onGloballyPositioned {
-                            positions[2] = it
-                                .positionInRoot()
-                                .round()
-                        }
-                )
-            }
-        }
-        rule.waitForIdle()
-        assertEquals(IntOffset(margin, margin), positions[0])
-        assertEquals(IntOffset(margin, margin), positions[1])
-        assertEquals(IntOffset(margin + boxSize, margin + boxSize), positions[2])
-    }
-
-    @Test
-    fun testLinkToBias_withInlineDsl_rtl() = with(rule.density) {
-        val rootSize = 200
-        val boxSize = 20
-        val box1Bias = 0.2f
-        val box2Bias = 0.2f
-
-        var box1Position = IntOffset.Zero
-        var box2Position = IntOffset.Zero
-        rule.setContent {
-            CompositionLocalProvider(LocalLayoutDirection.provides(LayoutDirection.Rtl)) {
-                ConstraintLayout(Modifier.size(rootSize.toDp())) {
-                    val (box1Ref, box2Ref) = createRefs()
-
-                    Box(
-                        modifier = Modifier
-                            .background(Color.Red)
-                            .constrainAs(box1Ref) {
-                                width = Dimension.value(boxSize.toDp())
-                                height = Dimension.value(boxSize.toDp())
+                    modifier =
+                        Modifier.background(Color.Red)
+                            .constrainAs(box) {
+                                width = Dimension.value(boxSize)
+                                height = Dimension.value(boxSize)
 
                                 centerTo(parent)
-                                horizontalBias = box1Bias // unaffected by Rtl
+                                horizontalBias = horBias
+                                verticalBias = verBias
                             }
-                            .onGloballyPositioned {
-                                box1Position = it
-                                    .positionInRoot()
-                                    .round()
+                            .layoutTestId("box")
+                )
+            }
+        }
+        rule.waitForIdle()
+        rule
+            .onNodeWithTag("box")
+            .assertPositionInRootIsEqualTo((rootSize - boxSize) * 0.2f, (rootSize - boxSize) * 0.8f)
+    }
+
+    @Test
+    fun testConstraintSet_multipleRefs() =
+        with(rule.density) {
+            val rootSize = 50
+            val boxSize = 20
+            val margin = 10
+            val positions = Array(3) { IntOffset.Zero }
+            rule.setContent {
+                ConstraintLayout(
+                    constraintSet =
+                        ConstraintSet {
+                            // Note that not enough IDs were provided, box2 will have a generated ID
+                            val (box0, box1, box2) = createRefsFor("box0", "box1")
+
+                            constrain(box0, box1) {
+                                width = boxSize.toDp().asDimension()
+                                height = boxSize.toDp().asDimension()
+                                top.linkTo(parent.top, margin.toDp())
+                                start.linkTo(parent.start, margin.toDp())
                             }
+                            constrain(box2) {
+                                width = boxSize.toDp().asDimension()
+                                height = boxSize.toDp().asDimension()
+
+                                top.linkTo(box0.bottom)
+                                start.linkTo(box0.end)
+                            }
+                        },
+                    Modifier.size(rootSize.toDp())
+                ) {
+                    Box(
+                        Modifier.layoutId("box0").onGloballyPositioned {
+                            positions[0] = it.positionInRoot().round()
+                        }
                     )
                     Box(
-                        modifier = Modifier
-                            .background(Color.Blue)
-                            .constrainAs(box2Ref) {
-                                width = Dimension.value(boxSize.toDp())
-                                height = Dimension.value(boxSize.toDp())
-
-                                top.linkTo(box1Ref.bottom)
-                                linkTo(
-                                    start = parent.start,
-                                    end = box1Ref.start,
-                                    startMargin = 0.dp,
-                                    endMargin = 0.dp,
-                                    startGoneMargin = 0.dp,
-                                    endGoneMargin = 0.dp,
-                                    bias = box2Bias // affected by Rtl
-                                )
-                            }
-                            .onGloballyPositioned {
-                                box2Position = it
-                                    .positionInRoot()
-                                    .round()
-                            }
+                        Modifier.layoutId("box1").onGloballyPositioned {
+                            positions[1] = it.positionInRoot().round()
+                        }
+                    )
+                    Box(
+                        Modifier
+                            // Generated id, tho normally, the user wouldn't know what the ID is
+                            .layoutId("androidx.constraintlayout.id0")
+                            .onGloballyPositioned { positions[2] = it.positionInRoot().round() }
                     )
                 }
             }
+            rule.waitForIdle()
+            assertEquals(IntOffset(margin, margin), positions[0])
+            assertEquals(IntOffset(margin, margin), positions[1])
+            assertEquals(IntOffset(margin + boxSize, margin + boxSize), positions[2])
         }
-
-        rule.runOnIdle {
-            val expectedBox1X = (rootSize - boxSize) * box1Bias
-            val expectedBox1Y = (rootSize * 0.5f) - (boxSize * 0.5f)
-            assertEquals(Offset(expectedBox1X, expectedBox1Y).round(), box1Position)
-
-            val expectedBox1End = expectedBox1X + boxSize
-            val expectedBox2X =
-                (rootSize - expectedBox1End - boxSize) * (1f - box2Bias) + expectedBox1End
-            assertEquals(Offset(expectedBox2X, expectedBox1Y + boxSize).round(), box2Position)
-        }
-    }
 
     @Test
-    fun testContentRecomposition_withConstraintSet() = with(rule.density) {
-        var constraintLayoutCompCount = 0
+    fun testLinkToBias_withInlineDsl_rtl() =
+        with(rule.density) {
+            val rootSize = 200
+            val boxSize = 20
+            val box1Bias = 0.2f
+            val box2Bias = 0.2f
 
-        val baseWidth = 10
-        val box0WidthMultiplier = mutableStateOf(2)
-        val boxHeight = 30
-        rule.setContent {
-            ++constraintLayoutCompCount
-            ConstraintLayout(
-                constraintSet = ConstraintSet {
-                    val (box0, box1) = createRefsFor("box0", "box1")
-                    constrain(box0) {
-                        // previously, preferredWrapContent would fail if only the content
-                        // recomposed
-                        width = Dimension.preferredWrapContent
+            var box1Position = IntOffset.Zero
+            var box2Position = IntOffset.Zero
+            rule.setContent {
+                CompositionLocalProvider(LocalLayoutDirection.provides(LayoutDirection.Rtl)) {
+                    ConstraintLayout(Modifier.size(rootSize.toDp())) {
+                        val (box1Ref, box2Ref) = createRefs()
 
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                        horizontalBias = 0f
+                        Box(
+                            modifier =
+                                Modifier.background(Color.Red)
+                                    .constrainAs(box1Ref) {
+                                        width = Dimension.value(boxSize.toDp())
+                                        height = Dimension.value(boxSize.toDp())
 
-                        top.linkTo(parent.top)
-                    }
-                    constrain(box1) {
-                        width = Dimension.fillToConstraints
-                        height = Dimension.wrapContent
-                        start.linkTo(box0.start)
-                        end.linkTo(box0.end)
-                        horizontalBias = 0f
+                                        centerTo(parent)
+                                        horizontalBias = box1Bias // unaffected by Rtl
+                                    }
+                                    .onGloballyPositioned {
+                                        box1Position = it.positionInRoot().round()
+                                    }
+                        )
+                        Box(
+                            modifier =
+                                Modifier.background(Color.Blue)
+                                    .constrainAs(box2Ref) {
+                                        width = Dimension.value(boxSize.toDp())
+                                        height = Dimension.value(boxSize.toDp())
 
-                        top.linkTo(box0.bottom)
+                                        top.linkTo(box1Ref.bottom)
+                                        linkTo(
+                                            start = parent.start,
+                                            end = box1Ref.start,
+                                            startMargin = 0.dp,
+                                            endMargin = 0.dp,
+                                            startGoneMargin = 0.dp,
+                                            endGoneMargin = 0.dp,
+                                            bias = box2Bias // affected by Rtl
+                                        )
+                                    }
+                                    .onGloballyPositioned {
+                                        box2Position = it.positionInRoot().round()
+                                    }
+                        )
                     }
                 }
-            ) {
-                Box(
-                    Modifier
-                        .height(boxHeight.toDp())
-                        .width((baseWidth * box0WidthMultiplier.value).toDp())
-                        .layoutTestId("box0")
-                        .background(Color.Red)
-                )
-                Box(
-                    Modifier
-                        .height(boxHeight.toDp())
-                        .layoutTestId("box1")
-                        .background(Color.Blue)
-                )
+            }
+
+            rule.runOnIdle {
+                val expectedBox1X = (rootSize - boxSize) * box1Bias
+                val expectedBox1Y = (rootSize * 0.5f) - (boxSize * 0.5f)
+                assertEquals(Offset(expectedBox1X, expectedBox1Y).round(), box1Position)
+
+                val expectedBox1End = expectedBox1X + boxSize
+                val expectedBox2X =
+                    (rootSize - expectedBox1End - boxSize) * (1f - box2Bias) + expectedBox1End
+                assertEquals(Offset(expectedBox2X, expectedBox1Y + boxSize).round(), box2Position)
             }
         }
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("box0").apply {
-            assertPositionInRootIsEqualTo(0.dp, 0.dp)
-            assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-        rule.onNodeWithTag("box1").apply {
-            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
-            assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-
-        box0WidthMultiplier.value = 3
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("box0").apply {
-            assertPositionInRootIsEqualTo(0.dp, 0.dp)
-            assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-        rule.onNodeWithTag("box1").apply {
-            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
-            assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-
-        box0WidthMultiplier.value = 1
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("box0").apply {
-            assertPositionInRootIsEqualTo(0.dp, 0.dp)
-            assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-        rule.onNodeWithTag("box1").apply {
-            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
-            assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-
-        assertEquals(1, constraintLayoutCompCount)
-    }
 
     @Test
-    fun testContentRecomposition_withInlineModifier() = with(rule.density) {
-        var constraintLayoutCompCount = 0
+    fun testContentRecomposition_withConstraintSet() =
+        with(rule.density) {
+            var constraintLayoutCompCount = 0
 
-        val baseWidth = 10
-        val box0WidthMultiplier = mutableStateOf(2)
-        val boxHeight = 30
-        rule.setContent {
-            ++constraintLayoutCompCount
-            ConstraintLayout {
-                val (box0, box1) = createRefs()
-                Box(
-                    Modifier
-                        .height(boxHeight.toDp())
-                        .width((baseWidth * box0WidthMultiplier.value).toDp())
-                        .constrainAs(box0) {
-                            // previously, preferredWrapContent would fail if only the content
-                            // recomposed
-                            width = Dimension.preferredWrapContent
-
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                            horizontalBias = 0f
-
-                            top.linkTo(parent.top)
-                        }
-                        .testTag("box0")
-                        .background(Color.Red)
-                )
-                Box(
-                    Modifier
-                        .height(boxHeight.toDp())
-                        .constrainAs(box1) {
-                            width = Dimension.fillToConstraints
-                            height = Dimension.wrapContent
-                            start.linkTo(box0.start)
-                            end.linkTo(box0.end)
-                            horizontalBias = 0f
-
-                            top.linkTo(box0.bottom)
-                        }
-                        .testTag("box1")
-                        .background(Color.Blue)
-                )
-            }
-        }
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("box0").apply {
-            assertPositionInRootIsEqualTo(0.dp, 0.dp)
-            assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-        rule.onNodeWithTag("box1").apply {
-            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
-            assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-
-        box0WidthMultiplier.value = 3
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("box0").apply {
-            assertPositionInRootIsEqualTo(0.dp, 0.dp)
-            assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-        rule.onNodeWithTag("box1").apply {
-            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
-            assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-
-        box0WidthMultiplier.value = 1
-        rule.waitForIdle()
-
-        rule.onNodeWithTag("box0").apply {
-            assertPositionInRootIsEqualTo(0.dp, 0.dp)
-            assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-        rule.onNodeWithTag("box1").apply {
-            assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
-            assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
-        }
-
-        assertEquals(1, constraintLayoutCompCount)
-    }
-
-    @Test
-    fun testBaselineConstraints() = with(rule.density) {
-        fun Modifier.withBaseline() = this.layout { measurable, constraints ->
-            val placeable = measurable.measure(constraints)
-            val halfHeight = (placeable.height / 2f).roundToInt()
-            layout(
-                width = placeable.width,
-                height = placeable.height,
-                alignmentLines = mapOf(FirstBaseline to halfHeight)
-            ) {
-                placeable.place(0, 0)
-            }
-        }
-
-        val boxSize = 10
-        val box1Margin = 13
-        val box2Margin = -7f
-
-        var box1Position = IntOffset.Zero
-        var box2Position = IntOffset.Zero
-        rule.setContent {
-            ConstraintLayout {
-                val (box1, box2) = createRefs()
-                Box(
-                    Modifier
-                        .size(boxSize.toDp())
-                        .withBaseline()
-                        .constrainAs(box1) {
-                            baseline.linkTo(parent.top, box1Margin.toDp())
-                            start.linkTo(parent.start)
-                        }
-                        .onGloballyPositioned {
-                            box1Position = it
-                                .positionInRoot()
-                                .round()
-                        })
-                Box(
-                    Modifier
-                        .size(boxSize.toDp())
-                        .withBaseline()
-                        .constrainAs(box2) {
-                            top.linkTo(box1.baseline, box2Margin.toDp())
-                        }
-                        .onGloballyPositioned {
-                            box2Position = it
-                                .positionInRoot()
-                                .round()
-                        })
-            }
-        }
-        val expectedBox1Y = box1Margin - (boxSize * 0.5f).roundToInt()
-        val expectedBox2Y = expectedBox1Y + box2Margin + (boxSize * 0.5f).toInt()
-        rule.runOnIdle {
-            assertEquals(IntOffset(0, expectedBox1Y), box1Position)
-            assertEquals(IntOffset(0, expectedBox2Y.roundToInt()), box2Position)
-        }
-    }
-
-    @Test
-    fun testConstraintLayout_withParentIntrinsics() = with(rule.density) {
-        val rootBoxWidth = 200
-        val box1Size = 40
-        val box2Size = 70
-
-        var rootSize = IntSize.Zero
-        var clSize = IntSize.Zero
-        var box1Position = IntOffset.Zero
-        var box2Position = IntOffset.Zero
-
-        rule.setContent {
-            Box(
-                modifier = Modifier
-                    .width(rootBoxWidth.toDp())
-                    .height(IntrinsicSize.Max)
-                    .background(Color.LightGray)
-                    .onGloballyPositioned {
-                        rootSize = it.size
-                    }
-            ) {
+            val baseWidth = 10
+            val box0WidthMultiplier = mutableStateOf(2)
+            val boxHeight = 30
+            rule.setContent {
+                ++constraintLayoutCompCount
                 ConstraintLayout(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .background(Color.Yellow)
-                        .onGloballyPositioned {
-                            clSize = it.size
+                    constraintSet =
+                        ConstraintSet {
+                            val (box0, box1) = createRefsFor("box0", "box1")
+                            constrain(box0) {
+                                // previously, preferredWrapContent would fail if only the content
+                                // recomposed
+                                width = Dimension.preferredWrapContent
+
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                                horizontalBias = 0f
+
+                                top.linkTo(parent.top)
+                            }
+                            constrain(box1) {
+                                width = Dimension.fillToConstraints
+                                height = Dimension.wrapContent
+                                start.linkTo(box0.start)
+                                end.linkTo(box0.end)
+                                horizontalBias = 0f
+
+                                top.linkTo(box0.bottom)
+                            }
                         }
                 ) {
-                    val (one, two) = createRefs()
-                    val horChain =
-                        createHorizontalChain(one, two, chainStyle = ChainStyle.Packed(0f))
-                    constrain(horChain) {
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
                     Box(
-                        Modifier
-                            .size(box1Size.toDp())
-                            .background(Color.Green)
-                            .constrainAs(one) {
-                                top.linkTo(parent.top)
-                                bottom.linkTo(parent.bottom)
-                            }
-                            .onGloballyPositioned {
-                                box1Position = it
-                                    .positionInRoot()
-                                    .round()
-                            })
-                    Box(
-                        Modifier
-                            .size(box2Size.toDp())
+                        Modifier.height(boxHeight.toDp())
+                            .width((baseWidth * box0WidthMultiplier.value).toDp())
+                            .layoutTestId("box0")
                             .background(Color.Red)
-                            .constrainAs(two) {
-                                width = Dimension.preferredWrapContent
-                                top.linkTo(parent.top)
-                                bottom.linkTo(parent.bottom)
-                            }
-                            .onGloballyPositioned {
-                                box2Position = it
-                                    .positionInRoot()
-                                    .round()
-                            })
+                    )
+                    Box(
+                        Modifier.height(boxHeight.toDp())
+                            .layoutTestId("box1")
+                            .background(Color.Blue)
+                    )
                 }
+            }
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box0").apply {
+                assertPositionInRootIsEqualTo(0.dp, 0.dp)
+                assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+            rule.onNodeWithTag("box1").apply {
+                assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+                assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+
+            box0WidthMultiplier.value = 3
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box0").apply {
+                assertPositionInRootIsEqualTo(0.dp, 0.dp)
+                assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+            rule.onNodeWithTag("box1").apply {
+                assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+                assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+
+            box0WidthMultiplier.value = 1
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box0").apply {
+                assertPositionInRootIsEqualTo(0.dp, 0.dp)
+                assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+            rule.onNodeWithTag("box1").apply {
+                assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+                assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+
+            assertEquals(1, constraintLayoutCompCount)
+        }
+
+    @Test
+    fun testContentRecomposition_withInlineModifier() =
+        with(rule.density) {
+            var constraintLayoutCompCount = 0
+
+            val baseWidth = 10
+            val box0WidthMultiplier = mutableStateOf(2)
+            val boxHeight = 30
+            rule.setContent {
+                ++constraintLayoutCompCount
+                ConstraintLayout {
+                    val (box0, box1) = createRefs()
+                    Box(
+                        Modifier.height(boxHeight.toDp())
+                            .width((baseWidth * box0WidthMultiplier.value).toDp())
+                            .constrainAs(box0) {
+                                // previously, preferredWrapContent would fail if only the content
+                                // recomposed
+                                width = Dimension.preferredWrapContent
+
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                                horizontalBias = 0f
+
+                                top.linkTo(parent.top)
+                            }
+                            .testTag("box0")
+                            .background(Color.Red)
+                    )
+                    Box(
+                        Modifier.height(boxHeight.toDp())
+                            .constrainAs(box1) {
+                                width = Dimension.fillToConstraints
+                                height = Dimension.wrapContent
+                                start.linkTo(box0.start)
+                                end.linkTo(box0.end)
+                                horizontalBias = 0f
+
+                                top.linkTo(box0.bottom)
+                            }
+                            .testTag("box1")
+                            .background(Color.Blue)
+                    )
+                }
+            }
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box0").apply {
+                assertPositionInRootIsEqualTo(0.dp, 0.dp)
+                assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+            rule.onNodeWithTag("box1").apply {
+                assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+                assertWidthIsEqualTo(20.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+
+            box0WidthMultiplier.value = 3
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box0").apply {
+                assertPositionInRootIsEqualTo(0.dp, 0.dp)
+                assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+            rule.onNodeWithTag("box1").apply {
+                assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+                assertWidthIsEqualTo(30.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+
+            box0WidthMultiplier.value = 1
+            rule.waitForIdle()
+
+            rule.onNodeWithTag("box0").apply {
+                assertPositionInRootIsEqualTo(0.dp, 0.dp)
+                assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+            rule.onNodeWithTag("box1").apply {
+                assertPositionInRootIsEqualTo(0.dp, boxHeight.toDp())
+                assertWidthIsEqualTo(10.toDp()) // (box0WidthMultiplier.value * baseWidth).toDp()
+            }
+
+            assertEquals(1, constraintLayoutCompCount)
+        }
+
+    @Test
+    fun testBaselineConstraints() =
+        with(rule.density) {
+            fun Modifier.withBaseline() =
+                this.layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    val halfHeight = (placeable.height / 2f).roundToInt()
+                    layout(
+                        width = placeable.width,
+                        height = placeable.height,
+                        alignmentLines = mapOf(FirstBaseline to halfHeight)
+                    ) {
+                        placeable.place(0, 0)
+                    }
+                }
+
+            val boxSize = 10
+            val box1Margin = 13
+            val box2Margin = -7f
+
+            var box1Position = IntOffset.Zero
+            var box2Position = IntOffset.Zero
+            rule.setContent {
+                ConstraintLayout {
+                    val (box1, box2) = createRefs()
+                    Box(
+                        Modifier.size(boxSize.toDp())
+                            .withBaseline()
+                            .constrainAs(box1) {
+                                baseline.linkTo(parent.top, box1Margin.toDp())
+                                start.linkTo(parent.start)
+                            }
+                            .onGloballyPositioned { box1Position = it.positionInRoot().round() }
+                    )
+                    Box(
+                        Modifier.size(boxSize.toDp())
+                            .withBaseline()
+                            .constrainAs(box2) { top.linkTo(box1.baseline, box2Margin.toDp()) }
+                            .onGloballyPositioned { box2Position = it.positionInRoot().round() }
+                    )
+                }
+            }
+            val expectedBox1Y = box1Margin - (boxSize * 0.5f).roundToInt()
+            val expectedBox2Y = expectedBox1Y + box2Margin + (boxSize * 0.5f).toInt()
+            rule.runOnIdle {
+                assertEquals(IntOffset(0, expectedBox1Y), box1Position)
+                assertEquals(IntOffset(0, expectedBox2Y.roundToInt()), box2Position)
             }
         }
 
-        val expectedSize = IntSize(rootBoxWidth, box2Size)
-        val expectedBox1Y = ((box2Size / 2f) - (box1Size / 2f)).roundToInt()
-        rule.runOnIdle {
-            assertEquals(expectedSize, rootSize)
-            assertEquals(expectedSize, clSize)
-            assertEquals(IntOffset(0, expectedBox1Y), box1Position)
-            assertEquals(IntOffset(box1Size, 0), box2Position)
+    @Test
+    fun testConstraintLayout_withParentIntrinsics() =
+        with(rule.density) {
+            val rootBoxWidth = 200
+            val box1Size = 40
+            val box2Size = 70
+
+            var rootSize = IntSize.Zero
+            var clSize = IntSize.Zero
+            var box1Position = IntOffset.Zero
+            var box2Position = IntOffset.Zero
+
+            rule.setContent {
+                Box(
+                    modifier =
+                        Modifier.width(rootBoxWidth.toDp())
+                            .height(IntrinsicSize.Max)
+                            .background(Color.LightGray)
+                            .onGloballyPositioned { rootSize = it.size }
+                ) {
+                    ConstraintLayout(
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .wrapContentHeight()
+                                .background(Color.Yellow)
+                                .onGloballyPositioned { clSize = it.size }
+                    ) {
+                        val (one, two) = createRefs()
+                        val horChain =
+                            createHorizontalChain(one, two, chainStyle = ChainStyle.Packed(0f))
+                        constrain(horChain) {
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        }
+                        Box(
+                            Modifier.size(box1Size.toDp())
+                                .background(Color.Green)
+                                .constrainAs(one) {
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                }
+                                .onGloballyPositioned { box1Position = it.positionInRoot().round() }
+                        )
+                        Box(
+                            Modifier.size(box2Size.toDp())
+                                .background(Color.Red)
+                                .constrainAs(two) {
+                                    width = Dimension.preferredWrapContent
+                                    top.linkTo(parent.top)
+                                    bottom.linkTo(parent.bottom)
+                                }
+                                .onGloballyPositioned { box2Position = it.positionInRoot().round() }
+                        )
+                    }
+                }
+            }
+
+            val expectedSize = IntSize(rootBoxWidth, box2Size)
+            val expectedBox1Y = ((box2Size / 2f) - (box1Size / 2f)).roundToInt()
+            rule.runOnIdle {
+                assertEquals(expectedSize, rootSize)
+                assertEquals(expectedSize, clSize)
+                assertEquals(IntOffset(0, expectedBox1Y), box1Position)
+                assertEquals(IntOffset(box1Size, 0), box2Position)
+            }
         }
-    }
 
     @Test
-    fun testTranslationXY_withDsl() = with(rule.density) {
-        val rootSizePx = 100
-        val boxSizePx = 10
-        val translationXPx = 7
-        val translationYPx = 9
+    fun testTranslationXY_withDsl() =
+        with(rule.density) {
+            val rootSizePx = 100
+            val boxSizePx = 10
+            val translationXPx = 7
+            val translationYPx = 9
 
-        var position = IntOffset.Zero
+            var position = IntOffset.Zero
 
-        rule.setContent {
-            ConstraintLayout(
-                Modifier.size(rootSizePx.toDp())
-            ) {
-                val boxRef = createRef()
-                Box(
-                    Modifier
-                        .constrainAs(boxRef) {
-                            width = boxSizePx.toDp().asDimension()
-                            height = boxSizePx.toDp().asDimension()
-                            centerTo(parent)
+            rule.setContent {
+                ConstraintLayout(Modifier.size(rootSizePx.toDp())) {
+                    val boxRef = createRef()
+                    Box(
+                        Modifier.constrainAs(boxRef) {
+                                width = boxSizePx.toDp().asDimension()
+                                height = boxSizePx.toDp().asDimension()
+                                centerTo(parent)
 
-                            translationX = translationXPx.toDp()
-                            translationY = translationYPx.toDp()
-                        }
-                        .onPlaced {
-                            // TODO: Figure out a way to test `translationZ` i.e.: `shadowElevation`
-                            position = it.boundsInParent().topLeft.round()
-                        }
+                                translationX = translationXPx.toDp()
+                                translationY = translationYPx.toDp()
+                            }
+                            .onPlaced {
+                                // TODO: Figure out a way to test `translationZ` i.e.:
+                                // `shadowElevation`
+                                position = it.boundsInParent().topLeft.round()
+                            }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                assertEquals(
+                    Offset(
+                            (rootSizePx - boxSizePx) / 2f + translationXPx,
+                            (rootSizePx - boxSizePx) / 2f + translationYPx,
+                        )
+                        .round(),
+                    position
                 )
             }
         }
 
-        rule.runOnIdle {
-            assertEquals(
-                Offset(
-                    (rootSizePx - boxSizePx) / 2f + translationXPx,
-                    (rootSizePx - boxSizePx) / 2f + translationYPx,
-                ).round(),
-                position
-            )
-        }
-    }
-
     @Test
-    fun testTranslationXY_withJson() = with(rule.density) {
-        val rootSizePx = 100
-        val boxSizePx = 10
-        val translationXPx = 7
-        val translationYPx = 9
+    fun testTranslationXY_withJson() =
+        with(rule.density) {
+            val rootSizePx = 100
+            val boxSizePx = 10
+            val translationXPx = 7
+            val translationYPx = 9
 
-        var position = IntOffset.Zero
+            var position = IntOffset.Zero
 
-        rule.setContent {
-            ConstraintLayout(
-                constraintSet = ConstraintSet(
-                    """
+            rule.setContent {
+                ConstraintLayout(
+                    constraintSet =
+                        ConstraintSet(
+                            """
                     {
                       box: {
                         width: ${boxSizePx.toDp().value},
@@ -2492,152 +2227,145 @@ class ConstraintLayoutTest {
                         translationY: ${translationYPx.toDp().value}
                       }
                     }
-                """.trimIndent()
-                ),
-                Modifier.size(rootSizePx.toDp())
-            ) {
-                Box(
-                    Modifier
-                        .layoutId("box")
-                        .onPlaced {
+                """
+                                .trimIndent()
+                        ),
+                    Modifier.size(rootSizePx.toDp())
+                ) {
+                    Box(
+                        Modifier.layoutId("box").onPlaced {
                             // TODO: Figure out a way to test `translationZ` i.e.: `shadowElevation`
                             position = it.boundsInParent().topLeft.round()
                         }
+                    )
+                }
+            }
+
+            rule.runOnIdle {
+                assertEquals(
+                    Offset(
+                            (rootSizePx - boxSizePx) / 2f + translationXPx,
+                            (rootSizePx - boxSizePx) / 2f + translationYPx,
+                        )
+                        .round(),
+                    position
                 )
             }
         }
-
-        rule.runOnIdle {
-            assertEquals(
-                Offset(
-                    (rootSizePx - boxSizePx) / 2f + translationXPx,
-                    (rootSizePx - boxSizePx) / 2f + translationYPx,
-                ).round(),
-                position
-            )
-        }
-    }
 
     // Required for bitmap evaluation.
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testVisibility_withInlineDsl() = with(rule.density) {
-        val rootSizePx = 100
-        val boxSizePx = 10
-        var box1Position = IntOffset.Zero
-        val expectedInitialBox1Position = Offset(
-            (rootSizePx + boxSizePx) / 2f,
-            (rootSizePx - boxSizePx) / 2f
-        ).round()
+    fun testVisibility_withInlineDsl() =
+        with(rule.density) {
+            val rootSizePx = 100
+            val boxSizePx = 10
+            var box1Position = IntOffset.Zero
+            val expectedInitialBox1Position =
+                Offset((rootSizePx + boxSizePx) / 2f, (rootSizePx - boxSizePx) / 2f).round()
 
-        val boxVisibility = mutableStateOf(Visibility.Visible)
+            val boxVisibility = mutableStateOf(Visibility.Visible)
 
-        rule.setContent {
-            ConstraintLayout(Modifier.size(rootSizePx.toDp())) {
-                val (box0, box1) = createRefs()
+            rule.setContent {
+                ConstraintLayout(Modifier.size(rootSizePx.toDp())) {
+                    val (box0, box1) = createRefs()
 
-                Box(
-                    Modifier
-                        .testTag("box0")
-                        .constrainAs(box0) {
-                            centerTo(parent)
-                            visibility = boxVisibility.value
-                        }
-                        .background(Color.Red)
-                ) {
-                    Box(Modifier.size(boxSizePx.toDp()))
+                    Box(
+                        Modifier.testTag("box0")
+                            .constrainAs(box0) {
+                                centerTo(parent)
+                                visibility = boxVisibility.value
+                            }
+                            .background(Color.Red)
+                    ) {
+                        Box(Modifier.size(boxSizePx.toDp()))
+                    }
+                    Box(
+                        Modifier.testTag("box1")
+                            .constrainAs(box1) {
+                                width = boxSizePx.toDp().asDimension()
+                                height = boxSizePx.toDp().asDimension()
+
+                                top.linkTo(box0.top)
+                                start.linkTo(box0.end)
+                            }
+                            .background(Color.Blue)
+                            .onGloballyPositioned { box1Position = it.positionInParent().round() }
+                    )
                 }
-                Box(
-                    Modifier
-                        .testTag("box1")
-                        .constrainAs(box1) {
-                            width = boxSizePx.toDp().asDimension()
-                            height = boxSizePx.toDp().asDimension()
-
-                            top.linkTo(box0.top)
-                            start.linkTo(box0.end)
-                        }
-                        .background(Color.Blue)
-                        .onGloballyPositioned {
-                            box1Position = it
-                                .positionInParent()
-                                .round()
-                        }
-                )
             }
+            rule.waitForIdle()
+
+            var color = rule.onNodeWithTag("box0").captureToImage().asAndroidBitmap().getColor(5, 5)
+            assertEquals(Color.Red.toArgb(), color.toArgb())
+            assertEquals(expectedInitialBox1Position, box1Position)
+
+            boxVisibility.value = Visibility.Invisible
+            rule.waitForIdle()
+
+            color = rule.onNodeWithTag("box0").captureToImage().asAndroidBitmap().getColor(5, 5)
+            assertNotEquals(Color.Red.toArgb(), color.toArgb())
+            assertEquals(expectedInitialBox1Position, box1Position)
+
+            boxVisibility.value = Visibility.Gone
+            rule.waitForIdle()
+
+            // Dp.Unspecified since Gone Composables are not placed
+            rule.onNodeWithTag("box0").assertWidthIsEqualTo(Dp.Unspecified)
+            rule.onNodeWithTag("box0").assertHeightIsEqualTo(Dp.Unspecified)
+            assertEquals(Offset(rootSizePx / 2f, rootSizePx / 2f).round(), box1Position)
         }
-        rule.waitForIdle()
-
-        var color = rule.onNodeWithTag("box0").captureToImage().asAndroidBitmap().getColor(5, 5)
-        assertEquals(Color.Red.toArgb(), color.toArgb())
-        assertEquals(expectedInitialBox1Position, box1Position)
-
-        boxVisibility.value = Visibility.Invisible
-        rule.waitForIdle()
-
-        color = rule.onNodeWithTag("box0").captureToImage().asAndroidBitmap().getColor(5, 5)
-        assertNotEquals(Color.Red.toArgb(), color.toArgb())
-        assertEquals(expectedInitialBox1Position, box1Position)
-
-        boxVisibility.value = Visibility.Gone
-        rule.waitForIdle()
-
-        // Dp.Unspecified since Gone Composables are not placed
-        rule.onNodeWithTag("box0").assertWidthIsEqualTo(Dp.Unspecified)
-        rule.onNodeWithTag("box0").assertHeightIsEqualTo(Dp.Unspecified)
-        assertEquals(Offset(rootSizePx / 2f, rootSizePx / 2f).round(), box1Position)
-    }
 
     @Test
-    fun testAnimateChanges_withInlineDsl() = with(rule.density) {
-        val durationMs = 200
-        val rootSizePx = 100
-        val boxSizePx = 20
-        val expectedEndPosition = IntOffset(rootSizePx - boxSizePx, rootSizePx - boxSizePx)
-        var box0Position = IntOffset.Zero
-        val atTopLeftCorner = mutableStateOf(true)
+    fun testAnimateChanges_withInlineDsl() =
+        with(rule.density) {
+            val durationMs = 200
+            val rootSizePx = 100
+            val boxSizePx = 20
+            val expectedEndPosition = IntOffset(rootSizePx - boxSizePx, rootSizePx - boxSizePx)
+            var box0Position = IntOffset.Zero
+            val atTopLeftCorner = mutableStateOf(true)
 
-        rule.setContent {
-            ConstraintLayout(
-                modifier = Modifier.size(rootSizePx.toDp()),
-                animateChangesSpec = tween(durationMs)
-            ) {
-                val boxRef = createRef()
-                Box(
-                    Modifier
-                        .background(Color.Red)
-                        .constrainAs(boxRef) {
-                            width = boxSizePx.toDp().asDimension()
-                            height = boxSizePx.toDp().asDimension()
-                            if (atTopLeftCorner.value) {
-                                top.linkTo(parent.top)
-                                start.linkTo(parent.start)
-                            } else {
-                                bottom.linkTo(parent.bottom)
-                                end.linkTo(parent.end)
+            rule.setContent {
+                ConstraintLayout(
+                    modifier = Modifier.size(rootSizePx.toDp()),
+                    animateChangesSpec = tween(durationMs)
+                ) {
+                    val boxRef = createRef()
+                    Box(
+                        Modifier.background(Color.Red)
+                            .constrainAs(boxRef) {
+                                width = boxSizePx.toDp().asDimension()
+                                height = boxSizePx.toDp().asDimension()
+                                if (atTopLeftCorner.value) {
+                                    top.linkTo(parent.top)
+                                    start.linkTo(parent.start)
+                                } else {
+                                    bottom.linkTo(parent.bottom)
+                                    end.linkTo(parent.end)
+                                }
                             }
-                        }
-                        .onGloballyPositioned {
-                            box0Position = it.positionInParent().round()
-                        }
-                )
+                            .onGloballyPositioned { box0Position = it.positionInParent().round() }
+                    )
+                }
             }
+            rule.waitForIdle()
+            assertEquals(IntOffset.Zero, box0Position)
+
+            rule.mainClock.autoAdvance = false
+            atTopLeftCorner.value = false
+
+            rule.mainClock.advanceTimeBy(durationMs / 2L)
+            rule.waitForIdle()
+            assertTrue(box0Position.x > 0 && box0Position.y > 0)
+            assertTrue(
+                box0Position.x < expectedEndPosition.x && box0Position.y < expectedEndPosition.y
+            )
+
+            rule.mainClock.autoAdvance = true
+            rule.waitForIdle()
+            assertEquals(expectedEndPosition, box0Position)
         }
-        rule.waitForIdle()
-        assertEquals(IntOffset.Zero, box0Position)
-
-        rule.mainClock.autoAdvance = false
-        atTopLeftCorner.value = false
-
-        rule.mainClock.advanceTimeBy(durationMs / 2L)
-        rule.waitForIdle()
-        assertTrue(box0Position.x > 0 && box0Position.y > 0)
-        assertTrue(box0Position.x < expectedEndPosition.x && box0Position.y < expectedEndPosition.y)
-
-        rule.mainClock.autoAdvance = true
-        rule.waitForIdle()
-        assertEquals(expectedEndPosition, box0Position)
-    }
 
     /**
      * Provides a list constraints combination for horizontal anchors: `start`, `end`,
@@ -2664,7 +2392,7 @@ class ConstraintLayoutTest {
         )
 
     private fun getJsonAnchorsContent(guidelineOffset: Float): String =
-        //language=json5
+        // language=json5
         """
             {
               g1: { type: 'vGuideline', left: $guidelineOffset },
@@ -2686,7 +2414,8 @@ class ConstraintLayoutTest {
               box14: { end: ['box','right',0] },
               box15: { right: ['box','right',0] }
             }
-        """.trimIndent()
+        """
+            .trimIndent()
 
     private fun assertAnchorsLtrPositions(position: Array<Float>) {
         rule.runOnIdle {
@@ -2733,7 +2462,7 @@ class ConstraintLayoutTest {
     }
 
     private fun getJsonGuidelinesContent(guidelineOffset: Float): String =
-        //language=json5
+        // language=json5
         """
             {
               g0: { type: 'vGuideline', start: $guidelineOffset },
@@ -2753,7 +2482,8 @@ class ConstraintLayoutTest {
               box6: { left: ['g6', 'start', 0] },
               box7: { left: ['g7', 'start', 0] }
             }
-        """.trimIndent()
+        """
+            .trimIndent()
 
     private fun assertGuidelinesLtrPositions(position: Array<Float>) {
         rule.runOnIdle {
@@ -2784,7 +2514,7 @@ class ConstraintLayoutTest {
     }
 
     private fun getJsonBarriersContent(guidelineOffset: Float): String =
-        //language=json5
+        // language=json5
         """
             {
               g0: { type: 'vGuideline', left: $guidelineOffset },
@@ -2803,7 +2533,8 @@ class ConstraintLayoutTest {
               box2: { left: ['b2', 'start', 0] },
               box3: { left: ['b3', 'start', 0] },
             }
-        """.trimIndent()
+        """
+            .trimIndent()
 
     private fun assertBarriersLtrPositions(position: Array<Float>) {
         rule.runOnIdle {

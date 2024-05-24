@@ -52,65 +52,61 @@ fun CustomColorInKeyAttributesDemo() {
     val boxId = "box"
     val textId = "text"
     MotionLayout(
-        motionScene = MotionScene {
-            val box = createRefFor(boxId)
-            val text = createRefFor(textId)
-            defaultTransition(
-                from = constraintSet {
-                    constrain(text) {
-                        top.linkTo(box.bottom, 10.dp)
-                        start.linkTo(box.start)
-                    }
-                    constrain(box) {
-                        width = Dimension.value(50.dp)
-                        height = Dimension.value(50.dp)
+        motionScene =
+            MotionScene {
+                val box = createRefFor(boxId)
+                val text = createRefFor(textId)
+                defaultTransition(
+                    from =
+                        constraintSet {
+                            constrain(text) {
+                                top.linkTo(box.bottom, 10.dp)
+                                start.linkTo(box.start)
+                            }
+                            constrain(box) {
+                                width = Dimension.value(50.dp)
+                                height = Dimension.value(50.dp)
 
-                        centerVerticallyTo(parent)
-                        start.linkTo(parent.start)
+                                centerVerticallyTo(parent)
+                                start.linkTo(parent.start)
 
-                        customColor("background", Color.Red)
-                    }
-                },
-                to = constraintSet {
-                    constrain(text) {
-                        top.linkTo(box.bottom, 10.dp)
-                        end.linkTo(box.end)
-                    }
-                    constrain(box) {
-                        width = Dimension.value(50.dp)
-                        height = Dimension.value(50.dp)
+                                customColor("background", Color.Red)
+                            }
+                        },
+                    to =
+                        constraintSet {
+                            constrain(text) {
+                                top.linkTo(box.bottom, 10.dp)
+                                end.linkTo(box.end)
+                            }
+                            constrain(box) {
+                                width = Dimension.value(50.dp)
+                                height = Dimension.value(50.dp)
 
-                        centerVerticallyTo(parent)
-                        end.linkTo(parent.end)
+                                centerVerticallyTo(parent)
+                                end.linkTo(parent.end)
 
-                        customColor("background", Color.Blue)
+                                customColor("background", Color.Blue)
+                            }
+                        }
+                ) {
+                    onSwipe =
+                        OnSwipe(
+                            anchor = box,
+                            side = SwipeSide.Middle,
+                            direction = SwipeDirection.End
+                        )
+                    keyAttributes(box) {
+                        frame(33) { customColor("background", Color.Yellow) }
+                        frame(66) { customColor("background", Color.Green) }
                     }
                 }
-            ) {
-                onSwipe = OnSwipe(
-                    anchor = box,
-                    side = SwipeSide.Middle,
-                    direction = SwipeDirection.End
-                )
-                keyAttributes(box) {
-                    frame(33) {
-                        customColor("background", Color.Yellow)
-                    }
-                    frame(66) {
-                        customColor("background", Color.Green)
-                    }
-                }
-            }
-        },
+            },
         progress = 0f,
         modifier = Modifier.fillMaxSize()
     ) {
         val background = customColor(boxId, "background")
-        Box(
-            modifier = Modifier
-                .layoutId(boxId)
-                .background(background)
-        )
+        Box(modifier = Modifier.layoutId(boxId).background(background))
         Text(
             modifier = Modifier.layoutId(textId),
             text = "Color: ${background.toArgb().toUInt().toString(16)}"

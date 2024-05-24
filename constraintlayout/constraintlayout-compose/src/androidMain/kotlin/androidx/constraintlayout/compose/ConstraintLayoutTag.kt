@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.Density
  *
  * @param layoutId The unique Id string assigned to the Composable
  * @param tag A string to represent a group of Composables that may be affected by a
- * ConstraintLayout function. Eg: The `Variables` block in a JSON5 based [ConstraintSet]
+ *   ConstraintLayout function. Eg: The `Variables` block in a JSON5 based [ConstraintSet]
  */
 fun Modifier.layoutId(layoutId: String, tag: String? = null): Modifier {
     if (tag == null) {
@@ -42,10 +42,11 @@ fun Modifier.layoutId(layoutId: String, tag: String? = null): Modifier {
             ConstraintLayoutTag(
                 constraintLayoutId = layoutId,
                 constraintLayoutTag = tag,
-                inspectorInfo = debugInspectorInfo {
-                    name = "constraintLayoutId"
-                    value = layoutId
-                }
+                inspectorInfo =
+                    debugInspectorInfo {
+                        name = "constraintLayoutId"
+                        value = layoutId
+                    }
             )
         )
     }
@@ -61,8 +62,7 @@ private class ConstraintLayoutTag(
         return this@ConstraintLayoutTag
     }
 
-    override fun hashCode(): Int =
-        constraintLayoutTag.hashCode()
+    override fun hashCode(): Int = constraintLayoutTag.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -70,8 +70,7 @@ private class ConstraintLayoutTag(
         return constraintLayoutTag == otherModifier.constraintLayoutTag
     }
 
-    override fun toString(): String =
-        "ConstraintLayoutTag(id=$constraintLayoutTag)"
+    override fun toString(): String = "ConstraintLayoutTag(id=$constraintLayoutTag)"
 }
 
 interface ConstraintLayoutTagParentData {

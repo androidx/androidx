@@ -29,73 +29,8 @@ class MotionSceneStabilityTest {
             val box1 = createRefFor("box1")
             val box2 = createRefFor("box2")
             defaultTransition(
-                from = constraintSet {
-                    constrain(box0) {
-                        width = Dimension.fillToConstraints
-                        height = Dimension.value(20.dp)
-                        centerVerticallyTo(parent)
-                    }
-                    constrain(box1) {
-                        width = Dimension.fillToConstraints
-                        height = Dimension.ratio("2:1")
-                        centerVerticallyTo(parent)
-                    }
-                    constrain(box2) {
-                        width = Dimension.fillToConstraints
-                        height = Dimension.value(20.dp)
-                        centerVerticallyTo(parent)
-                    }
-
-                    createHorizontalChain(
-                        box0,
-                        box1.withHorizontalChainParams(startMargin = 8.dp, endMargin = 8.dp),
-                        box2
-                    )
-                },
-                to = constraintSet {
-                    constrain(box0) {
-                        height = Dimension.fillToConstraints
-                        width = Dimension.value(20.dp)
-                        centerHorizontallyTo(parent)
-                    }
-                    constrain(box1) {
-                        height = Dimension.fillToConstraints
-                        width = Dimension.ratio("2:1")
-                        centerHorizontallyTo(parent)
-                    }
-                    constrain(box2) {
-                        height = Dimension.fillToConstraints
-                        width = Dimension.value(20.dp)
-                        centerHorizontallyTo(parent)
-                    }
-
-                    createVerticalChain(
-                        box0,
-                        box1.withVerticalChainParams(topMargin = 8.dp, bottomMargin = 8.dp),
-                        box2
-                    )
-                }
-            ) {
-                keyAttributes(box1) {
-                    frame(33) {
-                        alpha = 0.25f
-                    }
-                    frame(66) {
-                        alpha = 0.8f
-                    }
-                }
-            }
-        }
-
-        // Same content, slightly different syntax
-        assertEquals(
-            expected = scene,
-            actual = MotionScene {
-                defaultTransition(
-                    from = constraintSet {
-                        val box0 = createRefFor("box0")
-                        val box1 = createRefFor("box1")
-                        val box2 = createRefFor("box2")
+                from =
+                    constraintSet {
                         constrain(box0) {
                             width = Dimension.fillToConstraints
                             height = Dimension.value(20.dp)
@@ -114,14 +49,12 @@ class MotionSceneStabilityTest {
 
                         createHorizontalChain(
                             box0,
-                            box1.withChainParams(startMargin = 8.dp, endMargin = 8.dp),
+                            box1.withHorizontalChainParams(startMargin = 8.dp, endMargin = 8.dp),
                             box2
                         )
                     },
-                    to = constraintSet {
-                        val box0 = createRefFor("box0")
-                        val box1 = createRefFor("box1")
-                        val box2 = createRefFor("box2")
+                to =
+                    constraintSet {
                         constrain(box0) {
                             height = Dimension.fillToConstraints
                             width = Dimension.value(20.dp)
@@ -140,22 +73,86 @@ class MotionSceneStabilityTest {
 
                         createVerticalChain(
                             box0,
-                            box1.withChainParams(topMargin = 8.dp, bottomMargin = 8.dp),
+                            box1.withVerticalChainParams(topMargin = 8.dp, bottomMargin = 8.dp),
                             box2
                         )
                     }
-                ) {
-                    val box1 = createRefFor("box1")
-                    keyAttributes(box1) {
-                        frame(33) {
-                            alpha = 0.25f
-                        }
-                        frame(66) {
-                            alpha = 0.8f
+            ) {
+                keyAttributes(box1) {
+                    frame(33) { alpha = 0.25f }
+                    frame(66) { alpha = 0.8f }
+                }
+            }
+        }
+
+        // Same content, slightly different syntax
+        assertEquals(
+            expected = scene,
+            actual =
+                MotionScene {
+                    defaultTransition(
+                        from =
+                            constraintSet {
+                                val box0 = createRefFor("box0")
+                                val box1 = createRefFor("box1")
+                                val box2 = createRefFor("box2")
+                                constrain(box0) {
+                                    width = Dimension.fillToConstraints
+                                    height = Dimension.value(20.dp)
+                                    centerVerticallyTo(parent)
+                                }
+                                constrain(box1) {
+                                    width = Dimension.fillToConstraints
+                                    height = Dimension.ratio("2:1")
+                                    centerVerticallyTo(parent)
+                                }
+                                constrain(box2) {
+                                    width = Dimension.fillToConstraints
+                                    height = Dimension.value(20.dp)
+                                    centerVerticallyTo(parent)
+                                }
+
+                                createHorizontalChain(
+                                    box0,
+                                    box1.withChainParams(startMargin = 8.dp, endMargin = 8.dp),
+                                    box2
+                                )
+                            },
+                        to =
+                            constraintSet {
+                                val box0 = createRefFor("box0")
+                                val box1 = createRefFor("box1")
+                                val box2 = createRefFor("box2")
+                                constrain(box0) {
+                                    height = Dimension.fillToConstraints
+                                    width = Dimension.value(20.dp)
+                                    centerHorizontallyTo(parent)
+                                }
+                                constrain(box1) {
+                                    height = Dimension.fillToConstraints
+                                    width = Dimension.ratio("2:1")
+                                    centerHorizontallyTo(parent)
+                                }
+                                constrain(box2) {
+                                    height = Dimension.fillToConstraints
+                                    width = Dimension.value(20.dp)
+                                    centerHorizontallyTo(parent)
+                                }
+
+                                createVerticalChain(
+                                    box0,
+                                    box1.withChainParams(topMargin = 8.dp, bottomMargin = 8.dp),
+                                    box2
+                                )
+                            }
+                    ) {
+                        val box1 = createRefFor("box1")
+                        keyAttributes(box1) {
+                            frame(33) { alpha = 0.25f }
+                            frame(66) { alpha = 0.8f }
                         }
                     }
                 }
-            }
         )
     }
 }

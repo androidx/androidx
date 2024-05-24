@@ -45,14 +45,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Tests for motions using the Grid Helper
- */
+/** Tests for motions using the Grid Helper */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class MotionGridTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Before
     fun setup() {
@@ -72,10 +69,10 @@ class MotionGridTest {
             val progress by animateFloatAsState(targetValue = if (animateToEnd) 1f else 0f)
 
             MotionLayout(
-                modifier = Modifier
-                    .size(rootSize),
-                motionScene = MotionScene(
-                    """
+                modifier = Modifier.size(rootSize),
+                motionScene =
+                    MotionScene(
+                        """
             {
                 ConstraintSets: {
                   start: {
@@ -120,17 +117,14 @@ class MotionGridTest {
                 }
             }
             """
-                ),
+                    ),
                 progress = progress
             ) {
                 val numArray = arrayOf("box1", "box2", "box3", "box4")
                 for (num in numArray) {
                     Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .layoutId(num)
-                            .testTag(num)
-                            .background(Color.Red)
+                        modifier =
+                            Modifier.size(10.dp).layoutId(num).testTag(num).background(Color.Red)
                     )
                 }
             }
@@ -189,10 +183,10 @@ class MotionGridTest {
             val progress by animateFloatAsState(targetValue = if (animateToEnd) 1f else 0f)
 
             MotionLayout(
-                modifier = Modifier
-                    .size(rootSize),
-                motionScene = MotionScene(
-                    """
+                modifier = Modifier.size(rootSize),
+                motionScene =
+                    MotionScene(
+                        """
             {
                 ConstraintSets: {
                   start: {
@@ -245,17 +239,14 @@ class MotionGridTest {
                 }
             }
             """
-                ),
+                    ),
                 progress = progress
             ) {
                 val numArray = arrayOf("box1", "box2", "box3", "box4")
                 for (num in numArray) {
                     Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .layoutId(num)
-                            .testTag(num)
-                            .background(Color.Red)
+                        modifier =
+                            Modifier.size(10.dp).layoutId(num).testTag(num).background(Color.Red)
                     )
                 }
             }
