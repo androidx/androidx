@@ -153,18 +153,32 @@ class CreateEntryTest {
     }
 
     private fun constructEntryWithAllParams(): CreateEntry {
-        return CreateEntry(
-            ACCOUNT_NAME,
-            mPendingIntent,
-            DESCRIPTION,
-            Instant.ofEpochMilli(LAST_USED_TIME),
-            ICON,
-            PASSWORD_COUNT,
-            PUBLIC_KEY_CREDENTIAL_COUNT,
-            TOTAL_COUNT,
-            AUTO_SELECT_BIT,
-            if (BuildCompat.isAtLeastV()) testBiometricPromptData() else null,
-        )
+        if (BuildCompat.isAtLeastV()) {
+            return CreateEntry(
+                ACCOUNT_NAME,
+                mPendingIntent,
+                DESCRIPTION,
+                Instant.ofEpochMilli(LAST_USED_TIME),
+                ICON,
+                PASSWORD_COUNT,
+                PUBLIC_KEY_CREDENTIAL_COUNT,
+                TOTAL_COUNT,
+                AUTO_SELECT_BIT,
+                testBiometricPromptData()
+            )
+        } else {
+            return CreateEntry(
+                ACCOUNT_NAME,
+                mPendingIntent,
+                DESCRIPTION,
+                Instant.ofEpochMilli(LAST_USED_TIME),
+                ICON,
+                PASSWORD_COUNT,
+                PUBLIC_KEY_CREDENTIAL_COUNT,
+                TOTAL_COUNT,
+                AUTO_SELECT_BIT
+            )
+        }
     }
 
     private fun assertEntryWithAllParams(entry: CreateEntry) {

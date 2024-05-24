@@ -112,10 +112,10 @@ internal constructor(
         private const val TAG = "BiometricPromptData"
 
         internal const val BUNDLE_HINT_ALLOWED_AUTHENTICATORS =
-            "androidx.credentials.provider.credentialEntry.BUNDLE_HINT_ALLOWED_AUTHENTICATORS"
+            "androidx.credentials.provider.BUNDLE_HINT_ALLOWED_AUTHENTICATORS"
 
         internal const val BUNDLE_HINT_CRYPTO_OP_ID =
-            "androidx.credentials.provider.credentialEntry.BUNDLE_HINT_CRYPTO_OP_ID"
+            "androidx.credentials.provider.BUNDLE_HINT_CRYPTO_OP_ID"
 
         /**
          * Returns an instance of [BiometricPromptData] derived from a [Bundle] object.
@@ -248,6 +248,7 @@ internal constructor(
     }
 
     private object Api35Impl {
+
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun toBundle(biometricPromptData: BiometricPromptData): Bundle {
