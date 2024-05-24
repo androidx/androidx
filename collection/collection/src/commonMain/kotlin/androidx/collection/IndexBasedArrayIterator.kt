@@ -22,6 +22,7 @@ internal abstract class IndexBasedArrayIterator<T>(startingSize: Int) : MutableI
     private var canRemove = false
 
     protected abstract fun elementAt(index: Int): T
+
     protected abstract fun removeAt(index: Int)
 
     override fun hasNext(): Boolean = index < size

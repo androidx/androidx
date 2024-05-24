@@ -46,69 +46,46 @@ private val EmptyFloatSet = MutableFloatSet(0)
 // An empty array of floats
 internal val EmptyFloatArray = FloatArray(0)
 
-/**
- * Returns an empty, read-only [FloatSet].
- */
+/** Returns an empty, read-only [FloatSet]. */
 public fun emptyFloatSet(): FloatSet = EmptyFloatSet
 
-/**
- * Returns an empty, read-only [ScatterSet].
- */
-@Suppress("UNCHECKED_CAST")
-public fun floatSetOf(): FloatSet = EmptyFloatSet
+/** Returns an empty, read-only [ScatterSet]. */
+@Suppress("UNCHECKED_CAST") public fun floatSetOf(): FloatSet = EmptyFloatSet
 
-/**
- * Returns a new read-only [FloatSet] with only [element1] in it.
- */
+/** Returns a new read-only [FloatSet] with only [element1] in it. */
 @Suppress("UNCHECKED_CAST")
 public fun floatSetOf(element1: Float): FloatSet = mutableFloatSetOf(element1)
 
-/**
- * Returns a new read-only [FloatSet] with only [element1] and [element2] in it.
- */
+/** Returns a new read-only [FloatSet] with only [element1] and [element2] in it. */
 @Suppress("UNCHECKED_CAST")
 public fun floatSetOf(element1: Float, element2: Float): FloatSet =
     mutableFloatSetOf(element1, element2)
 
-/**
- * Returns a new read-only [FloatSet] with only [element1], [element2], and [element3] in it.
- */
+/** Returns a new read-only [FloatSet] with only [element1], [element2], and [element3] in it. */
 @Suppress("UNCHECKED_CAST")
 public fun floatSetOf(element1: Float, element2: Float, element3: Float): FloatSet =
     mutableFloatSetOf(element1, element2, element3)
 
-/**
- * Returns a new read-only [FloatSet] with only [elements] in it.
- */
+/** Returns a new read-only [FloatSet] with only [elements] in it. */
 @Suppress("UNCHECKED_CAST")
 public fun floatSetOf(vararg elements: Float): FloatSet =
     MutableFloatSet(elements.size).apply { plusAssign(elements) }
 
-/**
- * Returns a new [MutableFloatSet].
- */
+/** Returns a new [MutableFloatSet]. */
 public fun mutableFloatSetOf(): MutableFloatSet = MutableFloatSet()
 
-/**
- * Returns a new [MutableFloatSet] with only [element1] in it.
- */
+/** Returns a new [MutableFloatSet] with only [element1] in it. */
 public fun mutableFloatSetOf(element1: Float): MutableFloatSet =
-    MutableFloatSet(1).apply {
-        plusAssign(element1)
-    }
+    MutableFloatSet(1).apply { plusAssign(element1) }
 
-/**
- * Returns a new [MutableFloatSet] with only [element1] and [element2] in it.
- */
+/** Returns a new [MutableFloatSet] with only [element1] and [element2] in it. */
 public fun mutableFloatSetOf(element1: Float, element2: Float): MutableFloatSet =
     MutableFloatSet(2).apply {
         plusAssign(element1)
         plusAssign(element2)
     }
 
-/**
- * Returns a new [MutableFloatSet] with only [element1], [element2], and [element3] in it.
- */
+/** Returns a new [MutableFloatSet] with only [element1], [element2], and [element3] in it. */
 public fun mutableFloatSetOf(element1: Float, element2: Float, element3: Float): MutableFloatSet =
     MutableFloatSet(3).apply {
         plusAssign(element1)
@@ -116,24 +93,21 @@ public fun mutableFloatSetOf(element1: Float, element2: Float, element3: Float):
         plusAssign(element3)
     }
 
-/**
- * Returns a new [MutableFloatSet] with the specified elements.
- */
+/** Returns a new [MutableFloatSet] with the specified elements. */
 public fun mutableFloatSetOf(vararg elements: Float): MutableFloatSet =
     MutableFloatSet(elements.size).apply { plusAssign(elements) }
 
 /**
- * [FloatSet] is a container with a [Set]-like interface designed to avoid
- * allocations, including boxing.
+ * [FloatSet] is a container with a [Set]-like interface designed to avoid allocations, including
+ * boxing.
  *
- * This implementation makes no guarantee as to the order of the elements,
- * nor does it make guarantees that the order remains constant over time.
+ * This implementation makes no guarantee as to the order of the elements, nor does it make
+ * guarantees that the order remains constant over time.
  *
- * Though [FloatSet] offers a read-only interface, it is always backed
- * by a [MutableFloatSet]. Read operations alone are thread-safe. However,
- * any mutations done through the backing [MutableFloatSet] while reading
- * on another thread are not safe and the developer must protect the set
- * from such changes during read operations.
+ * Though [FloatSet] offers a read-only interface, it is always backed by a [MutableFloatSet]. Read
+ * operations alone are thread-safe. However, any mutations done through the backing
+ * [MutableFloatSet] while reading on another thread are not safe and the developer must protect the
+ * set from such changes during read operations.
  *
  * @see [MutableFloatSet]
  */
@@ -142,22 +116,17 @@ public sealed class FloatSet {
     // The backing array for the metadata bytes contains
     // `capacity + 1 + ClonedMetadataCount` elements, including when
     // the set is empty (see [EmptyGroup]).
-    @PublishedApi
-    @JvmField
-    internal var metadata: LongArray = EmptyGroup
+    @PublishedApi @JvmField internal var metadata: LongArray = EmptyGroup
 
-    @PublishedApi
-    @JvmField
-    internal var elements: FloatArray = EmptyFloatArray
+    @PublishedApi @JvmField internal var elements: FloatArray = EmptyFloatArray
 
     // We use a backing field for capacity to avoid invokevirtual calls
     // every time we need to look at the capacity
-    @JvmField
-    internal var _capacity: Int = 0
+    @JvmField internal var _capacity: Int = 0
 
     /**
-     * Returns the number of elements that can be stored in this set
-     * without requiring internal storage reallocation.
+     * Returns the number of elements that can be stored in this set without requiring internal
+     * storage reallocation.
      */
     @get:androidx.annotation.IntRange(from = 0)
     public val capacity: Int
@@ -165,42 +134,34 @@ public sealed class FloatSet {
 
     // We use a backing field for capacity to avoid invokevirtual calls
     // every time we need to look at the size
-    @JvmField
-    internal var _size: Int = 0
+    @JvmField internal var _size: Int = 0
 
-    /**
-     * Returns the number of elements in this set.
-     */
+    /** Returns the number of elements in this set. */
     @get:androidx.annotation.IntRange(from = 0)
     public val size: Int
         get() = _size
 
-    /**
-     * Returns `true` if this set has at least one element.
-     */
+    /** Returns `true` if this set has at least one element. */
     public fun any(): Boolean = _size != 0
 
-    /**
-     * Returns `true` if this set has no elements.
-     */
+    /** Returns `true` if this set has no elements. */
     public fun none(): Boolean = _size == 0
 
-    /**
-     * Indicates whether this set is empty.
-     */
+    /** Indicates whether this set is empty. */
     public fun isEmpty(): Boolean = _size == 0
 
-    /**
-     * Returns `true` if this set is not empty.
-     */
+    /** Returns `true` if this set is not empty. */
     public fun isNotEmpty(): Boolean = _size != 0
 
     /**
      * Returns the first element in the collection.
+     *
      * @throws NoSuchElementException if the collection is empty
      */
     public inline fun first(): Float {
-        forEach { return it }
+        forEach {
+            return it
+        }
         throw NoSuchElementException("The FloatSet is empty")
     }
 
@@ -208,14 +169,14 @@ public sealed class FloatSet {
      * Returns the first element in the collection for which [predicate] returns `true`.
      *
      * **Note** There is no mechanism for both determining if there is an element that matches
-     * [predicate] _and_ returning it if it exists. Developers should use [forEach] to achieve
-     * this behavior.
+     * [predicate] _and_ returning it if it exists. Developers should use [forEach] to achieve this
+     * behavior.
      *
      * @param predicate Called on elements of the set, returning `true` for an element that matches
-     * or `false` if it doesn't
+     *   or `false` if it doesn't
      * @return An element in the set for which [predicate] returns `true`.
      * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
-     * collection is empty.
+     *   collection is empty.
      */
     public inline fun first(predicate: (element: Float) -> Boolean): Float {
         contract { callsInPlace(predicate) }
@@ -223,10 +184,7 @@ public sealed class FloatSet {
         throw NoSuchElementException("Could not find a match")
     }
 
-    /**
-     * Iterates over every element stored in this set by invoking
-     * the specified [block] lambda.
-     */
+    /** Iterates over every element stored in this set by invoking the specified [block] lambda. */
     @PublishedApi
     internal inline fun forEachIndex(block: (index: Int) -> Unit) {
         contract { callsInPlace(block) }
@@ -254,80 +212,72 @@ public sealed class FloatSet {
     }
 
     /**
-     * Iterates over every element stored in this set by invoking
-     * the specified [block] lambda.
+     * Iterates over every element stored in this set by invoking the specified [block] lambda.
+     *
      * @param block called with each element in the set
      */
     public inline fun forEach(block: (element: Float) -> Unit) {
         contract { callsInPlace(block) }
         val k = elements
 
-        forEachIndex { index ->
-            block(k[index])
-        }
+        forEachIndex { index -> block(k[index]) }
     }
 
     /**
      * Returns true if all elements match the given [predicate].
+     *
      * @param predicate called for elements in the set to determine if it returns return `true` for
-     * all elements.
+     *   all elements.
      */
     public inline fun all(predicate: (element: Float) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        forEach { element ->
-            if (!predicate(element)) return false
-        }
+        forEach { element -> if (!predicate(element)) return false }
         return true
     }
 
     /**
      * Returns true if at least one element matches the given [predicate].
+     *
      * @param predicate called for elements in the set to determine if it returns `true` for any
-     * elements.
+     *   elements.
      */
     public inline fun any(predicate: (element: Float) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        forEach { element ->
-            if (predicate(element)) return true
-        }
+        forEach { element -> if (predicate(element)) return true }
         return false
     }
 
-    /**
-     * Returns the number of elements in this set.
-     */
-    @androidx.annotation.IntRange(from = 0)
-    public fun count(): Int = _size
+    /** Returns the number of elements in this set. */
+    @androidx.annotation.IntRange(from = 0) public fun count(): Int = _size
 
     /**
      * Returns the number of elements matching the given [predicate].
+     *
      * @param predicate Called for all elements in the set to count the number for which it returns
-     * `true`.
+     *   `true`.
      */
     @androidx.annotation.IntRange(from = 0)
     public inline fun count(predicate: (element: Float) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         var count = 0
-        forEach { element ->
-            if (predicate(element)) count++
-        }
+        forEach { element -> if (predicate(element)) count++ }
         return count
     }
 
     /**
-     * Returns `true` if the specified [element] is present in this set, `false`
-     * otherwise.
+     * Returns `true` if the specified [element] is present in this set, `false` otherwise.
+     *
      * @param element The element to look for in this set
      */
     public operator fun contains(element: Float): Boolean = findElementIndex(element) >= 0
 
     /**
-     * Creates a String from the elements separated by [separator] and using [prefix] before
-     * and [postfix] after, if supplied.
+     * Creates a String from the elements separated by [separator] and using [prefix] before and
+     * [postfix] after, if supplied.
      *
-     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
-     * to generate the string. If the collection holds more than [limit] items, the string
-     * is terminated with [truncated].
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used to
+     * generate the string. If the collection holds more than [limit] items, the string is
+     * terminated with [truncated].
      */
     @JvmOverloads
     public fun joinToString(
@@ -354,12 +304,12 @@ public sealed class FloatSet {
     }
 
     /**
-     * Creates a String from the elements separated by [separator] and using [prefix] before
-     * and [postfix] after, if supplied. [transform] dictates how each element will be represented.
+     * Creates a String from the elements separated by [separator] and using [prefix] before and
+     * [postfix] after, if supplied. [transform] dictates how each element will be represented.
      *
-     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
-     * to generate the string. If the collection holds more than [limit] items, the string
-     * is terminated with [truncated].
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used to
+     * generate the string. If the collection holds more than [limit] items, the string is
+     * terminated with [truncated].
      */
     @JvmOverloads
     public inline fun joinToString(
@@ -387,22 +337,20 @@ public sealed class FloatSet {
     }
 
     /**
-     * Returns the hash code value for this set. The hash code of a set is defined to be the
-     * sum of the hash codes of the elements in the set.
+     * Returns the hash code value for this set. The hash code of a set is defined to be the sum of
+     * the hash codes of the elements in the set.
      */
     public override fun hashCode(): Int {
         var hash = 0
 
-        forEach { element ->
-            hash += element.hashCode()
-        }
+        forEach { element -> hash += element.hashCode() }
 
         return hash
     }
 
     /**
-     * Compares the specified object [other] with this set for equality.
-     * The two objects are considered equal if [other]:
+     * Compares the specified object [other] with this set for equality. The two objects are
+     * considered equal if [other]:
      * - Is a [FloatSet]
      * - Has the same [size] as this set
      * - Contains elements equal to this set's elements
@@ -429,14 +377,14 @@ public sealed class FloatSet {
     }
 
     /**
-     * Returns a string representation of this set. The set is denoted in the
-     * string by the `{}`. Each element is separated by `, `.
+     * Returns a string representation of this set. The set is denoted in the string by the `{}`.
+     * Each element is separated by `, `.
      */
     override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 
     /**
-     * Scans the set to find the index in the backing arrays of the
-     * specified [element]. Returns -1 if the element is not present.
+     * Scans the set to find the index in the backing arrays of the specified [element]. Returns -1
+     * if the element is not present.
      */
     internal inline fun findElementIndex(element: Float): Int {
         val hash = hash(element)
@@ -469,29 +417,24 @@ public sealed class FloatSet {
 }
 
 /**
- * [MutableFloatSet] is a container with a [MutableSet]-like interface based on a flat
- * hash table implementation. The underlying implementation is designed to avoid
- * all allocations on insertion, removal, retrieval, and iteration. Allocations
- * may still happen on insertion when the underlying storage needs to grow to
- * accommodate newly added elements to the set.
+ * [MutableFloatSet] is a container with a [MutableSet]-like interface based on a flat hash table
+ * implementation. The underlying implementation is designed to avoid all allocations on insertion,
+ * removal, retrieval, and iteration. Allocations may still happen on insertion when the underlying
+ * storage needs to grow to accommodate newly added elements to the set.
  *
- * This implementation makes no guarantee as to the order of the elements stored,
- * nor does it make guarantees that the order remains constant over time.
+ * This implementation makes no guarantee as to the order of the elements stored, nor does it make
+ * guarantees that the order remains constant over time.
  *
- * This implementation is not thread-safe: if multiple threads access this
- * container concurrently, and one or more threads modify the structure of
- * the set (insertion or removal for instance), the calling code must provide
- * the appropriate synchronization. Concurrent reads are however safe.
+ * This implementation is not thread-safe: if multiple threads access this container concurrently,
+ * and one or more threads modify the structure of the set (insertion or removal for instance), the
+ * calling code must provide the appropriate synchronization. Concurrent reads are however safe.
  *
+ * @param initialCapacity The initial desired capacity for this container. The container will honor
+ *   this value by guaranteeing its internal structures can hold that many elements without
+ *   requiring any allocations. The initial capacity can be set to 0.
  * @constructor Creates a new [MutableFloatSet]
- * @param initialCapacity The initial desired capacity for this container.
- * The container will honor this value by guaranteeing its internal structures
- * can hold that many elements without requiring any allocations. The initial
- * capacity can be set to 0.
  */
-public class MutableFloatSet(
-    initialCapacity: Int = DefaultScatterCapacity
-) : FloatSet() {
+public class MutableFloatSet(initialCapacity: Int = DefaultScatterCapacity) : FloatSet() {
     // Number of elements we can add before we need to grow
     private var growthLimit = 0
 
@@ -501,28 +444,28 @@ public class MutableFloatSet(
     }
 
     private fun initializeStorage(initialCapacity: Int) {
-        val newCapacity = if (initialCapacity > 0) {
-            // Since we use longs for storage, our capacity is never < 7, enforce
-            // it here. We do have a special case for 0 to create small empty maps
-            maxOf(7, normalizeCapacity(initialCapacity))
-        } else {
-            0
-        }
+        val newCapacity =
+            if (initialCapacity > 0) {
+                // Since we use longs for storage, our capacity is never < 7, enforce
+                // it here. We do have a special case for 0 to create small empty maps
+                maxOf(7, normalizeCapacity(initialCapacity))
+            } else {
+                0
+            }
         _capacity = newCapacity
         initializeMetadata(newCapacity)
         elements = FloatArray(newCapacity)
     }
 
     private fun initializeMetadata(capacity: Int) {
-        metadata = if (capacity == 0) {
-            EmptyGroup
-        } else {
-            // Round up to the next multiple of 8 and find how many longs we need
-            val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
-            LongArray(size).apply {
-                fill(AllEmpty)
+        metadata =
+            if (capacity == 0) {
+                EmptyGroup
+            } else {
+                // Round up to the next multiple of 8 and find how many longs we need
+                val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
+                LongArray(size).apply { fill(AllEmpty) }
             }
-        }
         writeRawMetadata(metadata, capacity, Sentinel)
         initializeGrowth()
     }
@@ -533,9 +476,10 @@ public class MutableFloatSet(
 
     /**
      * Adds the specified element to the set.
+     *
      * @param element The element to add to the set.
-     * @return `true` if the element has been added or `false` if the element is already
-     * contained within the set.
+     * @return `true` if the element has been added or `false` if the element is already contained
+     *   within the set.
      */
     public fun add(element: Float): Boolean {
         val oldSize = _size
@@ -546,6 +490,7 @@ public class MutableFloatSet(
 
     /**
      * Adds the specified element to the set.
+     *
      * @param element The element to add to the set.
      */
     public operator fun plusAssign(element: Float) {
@@ -555,9 +500,10 @@ public class MutableFloatSet(
 
     /**
      * Adds all the [elements] into this set.
+     *
      * @param elements An array of elements to add to the set.
-     * @return `true` if any of the specified elements were added to the collection,
-     * `false` if the collection was not modified.
+     * @return `true` if any of the specified elements were added to the collection, `false` if the
+     *   collection was not modified.
      */
     public fun addAll(@Suppress("ArrayReturn") elements: FloatArray): Boolean {
         val oldSize = _size
@@ -567,19 +513,19 @@ public class MutableFloatSet(
 
     /**
      * Adds all the [elements] into this set.
+     *
      * @param elements An array of elements to add to the set.
      */
     public operator fun plusAssign(@Suppress("ArrayReturn") elements: FloatArray) {
-        elements.forEach { element ->
-            plusAssign(element)
-        }
+        elements.forEach { element -> plusAssign(element) }
     }
 
     /**
      * Adds all the elements in the [elements] set into this set.
+     *
      * @param elements A [FloatSet] of elements to add to this set.
-     * @return `true` if any of the specified elements were added to the collection,
-     * `false` if the collection was not modified.
+     * @return `true` if any of the specified elements were added to the collection, `false` if the
+     *   collection was not modified.
      */
     public fun addAll(elements: FloatSet): Boolean {
         val oldSize = _size
@@ -589,19 +535,19 @@ public class MutableFloatSet(
 
     /**
      * Adds all the elements in the [elements] set into this set.
+     *
      * @param elements A [FloatSet] of elements to add to this set.
      */
     public operator fun plusAssign(elements: FloatSet) {
-        elements.forEach { element ->
-            plusAssign(element)
-        }
+        elements.forEach { element -> plusAssign(element) }
     }
 
     /**
      * Removes the specified [element] from the set.
+     *
      * @param element The element to remove from the set.
-     * @return `true` if the [element] was present in the set, or `false` if it wasn't
-     * present before removal.
+     * @return `true` if the [element] was present in the set, or `false` if it wasn't present
+     *   before removal.
      */
     public fun remove(element: Float): Boolean {
         val index = findElementIndex(element)
@@ -614,6 +560,7 @@ public class MutableFloatSet(
 
     /**
      * Removes the specified [element] from the set if it is present.
+     *
      * @param element The element to remove from the set.
      */
     public operator fun minusAssign(element: Float) {
@@ -625,6 +572,7 @@ public class MutableFloatSet(
 
     /**
      * Removes the specified [elements] from the set, if present.
+     *
      * @param elements An array of elements to be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
@@ -636,16 +584,16 @@ public class MutableFloatSet(
 
     /**
      * Removes the specified [elements] from the set, if present.
+     *
      * @param elements An array of elements to be removed from the set.
      */
     public operator fun minusAssign(@Suppress("ArrayReturn") elements: FloatArray) {
-        elements.forEach { element ->
-            minusAssign(element)
-        }
+        elements.forEach { element -> minusAssign(element) }
     }
 
     /**
      * Removes the specified [elements] from the set, if present.
+     *
      * @param elements An [FloatSet] of elements to be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
@@ -657,12 +605,11 @@ public class MutableFloatSet(
 
     /**
      * Removes the specified [elements] from the set, if present.
+     *
      * @param elements An [FloatSet] of elements to be removed from the set.
      */
     public operator fun minusAssign(elements: FloatSet) {
-        elements.forEach { element ->
-            minusAssign(element)
-        }
+        elements.forEach { element -> minusAssign(element) }
     }
 
     private fun removeElementAt(index: Int) {
@@ -673,9 +620,7 @@ public class MutableFloatSet(
         writeMetadata(index, Deleted)
     }
 
-    /**
-     * Removes all elements from this set.
-     */
+    /** Removes all elements from this set. */
     public fun clear() {
         _size = 0
         if (metadata !== EmptyGroup) {
@@ -686,11 +631,10 @@ public class MutableFloatSet(
     }
 
     /**
-     * Scans the set to find the index at which we can store a given [element].
-     * If the element already exists in the set, its index
-     * will be returned, otherwise the index of an empty slot will be returned.
-     * Calling this function may cause the internal storage to be reallocated
-     * if the set is full.
+     * Scans the set to find the index at which we can store a given [element]. If the element
+     * already exists in the set, its index will be returned, otherwise the index of an empty slot
+     * will be returned. Calling this function may cause the internal storage to be reallocated if
+     * the set is full.
      */
     private fun findAbsoluteInsertIndex(element: Float): Int {
         val hash = hash(element)
@@ -734,8 +678,8 @@ public class MutableFloatSet(
     }
 
     /**
-     * Finds the first empty or deleted slot in the set in which we can
-     * store a value without resizing the internal storage.
+     * Finds the first empty or deleted slot in the set in which we can store a value without
+     * resizing the internal storage.
      */
     private fun findFirstAvailableSlot(hash1: Int): Int {
         val probeMask = _capacity
@@ -753,11 +697,11 @@ public class MutableFloatSet(
     }
 
     /**
-     * Trims this [MutableFloatSet]'s storage so it is sized appropriately
-     * to hold the current elements.
+     * Trims this [MutableFloatSet]'s storage so it is sized appropriately to hold the current
+     * elements.
      *
-     * Returns the number of empty elements removed from this set's storage.
-     * Returns 0 if no trimming is necessary or possible.
+     * Returns the number of empty elements removed from this set's storage. Returns 0 if no
+     * trimming is necessary or possible.
      */
     @androidx.annotation.IntRange(from = 0)
     public fun trim(): Int {
@@ -771,10 +715,9 @@ public class MutableFloatSet(
     }
 
     /**
-     * Grow internal storage if necessary. This function can instead opt to
-     * remove deleted elements from the set to avoid an expensive reallocation
-     * of the underlying storage. This "rehash in place" occurs when the
-     * current size is <= 25/32 of the set capacity. The choice of 25/32 is
+     * Grow internal storage if necessary. This function can instead opt to remove deleted elements
+     * from the set to avoid an expensive reallocation of the underlying storage. This "rehash in
+     * place" occurs when the current size is <= 25/32 of the set capacity. The choice of 25/32 is
      * detailed in the implementation of abseil's `raw_hash_map`.
      */
     private fun adjustStorage() {
@@ -808,9 +751,9 @@ public class MutableFloatSet(
     }
 
     /**
-     * Writes the "H2" part of an entry into the metadata array at the specified
-     * [index]. The index must be a valid index. This function ensures the
-     * metadata is also written in the clone area at the end.
+     * Writes the "H2" part of an entry into the metadata array at the specified [index]. The index
+     * must be a valid index. This function ensures the metadata is also written in the clone area
+     * at the end.
      */
     private inline fun writeMetadata(index: Int, value: Long) {
         val m = metadata
@@ -818,15 +761,14 @@ public class MutableFloatSet(
 
         // Mirroring
         val c = _capacity
-        val cloneIndex = ((index - ClonedMetadataCount) and c) +
-            (ClonedMetadataCount and c)
+        val cloneIndex = ((index - ClonedMetadataCount) and c) + (ClonedMetadataCount and c)
         writeRawMetadata(m, cloneIndex, value)
     }
 }
 
 /**
- * Returns the hash code of [k]. The hash spreads low bits to minimize collisions in high
- * 25-bits that are used for probing.
+ * Returns the hash code of [k]. The hash spreads low bits to minimize collisions in high 25-bits
+ * that are used for probing.
  */
 internal inline fun hash(k: Float): Int {
     // scramble bits to account for collisions between similar hash values.

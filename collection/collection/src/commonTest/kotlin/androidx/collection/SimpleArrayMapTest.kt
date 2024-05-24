@@ -227,9 +227,7 @@ public class SimpleArrayMapTest {
         assertFalse(map.containsKey("one"))
     }
 
-    /**
-     * Check to make sure the same operations behave as expected in a single thread.
-     */
+    /** Check to make sure the same operations behave as expected in a single thread. */
     @Test
     public fun testNonConcurrentAccesses() {
         val map = SimpleArrayMap<String, String>()
@@ -248,9 +246,9 @@ public class SimpleArrayMapTest {
     }
 
     /**
-     * Even though the Javadoc of [SimpleArrayMap.put] says that the key
-     * must not be null, the actual implementation allows it, and therefore we must ensure
-     * that any future implementations of the class will still honor that contract.
+     * Even though the Javadoc of [SimpleArrayMap.put] says that the key must not be null, the
+     * actual implementation allows it, and therefore we must ensure that any future implementations
+     * of the class will still honor that contract.
      */
     @Test
     public fun nullKeyCompatibility_canPutNullKeyAndNonNullValue() {

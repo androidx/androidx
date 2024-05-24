@@ -25,11 +25,10 @@ package androidx.collection
  */
 public class LongLongPair public constructor(public val first: Long, public val second: Long) {
     /**
-     * Returns the [first] component of the pair. For instance, the first component
-     * of `PairLongLong(3, 4)` is `3`.
+     * Returns the [first] component of the pair. For instance, the first component of
+     * `PairLongLong(3, 4)` is `3`.
      *
-     * This method allows to use destructuring declarations when working with pairs,
-     * for example:
+     * This method allows to use destructuring declarations when working with pairs, for example:
      * ```
      * val (first, second) = myPair
      * ```
@@ -37,11 +36,10 @@ public class LongLongPair public constructor(public val first: Long, public val 
     public inline operator fun component1(): Long = first
 
     /**
-     * Returns the [second] component of the pair. For instance, the second component
-     * of `PairLongLong(3, 4)` is `4`.
+     * Returns the [second] component of the pair. For instance, the second component of
+     * `PairLongLong(3, 4)` is `4`.
      *
-     * This method allows to use destructuring declarations when working with pairs,
-     * for example:
+     * This method allows to use destructuring declarations when working with pairs, for example:
      * ```
      * val (first, second) = myPair
      * ```
@@ -71,6 +69,6 @@ public class LongLongPair public constructor(public val first: Long, public val 
     }
 
     override fun toString(): String {
-        return "($first, $second)";
+        return "($first, $second)"
     }
 }

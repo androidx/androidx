@@ -75,9 +75,7 @@ class ScatterSetTest {
         assertEquals(2, set.size)
         val elements = Array(2) { "" }
         var index = 0
-        set.forEach { element ->
-            elements[index++] = element
-        }
+        set.forEach { element -> elements[index++] = element }
         elements.sort()
         assertEquals("Hello", elements[0])
         assertEquals("World", elements[1])
@@ -449,9 +447,7 @@ class ScatterSetTest {
 
             val elements = Array(i) { -1 }
             var index = 0
-            set.forEach { element ->
-                elements[index++] = element
-            }
+            set.forEach { element -> elements[index++] = element }
             elements.sort()
 
             index = 0
@@ -484,10 +480,7 @@ class ScatterSetTest {
 
         set += "Hello"
         set += "Bonjour"
-        assertTrue(
-            "[Hello, Bonjour]" == set.toString() ||
-                "[Bonjour, Hello]" == set.toString()
-        )
+        assertTrue("[Hello, Bonjour]" == set.toString() || "[Bonjour, Hello]" == set.toString())
 
         set.clear()
         set += null
@@ -505,9 +498,7 @@ class ScatterSetTest {
         val set = scatterSetOf(1, 2, 3, 4, 5)
         val order = IntArray(5)
         var index = 0
-        set.forEach { element ->
-            order[index++] = element
-        }
+        set.forEach { element -> order[index++] = element }
         assertEquals(
             "${order[0]}, ${order[1]}, ${order[2]}, ${order[3]}, ${order[4]}",
             set.joinToString()
@@ -645,9 +636,7 @@ class ScatterSetTest {
         assertFalse(set.contains("Hola"))
         assertFalse(set.isEmpty())
         val elements = Array(2) { "" }
-        set.forEachIndexed { index, element ->
-            elements[index] = element
-        }
+        set.forEachIndexed { index, element -> elements[index] = element }
         elements.sort()
         assertEquals("Hello", elements[0])
         assertEquals("World", elements[1])
@@ -682,10 +671,10 @@ class ScatterSetTest {
         assertEquals(3, set.size)
         assertFalse("World" in set)
 
-        assertFalse(set.retainAll(listOf("Hola", "Hello", "Mundo")));
+        assertFalse(set.retainAll(listOf("Hola", "Hello", "Mundo")))
         assertEquals(3, set.size)
 
-        assertTrue(set.retainAll(listOf("Hola", "Hello")));
+        assertTrue(set.retainAll(listOf("Hola", "Hello")))
         assertEquals(2, set.size)
         assertFalse("Mundo" in set)
 
@@ -709,10 +698,27 @@ class ScatterSetTest {
         set.clear()
         assertEquals(capacity, set.trim())
         assertEquals(0, set.capacity)
-        set.addAll(arrayOf("Hello", "World", "Hola", "Mundo", "Bonjour", "Monde", "Hallo", "Welt",
-            "Konnichiwa", "Sekai", "Ciao", "Mondo", "Annyeong", "Sesang"))
-        set.removeAll(arrayOf("Hallo", "Welt", "Konnichiwa", "Sekai", "Ciao", "Mondo", "Annyeong",
-            "Sesang"))
+        set.addAll(
+            arrayOf(
+                "Hello",
+                "World",
+                "Hola",
+                "Mundo",
+                "Bonjour",
+                "Monde",
+                "Hallo",
+                "Welt",
+                "Konnichiwa",
+                "Sekai",
+                "Ciao",
+                "Mondo",
+                "Annyeong",
+                "Sesang"
+            )
+        )
+        set.removeAll(
+            arrayOf("Hallo", "Welt", "Konnichiwa", "Sekai", "Ciao", "Mondo", "Annyeong", "Sesang")
+        )
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)
     }

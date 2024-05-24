@@ -28,8 +28,7 @@ class ScatterMapBenchmarkTest(private val size: Int) {
     private val sourceSet = createDataSet(size)
     private val badHashSourceSet = createBadHashDataSet(size)
 
-    @get:Rule
-    val benchmark = BenchmarkRule()
+    @get:Rule val benchmark = BenchmarkRule()
 
     @Test
     fun insert() {
@@ -69,8 +68,6 @@ class ScatterMapBenchmarkTest(private val size: Int) {
     companion object {
         @JvmStatic
         @Parameters(name = "size={0}")
-        fun parameters() = buildParameters(
-            listOf(10, 100, 1_000, 16_000)
-        )
+        fun parameters() = buildParameters(listOf(10, 100, 1_000, 16_000))
     }
 }

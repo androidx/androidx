@@ -23,15 +23,13 @@ import kotlin.jvm.JvmInline
 /**
  * Container to ease passing around a tuple of two [Int] values.
  *
- * *Note*: This class is optimized by using a value class, a Kotlin language featured
- * not available from Java code. Java developers can get the same functionality by
- * using [Pair] or by constructing a custom implementation using Int parameters
- * directly (see [LongLongPair] for an example).
+ * *Note*: This class is optimized by using a value class, a Kotlin language featured not available
+ * from Java code. Java developers can get the same functionality by using [Pair] or by constructing
+ * a custom implementation using Int parameters directly (see [LongLongPair] for an example).
  */
 @JvmInline
-public value class IntIntPair internal constructor(
-    @PublishedApi @JvmField internal val packedValue: Long
-) {
+public value class IntIntPair
+internal constructor(@PublishedApi @JvmField internal val packedValue: Long) {
     /**
      * Constructs a [IntIntPair] with two [Int] values.
      *
@@ -40,24 +38,19 @@ public value class IntIntPair internal constructor(
      */
     public constructor(first: Int, second: Int) : this(packInts(first, second))
 
-    /**
-     * The first value in the pair.
-     */
+    /** The first value in the pair. */
     public val first: Int
         get() = (packedValue shr 32).toInt()
 
-    /**
-     * The second value in the pair.
-     */
+    /** The second value in the pair. */
     public val second: Int
         get() = (packedValue and 0xFFFFFFFF).toInt()
 
     /**
-     * Returns the [first] component of the pair. For instance, the first component
-     * of `PairIntInt(3, 4)` is `3`.
+     * Returns the [first] component of the pair. For instance, the first component of
+     * `PairIntInt(3, 4)` is `3`.
      *
-     * This method allows to use destructuring declarations when working with pairs,
-     * for example:
+     * This method allows to use destructuring declarations when working with pairs, for example:
      * ```
      * val (first, second) = myPair
      * ```
@@ -66,11 +59,10 @@ public value class IntIntPair internal constructor(
     public inline operator fun component1(): Int = (packedValue shr 32).toInt()
 
     /**
-     * Returns the [second] component of the pair. For instance, the second component
-     * of `PairIntInt(3, 4)` is `4`.
+     * Returns the [second] component of the pair. For instance, the second component of
+     * `PairIntInt(3, 4)` is `4`.
      *
-     * This method allows to use destructuring declarations when working with pairs,
-     * for example:
+     * This method allows to use destructuring declarations when working with pairs, for example:
      * ```
      * val (first, second) = myPair
      * ```

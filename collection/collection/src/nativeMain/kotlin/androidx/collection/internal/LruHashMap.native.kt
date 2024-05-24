@@ -17,12 +17,15 @@
 package androidx.collection.internal
 
 @Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
-internal actual class LruHashMap<K : Any, V : Any> actual constructor(
+internal actual class LruHashMap<K : Any, V : Any>
+actual constructor(
     initialCapacity: Int,
     loadFactor: Float,
 ) {
 
-    actual constructor(original: LruHashMap<out K, V>) : this(
+    actual constructor(
+        original: LruHashMap<out K, V>
+    ) : this(
         /*
          * We can't call the primary constructor without passing values,
          * even though the expect constructor has all default values.
@@ -38,13 +41,15 @@ internal actual class LruHashMap<K : Any, V : Any> actual constructor(
 
     private val map = LinkedHashMap<K, V>(initialCapacity, loadFactor)
 
-    actual val isEmpty: Boolean get() = map.isEmpty()
-    actual val entries: Set<Map.Entry<K, V>> get() = map.entries
+    actual val isEmpty: Boolean
+        get() = map.isEmpty()
+
+    actual val entries: Set<Map.Entry<K, V>>
+        get() = map.entries
 
     /**
-     * Works similarly to Java LinkedHashMap with LRU order enabled.
-     * Removes the existing item from the map if there is one, and then adds it back,
-     * so the item is moved to the end.
+     * Works similarly to Java LinkedHashMap with LRU order enabled. Removes the existing item from
+     * the map if there is one, and then adds it back, so the item is moved to the end.
      */
     actual operator fun get(key: K): V? {
         val item = map.remove(key)
@@ -56,9 +61,9 @@ internal actual class LruHashMap<K : Any, V : Any> actual constructor(
     }
 
     /**
-     * Works similarly to Java LinkedHashMap with LRU order enabled.
-     * Removes the existing item from the map if there is one,
-     * then inserts the new item to the map, so the item is moved to the end.
+     * Works similarly to Java LinkedHashMap with LRU order enabled. Removes the existing item from
+     * the map if there is one, then inserts the new item to the map, so the item is moved to the
+     * end.
      */
     actual fun put(key: K, value: V): V? {
         val item = map.remove(key)

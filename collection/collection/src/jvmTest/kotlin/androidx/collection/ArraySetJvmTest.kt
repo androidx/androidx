@@ -30,8 +30,7 @@ class ArraySetJvmTest {
 
         // Forces casting, otherwise may not pick up certain failures. Typing just the destination
         // array or return type is not sufficient to test on JVM.
-        @Suppress("UNUSED_VARIABLE")
-        val result: Array<Int> = set.toArray(emptyArray())
+        @Suppress("UNUSED_VARIABLE") val result: Array<Int> = set.toArray(emptyArray())
     }
 
     @Test

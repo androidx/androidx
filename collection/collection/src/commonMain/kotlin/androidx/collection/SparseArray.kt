@@ -19,7 +19,8 @@ package androidx.collection
 import kotlin.DeprecationLevel.HIDDEN
 
 /** Returns the number of key/value pairs in the collection. */
-public inline val <T> SparseArrayCompat<T>.size: Int get() = size()
+public inline val <T> SparseArrayCompat<T>.size: Int
+    get() = size()
 
 /** Returns true if the collection contains [key]. */
 @Suppress("NOTHING_TO_INLINE")
@@ -65,15 +66,21 @@ public inline fun <T> SparseArrayCompat<T>.forEach(action: (key: Int, value: T) 
 }
 
 /** Return an iterator over the collection's keys. */
-public fun <T> SparseArrayCompat<T>.keyIterator(): IntIterator = object : IntIterator() {
-    var index = 0
-    override fun hasNext() = index < size()
-    override fun nextInt() = keyAt(index++)
-}
+public fun <T> SparseArrayCompat<T>.keyIterator(): IntIterator =
+    object : IntIterator() {
+        var index = 0
+
+        override fun hasNext() = index < size()
+
+        override fun nextInt() = keyAt(index++)
+    }
 
 /** Return an iterator over the collection's values. */
-public fun <T> SparseArrayCompat<T>.valueIterator(): Iterator<T> = object : Iterator<T> {
-    var index = 0
-    override fun hasNext() = index < size()
-    override fun next() = valueAt(index++)
-}
+public fun <T> SparseArrayCompat<T>.valueIterator(): Iterator<T> =
+    object : Iterator<T> {
+        var index = 0
+
+        override fun hasNext() = index < size()
+
+        override fun next() = valueAt(index++)
+    }
