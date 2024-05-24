@@ -327,6 +327,24 @@ public final class MediaControlIntent {
     public static final String CATEGORY_REMOTE_PLAYBACK =
             "android.media.intent.category.REMOTE_PLAYBACK";
 
+    /**
+     * Media control category: Remote audio playback.
+     *
+     * <p>Similar to {@link #CATEGORY_REMOTE_PLAYBACK}, but indicating explicit support for audio
+     * content.
+     */
+    public static final String CATEGORY_REMOTE_AUDIO_PLAYBACK =
+            "android.media.intent.category.REMOTE_AUDIO_PLAYBACK";
+
+    /**
+     * Media control category: Remote video playback.
+     *
+     * <p>Similar to {@link #CATEGORY_REMOTE_PLAYBACK}, but indicating explicit support for video
+     * content.
+     */
+    public static final String CATEGORY_REMOTE_VIDEO_PLAYBACK =
+            "android.media.intent.category.REMOTE_VIDEO_PLAYBACK";
+
     /* Remote playback actions that affect individual items. */
 
     /**

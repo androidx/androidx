@@ -102,7 +102,9 @@ package androidx.mediarouter.media {
     field public static final String ACTION_STOP = "android.media.intent.action.STOP";
     field public static final String CATEGORY_LIVE_AUDIO = "android.media.intent.category.LIVE_AUDIO";
     field public static final String CATEGORY_LIVE_VIDEO = "android.media.intent.category.LIVE_VIDEO";
+    field public static final String CATEGORY_REMOTE_AUDIO_PLAYBACK = "android.media.intent.category.REMOTE_AUDIO_PLAYBACK";
     field public static final String CATEGORY_REMOTE_PLAYBACK = "android.media.intent.category.REMOTE_PLAYBACK";
+    field public static final String CATEGORY_REMOTE_VIDEO_PLAYBACK = "android.media.intent.category.REMOTE_VIDEO_PLAYBACK";
     field public static final int ERROR_INVALID_ITEM_ID = 3; // 0x3
     field public static final int ERROR_INVALID_SESSION_ID = 2; // 0x2
     field public static final int ERROR_UNKNOWN = 0; // 0x0

@@ -137,11 +137,14 @@ public class MainActivity extends AppCompatActivity {
         routesManager.reloadDialogType();
 
         // Create a route selector for the type of routes that we care about.
-        mSelector = new MediaRouteSelector.Builder()
-                .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
-                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
-                .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
-                .build();
+        mSelector =
+                new MediaRouteSelector.Builder()
+                        .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
+                        .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_AUDIO_PLAYBACK)
+                        .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_VIDEO_PLAYBACK)
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                        .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
+                        .build();
 
         mMediaRouter.setOnPrepareTransferListener(mOnPrepareTransferListener);
 
