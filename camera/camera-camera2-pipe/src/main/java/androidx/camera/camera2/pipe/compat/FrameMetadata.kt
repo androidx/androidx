@@ -33,8 +33,7 @@ import kotlin.reflect.KClass
 internal class AndroidFrameMetadata(
     private val captureResult: CaptureResult,
     override val camera: CameraId
-) :
-    FrameMetadata {
+) : FrameMetadata {
     override fun <T> get(key: Metadata.Key<T>): T? = null
 
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T = default
@@ -101,15 +100,16 @@ internal class AndroidFrameInfo(
             // Compute a Map<String, CaptureResult> by calling the appropriate compat method and
             // by treating everything as a CaptureResult. Internally, AndroidFrameMetadata will
             // unwrap the object as a TotalCaptureResult instead.
-            val physicalResults = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                Api31Compat.getPhysicalCameraTotalResults(totalCaptureResult)
-                    as Map<String, CaptureResult>
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                // Android P only supports Map<String, CaptureResult>
-                Api28Compat.getPhysicalCaptureResults(totalCaptureResult)
-            } else {
-                emptyMap()
-            }
+            val physicalResults =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api31Compat.getPhysicalCameraTotalResults(totalCaptureResult)
+                        as Map<String, CaptureResult>
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    // Android P only supports Map<String, CaptureResult>
+                    Api28Compat.getPhysicalCaptureResults(totalCaptureResult)
+                } else {
+                    emptyMap()
+                }
 
             // Wrap the results using AndroidFrameMetadata.
             if (!physicalResults.isNullOrEmpty()) {

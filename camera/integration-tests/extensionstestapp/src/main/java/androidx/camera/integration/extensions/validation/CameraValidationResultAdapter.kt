@@ -32,16 +32,17 @@ import androidx.camera.integration.extensions.validation.CameraValidationResultA
 class CameraValidationResultAdapter(
     private val layoutInflater: LayoutInflater,
     private val cameraLensFacingMap: LinkedHashMap<String, Int>,
-    private val cameraExtensionResultMap: LinkedHashMap<Pair<String, String>,
-        LinkedHashMap<Int, Pair<Int, String>>>
+    private val cameraExtensionResultMap:
+        LinkedHashMap<Pair<String, String>, LinkedHashMap<Int, Pair<Int, String>>>
 ) : BaseAdapter() {
 
     override fun getCount(): Int {
         return cameraExtensionResultMap.size
     }
 
-    override fun getItem(position: Int): MutableMap.MutableEntry<Pair<String, String>,
-        LinkedHashMap<Int, Pair<Int, String>>> {
+    override fun getItem(
+        position: Int
+    ): MutableMap.MutableEntry<Pair<String, String>, LinkedHashMap<Int, Pair<Int, String>>> {
         return cameraExtensionResultMap.entries.elementAt(position)
     }
 
@@ -50,12 +51,13 @@ class CameraValidationResultAdapter(
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val textView: TextView = if (convertView == null) {
-            val layout = android.R.layout.simple_list_item_1
-            layoutInflater.inflate(layout, parent, false) as TextView
-        } else {
-            convertView as TextView
-        }
+        val textView: TextView =
+            if (convertView == null) {
+                val layout = android.R.layout.simple_list_item_1
+                layoutInflater.inflate(layout, parent, false) as TextView
+            } else {
+                convertView as TextView
+            }
 
         val item = getItem(position)
         val (testType, cameraId) = item.key

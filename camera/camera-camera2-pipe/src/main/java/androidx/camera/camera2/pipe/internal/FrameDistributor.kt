@@ -37,17 +37,16 @@ import androidx.camera.camera2.pipe.media.OutputImage
  * that are produced by [ImageSources][ImageSource] in order to group them into [Frames][Frame] and
  * distribute these frames to downstream consumers.
  *
- * Frames can be safely held until needed, passed to other consumers, or closed at any point in
- * time while correctly handling the underlying resource counts and error handling, which is a
+ * Frames can be safely held until needed, passed to other consumers, or closed at any point in time
+ * while correctly handling the underlying resource counts and error handling, which is a
  * non-trivial problem to solve correctly and efficiently. For optimal behavior, an instance of this
  * class should be attached as a listener to the callbacks of *all* [Requests][Request] sent to the
  * Camera.
  *
  * Frames are distributed during [onStarted] in two primary ways:
- *
- *   1. To [FrameCapture] for non-repeating capture requests in the [frameCaptureQueue]
- *   2. To the [frameStartedListener] as a [FrameReference], which must call [Frame.tryAcquire] if
- *      it would like to hold onto it beyond the lifetime of the method call.
+ * 1. To [FrameCapture] for non-repeating capture requests in the [frameCaptureQueue]
+ * 2. To the [frameStartedListener] as a [FrameReference], which must call [Frame.tryAcquire] if it
+ *    would like to hold onto it beyond the lifetime of the method call.
  *
  * The remaining callbacks are used to distribute specific error and failure conditions to frames
  * that were previously started.
@@ -83,33 +82,34 @@ internal class FrameDistributor(
     // In this scenario the FrameDistributor will handle distributing images to Stream-2 and
     // to Stream-3 if they are configured with an ImageSource. Each of these streams is
     // associated with its own OutputDistributor for error handling and grouping.
-    private val imageDistributors = imageSources.mapValues { (_, imageSource) ->
-        val imageDistributor =
-            OutputDistributor<OutputImage>(outputFinalizer = ClosingFinalizer)
+    private val imageDistributors =
+        imageSources.mapValues { (_, imageSource) ->
+            val imageDistributor =
+                OutputDistributor<OutputImage>(outputFinalizer = ClosingFinalizer)
 
-        // Bind the listener on the ImageSource to the imageDistributor. This listener
-        // and the imageDistributor may be invoked on a different thread.
-        imageSource.setListener { imageStreamId, imageOutputId, outputTimestamp, image ->
-            if (image != null) {
-                imageDistributor.onOutputResult(
-                    outputTimestamp,
-                    OutputResult.from(OutputImage.from(imageStreamId, imageOutputId, image))
-                )
-            } else {
-                imageDistributor.onOutputResult(
-                    outputTimestamp,
-                    OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
-                )
+            // Bind the listener on the ImageSource to the imageDistributor. This listener
+            // and the imageDistributor may be invoked on a different thread.
+            imageSource.setListener { imageStreamId, imageOutputId, outputTimestamp, image ->
+                if (image != null) {
+                    imageDistributor.onOutputResult(
+                        outputTimestamp,
+                        OutputResult.from(OutputImage.from(imageStreamId, imageOutputId, image))
+                    )
+                } else {
+                    imageDistributor.onOutputResult(
+                        outputTimestamp,
+                        OutputResult.failure(OutputStatus.ERROR_OUTPUT_DROPPED)
+                    )
+                }
             }
-        }
 
-        imageDistributor
-    }
+            imageDistributor
+        }
     private val imageStreams: Set<StreamId> = imageDistributors.keys
 
     /**
-     * Create and distribute a [Frame] to the pending [FrameCapture] (If one has been registered
-     * for this request), and to the [FrameStartedListener]
+     * Create and distribute a [Frame] to the pending [FrameCapture] (If one has been registered for
+     * this request), and to the [FrameStartedListener]
      */
     override fun onStarted(
         requestMetadata: RequestMetadata,
@@ -119,12 +119,7 @@ internal class FrameDistributor(
         // When the camera begins exposing a frame, create a placeholder for all of the outputs that
         // will be produced, and tell each of the image distributors to expect results for this
         // frameNumber and timestamp.
-        val frameState = FrameState(
-            requestMetadata,
-            frameNumber,
-            timestamp,
-            imageStreams
-        )
+        val frameState = FrameState(requestMetadata, frameNumber, timestamp, imageStreams)
 
         // Tell the frameInfo distributor to expect FrameInfo at the provided FrameNumber
         frameInfoDistributor.onOutputStarted(

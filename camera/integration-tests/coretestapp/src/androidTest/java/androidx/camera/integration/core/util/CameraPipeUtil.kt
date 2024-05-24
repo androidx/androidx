@@ -37,9 +37,7 @@ object CameraPipeUtil {
     @kotlin.OptIn(
         androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
     )
-    @OptIn(
-        markerClass = [ExperimentalCamera2Interop::class]
-    )
+    @OptIn(markerClass = [ExperimentalCamera2Interop::class])
     @JvmStatic
     fun <T> setCameraCaptureSessionCallback(
         implName: String,
@@ -65,9 +63,8 @@ object CameraPipeUtil {
         stateCallback: CameraDevice.StateCallback
     ) {
         if (implName == CameraPipeConfig::class.simpleName) {
-            androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(
-                builder
-            ).setDeviceStateCallback(stateCallback)
+            androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(builder)
+                .setDeviceStateCallback(stateCallback)
         } else {
             Camera2Interop.Extender(builder).setDeviceStateCallback(stateCallback)
         }
@@ -84,9 +81,8 @@ object CameraPipeUtil {
         stateCallback: CameraCaptureSession.StateCallback
     ) {
         if (implName == CameraPipeConfig::class.simpleName) {
-            androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(
-                builder
-            ).setSessionStateCallback(stateCallback)
+            androidx.camera.camera2.pipe.integration.interop.Camera2Interop.Extender(builder)
+                .setSessionStateCallback(stateCallback)
         } else {
             Camera2Interop.Extender(builder).setSessionStateCallback(stateCallback)
         }
@@ -99,9 +95,8 @@ object CameraPipeUtil {
     @JvmStatic
     fun getCameraId(implName: String, cameraInfo: CameraInfo): String {
         return if (implName == CameraPipeConfig::class.simpleName) {
-            androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(
-                cameraInfo
-            ).getCameraId()
+            androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo.from(cameraInfo)
+                .getCameraId()
         } else {
             Camera2CameraInfo.from(cameraInfo).cameraId
         }
@@ -119,19 +114,28 @@ object CameraPipeUtil {
     ): ListenableFuture<Void?> {
         return if (implName == CameraPipeConfig::class.simpleName) {
             androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl.from(
-                cameraControl
-            ).setCaptureRequestOptions(
-                androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder()
-                    .apply {
-                        parameter.forEach { (key, value) -> setCaptureRequestOption(key, value) }
-                    }.build()
-            )
+                    cameraControl
+                )
+                .setCaptureRequestOptions(
+                    androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder()
+                        .apply {
+                            parameter.forEach { (key, value) ->
+                                setCaptureRequestOption(key, value)
+                            }
+                        }
+                        .build()
+                )
         } else {
-            Camera2CameraControl.from(cameraControl).setCaptureRequestOptions(
-                CaptureRequestOptions.Builder().apply {
-                    parameter.forEach { (key, value) -> setCaptureRequestOption(key, value) }
-                }.build()
-            )
+            Camera2CameraControl.from(cameraControl)
+                .setCaptureRequestOptions(
+                    CaptureRequestOptions.Builder()
+                        .apply {
+                            parameter.forEach { (key, value) ->
+                                setCaptureRequestOption(key, value)
+                            }
+                        }
+                        .build()
+                )
         }
     }
 

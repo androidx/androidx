@@ -46,15 +46,16 @@ class VideoEncoderInfoImplTest {
 
     @Before
     fun setup() {
-        encoderConfig = VideoEncoderConfig.builder()
-            .setBitrate(BIT_RATE)
-            .setColorFormat(MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-            .setFrameRate(FRAME_RATE)
-            .setIFrameInterval(I_FRAME_INTERVAL)
-            .setMimeType(MIME_TYPE)
-            .setResolution(Size(WIDTH, HEIGHT))
-            .setInputTimebase(TIMEBASE)
-            .build()
+        encoderConfig =
+            VideoEncoderConfig.builder()
+                .setBitrate(BIT_RATE)
+                .setColorFormat(MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+                .setFrameRate(FRAME_RATE)
+                .setIFrameInterval(I_FRAME_INTERVAL)
+                .setMimeType(MIME_TYPE)
+                .setResolution(Size(WIDTH, HEIGHT))
+                .setInputTimebase(TIMEBASE)
+                .build()
     }
 
     @Test

@@ -24,9 +24,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [Edge].
- */
+/** Unit tests for [Edge]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -41,9 +39,7 @@ class EdgeTest {
         // Arrange.
         val edge = Edge<String>()
         var propagatedData: String? = null
-        edge.setListener {
-            propagatedData = it
-        }
+        edge.setListener { propagatedData = it }
         // Act.
         edge.accept(DATA)
         // Assert.

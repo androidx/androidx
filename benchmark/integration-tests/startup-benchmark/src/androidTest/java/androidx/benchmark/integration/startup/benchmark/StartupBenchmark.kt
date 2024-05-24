@@ -29,22 +29,19 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class StartupBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     /**
      * Simple behavior test for startupMode.
      *
-     * Note that the flaky label is intentional opt-out of presubmit for this test, since
-     * presubmit is only configured for dryRunMode, and dryRunMode is incompatible with startupMode.
+     * Note that the flaky label is intentional opt-out of presubmit for this test, since presubmit
+     * is only configured for dryRunMode, and dryRunMode is incompatible with startupMode.
      */
     @FlakyTest // NOTE: intentional! Test can't run in presubmit!
     @Test
     fun spin() {
         var iterationCount = 0
-        benchmarkRule.measureRepeated {
-            iterationCount++
-        }
+        benchmarkRule.measureRepeated { iterationCount++ }
         // startup mode always runs 10 loops
         assertEquals(10, iterationCount)
     }

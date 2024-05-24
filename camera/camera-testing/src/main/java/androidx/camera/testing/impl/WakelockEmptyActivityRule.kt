@@ -34,9 +34,7 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-/**
- * A rule that opens an empty Activity and wakes the device to prevent test failures.
- */
+/** A rule that opens an empty Activity and wakes the device to prevent test failures. */
 class WakelockEmptyActivityRule : TestRule {
     override fun apply(base: Statement, description: Description): Statement =
         object : Statement() {
@@ -45,34 +43,37 @@ class WakelockEmptyActivityRule : TestRule {
                 clearDeviceUI(instrumentation)
                 var activityRef: EmptyActivity? = null
                 try {
-                    activityRef = CoreAppTestUtil.launchActivity(
-                        instrumentation,
-                        EmptyActivity::class.java,
-                        Intent(Intent.ACTION_MAIN).apply {
-                            setClassName(
-                                ApplicationProvider.getApplicationContext<Context>().packageName,
-                                EmptyActivity::class.java.name
+                    activityRef =
+                        CoreAppTestUtil.launchActivity(
+                                instrumentation,
+                                EmptyActivity::class.java,
+                                Intent(Intent.ACTION_MAIN).apply {
+                                    setClassName(
+                                        ApplicationProvider.getApplicationContext<Context>()
+                                            .packageName,
+                                        EmptyActivity::class.java.name
+                                    )
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
                             )
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        }
-                    )?.also { activity ->
-                        instrumentation.runOnMainSync {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                                activity.setShowWhenLocked()
-                                activity.setTurnScreenOn()
-                                activity.window.addFlags(
-                                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                                )
-                            } else {
-                                @Suppress("DEPRECATION")
-                                activity.window.addFlags(
-                                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                                        or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                                        or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                                )
+                            ?.also { activity ->
+                                instrumentation.runOnMainSync {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                                        activity.setShowWhenLocked()
+                                        activity.setTurnScreenOn()
+                                        activity.window.addFlags(
+                                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                                        )
+                                    } else {
+                                        @Suppress("DEPRECATION")
+                                        activity.window.addFlags(
+                                            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                                                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                                                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                                        )
+                                    }
+                                }
                             }
-                        }
-                    }
                 } catch (exception: Exception) {
                     Logger.w("WakelockEmptyActivityRule", "Fail to open Activity + wakelock")
                 }

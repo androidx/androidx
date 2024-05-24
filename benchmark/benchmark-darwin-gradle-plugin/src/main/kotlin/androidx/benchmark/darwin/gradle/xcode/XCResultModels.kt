@@ -25,27 +25,15 @@ import java.lang.reflect.Type
 // Rather unfortunate that all values types are wrapped in a property bag containing a single
 // key called "_value". This is as per the JSON schema used by `xcresulttool`.
 
-data class StringTypedValue(
-    @SerializedName("_value") val value: String
-)
+data class StringTypedValue(@SerializedName("_value") val value: String)
 
-data class IntTypedValue(
-    @SerializedName("_value") val value: Int
-)
+data class IntTypedValue(@SerializedName("_value") val value: Int)
 
-data class DoubleTypedValue(
-    @SerializedName("_value")
-    val value: Double
-)
+data class DoubleTypedValue(@SerializedName("_value") val value: Double)
 
-data class BooleanTypedValue(
-    @SerializedName("_value")
-    val value: Boolean
-)
+data class BooleanTypedValue(@SerializedName("_value") val value: Boolean)
 
-data class Metrics(
-    private val testsCount: IntTypedValue
-) {
+data class Metrics(private val testsCount: IntTypedValue) {
     fun size(): Int {
         return testsCount.value
     }
@@ -113,13 +101,9 @@ data class ActionRecord(
     val runDestination: ActionRunDestinationRecord
 )
 
-data class Actions(
-    @SerializedName("_values") val actionRecords: List<ActionRecord>
-) {
+data class Actions(@SerializedName("_values") val actionRecords: List<ActionRecord>) {
     fun testReferences(): List<String> {
-        return actionRecords.asSequence()
-            .map { it.actionResult.testsReferenceId() }
-            .toList()
+        return actionRecords.asSequence().map { it.actionResult.testsReferenceId() }.toList()
     }
 
     fun isSuccessful(): Boolean {
@@ -127,36 +111,26 @@ data class Actions(
     }
 }
 
-data class ActionsInvocationRecord(
-    val metrics: Metrics,
-    val actions: Actions
-)
+data class ActionsInvocationRecord(val metrics: Metrics, val actions: Actions)
 
 // Test Plan Summaries
 
-data class ActionTestMetadataSummary(
-    val id: StringTypedValue
-)
+data class ActionTestMetadataSummary(val id: StringTypedValue)
 
-data class TypeDefinition(
-    @SerializedName("_name")
-    val name: String
-)
+data class TypeDefinition(@SerializedName("_name") val name: String)
 
 // Marker interface
 sealed interface ActionsTestSummaryGroupOrMeta
 
 data class ActionsTestSummaryGroupOrMetaArray(
-    @SerializedName("_values")
-    val values: List<ActionsTestSummaryGroupOrMeta>
+    @SerializedName("_values") val values: List<ActionsTestSummaryGroupOrMeta>
 )
 
 data class ActionTestSummaryGroup(
     val duration: DoubleTypedValue,
     val identifier: StringTypedValue,
     val name: StringTypedValue,
-    @SerializedName("subtests")
-    val subTests: ActionsTestSummaryGroupOrMetaArray
+    @SerializedName("subtests") val subTests: ActionsTestSummaryGroupOrMetaArray
 ) : ActionsTestSummaryGroupOrMeta {
     fun summaries(): List<ActionTestSummaryMeta> {
         return buildSummaries(mutableListOf(), this)
@@ -235,8 +209,7 @@ class ActionTestSummaryDeserializer : JsonDeserializer<ActionsTestSummaryGroupOr
 }
 
 data class ActionTestSummaryGroupArray(
-    @SerializedName("_values")
-    val values: List<ActionTestSummaryGroup>
+    @SerializedName("_values") val values: List<ActionTestSummaryGroup>
 )
 
 data class ActionTestableSummary(
@@ -248,28 +221,20 @@ data class ActionTestableSummary(
 )
 
 data class ActionTestableSummaryArray(
-    @SerializedName("_values")
-    val values: List<ActionTestableSummary>
+    @SerializedName("_values") val values: List<ActionTestableSummary>
 )
 
-data class ActionTestPlanRunSummary(
-    val testableSummaries: ActionTestableSummaryArray
-)
+data class ActionTestPlanRunSummary(val testableSummaries: ActionTestableSummaryArray)
 
 data class ActionTestPlanSummaryArray(
-    @SerializedName("_values")
-    val values: List<ActionTestPlanRunSummary>
+    @SerializedName("_values") val values: List<ActionTestPlanRunSummary>
 )
 
-data class ActionTestPlanRunSummaries(
-    val summaries: ActionTestPlanSummaryArray
-) {
+data class ActionTestPlanRunSummaries(val summaries: ActionTestPlanSummaryArray) {
     fun testSummaries(): List<ActionTestSummaryMeta> {
         return summaries.values.flatMap { testPlanSummary ->
             testPlanSummary.testableSummaries.values.flatMap { testableSummary ->
-                testableSummary.tests.values.flatMap { summaryGroup ->
-                    summaryGroup.summaries()
-                }
+                testableSummary.tests.values.flatMap { summaryGroup -> summaryGroup.summaries() }
             }
         }
     }
@@ -277,23 +242,17 @@ data class ActionTestPlanRunSummaries(
 
 // Test Metrics
 
-data class ActionTestActivitySummary(
-    val title: StringTypedValue
-)
+data class ActionTestActivitySummary(val title: StringTypedValue)
 
 data class ActionTestActivitySummaryArray(
-    @SerializedName("_values")
-    val values: List<ActionTestActivitySummary>
+    @SerializedName("_values") val values: List<ActionTestActivitySummary>
 ) {
     fun title(): String? {
         return values.firstOrNull()?.title?.value
     }
 }
 
-data class MeasurementArray(
-    @SerializedName("_values")
-    val values: List<DoubleTypedValue>
-)
+data class MeasurementArray(@SerializedName("_values") val values: List<DoubleTypedValue>)
 
 data class ActionTestPerformanceMetricSummary(
     val displayName: StringTypedValue,
@@ -304,8 +263,7 @@ data class ActionTestPerformanceMetricSummary(
 )
 
 data class ActionTestPerformanceMetricSummaryArray(
-    @SerializedName("_values")
-    val values: List<ActionTestPerformanceMetricSummary>
+    @SerializedName("_values") val values: List<ActionTestPerformanceMetricSummary>
 )
 
 data class ActionTestSummary(

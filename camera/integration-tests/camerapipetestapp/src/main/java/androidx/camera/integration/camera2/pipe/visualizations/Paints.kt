@@ -26,39 +26,45 @@ import androidx.core.content.res.ResourcesCompat
 /** Uniform paints to be used in all graphs */
 class Paints(private val context: Context) {
 
-    val whiteFillPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.graphDataColor)
-        style = Paint.Style.FILL_AND_STROKE
-        strokeWidth = 1f
-    }
+    val whiteFillPaint =
+        Paint().apply {
+            color = ContextCompat.getColor(context, R.color.graphDataColor)
+            style = Paint.Style.FILL_AND_STROKE
+            strokeWidth = 1f
+        }
 
-    val missingDataPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.missingDataColor)
-        style = Paint.Style.STROKE
-        strokeWidth = ResourcesCompat.getFloat(context.resources, R.dimen.mediumStrokeWidth)
-    }
+    val missingDataPaint =
+        Paint().apply {
+            color = ContextCompat.getColor(context, R.color.missingDataColor)
+            style = Paint.Style.STROKE
+            strokeWidth = ResourcesCompat.getFloat(context.resources, R.dimen.mediumStrokeWidth)
+        }
 
-    val latencyDataPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.latencyDataColor)
-        style = Paint.Style.STROKE
-        strokeWidth = ResourcesCompat.getFloat(context.resources, R.dimen.mediumStrokeWidth)
-    }
+    val latencyDataPaint =
+        Paint().apply {
+            color = ContextCompat.getColor(context, R.color.latencyDataColor)
+            style = Paint.Style.STROKE
+            strokeWidth = ResourcesCompat.getFloat(context.resources, R.dimen.mediumStrokeWidth)
+        }
 
-    val graphDataPaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.graphDataColor)
-        style = Paint.Style.STROKE
-        strokeWidth = ResourcesCompat.getFloat(context.resources, R.dimen.thickStrokeWidth)
-    }
+    val graphDataPaint =
+        Paint().apply {
+            color = ContextCompat.getColor(context, R.color.graphDataColor)
+            style = Paint.Style.STROKE
+            strokeWidth = ResourcesCompat.getFloat(context.resources, R.dimen.thickStrokeWidth)
+        }
 
-    val dividerLinePaint = Paint().apply {
-        color = ContextCompat.getColor(context, R.color.whiteTransparent)
-        style = Paint.Style.STROKE
-        strokeWidth = ResourcesCompat.getFloat(context.resources, R.dimen.dividerStrokeWidth)
-    }
+    val dividerLinePaint =
+        Paint().apply {
+            color = ContextCompat.getColor(context, R.color.whiteTransparent)
+            style = Paint.Style.STROKE
+            strokeWidth = ResourcesCompat.getFloat(context.resources, R.dimen.dividerStrokeWidth)
+        }
 
-    val keyValueValuePaint = TextPaint().apply {
-        color = ContextCompat.getColor(context, R.color.graphDataColor)
-        textSize = ResourcesCompat.getFloat(context.resources, R.dimen.keyValueValueTextSize)
-        textAlign = Paint.Align.RIGHT
-    }
+    val keyValueValuePaint =
+        TextPaint().apply {
+            color = ContextCompat.getColor(context, R.color.graphDataColor)
+            textSize = ResourcesCompat.getFloat(context.resources, R.dimen.keyValueValueTextSize)
+            textAlign = Paint.Align.RIGHT
+        }
 }

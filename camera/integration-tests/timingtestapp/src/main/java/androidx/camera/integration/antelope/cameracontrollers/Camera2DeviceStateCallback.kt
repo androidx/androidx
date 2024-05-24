@@ -23,23 +23,21 @@ import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
 import androidx.camera.integration.antelope.testEnded
 
-/**
- * Callbacks that track the state of the camera device using the Camera 2 API.
- */
+/** Callbacks that track the state of the camera device using the Camera 2 API. */
 class Camera2DeviceStateCallback(
     internal var params: CameraParams,
     internal var activity: MainActivity,
     internal var testConfig: TestConfig
 ) : CameraDevice.StateCallback() {
 
-    /**
-     * Camera device has opened successfully, record timing and initiate the preview stream.
-     */
+    /** Camera device has opened successfully, record timing and initiate the preview stream. */
     override fun onOpened(cameraDevice: CameraDevice) {
         params.timer.openEnd = System.currentTimeMillis()
         MainActivity.logd(
-            "In CameraStateCallback onOpened: " + cameraDevice.id +
-                " current test: " + testConfig.currentRunningTest.toString()
+            "In CameraStateCallback onOpened: " +
+                cameraDevice.id +
+                " current test: " +
+                testConfig.currentRunningTest.toString()
         )
         params.isOpen = true
         params.device = cameraDevice
@@ -50,7 +48,6 @@ class Camera2DeviceStateCallback(
                 testConfig.testFinished = true
                 closePreviewAndCamera(activity, params, testConfig)
             }
-
             else -> {
                 params.timer.previewStart = System.currentTimeMillis()
                 createCameraPreviewSession(activity, params, testConfig)
@@ -65,8 +62,10 @@ class Camera2DeviceStateCallback(
      */
     override fun onClosed(camera: CameraDevice) {
         MainActivity.logd(
-            "In CameraStateCallback onClosed. Camera: " + params.id +
-                " is closed. testFinished: " + testConfig.testFinished
+            "In CameraStateCallback onClosed. Camera: " +
+                params.id +
+                " is closed. testFinished: " +
+                testConfig.testFinished
         )
         params.isOpen = false
 
@@ -77,8 +76,9 @@ class Camera2DeviceStateCallback(
             return
         }
 
-        if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+        if (
+            (testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
+                (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
         ) {
 
             // First camera closed, now start the second
@@ -98,9 +98,7 @@ class Camera2DeviceStateCallback(
         super.onClosed(camera)
     }
 
-    /**
-     * Camera has been disconnected. Whatever was happening, it won't work now.
-     */
+    /** Camera has been disconnected. Whatever was happening, it won't work now. */
     override fun onDisconnected(cameraDevice: CameraDevice) {
         MainActivity.logd("In CameraStateCallback onDisconnected: " + params.id)
         if (!params.isOpen) {
@@ -111,9 +109,7 @@ class Camera2DeviceStateCallback(
         closePreviewAndCamera(activity, params, testConfig)
     }
 
-    /**
-     * Camera device has thrown an error. Try to recover or fail gracefully.
-     */
+    /** Camera device has thrown an error. Try to recover or fail gracefully. */
     override fun onError(cameraDevice: CameraDevice, error: Int) {
         MainActivity.logd("In CameraStateCallback onError: " + cameraDevice.id + " error: " + error)
         if (!params.isOpen) {
@@ -127,17 +123,14 @@ class Camera2DeviceStateCallback(
                 closeACamera(activity, testConfig)
                 camera2OpenCamera(activity, params, testConfig)
             }
-
             CameraDevice.StateCallback.ERROR_CAMERA_DEVICE -> {
                 MainActivity.logd("Fatal camera error, close and try to re-initialize...")
                 closePreviewAndCamera(activity, params, testConfig)
                 camera2OpenCamera(activity, params, testConfig)
             }
-
             CameraDevice.StateCallback.ERROR_CAMERA_IN_USE -> {
                 MainActivity.logd("This camera is already open... doing nothing")
             }
-
             else -> {
                 testConfig.testFinished = false // Whatever we are doing will fail, just try to exit
                 closePreviewAndCamera(activity, params, testConfig)

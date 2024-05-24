@@ -31,31 +31,26 @@ import java.util.concurrent.TimeoutException
 import kotlin.math.max
 
 /**
- * The Class is based on the ChainingListenableFuture in Guava, the constructor of FutureChain
- * will use the CallbackToFutureAdapter instead of the AbstractFuture.
+ * The Class is based on the ChainingListenableFuture in Guava, the constructor of FutureChain will
+ * use the CallbackToFutureAdapter instead of the AbstractFuture.
  *
- * An implementation of `ListenableFuture` that also implements
- * `Runnable` so that it can be used to nest ListenableFutures.
- * Once the passed-in `ListenableFuture` is complete, it calls the
- * passed-in `Function` to generate the result.
+ * An implementation of `ListenableFuture` that also implements `Runnable` so that it can be used to
+ * nest ListenableFutures. Once the passed-in `ListenableFuture` is complete, it calls the passed-in
+ * `Function` to generate the result.
  *
- *
- * If the Function throws any checked exceptions, they should be wrapped
- * in a `UndeclaredThrowableException` so that this class can get access to the cause.
- *
+ * If the Function throws any checked exceptions, they should be wrapped in a
+ * `UndeclaredThrowableException` so that this class can get access to the cause.
  */
 internal class ChainingListenableFuture<I, O>(
     function: AsyncFunction<in I, out O>,
     inputFuture: ListenableFuture<out I>
-) :
-    FutureChain<O>(), Runnable {
+) : FutureChain<O>(), Runnable {
     private var mFunction: AsyncFunction<in I, out O>?
     private val mMayInterruptIfRunningChannel: BlockingQueue<Boolean> = LinkedBlockingQueue(1)
     private val mOutputCreated = CountDownLatch(1)
     private var mInputFuture: ListenableFuture<out I>?
 
-    @Volatile
-    var mOutputFuture: ListenableFuture<out O>? = null
+    @Volatile var mOutputFuture: ListenableFuture<out O>? = null
 
     init {
         mFunction = Preconditions.checkNotNull(function)
@@ -63,9 +58,8 @@ internal class ChainingListenableFuture<I, O>(
     }
 
     /**
-     * Delegate the get() to the input and output mFutures, in case
-     * their implementations defer starting computation until their
-     * own get() is invoked.
+     * Delegate the get() to the input and output mFutures, in case their implementations defer
+     * starting computation until their own get() is invoked.
      */
     @Throws(InterruptedException::class, ExecutionException::class)
     override fun get(): O? {
@@ -94,15 +88,10 @@ internal class ChainingListenableFuture<I, O>(
     }
 
     /**
-     * Delegate the get() to the input and output mFutures, in case
-     * their implementations defer starting computation until their
-     * own get() is invoked.
+     * Delegate the get() to the input and output mFutures, in case their implementations defer
+     * starting computation until their own get() is invoked.
      */
-    @Throws(
-        TimeoutException::class,
-        ExecutionException::class,
-        InterruptedException::class
-    )
+    @Throws(TimeoutException::class, ExecutionException::class, InterruptedException::class)
     override operator fun get(timeout: Long, unit: TimeUnit): O? {
         var resultTimeout = timeout
         var resultUnit = unit
@@ -161,30 +150,26 @@ internal class ChainingListenableFuture<I, O>(
         return false
     }
 
-    private fun cancel(
-        future: Future<*>?,
-        mayInterruptIfRunning: Boolean
-    ) {
+    private fun cancel(future: Future<*>?, mayInterruptIfRunning: Boolean) {
         future?.cancel(mayInterruptIfRunning)
     }
 
     override fun run() {
         try {
-            val sourceResult: I = try {
-                Futures.getUninterruptibly(
-                    mInputFuture!!
-                )
-            } catch (e: CancellationException) {
-                // Cancel this future and return.
-                // At this point, mInputFuture is cancelled and mOutputFuture doesn't
-                // exist, so the value of mayInterruptIfRunning is irrelevant.
-                cancel(false)
-                return
-            } catch (e: ExecutionException) {
-                // Set the cause of the exception as this future's exception
-                e.cause?.let { setException(it) }
-                return
-            }
+            val sourceResult: I =
+                try {
+                    Futures.getUninterruptibly(mInputFuture!!)
+                } catch (e: CancellationException) {
+                    // Cancel this future and return.
+                    // At this point, mInputFuture is cancelled and mOutputFuture doesn't
+                    // exist, so the value of mayInterruptIfRunning is irrelevant.
+                    cancel(false)
+                    return
+                } catch (e: ExecutionException) {
+                    // Set the cause of the exception as this future's exception
+                    e.cause?.let { setException(it) }
+                    return
+                }
             mOutputFuture = mFunction!!.apply(sourceResult)
             val outputFuture = mOutputFuture
             if (isCancelled) {
@@ -197,30 +182,29 @@ internal class ChainingListenableFuture<I, O>(
                 mOutputFuture = null
                 return
             }
-            outputFuture!!.addListener(Runnable {
-                try {
-                    // Here it would have been nice to have had an
-                    // UninterruptibleListenableFuture, but we don't want to start a
-                    // combinatorial explosion of interfaces, so we have to make do.
-                    set(
-                        Futures.getUninterruptibly(
-                            outputFuture
-                        )
-                    )
-                } catch (e: CancellationException) {
-                    // Cancel this future and return.
-                    // At this point, mInputFuture and mOutputFuture are done, so the
-                    // value of mayInterruptIfRunning is irrelevant.
-                    cancel(false)
-                    return@Runnable
-                } catch (e: ExecutionException) {
-                    // Set the cause of the exception as this future's exception
-                    e.cause?.let { setException(it) }
-                } finally {
-                    // Don't pin inputs beyond completion
-                    mOutputFuture = null
-                }
-            }, ViewfinderExecutors.directExecutor())
+            outputFuture!!.addListener(
+                Runnable {
+                    try {
+                        // Here it would have been nice to have had an
+                        // UninterruptibleListenableFuture, but we don't want to start a
+                        // combinatorial explosion of interfaces, so we have to make do.
+                        set(Futures.getUninterruptibly(outputFuture))
+                    } catch (e: CancellationException) {
+                        // Cancel this future and return.
+                        // At this point, mInputFuture and mOutputFuture are done, so the
+                        // value of mayInterruptIfRunning is irrelevant.
+                        cancel(false)
+                        return@Runnable
+                    } catch (e: ExecutionException) {
+                        // Set the cause of the exception as this future's exception
+                        e.cause?.let { setException(it) }
+                    } finally {
+                        // Don't pin inputs beyond completion
+                        mOutputFuture = null
+                    }
+                },
+                ViewfinderExecutors.directExecutor()
+            )
         } catch (e: UndeclaredThrowableException) {
             // Set the cause of the exception as this future's exception
             e.cause?.let { setException(it) }
@@ -240,18 +224,17 @@ internal class ChainingListenableFuture<I, O>(
         }
     }
 
-    /**
-     * Invokes `queue.`[take()][BlockingQueue.take] uninterruptibly.
-     */
+    /** Invokes `queue.`[take()][BlockingQueue.take] uninterruptibly. */
     private fun <E> takeUninterruptibly(queue: BlockingQueue<E>): E {
         var interrupted = false
         try {
             while (true) {
-                interrupted = try {
-                    return queue.take()
-                } catch (e: InterruptedException) {
-                    true
-                }
+                interrupted =
+                    try {
+                        return queue.take()
+                    } catch (e: InterruptedException) {
+                        true
+                    }
             }
         } finally {
             if (interrupted) {
@@ -260,20 +243,18 @@ internal class ChainingListenableFuture<I, O>(
         }
     }
 
-    /**
-     * Invokes `queue.`[put(element)][BlockingQueue.put]
-     * uninterruptibly.
-     */
+    /** Invokes `queue.`[put(element)][BlockingQueue.put] uninterruptibly. */
     private fun <E> putUninterruptibly(queue: BlockingQueue<E>, element: E) {
         var interrupted = false
         try {
             while (true) {
-                interrupted = try {
-                    queue.put(element)
-                    return
-                } catch (e: InterruptedException) {
-                    true
-                }
+                interrupted =
+                    try {
+                        queue.put(element)
+                        return
+                    } catch (e: InterruptedException) {
+                        true
+                    }
             }
         } finally {
             if (interrupted) {

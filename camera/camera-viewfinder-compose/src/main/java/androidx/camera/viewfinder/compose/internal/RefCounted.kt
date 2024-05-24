@@ -39,9 +39,8 @@ class RefCounted<T : Any>(
      *
      * This also initializes the implicit ref-count to 1.
      *
-     * All calls to this function must be paired with [release] to ensure the initial implicit
-     * ref count is decremented and the `onRelease` callback can be called.
-     *
+     * All calls to this function must be paired with [release] to ensure the initial implicit ref
+     * count is decremented and the `onRelease` callback can be called.
      */
     fun initialize(newValue: T) {
         val initialVal = Pair(newValue, 1)
@@ -104,8 +103,8 @@ class RefCounted<T : Any>(
     /**
      * Decrements the ref-count by 1 after a call to [acquire] or [initialize].
      *
-     * This should always be called once for each [initialize] call and once for each [acquire]
-     * call that does not return `null`.
+     * This should always be called once for each [initialize] call and once for each [acquire] call
+     * that does not return `null`.
      */
     fun release() {
         check(refCounted.value != uninitialized<T>()) {
@@ -113,9 +112,7 @@ class RefCounted<T : Any>(
         }
 
         refCounted.loop { old ->
-            check(old != released<T>()) {
-                "Release called more times than initialize + acquire."
-            }
+            check(old != released<T>()) { "Release called more times than initialize + acquire." }
 
             val (value, oldCount) = old
             val new = if (oldCount == 1) released() else Pair(value, oldCount - 1)

@@ -28,7 +28,8 @@ import org.intellij.lang.annotations.Language
 @OptIn(ExperimentalMetricApi::class)
 internal object PowerQuery {
     @Language("sql")
-    private fun getFullQuery(slice: Slice) = """
+    private fun getFullQuery(slice: Slice) =
+        """
         SELECT
             t.name,
             max(c.value) - min(c.value) AS energyUws,
@@ -38,32 +39,26 @@ internal object PowerQuery {
         WHERE t.name GLOB 'power.*'
         AND c.ts >= ${slice.ts} AND c.ts <= ${slice.endTs}
         GROUP BY t.name
-    """.trimIndent()
+    """
+            .trimIndent()
 
-    private val categoryToSubsystem = mapOf(
-        PowerCategory.CPU to listOf("Cpu"),
-        PowerCategory.DISPLAY to listOf("Display"),
-        PowerCategory.GPU to listOf("Gpu"),
-        PowerCategory.GPS to listOf("Gps"),
-        PowerCategory.MEMORY to listOf("Ddr", "MemoryInterface"),
-        PowerCategory.MACHINE_LEARNING to listOf("Tpu"),
-        PowerCategory.NETWORK to listOf(
-            "Aoc",
-            "Radio",
-            "VsysPwrMmwave",
-            "Wifi",
-            "Modem"
-        ),
-        PowerCategory.UNCATEGORIZED to emptyList()
-    )
+    private val categoryToSubsystem =
+        mapOf(
+            PowerCategory.CPU to listOf("Cpu"),
+            PowerCategory.DISPLAY to listOf("Display"),
+            PowerCategory.GPU to listOf("Gpu"),
+            PowerCategory.GPS to listOf("Gps"),
+            PowerCategory.MEMORY to listOf("Ddr", "MemoryInterface"),
+            PowerCategory.MACHINE_LEARNING to listOf("Tpu"),
+            PowerCategory.NETWORK to listOf("Aoc", "Radio", "VsysPwrMmwave", "Wifi", "Modem"),
+            PowerCategory.UNCATEGORIZED to emptyList()
+        )
 
     /**
      * The ComponentMeasurement object are built with attributes:
      *
      * @param name The name of the subsystem associated with the power usage in camel case.
-     *
      * @param energyUws The energy used during the trace, measured in uWs.
-     *
      * @param powerUw The energy used divided by the elapsed time, measured in uW.
      */
     data class ComponentMeasurement(
@@ -80,11 +75,9 @@ internal object PowerQuery {
      * The CategoryMeasurement object are built with attributes:
      *
      * @param energyUws The sum total energy used during the trace of all components in the
-     * category, measured in uWs.
-     *
-     * @param powerUw The sum total energy used divided by the elapsed time of all components in
-     * the category, measured in uW.
-     *
+     *   category, measured in uWs.
+     * @param powerUw The sum total energy used divided by the elapsed time of all components in the
+     *   category, measured in uW.
      * @param components A list of all ComponentMeasurements under the same `PowerCategory`.
      */
     data class CategoryMeasurement(
@@ -103,7 +96,9 @@ internal object PowerQuery {
     ): Map<PowerCategory, CategoryMeasurement> {
         // gather all recorded rails
         val railMetrics: List<ComponentMeasurement> = getRailMetrics(session, slice)
-        railMetrics.ifEmpty { return emptyMap() }
+        railMetrics.ifEmpty {
+            return emptyMap()
+        }
 
         // sort ComponentMeasurements into CategoryMeasurements
         return sortComponentsByCategories(railMetrics)
@@ -113,29 +108,24 @@ internal object PowerQuery {
         railMetrics: List<ComponentMeasurement>
     ): Map<PowerCategory, CategoryMeasurement> {
         // sort all ComponentMeasurements into CategoryMeasurements
-        return PowerCategory.values().associateWith { category ->
-            // combine components under same category
-            val rails: List<ComponentMeasurement> = railMetrics.filter { rail ->
-                railInCategory(category, rail.name)
-            }
+        return PowerCategory.values()
+            .associateWith { category ->
+                // combine components under same category
+                val rails: List<ComponentMeasurement> =
+                    railMetrics.filter { rail -> railInCategory(category, rail.name) }
 
-            // combine components into category
-            rails.fold(
-                CategoryMeasurement(
-                    energyUws = 0.0,
-                    powerUw = 0.0,
-                    components = rails
-                )
-            ) { total, next ->
-                CategoryMeasurement(
-                    energyUws = total.energyUws + next.energyUws,
-                    powerUw = total.powerUw + next.powerUw,
-                    components = total.components
-                )
+                // combine components into category
+                rails.fold(
+                    CategoryMeasurement(energyUws = 0.0, powerUw = 0.0, components = rails)
+                ) { total, next ->
+                    CategoryMeasurement(
+                        energyUws = total.energyUws + next.energyUws,
+                        powerUw = total.powerUw + next.powerUw,
+                        components = total.components
+                    )
+                }
             }
-        }.filter { (_, measurement) ->
-            measurement.components.isNotEmpty()
-        }
+            .filter { (_, measurement) -> measurement.components.isNotEmpty() }
     }
 
     private fun getRailMetrics(
@@ -143,27 +133,25 @@ internal object PowerQuery {
         slice: Slice
     ): List<ComponentMeasurement> {
         val query = getFullQuery(slice)
-        return session.query(query).map {
-            ComponentMeasurement(
-                name = (it["name"] as String).camelCase(),
-                energyUws = it["energyUws"] as Double,
-                powerUw = it["powerUs"] as Double,
-            )
-        }.toList()
+        return session
+            .query(query)
+            .map {
+                ComponentMeasurement(
+                    name = (it["name"] as String).camelCase(),
+                    energyUws = it["energyUws"] as Double,
+                    powerUw = it["powerUs"] as Double,
+                )
+            }
+            .toList()
     }
 
     /**
      * Checks if category contains rail, or is uncategorized.
      *
      * @param category A [PowerCategory] which maps to a list of subsystems.
-     *
      * @param railName The name of a rail.
-     *
      */
-    private fun railInCategory(
-        category: PowerCategory,
-        railName: String
-    ): Boolean {
+    private fun railInCategory(category: PowerCategory, railName: String): Boolean {
         if (category == PowerCategory.UNCATEGORIZED) {
             return !filterRails(categoryToSubsystem.values.flatten(), railName)
         }
@@ -173,15 +161,11 @@ internal object PowerQuery {
     /**
      * Checks if rail name contains subsystem.
      *
-     * @param subsystems A list of subsystems to check against rail name.  If the rail is a
-     * part of the subsystem, the subsystem will be a substring of the rail name.
-     *
+     * @param subsystems A list of subsystems to check against rail name. If the rail is a part of
+     *   the subsystem, the subsystem will be a substring of the rail name.
      * @param railName The name of a rail.
      */
-    private fun filterRails(
-        subsystems: List<String>,
-        railName: String
-    ): Boolean {
+    private fun filterRails(subsystems: List<String>, railName: String): Boolean {
         for (subsystem in subsystems) {
             if (railName.contains(subsystem)) {
                 return true

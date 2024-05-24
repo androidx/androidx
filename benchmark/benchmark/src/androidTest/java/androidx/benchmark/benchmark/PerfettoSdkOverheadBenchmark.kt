@@ -50,40 +50,37 @@ class PerfettoSdkOverheadBenchmark {
     private val targetPackage =
         InstrumentationRegistry.getInstrumentation().targetContext.packageName
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
+    @get:Rule val benchmarkRule = BenchmarkRule(MicrobenchmarkConfig(traceAppTagEnabled = true))
 
     private val testData = Array(50_000) { UUID.randomUUID().toString() }
 
     @Before
     fun setUp() = assumeTrue(isAbiSupported()) // We need all tests to work to compare their results
 
-    /**
-     * Empty baseline, no tracing. Expect similar results to [TrivialJavaBenchmark.nothing].
-     */
-    @Test
-    fun empty() = benchmarkRule.measureRepeated { /* nothing */ }
+    /** Empty baseline, no tracing. Expect similar results to [TrivialJavaBenchmark.nothing]. */
+    @Test fun empty() = benchmarkRule.measureRepeated { /* nothing */ }
 
     /**
      * The trace section within runWithTimingDisabled, even though not measured, can impact the
      * results of a small benchmark significantly.
      */
     @Test
-    fun runWithTimingDisabled() = benchmarkRule.measureRepeated {
-        runWithTimingDisabled { /* nothing */ }
-    }
+    fun runWithTimingDisabled() =
+        benchmarkRule.measureRepeated { runWithTimingDisabled { /* nothing */ } }
 
     /** Measuring overhead of [androidx.tracing.perfetto.PerfettoSdkTrace]. */
     @Test
     fun traceBeginEnd_perfettoSdkTrace() {
-        PerfettoCapture().enableAndroidxTracingPerfetto(
-            PerfettoSdkConfig(targetPackage, InitialProcessState.Alive)
-        ).let { (resultCode, _) ->
-            assertTrue(
-                "Ensuring Perfetto SDK is enabled",
-                resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+        PerfettoCapture()
+            .enableAndroidxTracingPerfetto(
+                PerfettoSdkConfig(targetPackage, InitialProcessState.Alive)
             )
-        }
+            .let { (resultCode, _) ->
+                assertTrue(
+                    "Ensuring Perfetto SDK is enabled",
+                    resultCode in arrayOf(1, 2) // 1 = success, 2 = already enabled
+                )
+            }
         var ix = 0
         benchmarkRule.measureRepeated {
             androidx.tracing.perfetto.PerfettoSdkTrace.beginSection(testData[ix++ % testData.size])

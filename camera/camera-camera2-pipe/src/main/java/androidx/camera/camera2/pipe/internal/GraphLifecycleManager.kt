@@ -45,16 +45,16 @@ import kotlinx.coroutines.launch
 internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
     private val lock = Any()
 
-    private val scope = CoroutineScope(
-        threads.lightweightDispatcher.plus(CoroutineName("CXCP-GraphLifecycleManager"))
-    )
+    private val scope =
+        CoroutineScope(
+            threads.lightweightDispatcher.plus(CoroutineName("CXCP-GraphLifecycleManager"))
+        )
 
     @GuardedBy("lock")
     private val backendControllerMap =
         mutableMapOf<CameraBackendId, LinkedHashSet<CameraController>>()
 
-    @GuardedBy("lock")
-    private val backendStatusCollectJobMap = mutableMapOf<CameraBackendId, Job>()
+    @GuardedBy("lock") private val backendStatusCollectJobMap = mutableMapOf<CameraBackendId, Job>()
 
     internal fun monitorAndStart(cameraBackend: CameraBackend, cameraController: CameraController) =
         synchronized(lock) {
@@ -81,21 +81,21 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
             return
         }
         backendControllerMap[cameraBackend.id] = linkedSetOf(cameraController)
-        backendStatusCollectJobMap[cameraBackend.id] = scope.launch {
-            cameraBackend.cameraStatus.collect { cameraStatus ->
-                when (cameraStatus) {
-                    is CameraStatus.CameraPrioritiesChanged ->
-                        tryRestartCameraController(cameraBackend, cameraStatus)
-
-                    is CameraStatus.CameraAvailable ->
-                        tryRestartCameraController(
-                            cameraBackend,
-                            cameraStatus,
-                            cameraStatus.cameraId
-                        )
+        backendStatusCollectJobMap[cameraBackend.id] =
+            scope.launch {
+                cameraBackend.cameraStatus.collect { cameraStatus ->
+                    when (cameraStatus) {
+                        is CameraStatus.CameraPrioritiesChanged ->
+                            tryRestartCameraController(cameraBackend, cameraStatus)
+                        is CameraStatus.CameraAvailable ->
+                            tryRestartCameraController(
+                                cameraBackend,
+                                cameraStatus,
+                                cameraStatus.cameraId
+                            )
+                    }
                 }
             }
-        }
     }
 
     @GuardedBy("lock")
@@ -115,16 +115,19 @@ internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
         cameraBackend: CameraBackend,
         cameraStatus: CameraStatus,
         cameraId: CameraId? = null,
-    ) = synchronized(lock) {
-        // Restart the last CameraController being tracked in each backend. The last
-        // CameraController would be the latest one being tracked, and should thus take priority
-        // over previous CameraControllers.
-        backendControllerMap[cameraBackend.id]?.findLast {
-            if (cameraId != null) {
-                it.cameraId == cameraId
-            } else {
-                true
-            }
-        }?.tryRestart(cameraStatus)
-    }
+    ) =
+        synchronized(lock) {
+            // Restart the last CameraController being tracked in each backend. The last
+            // CameraController would be the latest one being tracked, and should thus take priority
+            // over previous CameraControllers.
+            backendControllerMap[cameraBackend.id]
+                ?.findLast {
+                    if (cameraId != null) {
+                        it.cameraId == cameraId
+                    } else {
+                        true
+                    }
+                }
+                ?.tryRestart(cameraStatus)
+        }
 }

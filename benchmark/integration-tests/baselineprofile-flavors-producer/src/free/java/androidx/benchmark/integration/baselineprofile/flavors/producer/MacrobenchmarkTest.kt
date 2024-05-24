@@ -27,19 +27,19 @@ import org.junit.Test
 @LargeTest
 class MacrobenchmarkTest {
 
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startupMacrobenchmark() = benchmarkRule.measureRepeated(
-        packageName = PACKAGE_NAME,
-        metrics = listOf(StartupTimingMetric()),
-        compilationMode = CompilationMode.DEFAULT,
-        iterations = 10,
-        startupMode = StartupMode.COLD,
-        setupBlock = { pressHome() },
-        measureBlock = { startActivityAndWait { } }
-    )
+    fun startupMacrobenchmark() =
+        benchmarkRule.measureRepeated(
+            packageName = PACKAGE_NAME,
+            metrics = listOf(StartupTimingMetric()),
+            compilationMode = CompilationMode.DEFAULT,
+            iterations = 10,
+            startupMode = StartupMode.COLD,
+            setupBlock = { pressHome() },
+            measureBlock = { startActivityAndWait {} }
+        )
 
     companion object {
         private const val PACKAGE_NAME =

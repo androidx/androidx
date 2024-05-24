@@ -33,8 +33,7 @@ class Camera2CameraControlTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun fromCameraControlThrows_whenNotCamera2Impl() {
-        val wrongCameraControl =
-            CameraControlInternal.DEFAULT_EMPTY_INSTANCE
+        val wrongCameraControl = CameraControlInternal.DEFAULT_EMPTY_INSTANCE
         Camera2CameraControl.from(wrongCameraControl)
     }
 }

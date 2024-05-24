@@ -54,32 +54,31 @@ class EncoderProfilesProviderAdapterDeviceTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun data(): Array<Array<Int>> = arrayOf(
-            arrayOf(CamcorderProfile.QUALITY_LOW),
-            arrayOf(CamcorderProfile.QUALITY_HIGH),
-            arrayOf(CamcorderProfile.QUALITY_QCIF),
-            arrayOf(CamcorderProfile.QUALITY_CIF),
-            arrayOf(CamcorderProfile.QUALITY_480P),
-            arrayOf(CamcorderProfile.QUALITY_720P),
-            arrayOf(CamcorderProfile.QUALITY_1080P),
-            arrayOf(CamcorderProfile.QUALITY_QVGA),
-            arrayOf(CamcorderProfile.QUALITY_2160P),
-            arrayOf(CamcorderProfile.QUALITY_VGA),
-            arrayOf(CamcorderProfile.QUALITY_4KDCI),
-            arrayOf(CamcorderProfile.QUALITY_QHD),
-            arrayOf(CamcorderProfile.QUALITY_2K)
-        )
+        fun data(): Array<Array<Int>> =
+            arrayOf(
+                arrayOf(CamcorderProfile.QUALITY_LOW),
+                arrayOf(CamcorderProfile.QUALITY_HIGH),
+                arrayOf(CamcorderProfile.QUALITY_QCIF),
+                arrayOf(CamcorderProfile.QUALITY_CIF),
+                arrayOf(CamcorderProfile.QUALITY_480P),
+                arrayOf(CamcorderProfile.QUALITY_720P),
+                arrayOf(CamcorderProfile.QUALITY_1080P),
+                arrayOf(CamcorderProfile.QUALITY_QVGA),
+                arrayOf(CamcorderProfile.QUALITY_2160P),
+                arrayOf(CamcorderProfile.QUALITY_VGA),
+                arrayOf(CamcorderProfile.QUALITY_4KDCI),
+                arrayOf(CamcorderProfile.QUALITY_QHD),
+                arrayOf(CamcorderProfile.QUALITY_2K)
+            )
     }
 
     private lateinit var encoderProfilesProvider: EncoderProfilesProviderAdapter
     private var cameraId = ""
     private var intCameraId = -1
 
-    @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
+    @get:Rule val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
-    @get:Rule
-    val labTestRule = LabTestRule()
+    @get:Rule val labTestRule = LabTestRule()
 
     @Before
     fun setup() {
@@ -91,17 +90,18 @@ class EncoderProfilesProviderAdapterDeviceTest(
     }
 
     private fun setUptEncoderProfileProvider() {
-        val cameraPipe =
-            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
+        val cameraPipe = CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
         val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(CameraId(cameraId))!!
         val streamConfigurationMap =
             cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-        val cameraQuirks = CameraQuirks(
-            cameraMetadata, StreamConfigurationMapCompat(
-                streamConfigurationMap,
-                OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+        val cameraQuirks =
+            CameraQuirks(
+                cameraMetadata,
+                StreamConfigurationMapCompat(
+                    streamConfigurationMap,
+                    OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
+                )
             )
-        )
         encoderProfilesProvider = EncoderProfilesProviderAdapter(cameraId, cameraQuirks.quirks)
     }
 

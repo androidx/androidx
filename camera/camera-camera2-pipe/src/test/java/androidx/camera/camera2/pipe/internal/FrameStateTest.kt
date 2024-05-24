@@ -51,32 +51,26 @@ class FrameStateTest {
 
     private val imageStreams = setOf(stream1Id, stream2Id)
     private val fakeImage = FakeImage(640, 480, StreamFormat.YUV_420_888.value, frameTimestampNs)
-    private val outputImage = OutputImage.from(
-        stream1Id,
-        output1Id,
-        fakeImage
-    )
+    private val outputImage = OutputImage.from(stream1Id, output1Id, fakeImage)
     private val fakeSurfaces = FakeSurfaces()
     private val stream1Surface = fakeSurfaces.createFakeSurface()
     private val stream2Surface = fakeSurfaces.createFakeSurface()
 
-    private val fakeRequestMetadata = FakeRequestMetadata(
-        streams = mapOf(stream1Id to stream1Surface, stream2Id to stream2Surface)
-    )
-    private val fakeFrameMetadata = FakeFrameMetadata(
-        frameNumber = frameNumber
-    )
-    private val fakeFrameInfo = FakeFrameInfo(
-        metadata = fakeFrameMetadata,
-        requestMetadata = fakeRequestMetadata
-    )
+    private val fakeRequestMetadata =
+        FakeRequestMetadata(
+            streams = mapOf(stream1Id to stream1Surface, stream2Id to stream2Surface)
+        )
+    private val fakeFrameMetadata = FakeFrameMetadata(frameNumber = frameNumber)
+    private val fakeFrameInfo =
+        FakeFrameInfo(metadata = fakeFrameMetadata, requestMetadata = fakeRequestMetadata)
 
-    private val frameState = FrameState(
-        requestMetadata = fakeRequestMetadata,
-        frameNumber = frameNumber,
-        frameTimestamp = frameTimestamp,
-        imageStreams
-    )
+    private val frameState =
+        FrameState(
+            requestMetadata = fakeRequestMetadata,
+            frameNumber = frameNumber,
+            frameTimestamp = frameTimestamp,
+            imageStreams
+        )
 
     private val imageResult1 = frameState.imageOutputs.first { it.streamId == stream1Id }
     private val imageResult2 = frameState.imageOutputs.first { it.streamId == stream2Id }

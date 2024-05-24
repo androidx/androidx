@@ -21,12 +21,9 @@ import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.MainActivity
 import androidx.camera.integration.antelope.TestConfig
 
-/**
- * Cross-API function to close the currently active preview stream and camera device
- */
+/** Cross-API function to close the currently active preview stream and camera device */
 fun closePreviewAndCamera(activity: MainActivity, params: CameraParams?, testConfig: TestConfig) {
-    if (null == params)
-        return
+    if (null == params) return
 
     when (testConfig.api) {
         CameraAPI.CAMERA1 -> camera1CloseCamera(activity, params, testConfig)
@@ -35,9 +32,7 @@ fun closePreviewAndCamera(activity: MainActivity, params: CameraParams?, testCon
     }
 }
 
-/**
- * Convenience method to close all cameras on a device.
- */
+/** Convenience method to close all cameras on a device. */
 fun closeAllCameras(activity: MainActivity, testConfig: TestConfig) {
     MainActivity.logd("Closing all cameras.")
     for (tempCameraParams: CameraParams in MainActivity.cameraParams.values) {

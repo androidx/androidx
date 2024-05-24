@@ -34,13 +34,14 @@ import kotlinx.atomicfu.atomic
  * Each instance is closeable, and references to an underlying [FrameState] object which aggregates
  * and all of the underlying placeholder objects for each expected output.
  */
-internal class FrameImpl private constructor(
+internal class FrameImpl
+private constructor(
     private val frameState: FrameState,
     override val imageStreams: Set<StreamId>,
 ) : Frame {
-    internal constructor(frameState: FrameState) : this(
-        frameState, frameState.imageOutputs.map { it.streamId }.toSet()
-    )
+    internal constructor(
+        frameState: FrameState
+    ) : this(frameState, frameState.imageOutputs.map { it.streamId }.toSet())
 
     private val closed = atomic(false)
 
@@ -52,8 +53,8 @@ internal class FrameImpl private constructor(
         val availableImageStreams = buildSet {
             for (streamResult in frameState.imageOutputs) {
                 val id = streamResult.streamId
-                if (imageStreams.contains(id) &&
-                    (streamFilter == null || streamFilter.contains(id))
+                if (
+                    imageStreams.contains(id) && (streamFilter == null || streamFilter.contains(id))
                 ) {
                     // Increment the reference count for the underlying image output. If successful,
                     // add it to the list of available streams.
@@ -108,12 +109,16 @@ internal class FrameImpl private constructor(
 
     override val requestMetadata: RequestMetadata
         get() = frameState.requestMetadata
+
     override val frameId: FrameId
         get() = frameState.frameId
+
     override val frameNumber: FrameNumber
         get() = frameState.frameNumber
+
     override val frameTimestamp: CameraTimestamp
         get() = frameState.frameTimestamp
+
     override val frameInfoStatus: OutputStatus
         get() {
             if (closed.value) return OutputStatus.UNAVAILABLE

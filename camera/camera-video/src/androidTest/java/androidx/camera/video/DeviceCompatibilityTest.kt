@@ -51,10 +51,10 @@ import org.junit.runners.Parameterized
  * Test used to find out compatibility issue.
  *
  * All tests in this file should always pass. Every time we want to add a new test, it means there
- * is also a corresponding quirk in the codebase and we want to find more devices with the same
- * root cause. Tests should use [assumeTrue] to skip related quirks so that the problematic device
- * will pass the test. Once a new failure is found in the mobile harness test results, we should
- * add the device to the relevant quirk to pass the test.
+ * is also a corresponding quirk in the codebase and we want to find more devices with the same root
+ * cause. Tests should use [assumeTrue] to skip related quirks so that the problematic device will
+ * pass the test. Once a new failure is found in the mobile harness test results, we should add the
+ * device to the relevant quirk to pass the test.
  */
 @SmallTest
 @RunWith(Parameterized::class)
@@ -68,14 +68,16 @@ class DeviceCompatibilityTest(
     private val zeroRange by lazy { android.util.Range.create(0, 0) }
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
     @Before
     fun setup() {
@@ -106,13 +108,14 @@ class DeviceCompatibilityTest(
             if (mime == VideoProfileProxy.MEDIA_TYPE_NONE) {
                 return@forEach
             }
-            val capabilities = MediaCodec.createEncoderByType(mime).let { codec ->
-                try {
-                    codec.codecInfo.getCapabilitiesForType(mime).videoCapabilities
-                } finally {
-                    codec.release()
+            val capabilities =
+                MediaCodec.createEncoderByType(mime).let { codec ->
+                    try {
+                        codec.codecInfo.getCapabilitiesForType(mime).videoCapabilities
+                    } finally {
+                        codec.release()
+                    }
                 }
-            }
 
             // Act.
             val (width, height) = videoProfile.width to videoProfile.height
@@ -127,12 +130,13 @@ class DeviceCompatibilityTest(
             val supportedHeightForWidth = capabilities.getHeightsForWidthQuietly(width)
 
             // Assert.
-            val msg = "Build.BRAND: ${Build.BRAND}, Build.MODEL: ${Build.MODEL} " +
-                "mime: $mime, size: ${width}x$height is not in " +
-                "supported widths $supportedWidths/$supportedWidthsForHeight " +
-                "or heights $supportedHeights/$supportedHeightForWidth, " +
-                "the width/height alignment is " +
-                "${capabilities.widthAlignment}/${capabilities.heightAlignment}."
+            val msg =
+                "Build.BRAND: ${Build.BRAND}, Build.MODEL: ${Build.MODEL} " +
+                    "mime: $mime, size: ${width}x$height is not in " +
+                    "supported widths $supportedWidths/$supportedWidthsForHeight " +
+                    "or heights $supportedHeights/$supportedHeightForWidth, " +
+                    "the width/height alignment is " +
+                    "${capabilities.widthAlignment}/${capabilities.heightAlignment}."
             assertWithMessage(msg).that(width).isIn(supportedWidths.toClosed())
             assertWithMessage(msg).that(height).isIn(supportedHeights.toClosed())
             assertWithMessage(msg).that(width).isIn(supportedWidthsForHeight.toClosed())
@@ -159,8 +163,9 @@ class DeviceCompatibilityTest(
 
     private fun android.util.Range<Int>.toClosed() = Range.closed(lower, upper)
 
-    private fun MediaCodecInfo.VideoCapabilities.getWidthsForHeightQuietly(height: Int):
-        android.util.Range<Int> {
+    private fun MediaCodecInfo.VideoCapabilities.getWidthsForHeightQuietly(
+        height: Int
+    ): android.util.Range<Int> {
         return try {
             getSupportedWidthsFor(height)
         } catch (e: IllegalArgumentException) {
@@ -168,8 +173,9 @@ class DeviceCompatibilityTest(
         }
     }
 
-    private fun MediaCodecInfo.VideoCapabilities.getHeightsForWidthQuietly(width: Int):
-        android.util.Range<Int> {
+    private fun MediaCodecInfo.VideoCapabilities.getHeightsForWidthQuietly(
+        width: Int
+    ): android.util.Range<Int> {
         return try {
             getSupportedHeightsFor(width)
         } catch (e: IllegalArgumentException) {
@@ -180,9 +186,10 @@ class DeviceCompatibilityTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 }

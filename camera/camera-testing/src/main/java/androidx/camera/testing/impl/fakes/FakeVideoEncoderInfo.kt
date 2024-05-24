@@ -33,8 +33,10 @@ class FakeVideoEncoderInfo(
     }
 
     override fun isSizeSupported(width: Int, height: Int) =
-        supportedWidths.contains(width) && supportedHeights.contains(height) &&
-            width.mod(widthAlignment) == 0 && height.mod(heightAlignment) == 0
+        supportedWidths.contains(width) &&
+            supportedHeights.contains(height) &&
+            width.mod(widthAlignment) == 0 &&
+            height.mod(heightAlignment) == 0
 
     override fun getSupportedWidths(): Range<Int> {
         return supportedWidths

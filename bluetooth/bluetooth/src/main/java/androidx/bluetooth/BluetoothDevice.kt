@@ -29,24 +29,21 @@ import java.util.UUID
  * @property id the unique id for this BluetoothDevice
  * @property name the name for this BluetoothDevice
  * @property bondState the bondState for this BluetoothDevice
- *
  */
-class BluetoothDevice @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
-    internal val fwkDevice: FwkBluetoothDevice
-) {
+class BluetoothDevice
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+constructor(internal val fwkDevice: FwkBluetoothDevice) {
 
     val id: UUID = deviceId(BluetoothLe.packageName, fwkDevice)
 
     @get:RequiresPermission(
-        anyOf = ["android.permission.BLUETOOTH",
-            "android.permission.BLUETOOTH_CONNECT"]
+        anyOf = ["android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"]
     )
     val name: String?
         get() = fwkDevice.name
 
     @get:RequiresPermission(
-        anyOf = ["android.permission.BLUETOOTH",
-            "android.permission.BLUETOOTH_CONNECT"]
+        anyOf = ["android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"]
     )
     val bondState: Int
         get() = fwkDevice.bondState

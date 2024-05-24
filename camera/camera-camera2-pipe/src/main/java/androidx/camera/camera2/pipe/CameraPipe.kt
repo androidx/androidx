@@ -53,12 +53,13 @@ internal val cameraPipeIds = atomic(0)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class CameraPipe(config: Config) {
     private val debugId = cameraPipeIds.incrementAndGet()
-    private val component: CameraPipeComponent = Debug.trace("CameraPipe") {
-        DaggerCameraPipeComponent.builder()
-            .cameraPipeConfigModule(CameraPipeConfigModule(config))
-            .threadConfigModule(ThreadConfigModule(config.threadConfig))
-            .build()
-    }
+    private val component: CameraPipeComponent =
+        Debug.trace("CameraPipe") {
+            DaggerCameraPipeComponent.builder()
+                .cameraPipeConfigModule(CameraPipeConfigModule(config))
+                .threadConfigModule(ThreadConfigModule(config.threadConfig))
+                .build()
+        }
 
     /**
      * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
@@ -83,9 +84,11 @@ class CameraPipe(config: Config) {
         if (concurrentConfigs.size == 1) {
             return listOf(create(concurrentConfigs.first()))
         }
-        check(concurrentConfigs.all {
-            it.cameraBackendId == concurrentConfigs.first().cameraBackendId
-        }) {
+        check(
+            concurrentConfigs.all {
+                it.cameraBackendId == concurrentConfigs.first().cameraBackendId
+            }
+        ) {
             "All concurrent CameraGraph configs should have the same camera backend ID!"
         }
         val allCameraIds = concurrentConfigs.map { it.camera }
@@ -93,11 +96,10 @@ class CameraPipe(config: Config) {
             "All camera IDs specified should be distinct!"
         }
 
-        val configs = concurrentConfigs.map { config ->
-            config.apply {
-                sharedCameraIds = allCameraIds.filter { it != config.camera }
+        val configs =
+            concurrentConfigs.map { config ->
+                config.apply { sharedCameraIds = allCameraIds.filter { it != config.camera } }
             }
-        }
         return configs.map { create(it) }
     }
 
@@ -177,8 +179,7 @@ class CameraPipe(config: Config) {
      */
     class CameraMetadataConfig(
         val cacheBlocklist: Set<CameraCharacteristics.Key<*>> = emptySet(),
-        val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
-            emptyMap()
+        val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> = emptyMap()
     )
 
     /**

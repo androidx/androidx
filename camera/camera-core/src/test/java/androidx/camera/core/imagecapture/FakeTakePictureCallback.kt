@@ -21,9 +21,7 @@ import androidx.camera.core.ImageCapture.OutputFileResults
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 
-/**
- * Fake [TakePictureCallback] that tracks method invocations.
- */
+/** Fake [TakePictureCallback] that tracks method invocations. */
 internal class FakeTakePictureCallback : TakePictureCallback {
 
     var onCaptureStarted = false

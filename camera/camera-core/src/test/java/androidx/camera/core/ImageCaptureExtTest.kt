@@ -48,9 +48,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ImageCaptureExtTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val fakeOutputFileOptions = ImageCapture.OutputFileOptions.Builder(
-        File("fake_path")
-    ).build()
+    private val fakeOutputFileOptions =
+        ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var imageCapture: ImageCapture
 
@@ -58,13 +57,14 @@ class ImageCaptureExtTest {
     fun setup() {
         val latch = CountDownLatch(1)
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
-        ProcessCameraProvider.getInstance(context).addListener(
-            {
-                cameraProvider = ProcessCameraProvider.getInstance(context).get()
-                latch.countDown()
-            },
-            CameraXExecutors.directExecutor()
-        )
+        ProcessCameraProvider.getInstance(context)
+            .addListener(
+                {
+                    cameraProvider = ProcessCameraProvider.getInstance(context).get()
+                    latch.countDown()
+                },
+                CameraXExecutors.directExecutor()
+            )
 
         assertThat(latch.await(5, TimeUnit.SECONDS)).isTrue()
 
@@ -115,11 +115,10 @@ class ImageCaptureExtTest {
         var callbackCalled = false
 
         // Act.
-        val takePictureAsync = MainScope().async {
-            imageCapture.takePicture(onCaptureStarted = {
-                callbackCalled = true
-            })
-        }
+        val takePictureAsync =
+            MainScope().async {
+                imageCapture.takePicture(onCaptureStarted = { callbackCalled = true })
+            }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         val imageCaptureCallback = imageCapture.getTakePictureRequest()?.inMemoryCallback
         imageCaptureCallback?.onCaptureStarted()
@@ -138,12 +137,15 @@ class ImageCaptureExtTest {
         var resultProgress = 0
 
         // Act.
-        val takePictureAsync = MainScope().async {
-            imageCapture.takePicture(onCaptureProcessProgressed = {
-                resultProgress = it
-                callbackCalled = true
-            })
-        }
+        val takePictureAsync =
+            MainScope().async {
+                imageCapture.takePicture(
+                    onCaptureProcessProgressed = {
+                        resultProgress = it
+                        callbackCalled = true
+                    }
+                )
+            }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         val imageCaptureCallback = imageCapture.getTakePictureRequest()?.inMemoryCallback
         imageCaptureCallback?.onCaptureProcessProgressed(progress)
@@ -163,12 +165,15 @@ class ImageCaptureExtTest {
         lateinit var resultBitmap: Bitmap
 
         // Act.
-        val takePictureAsync = MainScope().async {
-            imageCapture.takePicture(onPostviewBitmapAvailable = {
-                resultBitmap = it
-                callbackCalled = true
-            })
-        }
+        val takePictureAsync =
+            MainScope().async {
+                imageCapture.takePicture(
+                    onPostviewBitmapAvailable = {
+                        resultBitmap = it
+                        callbackCalled = true
+                    }
+                )
+            }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         val imageCaptureCallback = imageCapture.getTakePictureRequest()?.inMemoryCallback
         imageCaptureCallback?.onPostviewBitmapAvailable(bitmap)
@@ -186,9 +191,10 @@ class ImageCaptureExtTest {
         val outputFileResults = ImageCapture.OutputFileResults(null)
 
         // Arrange & Act.
-        val takePictureAsync = MainScope().async {
-            imageCapture.takePicture(outputFileOptions = fakeOutputFileOptions)
-        }
+        val takePictureAsync =
+            MainScope().async {
+                imageCapture.takePicture(outputFileOptions = fakeOutputFileOptions)
+            }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         val imageCaptureCallback = imageCapture.getTakePictureRequest()?.onDiskCallback
         imageCaptureCallback?.onImageSaved(outputFileResults)
@@ -201,9 +207,10 @@ class ImageCaptureExtTest {
     @Test
     fun takePicture_onDisk_canCancel(): Unit = runTest {
         // Arrange & Act.
-        val takePictureAsync = MainScope().async {
-            imageCapture.takePicture(outputFileOptions = fakeOutputFileOptions)
-        }
+        val takePictureAsync =
+            MainScope().async {
+                imageCapture.takePicture(outputFileOptions = fakeOutputFileOptions)
+            }
 
         // Assert: cancel() should complete the coroutine.
         takePictureAsync.cancel()
@@ -215,11 +222,13 @@ class ImageCaptureExtTest {
         var callbackCalled = false
 
         // Act.
-        val takePictureAsync = MainScope().async {
-            imageCapture.takePicture(
-                outputFileOptions = fakeOutputFileOptions,
-                onCaptureStarted = { callbackCalled = true })
-        }
+        val takePictureAsync =
+            MainScope().async {
+                imageCapture.takePicture(
+                    outputFileOptions = fakeOutputFileOptions,
+                    onCaptureStarted = { callbackCalled = true }
+                )
+            }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         val imageCaptureCallback = imageCapture.getTakePictureRequest()?.onDiskCallback
         imageCaptureCallback?.onCaptureStarted()
@@ -238,14 +247,16 @@ class ImageCaptureExtTest {
         var resultProgress = 0
 
         // Act.
-        val takePictureAsync = MainScope().async {
-            imageCapture.takePicture(
-                outputFileOptions = fakeOutputFileOptions,
-                onCaptureProcessProgressed = {
-                    resultProgress = it
-                    callbackCalled = true
-                })
-        }
+        val takePictureAsync =
+            MainScope().async {
+                imageCapture.takePicture(
+                    outputFileOptions = fakeOutputFileOptions,
+                    onCaptureProcessProgressed = {
+                        resultProgress = it
+                        callbackCalled = true
+                    }
+                )
+            }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         val onImageCaptureCallback = imageCapture.getTakePictureRequest()?.onDiskCallback
         onImageCaptureCallback?.onCaptureProcessProgressed(progress)
@@ -265,14 +276,16 @@ class ImageCaptureExtTest {
         lateinit var resultBitmap: Bitmap
 
         // Act.
-        val takePictureAsync = MainScope().async {
-            imageCapture.takePicture(
-                outputFileOptions = fakeOutputFileOptions,
-                onPostviewBitmapAvailable = {
-                    resultBitmap = it
-                    callbackCalled = true
-                })
-        }
+        val takePictureAsync =
+            MainScope().async {
+                imageCapture.takePicture(
+                    outputFileOptions = fakeOutputFileOptions,
+                    onPostviewBitmapAvailable = {
+                        resultBitmap = it
+                        callbackCalled = true
+                    }
+                )
+            }
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         val onImageCaptureCallback = imageCapture.getTakePictureRequest()?.onDiskCallback
         onImageCaptureCallback?.onPostviewBitmapAvailable(bitmap)

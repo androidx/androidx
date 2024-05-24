@@ -80,24 +80,19 @@ interface CameraDevices {
      */
     fun prewarm(cameraId: CameraId, cameraBackendId: CameraBackendId? = null)
 
-    /**
-     * Non blocking operation that disconnects the underlying active Camera.
-     */
+    /** Non blocking operation that disconnects the underlying active Camera. */
     fun disconnect(cameraId: CameraId, cameraBackendId: CameraBackendId? = null)
 
     /**
-     * Disconnects the underlying active Camera. Once fully closed,
-     * the returned [Deferred] should be completed. It is synchronous with the other operations
-     * within this class.
+     * Disconnects the underlying active Camera. Once fully closed, the returned [Deferred] should
+     * be completed. It is synchronous with the other operations within this class.
      */
     fun disconnectAsync(
         cameraId: CameraId,
         cameraBackendId: CameraBackendId? = null
     ): Deferred<Unit>
 
-    /**
-     * Non blocking operation that disconnects all active Cameras.
-     */
+    /** Non blocking operation that disconnects all active Cameras. */
     fun disconnectAll(cameraBackendId: CameraBackendId? = null)
 
     /**
@@ -154,20 +149,17 @@ interface CameraDevices {
     fun awaitMetadata(camera: CameraId): CameraMetadata
 }
 
-/**
- * CameraId represents a typed identifier for a camera represented as a non-blank String.
- */
+/** CameraId represents a typed identifier for a camera represented as a non-blank String. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 value class CameraId(val value: String) {
     init {
-        require(value.isNotBlank()) {
-            "CameraId cannot be null or blank!"
-        }
+        require(value.isNotBlank()) { "CameraId cannot be null or blank!" }
     }
 
     companion object {
         inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
+
         inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
     }
 
@@ -177,6 +169,7 @@ value class CameraId(val value: String) {
      * @return The parsed Camera1 id, or null if the value cannot be parsed as a Camera1 id.
      */
     inline fun toCamera1Id(): Int? = value.toIntOrNull()
+
     override fun toString(): String = "CameraId-$value"
 }
 
@@ -209,9 +202,10 @@ fun CameraDevices.find(
             for (physicalId in metadata.physicalCameraIds) {
                 if (!visited.contains(physicalId)) {
                     val physicalMetadata = this@find.getCameraMetadata(physicalId, cameraBackendId)
-                    if (physicalMetadata != null &&
-                        physicalMetadata.camera == physicalId &&
-                        visited.add(physicalId)
+                    if (
+                        physicalMetadata != null &&
+                            physicalMetadata.camera == physicalId &&
+                            visited.add(physicalId)
                     ) {
                         emit(physicalMetadata)
                     }

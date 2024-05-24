@@ -35,8 +35,8 @@ internal interface Camera2MetadataProvider {
     fun getCameraExtensionCharacteristics(cameraId: CameraId): CameraExtensionCharacteristics
 
     /**
-     * Attempt to retrieve [CameraExtensionMetadata], blocking the calling thread if it is
-     * not yet available.
+     * Attempt to retrieve [CameraExtensionMetadata], blocking the calling thread if it is not yet
+     * available.
      */
     suspend fun getCameraExtensionMetadata(
         cameraId: CameraId,
@@ -44,8 +44,8 @@ internal interface Camera2MetadataProvider {
     ): CameraExtensionMetadata
 
     /**
-     * Attempt to retrieve [CameraExtensionMetadata], blocking the calling thread if it is
-     * not yet available.
+     * Attempt to retrieve [CameraExtensionMetadata], blocking the calling thread if it is not yet
+     * available.
      */
     fun awaitCameraExtensionMetadata(cameraId: CameraId, extension: Int): CameraExtensionMetadata
 }

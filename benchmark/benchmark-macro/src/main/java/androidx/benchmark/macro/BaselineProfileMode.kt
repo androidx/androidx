@@ -17,7 +17,8 @@
 package androidx.benchmark.macro
 
 /**
- * Choice of how the Baseline Profile in a target application should be included or ignored during pre-compilation.
+ * Choice of how the Baseline Profile in a target application should be included or ignored during
+ * pre-compilation.
  */
 enum class BaselineProfileMode {
     /**
@@ -32,13 +33,11 @@ enum class BaselineProfileMode {
      * Include the BaselineProfile methods/classes from the target app into the compilation step if
      * a Baseline Profile and the ProfileInstaller library are both present in the target.
      *
-     * This is the same as [Require], except it logs instead of throwing when the
-     * Baseline Profile or ProfileInstaller library aren't present in the target application.
+     * This is the same as [Require], except it logs instead of throwing when the Baseline Profile
+     * or ProfileInstaller library aren't present in the target application.
      */
     UseIfAvailable,
 
-    /**
-     * Do not include the Baseline Profile, if present, in the compilation of the target app.
-     */
+    /** Do not include the Baseline Profile, if present, in the compilation of the target app. */
     Disable
 }

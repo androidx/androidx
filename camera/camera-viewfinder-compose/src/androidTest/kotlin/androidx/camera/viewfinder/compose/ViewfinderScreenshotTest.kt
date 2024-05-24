@@ -59,48 +59,50 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ViewfinderScreenshotTest {
 
-    @get:Rule
-    val composeTestRule = createComposeRule()
+    @get:Rule val composeTestRule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_COMPOSE)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_CAMERA_VIEWFINDER_COMPOSE)
 
     @Test
     fun embeddedImplementationDrawsUpright_from0DegreeSource() = runBlocking {
-        val testParams = ViewfinderTestParams(
-            sourceRotation = 0,
-            implementationMode = ImplementationMode.EMBEDDED
-        )
+        val testParams =
+            ViewfinderTestParams(
+                sourceRotation = 0,
+                implementationMode = ImplementationMode.EMBEDDED
+            )
 
         assertImplementationDrawsUpright(testParams)
     }
 
     @Test
     fun embeddedImplementationDrawsUpright_from180DegreeSource() = runBlocking {
-        val testParams = ViewfinderTestParams(
-            sourceRotation = 180,
-            implementationMode = ImplementationMode.EMBEDDED
-        )
+        val testParams =
+            ViewfinderTestParams(
+                sourceRotation = 180,
+                implementationMode = ImplementationMode.EMBEDDED
+            )
 
         assertImplementationDrawsUpright(testParams)
     }
 
     @Test
     fun embeddedImplementationDrawsUpright_from90DegreeSource() = runBlocking {
-        val testParams = ViewfinderTestParams(
-            sourceRotation = 90,
-            implementationMode = ImplementationMode.EMBEDDED
-        )
+        val testParams =
+            ViewfinderTestParams(
+                sourceRotation = 90,
+                implementationMode = ImplementationMode.EMBEDDED
+            )
 
         assertImplementationDrawsUpright(testParams)
     }
 
     @Test
     fun embeddedImplementationDrawsUpright_from270DegreeSource() = runBlocking {
-        val testParams = ViewfinderTestParams(
-            sourceRotation = 270,
-            implementationMode = ImplementationMode.EMBEDDED
-        )
+        val testParams =
+            ViewfinderTestParams(
+                sourceRotation = 270,
+                implementationMode = ImplementationMode.EMBEDDED
+            )
 
         assertImplementationDrawsUpright(testParams)
     }
@@ -108,10 +110,11 @@ class ViewfinderScreenshotTest {
     @Ignore("b/338466761")
     @Test
     fun externalImplementationDrawsUpright_from0DegreeSource() = runBlocking {
-        val testParams = ViewfinderTestParams(
-            sourceRotation = 0,
-            implementationMode = ImplementationMode.EXTERNAL
-        )
+        val testParams =
+            ViewfinderTestParams(
+                sourceRotation = 0,
+                implementationMode = ImplementationMode.EXTERNAL
+            )
 
         assertImplementationDrawsUpright(testParams)
     }
@@ -119,10 +122,11 @@ class ViewfinderScreenshotTest {
     @Ignore("b/338466761")
     @Test
     fun externalImplementationDrawsUpright_from180DegreeSource() = runBlocking {
-        val testParams = ViewfinderTestParams(
-            sourceRotation = 180,
-            implementationMode = ImplementationMode.EXTERNAL
-        )
+        val testParams =
+            ViewfinderTestParams(
+                sourceRotation = 180,
+                implementationMode = ImplementationMode.EXTERNAL
+            )
 
         assertImplementationDrawsUpright(testParams)
     }
@@ -130,10 +134,11 @@ class ViewfinderScreenshotTest {
     @Ignore("Currently cannot draw rotated buffers to SurfaceView")
     @Test
     fun externalImplementationDrawsUpright_from90DegreeSource() = runBlocking {
-        val testParams = ViewfinderTestParams(
-            sourceRotation = 90,
-            implementationMode = ImplementationMode.EXTERNAL
-        )
+        val testParams =
+            ViewfinderTestParams(
+                sourceRotation = 90,
+                implementationMode = ImplementationMode.EXTERNAL
+            )
 
         assertImplementationDrawsUpright(testParams)
     }
@@ -141,10 +146,11 @@ class ViewfinderScreenshotTest {
     @Ignore("Currently cannot draw rotated buffers to SurfaceView")
     @Test
     fun externalImplementationDrawsUpright_from270DegreeSource() = runBlocking {
-        val testParams = ViewfinderTestParams(
-            sourceRotation = 270,
-            implementationMode = ImplementationMode.EXTERNAL
-        )
+        val testParams =
+            ViewfinderTestParams(
+                sourceRotation = 270,
+                implementationMode = ImplementationMode.EXTERNAL
+            )
 
         assertImplementationDrawsUpright(testParams)
     }
@@ -153,21 +159,17 @@ class ViewfinderScreenshotTest {
         val surfaceRequest = ViewfinderSurfaceRequest.Builder(testParams.sourceResolution).build()
         composeTestRule.setContent {
             Viewfinder(
-                modifier = Modifier
-                    .size(testParams.viewfinderSize)
-                    .testTag(VIEWFINDER_TAG),
+                modifier = Modifier.size(testParams.viewfinderSize).testTag(VIEWFINDER_TAG),
                 surfaceRequest = surfaceRequest,
                 transformationInfo = testParams.transformationInfo,
                 implementationMode = testParams.implementationMode
             )
 
-            DrawFaceToSurface(
-                testParams = testParams,
-                surfaceRequest = surfaceRequest
-            )
+            DrawFaceToSurface(testParams = testParams, surfaceRequest = surfaceRequest)
         }
 
-        composeTestRule.onNodeWithTag(VIEWFINDER_TAG)
+        composeTestRule
+            .onNodeWithTag(VIEWFINDER_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "upright_face")
     }
@@ -183,10 +185,7 @@ class ViewfinderScreenshotTest {
         val density = LocalDensity.current
         LaunchedEffect(Unit) {
             val surface = surfaceRequest.getSurface()
-            SurfaceUtil.setBuffersTransform(
-                surface,
-                testParams.sourceRotation.toTransformEnum()
-            )
+            SurfaceUtil.setBuffersTransform(surface, testParams.sourceRotation.toTransformEnum())
             val resolution = testParams.sourceResolution
             val canvas = ComposeCanvas(surface.lockHardwareCanvas())
             try {
@@ -194,10 +193,7 @@ class ViewfinderScreenshotTest {
                     density = density,
                     layoutDirection = LayoutDirection.Ltr,
                     canvas = canvas,
-                    size = Size(
-                        resolution.width.toFloat(),
-                        resolution.height.toFloat()
-                    )
+                    size = Size(resolution.width.toFloat(), resolution.height.toFloat())
                 ) {
                     val rotation = testParams.sourceRotation
                     val iconSize = imageVec.calcFitSize(size, rotation, density)
@@ -209,9 +205,7 @@ class ViewfinderScreenshotTest {
                             top = (size.height - iconSize.height) / 2f
                         )
                     }) {
-                        with(painter) {
-                            draw(iconSize)
-                        }
+                        with(painter) { draw(iconSize) }
                     }
                 }
             } finally {
@@ -221,21 +215,18 @@ class ViewfinderScreenshotTest {
     }
 
     private fun ImageVector.calcFitSize(boundSize: Size, rotation: Int, density: Density): Size {
-        val rotatedBoundSize = when (abs(rotation)) {
-            90, 270 -> boundSize.swapDimens()
-            else -> boundSize
-        }
+        val rotatedBoundSize =
+            when (abs(rotation)) {
+                90,
+                270 -> boundSize.swapDimens()
+                else -> boundSize
+            }
 
-        val defaultSize = with(density) {
-            Size(defaultWidth.toPx(), defaultHeight.toPx())
-        }
+        val defaultSize = with(density) { Size(defaultWidth.toPx(), defaultHeight.toPx()) }
 
         val scale = ContentScale.Fit.computeScaleFactor(defaultSize, rotatedBoundSize)
 
-        return Size(
-            defaultSize.width * scale.scaleX,
-            defaultSize.height * scale.scaleY
-        )
+        return Size(defaultSize.width * scale.scaleX, defaultSize.height * scale.scaleY)
     }
 
     private fun Size.swapDimens(): Size = Size(height, width)
@@ -246,9 +237,10 @@ class ViewfinderScreenshotTest {
             90 -> SurfaceUtil.TRANSFORM_ROTATE_90
             180 -> SurfaceUtil.TRANSFORM_ROTATE_180
             270 -> SurfaceUtil.TRANSFORM_ROTATE_270
-            else -> throw IllegalArgumentException(
-                "Rotation value $this does not correspond to valid transform"
-            )
+            else ->
+                throw IllegalArgumentException(
+                    "Rotation value $this does not correspond to valid transform"
+                )
         }
     }
 }

@@ -31,16 +31,17 @@ class TorchIsClosedAfterImageCapturingQuirk : Quirk {
 
     companion object {
         // List of devices with the issue. See b/228272227.
-        private val BUILD_MODELS = listOf(
-            "mi a1", // Xiaomi Mi A1
-            "mi a2", // Xiaomi Mi A2
-            "mi a2 lite", // Xiaomi Mi A2 Lite
-            "redmi 4x", // Xiaomi Redmi 4X
-            "redmi 5a", // Xiaomi Redmi 5A
-            "redmi note 5", // Xiaomi Redmi Note 5
-            "redmi note 5 pro", // Xiaomi Redmi Note 5 Pro
-            "redmi 6 pro", // Xiaomi Redmi 6 Pro
-        )
+        private val BUILD_MODELS =
+            listOf(
+                "mi a1", // Xiaomi Mi A1
+                "mi a2", // Xiaomi Mi A2
+                "mi a2 lite", // Xiaomi Mi A2 Lite
+                "redmi 4x", // Xiaomi Redmi 4X
+                "redmi 5a", // Xiaomi Redmi 5A
+                "redmi note 5", // Xiaomi Redmi Note 5
+                "redmi note 5 pro", // Xiaomi Redmi Note 5 Pro
+                "redmi 6 pro", // Xiaomi Redmi 6 Pro
+            )
 
         fun isEnabled(): Boolean {
             return BUILD_MODELS.contains(Build.MODEL.lowercase())

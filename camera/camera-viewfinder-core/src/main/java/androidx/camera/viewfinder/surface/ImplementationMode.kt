@@ -21,14 +21,12 @@ import androidx.annotation.RestrictTo
 /**
  * The implementation mode of a Viewfinder.
  *
- * User preference on how the viewfinder should render the viewfinder.
- * The viewfinder is displayed with either a SurfaceView/AndroidExternalSurface or a
- * TextureView/AndroidEmbeddedExternalSurface.
- *
+ * User preference on how the viewfinder should render the viewfinder. The viewfinder is displayed
+ * with either a SurfaceView/AndroidExternalSurface or a TextureView/AndroidEmbeddedExternalSurface.
  * - [EXTERNAL] uses a SurfaceView/AndroidExternalSurface, it is generally better when it comes to
- *  certain key metrics, including power and latency.
+ *   certain key metrics, including power and latency.
  * - [EMBEDDED] uses a TextureView/AndroidEmbeddedExternalSurface it is better supported by a wider
- *  range of devices.
+ *   range of devices.
  *
  * The option is used to decide what is the best internal implementation given the device
  * capabilities and user configurations.
@@ -41,9 +39,7 @@ enum class ImplementationMode(private val id: Int) {
      */
     EXTERNAL(0),
 
-    /**
-     * Use a TextureView/AndroidEmbeddedExternalSurface for the Viewfinder.
-     */
+    /** Use a TextureView/AndroidEmbeddedExternalSurface for the Viewfinder. */
     EMBEDDED(1);
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -54,6 +50,7 @@ enum class ImplementationMode(private val id: Int) {
     companion object {
         /**
          * Convert an Int id to ImplementationMode
+         *
          * @throws IllegalArgumentException if id doesn't below to any ImplementationMode
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

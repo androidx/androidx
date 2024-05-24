@@ -23,8 +23,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * The wrapper plugin simplifies the developer workflow detecting which android plugin is applied
- * to the module and applying the correct baseline profile plugin. It uses the following mapping:
+ * The wrapper plugin simplifies the developer workflow detecting which android plugin is applied to
+ * the module and applying the correct baseline profile plugin. It uses the following mapping:
  * `com.android.application` can be both [BaselineProfileConsumerPlugin] and
  * [BaselineProfileAppTargetPlugin], `com.android.library` can be only
  * [BaselineProfileConsumerPlugin], `com.android.test` can be only [BaselineProfileProducerPlugin]

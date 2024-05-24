@@ -37,18 +37,17 @@ fun ComposeCameraApp(
         val allScreens = ComposeCameraScreen.values().toList()
         val navController = rememberNavController()
         val backstackEntry = navController.currentBackStackEntryAsState()
-        val currentScreen = ComposeCameraScreen.fromRoute(
-            route = backstackEntry.value?.destination?.route,
-            defaultRoute = ComposeCameraScreen.ImageCapture
-        )
+        val currentScreen =
+            ComposeCameraScreen.fromRoute(
+                route = backstackEntry.value?.destination?.route,
+                defaultRoute = ComposeCameraScreen.ImageCapture
+            )
 
         Scaffold(
             topBar = {
                 ComposeCameraScreenTabRow(
                     allScreens = allScreens,
-                    onTabSelected = { screen ->
-                        navController.navigate(screen.name)
-                    },
+                    onTabSelected = { screen -> navController.navigate(screen.name) },
                     currentScreen = currentScreen
                 )
             }

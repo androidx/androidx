@@ -39,7 +39,7 @@ import kotlinx.atomicfu.atomic
  * 2. [onOutputResult] events *usually* arrive in order, relative to each other.
  * 3. [onOutputStarted] events *usually* happen before a corresponding [onOutputResult] event
  * 4. [onOutputStarted] events may have a large number of events (1-50) before [onOutputResult]
- *      events start coming in.
+ *    events start coming in.
  * 5. [onOutputStarted] and [onOutputResult] are 1:1 under normal circumstances.
  *
  * @param maximumCachedOutputs indicates how many available outputs this distributor will accept
@@ -53,11 +53,11 @@ internal class OutputDistributor<T>(
 
     internal interface OutputListener<T> {
         /**
-         * Invoked when an output is in a completed state, and will *always* be invoked exactly
-         * once per [OutputDistributor.onOutputStarted] event.
+         * Invoked when an output is in a completed state, and will *always* be invoked exactly once
+         * per [OutputDistributor.onOutputStarted] event.
          *
-         * On failures (The output being unavailable, the [OutputDistributor] being closed before
-         * an output has arrived, or an explicit output failure event).
+         * On failures (The output being unavailable, the [OutputDistributor] being closed before an
+         * output has arrived, or an explicit output failure event).
          */
         fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
@@ -70,42 +70,35 @@ internal class OutputDistributor<T>(
 
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private var closed = false
+    @GuardedBy("lock") private var closed = false
 
-    @GuardedBy("lock")
-    private var outputSequenceNumbers = 1L
+    @GuardedBy("lock") private var outputSequenceNumbers = 1L
 
-    @GuardedBy("lock")
-    private var newestOutputNumber = Long.MIN_VALUE
+    @GuardedBy("lock") private var newestOutputNumber = Long.MIN_VALUE
 
-    @GuardedBy("lock")
-    private var newestFrameNumber = FrameNumber(Long.MIN_VALUE)
+    @GuardedBy("lock") private var newestFrameNumber = FrameNumber(Long.MIN_VALUE)
 
-    @GuardedBy("lock")
-    private var lastFailedFrameNumber = Long.MIN_VALUE
+    @GuardedBy("lock") private var lastFailedFrameNumber = Long.MIN_VALUE
 
-    @GuardedBy("lock")
-    private var lastFailedOutputNumber = Long.MIN_VALUE
+    @GuardedBy("lock") private var lastFailedOutputNumber = Long.MIN_VALUE
 
     private val startedOutputs = mutableListOf<StartedOutput<T>>()
     private val availableOutputs = mutableMapOf<Long, OutputResult<T>>()
 
     /**
      * Indicates a camera2 output has started at a particular frameNumber and timestamp as well as
-     * supplying the callback to listen for the output to become available. The
-     * [outputListener] can be invoked synchronously if the output is already available.
+     * supplying the callback to listen for the output to become available. The [outputListener] can
+     * be invoked synchronously if the output is already available.
      *
      * @param cameraFrameNumber The Camera2 FrameNumber for this output
      * @param cameraTimestamp The Camera2 CameraTimestamp for this output
      * @param outputNumber untyped number that corresponds to the number provided by
-     *   [onOutputResult]. For Images, this will likely be the timestamp of the image (Which may
-     *   be the same as the CameraTimestamp, but may also be different if the timebase of the
-     *   the images is different), or the value of the frameNumber if this OutputDistributor is
-     *   handling metadata.
-     * @param outputListener will be invoked whenever the output is fully resolved,
-     *   either because the output has been successfully matched, or because the output has failed,
-     *   or because this OutputDistributor is now closed.
+     *   [onOutputResult]. For Images, this will likely be the timestamp of the image (Which may be
+     *   the same as the CameraTimestamp, but may also be different if the timebase of the images is
+     *   different), or the value of the frameNumber if this OutputDistributor is handling metadata.
+     * @param outputListener will be invoked whenever the output is fully resolved, either because
+     *   the output has been successfully matched, or because the output has failed, or because this
+     *   OutputDistributor is now closed.
      */
     fun onOutputStarted(
         cameraFrameNumber: FrameNumber,
@@ -134,20 +127,23 @@ internal class OutputDistributor<T>(
             //
             // Please see b/324320062 and b/324940238 for context.
             // TODO: b/327289130 - Make sure we finalize all OutputResults if multiple are returned.
-            startedOutputs.firstOrNull { it.cameraFrameNumber == cameraFrameNumber }?.let {
-                Log.warn {
-                    "onOutputStarted was invoked multiple times with a previously started output!" +
-                        "onOutputStarted with $cameraFrameNumber, $cameraTimestamp, $outputNumber" +
-                        ". Previously started output: $it. Ignoring."
+            startedOutputs
+                .firstOrNull { it.cameraFrameNumber == cameraFrameNumber }
+                ?.let {
+                    Log.warn {
+                        "onOutputStarted was invoked multiple times with a previously started output!" +
+                            "onOutputStarted with $cameraFrameNumber, $cameraTimestamp, $outputNumber" +
+                            ". Previously started output: $it. Ignoring."
+                    }
+                    return
                 }
-                return
-            }
 
             isClosed = closed
             outputSequence = outputSequenceNumbers++
-            if (closed ||
-                lastFailedFrameNumber == cameraFrameNumber.value ||
-                lastFailedOutputNumber == outputNumber
+            if (
+                closed ||
+                    lastFailedFrameNumber == cameraFrameNumber.value ||
+                    lastFailedOutputNumber == outputNumber
             ) {
                 outputToFinalize = availableOutputs.remove(outputNumber)
                 invokeOutputListener = true
@@ -173,11 +169,7 @@ internal class OutputDistributor<T>(
                 // availableOutputs.
                 matchingOutput = availableOutputs.remove(outputNumber)
                 invokeOutputListener = true
-                missingOutputs = removeOutputsOlderThan(
-                    isOutOfOrder,
-                    outputSequence,
-                    outputNumber
-                )
+                missingOutputs = removeOutputsOlderThan(isOutOfOrder, outputSequence, outputNumber)
                 return@synchronized
             }
 
@@ -202,11 +194,12 @@ internal class OutputDistributor<T>(
         outputToFinalize?.output?.let { outputFinalizer.finalize(it) }
 
         if (invokeOutputListener) {
-            val outputResult = if (isClosed) {
-                OutputResult.failure(OutputStatus.ERROR_OUTPUT_ABORTED)
-            } else {
-                matchingOutput ?: OutputResult.failure(OutputStatus.ERROR_OUTPUT_FAILED)
-            }
+            val outputResult =
+                if (isClosed) {
+                    OutputResult.failure(OutputStatus.ERROR_OUTPUT_ABORTED)
+                } else {
+                    matchingOutput ?: OutputResult.failure(OutputStatus.ERROR_OUTPUT_FAILED)
+                }
             outputListener.onOutputComplete(
                 cameraFrameNumber = cameraFrameNumber,
                 cameraTimestamp = cameraTimestamp,
@@ -265,9 +258,7 @@ internal class OutputDistributor<T>(
         }
     }
 
-    /**
-     * Indicates an output will not arrive for a specific [FrameNumber].
-     */
+    /** Indicates an output will not arrive for a specific [FrameNumber]. */
     fun onOutputFailure(frameNumber: FrameNumber) {
         var outputWithFailure: StartedOutput<T>? = null
 

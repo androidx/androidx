@@ -25,9 +25,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Test cases for [GattService]
- */
+/** Test cases for [GattService] */
 @RunWith(JUnit4::class)
 class GattServiceTest {
 
@@ -60,9 +58,9 @@ class GattServiceTest {
         val charUuid2 = UUID.randomUUID()
         val charUuid3 = UUID.randomUUID()
 
-        val char1 = GattCharacteristic(charUuid1, /*properties=*/0)
-        val char2 = GattCharacteristic(charUuid2, /*properties=*/0)
-        val char3 = GattCharacteristic(charUuid3, /*properties=*/0)
+        val char1 = GattCharacteristic(charUuid1, /* properties= */ 0)
+        val char2 = GattCharacteristic(charUuid2, /* properties= */ 0)
+        val char3 = GattCharacteristic(charUuid3, /* properties= */ 0)
 
         val characteristics = mutableListOf(char1, char2)
 

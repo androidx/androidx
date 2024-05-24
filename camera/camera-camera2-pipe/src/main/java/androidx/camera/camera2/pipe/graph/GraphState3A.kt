@@ -42,27 +42,35 @@ internal class GraphState3A @Inject constructor() {
     var aeMode: AeMode? = null
         get() = synchronized(this) { field }
         private set
+
     var afMode: AfMode? = null
         get() = synchronized(this) { field }
         private set
+
     var awbMode: AwbMode? = null
         get() = synchronized(this) { field }
         private set
+
     var flashMode: FlashMode? = null
         get() = synchronized(this) { field }
         private set
+
     var aeRegions: List<MeteringRectangle>? = null
         get() = synchronized(this) { field }
         private set
+
     var afRegions: List<MeteringRectangle>? = null
         get() = synchronized(this) { field }
         private set
+
     var awbRegions: List<MeteringRectangle>? = null
         get() = synchronized(this) { field }
         private set
+
     var aeLock: Boolean? = null
         get() = synchronized(this) { field }
         private set
+
     var awbLock: Boolean? = null
         get() = synchronized(this) { field }
         private set

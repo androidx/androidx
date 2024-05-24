@@ -66,9 +66,10 @@ class ZoomControlTest {
 
     @Before
     fun setUp() {
-        zoomControl = ZoomControl(fakeUseCaseThreads, zoomCompat).apply {
-            useCaseCamera = FakeUseCaseCamera()
-        }
+        zoomControl =
+            ZoomControl(fakeUseCaseThreads, zoomCompat).apply {
+                useCaseCamera = FakeUseCaseCamera()
+            }
     }
 
     @Test
@@ -188,10 +189,9 @@ class ZoomControlTest {
     // TODO: port tests from camera-camera2
 
     private fun <T> assertFutureFailedWithOperationCancellation(future: ListenableFuture<T>) {
-        Assert.assertThrows(ExecutionException::class.java) {
-            future[3, TimeUnit.SECONDS]
-        }.apply {
-            assertThat(cause).isInstanceOf(CameraControl.OperationCanceledException::class.java)
-        }
+        Assert.assertThrows(ExecutionException::class.java) { future[3, TimeUnit.SECONDS] }
+            .apply {
+                assertThat(cause).isInstanceOf(CameraControl.OperationCanceledException::class.java)
+            }
     }
 }

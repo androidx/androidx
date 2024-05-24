@@ -18,14 +18,12 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import androidx.camera.core.impl.Quirk
 
-/**
- * Loads all device specific quirks required for the current device.
- */
+/** Loads all device specific quirks required for the current device. */
 object DeviceQuirksLoader {
 
     /**
-     * Goes through all defined device-specific quirks, and returns those that should be loaded
-     * on the current device.
+     * Goes through all defined device-specific quirks, and returns those that should be loaded on
+     * the current device.
      */
     fun loadQuirks(): List<Quirk> {
         val quirks: MutableList<Quirk> = mutableListOf()

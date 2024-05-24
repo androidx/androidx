@@ -34,11 +34,11 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 
-/**
- * Implementation of Torch control exposed by [CameraControlInternal].
- */
+/** Implementation of Torch control exposed by [CameraControlInternal]. */
 @CameraScope
-class TorchControl @Inject constructor(
+class TorchControl
+@Inject
+constructor(
     cameraProperties: CameraProperties,
     private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
@@ -50,19 +50,18 @@ class TorchControl @Inject constructor(
         set(value) {
             _useCaseCamera = value
             setTorchAsync(
-                torch = when (torchStateLiveData.value) {
-                    TorchState.ON -> true
-                    else -> false
-                },
+                torch =
+                    when (torchStateLiveData.value) {
+                        TorchState.ON -> true
+                        else -> false
+                    },
                 cancelPreviousTask = false,
             )
         }
 
     override fun reset() {
         _torchState.setLiveDataValue(false)
-        threads.sequentialScope.launch {
-            stopRunningTaskInternal()
-        }
+        threads.sequentialScope.launch { stopRunningTaskInternal() }
         setTorchAsync(false)
     }
 
@@ -80,7 +79,7 @@ class TorchControl @Inject constructor(
      * @param torch Whether the torch should be on or off.
      * @param cancelPreviousTask Whether to cancel the previous task if it's running.
      * @param ignoreFlashUnitAvailability Whether to ignore the flash unit availability. When true,
-     *      torch mode setting will be attempted even if a physical flash unit is not available.
+     *   torch mode setting will be attempted even if a physical flash unit is not available.
      */
     fun setTorchAsync(
         torch: Boolean,
@@ -94,7 +93,6 @@ class TorchControl @Inject constructor(
         }
 
         useCaseCamera?.let { useCaseCamera ->
-
             _torchState.setLiveDataValue(torch)
 
             threads.sequentialScope.launch {
@@ -120,20 +118,19 @@ class TorchControl @Inject constructor(
                 state3AControl.invalidate()
                 state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
             }
-        } ?: run {
-            signal.createFailureResult(
-                CameraControl.OperationCanceledException("Camera is not active.")
-            )
         }
+            ?: run {
+                signal.createFailureResult(
+                    CameraControl.OperationCanceledException("Camera is not active.")
+                )
+            }
 
         return signal
     }
 
     private fun stopRunningTaskInternal() {
         _updateSignal?.createFailureResult(
-            CameraControl.OperationCanceledException(
-                "There is a new enableTorch being set"
-            )
+            CameraControl.OperationCanceledException("There is a new enableTorch being set")
         )
         _updateSignal = null
     }
@@ -142,16 +139,17 @@ class TorchControl @Inject constructor(
         completeExceptionally(exception)
     }
 
-    private fun MutableLiveData<Int>.setLiveDataValue(enableTorch: Boolean) = when (enableTorch) {
-        true -> TorchState.ON
-        false -> TorchState.OFF
-    }.let { torchState ->
-        if (Threads.isMainThread()) {
-            this.value = torchState
-        } else {
-            this.postValue(torchState)
+    private fun MutableLiveData<Int>.setLiveDataValue(enableTorch: Boolean) =
+        when (enableTorch) {
+            true -> TorchState.ON
+            false -> TorchState.OFF
+        }.let { torchState ->
+            if (Threads.isMainThread()) {
+                this.value = torchState
+            } else {
+                this.postValue(torchState)
+            }
         }
-    }
 
     @Module
     abstract class Bindings {

@@ -39,9 +39,7 @@ import java.io.File
 import java.util.UUID
 import org.robolectric.util.ReflectionHelpers.setStaticField
 
-/**
- * Utility methods for testing image capture.
- */
+/** Utility methods for testing image capture. */
 object Utils {
 
     internal const val WIDTH = 640
@@ -56,16 +54,12 @@ object Utils {
     // The crop rect is the lower half of the image.
     internal val CROP_RECT = Rect(0, 240, WIDTH, HEIGHT)
     internal val FULL_RECT = Rect(0, 0, WIDTH, HEIGHT)
-    internal val TEMP_FILE = File.createTempFile(
-        "unit_test_" + UUID.randomUUID().toString(), ".temp"
-    ).also { it.deleteOnExit() }
-    internal val OUTPUT_FILE_OPTIONS = ImageCapture.OutputFileOptions.Builder(
-        TEMP_FILE
-    ).build()
-    internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult()
-        .also {
-        it.timestamp = TIMESTAMP
-    }
+    internal val TEMP_FILE =
+        File.createTempFile("unit_test_" + UUID.randomUUID().toString(), ".temp").also {
+            it.deleteOnExit()
+        }
+    internal val OUTPUT_FILE_OPTIONS = ImageCapture.OutputFileOptions.Builder(TEMP_FILE).build()
+    internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult().also { it.timestamp = TIMESTAMP }
 
     internal fun createProcessingRequest(
         takePictureCallback: TakePictureCallback = FakeTakePictureCallback(),
@@ -76,24 +70,20 @@ object Utils {
             OUTPUT_FILE_OPTIONS,
             CROP_RECT,
             ROTATION_DEGREES,
-            /*jpegQuality=*/100,
+            /*jpegQuality=*/ 100,
             SENSOR_TO_BUFFER,
             takePictureCallback,
             Futures.immediateFuture(null)
         )
     }
 
-    /**
-     * Inject a ImageCaptureRotationOptionQuirk.
-     */
+    /** Inject a ImageCaptureRotationOptionQuirk. */
     fun injectRotationOptionQuirk() {
         setStaticField(Build::class.java, "BRAND", "HUAWEI")
         setStaticField(Build::class.java, "MODEL", "SNE-LX1")
     }
 
-    /**
-     * Creates an empty [ImageCaptureConfig] so [ImagePipeline] constructor won't crash.
-     */
+    /** Creates an empty [ImageCaptureConfig] so [ImagePipeline] constructor won't crash. */
     fun createEmptyImageCaptureConfig(): ImageCaptureConfig {
         val builder = ImageCapture.Builder().setCaptureOptionUnpacker { _, _ -> }
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
@@ -101,23 +91,18 @@ object Utils {
     }
 
     fun createCaptureBundle(stageIds: IntArray): CaptureBundle {
-        return CaptureBundle {
-            stageIds.map { stageId ->
-                FakeCaptureStage(stageId, null)
-            }
-        }
+        return CaptureBundle { stageIds.map { stageId -> FakeCaptureStage(stageId, null) } }
     }
 
     fun createFakeImage(tagBundleKey: String, stageId: Int): ImageProxy {
-        return FakeImageProxy(
-            createCameraCaptureResultImageInfo(tagBundleKey, stageId)
-        )
+        return FakeImageProxy(createCameraCaptureResultImageInfo(tagBundleKey, stageId))
     }
 
     fun createCameraCaptureResultImageInfo(tagBundleKey: String, stageId: Int): ImageInfo {
         return CameraCaptureResultImageInfo(
             FakeCameraCaptureResult().also {
-            it.setTag(TagBundle.create(Pair(tagBundleKey, stageId)))
-        })
+                it.setTag(TagBundle.create(Pair(tagBundleKey, stageId)))
+            }
+        )
     }
 }

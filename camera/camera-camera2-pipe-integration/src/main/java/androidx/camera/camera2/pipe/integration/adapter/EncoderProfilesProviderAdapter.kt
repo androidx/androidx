@@ -36,11 +36,11 @@ import androidx.camera.core.impl.compat.EncoderProfilesProxyCompat
 import javax.inject.Inject
 import javax.inject.Named
 
-/**
- * Adapt the [EncoderProfilesProvider] interface to [CameraPipe].
- */
+/** Adapt the [EncoderProfilesProvider] interface to [CameraPipe]. */
 @CameraScope
-class EncoderProfilesProviderAdapter @Inject constructor(
+class EncoderProfilesProviderAdapter
+@Inject
+constructor(
     @Named("CameraId") private val cameraIdString: String,
     @Named("cameraQuirksValues") private val cameraQuirks: Quirks,
 ) : EncoderProfilesProvider {
@@ -56,7 +56,8 @@ class EncoderProfilesProviderAdapter @Inject constructor(
             hasValidCameraId = true
         } catch (e: NumberFormatException) {
             Logger.w(
-                TAG, "Camera id is not an integer:  $cameraIdString, unable to create" +
+                TAG,
+                "Camera id is not an integer:  $cameraIdString, unable to create" +
                     " EncoderProfilesProviderAdapter."
             )
         }
@@ -101,7 +102,8 @@ class EncoderProfilesProviderAdapter @Inject constructor(
             val isVideoProfilesInvalid = DeviceQuirks[InvalidVideoProfilesQuirk::class.java] != null
             if (isVideoProfilesInvalid) {
                 Logger.d(
-                    TAG, "EncoderProfiles contains invalid video profiles, use " +
+                    TAG,
+                    "EncoderProfiles contains invalid video profiles, use " +
                         "CamcorderProfile to create EncoderProfilesProxy."
                 )
             } else {
@@ -109,8 +111,10 @@ class EncoderProfilesProviderAdapter @Inject constructor(
                     return EncoderProfilesProxyCompat.from(profiles)
                 } catch (e: NullPointerException) {
                     Logger.w(
-                        TAG, "Failed to create EncoderProfilesProxy, EncoderProfiles might " +
-                            "contain invalid video profiles. Use CamcorderProfile instead.", e
+                        TAG,
+                        "Failed to create EncoderProfilesProxy, EncoderProfiles might " +
+                            "contain invalid video profiles. Use CamcorderProfile instead.",
+                        e
                     )
                 }
             }
@@ -145,7 +149,8 @@ class EncoderProfilesProviderAdapter @Inject constructor(
         // cts/CamcorderProfileTest.java ensures all video profiles have the same size so we just
         // need to check the first video profile.
         val videoProfile = videoProfiles[0]
-        return camcorderProfileResolutionQuirk.getSupportedResolutions()
+        return camcorderProfileResolutionQuirk
+            .getSupportedResolutions()
             .contains(Size(videoProfile.width, videoProfile.height))
     }
 

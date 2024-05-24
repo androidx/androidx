@@ -29,19 +29,15 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
  */
 @JvmInline
 internal value class OutputResult<out T> private constructor(internal val result: Any?) {
-    /**
-     * Returns `true` if this instance represents a successful outcome.
-     */
-    val available: Boolean get() = !failure && result != null
+    /** Returns `true` if this instance represents a successful outcome. */
+    val available: Boolean
+        get() = !failure && result != null
 
-    /**
-     * Returns `true` if this instance represents a failed result.
-     */
-    val failure: Boolean get() = result is OutputStatus
+    /** Returns `true` if this instance represents a failed result. */
+    val failure: Boolean
+        get() = result is OutputStatus
 
-    /**
-     * Returns the value, if [from], else null.
-     */
+    /** Returns the value, if [from], else null. */
     @Suppress("UNCHECKED_CAST")
     inline val output: T?
         get() =
@@ -64,15 +60,10 @@ internal value class OutputResult<out T> private constructor(internal val result
 
     @OptIn(ExperimentalCoroutinesApi::class)
     companion object {
-        /**
-         * Returns an instance that encapsulates the given [output] as successful value.
-         */
-        inline fun <T> from(output: T): OutputResult<T> =
-            OutputResult(output as Any?)
+        /** Returns an instance that encapsulates the given [output] as successful value. */
+        inline fun <T> from(output: T): OutputResult<T> = OutputResult(output as Any?)
 
-        /**
-         * Returns an instance that encapsulates the given OutputStatus as a failure.
-         */
+        /** Returns an instance that encapsulates the given OutputStatus as a failure. */
         inline fun <T> failure(failureReason: OutputStatus): OutputResult<T> =
             OutputResult(failureReason)
 
@@ -107,9 +98,7 @@ internal value class OutputResult<out T> private constructor(internal val result
             }
         }
 
-        /**
-         * Get the output from this [Deferred], if available, or null.
-         */
+        /** Get the output from this [Deferred], if available, or null. */
         inline fun <T> Deferred<OutputResult<T>>.outputOrNull(): T? {
             if (isCompleted && !isCancelled) {
                 return getCompleted().output

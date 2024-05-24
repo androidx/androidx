@@ -71,20 +71,14 @@ private const val TEST_RESULT_STRING_NOT_TESTED = "NOT_TESTED"
 private const val TEST_RESULT_STRING_PASSED = "PASSED"
 private const val TEST_RESULT_STRING_FAILED = "FAILED"
 
-/**
- * A class to load, save and export the test results.
- */
+/** A class to load, save and export the test results. */
 @SuppressLint("RestrictedApiAndroidX")
 class TestResults private constructor(val context: Context) {
 
-    /**
-     * Camera id to lens facing map.
-     */
+    /** Camera id to lens facing map. */
     private val cameraLensFacingMap = linkedMapOf<String, Int>()
 
-    /**
-     * Pair of <test type, camera id> to list of <extension mode, test result> map.
-     */
+    /** Pair of <test type, camera id> to list of <extension mode, test result> map. */
     private val cameraExtensionResultMap =
         linkedMapOf<Pair<String, String>, LinkedHashMap<Int, Pair<Int, String>>>()
 
@@ -100,9 +94,7 @@ class TestResults private constructor(val context: Context) {
 
     fun getCameraExtensionResultMap() = cameraExtensionResultMap
 
-    /**
-     * Updates test result for specific item and save.
-     */
+    /** Updates test result for specific item and save. */
     fun updateTestResultAndSave(
         testType: String,
         cameraId: String,
@@ -111,7 +103,8 @@ class TestResults private constructor(val context: Context) {
         testResultDetails: String = ""
     ) {
         Log.d(
-            TAG, "updateTestResultAndSave: testType: $testType, cameraId: $cameraId" +
+            TAG,
+            "updateTestResultAndSave: testType: $testType, cameraId: $cameraId" +
                 ", extensionMode: $extensionMode, testResult: $testResult" +
                 ", testResultDetails: $testResultDetails"
         )
@@ -123,8 +116,8 @@ class TestResults private constructor(val context: Context) {
     /**
      * Saves the test results.
      *
-     * The input parameter is pair of <test type, camera id> to list of
-     * <extension mode, test result> map.
+     * The input parameter is pair of <test type, camera id> to list of <extension mode, test
+     * result> map.
      */
     private fun saveTestResults() {
         val testResultsFile = File(context.getExternalFilesDir(null), TEST_RESULTS_FILE_NAME)
@@ -139,8 +132,9 @@ class TestResults private constructor(val context: Context) {
                 val (extensionMode, testResult) = it
                 val extensionModeString = getExtensionModeStringFromId(testType, extensionMode)
                 val testResultString = getTestResultStringFromId(testResult.first)
-                val resultString = "$testType,$cameraId,$extensionModeString,$testResultString" +
-                    ",${testResult.second}\n"
+                val resultString =
+                    "$testType,$cameraId,$extensionModeString,$testResultString" +
+                        ",${testResult.second}\n"
                 outputStream.write(resultString.toByteArray())
             }
         }
@@ -151,8 +145,8 @@ class TestResults private constructor(val context: Context) {
     /**
      * Exports the test results to a CSV file under the Documents folder.
      *
-     * @return the file path if it is successful to export the test results. Otherwise, null will
-     * be returned.
+     * @return the file path if it is successful to export the test results. Otherwise, null will be
+     *   returned.
      */
     fun exportTestResults(contentResolver: ContentResolver): String? {
         val testResultsFile = File(context.getExternalFilesDir(null), TEST_RESULTS_FILE_NAME)
@@ -164,16 +158,18 @@ class TestResults private constructor(val context: Context) {
         val formatter: Format = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US)
         val savedFileName = "TestResult[${formatter.format(Calendar.getInstance().time)}].csv"
 
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, savedFileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
-            put(
-                MediaStore.MediaColumns.RELATIVE_PATH,
-                "$DIRECTORY_DOCUMENTS/ExtensionsValidation"
-            )
-        }
+        val contentValues =
+            ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, savedFileName)
+                put(MediaStore.MediaColumns.MIME_TYPE, "text/comma-separated-values")
+                put(
+                    MediaStore.MediaColumns.RELATIVE_PATH,
+                    "$DIRECTORY_DOCUMENTS/ExtensionsValidation"
+                )
+            }
 
-        if (copyTempFileToOutputLocation(
+        if (
+            copyTempFileToOutputLocation(
                 contentResolver,
                 testResultsFile.toUri(),
                 MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
@@ -218,16 +214,12 @@ class TestResults private constructor(val context: Context) {
             val testResultMap = linkedMapOf<Int, Pair<Int, String>>()
 
             AVAILABLE_EXTENSION_MODES.forEach { mode ->
-                val isSupported = extensionsManager.isExtensionAvailable(
-                    createCameraSelectorById(cameraId),
-                    mode
-                )
+                val isSupported =
+                    extensionsManager.isExtensionAvailable(createCameraSelectorById(cameraId), mode)
 
                 testResultMap[mode] =
-                    if (isSupported) Pair(TEST_RESULT_NOT_TESTED, "") else Pair(
-                        TEST_RESULT_NOT_SUPPORTED,
-                        ""
-                    )
+                    if (isSupported) Pair(TEST_RESULT_NOT_TESTED, "")
+                    else Pair(TEST_RESULT_NOT_SUPPORTED, "")
             }
 
             cameraExtensionResultMap[Pair(TEST_TYPE_CAMERAX_EXTENSION, cameraId)] = testResultMap
@@ -245,18 +237,16 @@ class TestResults private constructor(val context: Context) {
                 val isSupported = isCamera2ExtensionModeSupported(context, cameraId, mode)
 
                 testResultMap[mode] =
-                    if (isSupported) Pair(TEST_RESULT_NOT_TESTED, "") else Pair(
-                        TEST_RESULT_NOT_SUPPORTED,
-                        ""
-                    )
+                    if (isSupported) Pair(TEST_RESULT_NOT_TESTED, "")
+                    else Pair(TEST_RESULT_NOT_SUPPORTED, "")
             }
 
             cameraExtensionResultMap[Pair(TEST_TYPE_CAMERA2_EXTENSION, cameraId)] = testResultMap
 
             // Generates Camera2 extension performance test items
             cameraExtensionResultMap[
-                Pair(TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY, cameraId)
-            ] = LinkedHashMap(testResultMap)
+                Pair(TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY, cameraId)] =
+                LinkedHashMap(testResultMap)
         }
     }
 
@@ -313,19 +303,21 @@ class TestResults private constructor(val context: Context) {
         throw IllegalArgumentException("Can't retrieve lens facing info for camera $cameraId")
     }
 
-    private fun getTestResultStringFromId(result: Int): String = when (result) {
-        TEST_RESULT_NOT_SUPPORTED -> TEST_RESULT_STRING_NOT_SUPPORTED
-        TEST_RESULT_FAILED -> TEST_RESULT_STRING_FAILED
-        TEST_RESULT_PASSED -> TEST_RESULT_STRING_PASSED
-        else -> TEST_RESULT_STRING_NOT_TESTED
-    }
+    private fun getTestResultStringFromId(result: Int): String =
+        when (result) {
+            TEST_RESULT_NOT_SUPPORTED -> TEST_RESULT_STRING_NOT_SUPPORTED
+            TEST_RESULT_FAILED -> TEST_RESULT_STRING_FAILED
+            TEST_RESULT_PASSED -> TEST_RESULT_STRING_PASSED
+            else -> TEST_RESULT_STRING_NOT_TESTED
+        }
 
-    private fun getTestResultIdFromString(result: String): Int = when (result) {
-        TEST_RESULT_STRING_NOT_SUPPORTED -> TEST_RESULT_NOT_SUPPORTED
-        TEST_RESULT_STRING_FAILED -> TEST_RESULT_FAILED
-        TEST_RESULT_STRING_PASSED -> TEST_RESULT_PASSED
-        else -> TEST_RESULT_NOT_TESTED
-    }
+    private fun getTestResultIdFromString(result: String): Int =
+        when (result) {
+            TEST_RESULT_STRING_NOT_SUPPORTED -> TEST_RESULT_NOT_SUPPORTED
+            TEST_RESULT_STRING_FAILED -> TEST_RESULT_FAILED
+            TEST_RESULT_STRING_PASSED -> TEST_RESULT_PASSED
+            else -> TEST_RESULT_NOT_TESTED
+        }
 
     companion object {
         private var instance: TestResults? = null
@@ -344,8 +336,9 @@ class TestResults private constructor(val context: Context) {
                 getExtensionModeStringFromId(extensionMode)
             } else if (testType == TEST_TYPE_CAMERA2_EXTENSION && Build.VERSION.SDK_INT >= 31) {
                 getCamera2ExtensionModeStringFromId(extensionMode)
-            } else if (testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY &&
-                Build.VERSION.SDK_INT >= 31
+            } else if (
+                testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY &&
+                    Build.VERSION.SDK_INT >= 31
             ) {
                 getCamera2ExtensionModeStringFromId(extensionMode)
             } else {
@@ -360,8 +353,9 @@ class TestResults private constructor(val context: Context) {
                 getExtensionModeIdFromString(extensionModeString)
             } else if (testType == TEST_TYPE_CAMERA2_EXTENSION && Build.VERSION.SDK_INT >= 31) {
                 getCamera2ExtensionModeIdFromString(extensionModeString)
-            } else if (testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY &&
-                Build.VERSION.SDK_INT >= 31
+            } else if (
+                testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY &&
+                    Build.VERSION.SDK_INT >= 31
             ) {
                 getCamera2ExtensionModeIdFromString(extensionModeString)
             } else {

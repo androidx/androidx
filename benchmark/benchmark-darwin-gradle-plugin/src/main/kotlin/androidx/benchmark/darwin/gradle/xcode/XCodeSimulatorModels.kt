@@ -21,13 +21,10 @@ package androidx.benchmark.darwin.gradle.xcode
  *
  * That produces an object that contains a [List] of [SimulatorRuntime].
  */
-data class SimulatorRuntimes(
-    val runtimes: List<SimulatorRuntime>
-)
+data class SimulatorRuntimes(val runtimes: List<SimulatorRuntime>)
 
 /**
  * An XCode simulator runtime. The serialized representation looks something like:
- *
  * ```json
  * {
  *   "bundlePath" : "...\/Profiles\/Runtimes\/watchOS.simruntime",
@@ -51,7 +48,6 @@ data class SimulatorRuntime(
 
 /**
  * A serialized supported device type has a representation that looks like:
- *
  * ```json
  * {
  *  "bundlePath" : "...\/CoreSimulator\/Profiles\/DeviceTypes\/iPhone 6s.simdevicetype",

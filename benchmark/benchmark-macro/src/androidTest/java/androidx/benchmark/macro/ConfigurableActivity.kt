@@ -22,17 +22,13 @@ import android.util.Log
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 
-/**
- * Activity with configurable text and launch time, for testing.
- */
+/** Activity with configurable text and launch time, for testing. */
 class ConfigurableActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val textContent = intent.getStringExtra(EXTRA_TEXT)
 
-        val view = TextView(this).apply {
-            text = textContent
-        }
+        val view = TextView(this).apply { text = textContent }
         setContentView(view)
 
         val sleepDurMs = intent.getLongExtra(EXTRA_SLEEP_DUR_MS, 0)
@@ -42,20 +38,20 @@ class ConfigurableActivity : ComponentActivity() {
             Log.d(TAG, "sleep complete")
         }
 
-        val reportFullyDrawnDelayMs = intent.getLongExtra(
-            EXTRA_REPORT_FULLY_DRAWN_DELAY_MS, /* default */ -1
-        )
+        val reportFullyDrawnDelayMs =
+            intent.getLongExtra(EXTRA_REPORT_FULLY_DRAWN_DELAY_MS, /* default */ -1)
         when (reportFullyDrawnDelayMs) {
             -1L -> {} // ignore
             0L -> reportFullyDrawn() // report immediately
             else -> {
                 // report delayed, modify text
                 val runnable = {
-                    view.text = if (textContent == INNER_ACTIVITY_TEXT) {
-                        INNER_ACTIVITY_FULLY_DRAWN_TEXT
-                    } else {
-                        FULLY_DRAWN_TEXT
-                    }
+                    view.text =
+                        if (textContent == INNER_ACTIVITY_TEXT) {
+                            INNER_ACTIVITY_FULLY_DRAWN_TEXT
+                        } else {
+                            FULLY_DRAWN_TEXT
+                        }
                     reportFullyDrawn()
                 }
                 view.postDelayed(runnable, reportFullyDrawnDelayMs)
@@ -65,9 +61,9 @@ class ConfigurableActivity : ComponentActivity() {
         view.setOnClickListener {
             startActivity(
                 createIntent(
-                    text = INNER_ACTIVITY_TEXT,
-                    reportFullyDrawnDelayMs = reportFullyDrawnDelayMs
-                )
+                        text = INNER_ACTIVITY_TEXT,
+                        reportFullyDrawnDelayMs = reportFullyDrawnDelayMs
+                    )
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             )
         }

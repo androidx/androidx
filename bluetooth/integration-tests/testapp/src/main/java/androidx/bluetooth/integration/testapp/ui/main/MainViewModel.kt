@@ -32,6 +32,7 @@ class MainViewModel : ViewModel() {
 
     val navigateToConnections: LiveData<Int>
         get() = _navigateToConnections
+
     private val _navigateToConnections = MutableLiveData<Int>()
 
     fun navigateToConnections() {

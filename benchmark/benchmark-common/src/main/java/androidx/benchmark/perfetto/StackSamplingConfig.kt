@@ -15,20 +15,12 @@
  */
 
 package androidx.benchmark.perfetto
-/**
- * The call stack sampling configuration when using Perfetto.
- */
+/** The call stack sampling configuration when using Perfetto. */
 internal data class StackSamplingConfig(
-    /**
-     * A list of packages to enable stack sampling.
-     */
+    /** A list of packages to enable stack sampling. */
     val packageNames: List<String>,
-    /**
-     * The sampling frequency in Hertz.
-     */
+    /** The sampling frequency in Hertz. */
     val frequency: Long,
-    /**
-     * The sampling duration.
-     */
+    /** The sampling duration. */
     val duration: Long
 )

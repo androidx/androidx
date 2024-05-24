@@ -21,9 +21,7 @@ import android.os.Bundle
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 
-/**
- * Fragment that shows the settings for the "Single test" option
- */
+/** Fragment that shows the settings for the "Single test" option */
 class SingleTestSettingsFragment(
     internal val cameraNames: Array<String>,
     internal val cameraIds: Array<String>
@@ -38,11 +36,9 @@ class SingleTestSettingsFragment(
             )
         cameraPref?.entries = cameraNames
         cameraPref?.entryValues = cameraIds
-        if (cameraIds.isNotEmpty())
-            cameraPref?.setDefaultValue(cameraIds[0])
+        if (cameraIds.isNotEmpty()) cameraPref?.setDefaultValue(cameraIds[0])
 
-        if (null == cameraPref?.value)
-            cameraPref?.value = cameraIds[0]
+        if (null == cameraPref?.value) cameraPref?.value = cameraIds[0]
 
         // En/disable needed controls
         toggleNumTests()
@@ -66,18 +62,24 @@ class SingleTestSettingsFragment(
         preferenceManager.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    /** Some tests do not allow for multiple repetitions, If one of these selected,
-     * disable the number of tests control.
+    /**
+     * Some tests do not allow for multiple repetitions, If one of these selected, disable the
+     * number of tests control.
      */
     fun toggleNumTests() {
         val typePref =
             preferenceManager.findPreference<ListPreference>(
                 getString(R.string.settings_single_test_type_key)
             )
-        val numberPref = preferenceManager
-            .findPreference<ListPreference>(getString(R.string.settings_numtests_key))
+        val numberPref =
+            preferenceManager.findPreference<ListPreference>(
+                getString(R.string.settings_numtests_key)
+            )
         when (typePref?.value) {
-            "INIT", "PREVIEW", "SWITCH_CAMERA", "PHOTO" -> {
+            "INIT",
+            "PREVIEW",
+            "SWITCH_CAMERA",
+            "PHOTO" -> {
                 numberPref?.isEnabled = false
             }
             else -> {
@@ -86,16 +88,19 @@ class SingleTestSettingsFragment(
         }
     }
 
-    /** Some tests do not require the preview stream to run, If one of these selected,
-     * disable the preview buffer control.
+    /**
+     * Some tests do not require the preview stream to run, If one of these selected, disable the
+     * preview buffer control.
      */
     fun togglePreviewBuffer() {
         val typePref =
-            preferenceManager
-                .findPreference<ListPreference>(getString(R.string.settings_single_test_type_key))
+            preferenceManager.findPreference<ListPreference>(
+                getString(R.string.settings_single_test_type_key)
+            )
         val previewPref =
-            preferenceManager
-                .findPreference<ListPreference>(getString(R.string.settings_previewbuffer_key))
+            preferenceManager.findPreference<ListPreference>(
+                getString(R.string.settings_previewbuffer_key)
+            )
         when (typePref?.value) {
             "INIT" -> {
                 previewPref?.isEnabled = false

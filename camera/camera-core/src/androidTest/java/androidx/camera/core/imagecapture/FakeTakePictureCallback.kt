@@ -24,9 +24,7 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-/**
- * Fake [TakePictureCallback] for getting the results asynchronously.
- */
+/** Fake [TakePictureCallback] for getting the results asynchronously. */
 class FakeTakePictureCallback : TakePictureCallback {
 
     private var inMemoryResult: ImageProxy? = null
@@ -34,17 +32,13 @@ class FakeTakePictureCallback : TakePictureCallback {
     private var onDiskResult: OutputFileResults? = null
     private var onDiskResultCont: Continuation<OutputFileResults>? = null
 
-    override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
-    }
+    override fun onPostviewBitmapAvailable(bitmap: Bitmap) {}
 
-    override fun onCaptureProcessProgressed(progress: Int) {
-    }
+    override fun onCaptureProcessProgressed(progress: Int) {}
 
-    override fun onCaptureStarted() {
-    }
+    override fun onCaptureStarted() {}
 
-    override fun onImageCaptured() {
-    }
+    override fun onImageCaptured() {}
 
     override fun onFinalResult(outputFileResults: OutputFileResults) {
         val cont = onDiskResultCont
@@ -66,11 +60,9 @@ class FakeTakePictureCallback : TakePictureCallback {
         }
     }
 
-    override fun onCaptureFailure(imageCaptureException: ImageCaptureException) {
-    }
+    override fun onCaptureFailure(imageCaptureException: ImageCaptureException) {}
 
-    override fun onProcessFailure(imageCaptureException: ImageCaptureException) {
-    }
+    override fun onProcessFailure(imageCaptureException: ImageCaptureException) {}
 
     override fun isAborted(): Boolean {
         return false

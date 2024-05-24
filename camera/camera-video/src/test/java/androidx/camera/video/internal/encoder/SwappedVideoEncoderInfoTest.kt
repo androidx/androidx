@@ -34,13 +34,9 @@ class SwappedVideoEncoderInfoTest {
 
     @Test
     fun canNotSwapWidthHeight_throwException() {
-        val videoEncoder = FakeVideoEncoderInfo(
-            canSwapWidthHeight = false
-        )
+        val videoEncoder = FakeVideoEncoderInfo(canSwapWidthHeight = false)
 
-        assertThrows(IllegalArgumentException::class.java) {
-            SwappedVideoEncoderInfo(videoEncoder)
-        }
+        assertThrows(IllegalArgumentException::class.java) { SwappedVideoEncoderInfo(videoEncoder) }
     }
 
     @Test
@@ -48,12 +44,13 @@ class SwappedVideoEncoderInfoTest {
         val anyLength = 10
         val widths = Range.create(2, 400)
         val heights = Range.create(4, 300)
-        val videoEncoderInfo = FakeVideoEncoderInfo(
-            supportedWidths = widths,
-            supportedHeights = heights,
-            widthAlignment = 2,
-            heightAlignment = 4,
-        )
+        val videoEncoderInfo =
+            FakeVideoEncoderInfo(
+                supportedWidths = widths,
+                supportedHeights = heights,
+                widthAlignment = 2,
+                heightAlignment = 4,
+            )
 
         val swappedVideoEncoderInfo = SwappedVideoEncoderInfo(videoEncoderInfo)
 

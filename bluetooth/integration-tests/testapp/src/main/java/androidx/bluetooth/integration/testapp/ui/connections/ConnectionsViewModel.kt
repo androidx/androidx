@@ -43,9 +43,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class ConnectionsViewModel @Inject constructor(
-    private val bluetoothLe: BluetoothLe
-) : ViewModel() {
+class ConnectionsViewModel @Inject constructor(private val bluetoothLe: BluetoothLe) : ViewModel() {
 
     internal companion object {
         private const val TAG = "ConnectionsViewModel"
@@ -53,7 +51,9 @@ class ConnectionsViewModel @Inject constructor(
         internal const val NEW_DEVICE = -1
     }
 
-    internal val deviceConnections: Set<DeviceConnection> get() = _deviceConnections
+    internal val deviceConnections: Set<DeviceConnection>
+        get() = _deviceConnections
+
     private val _deviceConnections = mutableSetOf<DeviceConnection>()
 
     private val _uiState = MutableStateFlow(ConnectionsUiState())
@@ -87,72 +87,72 @@ class ConnectionsViewModel @Inject constructor(
     fun connect(deviceConnection: DeviceConnection) {
         Log.d(TAG, "connect() called with: deviceConnection = $deviceConnection")
 
-        deviceConnection.job = viewModelScope.launch {
-            deviceConnection.status = Status.CONNECTING
-            updateUi()
+        deviceConnection.job =
+            viewModelScope.launch {
+                deviceConnection.status = Status.CONNECTING
+                updateUi()
 
-            try {
-                Log.d(
-                    TAG, "bluetoothLe.connectGatt() called with: " +
-                        "deviceConnection.bluetoothDevice = ${deviceConnection.bluetoothDevice}"
-                )
+                try {
+                    Log.d(
+                        TAG,
+                        "bluetoothLe.connectGatt() called with: " +
+                            "deviceConnection.bluetoothDevice = ${deviceConnection.bluetoothDevice}"
+                    )
 
-                bluetoothLe.connectGatt(deviceConnection.bluetoothDevice) {
-                    Log.d(TAG, "bluetoothLe.connectGatt result: services() = $services")
+                    bluetoothLe.connectGatt(deviceConnection.bluetoothDevice) {
+                        Log.d(TAG, "bluetoothLe.connectGatt result: services() = $services")
 
-                    deviceConnection.status = Status.CONNECTED
-                    launch {
-                        servicesFlow.collect {
-                            deviceConnection.services = it
-                            updateUi()
-                        }
-                    }
-
-                    deviceConnection.onCharacteristicActionClick =
-                        object : OnCharacteristicActionClick {
-                            override fun onClick(
-                                deviceConnection: DeviceConnection,
-                                characteristic: GattCharacteristic,
-                                action: @OnCharacteristicActionClick.Action Int
-                            ) {
-                                when (action) {
-                                    OnCharacteristicActionClick.READ -> readCharacteristic(
-                                        this@connectGatt,
-                                        deviceConnection,
-                                        characteristic
-                                    )
-
-                                    OnCharacteristicActionClick.WRITE -> _uiState.update {
-                                        it.copy(
-                                            showDialogForWrite = Pair(
-                                                this@connectGatt,
-                                                characteristic
-                                            )
-                                        )
-                                    }
-
-                                    OnCharacteristicActionClick.SUBSCRIBE ->
-                                        subscribeToCharacteristic(
-                                            this@connectGatt,
-                                            characteristic
-                                        )
-                                }
+                        deviceConnection.status = Status.CONNECTED
+                        launch {
+                            servicesFlow.collect {
+                                deviceConnection.services = it
+                                updateUi()
                             }
                         }
 
-                    awaitCancellation()
-                }
-            } catch (exception: Exception) {
-                if (exception is CancellationException) {
-                    Log.e(TAG, "connectGatt() CancellationException", exception)
-                } else {
-                    Log.e(TAG, "connectGatt() exception", exception)
-                }
+                        deviceConnection.onCharacteristicActionClick =
+                            object : OnCharacteristicActionClick {
+                                override fun onClick(
+                                    deviceConnection: DeviceConnection,
+                                    characteristic: GattCharacteristic,
+                                    action: @OnCharacteristicActionClick.Action Int
+                                ) {
+                                    when (action) {
+                                        OnCharacteristicActionClick.READ ->
+                                            readCharacteristic(
+                                                this@connectGatt,
+                                                deviceConnection,
+                                                characteristic
+                                            )
+                                        OnCharacteristicActionClick.WRITE ->
+                                            _uiState.update {
+                                                it.copy(
+                                                    showDialogForWrite =
+                                                        Pair(this@connectGatt, characteristic)
+                                                )
+                                            }
+                                        OnCharacteristicActionClick.SUBSCRIBE ->
+                                            subscribeToCharacteristic(
+                                                this@connectGatt,
+                                                characteristic
+                                            )
+                                    }
+                                }
+                            }
 
-                deviceConnection.status = Status.DISCONNECTED
-                updateUi()
+                        awaitCancellation()
+                    }
+                } catch (exception: Exception) {
+                    if (exception is CancellationException) {
+                        Log.e(TAG, "connectGatt() CancellationException", exception)
+                    } else {
+                        Log.e(TAG, "connectGatt() exception", exception)
+                    }
+
+                    deviceConnection.status = Status.DISCONNECTED
+                    updateUi()
+                }
             }
-        }
     }
 
     fun disconnect(deviceConnection: DeviceConnection) {
@@ -163,21 +163,15 @@ class ConnectionsViewModel @Inject constructor(
     }
 
     fun writeDialogShown() {
-        _uiState.update {
-            it.copy(showDialogForWrite = null)
-        }
+        _uiState.update { it.copy(showDialogForWrite = null) }
     }
 
     fun resultMessageShown() {
-        _uiState.update {
-            it.copy(resultMessage = null)
-        }
+        _uiState.update { it.copy(resultMessage = null) }
     }
 
     private fun updateUi() {
-        _uiState.update {
-            it.copy(lastConnectionUpdate = System.currentTimeMillis())
-        }
+        _uiState.update { it.copy(lastConnectionUpdate = System.currentTimeMillis()) }
     }
 
     private fun readCharacteristic(
@@ -224,15 +218,11 @@ class ConnectionsViewModel @Inject constructor(
         gattClientScope: GattClientScope,
         characteristic: GattCharacteristic
     ) {
-        gattClientScope.subscribeToCharacteristic(characteristic)
-            .onStart {
-                Log.d(TAG, "subscribeToCharacteristic() onStart")
-            }
-            .onEach {
-                Log.d(TAG, "subscribeToCharacteristic() onEach: ${it.decodeToString()}")
-            }.onCompletion {
-                Log.e(TAG, "subscribeToCharacteristic onCompletion", it)
-            }
+        gattClientScope
+            .subscribeToCharacteristic(characteristic)
+            .onStart { Log.d(TAG, "subscribeToCharacteristic() onStart") }
+            .onEach { Log.d(TAG, "subscribeToCharacteristic() onEach: ${it.decodeToString()}") }
+            .onCompletion { Log.e(TAG, "subscribeToCharacteristic onCompletion", it) }
             .launchIn(viewModelScope)
     }
 }

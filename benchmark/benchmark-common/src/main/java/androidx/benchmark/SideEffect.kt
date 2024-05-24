@@ -19,29 +19,25 @@ package androidx.benchmark
 import androidx.annotation.RestrictTo
 
 /**
-* Represents actions that effect changes to the state of the app / device outside of the scope
-* of the benchmark. Typically used to help reduce the amount of interference during a benchmark.
-*
-* [SideEffect]s must define a [setup], that is executed when the benchmark starts. The [tearDown]
-* method is called during the end of the benchmark to reverse actions so subsequent invocations of
-* the benchmark are hermetic.
-*/
+ * Represents actions that effect changes to the state of the app / device outside of the scope of
+ * the benchmark. Typically used to help reduce the amount of interference during a benchmark.
+ *
+ * [SideEffect]s must define a [setup], that is executed when the benchmark starts. The [tearDown]
+ * method is called during the end of the benchmark to reverse actions so subsequent invocations of
+ * the benchmark are hermetic.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface SideEffect {
 
-    /**
-     * Returns the canonical name of the [SideEffect].
-     */
+    /** Returns the canonical name of the [SideEffect]. */
     fun name(): String
 
-    /**
-     * This method is executed when the benchmark starts.
-     */
+    /** This method is executed when the benchmark starts. */
     fun setup()
 
     /**
-     * This method is executed when the benchmark is complete. A [SideEffect] should undo
-     * the changes to the state of the device app, to ensure hermetic benchmarks.
+     * This method is executed when the benchmark is complete. A [SideEffect] should undo the
+     * changes to the state of the device app, to ensure hermetic benchmarks.
      */
     fun tearDown()
 }

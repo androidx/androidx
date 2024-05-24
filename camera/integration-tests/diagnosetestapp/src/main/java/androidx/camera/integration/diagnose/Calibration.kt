@@ -25,11 +25,9 @@ import com.google.mlkit.vision.barcode.common.Barcode
 /**
  * Calibration object that checks camera alignment with list of {@link Barcode}.
  *
- * @param previewViewSize - size of the  devices' preview view.
+ * @param previewViewSize - size of the devices' preview view.
  */
-class Calibration(
-    private val previewViewSize: Size
-    ) {
+class Calibration(private val previewViewSize: Size) {
 
     // barcodeCoordinates
     private lateinit var barCodes: List<Barcode>
@@ -90,30 +88,17 @@ class Calibration(
 
         // calculate grid
         topY = (topLeft!!.y + topRight!!.y) / 2
-        topGrid = Pair(
-            PointF(0F, topY!!),
-            PointF(previewViewSize.width.toFloat(), topY!!)
-        )
+        topGrid = Pair(PointF(0F, topY!!), PointF(previewViewSize.width.toFloat(), topY!!))
         bottomY = (bottomLeft!!.y + bottomRight!!.y) / 2
-        bottomGrid = Pair(
-            PointF(0F, bottomY!!),
-            PointF(previewViewSize.width.toFloat(), bottomY!!)
-        )
+        bottomGrid = Pair(PointF(0F, bottomY!!), PointF(previewViewSize.width.toFloat(), bottomY!!))
         leftX = (topLeft!!.x + bottomLeft!!.x) / 2
-        leftGrid = Pair(
-            PointF(leftX!!, 0F),
-            PointF(leftX!!, previewViewSize.height.toFloat())
-        )
+        leftGrid = Pair(PointF(leftX!!, 0F), PointF(leftX!!, previewViewSize.height.toFloat()))
         rightX = (topRight!!.x + bottomRight!!.x) / 2
-        rightGrid = Pair(
-            PointF(rightX!!, 0F),
-            PointF(rightX!!, previewViewSize.height.toFloat())
-        )
+        rightGrid = Pair(PointF(rightX!!, 0F), PointF(rightX!!, previewViewSize.height.toFloat()))
     }
 
     private fun getThresholdBox(x: Float, y: Float): RectF {
-        return RectF(x - THRESHOLD, y - THRESHOLD, x + THRESHOLD,
-            y + THRESHOLD)
+        return RectF(x - THRESHOLD, y - THRESHOLD, x + THRESHOLD, y + THRESHOLD)
     }
 
     private fun containPoint(point: PointF?, thresholdBox: RectF?): Boolean {
@@ -122,7 +107,7 @@ class Calibration(
 
     /**
      * @return true if all {@link Barcode} center points are found within the corresponding
-     * threshold boxes calculated around intersection points of the target grid line.
+     *   threshold boxes calculated around intersection points of the target grid line.
      */
     private fun checkAlignment(): Boolean {
         // create threshold boxes around the grid's intersection points

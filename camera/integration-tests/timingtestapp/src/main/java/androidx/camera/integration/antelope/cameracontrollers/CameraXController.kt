@@ -55,8 +55,8 @@ import kotlinx.coroutines.launch
  * CameraX manages its lifecycle internally, for the purpose of repeated testing, Antelope uses a
  * custom lifecycle to allow for starting new tests cleanly which is started here.
  *
- * All the needed Cmaera X use cases should be bound before starting the lifecycle. Depending on
- * the test, bind either the preview case, or both the preview and image capture case.
+ * All the needed Cmaera X use cases should be bound before starting the lifecycle. Depending on the
+ * test, bind either the preview case, or both the preview and image capture case.
  */
 @kotlin.OptIn(DelicateCoroutinesApi::class)
 internal fun cameraXOpenCamera(
@@ -69,8 +69,9 @@ internal fun cameraXOpenCamera(
         // TODO make the switch test methodology more robust and handle physical cameras
         // Currently we swap out the ids behind the scenes
         // This requires to save the actual camera id for after the test
-        if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+        if (
+            (testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
+                (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
         ) {
             testConfig.switchTestRealCameraId = params.id // Save the actual camera ID
             params.id = testConfig.switchTestCurrentCamera
@@ -80,8 +81,9 @@ internal fun cameraXOpenCamera(
         params.cameraXPreviewSessionStateCallback =
             CameraXPreviewSessionStateCallback(activity, params, testConfig)
 
-        if (params.cameraXDeviceStateCallback != null &&
-            params.cameraXPreviewSessionStateCallback != null
+        if (
+            params.cameraXDeviceStateCallback != null &&
+                params.cameraXPreviewSessionStateCallback != null
         ) {
             params.cameraXPreviewBuilder =
                 cameraXPreviewUseCaseBuilder(
@@ -124,7 +126,8 @@ internal fun cameraXOpenCamera(
                 // Surface provided to camera for producing buffers into and
                 // Release the SurfaceTexture and Surface once camera is done with it
                 surfaceRequest.provideSurface(
-                    surface, CameraXExecutors.directExecutor(),
+                    surface,
+                    CameraXExecutors.directExecutor(),
                     Consumer {
                         surface.release()
                         surfaceTexture.release()
@@ -136,11 +139,12 @@ internal fun cameraXOpenCamera(
         // TODO: As of 0.3.0 CameraX can only use front and back cameras.
         //  Update in future versions
         val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
-        val cameraXcameraID = if (params.id == "0") {
-            CameraSelector.LENS_FACING_BACK
-        } else {
-            CameraSelector.LENS_FACING_FRONT
-        }
+        val cameraXcameraID =
+            if (params.id == "0") {
+                CameraSelector.LENS_FACING_BACK
+            } else {
+                CameraSelector.LENS_FACING_FRONT
+            }
         val cameraSelector = CameraSelector.Builder().requireLensFacing(cameraXcameraID).build()
         when (testConfig.currentRunningTest) {
             //  Only the preview is required
@@ -150,10 +154,7 @@ internal fun cameraXOpenCamera(
                 params.timer.openStart = System.currentTimeMillis()
                 GlobalScope.launch(Dispatchers.Main) {
                     val cameraProvider = cameraProviderFuture.await()
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner, cameraSelector,
-                        previewUseCase
-                    )
+                    cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, previewUseCase)
                     params.cameraXLifecycle.start()
                 }
             }
@@ -162,8 +163,9 @@ internal fun cameraXOpenCamera(
                 params.cameraXCaptureSessionCallback =
                     CameraXCaptureSessionCallback(activity, params, testConfig)
 
-                if (params.cameraXDeviceStateCallback != null &&
-                    params.cameraXCaptureSessionCallback != null
+                if (
+                    params.cameraXDeviceStateCallback != null &&
+                        params.cameraXCaptureSessionCallback != null
                 ) {
                     params.cameraXCaptureBuilder =
                         cameraXImageCaptureUseCaseBuilder(
@@ -180,8 +182,10 @@ internal fun cameraXOpenCamera(
                 GlobalScope.launch(Dispatchers.Main) {
                     val cameraProvider = cameraProviderFuture.await()
                     cameraProvider.bindToLifecycle(
-                        lifecycleOwner, cameraSelector,
-                        previewUseCase, params.cameraXImageCaptureUseCase
+                        lifecycleOwner,
+                        cameraSelector,
+                        previewUseCase,
+                        params.cameraXImageCaptureUseCase
                     )
                     params.cameraXLifecycle.start()
                 }
@@ -193,9 +197,7 @@ internal fun cameraXOpenCamera(
     }
 }
 
-/**
- * End Camera X custom lifecycle, unbind use cases, and start timing the camera close.
- */
+/** End Camera X custom lifecycle, unbind use cases, and start timing the camera close. */
 @kotlin.OptIn(DelicateCoroutinesApi::class)
 internal fun closeCameraX(activity: MainActivity, params: CameraParams, testConfig: TestConfig) {
     logd("In closecameraX, camera: " + params.id + ",  test: " + testConfig.currentRunningTest)
@@ -213,8 +215,9 @@ internal fun closeCameraX(activity: MainActivity, params: CameraParams, testConf
             cameraProvider.unbindAll()
         }
     }
-    if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-        (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+    if (
+        (testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
+            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
     ) {
         params.id = testConfig.switchTestRealCameraId // Restore the actual camera ID
     }
@@ -222,9 +225,7 @@ internal fun closeCameraX(activity: MainActivity, params: CameraParams, testConf
     params.isOpen = false
 }
 
-/**
- * Proceed to take and measure a still image capture.
- */
+/** Proceed to take and measure a still image capture. */
 internal fun cameraXTakePicture(
     activity: MainActivity,
     params: CameraParams,
@@ -240,7 +241,8 @@ internal fun cameraXTakePicture(
     // Pause in multi-captures to make sure HDR routines don't get overloaded
     logd(
         "CameraX TakePicture. Pausing for " +
-            PrefHelper.getPreviewBuffer(activity) + "ms to let preview run."
+            PrefHelper.getPreviewBuffer(activity) +
+            "ms to let preview run."
     )
 
     params.timer.previewFillStart = System.currentTimeMillis()
@@ -253,17 +255,14 @@ internal fun cameraXTakePicture(
 
     logd("Capture timer started: " + params.timer.captureStart)
     activity.runOnUiThread {
-        params.cameraXImageCaptureUseCase
-            .takePicture(
-                CameraXExecutors.mainThreadExecutor(),
-                CameraXImageAvailableListener(activity, params, testConfig)
-            )
+        params.cameraXImageCaptureUseCase.takePicture(
+            CameraXExecutors.mainThreadExecutor(),
+            CameraXImageAvailableListener(activity, params, testConfig)
+        )
     }
 }
 
-/**
- * An abort request has been received. Abandon everything
- */
+/** An abort request has been received. Abandon everything */
 internal fun cameraXAbort(activity: MainActivity, params: CameraParams, testConfig: TestConfig) {
     closeCameraX(activity, params, testConfig)
     return
@@ -307,9 +306,7 @@ private fun isCameraSurfaceTextureReleased(texture: SurfaceTexture): Boolean {
     return released
 }
 
-/**
- * Setup the Camera X preview use case
- */
+/** Setup the Camera X preview use case */
 @OptIn(ExperimentalCamera2Interop::class)
 private fun cameraXPreviewUseCaseBuilder(
     focusMode: FocusMode,
@@ -328,14 +325,11 @@ private fun cameraXPreviewUseCaseBuilder(
     return configBuilder
 }
 
-/**
- * Setup the Camera X image capture use case
- */
+/** Setup the Camera X image capture use case */
 @OptIn(ExperimentalCamera2Interop::class)
 private fun cameraXImageCaptureUseCaseBuilder(
     focusMode: FocusMode,
-    deviceStateCallback:
-        CameraDevice.StateCallback,
+    deviceStateCallback: CameraDevice.StateCallback,
     sessionCaptureCallback: CameraCaptureSession.CaptureCallback
 ): ImageCapture.Builder {
 

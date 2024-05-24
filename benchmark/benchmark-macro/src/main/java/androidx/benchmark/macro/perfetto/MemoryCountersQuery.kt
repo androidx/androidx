@@ -23,7 +23,8 @@ import org.intellij.lang.annotations.Language
 internal object MemoryCountersQuery {
     // https://perfetto.dev/docs/data-sources/memory-counters
     @Language("sql")
-    internal fun getQuery(targetPackageName: String) = """
+    internal fun getQuery(targetPackageName: String) =
+        """
         SELECT
             track.name as counter_name,
             SUM(value)
@@ -34,7 +35,8 @@ internal object MemoryCountersQuery {
             ${processNameLikePkg(targetPackageName)} AND
             track.name LIKE 'mem.%.count'
         GROUP BY counter_name
-    """.trimIndent()
+    """
+            .trimIndent()
 
     private const val MINOR_PAGE_FAULTS_COUNT = "mem.mm.min_flt.count"
     private const val MAJOR_PAGE_FAULTS_COUNT = "mem.mm.maj_flt.count"
@@ -62,22 +64,20 @@ internal object MemoryCountersQuery {
         session: PerfettoTraceProcessor.Session,
         targetPackageName: String
     ): SubMetrics? {
-        val queryResultIterator = session.query(
-            query = getQuery(targetPackageName = targetPackageName)
-        )
+        val queryResultIterator =
+            session.query(query = getQuery(targetPackageName = targetPackageName))
 
         val rows = queryResultIterator.toList()
         return if (rows.isEmpty()) {
             null
         } else {
-            val summations: Map<String, Double> = rows.associate {
-                it.string("counter_name") to it.double("SUM(value)")
-            }
+            val summations: Map<String, Double> =
+                rows.associate { it.string("counter_name") to it.double("SUM(value)") }
             SubMetrics(
                 minorPageFaults = summations[MINOR_PAGE_FAULTS_COUNT] ?: 0.0,
                 majorPageFaults = summations[MAJOR_PAGE_FAULTS_COUNT] ?: 0.0,
-                pageFaultsBackedBySwapCache = summations[PAGE_FAULTS_BACKED_BY_SWAP_CACHE_COUNT]
-                    ?: 0.0,
+                pageFaultsBackedBySwapCache =
+                    summations[PAGE_FAULTS_BACKED_BY_SWAP_CACHE_COUNT] ?: 0.0,
                 pageFaultsBackedByReadIO = summations[PAGE_FAULTS_BACKED_BY_READ_IO_COUNT] ?: 0.0,
                 memoryCompactionEvents = summations[MEMORY_COMPACTION_EVENTS_COUNT] ?: 0.0,
                 memoryReclaimEvents = summations[MEMORY_RECLAIM_EVENTS_COUNT] ?: 0.0

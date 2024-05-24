@@ -22,33 +22,23 @@ import androidx.annotation.RestrictTo
 /**
  * Actions that need to be performed once per test suite are defined in this [RunListenerDelegate].
  *
- * This way, we minimize the costs of these suite wide actions, and benchmarks continue running
- * fast (with minimal additional overheads).
+ * This way, we minimize the costs of these suite wide actions, and benchmarks continue running fast
+ * (with minimal additional overheads).
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class RunListenerDelegate(private val sideEffects: List<SideEffect>) {
-    /**
-     * Called before any tests have been run.
-     */
+    /** Called before any tests have been run. */
     fun onTestRunStarted() {
         sideEffects.forEach { sideEffect ->
-            Log.d(
-                BenchmarkState.TAG,
-                "Setting up side effect ${sideEffect.name()}"
-            )
+            Log.d(BenchmarkState.TAG, "Setting up side effect ${sideEffect.name()}")
             sideEffect.setup()
         }
     }
 
-    /**
-     * Called after all tests have been completed.
-     */
+    /** Called after all tests have been completed. */
     fun onTestRunFinished() {
         sideEffects.forEach { sideEffect ->
-            Log.d(
-                BenchmarkState.TAG,
-                "Tearing down side effect ${sideEffect.name()}"
-            )
+            Log.d(BenchmarkState.TAG, "Tearing down side effect ${sideEffect.name()}")
             sideEffect.tearDown()
         }
     }

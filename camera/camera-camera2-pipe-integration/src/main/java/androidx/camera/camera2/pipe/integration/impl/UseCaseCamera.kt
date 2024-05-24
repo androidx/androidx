@@ -52,9 +52,7 @@ interface UseCaseCamera {
     var runningUseCases: Set<UseCase>
 
     interface RunningUseCasesChangeListener {
-        /**
-         * Invoked when value of [UseCaseCamera.runningUseCases] has been changed.
-         */
+        /** Invoked when value of [UseCaseCamera.runningUseCases] has been changed. */
         fun onRunningUseCasesChanged()
     }
 
@@ -79,12 +77,12 @@ interface UseCaseCamera {
     fun close(): Job
 }
 
-/**
- * API for interacting with a [CameraGraph] that has been configured with a set of [UseCase]'s
- */
+/** API for interacting with a [CameraGraph] that has been configured with a set of [UseCase]'s */
 @UseCaseCameraScope
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
-class UseCaseCameraImpl @Inject constructor(
+class UseCaseCameraImpl
+@Inject
+constructor(
     private val controls: java.util.Set<UseCaseCameraControl>,
     private val useCaseGraphConfig: UseCaseGraphConfig,
     private val useCases: java.util.ArrayList<UseCase>,
@@ -105,14 +103,13 @@ class UseCaseCameraImpl @Inject constructor(
             // is used as a signal to indicate the properties of the UseCase may have changed.
             SessionConfigAdapter(value).getValidSessionConfigOrNull()?.let {
                 requestControl.setSessionConfigAsync(it)
-            } ?: run {
-                debug { "Unable to reset the session due to invalid config" }
-                requestControl.setSessionConfigAsync(
-                    SessionConfig.Builder().apply {
-                        setTemplateType(defaultTemplate)
-                    }.build()
-                )
             }
+                ?: run {
+                    debug { "Unable to reset the session due to invalid config" }
+                    requestControl.setSessionConfigAsync(
+                        SessionConfig.Builder().apply { setTemplateType(defaultTemplate) }.build()
+                    )
+                }
 
             controls.forEach { control ->
                 if (control is UseCaseCamera.RunningUseCasesChangeListener) {
@@ -123,9 +120,7 @@ class UseCaseCameraImpl @Inject constructor(
 
     init {
         debug { "Configured $this for $useCases" }
-        useCaseGraphConfig.apply {
-            cameraStateAdapter.onGraphUpdated(graph)
-        }
+        useCaseGraphConfig.apply { cameraStateAdapter.onGraphUpdated(graph) }
         threads.scope.launch {
             useCaseGraphConfig.apply {
                 graph.graphState.collect {
@@ -135,10 +130,7 @@ class UseCaseCameraImpl @Inject constructor(
                     // before cancelling the job, because it could be the last UseCaseCamera created
                     // (i.e., no new UseCaseCamera to update CameraStateAdapter that this one as
                     // stopped/closed).
-                    if (closed.value &&
-                        it is GraphStateStopped ||
-                        it is GraphStateError
-                    ) {
+                    if (closed.value && it is GraphStateStopped || it is GraphStateError) {
                         this@launch.coroutineContext[Job]?.cancel()
                     }
 
@@ -154,14 +146,13 @@ class UseCaseCameraImpl @Inject constructor(
                             sessionConfigAdapter.deferrableSurfaces.map {
                                 it as SessionProcessorSurface
                             }
-                        val requestProcessorAdapter = RequestProcessorAdapter(
-                            useCaseGraphConfig,
-                            sessionProcessorSurfaces,
-                            threads.scope,
-                        )
-                        sessionProcessorManager.onCaptureSessionStart(
-                            requestProcessorAdapter
-                        )
+                        val requestProcessorAdapter =
+                            RequestProcessorAdapter(
+                                useCaseGraphConfig,
+                                sessionProcessorSurfaces,
+                                threads.scope,
+                            )
+                        sessionProcessorManager.onCaptureSessionStart(requestProcessorAdapter)
                     }
                 }
             }
@@ -192,19 +183,17 @@ class UseCaseCameraImpl @Inject constructor(
         key: CaptureRequest.Key<T>,
         value: T,
         priority: Config.OptionPriority,
-    ): Deferred<Unit> = runIfNotClosed {
-        setParametersAsync(mapOf(key to (value as Any)), priority)
-    } ?: canceledResult
+    ): Deferred<Unit> =
+        runIfNotClosed { setParametersAsync(mapOf(key to (value as Any)), priority) }
+            ?: canceledResult
 
     override fun setParametersAsync(
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority,
-    ): Deferred<Unit> = runIfNotClosed {
-        requestControl.addParametersAsync(
-            values = values,
-            optionPriority = priority
-        )
-    } ?: canceledResult
+    ): Deferred<Unit> =
+        runIfNotClosed {
+            requestControl.addParametersAsync(values = values, optionPriority = priority)
+        } ?: canceledResult
 
     override fun setActiveResumeMode(enabled: Boolean) {
         useCaseGraphConfig.graph.isForeground = enabled
@@ -212,24 +201,27 @@ class UseCaseCameraImpl @Inject constructor(
 
     private fun UseCaseCameraRequestControl.setSessionConfigAsync(
         sessionConfig: SessionConfig
-    ): Deferred<Unit> = runIfNotClosed {
-        setConfigAsync(
-            type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
-            config = sessionConfig.implementationOptions,
-            tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
-            listeners = setOf(
-                CameraCallbackMap.createFor(
-                    sessionConfig.repeatingCameraCaptureCallbacks,
-                    threads.backgroundExecutor
-                )
-            ),
-            template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
-            streams = useCaseGraphConfig.getStreamIdsFromSurfaces(
-                sessionConfig.repeatingCaptureConfig.surfaces
-            ),
-            sessionConfig = sessionConfig,
-        )
-    } ?: canceledResult
+    ): Deferred<Unit> =
+        runIfNotClosed {
+            setConfigAsync(
+                type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+                config = sessionConfig.implementationOptions,
+                tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+                listeners =
+                    setOf(
+                        CameraCallbackMap.createFor(
+                            sessionConfig.repeatingCameraCaptureCallbacks,
+                            threads.backgroundExecutor
+                        )
+                    ),
+                template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+                streams =
+                    useCaseGraphConfig.getStreamIdsFromSurfaces(
+                        sessionConfig.repeatingCaptureConfig.surfaces
+                    ),
+                sessionConfig = sessionConfig,
+            )
+        } ?: canceledResult
 
     private inline fun <R> runIfNotClosed(crossinline block: () -> R): R? {
         return if (!closed.value) block() else null

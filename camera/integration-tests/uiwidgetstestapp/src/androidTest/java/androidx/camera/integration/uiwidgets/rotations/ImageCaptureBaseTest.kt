@@ -65,20 +65,23 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = cameraXConfig == CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION,
+        )
 
     @get:Rule
-    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        testCameraRule, CameraUtil.PreTestCameraIdList(
-            if (cameraXConfig == CameraActivity.CAMERA2_IMPLEMENTATION_OPTION) {
-                Camera2Config.defaultConfig()
-            } else {
-                CameraPipeConfig.defaultConfig()
-            }
+    val useCameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            testCameraRule,
+            CameraUtil.PreTestCameraIdList(
+                if (cameraXConfig == CameraActivity.CAMERA2_IMPLEMENTATION_OPTION) {
+                    Camera2Config.defaultConfig()
+                } else {
+                    CameraPipeConfig.defaultConfig()
+                }
+            )
         )
-    )
 
     @get:Rule
     val mCameraActivityRules: GrantPermissionRule =
@@ -166,31 +169,36 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
 
             // If the camera HAL doesn't rotate the image, the captured image should contain a
             // rotation that's equal to the sensor rotation relative to target rotation
-            val (sensorToTargetRotation, imageRotationDegrees) = scenario.withActivity {
-                Pair(
-                    getSensorRotationRelativeToCaptureTargetRotation(),
-                    mCaptureResult?.getRotation()
-                )
-            }
+            val (sensorToTargetRotation, imageRotationDegrees) =
+                scenario.withActivity {
+                    Pair(
+                        getSensorRotationRelativeToCaptureTargetRotation(),
+                        mCaptureResult?.getRotation()
+                    )
+                }
             val areRotationsEqual = sensorToTargetRotation == imageRotationDegrees
 
             // If the camera HAL did rotate the image, verifying the image's rotation isn't
             // possible, so we make sure the image has the correct orientation/resolution.
-            val (expectedResolution, imageSize) = scenario.withActivity {
-                Pair(getCaptureResolution(), mCaptureResult?.getResolution())
-            }
+            val (expectedResolution, imageSize) =
+                scenario.withActivity {
+                    Pair(getCaptureResolution(), mCaptureResult?.getResolution())
+                }
             val areResolutionsEqual = expectedResolution == imageSize
 
             assertWithMessage(
-                "The captured image rotation degrees [$imageRotationDegrees] was expected to be " +
-                    "equal to [$sensorToTargetRotation], or the captured image's resolution " +
-                    "[$imageSize] was expected to be equal to [$expectedResolution]"
-            ).that(areRotationsEqual || areResolutionsEqual).isTrue()
+                    "The captured image rotation degrees [$imageRotationDegrees] was expected to be " +
+                        "equal to [$sensorToTargetRotation], or the captured image's resolution " +
+                        "[$imageSize] was expected to be equal to [$expectedResolution]"
+                )
+                .that(areRotationsEqual || areResolutionsEqual)
+                .isTrue()
 
             assertWithMessage(
-                "The captured image's resolution " +
-                    "[$imageSize] was expected to be equal to [$expectedResolution]"
-            ).that(expectedResolution.height * expectedResolution.width)
+                    "The captured image's resolution " +
+                        "[$imageSize] was expected to be equal to [$expectedResolution]"
+                )
+                .that(expectedResolution.height * expectedResolution.width)
                 .isEqualTo(imageSize!!.height * imageSize.width)
 
             // Delete captured image
@@ -203,15 +211,13 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         captureMode: Int,
         cameraXConfig: String,
     ): ActivityScenario<A> {
-        val intent = Intent(
-            ApplicationProvider.getApplicationContext(),
-            A::class.java
-        ).apply {
-            putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
-            putExtra(CameraActivity.KEY_IMAGE_CAPTURE_MODE, captureMode)
-            putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
-            putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
-        }
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), A::class.java).apply {
+                putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
+                putExtra(CameraActivity.KEY_IMAGE_CAPTURE_MODE, captureMode)
+                putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION, cameraXConfig)
+                putExtra(CameraActivity.KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, true)
+            }
         return ActivityScenario.launch<A>(intent)
     }
 
@@ -241,11 +247,12 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         } finally {
             when {
                 this == null -> {}
-                else -> try {
-                    close()
-                } catch (e: Throwable) {
-                    Logger.w("ImageCaptureBaseTest", "Exception in close()", e)
-                }
+                else ->
+                    try {
+                        close()
+                    } catch (e: Throwable) {
+                        Logger.w("ImageCaptureBaseTest", "Exception in close()", e)
+                    }
             }
         }
     }
@@ -254,24 +261,25 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         protected const val IMAGES_COUNT = 30
         protected const val TIMEOUT = 20L
         @JvmStatic
-        protected val captureModes = arrayOf(
-            CameraActivity.IMAGE_CAPTURE_MODE_IN_MEMORY,
-            CameraActivity.IMAGE_CAPTURE_MODE_FILE,
-            CameraActivity.IMAGE_CAPTURE_MODE_OUTPUT_STREAM,
-            CameraActivity.IMAGE_CAPTURE_MODE_MEDIA_STORE
-        )
+        protected val captureModes =
+            arrayOf(
+                CameraActivity.IMAGE_CAPTURE_MODE_IN_MEMORY,
+                CameraActivity.IMAGE_CAPTURE_MODE_FILE,
+                CameraActivity.IMAGE_CAPTURE_MODE_OUTPUT_STREAM,
+                CameraActivity.IMAGE_CAPTURE_MODE_MEDIA_STORE
+            )
         @JvmStatic
         protected val lensFacingList =
             arrayOf(CameraSelector.LENS_FACING_BACK, CameraSelector.LENS_FACING_FRONT)
 
         @JvmStatic
-        protected val cameraXConfigList = arrayOf(
-            CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
-            CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
-        )
+        protected val cameraXConfigList =
+            arrayOf(
+                CameraActivity.CAMERA2_IMPLEMENTATION_OPTION,
+                CameraActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
+            )
 
-        @JvmStatic
-        lateinit var testCameraRule: CameraUtil.PreTestCamera
+        @JvmStatic lateinit var testCameraRule: CameraUtil.PreTestCamera
 
         @BeforeClass
         @JvmStatic

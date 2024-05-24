@@ -24,10 +24,7 @@ import kotlin.experimental.and
 import kotlin.experimental.or
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-internal fun deviceId(
-    packageName: String,
-    fwkDevice: FwkBluetoothDevice
-): UUID {
+internal fun deviceId(packageName: String, fwkDevice: FwkBluetoothDevice): UUID {
     val name = packageName + fwkDevice.address + fwkDevice.addressType()
     val md = MessageDigest.getInstance("SHA-1")
     md.update(name.toByteArray())

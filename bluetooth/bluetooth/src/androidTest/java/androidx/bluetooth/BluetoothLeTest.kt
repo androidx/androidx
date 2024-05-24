@@ -37,9 +37,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Test cases for [BluetoothLe]
- */
+/** Test cases for [BluetoothLe] */
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class BluetoothLeTest {
@@ -53,16 +51,15 @@ class BluetoothLeTest {
     val permissionRule: GrantPermissionRule =
         if (Build.VERSION.SDK_INT >= 31)
             GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH_ADVERTISE)
-        else
-            GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH)
+        else GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH)
 
     private lateinit var bluetoothLe: BluetoothLe
 
     @Before
     fun setUp() {
         val context: Context = ApplicationProvider.getApplicationContext()
-        val bluetoothManager = context
-            .getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothManager =
+            context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val bluetoothAdapter = bluetoothManager.adapter
 
         Assume.assumeNotNull(bluetoothAdapter)
@@ -76,8 +73,7 @@ class BluetoothLeTest {
     fun advertise() = runTest {
         val advertiseParams = AdvertiseParams()
 
-        val result = bluetoothLe.advertise(advertiseParams)
-            .first()
+        val result = bluetoothLe.advertise(advertiseParams).first()
 
         assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
     }
@@ -87,13 +83,10 @@ class BluetoothLeTest {
         val parcelUuid = UUID.randomUUID()
         val serviceData = "sampleAdvertiseDataTooBig".toByteArray(Charsets.UTF_8)
 
-        val advertiseParams = AdvertiseParams(
-            serviceData = mapOf(parcelUuid to serviceData)
-        )
+        val advertiseParams = AdvertiseParams(serviceData = mapOf(parcelUuid to serviceData))
 
         try {
-            val result = bluetoothLe.advertise(advertiseParams)
-                .first()
+            val result = bluetoothLe.advertise(advertiseParams).first()
 
             if (Build.VERSION.SDK_INT >= 26) {
                 assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
@@ -107,12 +100,9 @@ class BluetoothLeTest {
 
     @Test
     fun advertise1000Millis() = runTest {
-        val advertiseParams = AdvertiseParams(
-            durationMillis = 1000
-        )
+        val advertiseParams = AdvertiseParams(durationMillis = 1000)
 
-        val advertiseJob = bluetoothLe.advertise(advertiseParams)
-            .launchIn(this)
+        val advertiseJob = bluetoothLe.advertise(advertiseParams).launchIn(this)
         assertTrue(advertiseJob.isActive)
 
         delay(1100)

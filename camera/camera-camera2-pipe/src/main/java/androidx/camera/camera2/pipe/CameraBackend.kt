@@ -136,7 +136,7 @@ interface CameraBackend {
     /** Connects and starts the underlying camera */
     fun prewarm(cameraId: CameraId)
 
-    /** Disconnects the underlying camera.*/
+    /** Disconnects the underlying camera. */
     fun disconnect(cameraId: CameraId)
 
     /**
@@ -145,9 +145,7 @@ interface CameraBackend {
      */
     fun disconnectAsync(cameraId: CameraId): Deferred<Unit>
 
-    /**
-     * Disconnects all active Cameras.
-     */
+    /** Disconnects all active Cameras. */
     fun disconnectAll()
 }
 

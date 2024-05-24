@@ -114,21 +114,14 @@ private fun MainContent(
 @Composable
 private fun LightingScreen(modifier: Modifier = Modifier, isOn: Boolean = false) {
     val backgroundColor = if (isOn) LightOn else LightOff
-    Box(
-        modifier = modifier.fillMaxSize().background(color = backgroundColor)
-    )
+    Box(modifier = modifier.fillMaxSize().background(color = backgroundColor))
 }
 
 @Composable
-private fun ControlPanel(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
+private fun ControlPanel(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Column(modifier = modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.weight(2f))
-        Box(modifier = Modifier.weight(1f)) {
-            content()
-        }
+        Box(modifier = Modifier.weight(1f)) { content() }
     }
 }
 

@@ -23,8 +23,7 @@ import androidx.camera.core.impl.ImageFormatConstants
 
 internal open class StreamConfigurationMapCompatBaseImpl(
     val streamConfigurationMap: StreamConfigurationMap?
-) :
-    StreamConfigurationMapCompat.StreamConfigurationMapCompatImpl {
+) : StreamConfigurationMapCompat.StreamConfigurationMapCompatImpl {
 
     override fun getOutputFormats(): Array<Int>? {
         return streamConfigurationMap?.outputFormats?.toTypedArray()

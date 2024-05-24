@@ -69,70 +69,60 @@ class BluetoothLe(context: Context) {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    var scanImpl: ScanImpl? =
-        bluetoothAdapter?.bluetoothLeScanner?.let(::getScanImpl)
+    var scanImpl: ScanImpl? = bluetoothAdapter?.bluetoothLeScanner?.let(::getScanImpl)
 
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val client: GattClient by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        GattClient(context.applicationContext)
-    }
+    val client: GattClient by
+        lazy(LazyThreadSafetyMode.PUBLICATION) { GattClient(context.applicationContext) }
 
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    val server: GattServer by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        GattServer(context.applicationContext)
-    }
+    val server: GattServer by
+        lazy(LazyThreadSafetyMode.PUBLICATION) { GattServer(context.applicationContext) }
 
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE advertising
      *
-     * Note that this method may not complete if the duration is set to 0.
-     * To stop advertising, in that case, you should cancel the coroutine.
+     * Note that this method may not complete if the duration is set to 0. To stop advertising, in
+     * that case, you should cancel the coroutine.
      *
      * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising.
      * @return a _cold_ [Flow] of [ADVERTISE_STARTED] if advertising is started.
-     *
      * @throws AdvertiseException if the advertise fails.
      * @throws IllegalArgumentException if the advertise parameters are not valid.
      */
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
     fun advertise(advertiseParams: AdvertiseParams): Flow<@AdvertiseResult Int> {
-        return advertiseImpl?.advertise(advertiseParams) ?: callbackFlow {
-            close(AdvertiseException(AdvertiseException.UNSUPPORTED))
-        }
+        return advertiseImpl?.advertise(advertiseParams)
+            ?: callbackFlow { close(AdvertiseException(AdvertiseException.UNSUPPORTED)) }
     }
 
     /**
-     * Returns a _cold_ [Flow] to start Bluetooth LE scanning.
-     * Scanning is used to discover advertising devices nearby.
+     * Returns a _cold_ [Flow] to start Bluetooth LE scanning. Scanning is used to discover
+     * advertising devices nearby.
      *
      * @param filters [ScanFilter]s for finding exact Bluetooth LE devices.
-     *
      * @return a _cold_ [Flow] of [ScanResult] that matches with the given scan filter.
-     *
      * @throws ScanException if the scan fails.
      */
     @RequiresPermission("android.permission.BLUETOOTH_SCAN")
     fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> {
-        return scanImpl?.scan(filters) ?: callbackFlow {
-            close(ScanException(ScanException.UNSUPPORTED))
-        }
+        return scanImpl?.scan(filters)
+            ?: callbackFlow { close(ScanException(ScanException.UNSUPPORTED)) }
     }
 
     /**
-     * Connects to the GATT server on the remote Bluetooth device and
-     * invokes the given [block] after the connection is made.
+     * Connects to the GATT server on the remote Bluetooth device and invokes the given [block]
+     * after the connection is made.
      *
      * The block may not be run if connection fails.
      *
      * @param device a [BluetoothDevice] to connect to
      * @param block a block of code that is invoked after the connection is made
-     *
+     * @return a result returned by the given block if the connection was successfully finished or a
+     *   failure with the corresponding reason
      * @throws CancellationException if connect failed or it's canceled
-     * @return a result returned by the given block if the connection was successfully finished
-     *         or a failure with the corresponding reason
-     *
      */
     @RequiresPermission("android.permission.BLUETOOTH_CONNECT")
     suspend fun <R> connectGatt(
@@ -148,7 +138,6 @@ class BluetoothLe(context: Context) {
      * Only one server at a time can be opened.
      *
      * @param services the services that will be exposed to the clients
-     *
      * @see GattServerConnectRequest
      */
     @OptIn(ExperimentalCoroutinesApi::class)

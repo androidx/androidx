@@ -51,7 +51,6 @@ import org.junit.runners.model.Statement
  * JUnit rule for benchmarking code on an Android device.
  *
  * In Kotlin, benchmark with [measureRepeated]:
- *
  * ```
  * @get:Rule
  * val benchmarkRule = BenchmarkRule();
@@ -65,7 +64,6 @@ import org.junit.runners.model.Statement
  * ```
  *
  * In Java, use `getState()`:
- *
  * ```
  * @Rule
  * public BenchmarkRule benchmarkRule = new BenchmarkRule();
@@ -86,10 +84,11 @@ import org.junit.runners.model.Statement
  *
  * Every test in the Class using this @Rule must contain a single benchmark.
  *
- * See the [Benchmark Guide](https://developer.android.com/studio/profile/benchmark)
- * for more information on writing Benchmarks.
+ * See the [Benchmark Guide](https://developer.android.com/studio/profile/benchmark) for more
+ * information on writing Benchmarks.
  */
-public class BenchmarkRule private constructor(
+public class BenchmarkRule
+private constructor(
     private val config: MicrobenchmarkConfig?,
     /**
      * This param is ignored, and just present to disambiguate the internal (nullable) vs external
@@ -144,12 +143,9 @@ public class BenchmarkRule private constructor(
     internal // synthetic access
     var applied = false
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    public val scope: Scope = Scope()
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val scope: Scope = Scope()
 
-    /**
-     * Handle used for controlling timing during [measureRepeated].
-     */
+    /** Handle used for controlling timing during [measureRepeated]. */
     public inner class Scope internal constructor() {
         /**
          * Disable timing for a block of code.
@@ -172,14 +168,15 @@ public class BenchmarkRule private constructor(
             // Note: we only bother with tracing for the runWithTimingDisabled function for
             // Kotlin callers, as it's more difficult to corrupt the trace with incorrectly
             // paired BenchmarkState pause/resume calls
-            val ret: T = try {
-                // TODO: use `trace() {}` instead of this manual try/finally,
-                //  once the block parameter is marked crossinline.
-                Trace.beginSection("runWithTimingDisabled")
-                block()
-            } finally {
-                Trace.endSection()
-            }
+            val ret: T =
+                try {
+                    // TODO: use `trace() {}` instead of this manual try/finally,
+                    //  once the block parameter is marked crossinline.
+                    Trace.beginSection("runWithTimingDisabled")
+                    block()
+                } finally {
+                    Trace.endSection()
+                }
             getOuterState().resumeTiming()
             return ret
         }
@@ -194,83 +191,92 @@ public class BenchmarkRule private constructor(
     }
 
     override fun apply(base: Statement, description: Description): Statement {
-        return RuleChain
-            .outerRule(GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        return RuleChain.outerRule(
+                GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            )
             .around(::applyInternal)
             .apply(base, description)
     }
 
-    private fun applyInternal(base: Statement, description: Description) =
-        Statement {
-            applied = true
-            assumeTrue(Arguments.RuleType.Microbenchmark in Arguments.enabledRules)
-            var invokeMethodName = description.methodName
-            Log.d(TAG, "-- Running ${description.className}#$invokeMethodName --")
+    private fun applyInternal(base: Statement, description: Description) = Statement {
+        applied = true
+        assumeTrue(Arguments.RuleType.Microbenchmark in Arguments.enabledRules)
+        var invokeMethodName = description.methodName
+        Log.d(TAG, "-- Running ${description.className}#$invokeMethodName --")
 
-            // validate and simplify the function name.
-            // First, remove the "test" prefix which normally comes from CTS test.
-            // Then make sure the [subTestName] is valid, not just numbers like [0].
-            if (invokeMethodName.startsWith("test")) {
-                assertTrue(
-                    "The test name $invokeMethodName is too short",
-                    invokeMethodName.length > 5
-                )
-                invokeMethodName = invokeMethodName.substring(4, 5).lowercase() +
-                    invokeMethodName.substring(5)
-            }
-            val uniqueName = description.testClass.simpleName + "_" + invokeMethodName
-            internalState.traceUniqueName = uniqueName
-
-            val tracePath = PerfettoCaptureWrapper().record(
-                fileLabel = uniqueName,
-                config = PerfettoConfig.Benchmark(
-                    appTagPackages = if (config?.traceAppTagEnabled == true) {
-                        listOf(InstrumentationRegistry.getInstrumentation().context.packageName)
-                    } else {
-                        emptyList()
-                    },
-                    useStackSamplingConfig = false
-                ),
-                // TODO(290918736): add support for Perfetto SDK Tracing in
-                //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
-                perfettoSdkConfig = if (config?.perfettoSdkTracingEnabled == true &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                ) {
-                    PerfettoCapture.PerfettoSdkConfig(
-                        InstrumentationRegistry.getInstrumentation().context.packageName,
-                        PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive
-                    )
-                } else {
-                    null
-                },
-
-                // Optimize throughput in dryRunMode, since trace isn't useful, and extremely
-                //   expensive on some emulators. Could alternately use UserspaceTracing if desired
-                // Additionally, skip on misconfigured devices to still enable benchmarking.
-                enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing,
-                inMemoryTracingLabel = "Microbenchmark"
-            ) {
-                trace(description.displayName) { base.evaluate() }
-            }?.apply {
-                // trace completed, and copied into shell writeable dir
-                val file = File(this)
-                file.appendUiState(
-                    UiState(
-                        timelineStart = null,
-                        timelineEnd = null,
-                        highlightPackage = InstrumentationRegistry.getInstrumentation()
-                            .context.packageName
-                    )
-                )
-            }
-
-            internalState.report(
-                fullClassName = description.className,
-                simpleClassName = description.testClass.simpleName,
-                methodName = invokeMethodName,
-                perfettoTracePath = tracePath
-            )
+        // validate and simplify the function name.
+        // First, remove the "test" prefix which normally comes from CTS test.
+        // Then make sure the [subTestName] is valid, not just numbers like [0].
+        if (invokeMethodName.startsWith("test")) {
+            assertTrue("The test name $invokeMethodName is too short", invokeMethodName.length > 5)
+            invokeMethodName =
+                invokeMethodName.substring(4, 5).lowercase() + invokeMethodName.substring(5)
         }
+        val uniqueName = description.testClass.simpleName + "_" + invokeMethodName
+        internalState.traceUniqueName = uniqueName
+
+        val tracePath =
+            PerfettoCaptureWrapper()
+                .record(
+                    fileLabel = uniqueName,
+                    config =
+                        PerfettoConfig.Benchmark(
+                            appTagPackages =
+                                if (config?.traceAppTagEnabled == true) {
+                                    listOf(
+                                        InstrumentationRegistry.getInstrumentation()
+                                            .context
+                                            .packageName
+                                    )
+                                } else {
+                                    emptyList()
+                                },
+                            useStackSamplingConfig = false
+                        ),
+                    // TODO(290918736): add support for Perfetto SDK Tracing in
+                    //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
+                    perfettoSdkConfig =
+                        if (
+                            config?.perfettoSdkTracingEnabled == true &&
+                                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                        ) {
+                            PerfettoCapture.PerfettoSdkConfig(
+                                InstrumentationRegistry.getInstrumentation().context.packageName,
+                                PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive
+                            )
+                        } else {
+                            null
+                        },
+
+                    // Optimize throughput in dryRunMode, since trace isn't useful, and extremely
+                    //   expensive on some emulators. Could alternately use UserspaceTracing if
+                    // desired
+                    // Additionally, skip on misconfigured devices to still enable benchmarking.
+                    enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing,
+                    inMemoryTracingLabel = "Microbenchmark"
+                ) {
+                    trace(description.displayName) { base.evaluate() }
+                }
+                ?.apply {
+                    // trace completed, and copied into shell writeable dir
+                    val file = File(this)
+                    file.appendUiState(
+                        UiState(
+                            timelineStart = null,
+                            timelineEnd = null,
+                            highlightPackage =
+                                InstrumentationRegistry.getInstrumentation().context.packageName
+                        )
+                    )
+                }
+
+        internalState.report(
+            fullClassName = description.className,
+            simpleClassName = description.testClass.simpleName,
+            methodName = invokeMethodName,
+            perfettoTracePath = tracePath
+        )
+    }
 
     internal companion object {
         private const val TAG = "Benchmark"
@@ -337,7 +343,7 @@ public inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule
  * @param block The block of code to benchmark.
  * @throws java.lang.Throwable when an exception is thrown on the main thread.
  * @throws IllegalStateException if a hard deadline is exceeded while the block is running on the
- *     main thread.
+ *   main thread.
  */
 @Suppress("DocumentExceptions") // `@throws Throwable` not recognized (b/305050883)
 inline fun BenchmarkRule.measureRepeatedOnMainThread(
@@ -401,14 +407,15 @@ inline fun BenchmarkRule.measureRepeatedOnMainThread(
             }
         }
         getInstrumentation().runOnMainSync(task)
-        val shouldContinue: Boolean = try {
-            // Ideally we'd implement the delay here, as a timeout, but we can't do this until
-            // have a way to move thermal throttle sleeping off the UI thread.
-            task.get()
-        } catch (e: ExecutionException) {
-            // Expose the original exception
-            throw e.cause!!
-        }
+        val shouldContinue: Boolean =
+            try {
+                // Ideally we'd implement the delay here, as a timeout, but we can't do this until
+                // have a way to move thermal throttle sleeping off the UI thread.
+                task.get()
+            } catch (e: ExecutionException) {
+                // Expose the original exception
+                throw e.cause!!
+            }
         if (!shouldContinue) {
             // all done
             break
@@ -416,6 +423,7 @@ inline fun BenchmarkRule.measureRepeatedOnMainThread(
     }
 }
 
-internal inline fun Statement(crossinline evaluate: () -> Unit) = object : Statement() {
-    override fun evaluate() = evaluate()
-}
+internal inline fun Statement(crossinline evaluate: () -> Unit) =
+    object : Statement() {
+        override fun evaluate() = evaluate()
+    }

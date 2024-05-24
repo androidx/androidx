@@ -49,8 +49,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Stress test to verify that the camera can successfully capture images for all supported
- * extension modes for each cameras ID.
+ * Stress test to verify that the camera can successfully capture images for all supported extension
+ * modes for each cameras ID.
  */
 @LargeTest
 @RunWith(Parameterized::class)
@@ -63,8 +63,7 @@ class Camera2ExtensionsImageCaptureStressTest(private val config: CameraIdExtens
         )
 
     companion object {
-        @ClassRule
-        @JvmField val stressTest = StressTestRule()
+        @ClassRule @JvmField val stressTest = StressTestRule()
 
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
@@ -92,11 +91,8 @@ class Camera2ExtensionsImageCaptureStressTest(private val config: CameraIdExtens
         imageReader = createCaptureImageReader(extensionsCharacteristics, extensionMode)
         captureSurface = imageReader.surface
         val outputConfigurationCapture = OutputConfiguration(captureSurface)
-        extensionSession = openExtensionSession(
-            cameraDevice,
-            extensionMode,
-            listOf(outputConfigurationCapture)
-        )
+        extensionSession =
+            openExtensionSession(cameraDevice, extensionMode, listOf(outputConfigurationCapture))
         assertThat(extensionSession).isNotNull()
     }
 

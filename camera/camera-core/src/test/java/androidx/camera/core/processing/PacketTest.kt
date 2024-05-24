@@ -32,9 +32,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit test for [Packet].
- */
+/** Unit test for [Packet]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -48,14 +46,15 @@ class PacketTest {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
         // Act.
-        val bitmapPacket = Packet.of(
-            bitmap,
-            createExif(createJpegBytes(40, 30)),
-            Rect(0, 0, 100, 200),
-            0,
-            Matrix(),
-            FakeCameraCaptureResult()
-        )
+        val bitmapPacket =
+            Packet.of(
+                bitmap,
+                createExif(createJpegBytes(40, 30)),
+                Rect(0, 0, 100, 200),
+                0,
+                Matrix(),
+                FakeCameraCaptureResult()
+            )
 
         // Assert.
         assertThat(bitmapPacket.size).isEqualTo(Size(100, 200))

@@ -38,16 +38,15 @@ class ThrottleDetectorTest {
      * `PowerManager.currentThermalStatus`
      *
      * Wrapping an API 30 Pixel 2 in a jacket, and running the test, I observed the following:
-     *
      * - 5 minutes of "Measured 55.XXXX, throttle state 0" (extremely low variance)
      * - 2 minutes of "Measured 55.YYYY, throttle state 1" (higher variance, within 1ms)
      * - Several min of "Measured ZZ.ZZ, throttle state 1" (much higher variance, between 55 - 72ms)
-     *    along with logcat messages like the following:
-     * `02-10 19:26:48.894   913   963 I android.hardware.thermal@2.0-service.pixel: back_therm: 40`
+     *   along with logcat messages like the following: `02-10 19:26:48.894 913 963 I
+     *   android.hardware.thermal@2.0-service.pixel: back_therm: 40`
      *
      * It's unclear how much of this measurement variation is due to unplugging big CPUs vs freq
-     * changes, but either way, we can observe significant variation with just
-     * "THERMAL_STATUS_LIGHT (1)", so we disallow that for microbenchmarks.
+     * changes, but either way, we can observe significant variation with just "THERMAL_STATUS_LIGHT
+     * (1)", so we disallow that for microbenchmarks.
      */
     @Ignore // this is only for local experimentation with thermal throttling values
     @Test
@@ -68,11 +67,11 @@ class ThrottleDetectorTest {
             // while device slowly heats up, check thermal state
             repeat(1000) {
                 val time = ThrottleDetector.measureWorkNs()
-                val state = (InstrumentationRegistry
-                    .getInstrumentation()
-                    .context
-                    .getSystemService(Context.POWER_SERVICE) as PowerManager)
-                    .currentThermalStatus
+                val state =
+                    (InstrumentationRegistry.getInstrumentation()
+                            .context
+                            .getSystemService(Context.POWER_SERVICE) as PowerManager)
+                        .currentThermalStatus
                 Log.d("ThrottleDetection", "Measured $time, throttle state $state")
             }
         } finally {

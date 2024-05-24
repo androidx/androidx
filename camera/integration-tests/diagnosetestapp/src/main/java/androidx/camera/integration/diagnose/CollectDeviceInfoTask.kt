@@ -22,13 +22,12 @@ import androidx.camera.view.LifecycleCameraController
 
 /**
  * Diagnosis task that collect basic device information
+ *
  * TODO: unit tests for this task (have only tested in end-to-end)
  */
 class CollectDeviceInfoTask : DiagnosisTask("CollectDeviceInfoTask") {
 
-    /**
-     * Collect device information into a text file
-     */
+    /** Collect device information into a text file */
     @Override
     override suspend fun runDiagnosisTask(
         cameraController: LifecycleCameraController,

@@ -21,7 +21,8 @@ package androidx.bluetooth
  *
  * @property device the remote device connecting to the server
  */
-class GattServerConnectRequest internal constructor(
+class GattServerConnectRequest
+internal constructor(
     private val session: GattServer.Session,
 ) {
 
@@ -34,7 +35,6 @@ class GattServerConnectRequest internal constructor(
      * Requests from the client before calling this should be saved.
      *
      * @param block a block of code that is invoked after the connection is made.
-     *
      * @see GattServerSessionScope
      */
     suspend fun accept(block: suspend GattServerSessionScope.() -> Unit) {

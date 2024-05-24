@@ -49,47 +49,50 @@ class MacrobenchmarkTest {
 
     @Test
     fun macrobenchmarkWithStartupMode_emptyMetricList() {
-        val exception = assertFailsWith<IllegalArgumentException> {
-            macrobenchmarkWithStartupMode(
-                uniqueName = "uniqueName", // ignored, uniqueness not important
-                className = "className",
-                testName = "testName",
-                packageName = "com.ignored",
-                metrics = emptyList(), // invalid
-                compilationMode = CompilationMode.Ignore(),
-                iterations = 1,
-                startupMode = null,
-                perfettoConfig = null,
-                setupBlock = {},
-                measureBlock = {}
-            )
-        }
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                macrobenchmarkWithStartupMode(
+                    uniqueName = "uniqueName", // ignored, uniqueness not important
+                    className = "className",
+                    testName = "testName",
+                    packageName = "com.ignored",
+                    metrics = emptyList(), // invalid
+                    compilationMode = CompilationMode.Ignore(),
+                    iterations = 1,
+                    startupMode = null,
+                    perfettoConfig = null,
+                    setupBlock = {},
+                    measureBlock = {}
+                )
+            }
         assertTrue(exception.message!!.contains("Empty list of metrics"))
     }
 
     @Test
     fun macrobenchmarkWithStartupMode_iterations() {
-        val exception = assertFailsWith<IllegalArgumentException> {
-            macrobenchmarkWithStartupMode(
-                uniqueName = "uniqueName", // ignored, uniqueness not important
-                className = "className",
-                testName = "testName",
-                packageName = "com.ignored",
-                metrics = listOf(FrameTimingMetric()),
-                compilationMode = CompilationMode.Ignore(),
-                iterations = 0, // invalid
-                startupMode = null,
-                perfettoConfig = null,
-                setupBlock = {},
-                measureBlock = {}
-            )
-        }
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                macrobenchmarkWithStartupMode(
+                    uniqueName = "uniqueName", // ignored, uniqueness not important
+                    className = "className",
+                    testName = "testName",
+                    packageName = "com.ignored",
+                    metrics = listOf(FrameTimingMetric()),
+                    compilationMode = CompilationMode.Ignore(),
+                    iterations = 0, // invalid
+                    startupMode = null,
+                    perfettoConfig = null,
+                    setupBlock = {},
+                    measureBlock = {}
+                )
+            }
         assertTrue(exception.message!!.contains("Require iterations > 0"))
     }
 
     @Test
     fun macrobenchmarkWithStartupMode_noMethodTrace() {
-        val result = macrobenchmarkWithStartupMode(
+        val result =
+            macrobenchmarkWithStartupMode(
                 uniqueName = "uniqueName", // ignored, uniqueness not important
                 className = "className",
                 testName = "testName",
@@ -109,17 +112,17 @@ class MacrobenchmarkTest {
                     )
                 }
             )
-        assertEquals(
-            1,
-            result.profilerOutputs!!.size
-        )
+        assertEquals(1, result.profilerOutputs!!.size)
         assertEquals(
             result.profilerOutputs!!.single().type,
             BenchmarkData.TestResult.ProfilerOutput.Type.PerfettoTrace
         )
     }
 
-    enum class Block { Setup, Measure }
+    enum class Block {
+        Setup,
+        Measure
+    }
 
     @RequiresApi(29)
     @OptIn(ExperimentalMetricApi::class)
@@ -198,29 +201,29 @@ class MacrobenchmarkTest {
 
     @SuppressLint("BanThreadSleep") // need non-zero duration to assert sum, regardless of clock
     private fun validateSlicesCustomConfig(includeMacroAppTag: Boolean) {
-        val atraceApps = if (includeMacroAppTag) {
-            listOf(Packages.TEST)
-        } else {
-            emptyList()
-        }
-        val measurements = macrobenchmarkWithStartupMode(
-            uniqueName = "MacrobenchmarkTest#validateSlicesCustomConfig",
-            className = "MacrobenchmarkTest",
-            testName = "validateCallbackBehavior",
-            packageName = Packages.TARGET,
-            // disable targetPackageOnly filter, since this process emits the event
-            metrics = listOf(TraceSectionMetric(TRACE_LABEL, targetPackageOnly = false)),
-            compilationMode = CompilationMode.DEFAULT,
-            iterations = 3,
-            startupMode = null,
-            perfettoConfig = PerfettoConfig.MinimalTest(atraceApps),
-            setupBlock = { },
-            measureBlock = {
-                trace(TRACE_LABEL) {
-                    Thread.sleep(2)
-                }
+        val atraceApps =
+            if (includeMacroAppTag) {
+                listOf(Packages.TEST)
+            } else {
+                emptyList()
             }
-        ).metrics[TRACE_LABEL + "SumMs"]!!.runs
+        val measurements =
+            macrobenchmarkWithStartupMode(
+                    uniqueName = "MacrobenchmarkTest#validateSlicesCustomConfig",
+                    className = "MacrobenchmarkTest",
+                    testName = "validateCallbackBehavior",
+                    packageName = Packages.TARGET,
+                    // disable targetPackageOnly filter, since this process emits the event
+                    metrics = listOf(TraceSectionMetric(TRACE_LABEL, targetPackageOnly = false)),
+                    compilationMode = CompilationMode.DEFAULT,
+                    iterations = 3,
+                    startupMode = null,
+                    perfettoConfig = PerfettoConfig.MinimalTest(atraceApps),
+                    setupBlock = {},
+                    measureBlock = { trace(TRACE_LABEL) { Thread.sleep(2) } }
+                )
+                .metrics[TRACE_LABEL + "SumMs"]!!
+                .runs
 
         assertEquals(3, measurements.size)
 

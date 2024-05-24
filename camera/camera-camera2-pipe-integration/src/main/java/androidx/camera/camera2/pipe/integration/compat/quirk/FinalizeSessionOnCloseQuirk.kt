@@ -27,15 +27,14 @@ import java.util.Locale
  * CameraGraph is stopped or closed.
  *
  * QuirkSummary
- * - Bug Id:      277310425
+ * - Bug Id: 277310425
  * - Description: When CameraX sets up its video recorder, it waits for the previous Surfaces to be
- *                released before setting them in the new CameraGraph. However, CameraPipe would
- *                also wait for the Surfaces to be set before it creates a new capture session and
- *                finalize the previous session, and therefore not releasing the Surfaces. This
- *                essentially creates a deadlock, and this quirk would enable a behavior in
- *                CameraPipe such that the current session gets finalized either immediately or on a
- *                timeout after the CameraGraph is stopped or closed.
- * - Device(s):   All devices.
+ *   released before setting them in the new CameraGraph. However, CameraPipe would also wait for
+ *   the Surfaces to be set before it creates a new capture session and finalize the previous
+ *   session, and therefore not releasing the Surfaces. This essentially creates a deadlock, and
+ *   this quirk would enable a behavior in CameraPipe such that the current session gets finalized
+ *   either immediately or on a timeout after the CameraGraph is stopped or closed.
+ * - Device(s): All devices.
  */
 @SuppressLint("CameraXQuirksClassDetector")
 class FinalizeSessionOnCloseQuirk : Quirk {

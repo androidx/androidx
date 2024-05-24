@@ -47,6 +47,7 @@ class CameraControllerSimulator(
 ) : CameraController {
     override val cameraId: CameraId
         get() = graphConfig.camera
+
     override var isForeground = false
 
     private val lock = Any()
@@ -93,10 +94,8 @@ class CameraControllerSimulator(
                 "Attempted to invoke simulateStarted after the CameraController was closed."
             }
 
-            val captureSequenceProcessor = FakeCaptureSequenceProcessor(
-                graphConfig.camera,
-                graphConfig.defaultTemplate
-            )
+            val captureSequenceProcessor =
+                FakeCaptureSequenceProcessor(graphConfig.camera, graphConfig.defaultTemplate)
             val graphRequestProcessor = GraphRequestProcessor.from(captureSequenceProcessor)
             currentCaptureSequenceProcessor = captureSequenceProcessor
             currentGraphRequestProcessor = graphRequestProcessor
@@ -147,27 +146,21 @@ class CameraControllerSimulator(
 
     override fun start() {
         synchronized(lock) {
-            check(!closed) {
-                "Attempted to invoke start after close."
-            }
+            check(!closed) { "Attempted to invoke start after close." }
             started = true
         }
     }
 
     override fun stop() {
         synchronized(lock) {
-            check(!closed) {
-                "Attempted to invoke stop after close."
-            }
+            check(!closed) { "Attempted to invoke stop after close." }
             started = false
         }
     }
 
     override fun tryRestart(cameraStatus: CameraStatusMonitor.CameraStatus) {
         synchronized(lock) {
-            check(!closed) {
-                "Attempted to invoke restart after close."
-            }
+            check(!closed) { "Attempted to invoke restart after close." }
             stop()
             start()
         }

@@ -17,7 +17,7 @@
 package androidx.biometric.auth
 
 /**
- * Thrown when an authentication attempt by the user has been rejected, e.g., the user's
- * biometrics were not recognized.
+ * Thrown when an authentication attempt by the user has been rejected, e.g., the user's biometrics
+ * were not recognized.
  */
 public class AuthPromptFailureException : Exception()

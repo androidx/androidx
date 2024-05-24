@@ -21,9 +21,7 @@ import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.RequestProcessor
 
-/**
- * An implementation / builder for RequestProcessor.Request
- */
+/** An implementation / builder for RequestProcessor.Request */
 internal class RequestProcessorRequest(
     private val targetOutputConfigIds: List<Int>,
     private val parameters: Config,

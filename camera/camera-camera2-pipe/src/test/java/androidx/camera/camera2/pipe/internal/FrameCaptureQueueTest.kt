@@ -33,15 +33,9 @@ class FrameCaptureQueueTest {
     private val imageStreams = listOf(StreamId(1), StreamId(2), StreamId(3))
     private val captureQueue = FrameCaptureQueue()
 
-    private val request1 = Request(
-        streams = imageStreams
-    )
-    private val request2 = Request(
-        streams = imageStreams
-    )
-    private val request3 = Request(
-        streams = imageStreams
-    )
+    private val request1 = Request(streams = imageStreams)
+    private val request2 = Request(streams = imageStreams)
+    private val request3 = Request(streams = imageStreams)
 
     @Test
     fun outputFrameQueueHoldsDeferredFrames() {

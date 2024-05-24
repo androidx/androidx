@@ -32,8 +32,9 @@ abstract class BenchmarkReportTask : DefaultTask() {
 
     init {
         group = "Android"
-        description = "Run benchmarks found in the current project and output reports to the " +
-            "benchmark_reports folder under the project's build directory."
+        description =
+            "Run benchmarks found in the current project and output reports to the " +
+                "benchmark_reports folder under the project's build directory."
 
         // This task should mirror the upToDate behavior of connectedAndroidTest as we always want
         // this task to run after connectedAndroidTest is run to pull the most recent benchmark
@@ -42,11 +43,9 @@ abstract class BenchmarkReportTask : DefaultTask() {
         outputs.upToDateWhen { false }
     }
 
-    @get:OutputDirectory
-    abstract val benchmarkReportDir: DirectoryProperty
+    @get:OutputDirectory abstract val benchmarkReportDir: DirectoryProperty
 
-    @get:Input
-    abstract val adbPath: Property<String>
+    @get:Input abstract val adbPath: Property<String>
 
     @TaskAction
     fun exec() {
@@ -62,12 +61,14 @@ abstract class BenchmarkReportTask : DefaultTask() {
         }
         reportDir.mkdirs()
 
-        val deviceIds = adb.execSync("devices -l").stdout
-            .split("\n")
-            .drop(1)
-            .filter { !it.contains("unauthorized") }
-            .map { it.split(Regex("\\s+")).first().trim() }
-            .filter { !it.isBlank() }
+        val deviceIds =
+            adb.execSync("devices -l")
+                .stdout
+                .split("\n")
+                .drop(1)
+                .filter { !it.contains("unauthorized") }
+                .map { it.split(Regex("\\s+")).first().trim() }
+                .filter { !it.isBlank() }
 
         for (deviceId in deviceIds) {
             val dataDir = getReportDirForDevice(adb, deviceId)
@@ -128,7 +129,8 @@ abstract class BenchmarkReportTask : DefaultTask() {
 
         // There are 2 filters: the first filters all the rows ending with `Download`, while
         // the second excludes app-scoped shared external storage.
-        return adb.execSync(cmd, deviceId).stdout
+        return adb.execSync(cmd, deviceId)
+            .stdout
             .split("\n")
             .filter { it.matches(regex = Regex(".*/Download")) }
             .first { !it.matches(regex = Regex(".*files/Download")) }

@@ -96,15 +96,12 @@ internal class CameraStateAdapterTest {
         assertThat(nextStateWhenGraphStateStarted!!.state).isEqualTo(CameraInternal.State.OPEN)
         assertThat(nextStateWhenGraphStateStopping!!.state).isEqualTo(CameraInternal.State.CLOSING)
         assertThat(nextStateWhenGraphStateStopped!!.state).isEqualTo(CameraInternal.State.CLOSED)
-        assertThat(nextStateWhenGraphStateErrorWillRetry!!.state).isEqualTo(
-            CameraInternal.State.OPENING
-        )
-        assertThat(nextStateWhenGraphStateErrorRecoverableWillNotRetry!!.state).isEqualTo(
-            CameraInternal.State.PENDING_OPEN
-        )
-        assertThat(nextStateWhenGraphStateErrorUnrecoverableWillNotRetry!!.state).isEqualTo(
-            CameraInternal.State.CLOSING
-        )
+        assertThat(nextStateWhenGraphStateErrorWillRetry!!.state)
+            .isEqualTo(CameraInternal.State.OPENING)
+        assertThat(nextStateWhenGraphStateErrorRecoverableWillNotRetry!!.state)
+            .isEqualTo(CameraInternal.State.PENDING_OPEN)
+        assertThat(nextStateWhenGraphStateErrorUnrecoverableWillNotRetry!!.state)
+            .isEqualTo(CameraInternal.State.CLOSING)
     }
 
     @Test
@@ -132,12 +129,10 @@ internal class CameraStateAdapterTest {
         assertThat(nextStateWhenGraphStateStarted).isEqualTo(null)
         assertThat(nextStateWhenGraphStateStopping!!.state).isEqualTo(CameraInternal.State.CLOSING)
         assertThat(nextStateWhenGraphStateStopped!!.state).isEqualTo(CameraInternal.State.CLOSED)
-        assertThat(nextStateWhenGraphStateErrorRecoverable!!.state).isEqualTo(
-            CameraInternal.State.PENDING_OPEN
-        )
-        assertThat(nextStateWhenGraphStateErrorUnrecoverable!!.state).isEqualTo(
-            CameraInternal.State.CLOSED
-        )
+        assertThat(nextStateWhenGraphStateErrorRecoverable!!.state)
+            .isEqualTo(CameraInternal.State.PENDING_OPEN)
+        assertThat(nextStateWhenGraphStateErrorUnrecoverable!!.state)
+            .isEqualTo(CameraInternal.State.CLOSED)
     }
 
     @Test

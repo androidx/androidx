@@ -89,10 +89,10 @@ internal class Controller3AUnlock3ATest {
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
                         resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_LOCKED
-                        )
+                            mapOf(
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_LOCKED
+                            )
                     )
                 )
                 delay(FRAME_RATE_MS)
@@ -120,10 +120,10 @@ internal class Controller3AUnlock3ATest {
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                    mapOf(
-                        CaptureResult.CONTROL_AE_STATE to
-                            CaptureResult.CONTROL_AE_STATE_SEARCHING
-                    )
+                        mapOf(
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_SEARCHING
+                        )
                 )
             )
         }
@@ -149,10 +149,10 @@ internal class Controller3AUnlock3ATest {
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
                         resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-                        )
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                            )
                     )
                 )
                 delay(FRAME_RATE_MS)
@@ -181,10 +181,10 @@ internal class Controller3AUnlock3ATest {
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                    mapOf(
-                        CaptureResult.CONTROL_AF_STATE to
-                            CaptureResult.CONTROL_AF_STATE_INACTIVE
-                    )
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_INACTIVE
+                        )
                 )
             )
         }
@@ -210,10 +210,10 @@ internal class Controller3AUnlock3ATest {
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
                         resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AWB_STATE to
-                                CaptureResult.CONTROL_AWB_STATE_LOCKED
-                        )
+                            mapOf(
+                                CaptureResult.CONTROL_AWB_STATE to
+                                    CaptureResult.CONTROL_AWB_STATE_LOCKED
+                            )
                     )
                 )
                 delay(FRAME_RATE_MS)
@@ -241,10 +241,10 @@ internal class Controller3AUnlock3ATest {
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                    mapOf(
-                        CaptureResult.CONTROL_AWB_STATE to
-                            CaptureResult.CONTROL_AWB_STATE_SEARCHING
-                    )
+                        mapOf(
+                            CaptureResult.CONTROL_AWB_STATE to
+                                CaptureResult.CONTROL_AWB_STATE_SEARCHING
+                        )
                 )
             )
         }
@@ -270,12 +270,12 @@ internal class Controller3AUnlock3ATest {
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(101L),
                         resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_LOCKED,
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
-                        )
+                            mapOf(
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_LOCKED,
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED
+                            )
                     )
                 )
                 delay(FRAME_RATE_MS)
@@ -307,12 +307,12 @@ internal class Controller3AUnlock3ATest {
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
                     resultMetadata =
-                    mapOf(
-                        CaptureResult.CONTROL_AF_STATE to
-                            CaptureResult.CONTROL_AF_STATE_INACTIVE,
-                        CaptureResult.CONTROL_AE_STATE to
-                            CaptureResult.CONTROL_AE_STATE_SEARCHING
-                    )
+                        mapOf(
+                            CaptureResult.CONTROL_AF_STATE to
+                                CaptureResult.CONTROL_AF_STATE_INACTIVE,
+                            CaptureResult.CONTROL_AE_STATE to
+                                CaptureResult.CONTROL_AE_STATE_SEARCHING
+                        )
                 )
             )
         }
@@ -352,10 +352,11 @@ internal class Controller3AUnlock3ATest {
                     FrameNumber(frameNumber),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(frameNumber++),
-                        resultMetadata = mapOf(
-                            CaptureResult.CONTROL_AE_STATE to
-                                CaptureResult.CONTROL_AE_STATE_LOCKED
-                        )
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AE_STATE to
+                                    CaptureResult.CONTROL_AE_STATE_LOCKED
+                            )
                     )
                 )
                 delay(FRAME_RATE_MS)
@@ -391,12 +392,13 @@ internal class Controller3AUnlock3ATest {
                     FrameNumber(frameNumber),
                     FakeFrameMetadata(
                         frameNumber = FrameNumber(frameNumber++),
-                        resultMetadata = mapOf(
-                            CaptureResult.CONTROL_AF_STATE to
-                                CaptureResult.CONTROL_AF_STATE_INACTIVE,
-                            CaptureResult.CONTROL_AWB_STATE to
-                                CaptureResult.CONTROL_AWB_STATE_INACTIVE,
-                        )
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AF_STATE to
+                                    CaptureResult.CONTROL_AF_STATE_INACTIVE,
+                                CaptureResult.CONTROL_AWB_STATE to
+                                    CaptureResult.CONTROL_AWB_STATE_INACTIVE,
+                            )
                     )
                 )
                 delay(FRAME_RATE_MS)
@@ -404,43 +406,50 @@ internal class Controller3AUnlock3ATest {
         }
 
         val customizedExitCondition: (FrameMetadata) -> Boolean = exitCondition@{ frameMetadata ->
-            val aeUnlocked = frameMetadata[CaptureResult.CONTROL_AE_STATE]?.let {
-                listOf(
-                    CaptureResult.CONTROL_AE_STATE_INACTIVE,
-                    CaptureResult.CONTROL_AE_STATE_SEARCHING,
-                    CaptureResult.CONTROL_AE_STATE_CONVERGED,
-                    CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED
-                ).contains(it)
-            } ?: true
+            val aeUnlocked =
+                frameMetadata[CaptureResult.CONTROL_AE_STATE]?.let {
+                    listOf(
+                            CaptureResult.CONTROL_AE_STATE_INACTIVE,
+                            CaptureResult.CONTROL_AE_STATE_SEARCHING,
+                            CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                            CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED
+                        )
+                        .contains(it)
+                } ?: true
 
-            val afUnlocked = frameMetadata[CaptureResult.CONTROL_AF_STATE]?.let {
-                listOf(
-                    CaptureResult.CONTROL_AF_STATE_INACTIVE,
-                    CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN,
-                    CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
-                    CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
-                    CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED
-                ).contains(it)
-            } ?: true
+            val afUnlocked =
+                frameMetadata[CaptureResult.CONTROL_AF_STATE]?.let {
+                    listOf(
+                            CaptureResult.CONTROL_AF_STATE_INACTIVE,
+                            CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN,
+                            CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
+                            CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
+                            CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED
+                        )
+                        .contains(it)
+                } ?: true
 
-            val awbUnlocked = frameMetadata[CaptureResult.CONTROL_AWB_STATE]?.let {
-                listOf(
-                    CaptureResult.CONTROL_AWB_STATE_INACTIVE,
-                    CaptureResult.CONTROL_AWB_STATE_SEARCHING,
-                    CaptureResult.CONTROL_AWB_STATE_CONVERGED
-                ).contains(it)
-            } ?: true
+            val awbUnlocked =
+                frameMetadata[CaptureResult.CONTROL_AWB_STATE]?.let {
+                    listOf(
+                            CaptureResult.CONTROL_AWB_STATE_INACTIVE,
+                            CaptureResult.CONTROL_AWB_STATE_SEARCHING,
+                            CaptureResult.CONTROL_AWB_STATE_CONVERGED
+                        )
+                        .contains(it)
+                } ?: true
 
             return@exitCondition aeUnlocked && afUnlocked && awbUnlocked
         }
 
         // Act. Unlock AE
-        val result3ADeferred = controller3A.unlock3A(
-            ae = true,
-            af = true,
-            awb = true,
-            unlockedCondition = customizedExitCondition,
-        )
+        val result3ADeferred =
+            controller3A.unlock3A(
+                ae = true,
+                af = true,
+                awb = true,
+                unlockedCondition = customizedExitCondition,
+            )
         repeatingJob.await()
 
         // Assert. Result of unlock3A call should be completed.

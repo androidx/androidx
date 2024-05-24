@@ -23,22 +23,15 @@ import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 
 /**
- *
- * QuirkSummary
- * Bug Id: b/194149215
- * Description: Quirk required to include extra supported surface combinations which are
- * additional to the guaranteed supported configurations. An example is the
- * Samsung S7's LIMITED-level camera device can support additional YUV/640x480 +
- * PRIV/PREVIEW + YUV/MAXIMUM combination. Some other Samsung devices can
- * support additional YUV/640x480 + PRIV/PREVIEW + YUV/MAXIMUM and YUV/640x480 +
- * YUV/PREVIEW + YUV/MAXIMUM configurations.
- * Device(s): Some Samsung devices
+ * QuirkSummary Bug Id: b/194149215 Description: Quirk required to include extra supported surface
+ * combinations which are additional to the guaranteed supported configurations. An example is the
+ * Samsung S7's LIMITED-level camera device can support additional YUV/640x480 + PRIV/PREVIEW +
+ * YUV/MAXIMUM combination. Some other Samsung devices can support additional YUV/640x480 +
+ * PRIV/PREVIEW + YUV/MAXIMUM and YUV/640x480 + YUV/PREVIEW + YUV/MAXIMUM configurations. Device(s):
+ * Some Samsung devices
  */
-
 class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
-    /**
-     * Returns the extra supported surface combinations for specific camera on the device.
-     */
+    /** Returns the extra supported surface combinations for specific camera on the device. */
     fun getExtraSupportedSurfaceCombinations(
         cameraId: String,
         hardwareLevel: Int
@@ -49,8 +42,10 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
         if (supportExtraFullConfigurationsSamsungDevice()) {
             return getLimitedDeviceExtraSupportedFullConfigurations(hardwareLevel)
         }
-        return if (supportExtraLevel3ConfigurationsGoogleDevice() ||
-            supportExtraLevel3ConfigurationsSamsungDevice()) {
+        return if (
+            supportExtraLevel3ConfigurationsGoogleDevice() ||
+                supportExtraLevel3ConfigurationsSamsungDevice()
+        ) {
             listOf(LEVEL_3_LEVEL_PRIV_PRIV_YUV_SUBSET_CONFIGURATION)
         } else emptyList()
     }
@@ -234,12 +229,7 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                 "SM-F916W" // Galaxy Z Fold2 5G
             )
         private val SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_GOOGLE_MODELS: Set<String> =
-            setOf(
-                "PIXEL 6",
-                "PIXEL 6 PRO",
-                "PIXEL 7",
-                "PIXEL 7 PRO"
-            )
+            setOf("PIXEL 6", "PIXEL 6 PRO", "PIXEL 7", "PIXEL 7 PRO")
 
         private val SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS: Set<String> =
             setOf(
@@ -248,18 +238,16 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             )
 
         fun isEnabled(): Boolean {
-            return (isSamsungS7 || supportExtraFullConfigurationsSamsungDevice() ||
+            return (isSamsungS7 ||
+                supportExtraFullConfigurationsSamsungDevice() ||
                 supportExtraLevel3ConfigurationsGoogleDevice() ||
                 supportExtraLevel3ConfigurationsSamsungDevice())
         }
 
         internal val isSamsungS7: Boolean
-            get() = "heroqltevzw".equals(
-                Build.DEVICE,
-                ignoreCase = true
-            ) || "heroqltetmo".equals(
-                Build.DEVICE, ignoreCase = true
-            )
+            get() =
+                "heroqltevzw".equals(Build.DEVICE, ignoreCase = true) ||
+                    "heroqltetmo".equals(Build.DEVICE, ignoreCase = true)
 
         internal fun supportExtraFullConfigurationsSamsungDevice(): Boolean {
             if (!"samsung".equals(Build.BRAND, ignoreCase = true)) {
@@ -279,22 +267,19 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
 
         internal fun supportExtraLevel3ConfigurationsSamsungDevice(): Boolean {
             if (!"samsung".equals(Build.BRAND, ignoreCase = true)) {
-                return false;
+                return false
             }
 
-            val capitalModelName = Build.MODEL.uppercase();
+            val capitalModelName = Build.MODEL.uppercase()
 
-            return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS.contains(capitalModelName);
+            return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS.contains(capitalModelName)
         }
 
         internal fun createFullYuvPrivYuvConfiguration(): SurfaceCombination {
             // (YUV, ANALYSIS) + (PRIV, PREVIEW) + (YUV, MAXIMUM)
             val surfaceCombination = SurfaceCombination()
             surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.YUV,
-                    SurfaceConfig.ConfigSize.VGA
-                )
+                SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, SurfaceConfig.ConfigSize.VGA)
             )
             surfaceCombination.addSurfaceConfig(
                 SurfaceConfig.create(
@@ -303,10 +288,7 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                 )
             )
             surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.YUV,
-                    SurfaceConfig.ConfigSize.MAXIMUM
-                )
+                SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, SurfaceConfig.ConfigSize.MAXIMUM)
             )
             return surfaceCombination
         }
@@ -315,22 +297,13 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
             // (YUV, ANALYSIS) + (YUV, PREVIEW) + (YUV, MAXIMUM)
             val surfaceCombination = SurfaceCombination()
             surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.YUV,
-                    SurfaceConfig.ConfigSize.VGA
-                )
+                SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, SurfaceConfig.ConfigSize.VGA)
             )
             surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.YUV,
-                    SurfaceConfig.ConfigSize.PREVIEW
-                )
+                SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, SurfaceConfig.ConfigSize.PREVIEW)
             )
             surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.YUV,
-                    SurfaceConfig.ConfigSize.MAXIMUM
-                )
+                SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, SurfaceConfig.ConfigSize.MAXIMUM)
             )
             return surfaceCombination
         }
@@ -338,10 +311,9 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
         /**
          * Creates (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) surface combination.
          *
-         * This is a subset of LEVEL_3 camera devices'
-         * (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
-         * guaranteed supported configuration. This configuration has been verified to make sure
-         * that the surface combination can work well on the target devices.
+         * This is a subset of LEVEL_3 camera devices' (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV,
+         * MAXIMUM) + (RAW, MAXIMUM) guaranteed supported configuration. This configuration has been
+         * verified to make sure that the surface combination can work well on the target devices.
          */
         internal fun createLevel3PrivPrivYuvSubsetConfiguration(): SurfaceCombination {
             // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM)
@@ -353,16 +325,10 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                 )
             )
             surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.PRIV,
-                    SurfaceConfig.ConfigSize.VGA
-                )
+                SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV, SurfaceConfig.ConfigSize.VGA)
             )
             surfaceCombination.addSurfaceConfig(
-                SurfaceConfig.create(
-                    SurfaceConfig.ConfigType.YUV,
-                    SurfaceConfig.ConfigSize.MAXIMUM
-                )
+                SurfaceConfig.create(SurfaceConfig.ConfigType.YUV, SurfaceConfig.ConfigSize.MAXIMUM)
             )
             return surfaceCombination
         }

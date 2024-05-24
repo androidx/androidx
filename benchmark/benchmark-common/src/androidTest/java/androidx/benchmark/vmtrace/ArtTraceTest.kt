@@ -49,65 +49,67 @@ class ArtTraceTest {
         // methods.
 
         val artTraceFile = fromAssets("art-trace-test.trace")
-        val tracePackets = ArtTrace(
-            artTrace = artTraceFile,
-            pid = 24877,
-            uuidProvider = { 1L }
-        ).toPerfettoTrace().packet
+        val tracePackets =
+            ArtTrace(artTrace = artTraceFile, pid = 24877, uuidProvider = { 1L })
+                .toPerfettoTrace()
+                .packet
 
-        tracePackets.single {
-            it.track_descriptor != null && it.track_descriptor?.name == "main (Method Trace)"
-        }.apply {
-            assertEquals(
-                expected = TracePacket(
-                    timestamp = 430421772813000L,
-                    timestamp_clock_id = 3,
-                    track_descriptor = TrackDescriptor(
-                        uuid = 1L,
-                        name = "main (Method Trace)",
-                        thread = ThreadDescriptor(pid = 24877, tid = 24877),
-                        disallow_merging_with_system_tracks = true,
-                    )
-                ),
-                actual = this
-            )
-        }
+        tracePackets
+            .single {
+                it.track_descriptor != null && it.track_descriptor?.name == "main (Method Trace)"
+            }
+            .apply {
+                assertEquals(
+                    expected =
+                        TracePacket(
+                            timestamp = 430421772813000L,
+                            timestamp_clock_id = 3,
+                            track_descriptor =
+                                TrackDescriptor(
+                                    uuid = 1L,
+                                    name = "main (Method Trace)",
+                                    thread = ThreadDescriptor(pid = 24877, tid = 24877),
+                                    disallow_merging_with_system_tracks = true,
+                                )
+                        ),
+                    actual = this
+                )
+            }
 
-        val targetIid = tracePackets.first {
-            it.interned_data != null
-        }.interned_data!!.event_names.first {
-            it.name == "androidx.benchmark.vmtrace.ArtTraceTest.myTracedMethod: ()V"
-        }.iid!!
-        val beginPacket = tracePackets.single {
-            it.track_event?.name_iid == targetIid
-        }
+        val targetIid =
+            tracePackets
+                .first { it.interned_data != null }
+                .interned_data!!
+                .event_names
+                .first { it.name == "androidx.benchmark.vmtrace.ArtTraceTest.myTracedMethod: ()V" }
+                .iid!!
+        val beginPacket = tracePackets.single { it.track_event?.name_iid == targetIid }
         assertEquals(
-            expected = TracePacket(
-                timestamp = 430421819817000L,
-                track_event = TrackEvent(
-                    name_iid = targetIid,
-                    type = TrackEvent.Type.TYPE_SLICE_BEGIN,
-                    track_uuid = 1L
+            expected =
+                TracePacket(
+                    timestamp = 430421819817000L,
+                    track_event =
+                        TrackEvent(
+                            name_iid = targetIid,
+                            type = TrackEvent.Type.TYPE_SLICE_BEGIN,
+                            track_uuid = 1L
+                        ),
+                    trusted_packet_sequence_id = 1234565432,
+                    sequence_flags = 0x2
                 ),
-                trusted_packet_sequence_id = 1234565432,
-                sequence_flags = 0x2
-            ),
             actual = beginPacket
         )
 
-        val endPacket = tracePackets.first {
-            it.timestamp == 430421819819000
-        }
+        val endPacket = tracePackets.first { it.timestamp == 430421819819000 }
         assertEquals(
-            expected = TracePacket(
-                timestamp = 430421819819000L,
-                track_event = TrackEvent(
-                    type = TrackEvent.Type.TYPE_SLICE_END,
-                    track_uuid = 1L
+            expected =
+                TracePacket(
+                    timestamp = 430421819819000L,
+                    track_event =
+                        TrackEvent(type = TrackEvent.Type.TYPE_SLICE_END, track_uuid = 1L),
+                    trusted_packet_sequence_id = 1234565432,
+                    sequence_flags = 0x2
                 ),
-                trusted_packet_sequence_id = 1234565432,
-                sequence_flags = 0x2
-            ),
             actual = endPacket
         )
 
@@ -119,11 +121,9 @@ class ArtTraceTest {
     }
 
     companion object {
-        private fun fromAssets(@Suppress("SameParameterValue") filename: String) = File
-            .createTempFile(filename, "", Outputs.dirUsableByAppAndShell)
-            .apply {
-                InstrumentationRegistry
-                    .getInstrumentation()
+        private fun fromAssets(@Suppress("SameParameterValue") filename: String) =
+            File.createTempFile(filename, "", Outputs.dirUsableByAppAndShell).apply {
+                InstrumentationRegistry.getInstrumentation()
                     .context
                     .assets
                     .open(filename)

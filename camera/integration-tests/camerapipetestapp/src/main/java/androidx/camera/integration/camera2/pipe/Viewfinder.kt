@@ -35,50 +35,42 @@ import kotlin.math.roundToInt
  * A Surface-view based Android Camera Viewfinder.
  *
  * This ui element has three modes:
- * - Fit    (Scale the preview until it is within this ui element)
- * - Fill   (Scale the preview until it completely fills this ui element, even if it clips)
+ * - Fit (Scale the preview until it is within this ui element)
+ * - Fill (Scale the preview until it completely fills this ui element, even if it clips)
  * - Center (Do not scale the preview, and keep it centered).
  *
  * To use the viewfinder, call configure with the desired surface size, mode, and format.
  */
 @Suppress("DEPRECATION")
-class Viewfinder(
-    context: Context?,
-    attrs: AttributeSet?,
-    defStyleAttr: Int,
-    defStyleRes: Int
-) : ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
+class Viewfinder(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
+    ViewGroup(context, attrs, defStyleAttr, defStyleRes) {
     private val surfaceView: SurfaceView
     private val displaySize: Point = Point()
 
-    @GuardedBy("this")
-    private var setFixedSize = true
+    @GuardedBy("this") private var setFixedSize = true
 
-    @GuardedBy("this")
-    private var _viewfinderLayout = ViewfinderLayout.FIT
+    @GuardedBy("this") private var _viewfinderLayout = ViewfinderLayout.FIT
 
-    @GuardedBy("this")
-    private var viewfinderSize: Size? = null
+    @GuardedBy("this") private var viewfinderSize: Size? = null
 
-    @GuardedBy("this")
-    private var surfaceState: SurfaceState? = null
+    @GuardedBy("this") private var surfaceState: SurfaceState? = null
 
     constructor(context: Context?) : this(context, null)
+
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : this(
-        context,
-        attrs,
-        defStyleAttr,
-        0
-    )
+
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int
+    ) : this(context, attrs, defStyleAttr, 0)
 
     init {
         // Parse out the custom viewfinderLayout, if one is set.
         if (attrs != null) {
             val layoutMode: String? = attrs.getAttributeValue(null, "viewfinderLayout")
             if (layoutMode != null) {
-                _viewfinderLayout =
-                    ViewfinderLayout.parseString(layoutMode)
+                _viewfinderLayout = ViewfinderLayout.parseString(layoutMode)
             }
             val fixedSize: String? = attrs.getAttributeValue(null, "setFixedSize")
             if (fixedSize != null) {
@@ -99,9 +91,7 @@ class Viewfinder(
         }
     }
 
-    /**
-     * Gets the current viewfinder layout mode.
-     */
+    /** Gets the current viewfinder layout mode. */
     var viewfinderLayout: ViewfinderLayout
         get() = synchronized(this) { _viewfinderLayout }
         set(value) {
@@ -117,7 +107,7 @@ class Viewfinder(
             }
         }
 
-    /** Tell if Surface size is fixed. Call this before the view enters the hierarchy.  */
+    /** Tell if Surface size is fixed. Call this before the view enters the hierarchy. */
     fun setFixedSize(value: Boolean) {
         synchronized(this) {
             check(parent == null)
@@ -137,11 +127,7 @@ class Viewfinder(
      * Sets the desired viewfinder size, pixel format, and a listener that will be invoked once the
      * Surface is configured with that size.
      */
-    fun configure(
-        viewfinderSize: Size,
-        viewfinderPixelFormat: Int,
-        listener: SurfaceListener
-    ) {
+    fun configure(viewfinderSize: Size, viewfinderPixelFormat: Int, listener: SurfaceListener) {
         synchronized(this) {
             this.viewfinderSize = viewfinderSize
             var surfaceState = surfaceState
@@ -157,10 +143,7 @@ class Viewfinder(
         }
     }
 
-    override fun onMeasure(
-        widthMeasureSpec: Int,
-        heightMeasureSpec: Int
-    ) {
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         display.getRealSize(displaySize)
         val viewWidth: Int = MeasureSpec.getSize(widthMeasureSpec)
         val viewHeight: Int = MeasureSpec.getSize(heightMeasureSpec)
@@ -178,13 +161,7 @@ class Viewfinder(
             measureAllChildren(viewWidth, viewHeight)
         } else {
             debugLog { "  Viewfinder size of $vfSize" }
-            val scaled: Size = computeUiSize(
-                vfSize!!,
-                vfLayout,
-                displaySize,
-                viewWidth,
-                viewHeight
-            )
+            val scaled: Size = computeUiSize(vfSize!!, vfLayout, displaySize, viewWidth, viewHeight)
             setMeasuredDimension(
                 scaled.width.coerceAtMost(viewWidth),
                 scaled.height.coerceAtMost(viewHeight)
@@ -201,28 +178,30 @@ class Viewfinder(
                 var childWidth: Int
                 var childHeight: Int
                 val params: LayoutParams = view.layoutParams
-                childWidth = when (params.width) {
-                    LayoutParams.MATCH_PARENT -> {
-                        MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
+                childWidth =
+                    when (params.width) {
+                        LayoutParams.MATCH_PARENT -> {
+                            MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
+                        }
+                        LayoutParams.WRAP_CONTENT -> {
+                            MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST)
+                        }
+                        else -> {
+                            MeasureSpec.makeMeasureSpec(params.width, MeasureSpec.EXACTLY)
+                        }
                     }
-                    LayoutParams.WRAP_CONTENT -> {
-                        MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST)
+                childHeight =
+                    when (params.height) {
+                        LayoutParams.MATCH_PARENT -> {
+                            MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+                        }
+                        LayoutParams.WRAP_CONTENT -> {
+                            MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST)
+                        }
+                        else -> {
+                            MeasureSpec.makeMeasureSpec(params.height, MeasureSpec.EXACTLY)
+                        }
                     }
-                    else -> {
-                        MeasureSpec.makeMeasureSpec(params.width, MeasureSpec.EXACTLY)
-                    }
-                }
-                childHeight = when (params.height) {
-                    LayoutParams.MATCH_PARENT -> {
-                        MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
-                    }
-                    LayoutParams.WRAP_CONTENT -> {
-                        MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST)
-                    }
-                    else -> {
-                        MeasureSpec.makeMeasureSpec(params.height, MeasureSpec.EXACTLY)
-                    }
-                }
                 view.measure(childWidth, childHeight)
             }
         }
@@ -251,16 +230,11 @@ class Viewfinder(
 
         // If the size is not yet configured, just leave it to be the same as the container view.
         if (vfSize != null) {
-            // Compute the viewfinder ui size based on the available width, height, and ui orientation.
+            // Compute the viewfinder ui size based on the available width, height, and ui
+            // orientation.
             val viewWidth = right - left
             val viewHeight = bottom - top
-            val scaled: Size = computeUiSize(
-                vfSize!!,
-                vfLayout,
-                displaySize,
-                viewWidth,
-                viewHeight
-            )
+            val scaled: Size = computeUiSize(vfSize!!, vfLayout, displaySize, viewWidth, viewHeight)
 
             // Compute the center of the view.
             val centerX = viewWidth / 2
@@ -286,8 +260,10 @@ class Viewfinder(
                     val childHeight: Int = view.measuredHeight
                     debugLog { "  Child $x has size $childWidth, $childHeight" }
 
-                    // TODO: Consider adding support for one or more of: padding, margins, layout_gravity.
-                    // Currently all children are positioned at the top-left corner of the surfaceView.
+                    // TODO: Consider adding support for one or more of: padding, margins,
+                    // layout_gravity.
+                    // Currently all children are positioned at the top-left corner of the
+                    // surfaceView.
                     view.layout(left, top, left + childWidth, top + childHeight)
                 }
             }
@@ -296,13 +272,11 @@ class Viewfinder(
 
     /**
      * Listener that is aware of the currently desired size and caches the last configured Surface.
-     *
      * - Reconfiguring with the same Size will immediately invoke the listener callback.
      * - Reconfiguring with a new size will call setFixedSize on the surface.
      * - Listener callback is only invoked with the configured size and surface size match.
      */
-    private class SurfaceState(private val surfaceHolder: SurfaceHolder) :
-        SurfaceHolder.Callback2 {
+    private class SurfaceState(private val surfaceHolder: SurfaceHolder) : SurfaceHolder.Callback2 {
         private var configured = false
 
         private var lastSize: Size? = null
@@ -312,7 +286,7 @@ class Viewfinder(
         private var configuredSize: Size? = null
         private var configuredListener: SurfaceListener? = null
 
-        /** Tell this object to configure the surface to match the desired size and pixel format.  */
+        /** Tell this object to configure the surface to match the desired size and pixel format. */
         fun configure(
             size: Size,
             pixelFormat: Int,
@@ -327,10 +301,11 @@ class Viewfinder(
 
                 // Special Case #1
                 // If the configuration is identical, do nothing.
-                if (configured &&
-                    portraitSize == configuredSize &&
-                    pixelFormat == configuredPixelFormat &&
-                    listener === configuredListener
+                if (
+                    configured &&
+                        portraitSize == configuredSize &&
+                        pixelFormat == configuredPixelFormat &&
+                        listener === configuredListener
                 ) {
                     // If the configured size and listener are identical, then do nothing.
                     return
@@ -343,20 +318,20 @@ class Viewfinder(
                 // If the size and format are the same, but the listener is different, check to see
                 // if the last configured size and surface are valid and also match. If so,
                 // immediately invoke the listener and return.
-                if (portraitSize == configuredSize &&
-                    pixelFormat == configuredPixelFormat
-                ) {
+                if (portraitSize == configuredSize && pixelFormat == configuredPixelFormat) {
                     val lastPortraitSize = lastSize?.asPortrait()
-                    if (lastSurface != null &&
-                        lastPortraitSize != null &&
-                        portraitSize == lastPortraitSize
+                    if (
+                        lastSurface != null &&
+                            lastPortraitSize != null &&
+                            portraitSize == lastPortraitSize
                     ) {
                         listener.onSurfaceChanged(lastSurface, lastSize)
                     }
                     return
                 }
 
-                // At this point, we know that configured size or format is different, and we need to
+                // At this point, we know that configured size or format is different, and we need
+                // to
                 // force the SurfaceHolder to reconfigure.
                 configuredPixelFormat = pixelFormat
                 configuredSize = portraitSize
@@ -376,24 +351,21 @@ class Viewfinder(
         }
 
         override fun surfaceRedrawNeeded(holder: SurfaceHolder) {}
+
         override fun surfaceCreated(holder: SurfaceHolder) {
             debugLog { "Surface Created" }
             // Ignored. This is not useful until we know the configured format, width, height.
         }
 
-        override fun surfaceChanged(
-            holder: SurfaceHolder,
-            format: Int,
-            width: Int,
-            height: Int
-        ) {
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             synchronized(this) {
                 val size = Size(width, height)
                 val portraitSize: Size = size.asPortrait()
                 val lastPortraitSize = lastSize?.asPortrait()
 
-                if (!(lastPortraitSize != null && portraitSize == lastPortraitSize) &&
-                    portraitSize == configuredSize
+                if (
+                    !(lastPortraitSize != null && portraitSize == lastPortraitSize) &&
+                        portraitSize == configuredSize
                 ) {
                     val surface: Surface? = holder.surface
 
@@ -419,9 +391,11 @@ class Viewfinder(
         }
     }
 
-    /** Measure and Layout modes for the viewfinder.  */
+    /** Measure and Layout modes for the viewfinder. */
     enum class ViewfinderLayout {
-        FIT, FILL, CENTER;
+        FIT,
+        FILL,
+        CENTER;
 
         companion object {
             fun parseString(layoutMode: String): ViewfinderLayout {
@@ -429,22 +403,21 @@ class Viewfinder(
                     "fit" -> FIT
                     "fill" -> FILL
                     "center" -> CENTER
-                    else -> throw IllegalStateException(
-                        "Unknown viewfinderLayout: $layoutMode available values are: " +
-                            "[fit, fill, center]"
-                    )
+                    else ->
+                        throw IllegalStateException(
+                            "Unknown viewfinderLayout: $layoutMode available values are: " +
+                                "[fit, fill, center]"
+                        )
                 }
             }
         }
     }
 
-    /**
-     * Listener for observing Surface configuration changes.
-     */
+    /** Listener for observing Surface configuration changes. */
     interface SurfaceListener {
         /**
-         * Invoked when the Surface's configuration has changed, or null if the Surface was destroyed.
-         *
+         * Invoked when the Surface's configuration has changed, or null if the Surface was
+         * destroyed.
          *
          * If surface is non-null, then size will be non-null.
          */
@@ -454,9 +427,7 @@ class Viewfinder(
     companion object {
         private const val DEBUG = false
 
-        /**
-         * Compute a new size based on the viewfinder size, ui orientation, and layout mode.
-         */
+        /** Compute a new size based on the viewfinder size, ui orientation, and layout mode. */
         internal fun computeUiSize(
             size: Size,
             viewfinderLayout: ViewfinderLayout,
@@ -477,11 +448,12 @@ class Viewfinder(
             //   portrait orientation".
             // - The UI width / height should *not* be used to figure this out, since multi-window
             //   will cause the aspect ratio of the Activity to not match the display.
-            val alignedSize = if (displaySize.x < displaySize.y) {
-                Size(size.height, size.width)
-            } else {
-                size
-            }
+            val alignedSize =
+                if (displaySize.x < displaySize.y) {
+                    Size(size.height, size.width)
+                } else {
+                    size
+                }
 
             val width: Int
             val height: Int
@@ -514,27 +486,21 @@ class Viewfinder(
             }
         }
 
-        /**
-         * Debug logging that can be enabled.
-         */
+        /** Debug logging that can be enabled. */
         internal inline fun debugLog(crossinline msg: () -> String) {
             if (DEBUG) {
                 Log.i("Viewfinder", msg())
             }
         }
 
-        /**
-         * Utility method for converting an displayRotation int into a human readable string.
-         */
+        /** Utility method for converting a displayRotation int into a human readable string. */
         private fun displayRotationToString(displayRotation: Int): String {
             return if (
-                displayRotation == Surface.ROTATION_0 ||
-                displayRotation == Surface.ROTATION_180
+                displayRotation == Surface.ROTATION_0 || displayRotation == Surface.ROTATION_180
             ) {
                 "Portrait-${displayRotation * 90}"
             } else if (
-                displayRotation == Surface.ROTATION_90 ||
-                displayRotation == Surface.ROTATION_270
+                displayRotation == Surface.ROTATION_90 || displayRotation == Surface.ROTATION_270
             ) {
                 "Landscape-${displayRotation * 90}"
             } else {

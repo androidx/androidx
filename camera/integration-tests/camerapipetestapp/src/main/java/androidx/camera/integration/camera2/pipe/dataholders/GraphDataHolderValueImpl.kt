@@ -33,14 +33,10 @@ data class GraphDataHolderValueImpl(
     private val absoluteRange: Number
 
     init {
-        if (absoluteMax::class != absoluteMin::class) throw IllegalArgumentException(
-            "Min and max" +
-                " values must be of the same type"
-        )
-        if (absoluteMax <= absoluteMin) throw IllegalArgumentException(
-            "Max value must be greater" +
-                " than min value"
-        )
+        if (absoluteMax::class != absoluteMin::class)
+            throw IllegalArgumentException("Min and max" + " values must be of the same type")
+        if (absoluteMax <= absoluteMin)
+            throw IllegalArgumentException("Max value must be greater" + " than min value")
         this.absoluteRange = absoluteMax - absoluteMin
     }
 

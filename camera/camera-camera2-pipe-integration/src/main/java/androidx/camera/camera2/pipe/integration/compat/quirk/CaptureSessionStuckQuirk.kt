@@ -24,20 +24,19 @@ import androidx.camera.core.impl.Quirk
  * configured if the previous CameraCaptureSession doesn't finish its in-flight capture sequence.
  *
  * QuirkSummary
- * - Bug Id:      146773463
+ * - Bug Id: 146773463
  * - Description: Opening and releasing the capture session quickly and constantly is a problem for
- *                LEGACY devices. It needs to check that all the existing capture sessions have
- *                finished the processing of their capture sequences before opening the next capture
- *                session.
- * - Device(s):   Devices in LEGACY camera hardware level.
+ *   LEGACY devices. It needs to check that all the existing capture sessions have finished the
+ *   processing of their capture sequences before opening the next capture session.
+ * - Device(s): Devices in LEGACY camera hardware level.
  */
 @SuppressLint("CameraXQuirksClassDetector")
 class CaptureSessionStuckQuirk : Quirk {
     companion object {
         /**
          * Always return false as CameraPipe handles this automatically. Please refer to
-         * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequest] for
-         * the conditions under which the quirk will be applied.
+         * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequest] for the
+         * conditions under which the quirk will be applied.
          */
         fun isEnabled(): Boolean = false
     }

@@ -47,9 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.Fragment
 
-/**
- * A fragment that demonstrates how to use [ComposeView] to display a [PreviewView].
- */
+/** A fragment that demonstrates how to use [ComposeView] to display a [PreviewView]. */
 class ComposeUiFragment : Fragment() {
 
     private var currentScaleType = PreviewView.ScaleType.FILL_CENTER
@@ -66,18 +64,18 @@ class ComposeUiFragment : Fragment() {
     ): View {
         val bundle: Bundle? = requireActivity().intent.extras
         if (bundle != null) {
-            val scaleTypeId = bundle.getInt(
-                MainActivity.INTENT_EXTRA_SCALE_TYPE,
-                MainActivity.DEFAULT_SCALE_TYPE_ID
-            )
+            val scaleTypeId =
+                bundle.getInt(
+                    MainActivity.INTENT_EXTRA_SCALE_TYPE,
+                    MainActivity.DEFAULT_SCALE_TYPE_ID
+                )
             currentScaleType = PreviewView.ScaleType.values()[scaleTypeId]
         }
         val previewView = PreviewView(requireContext())
         previewView.scaleType = currentScaleType
 
-        toneMappingEffect = ToneMappingSurfaceEffect(
-            CameraEffect.PREVIEW or CameraEffect.VIDEO_CAPTURE
-        )
+        toneMappingEffect =
+            ToneMappingSurfaceEffect(CameraEffect.PREVIEW or CameraEffect.VIDEO_CAPTURE)
 
         cameraController = LifecycleCameraController(requireContext())
         cameraController.setEnabledUseCases(
@@ -95,23 +93,25 @@ class ComposeUiFragment : Fragment() {
     }
 
     private fun onToggleCamera() {
-        cameraController.cameraSelector = if (lensFacing == LENS_FACING_BACK) {
-            lensFacing = LENS_FACING_FRONT
-            DEFAULT_FRONT_CAMERA
-        } else {
-            lensFacing = LENS_FACING_BACK
-            DEFAULT_BACK_CAMERA
-        }
+        cameraController.cameraSelector =
+            if (lensFacing == LENS_FACING_BACK) {
+                lensFacing = LENS_FACING_FRONT
+                DEFAULT_FRONT_CAMERA
+            } else {
+                lensFacing = LENS_FACING_BACK
+                DEFAULT_BACK_CAMERA
+            }
     }
 
     private fun onToggleEffect() {
-        hasEffect = if (hasEffect) {
-            cameraController.clearEffects()
-            false
-        } else {
-            cameraController.setEffects(setOf(toneMappingEffect))
-            true
-        }
+        hasEffect =
+            if (hasEffect) {
+                cameraController.clearEffects()
+                false
+            } else {
+                cameraController.setEffects(setOf(toneMappingEffect))
+                true
+            }
     }
 
     private fun onTakePicture() {
@@ -124,20 +124,15 @@ class ComposeUiFragment : Fragment() {
 
     @Composable
     private fun AddPreviewView(previewView: PreviewView) {
-        previewView.layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        Box(modifier = Modifier.fillMaxSize()) {
-            AndroidView(
-                factory = {
-                    previewView
-                }
+        previewView.layoutParams =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
+        Box(modifier = Modifier.fillMaxSize()) {
+            AndroidView(factory = { previewView })
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
+                modifier = Modifier.fillMaxSize().padding(20.dp),
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Row(
@@ -150,9 +145,7 @@ class ComposeUiFragment : Fragment() {
                     ) {
                         Text("Effect")
                     }
-                    Button(onClick = ::onToggleCamera) {
-                        Text("Toggle")
-                    }
+                    Button(onClick = ::onToggleCamera) { Text("Toggle") }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(

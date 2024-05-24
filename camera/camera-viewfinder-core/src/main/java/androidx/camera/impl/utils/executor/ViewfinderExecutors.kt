@@ -19,17 +19,15 @@ package androidx.camera.impl.utils.executor
 import java.util.concurrent.Executor
 import java.util.concurrent.ScheduledExecutorService
 
-/**
- * Utility class for generating specific implementations of [Executor].
- */
+/** Utility class for generating specific implementations of [Executor]. */
 object ViewfinderExecutors {
-    /** Returns a cached [ScheduledExecutorService] which posts to the main thread.  */
+    /** Returns a cached [ScheduledExecutorService] which posts to the main thread. */
     @JvmStatic
     fun mainThreadExecutor(): ScheduledExecutorService {
         return MainThreadExecutor.instance
     }
 
-    /** Returns a cached executor that runs tasks directly from the calling thread.  */
+    /** Returns a cached executor that runs tasks directly from the calling thread. */
     @JvmStatic
     fun directExecutor(): Executor {
         return DirectExecutor.instance

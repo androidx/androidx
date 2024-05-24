@@ -28,7 +28,7 @@ class FakeSessionConfigOptionUnpacker : SessionConfig.OptionUnpacker {
         config: UseCaseConfig<*>,
         builder: SessionConfig.Builder
     ) {
-        val defaultSessionConfig = config.getDefaultSessionConfig( /*valueIfMissing=*/null)
+        val defaultSessionConfig = config.getDefaultSessionConfig(/* valueIfMissing= */ null)
 
         var implOptions: Config = OptionsBundle.emptyBundle()
         var templateType = SessionConfig.defaultEmptySessionConfig().templateType

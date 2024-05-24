@@ -58,8 +58,7 @@ object AutoFlashAEModeDisablerImpl : AutoFlashAEModeDisabler {
      * [ImageCaptureFailWithAutoFlashQuirk].
      */
     override fun getCorrectedAeMode(aeMode: Int): Int {
-        return if (aeMode == CONTROL_AE_MODE_ON_AUTO_FLASH) CONTROL_AE_MODE_ON
-        else aeMode
+        return if (aeMode == CONTROL_AE_MODE_ON_AUTO_FLASH) CONTROL_AE_MODE_ON else aeMode
     }
 }
 

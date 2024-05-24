@@ -22,15 +22,15 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.impl.Quirk
 
 /**
- * A quirk where the orientation of the preview is incorrect while a surface to be used to
- * configure on 2 different [android.hardware.camera2.CameraCaptureSession].
+ * A quirk where the orientation of the preview is incorrect while a surface to be used to configure
+ * on 2 different [android.hardware.camera2.CameraCaptureSession].
  *
  * QuirkSummary
  * - Bug Id: 128577112
  * - Description: Reusing a surface to create a different
- *   [android.hardware.camera2.CameraCaptureSession] causes incorrect preview orientation for
- *   LEGACY devices. Some GL related setting is left over when the legacy shim is recreated.
- *   It causes the 2nd PreviewCaptureSession to be rotated and stretched compared to the 1st one.
+ *   [android.hardware.camera2.CameraCaptureSession] causes incorrect preview orientation for LEGACY
+ *   devices. Some GL related setting is left over when the legacy shim is recreated. It causes the
+ *   2nd PreviewCaptureSession to be rotated and stretched compared to the 1st one.
  * - Device(s): Devices in LEGACY camera hardware level.
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.

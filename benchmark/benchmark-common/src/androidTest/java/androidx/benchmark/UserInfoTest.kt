@@ -53,24 +53,25 @@ class UserInfoTest {
 
     /**
      * Executes the command `whoami`. The output of the command is in the format
-     * `u<user-id>_a<app-id>`. After executing the command, the `user-id` is extracted and
-     * returned.
+     * `u<user-id>_a<app-id>`. After executing the command, the `user-id` is extracted and returned.
      */
     private fun getCurrentUserId(): Int {
-        val output = try {
-            DataInputStream(Runtime.getRuntime().exec("whoami").inputStream)
-                .bufferedReader()
-                .use { it.readText() }
-        } catch (e: Exception) {
-            Log.e(BenchmarkState.TAG, "Error running `whoami` command.", e)
-            ""
-        }
-        val userId = try {
-            output.split("_")[0].substring(1).toInt()
-        } catch (e: Exception) {
-            Log.e(BenchmarkState.TAG, "Error parsing user id. Current user: `$output`.", e)
-            -1
-        }
+        val output =
+            try {
+                DataInputStream(Runtime.getRuntime().exec("whoami").inputStream)
+                    .bufferedReader()
+                    .use { it.readText() }
+            } catch (e: Exception) {
+                Log.e(BenchmarkState.TAG, "Error running `whoami` command.", e)
+                ""
+            }
+        val userId =
+            try {
+                output.split("_")[0].substring(1).toInt()
+            } catch (e: Exception) {
+                Log.e(BenchmarkState.TAG, "Error parsing user id. Current user: `$output`.", e)
+                -1
+            }
         return userId
     }
 }

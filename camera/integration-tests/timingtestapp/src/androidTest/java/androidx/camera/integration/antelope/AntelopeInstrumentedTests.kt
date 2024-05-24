@@ -60,70 +60,71 @@ const val PREVIEW_BUFFER = "1500"
  *
  * Assumes device/emulator has a front and a back camera.
  *
- * Note: tests are suppressed for pre/post-submit testing as these tests exercise the camera
- * device thoroughly - failures that leave the device in a bad state can cause future tests to fail.
+ * Note: tests are suppressed for pre/post-submit testing as these tests exercise the camera device
+ * thoroughly - failures that leave the device in a bad state can cause future tests to fail.
  */
 @androidx.test.filters.Suppress
 @RunWith(AndroidJUnit4::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class AntelopeInstrumentedTests {
-    @get: Rule
-    var activityRule: ActivityTestRule<MainActivity> =
-        ActivityTestRule(MainActivity::class.java)
-    @get: Rule
+    @get:Rule
+    var activityRule: ActivityTestRule<MainActivity> = ActivityTestRule(MainActivity::class.java)
+    @get:Rule
     val cameraPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
-    @get: Rule
+    @get:Rule
     val writeStoragePermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    @get: Rule
+    @get:Rule
     val readStoragePermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.READ_EXTERNAL_STORAGE)
 
-    @Rule @JvmField
-    var repeatRule: RepeatRule = RepeatRule()
+    @Rule @JvmField var repeatRule: RepeatRule = RepeatRule()
 
     /**
-     * On some API levels, permissions Rules do not always work but explicitly
-     * using a shell command does.
+     * On some API levels, permissions Rules do not always work but explicitly using a shell command
+     * does.
      */
     @Before
     fun grantPermissions() {
-        getInstrumentation().getUiAutomation().executeShellCommand(
-            "pm grant " + activityRule.activity.applicationContext +
-                " android.permission.CAMERA"
-        )
-        getInstrumentation().getUiAutomation().executeShellCommand(
-            "pm grant " + activityRule.activity.applicationContext +
-                " android.permission.READ_EXTERNAL_STORAGE"
-        )
-        getInstrumentation().getUiAutomation().executeShellCommand(
-            "pm grant " + activityRule.activity.applicationContext +
-                " android.permission.WRITE_EXTERNAL_STORAGE"
-        )
+        getInstrumentation()
+            .getUiAutomation()
+            .executeShellCommand(
+                "pm grant " +
+                    activityRule.activity.applicationContext +
+                    " android.permission.CAMERA"
+            )
+        getInstrumentation()
+            .getUiAutomation()
+            .executeShellCommand(
+                "pm grant " +
+                    activityRule.activity.applicationContext +
+                    " android.permission.READ_EXTERNAL_STORAGE"
+            )
+        getInstrumentation()
+            .getUiAutomation()
+            .executeShellCommand(
+                "pm grant " +
+                    activityRule.activity.applicationContext +
+                    " android.permission.WRITE_EXTERNAL_STORAGE"
+            )
     }
 
-    /**
-     * Delete any pre-existing logs
-     */
+    /** Delete any pre-existing logs */
     @Before
     fun deleteLogs() {
         val activity = activityRule.activity as MainActivity
         deleteCSVFiles(activity)
     }
 
-    /**
-     * Make sure all system dialogs are closed from any previous tests
-     */
+    /** Make sure all system dialogs are closed from any previous tests */
     @Before
     fun closeSystemDialogs() {
         val activity = activityRule.activity as MainActivity
         activity.sendBroadcast(Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
     }
 
-    /**
-     * Setup idling resource timeouts and registry
-     */
+    /** Setup idling resource timeouts and registry */
     @Before
     fun setupIdlingResources() {
         // Slow devices may take up to 2 minutes
@@ -133,17 +134,13 @@ class AntelopeInstrumentedTests {
         IdlingRegistry.getInstance().register(antelopeIdlingResource)
     }
 
-    /**
-     * Remove idling resource from the registry after a test
-     */
+    /** Remove idling resource from the registry after a test */
     @After
     fun removeIdlingResources() {
         IdlingRegistry.getInstance().unregister(antelopeIdlingResource)
     }
 
-    /**
-     * Basic context soundness test
-     */
+    /** Basic context soundness test */
     @Test
     @MediumTest
     fun test01ContextSanity() {
@@ -151,9 +148,7 @@ class AntelopeInstrumentedTests {
         Assert.assertEquals("androidx.camera.integration.antelope", context.packageName)
     }
 
-    /**
-     * Test log file deletion
-     */
+    /** Test log file deletion */
     @Test
     @MediumTest
     fun test02WriteandDeleteLogFiles() {
@@ -168,9 +163,7 @@ class AntelopeInstrumentedTests {
         assertThat(isLogDirEmpty()).isTrue()
     }
 
-    /**
-     * Performs a single capture with the camera device 0 using the Camera 2 API
-     */
+    /** Performs a single capture with the camera device 0 using the Camera 2 API */
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -196,18 +189,14 @@ class AntelopeInstrumentedTests {
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
-        activity.runOnUiThread {
-            activity.startSingleTest()
-        }
+        activity.runOnUiThread { activity.startSingleTest() }
 
         // Check if test was successful
         onView(withId(R.id.text_log)).check(matches(withSubstring("Single Capture\nCamera")))
         assertThat(isLogDirEmpty()).isFalse()
     }
 
-    /**
-     * Performs a multi capture with the camera device 1 using the Camera 2 API
-     */
+    /** Performs a multi capture with the camera device 1 using the Camera 2 API */
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -231,23 +220,18 @@ class AntelopeInstrumentedTests {
 
         if (hasCamera("1"))
             prefEditor.putString(res.getString(R.string.settings_single_test_camera_key), "1")
-        else
-            prefEditor.putString(res.getString(R.string.settings_single_test_camera_key), "0")
+        else prefEditor.putString(res.getString(R.string.settings_single_test_camera_key), "0")
 
         prefEditor.commit()
 
-        activity.runOnUiThread {
-            activity.startSingleTest()
-        }
+        activity.runOnUiThread { activity.startSingleTest() }
 
         // Check if test was successful
         onView(withId(R.id.text_log)).check(matches(withSubstring("Multiple Captures\nCamera")))
         assertThat(isLogDirEmpty()).isFalse()
     }
 
-    /**
-     * Performs a multi capture "chained" test with camera device 0 using the Camera 2 API
-     */
+    /** Performs a multi capture "chained" test with camera device 0 using the Camera 2 API */
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -277,22 +261,15 @@ class AntelopeInstrumentedTests {
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
-        activity.runOnUiThread {
-            activity.startSingleTest()
-        }
+        activity.runOnUiThread { activity.startSingleTest() }
 
         // Check if test was successful
-        onView(withId(R.id.text_log)).check(
-            matches(
-                withSubstring("Multiple Captures (Chained)\nCamera")
-            )
-        )
+        onView(withId(R.id.text_log))
+            .check(matches(withSubstring("Multiple Captures (Chained)\nCamera")))
         assertThat(isLogDirEmpty()).isFalse()
     }
 
-    /**
-     * Starts a multi-capture test with camera device 0 using Camera 2 and aborts it after 5s
-     */
+    /** Starts a multi-capture test with camera device 0 using Camera 2 and aborts it after 5s */
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -331,9 +308,7 @@ class AntelopeInstrumentedTests {
         assertThat(isLogDirEmpty()).isTrue()
     }
 
-    /**
-     * Performs a single camera switch back->front->back
-     */
+    /** Performs a single camera switch back->front->back */
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -359,9 +334,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
-        activity.runOnUiThread {
-            activity.startSingleTest()
-        }
+        activity.runOnUiThread { activity.startSingleTest() }
 
         // Check if test was successful
         onView(withId(R.id.text_log)).check(matches(withSubstring("Switch Cameras\nCamera")))
@@ -370,8 +343,8 @@ class AntelopeInstrumentedTests {
 
     /**
      * Performs a single capture and saves the image to disk. Tests:
-     *  - image was saved to disk
-     *  - deleting images from settings menu works
+     * - image was saved to disk
+     * - deleting images from settings menu works
      */
     @Test
     @LargeTest
@@ -398,9 +371,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), false)
         prefEditor.commit()
 
-        activity.runOnUiThread {
-            activity.startSingleTest()
-        }
+        activity.runOnUiThread { activity.startSingleTest() }
 
         // Check if test was successful
         onView(withId(R.id.text_log)).check(matches(withSubstring("Single Capture\nCamera")))
@@ -413,9 +384,7 @@ class AntelopeInstrumentedTests {
         assertThat(isPhotoDirEmpty()).isTrue()
     }
 
-    /**
-     * Performs a multi capture with the camera device 0 using the Camera 1 API
-     */
+    /** Performs a multi capture with the camera device 0 using the Camera 1 API */
     @FlakyTest
     @Test
     @LargeTest
@@ -453,9 +422,7 @@ class AntelopeInstrumentedTests {
         assertThat(isLogDirEmpty()).isFalse()
     }
 
-    /**
-     * Performs a multi capture with the camera device 0 using the Camera X API
-     */
+    /** Performs a multi capture with the camera device 0 using the Camera X API */
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -492,9 +459,7 @@ class AntelopeInstrumentedTests {
         assertThat(isLogDirEmpty()).isFalse()
     }
 
-    /**
-     * Performs a full set of captures for all possible cameras/image sizes/tests for Camera2
-     */
+    /** Performs a full set of captures for all possible cameras/image sizes/tests for Camera2 */
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -523,8 +488,7 @@ class AntelopeInstrumentedTests {
 
         if (hasCameraZeroAndOne())
             prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), true)
-        else
-            prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), false)
+        else prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), false)
 
         prefEditor.putBoolean(res.getString(R.string.settings_autotest_cameras_key), true)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
@@ -542,9 +506,7 @@ class AntelopeInstrumentedTests {
         assertThat(isLogDirEmpty()).isFalse()
     }
 
-    /**
-     * Performs a full set of captures for all possible cameras/image sizes/tests for CameraX
-     */
+    /** Performs a full set of captures for all possible cameras/image sizes/tests for CameraX */
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -573,8 +535,7 @@ class AntelopeInstrumentedTests {
 
         if (hasFrontAndBackCamera())
             prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), true)
-        else
-            prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), false)
+        else prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), false)
 
         prefEditor.putBoolean(res.getString(R.string.settings_autotest_cameras_key), true)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
@@ -592,9 +553,7 @@ class AntelopeInstrumentedTests {
         assertThat(isLogDirEmpty()).isFalse()
     }
 
-    /**
-     * Performs a full set of captures for all possible cameras/image sizes/tests for Camera1
-     */
+    /** Performs a full set of captures for all possible cameras/image sizes/tests for Camera1 */
     @FlakyTest
     @Test
     @LargeTest
@@ -624,8 +583,7 @@ class AntelopeInstrumentedTests {
 
         if (hasCameraZeroAndOne())
             prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), true)
-        else
-            prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), false)
+        else prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), false)
 
         prefEditor.putBoolean(res.getString(R.string.settings_autotest_cameras_key), true)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
@@ -643,16 +601,13 @@ class AntelopeInstrumentedTests {
         assertThat(isLogDirEmpty()).isFalse()
     }
 
-    /**
-     * Checks whether the default .csv log directory is empty
-     */
+    /** Checks whether the default .csv log directory is empty */
     private fun isLogDirEmpty(): Boolean {
-        val csvDir = File(
-            Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS
-            ),
-            MainActivity.LOG_DIR
-        )
+        val csvDir =
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+                MainActivity.LOG_DIR
+            )
 
         return if (csvDir.exists()) {
             val children = csvDir.listFiles()
@@ -662,16 +617,13 @@ class AntelopeInstrumentedTests {
         }
     }
 
-    /**
-     * Checks whether the default image directory is empty
-     */
+    /** Checks whether the default image directory is empty */
     private fun isPhotoDirEmpty(): Boolean {
-        val photoDir = File(
-            Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DCIM
-            ),
-            MainActivity.PHOTOS_DIR
-        )
+        val photoDir =
+            File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+                MainActivity.PHOTOS_DIR
+            )
 
         return if (photoDir.exists()) {
             val children = photoDir.listFiles()
@@ -681,9 +633,7 @@ class AntelopeInstrumentedTests {
         }
     }
 
-    /**
-     * Checks whether the test device has the given camera
-     */
+    /** Checks whether the test device has the given camera */
     private fun hasCamera(cameraId: String): Boolean {
         val activity = activityRule.activity as MainActivity
         val manager = activity.getSystemService(AppCompatActivity.CAMERA_SERVICE) as CameraManager
@@ -713,21 +663,16 @@ class AntelopeInstrumentedTests {
         return false
     }
 
-    /**
-     * Checks if this devices has either a camera with id 0 or id 1
-     */
+    /** Checks if this devices has either a camera with id 0 or id 1 */
     private fun hasAnyCamera(): Boolean = hasCamera("0") || hasCamera("1")
 
-    /**
-     * Checks if this devices has both a camera with id 0 and id 1
-     */
+    /** Checks if this devices has both a camera with id 0 and id 1 */
     private fun hasCameraZeroAndOne(): Boolean = hasCamera("0") && hasCamera("1")
 
-    /**
-     * Checks if this devices has both a front and back camera
-     */
-    private fun hasFrontAndBackCamera(): Boolean = hasCameraType(CameraMetadata.LENS_FACING_BACK) &&
-        hasCameraType(CameraMetadata.LENS_FACING_FRONT)
+    /** Checks if this devices has both a front and back camera */
+    private fun hasFrontAndBackCamera(): Boolean =
+        hasCameraType(CameraMetadata.LENS_FACING_BACK) &&
+            hasCameraType(CameraMetadata.LENS_FACING_FRONT)
 
     /**
      * Determine what the first camera in the system is.
@@ -735,10 +680,8 @@ class AntelopeInstrumentedTests {
      * Return 0 if camera 0 exists, 1 if camera 1 exists, otherwise empty string
      */
     private fun getFirstCamera(): String {
-        if (hasCamera("0"))
-            return "0"
-        if (hasCamera("1"))
-            return "1"
+        if (hasCamera("0")) return "0"
+        if (hasCamera("1")) return "1"
 
         return ""
     }

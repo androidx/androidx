@@ -25,9 +25,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 
-/**
- * Uses Java NIO APIs to move files.
- */
+/** Uses Java NIO APIs to move files. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(Build.VERSION_CODES.O)
 object FileMover {

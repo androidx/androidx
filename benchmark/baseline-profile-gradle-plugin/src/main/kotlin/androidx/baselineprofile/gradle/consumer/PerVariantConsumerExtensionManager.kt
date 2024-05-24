@@ -23,25 +23,22 @@ import org.gradle.api.Project
 /**
  * The [BaselineProfileConsumerPlugin] supports per variant configuration, according to values
  * expressed in [BaselineProfileVariantConfiguration]. The correct value for a property is
- * determined considering the concept of override or merge.
- * When a property is evaluated considering the override, the variants are evaluated in this order:
- * `variantName`, `buildType` or `productFlavor` and `main`. The first variant configuration to
- * define the property is used to return that property.
- * For lists only, a property can be evaluated also merging all the variant configurations. This
- * is the case for dependencies for example, so that when accessing custom dependencies for variant
- * `freeRelease` the returned list contains the dependencies for `freeRelease`, `free`, `release`
- * and `main` (global ones).
+ * determined considering the concept of override or merge. When a property is evaluated considering
+ * the override, the variants are evaluated in this order: `variantName`, `buildType` or
+ * `productFlavor` and `main`. The first variant configuration to define the property is used to
+ * return that property. For lists only, a property can be evaluated also merging all the variant
+ * configurations. This is the case for dependencies for example, so that when accessing custom
+ * dependencies for variant `freeRelease` the returned list contains the dependencies for
+ * `freeRelease`, `free`, `release` and `main` (global ones).
  */
 internal class PerVariantConsumerExtensionManager(
     private val extension: BaselineProfileConsumerExtension,
 ) {
 
-    fun variant(variant: Variant) = VariantConfigurationProxy(
-        variant = variant,
-        ext = extension
-    )
+    fun variant(variant: Variant) = VariantConfigurationProxy(variant = variant, ext = extension)
 
-    internal class VariantConfigurationProxy internal constructor(
+    internal class VariantConfigurationProxy
+    internal constructor(
         private val variant: Variant,
         private val ext: BaselineProfileConsumerExtension,
     ) {
@@ -75,12 +72,12 @@ internal class PerVariantConsumerExtensionManager(
             getter: BaselineProfileVariantConfigurationImpl.() -> List<T>
         ): List<T> {
             return listOfNotNull(
-                "main",
-                variant.flavorName,
-                *variant.productFlavors.map { it.second }.toTypedArray(),
-                variant.buildType,
-                variant.name
-            )
+                    "main",
+                    variant.flavorName,
+                    *variant.productFlavors.map { it.second }.toTypedArray(),
+                    variant.buildType,
+                    variant.name
+                )
                 .mapNotNull { ext.variants.findByName(it) }
                 .map { getter.invoke(it) }
                 .flatten()
@@ -95,23 +92,27 @@ internal class PerVariantConsumerExtensionManager(
             // If a property is found it will return it. Note that `main` should have all the
             // defaults set so this method never returns a nullable value and should always return.
 
-            val definedProperties = listOfNotNull(
-                variant.name,
-                *variant.productFlavors.map { it.second }.toTypedArray(),
-                variant.flavorName,
-                variant.buildType,
-                "main"
-            ).mapNotNull {
-                val variantConfig = ext.variants.findByName(it) ?: return@mapNotNull null
-                return@mapNotNull Pair(it, getter.invoke(variantConfig))
-            }.filter { it.second != null }
+            val definedProperties =
+                listOfNotNull(
+                        variant.name,
+                        *variant.productFlavors.map { it.second }.toTypedArray(),
+                        variant.flavorName,
+                        variant.buildType,
+                        "main"
+                    )
+                    .mapNotNull {
+                        val variantConfig = ext.variants.findByName(it) ?: return@mapNotNull null
+                        return@mapNotNull Pair(it, getter.invoke(variantConfig))
+                    }
+                    .filter { it.second != null }
 
             // This is a case where the property is defined in both build type and flavor.
             // In this case it should fail because the result is ambiguous.
             val propMap = definedProperties.toMap()
-            if (variant.flavorName in propMap &&
-                variant.buildType in propMap &&
-                propMap[variant.flavorName] != propMap[variant.buildType]
+            if (
+                variant.flavorName in propMap &&
+                    variant.buildType in propMap &&
+                    propMap[variant.flavorName] != propMap[variant.buildType]
             ) {
                 throw GradleException(
                     """
@@ -133,7 +134,8 @@ internal class PerVariantConsumerExtensionManager(
 
             In this case for `freeRelease` it's not possible to determine the exact value of the
             property. Please specify either the build type or the flavor.
-            """.trimIndent()
+            """
+                        .trimIndent()
                 )
             }
 

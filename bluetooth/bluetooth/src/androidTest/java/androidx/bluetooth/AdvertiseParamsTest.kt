@@ -22,9 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Test cases for [AdvertiseParams]
- */
+/** Test cases for [AdvertiseParams] */
 @RunWith(JUnit4::class)
 class AdvertiseParamsTest {
 
@@ -50,15 +48,15 @@ class AdvertiseParamsTest {
         val isConnectable = true
         val isDiscoverable = true
 
-        val advertiseParams = AdvertiseParams(
-            shouldIncludeDeviceAddress = shouldIncludeDeviceAddress,
-            shouldIncludeDeviceName = shouldIncludeDeviceName,
-            isConnectable = isConnectable,
-            isDiscoverable = isDiscoverable
-        )
+        val advertiseParams =
+            AdvertiseParams(
+                shouldIncludeDeviceAddress = shouldIncludeDeviceAddress,
+                shouldIncludeDeviceName = shouldIncludeDeviceName,
+                isConnectable = isConnectable,
+                isDiscoverable = isDiscoverable
+            )
 
-        assertThat(advertiseParams.shouldIncludeDeviceAddress)
-            .isEqualTo(shouldIncludeDeviceAddress)
+        assertThat(advertiseParams.shouldIncludeDeviceAddress).isEqualTo(shouldIncludeDeviceAddress)
         assertThat(advertiseParams.shouldIncludeDeviceName).isEqualTo(shouldIncludeDeviceName)
         assertThat(advertiseParams.isConnectable).isEqualTo(isConnectable)
         assertThat(advertiseParams.isDiscoverable).isEqualTo(isDiscoverable)
@@ -79,9 +77,7 @@ class AdvertiseParamsTest {
         manufacturerData[manuId2] = manuData2
         manufacturerData[manuId3] = manuData3
 
-        val advertiseParams = AdvertiseParams(
-            manufacturerData = manufacturerData
-        )
+        val advertiseParams = AdvertiseParams(manufacturerData = manufacturerData)
 
         assertThat(advertiseParams.manufacturerData[manuId1]).isEqualTo(manuData1)
         assertThat(advertiseParams.manufacturerData[manuId2]).isEqualTo(manuData2)
@@ -103,9 +99,7 @@ class AdvertiseParamsTest {
         serviceData[serviceUuid2] = serviceData2
         serviceData[serviceUuid3] = serviceData3
 
-        val advertiseParams = AdvertiseParams(
-            serviceData = serviceData
-        )
+        val advertiseParams = AdvertiseParams(serviceData = serviceData)
 
         assertThat(advertiseParams.serviceData[serviceUuid1]).isEqualTo(serviceData1)
         assertThat(advertiseParams.serviceData[serviceUuid2]).isEqualTo(serviceData2)
@@ -120,9 +114,7 @@ class AdvertiseParamsTest {
 
         val serviceUuids = listOf(serviceUuid1, serviceUuid2, serviceUuid3)
 
-        val advertiseParams = AdvertiseParams(
-            serviceUuids = serviceUuids
-        )
+        val advertiseParams = AdvertiseParams(serviceUuids = serviceUuids)
 
         assertThat(advertiseParams.serviceUuids[0]).isEqualTo(serviceUuid1)
         assertThat(advertiseParams.serviceUuids[1]).isEqualTo(serviceUuid2)
@@ -138,9 +130,7 @@ class AdvertiseParamsTest {
         val serviceSolicitationUuids =
             listOf(serviceSolicitationUuid1, serviceSolicitationUuid2, serviceSolicitationUuid3)
 
-        val advertiseParams = AdvertiseParams(
-            serviceSolicitationUuids = serviceSolicitationUuids
-        )
+        val advertiseParams = AdvertiseParams(serviceSolicitationUuids = serviceSolicitationUuids)
 
         assertThat(advertiseParams.serviceSolicitationUuids[0]).isEqualTo(serviceSolicitationUuid1)
         assertThat(advertiseParams.serviceSolicitationUuids[1]).isEqualTo(serviceSolicitationUuid2)

@@ -44,73 +44,20 @@ private open class AdvertiseImplBase(val bleAdvertiser: FwkBluetoothLeAdvertiser
 
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
     override fun advertise(advertiseParams: AdvertiseParams) = callbackFlow {
-        val callback = object : FwkAdvertiseCallback() {
-            override fun onStartSuccess(settingsInEffect: FwkAdvertiseSettings) {
-                trySend(BluetoothLe.ADVERTISE_STARTED)
-            }
-
-            override fun onStartFailure(errorCode: Int) {
-                close(AdvertiseException(errorCode))
-            }
-        }
-
-        bleAdvertiser.startAdvertising(
-            advertiseParams.fwkAdvertiseSettings, advertiseParams.fwkAdvertiseData, callback
-        )
-
-        if (advertiseParams.durationMillis > 0) {
-            delay(advertiseParams.durationMillis)
-            close()
-        }
-
-        awaitClose {
-            bleAdvertiser.stopAdvertising(callback)
-        }
-    }
-}
-
-@RequiresApi(26)
-private class AdvertiseImplApi26(
-    bleAdvertiser: FwkBluetoothLeAdvertiser
-) : AdvertiseImplBase(bleAdvertiser) {
-
-    @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
-    override fun advertise(advertiseParams: AdvertiseParams) = callbackFlow {
-        val callback = object : FwkAdvertisingSetCallback() {
-            override fun onAdvertisingSetStarted(
-                advertisingSet: FwkAdvertisingSet?,
-                txPower: Int,
-                status: Int
-            ) {
-                if (status == ADVERTISE_SUCCESS) {
+        val callback =
+            object : FwkAdvertiseCallback() {
+                override fun onStartSuccess(settingsInEffect: FwkAdvertiseSettings) {
                     trySend(BluetoothLe.ADVERTISE_STARTED)
-                } else {
-                    close(AdvertiseException(status))
+                }
+
+                override fun onStartFailure(errorCode: Int) {
+                    close(AdvertiseException(errorCode))
                 }
             }
 
-            override fun onAdvertisingSetStopped(advertisingSet: FwkAdvertisingSet?) {
-                close()
-            }
-
-            override fun onAdvertisingEnabled(
-                advertisingSet: FwkAdvertisingSet?,
-                enable: Boolean,
-                status: Int
-            ) {
-                if (!enable) close()
-            }
-        }
-
-        bleAdvertiser.startAdvertisingSet(
-            advertiseParams.fwkAdvertiseSetParams(),
+        bleAdvertiser.startAdvertising(
+            advertiseParams.fwkAdvertiseSettings,
             advertiseParams.fwkAdvertiseData,
-            /*scanResponse=*/null,
-            /*periodicParameters=*/null,
-            /*periodicData=*/null,
-            // round up
-            (advertiseParams.durationMillis.toInt() + 9) / 10,
-            /*maxExtendedAdvertisingEvents=*/0,
             callback
         )
 
@@ -119,8 +66,60 @@ private class AdvertiseImplApi26(
             close()
         }
 
-        awaitClose {
-            bleAdvertiser.stopAdvertisingSet(callback)
+        awaitClose { bleAdvertiser.stopAdvertising(callback) }
+    }
+}
+
+@RequiresApi(26)
+private class AdvertiseImplApi26(bleAdvertiser: FwkBluetoothLeAdvertiser) :
+    AdvertiseImplBase(bleAdvertiser) {
+
+    @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
+    override fun advertise(advertiseParams: AdvertiseParams) = callbackFlow {
+        val callback =
+            object : FwkAdvertisingSetCallback() {
+                override fun onAdvertisingSetStarted(
+                    advertisingSet: FwkAdvertisingSet?,
+                    txPower: Int,
+                    status: Int
+                ) {
+                    if (status == ADVERTISE_SUCCESS) {
+                        trySend(BluetoothLe.ADVERTISE_STARTED)
+                    } else {
+                        close(AdvertiseException(status))
+                    }
+                }
+
+                override fun onAdvertisingSetStopped(advertisingSet: FwkAdvertisingSet?) {
+                    close()
+                }
+
+                override fun onAdvertisingEnabled(
+                    advertisingSet: FwkAdvertisingSet?,
+                    enable: Boolean,
+                    status: Int
+                ) {
+                    if (!enable) close()
+                }
+            }
+
+        bleAdvertiser.startAdvertisingSet(
+            advertiseParams.fwkAdvertiseSetParams(),
+            advertiseParams.fwkAdvertiseData,
+            /*scanResponse=*/ null,
+            /*periodicParameters=*/ null,
+            /*periodicData=*/ null,
+            // round up
+            (advertiseParams.durationMillis.toInt() + 9) / 10,
+            /*maxExtendedAdvertisingEvents=*/ 0,
+            callback
+        )
+
+        if (advertiseParams.durationMillis > 0) {
+            delay(advertiseParams.durationMillis)
+            close()
         }
+
+        awaitClose { bleAdvertiser.stopAdvertisingSet(callback) }
     }
 }

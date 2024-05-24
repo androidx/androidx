@@ -31,9 +31,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
-/**
- * The FakeCameraBackend implements [CameraBackend] and creates [CameraControllerSimulator]s.
- */
+/** The FakeCameraBackend implements [CameraBackend] and creates [CameraControllerSimulator]s. */
 class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) : CameraBackend {
     private val lock = Any()
     private val fakeCameraIds = fakeCameras.keys.toList()
@@ -44,25 +42,23 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
 
     override val id: CameraBackendId
         get() = FAKE_CAMERA_BACKEND_ID
+
     override val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
         get() = MutableSharedFlow()
 
     override fun awaitCameraIds(): List<CameraId> = fakeCameraIds
+
     override fun awaitConcurrentCameraIds(): Set<Set<CameraId>> = emptySet()
 
     override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? = fakeCameras[cameraId]
 
     override fun disconnectAllAsync(): Deferred<Unit> {
-        _cameraControllers.forEach {
-            it.simulateCameraStopped()
-        }
+        _cameraControllers.forEach { it.simulateCameraStopped() }
         return CompletableDeferred(Unit)
     }
 
     override fun shutdownAsync(): Deferred<Unit> {
-        _cameraControllers.forEach {
-            it.simulateCameraStopped()
-        }
+        _cameraControllers.forEach { it.simulateCameraStopped() }
         return CompletableDeferred(Unit)
     }
 
@@ -72,15 +68,9 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
         graphListener: GraphListener,
         streamGraph: StreamGraph
     ): CameraController {
-        val cameraController = CameraControllerSimulator(
-            cameraContext,
-            graphConfig,
-            graphListener,
-            streamGraph
-        )
-        synchronized(lock) {
-            _cameraControllers.add(cameraController)
-        }
+        val cameraController =
+            CameraControllerSimulator(cameraContext, graphConfig, graphListener, streamGraph)
+        synchronized(lock) { _cameraControllers.add(cameraController) }
         return cameraController
     }
 
@@ -98,9 +88,7 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
     }
 
     override fun disconnectAll() {
-        _cameraControllers.forEach {
-            it.simulateCameraStopped()
-        }
+        _cameraControllers.forEach { it.simulateCameraStopped() }
     }
 
     companion object {

@@ -66,9 +66,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Instrumented tests for [ProcessingNode].
- */
+/** Instrumented tests for [ProcessingNode]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -78,11 +76,12 @@ class ProcessingNodeDeviceTest {
     // have some deviation. For example, the Color.BLUE color (-16776961) might become -16776965.
     // This will cause some testing failures. Therefore, use the tolerance value to check the
     // results for the API 21 ~ 23 devices.
-    private val avgDiffTolerance = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-        0
-    } else {
-        1
-    }
+    private val avgDiffTolerance =
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            0
+        } else {
+            1
+        }
 
     @Before
     fun setUp() {
@@ -146,11 +145,12 @@ class ProcessingNodeDeviceTest {
         // Arrange: create node with JPEG input and grayscale effect.
         val node = ProcessingNode(mainThreadExecutor())
         val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888, ImageFormat.JPEG)
-        val imageIn = createYuvFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            WIDTH,
-            HEIGHT
-        )
+        val imageIn =
+            createYuvFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                WIDTH,
+                HEIGHT
+            )
         // Act.
         val bitmap = processAndGetBitmap(node, nodeIn, imageIn, outputFileOptions)
         // Assert: image content is cropped correctly
@@ -161,24 +161,21 @@ class ProcessingNodeDeviceTest {
 
     private suspend fun processJpegAndVerifyEffectApplied(outputFileOptions: OutputFileOptions?) {
         // Arrange: create node with JPEG input and grayscale effect.
-        val node = ProcessingNode(
-            mainThreadExecutor(),
-            InternalImageProcessor(GrayscaleImageEffect())
-        )
+        val node =
+            ProcessingNode(mainThreadExecutor(), InternalImageProcessor(GrayscaleImageEffect()))
         val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
-        val imageIn = createJpegFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            createJpegBytes(WIDTH, HEIGHT)
-        )
+        val imageIn =
+            createJpegFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                createJpegBytes(WIDTH, HEIGHT)
+            )
         // Act.
         val bitmap = processAndGetBitmap(node, nodeIn, imageIn, outputFileOptions)
         // Assert: the output is a cropped grayscale image.
-        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), 0X555555)).isAtMost(
-            avgDiffTolerance
-        )
-        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), 0XAAAAAA)).isAtMost(
-            avgDiffTolerance
-        )
+        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), 0X555555))
+            .isAtMost(avgDiffTolerance)
+        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), 0XAAAAAA))
+            .isAtMost(avgDiffTolerance)
     }
 
     private suspend fun processAndGetBitmap(
@@ -190,16 +187,17 @@ class ProcessingNodeDeviceTest {
         // Arrange: create a YUV input.
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            outputFileOptions,
-            CROP_RECT,
-            /*rotationDegrees=*/0, // 0 because exif does not have rotation.
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback,
-            Futures.immediateFuture(null)
-        )
+        val processingRequest =
+            ProcessingRequest(
+                { listOf() },
+                outputFileOptions,
+                CROP_RECT,
+                /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                /*jpegQuality=*/ 100,
+                SENSOR_TO_BUFFER,
+                takePictureCallback,
+                Futures.immediateFuture(null)
+            )
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
         // Act and return.
         nodeIn.edge.accept(input)
@@ -222,20 +220,22 @@ class ProcessingNodeDeviceTest {
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            outputFileOptions,
-            Rect(0, 0, WIDTH, HEIGHT),
-            0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback,
-            Futures.immediateFuture(null)
-        )
-        val imageIn = createJpegFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            createJpegBytes(WIDTH, HEIGHT)
-        )
+        val processingRequest =
+            ProcessingRequest(
+                { listOf() },
+                outputFileOptions,
+                Rect(0, 0, WIDTH, HEIGHT),
+                0,
+                /*jpegQuality=*/ 100,
+                SENSOR_TO_BUFFER,
+                takePictureCallback,
+                Futures.immediateFuture(null)
+            )
+        val imageIn =
+            createJpegFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                createJpegBytes(WIDTH, HEIGHT)
+            )
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
         // Act and return.
         nodeIn.edge.accept(input)
@@ -245,12 +245,8 @@ class ProcessingNodeDeviceTest {
         val restoredBitmap = BitmapFactory.decodeFile(filePath)
 
         // Assert: restored image is not cropped.
-        assertThat(
-            getAverageDiff(
-                createBitmap(WIDTH, HEIGHT),
-                restoredBitmap
-            )
-        ).isAtMost(avgDiffTolerance)
+        assertThat(getAverageDiff(createBitmap(WIDTH, HEIGHT), restoredBitmap))
+            .isAtMost(avgDiffTolerance)
     }
 
     @RequiresApi(api = 34)
@@ -264,20 +260,22 @@ class ProcessingNodeDeviceTest {
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            outputFileOptions,
-            Rect(0, 0, WIDTH, HEIGHT),
-            0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback,
-            Futures.immediateFuture(null)
-        )
-        val imageIn = createJpegrFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            createJpegrBytes(WIDTH, HEIGHT)
-        )
+        val processingRequest =
+            ProcessingRequest(
+                { listOf() },
+                outputFileOptions,
+                Rect(0, 0, WIDTH, HEIGHT),
+                0,
+                /*jpegQuality=*/ 100,
+                SENSOR_TO_BUFFER,
+                takePictureCallback,
+                Futures.immediateFuture(null)
+            )
+        val imageIn =
+            createJpegrFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                createJpegrBytes(WIDTH, HEIGHT)
+            )
 
         // Act.
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
@@ -286,22 +284,19 @@ class ProcessingNodeDeviceTest {
 
         // Assert: restored image is not cropped.
         val restoredBitmap = BitmapFactory.decodeFile(filePath)
-        assertThat(
-            getAverageDiff(
-                createBitmap(WIDTH, HEIGHT),
-                restoredBitmap
-            )
-        ).isAtMost(avgDiffTolerance)
+        assertThat(getAverageDiff(createBitmap(WIDTH, HEIGHT), restoredBitmap))
+            .isAtMost(avgDiffTolerance)
 
         // Assert: JPEG/R related info when format is JPEG/R.
         assertThat(restoredBitmap.hasGainmap()).isTrue()
         val gainmapContents = restoredBitmap.gainmap!!.gainmapContents
         assertThat(
-            getAverageDiff(
-                createBitmapWithGainmap(WIDTH, HEIGHT).gainmap!!.gainmapContents,
-                gainmapContents
+                getAverageDiff(
+                    createBitmapWithGainmap(WIDTH, HEIGHT).gainmap!!.gainmapContents,
+                    gainmapContents
+                )
             )
-        ).isAtMost(avgDiffTolerance)
+            .isAtMost(avgDiffTolerance)
     }
 
     private suspend fun inMemoryInputPacket_callbackInvoked(outputFileOptions: OutputFileOptions?) {
@@ -311,20 +306,22 @@ class ProcessingNodeDeviceTest {
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            outputFileOptions,
-            Rect(0, 0, WIDTH, HEIGHT),
-            0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback,
-            Futures.immediateFuture(null)
-        )
-        val imageIn = createJpegFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            createJpegBytes(WIDTH, HEIGHT)
-        )
+        val processingRequest =
+            ProcessingRequest(
+                { listOf() },
+                outputFileOptions,
+                Rect(0, 0, WIDTH, HEIGHT),
+                0,
+                /*jpegQuality=*/ 100,
+                SENSOR_TO_BUFFER,
+                takePictureCallback,
+                Futures.immediateFuture(null)
+            )
+        val imageIn =
+            createJpegFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                createJpegBytes(WIDTH, HEIGHT)
+            )
         // Act.
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
         // Act and return.
@@ -333,9 +330,8 @@ class ProcessingNodeDeviceTest {
         val imageOut = takePictureCallback.getInMemoryResult()
         val restoredJpeg = jpegImageToJpegByteArray(imageOut)
 
-        assertThat(getAverageDiff(createJpegBytes(WIDTH, HEIGHT), restoredJpeg)).isAtMost(
-            avgDiffTolerance
-        )
+        assertThat(getAverageDiff(createJpegBytes(WIDTH, HEIGHT), restoredJpeg))
+            .isAtMost(avgDiffTolerance)
         assertThat(imageOut.imageInfo.timestamp).isEqualTo(TIMESTAMP)
     }
 
@@ -350,20 +346,22 @@ class ProcessingNodeDeviceTest {
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            outputFileOptions,
-            Rect(0, 0, WIDTH, HEIGHT),
-            0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback,
-            Futures.immediateFuture(null)
-        )
-        val imageIn = createJpegrFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            createJpegrBytes(WIDTH, HEIGHT)
-        )
+        val processingRequest =
+            ProcessingRequest(
+                { listOf() },
+                outputFileOptions,
+                Rect(0, 0, WIDTH, HEIGHT),
+                0,
+                /*jpegQuality=*/ 100,
+                SENSOR_TO_BUFFER,
+                takePictureCallback,
+                Futures.immediateFuture(null)
+            )
+        val imageIn =
+            createJpegrFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                createJpegrBytes(WIDTH, HEIGHT)
+            )
 
         // Act.
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
@@ -386,23 +384,21 @@ class ProcessingNodeDeviceTest {
         val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
-        val jpegBytes = ExifUtil.updateExif(createJpegBytes(640, 480)) {
-            it.description = EXIF_DESCRIPTION
-        }
-        val imageIn = createJpegFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            jpegBytes
-        )
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            outputFileOptions,
-            CROP_RECT,
-            0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback,
-            Futures.immediateFuture(null)
-        )
+        val jpegBytes =
+            ExifUtil.updateExif(createJpegBytes(640, 480)) { it.description = EXIF_DESCRIPTION }
+        val imageIn =
+            createJpegFakeImageProxy(CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT), jpegBytes)
+        val processingRequest =
+            ProcessingRequest(
+                { listOf() },
+                outputFileOptions,
+                CROP_RECT,
+                0,
+                /*jpegQuality=*/ 100,
+                SENSOR_TO_BUFFER,
+                takePictureCallback,
+                Futures.immediateFuture(null)
+            )
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
 
         // Act: send input to the edge and wait for the saved URI
@@ -411,12 +407,10 @@ class ProcessingNodeDeviceTest {
 
         // Assert: image content is cropped correctly
         val bitmap = BitmapFactory.decodeFile(filePath)
-        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), Color.BLUE)).isAtMost(
-            avgDiffTolerance
-        )
-        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), Color.YELLOW)).isAtMost(
-            avgDiffTolerance
-        )
+        assertThat(getAverageDiff(bitmap, Rect(0, 0, 320, 240), Color.BLUE))
+            .isAtMost(avgDiffTolerance)
+        assertThat(getAverageDiff(bitmap, Rect(321, 0, WIDTH, 240), Color.YELLOW))
+            .isAtMost(avgDiffTolerance)
         // Assert: Exif info is saved correctly.
         val exif = Exif.createFromFileString(filePath)
         assertThat(exif.description).isEqualTo(EXIF_DESCRIPTION)
@@ -430,23 +424,24 @@ class ProcessingNodeDeviceTest {
         val nodeIn = ProcessingNode.In.of(format, format)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
-        val jpegBytes = ExifUtil.updateExif(createJpegrBytes(640, 480)) {
-            it.description = EXIF_DESCRIPTION
-        }
-        val imageIn = createJpegrFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            jpegBytes
-        )
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            outputFileOptions,
-            CROP_RECT,
-            0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback,
-            Futures.immediateFuture(null)
-        )
+        val jpegBytes =
+            ExifUtil.updateExif(createJpegrBytes(640, 480)) { it.description = EXIF_DESCRIPTION }
+        val imageIn =
+            createJpegrFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                jpegBytes
+            )
+        val processingRequest =
+            ProcessingRequest(
+                { listOf() },
+                outputFileOptions,
+                CROP_RECT,
+                0,
+                /*jpegQuality=*/ 100,
+                SENSOR_TO_BUFFER,
+                takePictureCallback,
+                Futures.immediateFuture(null)
+            )
 
         // Act: send input to the edge and wait for the saved URI
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
@@ -488,22 +483,24 @@ class ProcessingNodeDeviceTest {
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
-        val processingRequest = ProcessingRequest(
-            { listOf() },
-            null,
-            Rect(0, 0, WIDTH, HEIGHT),
-            0,
-            /*jpegQuality=*/100,
-            SENSOR_TO_BUFFER,
-            takePictureCallback,
-            Futures.immediateFuture(null)
-        )
-        val imageIn = createJpegFakeImageProxy(
-            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
-            createA24ProblematicJpegByteArray(WIDTH, HEIGHT),
-            WIDTH,
-            HEIGHT
-        )
+        val processingRequest =
+            ProcessingRequest(
+                { listOf() },
+                null,
+                Rect(0, 0, WIDTH, HEIGHT),
+                0,
+                /*jpegQuality=*/ 100,
+                SENSOR_TO_BUFFER,
+                takePictureCallback,
+                Futures.immediateFuture(null)
+            )
+        val imageIn =
+            createJpegFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                createA24ProblematicJpegByteArray(WIDTH, HEIGHT),
+                WIDTH,
+                HEIGHT
+            )
         // Act.
         val input = ProcessingNode.InputPacket.of(processingRequest, imageIn)
         // Act and return.
@@ -512,8 +509,7 @@ class ProcessingNodeDeviceTest {
         val imageOut = takePictureCallback.getInMemoryResult()
         val restoredJpeg = jpegImageToJpegByteArray(imageOut)
 
-        assertThat(getAverageDiff(createJpegBytes(WIDTH, HEIGHT), restoredJpeg)).isAtMost(
-            avgDiffTolerance
-        )
+        assertThat(getAverageDiff(createJpegBytes(WIDTH, HEIGHT), restoredJpeg))
+            .isAtMost(avgDiffTolerance)
     }
 }

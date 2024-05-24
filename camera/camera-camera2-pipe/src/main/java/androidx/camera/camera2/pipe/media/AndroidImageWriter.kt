@@ -30,11 +30,10 @@ import androidx.camera.camera2.pipe.media.AndroidImageReader.Companion.IMAGEREAD
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
-/**
- * Implements an [ImageWriterWrapper] using an [ImageWriter].
- */
+/** Implements an [ImageWriterWrapper] using an [ImageWriter]. */
 @RequiresApi(Build.VERSION_CODES.M)
-class AndroidImageWriter private constructor(
+class AndroidImageWriter
+private constructor(
     private val imageWriter: ImageWriter,
     private val inputStreamId: InputStreamId
 ) : ImageWriterWrapper, ImageWriter.OnImageReleasedListener {
@@ -47,9 +46,7 @@ class AndroidImageWriter private constructor(
         return try {
             val unwrappedImage = image.unwrapAs(Image::class)
             if (unwrappedImage == null) {
-                Log.warn {
-                    "Failed to unwrap image wrapper $image"
-                }
+                Log.warn { "Failed to unwrap image wrapper $image" }
                 return false
             }
             imageWriter.queueInputImage(unwrappedImage)
@@ -82,10 +79,11 @@ class AndroidImageWriter private constructor(
     override fun close() = imageWriter.close()
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> unwrapAs(type: KClass<T>): T? = when (type) {
-        ImageWriter::class -> imageWriter as T?
-        else -> null
-    }
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            ImageWriter::class -> imageWriter as T?
+            else -> null
+        }
 
     override fun toString(): String {
         return "ImageWriter-${StreamFormat(imageWriter.format).name}-$inputStreamId"
@@ -126,9 +124,7 @@ class AndroidImageWriter private constructor(
                 }
 
             val androidImageWriter = AndroidImageWriter(imageWriter, inputStreamId)
-            imageWriter.setOnImageReleasedListener(
-                androidImageWriter, handler
-            )
+            imageWriter.setOnImageReleasedListener(androidImageWriter, handler)
             return androidImageWriter
         }
     }

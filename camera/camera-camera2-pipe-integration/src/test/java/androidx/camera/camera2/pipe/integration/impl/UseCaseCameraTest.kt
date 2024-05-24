@@ -55,34 +55,30 @@ class UseCaseCameraTest {
     private val surfaceToStreamMap: Map<DeferrableSurface, StreamId> = mapOf(surface to StreamId(0))
     private val useCaseThreads by lazy {
         val dispatcher = Dispatchers.Default
-        val cameraScope = CoroutineScope(
-            Job() +
-                dispatcher
-        )
+        val cameraScope = CoroutineScope(Job() + dispatcher)
 
-        UseCaseThreads(
-            cameraScope,
-            dispatcher.asExecutor(),
-            dispatcher
-        )
+        UseCaseThreads(cameraScope, dispatcher.asExecutor(), dispatcher)
     }
     private val fakeCameraProperties = FakeCameraProperties()
     private val fakeCameraGraph = FakeCameraGraph()
-    private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
-        graph = fakeCameraGraph,
-        surfaceToStreamMap = surfaceToStreamMap,
-        cameraStateAdapter = CameraStateAdapter(),
-    )
-    private val fakeUseCaseCameraState = UseCaseCameraState(
-        useCaseGraphConfig = fakeUseCaseGraphConfig,
-        threads = useCaseThreads,
-        sessionProcessorManager = null,
-    )
-    private val requestControl = UseCaseCameraRequestControlImpl(
-        capturePipeline = FakeCapturePipeline(),
-        state = fakeUseCaseCameraState,
-        useCaseGraphConfig = fakeUseCaseGraphConfig,
-    )
+    private val fakeUseCaseGraphConfig =
+        UseCaseGraphConfig(
+            graph = fakeCameraGraph,
+            surfaceToStreamMap = surfaceToStreamMap,
+            cameraStateAdapter = CameraStateAdapter(),
+        )
+    private val fakeUseCaseCameraState =
+        UseCaseCameraState(
+            useCaseGraphConfig = fakeUseCaseGraphConfig,
+            threads = useCaseThreads,
+            sessionProcessorManager = null,
+        )
+    private val requestControl =
+        UseCaseCameraRequestControlImpl(
+            capturePipeline = FakeCapturePipeline(),
+            state = fakeUseCaseCameraState,
+            useCaseGraphConfig = fakeUseCaseGraphConfig,
+        )
 
     @After
     fun tearDown() {
@@ -92,60 +88,65 @@ class UseCaseCameraTest {
     @Test
     fun setInvalidSessionConfig_repeatingShouldStop() {
         // Arrange
-        val fakeUseCase = FakeTestUseCase().apply {
-            // Set a valid SessionConfig with Surface and template.
-            setupSessionConfig(
-                SessionConfig.Builder().apply {
-                    setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
-                    addSurface(surface)
-                }
-            )
-        }
+        val fakeUseCase =
+            FakeTestUseCase().apply {
+                // Set a valid SessionConfig with Surface and template.
+                setupSessionConfig(
+                    SessionConfig.Builder().apply {
+                        setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                        addSurface(surface)
+                    }
+                )
+            }
 
         @Suppress("UNCHECKED_CAST", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-        val useCaseCamera = UseCaseCameraImpl(
-            controls = emptySet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
-            useCaseGraphConfig = fakeUseCaseGraphConfig,
-            useCases = arrayListOf(fakeUseCase),
-            useCaseSurfaceManager = UseCaseSurfaceManager(
-                useCaseThreads,
-                CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
-                NoOpInactiveSurfaceCloser,
-            ),
-            threads = useCaseThreads,
-            sessionProcessorManager = null,
-            sessionConfigAdapter = SessionConfigAdapter(listOf(fakeUseCase)),
-            requestControl = requestControl,
-        ).also {
-            it.runningUseCases = setOf(fakeUseCase)
-        }
+        val useCaseCamera =
+            UseCaseCameraImpl(
+                    controls =
+                        emptySet<UseCaseCameraControl>() as java.util.Set<UseCaseCameraControl>,
+                    useCaseGraphConfig = fakeUseCaseGraphConfig,
+                    useCases = arrayListOf(fakeUseCase),
+                    useCaseSurfaceManager =
+                        UseCaseSurfaceManager(
+                            useCaseThreads,
+                            CameraPipe(
+                                CameraPipe.Config(ApplicationProvider.getApplicationContext())
+                            ),
+                            NoOpInactiveSurfaceCloser,
+                        ),
+                    threads = useCaseThreads,
+                    sessionProcessorManager = null,
+                    sessionConfigAdapter = SessionConfigAdapter(listOf(fakeUseCase)),
+                    requestControl = requestControl,
+                )
+                .also { it.runningUseCases = setOf(fakeUseCase) }
         assumeTrue(
             fakeCameraGraph.fakeCameraGraphSession.repeatingRequestSemaphore.tryAcquire(
-                1, 3, TimeUnit.SECONDS
+                1,
+                3,
+                TimeUnit.SECONDS
             )
         )
 
         // Act. Set an invalid SessionConfig which doesn't have the template.
-        fakeUseCase.setupSessionConfig(
-            SessionConfig.Builder().apply {
-                addSurface(surface)
-            }
-        )
+        fakeUseCase.setupSessionConfig(SessionConfig.Builder().apply { addSurface(surface) })
 
         useCaseCamera.runningUseCases = setOf(fakeUseCase)
 
         // Assert. The stopRepeating() should be called.
         assertThat(
-            fakeCameraGraph.fakeCameraGraphSession.stopRepeatingSemaphore.tryAcquire(
-                1, 3, TimeUnit.SECONDS
+                fakeCameraGraph.fakeCameraGraphSession.stopRepeatingSemaphore.tryAcquire(
+                    1,
+                    3,
+                    TimeUnit.SECONDS
+                )
             )
-        ).isTrue()
+            .isTrue()
     }
 }
 
-private class FakeTestUseCase : FakeUseCase(
-    FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig
-) {
+private class FakeTestUseCase :
+    FakeUseCase(FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig) {
 
     fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
         updateSessionConfig(sessionConfigBuilder.build())

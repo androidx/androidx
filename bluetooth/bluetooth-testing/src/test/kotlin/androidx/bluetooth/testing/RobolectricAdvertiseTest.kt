@@ -53,36 +53,33 @@ class RobolectricAdvertiseTest {
 
     @Test
     fun advertiseSuccess() = runTest {
-        assumeTrue("Can only run on API Level 23 or newer because of reasons",
+        assumeTrue(
+            "Can only run on API Level 23 or newer because of reasons",
             Build.VERSION.SDK_INT < 26
         )
         val params = AdvertiseParams()
 
         launch {
-            val result = bluetoothLe.advertise(params)
-                .first()
+            val result = bluetoothLe.advertise(params).first()
 
             assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
         }
     }
 
     /**
-     * Tests if [BluetoothLe.advertise] returns error when data is larger than
-     * the legacy advertise limit (31 bytes)
+     * Tests if [BluetoothLe.advertise] returns error when data is larger than the legacy advertise
+     * limit (31 bytes)
      */
     @Test
     fun advertiseTooLargeData() = runTest {
         val parcelUuid = UUID.randomUUID()
         val serviceData = "sampleAdvertiseDataTooLargeToAdvertise".toByteArray(Charsets.UTF_8)
 
-        val advertiseParams = AdvertiseParams(
-            serviceData = mapOf(parcelUuid to serviceData)
-        )
+        val advertiseParams = AdvertiseParams(serviceData = mapOf(parcelUuid to serviceData))
 
         launch {
             try {
-                val result = bluetoothLe.advertise(advertiseParams)
-                    .first()
+                val result = bluetoothLe.advertise(advertiseParams).first()
 
                 if (Build.VERSION.SDK_INT >= 26) {
                     assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
@@ -99,7 +96,5 @@ class RobolectricAdvertiseTest {
 class AdvertiseImplForTesting : AdvertiseImpl {
     override fun advertise(
         advertiseParams: AdvertiseParams,
-    ): Flow<@BluetoothLe.AdvertiseResult Int> = flowOf(
-        BluetoothLe.ADVERTISE_STARTED
-    )
+    ): Flow<@BluetoothLe.AdvertiseResult Int> = flowOf(BluetoothLe.ADVERTISE_STARTED)
 }

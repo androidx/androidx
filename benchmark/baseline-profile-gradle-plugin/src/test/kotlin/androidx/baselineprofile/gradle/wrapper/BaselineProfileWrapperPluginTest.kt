@@ -50,7 +50,8 @@ class BaselineProfileWrapperPluginTest(agpVersion: TestAgpVersion) {
                 dependencies { baselineProfile(project(":${projectSetup.producer.name}")) }
 
                 $taskPrintPlugins
-            """.trimIndent()
+            """
+                .trimIndent()
         )
         projectSetup.producer.setBuildGradle(
             """
@@ -64,7 +65,8 @@ class BaselineProfileWrapperPluginTest(agpVersion: TestAgpVersion) {
                 }
 
                 $taskPrintPlugins
-            """.trimIndent()
+            """
+                .trimIndent()
         )
 
         projectSetup.consumer.printPluginsAndAssertOutput {
@@ -87,7 +89,8 @@ class BaselineProfileWrapperPluginTest(agpVersion: TestAgpVersion) {
                 android { namespace 'com.example.namespace.test' }
 
                 $taskPrintPlugins
-            """.trimIndent()
+            """
+                .trimIndent()
         )
         projectSetup.consumer.setBuildGradle(
             """
@@ -99,7 +102,8 @@ class BaselineProfileWrapperPluginTest(agpVersion: TestAgpVersion) {
                 dependencies { baselineProfile(project(":${projectSetup.producer.name}")) }
 
                 $taskPrintPlugins
-            """.trimIndent()
+            """
+                .trimIndent()
         )
         projectSetup.producer.setBuildGradle(
             """
@@ -113,7 +117,8 @@ class BaselineProfileWrapperPluginTest(agpVersion: TestAgpVersion) {
                 }
 
                 $taskPrintPlugins
-            """.trimIndent()
+            """
+                .trimIndent()
         )
 
         projectSetup.appTarget.printPluginsAndAssertOutput {
@@ -128,9 +133,7 @@ class BaselineProfileWrapperPluginTest(agpVersion: TestAgpVersion) {
         }
     }
 
-    private fun Module.printPluginsAndAssertOutput(
-        assertBlock: IterableSubject.() -> (Unit)
-    ) {
+    private fun Module.printPluginsAndAssertOutput(assertBlock: IterableSubject.() -> (Unit)) {
         val output =
             gradleRunner.withArguments("printPlugins", "--stacktrace").build().output.lines()
         assertBlock(assertThat(output))
@@ -144,9 +147,11 @@ private const val CLASS_APP_TARGET_PLUGIN =
 private const val CLASS_PRODUCER_PLUGIN =
     "androidx.baselineprofile.gradle.producer.BaselineProfileProducerPlugin"
 
-private val taskPrintPlugins = """
+private val taskPrintPlugins =
+    """
 tasks.register("printPlugins", PrintTask) { t ->
     def pluginsList = project.plugins.collect { it.class.toString() }.join("\n")
     t.text.set(pluginsList)
 }
-""".trimIndent()
+"""
+        .trimIndent()

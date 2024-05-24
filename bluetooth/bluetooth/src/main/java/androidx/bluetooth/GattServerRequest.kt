@@ -42,7 +42,8 @@ open class GattServerRequest private constructor() {
      *
      * @property characteristic a characteristic to read
      */
-    class ReadCharacteristic internal constructor(
+    class ReadCharacteristic
+    internal constructor(
         private val session: GattServer.Session,
         private val requestId: Int,
         private val offset: Int,
@@ -55,21 +56,17 @@ open class GattServerRequest private constructor() {
          */
         fun sendResponse(value: ByteArray) {
             handleRequest {
-                val resValue: ByteArray = if (offset == 0) value
-                else if (value.size > offset) value.copyOfRange(offset, value.size - 1)
-                else if (value.size == offset) byteArrayOf()
-                else byteArrayOf()
+                val resValue: ByteArray =
+                    if (offset == 0) value
+                    else if (value.size > offset) value.copyOfRange(offset, value.size - 1)
+                    else if (value.size == offset) byteArrayOf() else byteArrayOf()
                 session.sendResponse(requestId, GATT_SUCCESS, offset, resValue)
             }
         }
 
-        /**
-         * Notifies the failure for the read request.
-         */
+        /** Notifies the failure for the read request. */
         fun sendFailure() {
-            handleRequest {
-                session.sendResponse(requestId, GATT_READ_NOT_PERMITTED, offset, null)
-            }
+            handleRequest { session.sendResponse(requestId, GATT_READ_NOT_PERMITTED, offset, null) }
         }
     }
 
@@ -80,44 +77,39 @@ open class GattServerRequest private constructor() {
      *
      * @property parts a list of write request parts
      */
-    class WriteCharacteristics internal constructor(
+    class WriteCharacteristics
+    internal constructor(
         private val session: GattServer.Session,
         private val requestId: Int,
         val parts: List<Part>
     ) : GattServerRequest() {
-        /**
-         * Notifies the success of the write request.
-         */
+        /** Notifies the success of the write request. */
         fun sendResponse() {
-            handleRequest {
-                session.sendResponse(requestId, GATT_SUCCESS, 0, null)
-            }
+            handleRequest { session.sendResponse(requestId, GATT_SUCCESS, 0, null) }
         }
 
-        /**
-         * Notifies the failure of the write request.
-         */
+        /** Notifies the failure of the write request. */
         fun sendFailure() {
-            handleRequest {
-                session.sendResponse(requestId, GATT_WRITE_NOT_PERMITTED, 0, null)
-            }
+            handleRequest { session.sendResponse(requestId, GATT_WRITE_NOT_PERMITTED, 0, null) }
         }
 
         /**
          * A part of write requests.
          *
-         * It represents a partial write request such that
-         * [value] is to be written to a part of [characteristic] based on [offset].
+         * It represents a partial write request such that [value] is to be written to a part of
+         * [characteristic] based on [offset].
+         *
          * <p>
-         * For example, if the [offset] is 2, the first byte of [value] should be written to
-         * the third byte of the [characteristic], and the second byte of [value] should be
-         * written to the fourth byte of the [characteristic] and so on.
+         * For example, if the [offset] is 2, the first byte of [value] should be written to the
+         * third byte of the [characteristic], and the second byte of [value] should be written to
+         * the fourth byte of the [characteristic] and so on.
          *
          * @property characteristic a characteristic to write
          * @property offset an offset of the first octet to be written
          * @property value a value to be written
          */
-        class Part internal constructor(
+        class Part
+        internal constructor(
             val characteristic: GattCharacteristic,
             val offset: Int,
             val value: ByteArray

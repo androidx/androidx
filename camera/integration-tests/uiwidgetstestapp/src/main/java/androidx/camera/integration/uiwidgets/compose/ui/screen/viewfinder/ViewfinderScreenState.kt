@@ -42,18 +42,15 @@ import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
-@VisibleForTesting
-internal const val DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_FRONT
+@VisibleForTesting internal const val DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_FRONT
 
 /**
  * State Holder for ViewfinderScreen
  *
- * This State Holder supports the Preview Use Case
- * It provides the states and implementations used in the ViewfinderScreen
+ * This State Holder supports the Preview Use Case It provides the states and implementations used
+ * in the ViewfinderScreen
  */
-class ViewfinderScreenState(
-    initialLensFacing: Int = DEFAULT_LENS_FACING
-) {
+class ViewfinderScreenState(initialLensFacing: Int = DEFAULT_LENS_FACING) {
     var lensFacing by mutableIntStateOf(initialLensFacing)
         private set
 
@@ -105,11 +102,12 @@ class ViewfinderScreenState(
 
     fun toggleLensFacing() {
         Log.d(TAG, "Toggling Lens")
-        lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) {
-            CameraSelector.LENS_FACING_FRONT
-        } else {
-            CameraSelector.LENS_FACING_BACK
-        }
+        lensFacing =
+            if (lensFacing == CameraSelector.LENS_FACING_BACK) {
+                CameraSelector.LENS_FACING_FRONT
+            } else {
+                CameraSelector.LENS_FACING_BACK
+            }
     }
 
     fun startTapToFocus(meteringPoint: MeteringPoint) {
@@ -122,39 +120,40 @@ class ViewfinderScreenState(
 
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
+        cameraProviderFuture.addListener(
+            {
+                val cameraProvider = cameraProviderFuture.get()
 
-            val cameraSelector = CameraSelector
-                .Builder()
-                .requireLensFacing(lensFacing)
-                .build()
+                val cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
-            // Remove observers from the old camera instance
-            removeZoomStateObservers(lifecycleOwner)
+                // Remove observers from the old camera instance
+                removeZoomStateObservers(lifecycleOwner)
 
-            // Reset internal State of Camera
-            camera = null
-            hasFlashUnit = false
-            isCameraReady = false
+                // Reset internal State of Camera
+                camera = null
+                hasFlashUnit = false
+                isCameraReady = false
 
-            try {
-                cameraProvider.unbindAll()
-                val camera = cameraProvider.bindToLifecycle(
-                    lifecycleOwner,
-                    cameraSelector,
-                    preview,
-                )
+                try {
+                    cameraProvider.unbindAll()
+                    val camera =
+                        cameraProvider.bindToLifecycle(
+                            lifecycleOwner,
+                            cameraSelector,
+                            preview,
+                        )
 
-                // Setup components that require Camera
-                this.camera = camera
-                setupZoomStateObserver(lifecycleOwner)
-                hasFlashUnit = camera.cameraInfo.hasFlashUnit()
-                isCameraReady = true
-            } catch (exc: Exception) {
-                Log.e(TAG, "Use Cases binding failed", exc)
-            }
-        }, ContextCompat.getMainExecutor(context))
+                    // Setup components that require Camera
+                    this.camera = camera
+                    setupZoomStateObserver(lifecycleOwner)
+                    hasFlashUnit = camera.cameraInfo.hasFlashUnit()
+                    isCameraReady = true
+                } catch (exc: Exception) {
+                    Log.e(TAG, "Use Cases binding failed", exc)
+                }
+            },
+            ContextCompat.getMainExecutor(context)
+        )
     }
 
     private fun setupZoomStateObserver(lifecycleOwner: LifecycleOwner) {
@@ -185,16 +184,11 @@ class ViewfinderScreenState(
 
     companion object {
         private const val TAG = "ViewfinderScreenState"
-        val saver: Saver<ViewfinderScreenState, *> = listSaver(
-            save = {
-                listOf(it.lensFacing)
-            },
-            restore = {
-                ViewfinderScreenState(
-                    initialLensFacing = it[0]
-                )
-            }
-        )
+        val saver: Saver<ViewfinderScreenState, *> =
+            listSaver(
+                save = { listOf(it.lensFacing) },
+                restore = { ViewfinderScreenState(initialLensFacing = it[0]) }
+            )
     }
 }
 
@@ -202,10 +196,7 @@ class ViewfinderScreenState(
 fun rememberViewfinderScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING
 ): ViewfinderScreenState {
-    return rememberSaveable(
-        initialLensFacing,
-        saver = ViewfinderScreenState.saver
-    ) {
+    return rememberSaveable(initialLensFacing, saver = ViewfinderScreenState.saver) {
         ViewfinderScreenState(
             initialLensFacing = initialLensFacing,
         )

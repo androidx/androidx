@@ -39,18 +39,24 @@ class FakeBufferProvider(
     override fun acquireBuffer(): ListenableFuture<FakeInputBuffer> {
         return if (state == BufferProvider.State.ACTIVE) {
             val bufferFuture = bufferFactory.invoke(acquiredBufferNum++)
-            bufferFuture.addListener({
-                try {
-                    val inputBuffer = bufferFuture.get()
-                    inputBuffer.terminationFuture.addListener({
-                        if (inputBuffer.isSubmitted) {
-                            submittedBufferCalls.accept(inputBuffer)
-                        }
-                    }, directExecutor())
-                } catch (e: ExecutionException) {
-                    // Ignored.
-                }
-            }, directExecutor())
+            bufferFuture.addListener(
+                {
+                    try {
+                        val inputBuffer = bufferFuture.get()
+                        inputBuffer.terminationFuture.addListener(
+                            {
+                                if (inputBuffer.isSubmitted) {
+                                    submittedBufferCalls.accept(inputBuffer)
+                                }
+                            },
+                            directExecutor()
+                        )
+                    } catch (e: ExecutionException) {
+                        // Ignored.
+                    }
+                },
+                directExecutor()
+            )
             return bufferFuture
         } else {
             immediateFailedFuture(IllegalStateException("Not in ACTIVE state"))
@@ -78,13 +84,14 @@ class FakeBufferProvider(
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
         inOder: Boolean = false,
         onCompleteBuffers: ((List<FakeInputBuffer>) -> Unit)? = null,
-    ) = submittedBufferCalls.verifyAcceptCallExt(
-        FakeInputBuffer::class.java,
-        inOder,
-        timeoutMs,
-        callTimes,
-        onCompleteBuffers,
-    )
+    ) =
+        submittedBufferCalls.verifyAcceptCallExt(
+            FakeInputBuffer::class.java,
+            inOder,
+            timeoutMs,
+            callTimes,
+            onCompleteBuffers,
+        )
 
     fun setState(newState: BufferProvider.State) {
         if (state == newState) {

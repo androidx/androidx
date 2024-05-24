@@ -47,10 +47,11 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 
     // Don't use CameraUtil.grantCameraPermissionAndPreTest. This test verifies the CameraX
@@ -59,8 +60,7 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
-    @get:Rule
-    val labTest: LabTestRule = LabTestRule()
+    @get:Rule val labTest: LabTestRule = LabTestRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private val packageManager = context.packageManager

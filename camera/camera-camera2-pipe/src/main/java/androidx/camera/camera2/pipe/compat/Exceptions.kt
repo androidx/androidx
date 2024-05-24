@@ -68,7 +68,6 @@ internal inline fun <T> catchAndReportCameraExceptions(
                 )
                 return null
             }
-
             else -> throw e
         }
     }

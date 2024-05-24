@@ -19,9 +19,7 @@ package androidx.camera.integration.view
 import android.annotation.SuppressLint
 import androidx.camera.core.CameraEffect
 
-/**
- * A tone mapping effect for Preview/VideoCapture UseCase.
- */
+/** A tone mapping effect for Preview/VideoCapture UseCase. */
 @SuppressLint("RestrictedApiAndroidX")
 internal class ToneMappingSurfaceEffect(
     targets: Int = PREVIEW or VIDEO_CAPTURE,

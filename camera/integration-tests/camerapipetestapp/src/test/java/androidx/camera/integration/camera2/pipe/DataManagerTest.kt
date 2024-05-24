@@ -53,13 +53,7 @@ class DataManagerTest {
     @Test
     fun updateGraphDataHolder_keyDoesNotExistInGraphDataHolders() {
         val dataManager = DataManager(VisualizationDefaults)
-        val dataPoint =
-            GraphDataPoint(
-                10,
-                10,
-                10,
-                9
-            )
+        val dataPoint = GraphDataPoint(10, 10, 10, 9)
 
         dataManager.initializeDataHolders()
         dataManager.updateGraphDataHolder(LENS_FOCUS_DISTANCE, dataPoint)
@@ -74,13 +68,7 @@ class DataManagerTest {
     @Test(expected = IllegalArgumentException::class)
     fun updateGraphDataHolder_addGraphDataPoint() {
         val dataManager = DataManager(VisualizationDefaults)
-        val dataPoint =
-            GraphDataPoint(
-                10,
-                10,
-                10,
-                9
-            )
+        val dataPoint = GraphDataPoint(10, 10, 10, 9)
 
         dataManager.initializeDataHolders()
         dataManager.updateGraphDataHolder(SCALAR_CROP_REGION, dataPoint)

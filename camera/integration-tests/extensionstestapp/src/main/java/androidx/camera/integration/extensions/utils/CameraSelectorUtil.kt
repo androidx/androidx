@@ -32,15 +32,19 @@ object CameraSelectorUtil {
     @JvmStatic
     @SuppressLint("RestrictedApiAndroidX")
     fun createCameraSelectorById(cameraId: String) =
-        CameraSelector.Builder().addCameraFilter(CameraFilter { cameraInfos ->
-            cameraInfos.forEach {
-                if ((it as CameraInfoInternal).cameraId.equals(cameraId)) {
-                    return@CameraFilter listOf<CameraInfo>(it)
-                }
-            }
+        CameraSelector.Builder()
+            .addCameraFilter(
+                CameraFilter { cameraInfos ->
+                    cameraInfos.forEach {
+                        if ((it as CameraInfoInternal).cameraId.equals(cameraId)) {
+                            return@CameraFilter listOf<CameraInfo>(it)
+                        }
+                    }
 
-            return@CameraFilter emptyList()
-        }).build()
+                    return@CameraFilter emptyList()
+                }
+            )
+            .build()
 
     @JvmStatic
     fun findNextSupportedCameraId(
@@ -51,12 +55,13 @@ object CameraSelectorUtil {
     ): String? {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
-            val supportedCameraIdList = cameraManager.cameraIdList.filter {
-                extensionsManager.isExtensionAvailable(
-                    createCameraSelectorById(it),
-                    extensionsMode
-                )
-            }
+            val supportedCameraIdList =
+                cameraManager.cameraIdList.filter {
+                    extensionsManager.isExtensionAvailable(
+                        createCameraSelectorById(it),
+                        extensionsMode
+                    )
+                }
 
             if (supportedCameraIdList.size == 1) {
                 return null
@@ -67,8 +72,7 @@ object CameraSelectorUtil {
                     return supportedCameraIdList[(index + 1) % supportedCameraIdList.size]
                 }
             }
-        } catch (e: CameraAccessException) {
-        }
+        } catch (e: CameraAccessException) {}
         return null
     }
 }

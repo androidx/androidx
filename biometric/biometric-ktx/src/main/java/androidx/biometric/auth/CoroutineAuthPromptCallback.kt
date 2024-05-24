@@ -21,9 +21,7 @@ import androidx.fragment.app.FragmentActivity
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
 
-/**
- * Implementation of [AuthPromptCallback] used to transform callback results for coroutine APIs.
- */
+/** Implementation of [AuthPromptCallback] used to transform callback results for coroutine APIs. */
 internal class CoroutineAuthPromptCallback(
     private val continuation: CancellableContinuation<AuthenticationResult>
 ) : AuthPromptCallback() {

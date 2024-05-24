@@ -45,8 +45,7 @@ class BiometricPromptEnrolledTest {
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule(BiometricPromptTestActivity::class.java)
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     private lateinit var context: Context
     private lateinit var device: UiDevice
@@ -72,9 +71,8 @@ class BiometricPromptEnrolledTest {
     fun testBiometricOnlyAuth_SendsError_WhenBackPressed() {
         onView(withId(R.id.authenticate_button)).perform(click())
         device.pressBack()
-        onView(withId(R.id.log_text_view)).check(
-            matches(withText(containsString("onAuthenticationError")))
-        )
+        onView(withId(R.id.log_text_view))
+            .check(matches(withText(containsString("onAuthenticationError"))))
     }
 
     @Test
@@ -88,9 +86,8 @@ class BiometricPromptEnrolledTest {
         onView(withId(R.id.authenticate_button)).perform(click())
         changeOrientation(activityRule.activity, device, landscape = true)
         device.pressBack()
-        onView(withId(R.id.log_text_view)).check(
-            matches(withText(containsString("onAuthenticationError")))
-        )
+        onView(withId(R.id.log_text_view))
+            .check(matches(withText(containsString("onAuthenticationError"))))
     }
 
     @Test
@@ -107,9 +104,8 @@ class BiometricPromptEnrolledTest {
             changeOrientation(activityRule.activity, device, landscape = false)
         }
         device.pressBack()
-        onView(withId(R.id.log_text_view)).check(
-            matches(withText(containsString("onAuthenticationError")))
-        )
+        onView(withId(R.id.log_text_view))
+            .check(matches(withText(containsString("onAuthenticationError"))))
     }
 
     @Test
@@ -123,9 +119,8 @@ class BiometricPromptEnrolledTest {
         onView(withId(R.id.cancel_config_change_checkbox)).perform(click())
         onView(withId(R.id.authenticate_button)).perform(click())
         changeOrientation(activityRule.activity, device, landscape = true)
-        onView(withId(R.id.log_text_view)).check(
-            matches(withText(containsString("onAuthenticationError")))
-        )
+        onView(withId(R.id.log_text_view))
+            .check(matches(withText(containsString("onAuthenticationError"))))
     }
 
     @Test
@@ -142,9 +137,8 @@ class BiometricPromptEnrolledTest {
         onView(withId(R.id.authenticate_button)).perform(click())
         navigateToHomeScreen(device)
         bringToForeground(activityRule.activity)
-        onView(withId(R.id.log_text_view)).check(
-            matches(withText(containsString("onAuthenticationError")))
-        )
+        onView(withId(R.id.log_text_view))
+            .check(matches(withText(containsString("onAuthenticationError"))))
     }
 
     @Test

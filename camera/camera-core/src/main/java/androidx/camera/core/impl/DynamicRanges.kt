@@ -18,43 +18,38 @@ package androidx.camera.core.impl
 import androidx.camera.core.DynamicRange
 import androidx.core.util.Preconditions
 
-/**
- * Utility methods for handling dynamic range.
- */
+/** Utility methods for handling dynamic range. */
 object DynamicRanges {
 
     /**
-     * Returns `true` if the test dynamic range can resolve to the fully specified dynamic
-     * range set.
+     * Returns `true` if the test dynamic range can resolve to the fully specified dynamic range
+     * set.
      *
-     * A range can resolve if test fields are unspecified and appropriately match the fields
-     * of the fully specified dynamic range, or the test fields exactly match the fields of
-     * the fully specified dynamic range.
+     * A range can resolve if test fields are unspecified and appropriately match the fields of the
+     * fully specified dynamic range, or the test fields exactly match the fields of the fully
+     * specified dynamic range.
      */
     @JvmStatic
     fun canResolve(
         dynamicRangeToTest: DynamicRange,
         fullySpecifiedDynamicRanges: Set<DynamicRange>,
-
     ): Boolean {
         return if (dynamicRangeToTest.isFullySpecified) {
             fullySpecifiedDynamicRanges.contains(dynamicRangeToTest)
         } else {
             fullySpecifiedDynamicRanges.firstOrNull { fullySpecifiedDynamicRange ->
-                canResolveUnderSpecifiedTo(
-                    dynamicRangeToTest,
-                    fullySpecifiedDynamicRange
-                )
+                canResolveUnderSpecifiedTo(dynamicRangeToTest, fullySpecifiedDynamicRange)
             } != null
         }
     }
+
     /**
      * Returns a set of all possible matches from a set of dynamic ranges that may contain
      * under-specified dynamic ranges to a set that contains only fully-specified dynamic ranges.
      *
      * A dynamic range can resolve if test fields are unspecified and appropriately match the fields
-     * of the fully specified dynamic range, or the test fields exactly match the fields of
-     * the fully specified dynamic range.
+     * of the fully specified dynamic range, or the test fields exactly match the fields of the
+     * fully specified dynamic range.
      */
     @JvmStatic
     fun findAllPossibleMatches(
@@ -63,7 +58,8 @@ object DynamicRanges {
     ): Set<DynamicRange> {
         if (dynamicRangesToTest.isEmpty()) {
             throw IllegalArgumentException(
-                "Candidate dynamic range set must contain at least 1 candidate dynamic range.")
+                "Candidate dynamic range set must contain at least 1 candidate dynamic range."
+            )
         }
         return buildSet {
             dynamicRangesToTest.forEach {
@@ -90,7 +86,7 @@ object DynamicRanges {
         fullySpecifiedDynamicRange: DynamicRange
     ): Boolean {
         return canMatchBitDepth(underSpecifiedDynamicRange, fullySpecifiedDynamicRange) &&
-               canMatchEncoding(underSpecifiedDynamicRange, fullySpecifiedDynamicRange)
+            canMatchEncoding(underSpecifiedDynamicRange, fullySpecifiedDynamicRange)
     }
 
     private fun canMatchBitDepth(
@@ -98,8 +94,8 @@ object DynamicRanges {
         fullySpecifiedDynamicRange: DynamicRange
     ): Boolean {
         Preconditions.checkState(
-            fullySpecifiedDynamicRange.isFullySpecified, "Fully specified " +
-                "range is not actually fully specified."
+            fullySpecifiedDynamicRange.isFullySpecified,
+            "Fully specified " + "range is not actually fully specified."
         )
         return if (dynamicRangeToTest.bitDepth == DynamicRange.BIT_DEPTH_UNSPECIFIED) {
             true
@@ -113,16 +109,18 @@ object DynamicRanges {
         fullySpecifiedDynamicRange: DynamicRange
     ): Boolean {
         Preconditions.checkState(
-            fullySpecifiedDynamicRange.isFullySpecified, "Fully specified " +
-                "range is not actually fully specified."
+            fullySpecifiedDynamicRange.isFullySpecified,
+            "Fully specified " + "range is not actually fully specified."
         )
         val encodingToTest = dynamicRangeToTest.encoding
         if (encodingToTest == DynamicRange.ENCODING_UNSPECIFIED) {
             return true
         }
         val fullySpecifiedEncoding = fullySpecifiedDynamicRange.encoding
-        return if (encodingToTest == DynamicRange.ENCODING_HDR_UNSPECIFIED &&
-            fullySpecifiedEncoding != DynamicRange.ENCODING_SDR) {
+        return if (
+            encodingToTest == DynamicRange.ENCODING_HDR_UNSPECIFIED &&
+                fullySpecifiedEncoding != DynamicRange.ENCODING_SDR
+        ) {
             true
         } else {
             encodingToTest == fullySpecifiedEncoding

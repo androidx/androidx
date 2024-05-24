@@ -56,24 +56,20 @@ interface ZslControl {
      *
      * @param surface The deferrable Surface to check.
      * @param sessionConfig The session configuration where its input configuration will be used to
-     * determine whether the deferrable Surface belongs to ZSL.
+     *   determine whether the deferrable Surface belongs to ZSL.
      */
     fun isZslSurface(surface: DeferrableSurface, sessionConfig: SessionConfig): Boolean
 
     /**
      * Sets the flag if zero-shutter lag needs to be disabled by user case config.
      *
-     *
-     *  Zero-shutter lag will be disabled when any of the following conditions:
-     *
-     *  *  Extension is ON
-     *  *  VideoCapture is ON
-     *
+     * Zero-shutter lag will be disabled when any of the following conditions:
+     * * Extension is ON
+     * * VideoCapture is ON
      *
      * @param disabled True if zero-shutter lag should be disabled. Otherwise, should not be
-     * disabled. However, enabling zero-shutter lag needs other conditions e.g.
-     * flash mode OFF, so setting to false doesn't guarantee zero-shutter lag to
-     * be always ON.
+     *   disabled. However, enabling zero-shutter lag needs other conditions e.g. flash mode OFF, so
+     *   setting to false doesn't guarantee zero-shutter lag to be always ON.
      */
     fun setZslDisabledByUserCaseConfig(disabled: Boolean)
 
@@ -87,13 +83,12 @@ interface ZslControl {
     /**
      * Sets the flag if zero-shutter lag needs to be disabled by flash mode.
      *
-     *
-     *  Zero-shutter lag will be disabled when flash mode is not OFF.
+     * Zero-shutter lag will be disabled when flash mode is not OFF.
      *
      * @param disabled True if zero-shutter lag should be disabled. Otherwise, should not be
-     * disabled. However, enabling zero-shutter lag needs other conditions e.g.
-     * Extension is OFF and VideoCapture is OFF, so setting to false doesn't
-     * guarantee zero-shutter lag to be always ON.
+     *   disabled. However, enabling zero-shutter lag needs other conditions e.g. Extension is OFF
+     *   and VideoCapture is OFF, so setting to false doesn't guarantee zero-shutter lag to be
+     *   always ON.
      */
     fun setZslDisabledByFlashMode(disabled: Boolean)
 
@@ -114,9 +109,8 @@ interface ZslControl {
 
 @RequiresApi(Build.VERSION_CODES.M)
 @CameraScope
-class ZslControlImpl @Inject constructor(
-    private val cameraProperties: CameraProperties
-) : ZslControl {
+class ZslControlImpl @Inject constructor(private val cameraProperties: CameraProperties) :
+    ZslControl {
     private val cameraMetadata = cameraProperties.metadata
     private val streamConfigurationMap: StreamConfigurationMap by lazy {
         checkNotNull(cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP])
@@ -130,8 +124,7 @@ class ZslControlImpl @Inject constructor(
     private var isZslDisabledByFlashMode = false
     private var isZslDisabledByQuirks = DeviceQuirks[ZslDisablerQuirk::class.java] != null
 
-    @VisibleForTesting
-    internal var reprocessingImageReader: SafeCloseImageReaderProxy? = null
+    @VisibleForTesting internal var reprocessingImageReader: SafeCloseImageReaderProxy? = null
     private var metadataMatchingCaptureCallback: CameraCaptureCallback? = null
     private var reprocessingImageDeferrableSurface: DeferrableSurface? = null
 
@@ -169,12 +162,7 @@ class ZslControlImpl @Inject constructor(
             return
         }
 
-        val metadataImageReader = MetadataImageReader(
-            size.width,
-            size.height,
-            FORMAT,
-            MAX_IMAGES
-        )
+        val metadataImageReader = MetadataImageReader(size.width, size.height, FORMAT, MAX_IMAGES)
         val metadataCaptureCallback = metadataImageReader.cameraCaptureCallback
         val reprocImageReader = SafeCloseImageReaderProxy(metadataImageReader)
         metadataImageReader.setOnImageAvailableListener(
@@ -187,15 +175,17 @@ class ZslControlImpl @Inject constructor(
                 } catch (e: IllegalStateException) {
                     Log.error { "Failed to acquire latest image" }
                 }
-            }, CameraXExecutors.ioExecutor()
+            },
+            CameraXExecutors.ioExecutor()
         )
 
         // Init the reprocessing image reader surface and add into the target surfaces of capture
-        val reprocDeferrableSurface = ImmediateSurface(
-            checkNotNull(reprocImageReader.surface),
-            Size(reprocImageReader.width, reprocImageReader.height),
-            FORMAT
-        )
+        val reprocDeferrableSurface =
+            ImmediateSurface(
+                checkNotNull(reprocImageReader.surface),
+                Size(reprocImageReader.width, reprocImageReader.height),
+                FORMAT
+            )
 
         reprocDeferrableSurface.terminationFuture.addListener(
             { reprocImageReader.safeClose() },
@@ -280,30 +270,23 @@ class ZslControlImpl @Inject constructor(
         // performance, we will use private only for zsl.
         private const val FORMAT = ImageFormat.PRIVATE
 
-        @VisibleForTesting
-        internal const val RING_BUFFER_CAPACITY = 3
+        @VisibleForTesting internal const val RING_BUFFER_CAPACITY = 3
 
-        @VisibleForTesting
-        internal const val MAX_IMAGES = RING_BUFFER_CAPACITY * 3
+        @VisibleForTesting internal const val MAX_IMAGES = RING_BUFFER_CAPACITY * 3
     }
 }
 
-/**
- * No-Op implementation for [ZslControl].
- */
+/** No-Op implementation for [ZslControl]. */
 class ZslControlNoOpImpl @Inject constructor() : ZslControl {
-    override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
-    }
+    override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {}
 
     override fun isZslSurface(surface: DeferrableSurface, sessionConfig: SessionConfig) = false
 
-    override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {
-    }
+    override fun setZslDisabledByUserCaseConfig(disabled: Boolean) {}
 
     override fun isZslDisabledByUserCaseConfig() = false
 
-    override fun setZslDisabledByFlashMode(disabled: Boolean) {
-    }
+    override fun setZslDisabledByFlashMode(disabled: Boolean) {}
 
     override fun isZslDisabledByFlashMode() = false
 

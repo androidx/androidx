@@ -27,9 +27,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [ForwardingLiveData]
- */
+/** Unit tests for [ForwardingLiveData] */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -71,9 +69,7 @@ public class ForwardingLiveDataTest {
         forwardingLiveData.setSource(sourceLiveData)
 
         var observedValue: Any? = null
-        forwardingLiveData.observeForever {
-            observedValue = it
-        }
+        forwardingLiveData.observeForever { observedValue = it }
 
         // Act.
         val updatedValue = Any()

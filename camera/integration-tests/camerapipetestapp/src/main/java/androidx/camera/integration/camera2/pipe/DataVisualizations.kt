@@ -52,18 +52,16 @@ class DataVisualizations(activity: Activity) {
         dataManager.initializeDataHolders()
 
         // Initialize the listener of new data
-        dataListener = DataListener(
-            dataManager,
-            DataTransformationsKeyValue,
-            DataTransformations1D,
-            beginTimeNanos
-        )
+        dataListener =
+            DataListener(
+                dataManager,
+                DataTransformationsKeyValue,
+                DataTransformations1D,
+                beginTimeNanos
+            )
 
         // Initialize the data generator and start generating data, noting the begin timestamp
-        dataGenerator = DataGenerator(
-            dataListener,
-            VisualizationDefaults
-        )
+        dataGenerator = DataGenerator(dataListener, VisualizationDefaults)
         dataGenerator.beginTimeNanos = beginTimeNanos
 
         // Set up the views powered by data holders, and plug in the data holders
@@ -72,15 +70,14 @@ class DataVisualizations(activity: Activity) {
 
     fun start() {
         // TODO(codelogic): Attach and start the data visualizer.
-//        dataGenerator.runDataGenerators()
+        //        dataGenerator.runDataGenerators()
     }
 
     fun stop() {
         // TODO(codelogic): Unregister and clear visualizations
     }
 
-    fun close() {
-    }
+    fun close() {}
 
     /** Sets up all the different types of visualizations */
     private fun setUpVisualizations() {
@@ -97,26 +94,18 @@ class DataVisualizations(activity: Activity) {
         keyValeDataHolders.forEach loop@{
             if (graphDataHolders.containsKey(it.key)) return@loop
             val dataHolder = it.value
-            val keyValueView =
-                KeyValueView(
-                    context,
-                    dataHolder,
-                    paints
-                )
+            val keyValueView = KeyValueView(context, dataHolder, paints)
 
             val keyValueLayout = View.inflate(context, R.layout.key_value_layout, null)
             keyValueLayout.findViewById<TextView>(R.id.key_name).text =
                 context.getString(R.string.data_key_name, it.key.name)
 
-            val keyValueViewParams = RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams
-                    .MATCH_PARENT,
-                heightPixels
-            )
+            val keyValueViewParams =
+                RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, heightPixels)
             keyValueView.layoutParams = keyValueViewParams
 
             keyValueLayout.findViewById<RelativeLayout>(R.id.value_layout).addView(keyValueView)
-//            kotlinx.android.synthetic.main.activity_main. .addView(keyValueLayout)
+            //            kotlinx.android.synthetic.main.activity_main. .addView(keyValueLayout)
         }
     }
 
@@ -130,71 +119,62 @@ class DataVisualizations(activity: Activity) {
         graphDataHolders.forEach {
             val key = it.key
             val dataHolder = it.value
-            val graphView = when (dataHolder) {
-                is GraphDataHolderValueImpl -> ValueGraphView(
-                    context,
-                    dataGenerator.beginTimeNanos,
-                    dataHolder,
-                    paints
-                )
-                is GraphDataHolderStateImpl -> StateGraphView(
-                    context,
-                    dataGenerator.beginTimeNanos,
-                    dataHolder,
-                    paints = paints
-                )
-                else -> throw Exception(
-                    "Visualization is not supported for this graphDataHolder " +
-                        "implementation"
-                )
-            }
+            val graphView =
+                when (dataHolder) {
+                    is GraphDataHolderValueImpl ->
+                        ValueGraphView(context, dataGenerator.beginTimeNanos, dataHolder, paints)
+                    is GraphDataHolderStateImpl ->
+                        StateGraphView(
+                            context,
+                            dataGenerator.beginTimeNanos,
+                            dataHolder,
+                            paints = paints
+                        )
+                    else ->
+                        throw Exception(
+                            "Visualization is not supported for this graphDataHolder " +
+                                "implementation"
+                        )
+                }
 
             val graphLayout = View.inflate(context, R.layout.graph_layout, null)
 
-            val graphViewParams = RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                heightPixels
-            )
+            val graphViewParams =
+                RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, heightPixels)
             graphViewParams.addRule(RelativeLayout.BELOW, R.id.top_row_layout)
             graphView.layoutParams = graphViewParams
 
             graphLayout.findViewById<RelativeLayout>(R.id.graph_view_layout).addView(graphView)
-            graphLayout.findViewById<RelativeLayout>(R.id.graph_layout)
+            graphLayout
+                .findViewById<RelativeLayout>(R.id.graph_layout)
                 .setBackgroundResource(R.drawable.graph_background)
 
-            val graphLayoutParams = RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams
-                    .WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+            val graphLayoutParams =
+                RelativeLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
             graphLayoutParams.setMargins(0, 0, 0, 20)
             graphLayout.layoutParams = graphLayoutParams
 
             val keyValueDataHolder = keyValeDataHolders[key]
             if (keyValueDataHolder != null) {
-                val keyValueView =
-                    KeyValueView(
-                        context,
-                        keyValueDataHolder,
-                        paints
-                    )
+                val keyValueView = KeyValueView(context, keyValueDataHolder, paints)
                 val keyValueLayout = View.inflate(context, R.layout.key_value_layout, null)
                 keyValueLayout.findViewById<TextView>(R.id.key_name).text =
                     context.getString(R.string.data_key_name, it.key.name)
 
-                val keyValueViewParams = RelativeLayout.LayoutParams(
-                    ViewGroup.LayoutParams
-                        .MATCH_PARENT,
-                    30
-                )
+                val keyValueViewParams =
+                    RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 30)
                 keyValueView.layoutParams = keyValueViewParams
 
                 keyValueLayout.findViewById<RelativeLayout>(R.id.value_layout).addView(keyValueView)
-                graphLayout.findViewById<RelativeLayout>(R.id.top_row_layout)
+                graphLayout
+                    .findViewById<RelativeLayout>(R.id.top_row_layout)
                     .addView(keyValueLayout)
             }
 
-//            graphs.addView(graphLayout)
+            //            graphs.addView(graphLayout)
         }
     }
 }

@@ -35,12 +35,13 @@ class AudioSettingsDefaultResolverTest {
 
     @Test
     fun sampleRateRangeResolvesToSupportedSampleRate() {
-        val audioSpecs = listOf(
-            AudioSpec.builder().build(),
-            AudioSpec.builder().setSampleRate(Range(0, 1000)).build(),
-            AudioSpec.builder().setSampleRate(Range(1000, 10000)).build(),
-            AudioSpec.builder().setSampleRate(Range(10000, 100000)).build()
-        )
+        val audioSpecs =
+            listOf(
+                AudioSpec.builder().build(),
+                AudioSpec.builder().setSampleRate(Range(0, 1000)).build(),
+                AudioSpec.builder().setSampleRate(Range(1000, 10000)).build(),
+                AudioSpec.builder().setSampleRate(Range(10000, 100000)).build()
+            )
 
         audioSpecs.forEach {
             val audioSettings = AudioSettingsDefaultResolver(it).get()
@@ -57,20 +58,16 @@ class AudioSettingsDefaultResolverTest {
     @Test
     fun audioSpecDefaultProducesValidSourceEnum() {
         val audioSpec = AudioSpec.builder().build()
-        val resolvedAudioSourceEnum =
-            AudioSettingsDefaultResolver(audioSpec).get().audioSource
+        val resolvedAudioSourceEnum = AudioSettingsDefaultResolver(audioSpec).get().audioSource
 
-        assertThat(resolvedAudioSourceEnum).isAnyOf(
-            MediaRecorder.AudioSource.CAMCORDER,
-            MediaRecorder.AudioSource.MIC
-        )
+        assertThat(resolvedAudioSourceEnum)
+            .isAnyOf(MediaRecorder.AudioSource.CAMCORDER, MediaRecorder.AudioSource.MIC)
     }
 
     @Test
     fun audioSpecDefaultProducesValidSourceFormat() {
         val audioSpec = AudioSpec.builder().build()
-        val resolvedAudioSourceFormat =
-            AudioSettingsDefaultResolver(audioSpec).get().audioFormat
+        val resolvedAudioSourceFormat = AudioSettingsDefaultResolver(audioSpec).get().audioFormat
 
         assertThat(resolvedAudioSourceFormat).isNotEqualTo(AudioFormat.ENCODING_INVALID)
     }

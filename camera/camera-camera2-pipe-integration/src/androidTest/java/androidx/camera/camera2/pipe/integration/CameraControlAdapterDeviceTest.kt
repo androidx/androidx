@@ -124,37 +124,32 @@ class CameraControlAdapterDeviceTest {
     private var testEffectMode: Int? = null
 
     private val imageCapture = ImageCapture.Builder().build()
-    private val imageAnalysis = ImageAnalysis.Builder().build().apply {
-        // set analyzer to make it active.
-        setAnalyzer(Dispatchers.Default.asExecutor()) {
-            // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the closing
-            // of the CameraDevice from being stuck.
-            it.close()
+    private val imageAnalysis =
+        ImageAnalysis.Builder().build().apply {
+            // set analyzer to make it active.
+            setAnalyzer(Dispatchers.Default.asExecutor()) {
+                // Fake analyzer, do nothing. Close the ImageProxy immediately to prevent the
+                // closing
+                // of the CameraDevice from being stuck.
+                it.close()
+            }
         }
-    }
 
-    @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
+    @get:Rule val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest()
 
     @Before
     fun setUp() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
 
         context = ApplicationProvider.getApplicationContext()
-        CameraXUtil.initialize(
-            context,
-            CameraPipeConfig.defaultConfig()
-        )
-        cameraSelector = CameraSelector.Builder().requireLensFacing(
-            CameraSelector.LENS_FACING_BACK
-        ).build()
+        CameraXUtil.initialize(context, CameraPipeConfig.defaultConfig())
+        cameraSelector =
+            CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
         camera = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector)
         cameraControl = camera.cameraControl.toCameraControlAdapter()
         comboListener = cameraControl.camera2cameraControl.requestListener
 
-        characteristics = CameraUtil.getCameraCharacteristics(
-            CameraSelector.LENS_FACING_BACK
-        )!!
+        characteristics = CameraUtil.getCameraCharacteristics(CameraSelector.LENS_FACING_BACK)!!
 
         hasFlashUnit = camera.cameraInfo.hasFlashUnit()
         testEffectMode = camera.getTestEffectMode()
@@ -163,9 +158,7 @@ class CameraControlAdapterDeviceTest {
     @After
     fun tearDown(): Unit = runBlocking {
         if (::camera.isInitialized) {
-            withContext(Dispatchers.Main) {
-                camera.removeUseCases(camera.useCases)
-            }
+            withContext(Dispatchers.Main) { camera.removeUseCases(camera.useCases) }
         }
 
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
@@ -180,9 +173,7 @@ class CameraControlAdapterDeviceTest {
         arrangeRequestOptions()
 
         // Act.
-        withContext(Dispatchers.Main) {
-            camera.addUseCases(listOf(imageCapture))
-        }
+        withContext(Dispatchers.Main) { camera.addUseCases(listOf(imageCapture)) }
 
         // Assert. Attaching a new UseCase should not change the RequestOptions that we set the
         // UseCaseCamera, The CaptureRequest after the new UseCase is attached should have the
@@ -200,9 +191,7 @@ class CameraControlAdapterDeviceTest {
         arrangeRequestOptions()
 
         // Act.
-        withContext(Dispatchers.Main) {
-            camera.removeUseCases(listOf(imageCapture))
-        }
+        withContext(Dispatchers.Main) { camera.removeUseCases(listOf(imageCapture)) }
 
         // Assert. Removing one of the UseCases (not all) should not change the
         // RequestOptions that we set the UseCaseCamera, the CaptureRequest after the UseCase
@@ -217,12 +206,13 @@ class CameraControlAdapterDeviceTest {
         bindUseCase(imageAnalysis)
         cameraControl.flashMode = ImageCapture.FLASH_MODE_AUTO
 
-        waitForResult(captureCount = 60).verify(
-            { requestMeta: RequestMetadata, _ ->
-                requestMeta.isAeMode(CONTROL_AE_MODE_ON_AUTO_FLASH)
-            },
-            TIMEOUT
-        )
+        waitForResult(captureCount = 60)
+            .verify(
+                { requestMeta: RequestMetadata, _ ->
+                    requestMeta.isAeMode(CONTROL_AE_MODE_ON_AUTO_FLASH)
+                },
+                TIMEOUT
+            )
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_AUTO)
     }
 
@@ -232,12 +222,11 @@ class CameraControlAdapterDeviceTest {
         bindUseCase(imageAnalysis)
         cameraControl.flashMode = ImageCapture.FLASH_MODE_OFF
 
-        waitForResult(captureCount = 60).verify(
-            { requestMeta: RequestMetadata, _ ->
-                requestMeta.isAeMode(CONTROL_AE_MODE_ON)
-            },
-            TIMEOUT
-        )
+        waitForResult(captureCount = 60)
+            .verify(
+                { requestMeta: RequestMetadata, _ -> requestMeta.isAeMode(CONTROL_AE_MODE_ON) },
+                TIMEOUT
+            )
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_OFF)
     }
 
@@ -247,12 +236,13 @@ class CameraControlAdapterDeviceTest {
         bindUseCase(imageAnalysis)
         cameraControl.flashMode = ImageCapture.FLASH_MODE_ON
 
-        waitForResult(captureCount = 60).verify(
-            { requestMeta: RequestMetadata, _ ->
-                requestMeta.isAeMode(CONTROL_AE_MODE_ON_ALWAYS_FLASH)
-            },
-            TIMEOUT
-        )
+        waitForResult(captureCount = 60)
+            .verify(
+                { requestMeta: RequestMetadata, _ ->
+                    requestMeta.isAeMode(CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+                },
+                TIMEOUT
+            )
         Truth.assertThat(cameraControl.flashMode).isEqualTo(ImageCapture.FLASH_MODE_ON)
     }
 
@@ -262,13 +252,14 @@ class CameraControlAdapterDeviceTest {
         bindUseCase(imageAnalysis)
         cameraControl.enableTorch(true).await()
 
-        waitForResult(captureCount = 30).verify(
-            { requestMeta: RequestMetadata, frameInfo: FrameInfo ->
-                frameInfo.requestMetadata[FLASH_MODE] == FLASH_MODE_TORCH &&
-                    requestMeta.isAeMode(CONTROL_AE_MODE_ON)
-            },
-            TIMEOUT
-        )
+        waitForResult(captureCount = 30)
+            .verify(
+                { requestMeta: RequestMetadata, frameInfo: FrameInfo ->
+                    frameInfo.requestMetadata[FLASH_MODE] == FLASH_MODE_TORCH &&
+                        requestMeta.isAeMode(CONTROL_AE_MODE_ON)
+                },
+                TIMEOUT
+            )
     }
 
     @Test
@@ -278,13 +269,14 @@ class CameraControlAdapterDeviceTest {
         cameraControl.flashMode = ImageCapture.FLASH_MODE_AUTO
         cameraControl.enableTorch(false).await()
 
-        waitForResult(captureCount = 30).verify(
-            { requestMeta: RequestMetadata, frameInfo: FrameInfo ->
-                frameInfo.requestMetadata[FLASH_MODE] != FLASH_MODE_TORCH &&
-                    requestMeta.isAeMode(CONTROL_AE_MODE_ON_AUTO_FLASH)
-            },
-            TIMEOUT
-        )
+        waitForResult(captureCount = 30)
+            .verify(
+                { requestMeta: RequestMetadata, frameInfo: FrameInfo ->
+                    frameInfo.requestMetadata[FLASH_MODE] != FLASH_MODE_TORCH &&
+                        requestMeta.isAeMode(CONTROL_AE_MODE_ON_AUTO_FLASH)
+                },
+                TIMEOUT
+            )
     }
 
     @Test
@@ -308,29 +300,31 @@ class CameraControlAdapterDeviceTest {
             characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AE).coerceAtMost(1)
         val expectedAwbCount =
             characteristics.getMaxRegionCount(CONTROL_MAX_REGIONS_AWB).coerceAtMost(1)
-        waitForResult(captureCount = 60).verify(
-            { requestMeta: RequestMetadata, _ ->
-                // some devices may have a 0 weight region added by default, so weightedRegionCount
+        waitForResult(captureCount = 60)
+            .verify(
+                { requestMeta: RequestMetadata, _ ->
+                    // some devices may have a 0 weight region added by default, so
+                    // weightedRegionCount
 
-                val afRegionMatched = requestMeta.getOrDefault(
-                    CONTROL_AF_REGIONS,
-                    emptyArray()
-                ).weightedRegionCount == expectedAfCount
+                    val afRegionMatched =
+                        requestMeta
+                            .getOrDefault(CONTROL_AF_REGIONS, emptyArray())
+                            .weightedRegionCount == expectedAfCount
 
-                val aeRegionMatched = requestMeta.getOrDefault(
-                    CONTROL_AE_REGIONS,
-                    emptyArray()
-                ).weightedRegionCount == expectedAeCount
+                    val aeRegionMatched =
+                        requestMeta
+                            .getOrDefault(CONTROL_AE_REGIONS, emptyArray())
+                            .weightedRegionCount == expectedAeCount
 
-                val awbRegionMatched = requestMeta.getOrDefault(
-                    CONTROL_AWB_REGIONS,
-                    emptyArray()
-                ).weightedRegionCount == expectedAwbCount
+                    val awbRegionMatched =
+                        requestMeta
+                            .getOrDefault(CONTROL_AWB_REGIONS, emptyArray())
+                            .weightedRegionCount == expectedAwbCount
 
-                afRegionMatched && aeRegionMatched && awbRegionMatched
-            },
-            TIMEOUT
-        )
+                    afRegionMatched && aeRegionMatched && awbRegionMatched
+                },
+                TIMEOUT
+            )
     }
 
     @Test
@@ -349,28 +343,37 @@ class CameraControlAdapterDeviceTest {
         cameraControl.cancelFocusAndMetering().await()
 
         // Assert. The regions are reset to the default.
-        waitForResult(captureCount = 60).verify(
-            { requestMeta: RequestMetadata, _ ->
+        waitForResult(captureCount = 60)
+            .verify(
+                { requestMeta: RequestMetadata, _ ->
+                    val isDefaultAfRegion =
+                        requestMeta
+                            .getOrDefault(
+                                CONTROL_AF_REGIONS,
+                                CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+                            )
+                            .contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
 
-                val isDefaultAfRegion = requestMeta.getOrDefault(
-                    CONTROL_AF_REGIONS,
-                    CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
-                ).contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
+                    val isDefaultAeRegion =
+                        requestMeta
+                            .getOrDefault(
+                                CONTROL_AE_REGIONS,
+                                CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+                            )
+                            .contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
 
-                val isDefaultAeRegion = requestMeta.getOrDefault(
-                    CONTROL_AE_REGIONS,
-                    CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
-                ).contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
+                    val isDefaultAwbRegion =
+                        requestMeta
+                            .getOrDefault(
+                                CONTROL_AWB_REGIONS,
+                                CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
+                            )
+                            .contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
 
-                val isDefaultAwbRegion = requestMeta.getOrDefault(
-                    CONTROL_AWB_REGIONS,
-                    CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
-                ).contentEquals(CameraGraph.Constants3A.METERING_REGIONS_DEFAULT)
-
-                isDefaultAfRegion && isDefaultAeRegion && isDefaultAwbRegion
-            },
-            TIMEOUT
-        )
+                    isDefaultAfRegion && isDefaultAeRegion && isDefaultAwbRegion
+                },
+                TIMEOUT
+            )
     }
 
     @Test
@@ -383,12 +386,13 @@ class CameraControlAdapterDeviceTest {
         bindUseCase(createPreview())
 
         // Assert. Verify the afMode.
-        waitForResult(captureCount = 60).verify(
-            { requestMeta: RequestMetadata, _ ->
-                requestMeta.isAfMode(CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-            },
-            TIMEOUT
-        )
+        waitForResult(captureCount = 60)
+            .verify(
+                { requestMeta: RequestMetadata, _ ->
+                    requestMeta.isAfMode(CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+                },
+                TIMEOUT
+            )
     }
 
     @Test
@@ -401,12 +405,13 @@ class CameraControlAdapterDeviceTest {
         bindUseCase(createFakeRecordingUseCase())
 
         // Assert. Verify the afMode.
-        waitForResult(captureCount = 60).verify(
-            { requestMeta: RequestMetadata, _ ->
-                requestMeta.isAfMode(CONTROL_AF_MODE_CONTINUOUS_VIDEO)
-            },
-            TIMEOUT
-        )
+        waitForResult(captureCount = 60)
+            .verify(
+                { requestMeta: RequestMetadata, _ ->
+                    requestMeta.isAfMode(CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+                },
+                TIMEOUT
+            )
     }
 
     @Test
@@ -416,12 +421,11 @@ class CameraControlAdapterDeviceTest {
     }
 
     private fun <T> assertFutureFailedWithOperationCancellation(future: ListenableFuture<T>) {
-        Assert.assertThrows(ExecutionException::class.java) {
-            future[3, TimeUnit.SECONDS]
-        }.apply {
-            Truth.assertThat(cause)
-                .isInstanceOf(CameraControl.OperationCanceledException::class.java)
-        }
+        Assert.assertThrows(ExecutionException::class.java) { future[3, TimeUnit.SECONDS] }
+            .apply {
+                Truth.assertThat(cause)
+                    .isInstanceOf(CameraControl.OperationCanceledException::class.java)
+            }
     }
 
     private fun CameraCharacteristics.getMaxRegionCount(
@@ -432,56 +436,59 @@ class CameraControlAdapterDeviceTest {
         cameraControl.setExposureCompensationIndex(1)
         cameraControl.setZoomRatio(camera.getMaxSupportedZoomRatio())
         testEffectMode?.let { effectMode ->
-            cameraControl.camera2cameraControl.setCaptureRequestOptions(
-                CaptureRequestOptions.Builder().setCaptureRequestOption(
-                    CONTROL_EFFECT_MODE,
-                    effectMode
-                ).build()
-            ).await()
+            cameraControl.camera2cameraControl
+                .setCaptureRequestOptions(
+                    CaptureRequestOptions.Builder()
+                        .setCaptureRequestOption(CONTROL_EFFECT_MODE, effectMode)
+                        .build()
+                )
+                .await()
         }
 
         // Ensure the requests are already set to the CaptureRequest.
-        waitForResult().verify(
-            { captureRequest: RequestMetadata, _ ->
-                // Ensure the EV working before testing
-                assumeThat(
-                    "EV Request doesn't set to CaptureRequest, ignore the test",
-                    captureRequest.request[CONTROL_AE_EXPOSURE_COMPENSATION],
-                    equalTo(1)
-                )
+        waitForResult()
+            .verify(
+                { captureRequest: RequestMetadata, _ ->
+                    // Ensure the EV working before testing
+                    assumeThat(
+                        "EV Request doesn't set to CaptureRequest, ignore the test",
+                        captureRequest.request[CONTROL_AE_EXPOSURE_COMPENSATION],
+                        equalTo(1)
+                    )
 
-                // Ensure the Camera2Interop working before testing
-                if (testEffectMode != null) {
-                    assumeThat(
-                        "Camera2Interop Request doesn't set to CaptureRequest, ignore the test",
-                        captureRequest.request[CONTROL_EFFECT_MODE],
-                        equalTo(testEffectMode)
-                    )
-                }
+                    // Ensure the Camera2Interop working before testing
+                    if (testEffectMode != null) {
+                        assumeThat(
+                            "Camera2Interop Request doesn't set to CaptureRequest, ignore the test",
+                            captureRequest.request[CONTROL_EFFECT_MODE],
+                            equalTo(testEffectMode)
+                        )
+                    }
 
-                // Ensure the Zoom working before testing
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    assumeThat(
-                        "Zoom Request doesn't set to CaptureRequest, ignore the test",
-                        captureRequest.request[CONTROL_ZOOM_RATIO],
-                        notNullValue()
-                    )
-                } else {
-                    assumeThat(
-                        "Zoom Request doesn't set to CaptureRequest, ignore the test",
-                        captureRequest.request[SCALER_CROP_REGION],
-                        notNullValue()
-                    )
-                }
-                return@verify true
-            },
-            TIMEOUT
-        )
+                    // Ensure the Zoom working before testing
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        assumeThat(
+                            "Zoom Request doesn't set to CaptureRequest, ignore the test",
+                            captureRequest.request[CONTROL_ZOOM_RATIO],
+                            notNullValue()
+                        )
+                    } else {
+                        assumeThat(
+                            "Zoom Request doesn't set to CaptureRequest, ignore the test",
+                            captureRequest.request[SCALER_CROP_REGION],
+                            notNullValue()
+                        )
+                    }
+                    return@verify true
+                },
+                TIMEOUT
+            )
     }
 
     private fun Camera.getTestEffectMode(): Int? {
         return Camera2CameraInfo.from(cameraInfo)
-            .getCameraCharacteristic(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)?.getOrNull(0)
+            .getCameraCharacteristic(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
+            ?.getOrNull(0)
     }
 
     private fun Camera.getMaxSupportedZoomRatio(): Float {
@@ -489,22 +496,23 @@ class CameraControlAdapterDeviceTest {
     }
 
     private suspend fun verifyRequestOptions() {
-        waitForResult(captureCount = 30).verify(
-            { metadata: RequestMetadata, _ ->
-                val checkEV = metadata.request[CONTROL_AE_EXPOSURE_COMPENSATION] == 1
-                val checkEffectMode = testEffectMode?.let {
-                    metadata.request[CONTROL_EFFECT_MODE] == it
-                } ?: true
-                val checkZoom = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    metadata.request[CONTROL_ZOOM_RATIO] != null
-                } else {
-                    metadata.request[SCALER_CROP_REGION] != null
-                }
+        waitForResult(captureCount = 30)
+            .verify(
+                { metadata: RequestMetadata, _ ->
+                    val checkEV = metadata.request[CONTROL_AE_EXPOSURE_COMPENSATION] == 1
+                    val checkEffectMode =
+                        testEffectMode?.let { metadata.request[CONTROL_EFFECT_MODE] == it } ?: true
+                    val checkZoom =
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            metadata.request[CONTROL_ZOOM_RATIO] != null
+                        } else {
+                            metadata.request[SCALER_CROP_REGION] != null
+                        }
 
-                checkEV && checkEffectMode && checkZoom
-            },
-            TIMEOUT
-        )
+                    checkEV && checkEffectMode && checkZoom
+                },
+                TIMEOUT
+            )
     }
 
     private fun waitForResult(captureCount: Int = 1): VerifyResultListener =
@@ -513,51 +521,50 @@ class CameraControlAdapterDeviceTest {
         }
 
     private fun bindUseCase(vararg useCases: UseCase) {
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context,
-            cameraSelector,
-            *useCases,
-        )
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context,
+                cameraSelector,
+                *useCases,
+            )
         cameraControl = camera.cameraControl.toCameraControlAdapter()
     }
 
     private fun createFakeRecordingUseCase(): FakeUseCase {
         return FakeTestUseCase(
-            FakeUseCaseConfig.Builder().setTargetName("FakeRecordingUseCase").useCaseConfig
-        ).apply {
-            initAndActive()
-        }
+                FakeUseCaseConfig.Builder().setTargetName("FakeRecordingUseCase").useCaseConfig
+            )
+            .apply { initAndActive() }
     }
 
     private class FakeTestUseCase(config: FakeUseCaseConfig) : FakeUseCase(config) {
 
-        val deferrableSurface = object : DeferrableSurface() {
-            init {
-                terminationFuture.addListener(
-                    { cleanUp() }, Dispatchers.IO.asExecutor()
-                )
-            }
+        val deferrableSurface =
+            object : DeferrableSurface() {
+                init {
+                    terminationFuture.addListener({ cleanUp() }, Dispatchers.IO.asExecutor())
+                }
 
-            private val surfaceTexture = SurfaceTexture(0).also {
-                it.setDefaultBufferSize(640, 480)
-            }
-            val testSurface = Surface(surfaceTexture)
+                private val surfaceTexture =
+                    SurfaceTexture(0).also { it.setDefaultBufferSize(640, 480) }
+                val testSurface = Surface(surfaceTexture)
 
-            override fun provideSurface(): ListenableFuture<Surface> {
-                return Futures.immediateFuture(testSurface)
-            }
+                override fun provideSurface(): ListenableFuture<Surface> {
+                    return Futures.immediateFuture(testSurface)
+                }
 
-            fun cleanUp() {
-                testSurface.release()
-                surfaceTexture.release()
+                fun cleanUp() {
+                    testSurface.release()
+                    surfaceTexture.release()
+                }
             }
-        }
 
         fun initAndActive() {
-            val sessionConfigBuilder = SessionConfig.Builder().apply {
-                setTemplateType(CameraDevice.TEMPLATE_RECORD)
-                addSurface(deferrableSurface)
-            }
+            val sessionConfigBuilder =
+                SessionConfig.Builder().apply {
+                    setTemplateType(CameraDevice.TEMPLATE_RECORD)
+                    addSurface(deferrableSurface)
+                }
 
             updateSessionConfig(sessionConfigBuilder.build())
             notifyActive()
@@ -571,9 +578,7 @@ class CameraControlAdapterDeviceTest {
 
     private suspend fun createPreview(): Preview =
         Preview.Builder().build().also { preview ->
-            withContext(Dispatchers.Main) {
-                preview.setSurfaceProvider(getSurfaceProvider())
-            }
+            withContext(Dispatchers.Main) { preview.setSurfaceProvider(getSurfaceProvider()) }
         }
 
     private fun getSurfaceProvider(): Preview.SurfaceProvider {
@@ -633,23 +638,17 @@ class CameraControlAdapterDeviceTest {
         return cameraInfo.toCameraInfoAdapter().cameraQuirks
     }
 
-    private fun CameraCharacteristics.isAfModeSupported(
-        afMode: Int
-    ) = (get(CONTROL_AF_AVAILABLE_MODES) ?: intArrayOf(-1)).contains(afMode)
+    private fun CameraCharacteristics.isAfModeSupported(afMode: Int) =
+        (get(CONTROL_AF_AVAILABLE_MODES) ?: intArrayOf(-1)).contains(afMode)
 
-    private fun CameraCharacteristics.isAeModeSupported(
-        aeMode: Int
-    ) = (get(CONTROL_AE_AVAILABLE_MODES) ?: intArrayOf(-1)).contains(aeMode)
+    private fun CameraCharacteristics.isAeModeSupported(aeMode: Int) =
+        (get(CONTROL_AE_AVAILABLE_MODES) ?: intArrayOf(-1)).contains(aeMode)
 
-    /**
-     * Returns the number of metering regions whose weight is greater than 0.
-     */
+    /** Returns the number of metering regions whose weight is greater than 0. */
     private val Array<MeteringRectangle>.weightedRegionCount: Int
         get() {
             var count = 0
-            forEach {
-                count += if (it.meteringWeight != 0) 1 else 0
-            }
+            forEach { count += if (it.meteringWeight != 0) 1 else 0 }
             return count
         }
 }

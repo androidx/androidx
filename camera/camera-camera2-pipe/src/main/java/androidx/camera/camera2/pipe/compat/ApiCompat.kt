@@ -121,7 +121,9 @@ internal object Api24Compat {
         handler: Handler?
     ) {
         cameraDevice.createCaptureSessionByOutputConfigurations(
-            outputConfig, stateCallback, handler
+            outputConfig,
+            stateCallback,
+            handler
         )
     }
 
@@ -137,7 +139,10 @@ internal object Api24Compat {
         handler: Handler?
     ) {
         cameraDevice.createReprocessableCaptureSessionByConfigurations(
-            inputConfig, outputs, stateCallback, handler
+            inputConfig,
+            outputs,
+            stateCallback,
+            handler
         )
     }
 
@@ -318,11 +323,7 @@ internal object Api29Compat {
 
     @JvmStatic
     @DoNotInline
-    fun imageWriterNewInstance(
-        surface: Surface,
-        maxImages: Int,
-        format: Int
-    ): ImageWriter {
+    fun imageWriterNewInstance(surface: Surface, maxImages: Int, format: Int): ImageWriter {
         return ImageWriter.newInstance(surface, maxImages, format)
     }
 }
@@ -361,12 +362,13 @@ internal object Api31Compat {
         }
 
         if (inputConfigData.size == 1) {
-            val inputData = inputConfigData.first();
+            val inputData = inputConfigData.first()
             return InputConfiguration(inputData.width, inputData.height, inputData.format)
         }
-        val multiResolutionInput = inputConfigData.map { input ->
-            MultiResolutionStreamInfo(input.width, input.height, cameraId)
-        }
+        val multiResolutionInput =
+            inputConfigData.map { input ->
+                MultiResolutionStreamInfo(input.width, input.height, cameraId)
+            }
         return InputConfiguration(multiResolutionInput, inputConfigData.first().format)
     }
 
@@ -377,11 +379,7 @@ internal object Api31Compat {
         streamHeight: Int,
         physicalCameraId: String
     ): MultiResolutionStreamInfo {
-        return MultiResolutionStreamInfo(
-            streamWidth,
-            streamHeight,
-            physicalCameraId
-        )
+        return MultiResolutionStreamInfo(streamWidth, streamHeight, physicalCameraId)
     }
 
     @JvmStatic
@@ -448,8 +446,7 @@ internal object Api31Compat {
         extensionCharacteristics: CameraExtensionCharacteristics,
         extension: Int,
         klass: Class<*>
-    ): List<Size> =
-        extensionCharacteristics.getExtensionSupportedSizes(extension, klass)
+    ): List<Size> = extensionCharacteristics.getExtensionSupportedSizes(extension, klass)
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -535,15 +532,16 @@ internal object Api33Compat {
         defaultDataSpace: Int? = null,
         defaultHardwareBufferFormat: Int? = null
     ): ImageReader {
-        return ImageReader.Builder(width, height).apply {
-            if (imageFormat != null) setImageFormat(imageFormat)
-            if (maxImages != null) setMaxImages(maxImages)
-            if (usage != null) setUsage(usage)
-            if (defaultDataSpace != null) setDefaultDataSpace(defaultDataSpace)
-            if (defaultHardwareBufferFormat != null) setDefaultHardwareBufferFormat(
-                defaultHardwareBufferFormat
-            )
-        }.build()
+        return ImageReader.Builder(width, height)
+            .apply {
+                if (imageFormat != null) setImageFormat(imageFormat)
+                if (maxImages != null) setMaxImages(maxImages)
+                if (usage != null) setUsage(usage)
+                if (defaultDataSpace != null) setDefaultDataSpace(defaultDataSpace)
+                if (defaultHardwareBufferFormat != null)
+                    setDefaultHardwareBufferFormat(defaultHardwareBufferFormat)
+            }
+            .build()
     }
 }
 

@@ -26,20 +26,17 @@ import java.util.concurrent.Future
  * Transforms a value, possibly asynchronously. For an example usage and more information, see
  * [Futures.transformAsync].
  *
+ * @param <I>
+ * @param <O> </O></I>
  * @author Chris Povirk
  * @since 11.0
- * @param <I>
- * @param <O>
-</O></I> */
+ */
 fun interface AsyncFunction<I, O> {
     /**
-     * Returns an output `Future` to use in place of the given `input`. The output
-     * `Future` need not be [done][Future.isDone], making `AsyncFunction`
-     * suitable for asynchronous derivations.
-     *
+     * Returns an output `Future` to use in place of the given `input`. The output `Future` need not
+     * be [done][Future.isDone], making `AsyncFunction` suitable for asynchronous derivations.
      *
      * Throwing an exception from this method is equivalent to returning a failing `Future`.
      */
-    @Throws(Exception::class)
-    fun apply(input: I?): ListenableFuture<O>
+    @Throws(Exception::class) fun apply(input: I?): ListenableFuture<O>
 }

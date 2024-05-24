@@ -30,9 +30,9 @@ import kotlin.math.sin
 @RequiresApi(Build.VERSION_CODES.M)
 class AudioActivity() : AppCompatActivity() {
     private lateinit var thread: Thread
+        @Synchronized get
+        @Synchronized set
 
-    @Synchronized get
-    @Synchronized set
     private var finished = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,22 +47,25 @@ class AudioActivity() : AppCompatActivity() {
 
         // plays beeps continuously until activity is destroyed
         thread = thread {
-            var format = AudioFormat.Builder()
-                .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
-                .setSampleRate(sampleRateHz)
-                .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
-                .build()
+            var format =
+                AudioFormat.Builder()
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(sampleRateHz)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build()
 
-            var attributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build()
+            var attributes =
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
 
-            val track = AudioTrack.Builder()
-                .setAudioAttributes(attributes)
-                .setAudioFormat(format)
-                .setBufferSizeInBytes(buffer.size * 2)
-                .build()
+            val track =
+                AudioTrack.Builder()
+                    .setAudioAttributes(attributes)
+                    .setAudioFormat(format)
+                    .setBufferSizeInBytes(buffer.size * 2)
+                    .build()
 
             track.play()
 

@@ -20,21 +20,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 /**
- * ViewModel for keeping track of application state across resizes and configuration changes.
- * This includes:
+ * ViewModel for keeping track of application state across resizes and configuration changes. This
+ * includes:
  */
 class CamViewModel : ViewModel() {
     private var cameraParams: HashMap<String, CameraParams> = HashMap<String, CameraParams>()
     private val currentAPI = MutableLiveData<CameraAPI>().apply { value = CameraAPI.CAMERA2 }
     private val currentCamera = MutableLiveData<Int>().apply { value = 0 }
     private val currentFocusMode = MutableLiveData<FocusMode>().apply { value = FocusMode.AUTO }
-    private val currentImageCaptureSize = MutableLiveData<ImageCaptureSize>().apply {
-        value = ImageCaptureSize.MAX
-    }
+    private val currentImageCaptureSize =
+        MutableLiveData<ImageCaptureSize>().apply { value = ImageCaptureSize.MAX }
     private val shouldOutputLog = MutableLiveData<Boolean>().apply { value = false }
-    private val humanReadableReport = MutableLiveData<String>().apply {
-        value = "Android Camera Performance Tool"
-    }
+    private val humanReadableReport =
+        MutableLiveData<String>().apply { value = "Android Camera Performance Tool" }
 
     /** Camera API of the current test */
     fun getCurrentAPI(): MutableLiveData<CameraAPI> {

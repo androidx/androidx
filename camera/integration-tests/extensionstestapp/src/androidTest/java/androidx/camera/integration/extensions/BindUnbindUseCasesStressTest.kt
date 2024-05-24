@@ -68,14 +68,14 @@ private var texId = INVALID_TEX_ID
 @SdkSuppress(minSdkVersion = 21)
 class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParams) {
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION)
 
     @get:Rule
-    val useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        PreTestCameraIdList(config.cameraXConfig)
-    )
+    val useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            PreTestCameraIdList(config.cameraXConfig)
+        )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -94,24 +94,22 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
         val (_, cameraXConfig, cameraId, extensionMode) = config
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        extensionsManager = ExtensionsManager.getInstanceAsync(
-            context,
-            cameraProvider
-        )[10000, TimeUnit.MILLISECONDS]
+        extensionsManager =
+            ExtensionsManager.getInstanceAsync(context, cameraProvider)[
+                    10000, TimeUnit.MILLISECONDS]
 
         baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
         assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
 
-        extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            baseCameraSelector,
-            extensionMode
-        )
+        extensionCameraSelector =
+            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
 
-        camera = withContext(Dispatchers.Main) {
-            lifecycleOwner = FakeLifecycleOwner()
-            lifecycleOwner.startAndResume()
-            cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector)
-        }
+        camera =
+            withContext(Dispatchers.Main) {
+                lifecycleOwner = FakeLifecycleOwner()
+                lifecycleOwner.startAndResume()
+                cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector)
+            }
 
         preview = Preview.Builder().build()
         imageCapture = ImageCapture.Builder().build()
@@ -131,9 +129,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
     }
 
     companion object {
-        @ClassRule
-        @JvmField
-        val stressTest = StressTestRule()
+        @ClassRule @JvmField val stressTest = StressTestRule()
 
         @JvmStatic
         @get:Parameterized.Parameters(name = "config = {0}")
@@ -163,7 +159,6 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
     /**
      * Repeatedly binds use cases, checks the input use cases' capture functions can work well, and
      * unbind all use cases.
-     *
      */
     private fun bindUseCases_checkOutput_thenUnbindAll_repeatedly(
         preview: Preview,
@@ -209,9 +204,7 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
             }
 
             // Clean it up.
-            withContext(Dispatchers.Main) {
-                cameraProvider.unbindAll()
-            }
+            withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
         }
     }
 
@@ -236,9 +229,8 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
         }
 
     /**
-     * Repeatedly binds use cases and unbind all, then checks the input use cases' capture
-     * functions can work well.
-     *
+     * Repeatedly binds use cases and unbind all, then checks the input use cases' capture functions
+     * can work well.
      */
     private fun bindUseCases_unbindAll_repeatedly_thenCheckOutput(
         preview: Preview,
@@ -299,38 +291,40 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
         private var surfaceTextureLatch = CountDownLatch(1)
         private var previewFrameCountDownLatch: CountDownLatch? = null
 
-        private val onFrameAvailableListener = object : SurfaceTexture.OnFrameAvailableListener {
-            private var complete = false
+        private val onFrameAvailableListener =
+            object : SurfaceTexture.OnFrameAvailableListener {
+                private var complete = false
 
-            override fun onFrameAvailable(surfaceTexture: SurfaceTexture): Unit = runBlocking {
-                if (complete) {
-                    return@runBlocking
-                }
+                override fun onFrameAvailable(surfaceTexture: SurfaceTexture): Unit = runBlocking {
+                    if (complete) {
+                        return@runBlocking
+                    }
 
-                withContext(Dispatchers.Main) {
-                    synchronized(isSurfaceTextureReleasedLock) {
-                        if (!isSurfaceTextureReleased) {
-                            surfaceTexture.updateTexImage()
+                    withContext(Dispatchers.Main) {
+                        synchronized(isSurfaceTextureReleasedLock) {
+                            if (!isSurfaceTextureReleased) {
+                                surfaceTexture.updateTexImage()
+                            }
                         }
                     }
-                }
 
-                previewFrameCountDownLatch?.let {
-                    if (!complete) {
-                        it.countDown()
-                        if (it.count == 0L) {
-                            complete = true
+                    previewFrameCountDownLatch?.let {
+                        if (!complete) {
+                            it.countDown()
+                            if (it.count == 0L) {
+                                complete = true
+                            }
                         }
                     }
                 }
             }
-        }
 
         private val frameAvailableHandler: Handler
-        private val frameAvailableHandlerThread = HandlerThread("FrameAvailable").also {
-            it.start()
-            frameAvailableHandler = Handler(it.looper)
-        }
+        private val frameAvailableHandlerThread =
+            HandlerThread("FrameAvailable").also {
+                it.start()
+                frameAvailableHandler = Handler(it.looper)
+            }
 
         fun createSurfaceTextureCallback(): SurfaceTextureProvider.SurfaceTextureCallback =
             object : SurfaceTextureProvider.SurfaceTextureCallback {
@@ -365,32 +359,25 @@ class BindUnbindUseCasesStressTest(private val config: CameraXExtensionTestParam
 
         fun awaitAvailableFramesAndAssert(count: Int = 10, timeoutDurationMs: Long = 3000) {
             previewFrameCountDownLatch = CountDownLatch(count)
-            assertThat(
-                previewFrameCountDownLatch!!.await(
-                    timeoutDurationMs,
-                    TimeUnit.MILLISECONDS
-                )
-            ).isTrue()
+            assertThat(previewFrameCountDownLatch!!.await(timeoutDurationMs, TimeUnit.MILLISECONDS))
+                .isTrue()
         }
     }
 
     private class ImageCaptureCaptureSuccessMonitor {
         private val captureSuccessCountDownLatch = CountDownLatch(1)
 
-        fun createCaptureCallback() = object : ImageCapture.OnImageCapturedCallback() {
-            override fun onCaptureSuccess(image: ImageProxy) {
-                image.close()
-                captureSuccessCountDownLatch.countDown()
+        fun createCaptureCallback() =
+            object : ImageCapture.OnImageCapturedCallback() {
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    image.close()
+                    captureSuccessCountDownLatch.countDown()
+                }
             }
-        }
 
         fun awaitCaptureSuccessAndAssert(timeoutDurationMs: Long = 10000) {
-            assertThat(
-                captureSuccessCountDownLatch.await(
-                    timeoutDurationMs,
-                    TimeUnit.MILLISECONDS
-                )
-            ).isTrue()
+            assertThat(captureSuccessCountDownLatch.await(timeoutDurationMs, TimeUnit.MILLISECONDS))
+                .isTrue()
         }
     }
 }

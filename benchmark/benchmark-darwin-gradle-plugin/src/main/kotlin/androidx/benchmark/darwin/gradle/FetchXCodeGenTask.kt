@@ -32,16 +32,12 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Fetches the `xcodegen` binary which is used to build the XCode project.
- */
+/** Fetches the `xcodegen` binary which is used to build the XCode project. */
 @CacheableTask
 abstract class FetchXCodeGenTask : DefaultTask() {
-    @get:Input
-    abstract val xcodeGenUri: Property<String>
+    @get:Input abstract val xcodeGenUri: Property<String>
 
-    @get:OutputDirectory
-    abstract val downloadPath: DirectoryProperty
+    @get:OutputDirectory abstract val downloadPath: DirectoryProperty
 
     @TaskAction
     fun fetchXcodeGenTask() {
@@ -50,11 +46,9 @@ abstract class FetchXCodeGenTask : DefaultTask() {
             "https" -> {
                 downloadAndExtractXcodeGen(uri)
             }
-
             "file" -> {
                 copyXcodeGen(File(uri))
             }
-
             else -> throw GradleException("Unsupported scheme")
         }
     }
@@ -70,9 +64,7 @@ abstract class FetchXCodeGenTask : DefaultTask() {
         val zipFile = File(downloadRoot, "xcodegen.zip")
         inputStream.use {
             val outputStream = zipFile.outputStream()
-            outputStream.use {
-                inputStream.copyTo(it)
-            }
+            outputStream.use { inputStream.copyTo(it) }
         }
         // Setup Output Location
         // This must end with a `bin` for the xcodegen path discovery to work
@@ -85,9 +77,7 @@ abstract class FetchXCodeGenTask : DefaultTask() {
             while (entry != null) {
                 if (entry.name.endsWith("/bin/xcodegen")) {
                     val output = FileOutputStream(File(xcodeGenBinaryPath, "xcodegen"))
-                    output.use {
-                        zipStream.copyTo(output)
-                    }
+                    output.use { zipStream.copyTo(output) }
                     break
                 } else {
                     zipStream.closeEntry()
@@ -106,18 +96,14 @@ abstract class FetchXCodeGenTask : DefaultTask() {
 
     private fun findXcodeGen(): File {
         val downloadRoot = downloadPath.get().asFile
-        return downloadRoot.walkTopDown()
-            .asSequence()
-            .toList()
-            .find { file -> file.absolutePath.endsWith("/bin/xcodegen") }
-            ?: throw GradleException("Cannot find `xcodegen` binary in $downloadRoot")
+        return downloadRoot.walkTopDown().asSequence().toList().find { file ->
+            file.absolutePath.endsWith("/bin/xcodegen")
+        } ?: throw GradleException("Cannot find `xcodegen` binary in $downloadRoot")
     }
 
     private fun markExecutable() {
         val xcodeGenBinary = findXcodeGen()
-        require(xcodeGenBinary.setExecutable(true)) {
-            "Cannot mark $xcodeGenBinary executable."
-        }
+        require(xcodeGenBinary.setExecutable(true)) { "Cannot mark $xcodeGenBinary executable." }
     }
 
     fun xcodeGenBinary(): RegularFile {

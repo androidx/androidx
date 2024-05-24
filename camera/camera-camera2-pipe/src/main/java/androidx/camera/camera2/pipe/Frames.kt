@@ -25,9 +25,7 @@ import androidx.annotation.RestrictTo
  * increase within a specific CameraCaptureSession, and are not created until the HAL begins
  * processing a request.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-value class FrameNumber(val value: Long)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmInline value class FrameNumber(val value: Long)
 
 /** [FrameInfo] is a wrapper around [TotalCaptureResult]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -49,6 +47,7 @@ interface FrameInfo : UnsafeWrapper {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface FrameMetadata : Metadata, UnsafeWrapper {
     operator fun <T> get(key: CaptureResult.Key<T>): T?
+
     fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
 
     val camera: CameraId

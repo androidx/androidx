@@ -33,10 +33,7 @@ import org.robolectric.shadows.ShadowCameraManager
 
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(
-    minSdk = 28,
-    instrumentedPackages = arrayOf("androidx.camera.extensions.internal")
-)
+@Config(minSdk = 28, instrumentedPackages = arrayOf("androidx.camera.extensions.internal"))
 class ExtensionsUtilsTest {
     companion object {
         val ACTIVE_ARRAY_0 = Rect(0, 0, 1920, 1080)
@@ -46,8 +43,7 @@ class ExtensionsUtilsTest {
 
     @Test
     fun canReturnCameraCharacteriticsMap() {
-        registerCameraCharacteristics(
-            "0", ACTIVE_ARRAY_0, physicalCameraId = setOf("0", "2", "3"))
+        registerCameraCharacteristics("0", ACTIVE_ARRAY_0, physicalCameraId = setOf("0", "2", "3"))
         registerCameraCharacteristics("2", ACTIVE_ARRAY_2)
         registerCameraCharacteristics("3", ACTIVE_ARRAY_3)
 
@@ -55,14 +51,23 @@ class ExtensionsUtilsTest {
 
         val characteristicsMap = ExtensionsUtils.getCameraCharacteristicsMap(cameraInfo)
         assertThat(characteristicsMap.size).isEqualTo(3)
-        assertThat(characteristicsMap.get("0")!!
-            .get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE))
+        assertThat(
+                characteristicsMap
+                    .get("0")!!
+                    .get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+            )
             .isSameInstanceAs(ACTIVE_ARRAY_0)
-        assertThat(characteristicsMap.get("2")!!
-            .get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE))
+        assertThat(
+                characteristicsMap
+                    .get("2")!!
+                    .get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+            )
             .isSameInstanceAs(ACTIVE_ARRAY_2)
-        assertThat(characteristicsMap.get("3")!!
-            .get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE))
+        assertThat(
+                characteristicsMap
+                    .get("3")!!
+                    .get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+            )
             .isSameInstanceAs(ACTIVE_ARRAY_3)
     }
 
@@ -71,21 +76,19 @@ class ExtensionsUtilsTest {
         activeArray: Rect,
         physicalCameraId: Set<String>? = null
     ) {
-        val characteristics0 = Mockito.mock(
-            CameraCharacteristics::class.java
-        )
+        val characteristics0 = Mockito.mock(CameraCharacteristics::class.java)
         physicalCameraId?.let {
-            Mockito.`when`(characteristics0.physicalCameraIds)
-                .thenReturn(physicalCameraId)
+            Mockito.`when`(characteristics0.physicalCameraIds).thenReturn(physicalCameraId)
         }
         Mockito.`when`(characteristics0.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE))
             .thenReturn(activeArray)
 
         // Add the camera to the camera service
-        val shadowCameraManager = Shadow.extract<Any>(
-            ApplicationProvider.getApplicationContext<Context>()
-                .getSystemService(Context.CAMERA_SERVICE)
-        ) as ShadowCameraManager
+        val shadowCameraManager =
+            Shadow.extract<Any>(
+                ApplicationProvider.getApplicationContext<Context>()
+                    .getSystemService(Context.CAMERA_SERVICE)
+            ) as ShadowCameraManager
 
         shadowCameraManager.addCamera(cameraId, characteristics0)
     }

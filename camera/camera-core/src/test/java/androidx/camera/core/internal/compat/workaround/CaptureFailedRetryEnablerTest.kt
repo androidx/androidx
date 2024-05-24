@@ -28,9 +28,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.util.ReflectionHelpers
 
-/**
- * Unit test for [CaptureFailedRetryEnabler]
- */
+/** Unit test for [CaptureFailedRetryEnabler] */
 @SmallTest
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
@@ -44,14 +42,15 @@ class CaptureFailedRetryEnablerTest(
     companion object {
         @JvmStatic
         @Parameters(name = "brand={0}, model={1}, expectedResult={2}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            add(arrayOf("SAMSUNG", "SM-G981U1", 1))
-            add(arrayOf("samsung", "sm-g981u1", 1))
-            add(arrayOf("samsung", "sm-g981u10", 0))
-            add(arrayOf("samsung", "sm-g981u", 0))
-            add(arrayOf("fakeBrand", "sm-g981u1", 0))
-            add(arrayOf("", "", 0))
-        }
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                add(arrayOf("SAMSUNG", "SM-G981U1", 1))
+                add(arrayOf("samsung", "sm-g981u1", 1))
+                add(arrayOf("samsung", "sm-g981u10", 0))
+                add(arrayOf("samsung", "sm-g981u", 0))
+                add(arrayOf("fakeBrand", "sm-g981u1", 0))
+                add(arrayOf("", "", 0))
+            }
     }
 
     @Before

@@ -32,27 +32,30 @@ class DataGenerator(
 
     /**
      * Start each thread that is supposed to generate data.
+     *
      * TODO("Implement this using coroutines in the future so the calling thread isn't blocked")
      */
     fun runDataGenerators() {
         DATA_GENERATION_PARAMS.forEach { entry ->
             val key = entry.key
             val default = entry.value
-            val runnable = get1DRunnable(default) { point ->
-                /** For graphs both keyValue and graph DataHolders need to be updated */
-                if (visualizationDefaults.keysVisualizedAsValueGraph.contains(key) ||
-                    visualizationDefaults.keysVisualizedAsStateGraph.contains(key)
-                ) {
-                    dataListener.newGraphData(
-                        entry.key,
-                        point.frameNumber,
-                        point.timestampNanos,
-                        point.value
-                    )
-                    dataListener.newKeyValueData(entry.key, point.value)
-                } else if (visualizationDefaults.keysVisualizedAsKeyValuePair.contains(key))
-                    dataListener.newKeyValueData(entry.key, point.value)
-            }
+            val runnable =
+                get1DRunnable(default) { point ->
+                    /** For graphs both keyValue and graph DataHolders need to be updated */
+                    if (
+                        visualizationDefaults.keysVisualizedAsValueGraph.contains(key) ||
+                            visualizationDefaults.keysVisualizedAsStateGraph.contains(key)
+                    ) {
+                        dataListener.newGraphData(
+                            entry.key,
+                            point.frameNumber,
+                            point.timestampNanos,
+                            point.value
+                        )
+                        dataListener.newKeyValueData(entry.key, point.value)
+                    } else if (visualizationDefaults.keysVisualizedAsKeyValuePair.contains(key))
+                        dataListener.newKeyValueData(entry.key, point.value)
+                }
             threads.add(Thread(runnable))
         }
 

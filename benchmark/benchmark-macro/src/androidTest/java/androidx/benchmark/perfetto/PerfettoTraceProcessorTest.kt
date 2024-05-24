@@ -48,17 +48,14 @@ class PerfettoTraceProcessorTest {
         assumeTrue(isAbiSupported())
         val shellPath = PerfettoTraceProcessor.shellPath
         val out = Shell.executeScriptCaptureStdout("$shellPath --version")
-        assertTrue(
-            "expect to get Perfetto version string, saw: $out",
-            out.contains("Perfetto v")
-        )
+        assertTrue("expect to get Perfetto version string, saw: $out", out.contains("Perfetto v"))
     }
 
     @Test
     fun getJsonMetrics_tracePathWithSpaces() {
         assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
-            PerfettoTraceProcessor.runSingleSessionServer("/a b") { }
+            PerfettoTraceProcessor.runSingleSessionServer("/a b") {}
         }
     }
 
@@ -67,10 +64,7 @@ class PerfettoTraceProcessorTest {
         assumeTrue(isAbiSupported())
         assertFailsWith<IllegalArgumentException> {
             PerfettoTraceProcessor.runSingleSessionServer(
-                createTempFileFromAsset(
-                    "api31_startup_cold",
-                    ".perfetto-trace"
-                ).absolutePath
+                createTempFileFromAsset("api31_startup_cold", ".perfetto-trace").absolutePath
             ) {
                 getTraceMetrics("a b")
             }
@@ -80,16 +74,11 @@ class PerfettoTraceProcessorTest {
     @Test
     fun validateAbiNotSupportedBehavior() {
         assumeFalse(isAbiSupported())
-        assertFailsWith<IllegalStateException> {
-            PerfettoTraceProcessor.shellPath
-        }
+        assertFailsWith<IllegalStateException> { PerfettoTraceProcessor.shellPath }
 
         assertFailsWith<IllegalStateException> {
             PerfettoTraceProcessor.runSingleSessionServer(
-                createTempFileFromAsset(
-                    "api31_startup_cold",
-                    ".perfetto-trace"
-                ).absolutePath
+                createTempFileFromAsset("api31_startup_cold", ".perfetto-trace").absolutePath
             ) {
                 getTraceMetrics("ignored_metric")
             }
@@ -102,14 +91,11 @@ class PerfettoTraceProcessorTest {
         InvalidPackage("not.a.real.package")
     }
 
-    @Test
-    fun querySlices_validPackage() = validateQuerySlices(QuerySlicesMode.ValidPackage)
+    @Test fun querySlices_validPackage() = validateQuerySlices(QuerySlicesMode.ValidPackage)
 
-    @Test
-    fun querySlices_invalidPackage() = validateQuerySlices(QuerySlicesMode.InvalidPackage)
+    @Test fun querySlices_invalidPackage() = validateQuerySlices(QuerySlicesMode.InvalidPackage)
 
-    @Test
-    fun querySlices_unspecified() = validateQuerySlices(QuerySlicesMode.Unspecified)
+    @Test fun querySlices_unspecified() = validateQuerySlices(QuerySlicesMode.Unspecified)
 
     private fun validateQuerySlices(mode: QuerySlicesMode) {
         // check known slice content is queryable
@@ -117,43 +103,37 @@ class PerfettoTraceProcessorTest {
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
-                expected = when (mode) {
-                    QuerySlicesMode.InvalidPackage -> emptyList()
-                    else -> listOf(
-                        Slice(
-                            name = "activityStart",
-                            ts = 186975009436431,
-                            dur = 29580628
-                        )
-                    )
-                },
+                expected =
+                    when (mode) {
+                        QuerySlicesMode.InvalidPackage -> emptyList()
+                        else ->
+                            listOf(
+                                Slice(name = "activityStart", ts = 186975009436431, dur = 29580628)
+                            )
+                    },
                 actual = querySlices("activityStart", packageName = mode.target)
             )
             assertEquals(
-                expected = when (mode) {
-                    QuerySlicesMode.InvalidPackage -> emptyList()
-                    else -> listOf(
-                        Slice(
-                            name = "activityStart",
-                            ts = 186975009436431,
-                            dur = 29580628
-                        ),
-                        Slice(
-                            name = "activityResume",
-                            ts = 186975039764298,
-                            dur = 6570418
-                        )
-                    )
-                },
-                actual = querySlices("activityStart", "activityResume", packageName = mode.target)
-                    .sortedBy { it.ts }
+                expected =
+                    when (mode) {
+                        QuerySlicesMode.InvalidPackage -> emptyList()
+                        else ->
+                            listOf(
+                                Slice(name = "activityStart", ts = 186975009436431, dur = 29580628),
+                                Slice(name = "activityResume", ts = 186975039764298, dur = 6570418)
+                            )
+                    },
+                actual =
+                    querySlices("activityStart", "activityResume", packageName = mode.target)
+                        .sortedBy { it.ts }
             )
             assertEquals(
-                expected = when (mode) {
-                    QuerySlicesMode.ValidPackage -> 7
-                    QuerySlicesMode.Unspecified -> 127
-                    QuerySlicesMode.InvalidPackage -> 0
-                },
+                expected =
+                    when (mode) {
+                        QuerySlicesMode.ValidPackage -> 7
+                        QuerySlicesMode.Unspecified -> 127
+                        QuerySlicesMode.InvalidPackage -> 0
+                    },
                 actual = querySlices("Lock contention %", packageName = mode.target).size
             )
         }
@@ -164,9 +144,7 @@ class PerfettoTraceProcessorTest {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            val error = assertFailsWith<IllegalStateException> {
-                query("SYNTAX ERROR, PLEASE")
-            }
+            val error = assertFailsWith<IllegalStateException> { query("SYNTAX ERROR, PLEASE") }
             assertContains(
                 charSequence = error.message!!,
                 other = "syntax error",
@@ -182,50 +160,48 @@ class PerfettoTraceProcessorTest {
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             // raw list of maps
             assertEquals(
-                expected = listOf(
-                    rowOf(
-                        "name" to "activityStart",
-                        "ts" to 186975009436431L,
-                        "dur" to 29580628L
-                    )
-                ),
-                actual = query(
-                    "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
-                ).toList(),
+                expected =
+                    listOf(
+                        rowOf(
+                            "name" to "activityStart",
+                            "ts" to 186975009436431L,
+                            "dur" to 29580628L
+                        )
+                    ),
+                actual =
+                    query("SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\"")
+                        .toList(),
             )
 
             // list of lists
             assertEquals(
-                expected = listOf(
-                    listOf("activityStart", 186975009436431L, 29580628L)
-                ),
-                actual = query(
-                    "SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\""
-                ).map {
-                    listOf(it.string("name"), it.long("ts"), it.long("dur"))
-                }.toList(),
+                expected = listOf(listOf("activityStart", 186975009436431L, 29580628L)),
+                actual =
+                    query("SELECT name,ts,dur FROM slice WHERE name LIKE \"activityStart\"")
+                        .map { listOf(it.string("name"), it.long("ts"), it.long("dur")) }
+                        .toList(),
             )
 
             // multiple result query
             assertEquals(
-                expected = listOf(
-                    listOf("activityStart", 186975009436431L, 29580628L),
-                    listOf("activityResume", 186975039764298L, 6570418L)
-                ),
-                actual = query(
-                    "SELECT name,ts,dur FROM slice WHERE" +
-                        " name LIKE \"activityStart\" OR" +
-                        " name LIKE \"activityResume\""
-                ).map {
-                    listOf(it.string("name"), it.long("ts"), it.long("dur"))
-                }.toList(),
+                expected =
+                    listOf(
+                        listOf("activityStart", 186975009436431L, 29580628L),
+                        listOf("activityResume", 186975039764298L, 6570418L)
+                    ),
+                actual =
+                    query(
+                            "SELECT name,ts,dur FROM slice WHERE" +
+                                " name LIKE \"activityStart\" OR" +
+                                " name LIKE \"activityResume\""
+                        )
+                        .map { listOf(it.string("name"), it.long("ts"), it.long("dur")) }
+                        .toList(),
             )
         }
     }
 
-    /**
-     * Validate parsing of bytes is possible
-     */
+    /** Validate parsing of bytes is possible */
     @Test
     fun queryBytes() {
         assumeTrue(isAbiSupported())
@@ -236,16 +212,15 @@ class PerfettoTraceProcessorTest {
             val queryResult = perfetto.protos.QueryResult.ADAPTER.decode(bytes)
             assertNull(queryResult.error, "no error expected")
             assertEquals(
-                expected = listOf(
-                    rowOf(
-                        "name" to "activityStart",
-                        "ts" to 186975009436431L,
-                        "dur" to 29580628L
-                    )
-                ),
-                actual = QueryResultIterator(queryResult)
-                    .asSequence()
-                    .toList(),
+                expected =
+                    listOf(
+                        rowOf(
+                            "name" to "activityStart",
+                            "ts" to 186975009436431L,
+                            "dur" to 29580628L
+                        )
+                    ),
+                actual = QueryResultIterator(queryResult).asSequence().toList(),
             )
         }
     }
@@ -254,17 +229,20 @@ class PerfettoTraceProcessorTest {
     fun query_includeModule() {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
-        val startups = PerfettoTraceProcessor.runServer {
-            loadTrace(PerfettoTrace(traceFile.absolutePath)) {
-                query(
-                    """
+        val startups =
+            PerfettoTraceProcessor.runServer {
+                loadTrace(PerfettoTrace(traceFile.absolutePath)) {
+                    query(
+                            """
                     INCLUDE PERFETTO MODULE android.startup.startups;
 
                     SELECT * FROM android_startups;
-                """.trimIndent()
-                ).toList()
+                """
+                                .trimIndent()
+                        )
+                        .toList()
+                }
             }
-        }
         // minimal validation, just verifying query worked
         assertEquals(1, startups.size)
         assertEquals(
@@ -313,10 +291,7 @@ class PerfettoTraceProcessorTest {
         val suffixes = listOf("aarch64")
         val entries = suffixes.map { "trace_processor_shell_$it" }.toSet()
         val assets = context.assets.list("") ?: emptyArray()
-        assertTrue(
-            "Expected to find $entries",
-            assets.toSet().containsAll(entries)
-        )
+        assertTrue("Expected to find $entries", assets.toSet().containsAll(entries))
     }
 
     @Test
@@ -374,13 +349,16 @@ class PerfettoTraceProcessorTest {
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             val slices = querySlices("launching:%", packageName = null)
             assertEquals(
-                expected = listOf(
-                    Slice(
-                        name = "launching: androidx.benchmark.integration.macrobenchmark.target",
-                        ts = 186974946587883,
-                        dur = 137401159
-                    )
-                ), slices
+                expected =
+                    listOf(
+                        Slice(
+                            name =
+                                "launching: androidx.benchmark.integration.macrobenchmark.target",
+                            ts = 186974946587883,
+                            dur = 137401159
+                        )
+                    ),
+                slices
             )
         }
     }
@@ -388,18 +366,17 @@ class PerfettoTraceProcessorTest {
     @LargeTest
     @Test
     fun parseLongTrace() {
-        val traceFile = File
-            .createTempFile("long_trace", ".trace", Outputs.dirUsableByAppAndShell)
-            .apply {
+        val traceFile =
+            File.createTempFile("long_trace", ".trace", Outputs.dirUsableByAppAndShell).apply {
                 var length = 0L
                 val out = outputStream()
                 while (length < 70 * 1024 * 1024) {
-                    length += InstrumentationRegistry
-                        .getInstrumentation()
-                        .context
-                        .assets
-                        .open("api31_startup_cold.perfetto-trace")
-                        .copyTo(out)
+                    length +=
+                        InstrumentationRegistry.getInstrumentation()
+                            .context
+                            .assets
+                            .open("api31_startup_cold.perfetto-trace")
+                            .copyTo(out)
                 }
             }
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
@@ -409,15 +386,16 @@ class PerfettoTraceProcessorTest {
     }
 
     /**
-     * This method will return true if the server status endpoint returns 200 (that is also
-     * the only status code being returned).
+     * This method will return true if the server status endpoint returns 200 (that is also the only
+     * status code being returned).
      */
-    private fun isRunning(): Boolean = try {
-        val url = URL("http://localhost:${PerfettoTraceProcessor.PORT}/")
-        with(url.openConnection() as HttpURLConnection) {
-            return@with responseCode == 200
+    private fun isRunning(): Boolean =
+        try {
+            val url = URL("http://localhost:${PerfettoTraceProcessor.PORT}/")
+            with(url.openConnection() as HttpURLConnection) {
+                return@with responseCode == 200
+            }
+        } catch (e: ConnectException) {
+            false
         }
-    } catch (e: ConnectException) {
-        false
-    }
 }

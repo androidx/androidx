@@ -23,6 +23,5 @@ class EmptyTest {
      * This empty test is here to ensure the test module has tests, even when flaky tests are
      * disabled.
      */
-    @Test
-    fun emptyTest() {}
+    @Test fun emptyTest() {}
 }

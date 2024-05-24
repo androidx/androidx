@@ -63,12 +63,13 @@ public class MetricResult(
         maxIndex = data.indexOfFirst { it == max }
         medianIndex = data.size / 2
 
-        standardDeviation = if (data.size == 1) {
-            0.0
-        } else {
-            val sum = values.map { (it - mean).pow(2) }.sum()
-            sqrt(sum / (size - 1).toDouble())
-        }
+        standardDeviation =
+            if (data.size == 1) {
+                0.0
+            } else {
+                val sum = values.map { (it - mean).pow(2) }.sum()
+                sqrt(sum / (size - 1).toDouble())
+            }
     }
 
     internal fun getSummary(): String {

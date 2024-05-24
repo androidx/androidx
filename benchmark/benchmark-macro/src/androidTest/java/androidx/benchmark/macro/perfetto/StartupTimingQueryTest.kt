@@ -40,94 +40,100 @@ class StartupTimingQueryTest {
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset(prefix = tracePrefix, suffix = ".perfetto-trace")
 
-        val startupSubMetrics = PerfettoTraceProcessor.runSingleSessionServer(
-            traceFile.absolutePath
-        ) {
-            StartupTimingQuery.getFrameSubMetrics(
-                session = this,
-                captureApiLevel = api,
-                targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
-                startupMode = startupMode
-            )
-        }
+        val startupSubMetrics =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+                StartupTimingQuery.getFrameSubMetrics(
+                    session = this,
+                    captureApiLevel = api,
+                    targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
+                    startupMode = startupMode
+                )
+            }
 
         assertEquals(expected = expectedMetrics, actual = startupSubMetrics)
     }
 
     @Test
-    fun fixedApi24Cold() = validateFixedTrace(
-        api = 24,
-        startupMode = StartupMode.COLD,
-        StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 264869885,
-            timeToFullDisplayNs = 715406822,
-            timelineRangeNs = 791231114368..791946521190
+    fun fixedApi24Cold() =
+        validateFixedTrace(
+            api = 24,
+            startupMode = StartupMode.COLD,
+            StartupTimingQuery.SubMetrics(
+                timeToInitialDisplayNs = 264869885,
+                timeToFullDisplayNs = 715406822,
+                timelineRangeNs = 791231114368..791946521190
+            )
         )
-    )
 
     @Test
-    fun fixedApi24Warm() = validateFixedTrace(
-        api = 24,
-        startupMode = StartupMode.WARM,
-        StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 108563770,
-            timeToFullDisplayNs = 581026583,
-            timelineRangeNs = 800868511677..801449538260
+    fun fixedApi24Warm() =
+        validateFixedTrace(
+            api = 24,
+            startupMode = StartupMode.WARM,
+            StartupTimingQuery.SubMetrics(
+                timeToInitialDisplayNs = 108563770,
+                timeToFullDisplayNs = 581026583,
+                timelineRangeNs = 800868511677..801449538260
+            )
         )
-    )
 
     @Test
-    fun fixedApi24Hot() = validateFixedTrace(
-        api = 24,
-        startupMode = StartupMode.HOT,
-        StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 35039927,
-            timeToFullDisplayNs = 537343160,
-            timelineRangeNs = 780778904571..781316247731
+    fun fixedApi24Hot() =
+        validateFixedTrace(
+            api = 24,
+            startupMode = StartupMode.HOT,
+            StartupTimingQuery.SubMetrics(
+                timeToInitialDisplayNs = 35039927,
+                timeToFullDisplayNs = 537343160,
+                timelineRangeNs = 780778904571..781316247731
+            )
         )
-    )
 
     @Test
-    fun fixedApi31Cold() = validateFixedTrace(
-        api = 31,
-        startupMode = StartupMode.COLD,
-        StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 143980066,
-            timeToFullDisplayNs = 620815843,
-            timelineRangeNs = 186974938196632..186975559012475
+    fun fixedApi31Cold() =
+        validateFixedTrace(
+            api = 31,
+            startupMode = StartupMode.COLD,
+            StartupTimingQuery.SubMetrics(
+                timeToInitialDisplayNs = 143980066,
+                timeToFullDisplayNs = 620815843,
+                timelineRangeNs = 186974938196632..186975559012475
+            )
         )
-    )
 
     @Test
-    fun fixedApi31Warm() = validateFixedTrace(
-        api = 31,
-        startupMode = StartupMode.WARM,
-        StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 62373965,
-            timeToFullDisplayNs = 555968701,
-            timelineRangeNs = 186982050780778..186982606749479
+    fun fixedApi31Warm() =
+        validateFixedTrace(
+            api = 31,
+            startupMode = StartupMode.WARM,
+            StartupTimingQuery.SubMetrics(
+                timeToInitialDisplayNs = 62373965,
+                timeToFullDisplayNs = 555968701,
+                timelineRangeNs = 186982050780778..186982606749479
+            )
         )
-    )
 
     @Test
-    fun fixedApi31Hot() = validateFixedTrace(
-        api = 31,
-        startupMode = StartupMode.HOT,
-        StartupTimingQuery.SubMetrics(
-            timeToInitialDisplayNs = 40534066,
-            timeToFullDisplayNs = 542222554,
-            timelineRangeNs = 186969441973689..186969984196243
+    fun fixedApi31Hot() =
+        validateFixedTrace(
+            api = 31,
+            startupMode = StartupMode.HOT,
+            StartupTimingQuery.SubMetrics(
+                timeToInitialDisplayNs = 40534066,
+                timeToFullDisplayNs = 542222554,
+                timelineRangeNs = 186969441973689..186969984196243
+            )
         )
-    )
 
     /**
      * Validate that StartupTimingQuery returns null and doesn't crash when process name truncated
      */
     @Test
-    fun fixedApi29ColdProcessNameTruncated() = validateFixedTrace(
-        api = 29,
-        startupMode = StartupMode.COLD,
-        tracePrefix = "api29_cold_startup_processname_truncated",
-        expectedMetrics = null // process name is truncated, and we currently don't handle this
-    )
+    fun fixedApi29ColdProcessNameTruncated() =
+        validateFixedTrace(
+            api = 29,
+            startupMode = StartupMode.COLD,
+            tracePrefix = "api29_cold_startup_processname_truncated",
+            expectedMetrics = null // process name is truncated, and we currently don't handle this
+        )
 }

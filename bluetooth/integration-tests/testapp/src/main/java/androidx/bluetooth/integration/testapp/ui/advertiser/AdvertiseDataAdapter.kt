@@ -24,14 +24,13 @@ import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
-class AdvertiseDataAdapter(
-    var advertiseData: List<String>,
-    private val onClick: (Int) -> Unit
-) : RecyclerView.Adapter<AdvertiseDataAdapter.ViewHolder>() {
+class AdvertiseDataAdapter(var advertiseData: List<String>, private val onClick: (Int) -> Unit) :
+    RecyclerView.Adapter<AdvertiseDataAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_advertiser_data, parent, false)
+        val view =
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_advertiser_data, parent, false)
         return ViewHolder(view)
     }
 

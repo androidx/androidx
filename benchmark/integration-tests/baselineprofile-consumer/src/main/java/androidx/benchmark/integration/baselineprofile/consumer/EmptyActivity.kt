@@ -28,14 +28,12 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class EmptyActivity : ComponentActivity() {
 
-    @Inject
-    lateinit var executor: ExecutorService
+    @Inject lateinit var executor: ExecutorService
 
     @Inject
     lateinit var compilationStatusFuture: ListenableFuture<ProfileVerifier.CompilationStatus>
 
-    @Inject
-    lateinit var someObject: SomeObject
+    @Inject lateinit var someObject: SomeObject
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,13 +45,15 @@ class EmptyActivity : ComponentActivity() {
         executor.submit {
             val result = compilationStatusFuture.get()
             runOnUiThread {
-                findViewById<TextView>(R.id.txtNotice).text = """
+                findViewById<TextView>(R.id.txtNotice).text =
+                    """
                     Profile installed: ${result.profileInstallResultCode}
                     Has reference profile: ${result.isCompiledWithProfile}
                     Has current profile: ${result.hasProfileEnqueuedForCompilation()}
                     Has embedded profile: ${result.appApkHasEmbeddedProfile()}
                     Build type: ${someObject.buildType}
-                """.trimIndent()
+                """
+                        .trimIndent()
             }
         }
     }

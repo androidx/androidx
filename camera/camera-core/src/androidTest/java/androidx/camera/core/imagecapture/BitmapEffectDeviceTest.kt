@@ -33,9 +33,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Instrument test for [BitmapEffect].
- */
+/** Instrument test for [BitmapEffect]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -48,14 +46,15 @@ class BitmapEffectDeviceTest {
     fun applyEffect_imageIsPropagatedToAndFromProcessor() {
         // Arrange.
         val bitmap = TestImageUtil.createBitmap(WIDTH, HEIGHT)
-        val input = Packet.of(
-            bitmap,
-            ExifUtil.createExif(TestImageUtil.createJpegBytes(WIDTH, HEIGHT)),
-            Utils.CROP_RECT,
-            Utils.ROTATION_DEGREES,
-            Utils.SENSOR_TO_BUFFER,
-            Utils.CAMERA_CAPTURE_RESULT
-        )
+        val input =
+            Packet.of(
+                bitmap,
+                ExifUtil.createExif(TestImageUtil.createJpegBytes(WIDTH, HEIGHT)),
+                Utils.CROP_RECT,
+                Utils.ROTATION_DEGREES,
+                Utils.SENSOR_TO_BUFFER,
+                Utils.CAMERA_CAPTURE_RESULT
+            )
 
         val output = operation.apply(input)
 

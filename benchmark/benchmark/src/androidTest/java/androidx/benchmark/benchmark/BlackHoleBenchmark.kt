@@ -31,27 +31,18 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BlackHoleBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     @Test
     fun noBlackHole() {
         var double = Random.nextDouble()
-        benchmarkRule.measureRepeated {
-            repeat(10) {
-                double /= 1.92837f
-            }
-        }
+        benchmarkRule.measureRepeated { repeat(10) { double /= 1.92837f } }
     }
 
     @Test
     fun falseBlackHole() {
         var double = Random.nextDouble()
-        benchmarkRule.measureRepeated {
-            repeat(10) {
-                double /= 1.92837f
-            }
-        }
+        benchmarkRule.measureRepeated { repeat(10) { double /= 1.92837f } }
         println("double is $double")
     }
 
@@ -59,9 +50,7 @@ class BlackHoleBenchmark {
     fun blackHole_inner() {
         var double = Random.nextDouble()
         benchmarkRule.measureRepeated {
-            repeat(10) {
-                double /= 1.92837f
-            }
+            repeat(10) { double /= 1.92837f }
             BlackHole.consume(double)
         }
     }
@@ -69,11 +58,7 @@ class BlackHoleBenchmark {
     @Test
     fun blackHole_outer() {
         var double = Random.nextDouble()
-        benchmarkRule.measureRepeated {
-            repeat(10) {
-                double /= 1.92837f
-            }
-        }
+        benchmarkRule.measureRepeated { repeat(10) { double /= 1.92837f } }
         BlackHole.consume(double)
     }
 }

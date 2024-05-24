@@ -68,22 +68,25 @@ class UseCaseCombinationTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -108,9 +111,7 @@ class UseCaseCombinationTest(
     @After
     fun shutdownCameraX(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-            }
+            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
         }
     }
 
@@ -223,7 +224,7 @@ class UseCaseCombinationTest(
         imageAnalysisMonitor.waitForImageAnalysis()
     }
 
-    /** Test Combination: Preview + ImageAnalysis + ImageCapture  */
+    /** Test Combination: Preview + ImageAnalysis + ImageCapture */
     @Test
     fun previewCombinesImageAnalysisAndImageCapture(): Unit = runBlocking {
         // Arrange.
@@ -362,9 +363,7 @@ class UseCaseCombinationTest(
         imageCapture.waitForCapturing()
 
         // Act.
-        withContext(Dispatchers.Main) {
-            cameraProvider.unbind(imageAnalysis)
-        }
+        withContext(Dispatchers.Main) { cameraProvider.unbind(imageAnalysis) }
 
         // Assert
         imageCapture.waitForCapturing()
@@ -397,9 +396,7 @@ class UseCaseCombinationTest(
         imageCapture.waitForCapturing()
 
         // Act.
-        withContext(Dispatchers.Main) {
-            cameraProvider.unbind(preview)
-        }
+        withContext(Dispatchers.Main) { cameraProvider.unbind(preview) }
         delay(1000) // Unbind and stop the output stream should be done within 1 sec.
         previewMonitor.waitForStreamIdle(count = 1, timeMillis = TimeUnit.SECONDS.toMillis(2))
 
@@ -434,9 +431,7 @@ class UseCaseCombinationTest(
         imageCapture.waitForCapturing()
 
         // Act.
-        withContext(Dispatchers.Main) {
-            cameraProvider.unbind(imageCapture)
-        }
+        withContext(Dispatchers.Main) { cameraProvider.unbind(imageCapture) }
 
         // Assert
         imageAnalysisMonitor.waitForImageAnalysis()
@@ -445,21 +440,19 @@ class UseCaseCombinationTest(
 
     private fun initPreview(monitor: PreviewMonitor?): Preview {
         return Preview.Builder()
-            .setTargetName("Preview").also {
+            .setTargetName("Preview")
+            .also {
                 monitor?.let { monitor ->
                     CameraPipeUtil.setCameraCaptureSessionCallback(implName, it, monitor)
                 }
-            }.build()
+            }
+            .build()
     }
 
     private fun initImageAnalysis(analyzer: ImageAnalysis.Analyzer?): ImageAnalysis {
-        return ImageAnalysis.Builder()
-            .setTargetName("ImageAnalysis")
-            .build().apply {
-                analyzer?.let { analyzer ->
-                    setAnalyzer(Dispatchers.IO.asExecutor(), analyzer)
-                }
-            }
+        return ImageAnalysis.Builder().setTargetName("ImageAnalysis").build().apply {
+            analyzer?.let { analyzer -> setAnalyzer(Dispatchers.IO.asExecutor(), analyzer) }
+        }
     }
 
     private fun initImageCapture(): ImageCapture {
@@ -467,45 +460,55 @@ class UseCaseCombinationTest(
     }
 
     private fun ImageCapture.waitForCapturing(timeMillis: Long = 5000) {
-        val callback = object : ImageCapture.OnImageCapturedCallback() {
-            val latch = CountDownLatch(1)
-            val errors = mutableListOf<ImageCaptureException>()
+        val callback =
+            object : ImageCapture.OnImageCapturedCallback() {
+                val latch = CountDownLatch(1)
+                val errors = mutableListOf<ImageCaptureException>()
 
-            override fun onCaptureSuccess(image: ImageProxy) {
-                image.close()
-                latch.countDown()
-            }
+                override fun onCaptureSuccess(image: ImageProxy) {
+                    image.close()
+                    latch.countDown()
+                }
 
-            override fun onError(exception: ImageCaptureException) {
-                errors.add(exception)
-                latch.countDown()
+                override fun onError(exception: ImageCaptureException) {
+                    errors.add(exception)
+                    latch.countDown()
+                }
             }
-        }
 
         takePicture(Dispatchers.Main.asExecutor(), callback)
 
         assertThat(
-            callback.latch.await(
-                timeMillis, TimeUnit.MILLISECONDS
-            ) && callback.errors.isEmpty()
-        ).isTrue()
+                callback.latch.await(timeMillis, TimeUnit.MILLISECONDS) && callback.errors.isEmpty()
+            )
+            .isTrue()
     }
 
     class PreviewMonitor : CameraCaptureSession.CaptureCallback() {
         private var countDown: CountDownLatch? = null
 
         fun waitForStream(count: Int = 10, timeMillis: Long = TimeUnit.SECONDS.toMillis(5)) {
-            Truth.assertWithMessage("Preview doesn't start").that(synchronized(this) {
-                countDown = CountDownLatch(count)
-                countDown
-            }!!.await(timeMillis, TimeUnit.MILLISECONDS)).isTrue()
+            Truth.assertWithMessage("Preview doesn't start")
+                .that(
+                    synchronized(this) {
+                            countDown = CountDownLatch(count)
+                            countDown
+                        }!!
+                        .await(timeMillis, TimeUnit.MILLISECONDS)
+                )
+                .isTrue()
         }
 
         fun waitForStreamIdle(count: Int = 10, timeMillis: Long = TimeUnit.SECONDS.toMillis(5)) {
-            Truth.assertWithMessage("Preview doesn't become idle").that(synchronized(this) {
-                countDown = CountDownLatch(count)
-                countDown
-            }!!.await(timeMillis, TimeUnit.MILLISECONDS)).isFalse()
+            Truth.assertWithMessage("Preview doesn't become idle")
+                .that(
+                    synchronized(this) {
+                            countDown = CountDownLatch(count)
+                            countDown
+                        }!!
+                        .await(timeMillis, TimeUnit.MILLISECONDS)
+                )
+                .isFalse()
         }
 
         override fun onCaptureCompleted(
@@ -513,9 +516,7 @@ class UseCaseCombinationTest(
             request: CaptureRequest,
             result: TotalCaptureResult
         ) {
-            synchronized(this) {
-                countDown?.countDown()
-            }
+            synchronized(this) { countDown?.countDown() }
         }
     }
 
@@ -523,17 +524,20 @@ class UseCaseCombinationTest(
         private var countDown: CountDownLatch? = null
 
         fun waitForImageAnalysis(count: Int = 10, timeMillis: Long = TimeUnit.SECONDS.toMillis(5)) {
-            Truth.assertWithMessage("Preview doesn't start").that(synchronized(this) {
-                countDown = CountDownLatch(count)
-                countDown
-            }!!.await(timeMillis, TimeUnit.MILLISECONDS)).isTrue()
+            Truth.assertWithMessage("Preview doesn't start")
+                .that(
+                    synchronized(this) {
+                            countDown = CountDownLatch(count)
+                            countDown
+                        }!!
+                        .await(timeMillis, TimeUnit.MILLISECONDS)
+                )
+                .isTrue()
         }
 
         override fun analyze(image: ImageProxy) {
             image.close()
-            synchronized(this) {
-                countDown?.countDown()
-            }
+            synchronized(this) { countDown?.countDown() }
         }
     }
 }

@@ -53,9 +53,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Instrumentation tests for [SurfaceProcessorImpl].
- */
+/** Instrumentation tests for [SurfaceProcessorImpl]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -63,9 +61,7 @@ class SurfaceProcessorImplDeviceTest {
 
     companion object {
         private const val ROTATION_DEGREES = 90
-        private val TRANSFORM = Matrix().apply {
-            postRotate(90F)
-        }
+        private val TRANSFORM = Matrix().apply { postRotate(90F) }
         private const val INPUT_COLOR = Color.GREEN
         private const val OVERLAY_COLOR = Color.RED
 
@@ -94,14 +90,15 @@ class SurfaceProcessorImplDeviceTest {
         glThread.start()
         glHandler = Handler(glThread.looper)
 
-        transformationInfo = TransformationInfo.of(
-            cropRect,
-            ROTATION_DEGREES,
-            Surface.ROTATION_90,
-            true,
-            TRANSFORM,
-            true
-        )
+        transformationInfo =
+            TransformationInfo.of(
+                cropRect,
+                ROTATION_DEGREES,
+                Surface.ROTATION_90,
+                true,
+                TRANSFORM,
+                true
+            )
         surfaceRequest = SurfaceRequest(size, FakeCamera()) {}
         surfaceRequest.updateTransformationInfo(transformationInfo)
         outputTexture = SurfaceTexture(0)
@@ -129,9 +126,7 @@ class SurfaceProcessorImplDeviceTest {
     @Test
     fun onDrawListenerReturnsFalse_notDrawnToOutput() = runBlocking {
         // Act: return false in the on draw listener.
-        val latch = fillFramesAndWaitForOutput(0, 1) {
-            it.setOnDrawListener { false }
-        }
+        val latch = fillFramesAndWaitForOutput(0, 1) { it.setOnDrawListener { false } }
         // Assert: output is not drawn.
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isFalse()
     }
@@ -141,12 +136,13 @@ class SurfaceProcessorImplDeviceTest {
         // Arrange.
         var frameReceived: Frame? = null
         // Act: fill frames and wait draw frame listener.
-        val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
-            processor.setOnDrawListener { frame ->
-                frameReceived = frame
-                true
+        val latch =
+            fillFramesAndWaitForOutput(0, 1) { processor ->
+                processor.setOnDrawListener { frame ->
+                    frameReceived = frame
+                    true
+                }
             }
-        }
         // Assert: draw frame listener receives correct transformation info.
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(frameReceived!!.size).isEqualTo(size)
@@ -159,13 +155,14 @@ class SurfaceProcessorImplDeviceTest {
 
     @Test
     fun getOverlayCanvas_overlayDrawnToOutput(): Unit = runBlocking {
-        val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
-            processor.setOnDrawListener { frame ->
-                // Act: get the overlay canvas and draw color.
-                frame.getOverlayCanvas().drawColor(OVERLAY_COLOR)
-                true
+        val latch =
+            fillFramesAndWaitForOutput(0, 1) { processor ->
+                processor.setOnDrawListener { frame ->
+                    // Act: get the overlay canvas and draw color.
+                    frame.getOverlayCanvas().drawColor(OVERLAY_COLOR)
+                    true
+                }
             }
-        }
         // Assert: output receives frame with overlay color.
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertOutputColor(OVERLAY_COLOR)
@@ -174,14 +171,15 @@ class SurfaceProcessorImplDeviceTest {
     @Test
     fun doNotGetOverlayCanvas_overlayNotDrawnToOutput() = runBlocking {
         var canvas: Canvas? = null
-        val latch = fillFramesAndWaitForOutput(0, 1) { processor ->
-            processor.setOnDrawListener { _ ->
-                // Act: draw color on overlay canvas without getting it.
-                canvas = lockCanvas(processor.overlaySurface)
-                canvas!!.drawColor(OVERLAY_COLOR)
-                true
+        val latch =
+            fillFramesAndWaitForOutput(0, 1) { processor ->
+                processor.setOnDrawListener { _ ->
+                    // Act: draw color on overlay canvas without getting it.
+                    canvas = lockCanvas(processor.overlaySurface)
+                    canvas!!.drawColor(OVERLAY_COLOR)
+                    true
+                }
             }
-        }
         // Assert: output receives frame with input color
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertOutputColor(INPUT_COLOR)
@@ -267,11 +265,7 @@ class SurfaceProcessorImplDeviceTest {
     @Test
     fun drawFrameAndCancel_futureCompletesWithCanceled() = runBlocking {
         // Arrange: draw the input and drop the incoming frames.
-        val latch = fillFramesAndWaitForOutput(1, 1) {
-            it.setOnDrawListener {
-                false
-            }
-        }
+        val latch = fillFramesAndWaitForOutput(1, 1) { it.setOnDrawListener { false } }
         val frame = processor.buffer.frames.single()
 
         // Act: draw the frame.
@@ -328,22 +322,15 @@ class SurfaceProcessorImplDeviceTest {
         }
     }
 
-    /**
-     * Renders the input surface to a bitmap and asserts that the color of the bitmap.
-     */
+    /** Renders the input surface to a bitmap and asserts that the color of the bitmap. */
     private suspend fun assertOutputColor(color: Int) {
         val matrix = FloatArray(16)
         android.opengl.Matrix.setIdentityM(matrix, 0)
         withContext(processor.glExecutor.asCoroutineDispatcher()) {
-            val bitmap = processor.glRendererForTesting
-                .renderInputToBitmap(size.width, size.height, matrix)
-            assertThat(
-                getAverageDiff(
-                    bitmap,
-                    Rect(0, 0, size.width, size.height),
-                    color
-                )
-            ).isEqualTo(0)
+            val bitmap =
+                processor.glRendererForTesting.renderInputToBitmap(size.width, size.height, matrix)
+            assertThat(getAverageDiff(bitmap, Rect(0, 0, size.width, size.height), color))
+                .isEqualTo(0)
         }
     }
 
@@ -371,9 +358,7 @@ class SurfaceProcessorImplDeviceTest {
         // Act: Draw frames to the input surface.
         val inputSurface = surfaceRequest.deferrableSurface.surface.get()
 
-        repeat(frameCount) {
-            drawSurface(inputSurface)
-        }
+        repeat(frameCount) { drawSurface(inputSurface) }
 
         return countDownLatch
     }
@@ -388,23 +373,19 @@ class SurfaceProcessorImplDeviceTest {
         // Drain the GL thread to ensure the processor caches or draws the frame. Otherwise, the
         // input SurfaceTexture's onSurfaceAvailable callback may only get called once for
         // multiple drawings.
-        withContext(processor.glExecutor.asCoroutineDispatcher()) {
-        }
+        withContext(processor.glExecutor.asCoroutineDispatcher()) {}
     }
 
     private fun getTextureUpdateLatch(surfaceTexture: SurfaceTexture): CountDownLatch {
         val countDownLatch = CountDownLatch(1)
-        surfaceTexture.setOnFrameAvailableListener {
-            countDownLatch.countDown()
-        }
+        surfaceTexture.setOnFrameAvailableListener { countDownLatch.countDown() }
         return countDownLatch
     }
 
     private class SurfaceOutputImpl(private val surface: Surface, val surfaceSize: Size) :
         SurfaceOutput {
 
-        override fun close() {
-        }
+        override fun close() {}
 
         override fun getSurface(
             executor: Executor,
@@ -421,7 +402,6 @@ class SurfaceProcessorImplDeviceTest {
             return surfaceSize
         }
 
-        override fun updateTransformMatrix(updated: FloatArray, original: FloatArray) {
-        }
+        override fun updateTransformMatrix(updated: FloatArray, original: FloatArray) {}
     }
 }

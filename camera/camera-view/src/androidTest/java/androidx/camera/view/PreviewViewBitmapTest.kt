@@ -54,24 +54,18 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class PreviewViewBitmapTest(
-    private val implName: String,
-    private val cameraConfig: CameraXConfig
-) {
-    @get:Rule
-    val activityRule = ActivityScenarioRule(
-        FakeActivity::class.java
-    )
+class PreviewViewBitmapTest(private val implName: String, private val cameraConfig: CameraXConfig) {
+    @get:Rule val activityRule = ActivityScenarioRule(FakeActivity::class.java)
 
     @get:Rule
-    var useCamera = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        PreTestCameraIdList(cameraConfig)
-    )
+    var useCamera =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -289,9 +283,9 @@ class PreviewViewBitmapTest(
             Truth.assertThat(bitmap!!.width).isAtMost(previewView.width)
             Truth.assertThat(bitmap.height).isAtMost(previewView.height)
             Truth.assertThat(
-                bitmap.width == previewView.width ||
-                    bitmap.height == previewView.height
-            ).isTrue()
+                    bitmap.width == previewView.width || bitmap.height == previewView.height
+                )
+                .isTrue()
         }
     }
 
@@ -312,20 +306,16 @@ class PreviewViewBitmapTest(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                     activity.setShowWhenLocked()
                     activity.setTurnScreenOn()
-                    activity.window.addFlags(
-                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                    )
+                    activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 } else {
                     @Suppress("DEPRECATION")
                     activity.window.addFlags(
-                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                            or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                            or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                     )
                 }
-                activity.setContentView(
-                    previewView
-                )
+                activity.setContentView(previewView)
             }
             previewViewAtomicReference.set(previewView)
         }
@@ -373,9 +363,10 @@ class PreviewViewBitmapTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 }

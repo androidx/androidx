@@ -31,7 +31,9 @@ import javax.inject.Inject
  */
 @SuppressLint("UnsafeOptInUsageError")
 @CameraScope
-class CameraControlStateAdapter @Inject constructor(
+class CameraControlStateAdapter
+@Inject
+constructor(
     private val zoomControl: ZoomControl,
     private val evCompControl: EvCompControl,
     private val torchControl: TorchControl,

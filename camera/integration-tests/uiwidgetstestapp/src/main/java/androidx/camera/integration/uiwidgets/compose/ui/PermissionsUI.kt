@@ -34,13 +34,12 @@ fun PermissionsUI(
 ) {
     var allPermissionsGranted by remember { mutableStateOf(checkAllPermissionGranted(permissions)) }
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { results ->
-        allPermissionsGranted = results.all {
-            it.value
+    val launcher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { results ->
+            allPermissionsGranted = results.all { it.value }
         }
-    }
 
     LaunchedEffect(key1 = permissions) {
         if (!allPermissionsGranted) {

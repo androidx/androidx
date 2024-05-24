@@ -22,8 +22,8 @@ import androidx.benchmark.MetricResult
 import kotlin.math.abs
 
 /**
- * Asserts that the two lists of Measurements are equal with a threshold for data,
- * ignoring list order.
+ * Asserts that the two lists of Measurements are equal with a threshold for data, ignoring list
+ * order.
  *
  * @throws AssertionError
  */
@@ -38,31 +38,34 @@ fun assertEqualMeasurements(
     val expectedNames = listOf(expectedSorted.map { it.name })
     val observedNames = listOf(observedSorted.map { it.name })
     if (expectedNames != observedNames) {
-        throw AssertionError("expected same measurement names, " +
-            "expected = $expectedNames, observed = $observedNames")
+        throw AssertionError(
+            "expected same measurement names, " +
+                "expected = $expectedNames, observed = $observedNames"
+        )
     }
 
     var errorString = ""
     expectedSorted.zip(observedSorted) { expectedMeasurement, observedMeasurement ->
         val name = expectedMeasurement.name
-        if (expectedMeasurement.requireSingleValue !=
-            observedMeasurement.requireSingleValue
-        ) {
-            errorString += "expected value of requireSingleValue " +
-                "(${expectedMeasurement.requireSingleValue}) does not match observed " +
-                "value ${observedMeasurement.requireSingleValue}\n"
+        if (expectedMeasurement.requireSingleValue != observedMeasurement.requireSingleValue) {
+            errorString +=
+                "expected value of requireSingleValue " +
+                    "(${expectedMeasurement.requireSingleValue}) does not match observed " +
+                    "value ${observedMeasurement.requireSingleValue}\n"
         }
 
         val expectedSamples = expectedMeasurement.data
         val observedSamples = observedMeasurement.data
         if (expectedSamples.size != observedSamples.size) {
-            errorString += "$name expected ${expectedSamples.size} samples," +
-                " observed ${observedSamples.size}\n"
+            errorString +=
+                "$name expected ${expectedSamples.size} samples," +
+                    " observed ${observedSamples.size}\n"
         } else {
             expectedSamples.zip(observedSamples).forEachIndexed { index, pair ->
                 if (abs(pair.first - pair.second) > threshold) {
-                    errorString += "$name sample $index observed ${pair.first}" +
-                        " more than $threshold from expected ${pair.second}\n"
+                    errorString +=
+                        "$name sample $index observed ${pair.first}" +
+                            " more than $threshold from expected ${pair.second}\n"
                 }
             }
         }
@@ -81,8 +84,7 @@ internal fun List<Metric.Measurement>.merge(
     val intersectingNames = nameSet.intersect(otherNameSet)
     if (intersectingNames.isNotEmpty()) {
         throw IllegalStateException(
-            "Multiple metrics produced " +
-                "measurements with overlapping names: $intersectingNames"
+            "Multiple metrics produced " + "measurements with overlapping names: $intersectingNames"
         )
     }
     return this + other
@@ -94,71 +96,71 @@ internal fun List<Metric.Measurement>.merge(
  *
  * For requireSingleValue Measurements, this becomes a MetricResult used to extract min/med/max.
  *
- * For !requireSingleValue SubResults, this becomes a MetricResult used to extract
- * P50/P90/P95/P99 from a flattened list of all samples, pooled together.
+ * For !requireSingleValue SubResults, this becomes a MetricResult used to extract P50/P90/P95/P99
+ * from a flattened list of all samples, pooled together.
  */
-internal fun List<List<Metric.Measurement>>.mergeMultiIterResults() = Measurements(
-    singleMetrics = this.map {
-        it.filter { measurement ->
-            measurement.requireSingleValue
-        }.associate { singleResult ->
-            singleResult.name to singleResult.data.first()
-        }
-    }.mergeToSingleMetricResults(),
-    sampledMetrics = this.map {
-        it.filter { measurement ->
-            !measurement.requireSingleValue
-        }.associate { singleResult ->
-            singleResult.name to singleResult.data
-        }
-    }.mergeToSampledMetricResults()
-)
+internal fun List<List<Metric.Measurement>>.mergeMultiIterResults() =
+    Measurements(
+        singleMetrics =
+            this.map {
+                    it.filter { measurement -> measurement.requireSingleValue }
+                        .associate { singleResult ->
+                            singleResult.name to singleResult.data.first()
+                        }
+                }
+                .mergeToSingleMetricResults(),
+        sampledMetrics =
+            this.map {
+                    it.filter { measurement -> !measurement.requireSingleValue }
+                        .associate { singleResult -> singleResult.name to singleResult.data }
+                }
+                .mergeToSampledMetricResults()
+    )
 
-/**
- * Merge the Map<String, Long> results from each iteration into one List<MetricResult>
- */
+/** Merge the Map<String, Long> results from each iteration into one List<MetricResult> */
 internal fun List<Map<String, Double>>.mergeToSingleMetricResults(): List<MetricResult> {
     val setOfAllKeys = flatMap { it.keys }.toSet()
 
     // build Map<String, List<Long>>
-    val listResults: Map<String, List<Double>> = setOfAllKeys.associateWith { key ->
-        mapIndexedNotNull { iteration, resultMap ->
-            if (resultMap.keys != setOfAllKeys) {
-                // TODO: assert that metrics are always captured (b/193827052)
-                Log.d(TAG, "Skipping results from iter $iteration, it didn't capture all metrics")
-                null
-            } else {
-                resultMap[key] ?: error("Metric $key not observed in iteration")
+    val listResults: Map<String, List<Double>> =
+        setOfAllKeys.associateWith { key ->
+            mapIndexedNotNull { iteration, resultMap ->
+                if (resultMap.keys != setOfAllKeys) {
+                    // TODO: assert that metrics are always captured (b/193827052)
+                    Log.d(
+                        TAG,
+                        "Skipping results from iter $iteration, it didn't capture all metrics"
+                    )
+                    null
+                } else {
+                    resultMap[key] ?: error("Metric $key not observed in iteration")
+                }
             }
         }
-    }
 
     // transform to List<MetricResult>, sorted by metric name
-    return listResults.map { (metricName, values) ->
-        MetricResult(name = metricName, data = values)
-    }.sortedBy { it.name }
+    return listResults
+        .map { (metricName, values) -> MetricResult(name = metricName, data = values) }
+        .sortedBy { it.name }
 }
 
-/**
- * Merge the Map<String, List<Long>> results from each iteration into one List<MetricResult>
- */
+/** Merge the Map<String, List<Long>> results from each iteration into one List<MetricResult> */
 internal fun List<Map<String, List<Double>>>.mergeToSampledMetricResults(): List<MetricResult> {
     val setOfAllKeys = flatMap { it.keys }.toSet()
 
     // build Map<String, List<List<Long>>>
-    val listResults = setOfAllKeys.associateWith { key ->
-        mapIndexed { index: Int, iterationSamples: Map<String, List<Double>> ->
-            iterationSamples[key]
-                ?: throw IllegalStateException("Iteration $index didn't capture metric $key")
+    val listResults =
+        setOfAllKeys.associateWith { key ->
+            mapIndexed { index: Int, iterationSamples: Map<String, List<Double>> ->
+                iterationSamples[key]
+                    ?: throw IllegalStateException("Iteration $index didn't capture metric $key")
+            }
         }
-    }
 
     // transform to List<MetricResult>, sorted by metric name
-    return listResults.map { (metricName, values) ->
-        MetricResult(
-            name = metricName,
-            data = values.flatten(),
-            iterationData = values
-        )
-    }.sortedBy { it.name }
+    return listResults
+        .map { (metricName, values) ->
+            MetricResult(name = metricName, data = values.flatten(), iterationData = values)
+        }
+        .sortedBy { it.name }
 }

@@ -41,9 +41,7 @@ import java.io.FileOutputStream
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Instrumented tests for [JpegBytes2Disk].
- */
+/** Instrumented tests for [JpegBytes2Disk]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -55,30 +53,29 @@ class JpegBytes2DiskDeviceTest {
     fun saveToOutputStream_verifySavedImageIsIdentical() {
         // Arrange.
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
-        val inputPacket = Packet.of(
-            jpegBytes,
-            ExifUtil.createExif(jpegBytes),
-            ImageFormat.JPEG,
-            Size(WIDTH, HEIGHT),
-            Rect(0, 0, WIDTH, HEIGHT),
-            ROTATION_DEGREES,
-            Matrix(),
-            CAMERA_CAPTURE_RESULT
-        )
+        val inputPacket =
+            Packet.of(
+                jpegBytes,
+                ExifUtil.createExif(jpegBytes),
+                ImageFormat.JPEG,
+                Size(WIDTH, HEIGHT),
+                Rect(0, 0, WIDTH, HEIGHT),
+                ROTATION_DEGREES,
+                Matrix(),
+                CAMERA_CAPTURE_RESULT
+            )
         // Act: save to a OutputStream.
         FileOutputStream(TEMP_FILE).use {
-            val input = JpegBytes2Disk.In.of(inputPacket,
-                ImageCapture.OutputFileOptions.Builder(it).build())
+            val input =
+                JpegBytes2Disk.In.of(
+                    inputPacket,
+                    ImageCapture.OutputFileOptions.Builder(it).build()
+                )
             operation.apply(input)
         }
         // Assert.
         val restoredBitmap = BitmapFactory.decodeFile(TEMP_FILE.path)
-        assertThat(
-            getAverageDiff(
-                restoredBitmap,
-                createBitmap(WIDTH, HEIGHT)
-            )
-        ).isEqualTo(0)
+        assertThat(getAverageDiff(restoredBitmap, createBitmap(WIDTH, HEIGHT))).isEqualTo(0)
     }
 
     @Test
@@ -87,21 +84,14 @@ class JpegBytes2DiskDeviceTest {
         val path = saveFileAndGetPath()
         // Assert: image is identical.
         val restoredBitmap = BitmapFactory.decodeFile(path)
-        assertThat(
-            getAverageDiff(
-                restoredBitmap,
-                createBitmap(WIDTH, HEIGHT)
-            )
-        ).isEqualTo(0)
+        assertThat(getAverageDiff(restoredBitmap, createBitmap(WIDTH, HEIGHT))).isEqualTo(0)
         // Assert: exif rotation matches the packet rotation.
         val restoredExif = Exif.createFromFileString(path)
         assertThat(restoredExif.rotation).isEqualTo(ROTATION_DEGREES)
     }
 
     private fun saveFileAndGetPath(metadata: ImageCapture.Metadata): String {
-        return saveFileAndGetPath(
-            ExifUtil.createExif(createJpegBytes(WIDTH, HEIGHT)),
-            metadata, 0)
+        return saveFileAndGetPath(ExifUtil.createExif(createJpegBytes(WIDTH, HEIGHT)), metadata, 0)
     }
 
     private fun saveFileAndGetPath(
@@ -110,18 +100,19 @@ class JpegBytes2DiskDeviceTest {
         rotation: Int = ROTATION_DEGREES
     ): String {
         val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
-        val inputPacket = Packet.of(
-            jpegBytes,
-            exif,
-            ImageFormat.JPEG,
-            Size(WIDTH, HEIGHT),
-            Rect(0, 0, WIDTH, HEIGHT),
-            rotation,
-            Matrix(),
-            CAMERA_CAPTURE_RESULT
-        )
-        val options = ImageCapture.OutputFileOptions.Builder(TEMP_FILE)
-            .setMetadata(metadata).build()
+        val inputPacket =
+            Packet.of(
+                jpegBytes,
+                exif,
+                ImageFormat.JPEG,
+                Size(WIDTH, HEIGHT),
+                Rect(0, 0, WIDTH, HEIGHT),
+                rotation,
+                Matrix(),
+                CAMERA_CAPTURE_RESULT
+            )
+        val options =
+            ImageCapture.OutputFileOptions.Builder(TEMP_FILE).setMetadata(metadata).build()
         val input = JpegBytes2Disk.In.of(inputPacket, options)
         return operation.apply(input).savedUri!!.path!!
     }

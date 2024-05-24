@@ -19,7 +19,7 @@ import androidx.core.app.Person
 import java.util.Objects
 import java.util.Objects.toString
 
-/** Helper functions to compare two [Person] object.  */
+/** Helper functions to compare two [Person] object. */
 internal object PersonsEqualityHelper {
     // TODO(b/266877597): Move to androidx.core.app.Person
     /** Calculate the hashcode for [Person] object. */
@@ -36,10 +36,7 @@ internal object PersonsEqualityHelper {
         }
 
         // Fallback: Use hash code for individual fields
-        return Objects.hash(
-            person.name, person.uri, person.isBot,
-            person.isImportant
-        )
+        return Objects.hash(person.name, person.uri, person.isBot, person.isImportant)
     }
 
     // TODO(b/266877597): Move to androidx.core.app.Person

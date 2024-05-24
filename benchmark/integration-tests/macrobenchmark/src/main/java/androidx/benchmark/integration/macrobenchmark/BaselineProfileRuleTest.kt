@@ -38,8 +38,7 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 29)
 class BaselineProfileRuleTest {
 
-    @get:Rule
-    val baselineRule = BaselineProfileRule()
+    @get:Rule val baselineRule = BaselineProfileRule()
 
     @Before
     fun setup() {
@@ -51,14 +50,13 @@ class BaselineProfileRuleTest {
 
     @Test
     fun appNotInstalled() {
-        val error = assertFailsWith<AssertionError> {
-            baselineRule.collect(
-                packageName = "fake.package.not.installed",
-                profileBlock = {
-                    fail("not expected")
-                }
-            )
-        }
+        val error =
+            assertFailsWith<AssertionError> {
+                baselineRule.collect(
+                    packageName = "fake.package.not.installed",
+                    profileBlock = { fail("not expected") }
+                )
+            }
         println(error.message)
         assertTrue(error.message!!.contains("Unable to find target package"))
     }
@@ -144,7 +142,8 @@ class BaselineProfileRuleTest {
 
                 List content was:
                 ${this.joinToString(System.lineSeparator())}
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
         }
     }

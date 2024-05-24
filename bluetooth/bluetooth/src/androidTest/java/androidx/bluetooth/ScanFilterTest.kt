@@ -23,9 +23,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Test cases for [ScanFilter]
- */
+/** Test cases for [ScanFilter] */
 @RunWith(JUnit4::class)
 class ScanFilterTest {
 
@@ -48,8 +46,8 @@ class ScanFilterTest {
 
     @Test
     fun constructor() {
-        val deviceAddress = BluetoothAddress("00:01:02:03:04:05",
-            BluetoothAddress.ADDRESS_TYPE_PUBLIC)
+        val deviceAddress =
+            BluetoothAddress("00:01:02:03:04:05", BluetoothAddress.ADDRESS_TYPE_PUBLIC)
         val manufacturerId = 1
         val manufacturerData = "AA".toByteArray()
         val manufacturerDataMask = "AB".toByteArray()
@@ -61,19 +59,20 @@ class ScanFilterTest {
         val serviceSolicitationUuid = UUID.randomUUID()
         val serviceSolicitationUuidMask = UUID.randomUUID()
 
-        val scanFilter = ScanFilter(
-            deviceAddress = deviceAddress,
-            manufacturerId = manufacturerId,
-            manufacturerData = manufacturerData,
-            manufacturerDataMask = manufacturerDataMask,
-            serviceDataUuid = serviceDataUuid,
-            serviceData = serviceData,
-            serviceDataMask = serviceDataMask,
-            serviceUuid = serviceUuid,
-            serviceUuidMask = serviceUuidMask,
-            serviceSolicitationUuid = serviceSolicitationUuid,
-            serviceSolicitationUuidMask = serviceSolicitationUuidMask
-        )
+        val scanFilter =
+            ScanFilter(
+                deviceAddress = deviceAddress,
+                manufacturerId = manufacturerId,
+                manufacturerData = manufacturerData,
+                manufacturerDataMask = manufacturerDataMask,
+                serviceDataUuid = serviceDataUuid,
+                serviceData = serviceData,
+                serviceDataMask = serviceDataMask,
+                serviceUuid = serviceUuid,
+                serviceUuidMask = serviceUuidMask,
+                serviceSolicitationUuid = serviceSolicitationUuid,
+                serviceSolicitationUuidMask = serviceSolicitationUuidMask
+            )
 
         assertThat(scanFilter.deviceAddress).isEqualTo(deviceAddress)
         assertThat(scanFilter.manufacturerId).isEqualTo(manufacturerId)
@@ -113,8 +112,10 @@ class ScanFilterTest {
         val manufacturerDataMask = "arrayOfDifferentSize".toByteArray()
 
         assertFailsWith<IllegalArgumentException> {
-            ScanFilter(manufacturerData = manufacturerData,
-                manufacturerDataMask = manufacturerDataMask)
+            ScanFilter(
+                manufacturerData = manufacturerData,
+                manufacturerDataMask = manufacturerDataMask
+            )
         }
     }
 
@@ -122,9 +123,7 @@ class ScanFilterTest {
     fun constructorWithNullServiceData_andNonNullMask() {
         val serviceDataMask = "nonNullMask".toByteArray()
 
-        assertFailsWith<IllegalArgumentException> {
-            ScanFilter(serviceDataMask = serviceDataMask)
-        }
+        assertFailsWith<IllegalArgumentException> { ScanFilter(serviceDataMask = serviceDataMask) }
     }
 
     @Test
@@ -133,8 +132,7 @@ class ScanFilterTest {
         val serviceDataMask = "arrayOfDifferentSize".toByteArray()
 
         assertFailsWith<IllegalArgumentException> {
-            ScanFilter(serviceData = serviceData,
-                serviceDataMask = serviceDataMask)
+            ScanFilter(serviceData = serviceData, serviceDataMask = serviceDataMask)
         }
     }
 
@@ -142,9 +140,7 @@ class ScanFilterTest {
     fun constructorWithNullServiceUuid_andNonNullMask() {
         val serviceUuidMask = UUID.randomUUID()
 
-        assertFailsWith<IllegalArgumentException> {
-            ScanFilter(serviceUuidMask = serviceUuidMask)
-        }
+        assertFailsWith<IllegalArgumentException> { ScanFilter(serviceUuidMask = serviceUuidMask) }
     }
 
     @Test

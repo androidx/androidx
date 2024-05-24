@@ -24,19 +24,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 
-/**
- * Collection of threads and scope(s) that have been configured and tuned.
- */
+/** Collection of threads and scope(s) that have been configured and tuned. */
 class UseCaseThreads(
     val scope: CoroutineScope,
-
     val backgroundExecutor: Executor,
     val backgroundDispatcher: CoroutineDispatcher,
 ) {
     val sequentialExecutor = CameraXExecutors.newSequentialExecutor(backgroundExecutor)
     private val sequentialDispatcher = sequentialExecutor.asCoroutineDispatcher()
-    var sequentialScope: CoroutineScope = CoroutineScope(
-        scope.coroutineContext + SupervisorJob() + sequentialDispatcher
-    )
+    var sequentialScope: CoroutineScope =
+        CoroutineScope(scope.coroutineContext + SupervisorJob() + sequentialDispatcher)
         @VisibleForTesting set
 }

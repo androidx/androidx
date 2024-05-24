@@ -46,14 +46,14 @@ class BackgroundWorkActivity : AppCompatActivity() {
         var countDownLatch = CountDownLatch(count)
 
         for (i in 0 until count) {
-            var workRequest = OneTimeWorkRequestBuilder<NoOpWorker>()
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .build()
-            WorkManager.getInstance(context).beginWith(workRequest)
-                .enqueue()
-            WorkManager.getInstance(context)
-                .getWorkInfoByIdLiveData(workRequest.id)
-            .observe(this) { workInfo ->
+            var workRequest =
+                OneTimeWorkRequestBuilder<NoOpWorker>()
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .build()
+            WorkManager.getInstance(context).beginWith(workRequest).enqueue()
+            WorkManager.getInstance(context).getWorkInfoByIdLiveData(workRequest.id).observe(
+                this
+            ) { workInfo ->
                 if (workInfo?.state == WorkInfo.State.SUCCEEDED) {
                     countDownLatch.countDown()
                 }

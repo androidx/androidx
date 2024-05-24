@@ -26,8 +26,8 @@ import androidx.camera.integration.antelope.MainActivity
 import androidx.camera.integration.antelope.TestConfig
 
 /**
- * Callbacks that track an image capture session, including progress of auto-focus and
- * auto-exposure routines.
+ * Callbacks that track an image capture session, including progress of auto-focus and auto-exposure
+ * routines.
  *
  * In general these callbacks encompass the intermediate states of the camera after a preview stream
  * is running but before an actual image capture is performed.
@@ -58,8 +58,7 @@ class Camera2CaptureSessionCallback(
         failure: CaptureFailure
     ) {
         MainActivity.logd(
-            "Camera2CaptureSessionCallback : Capture sequence FAILED - " +
-                failure.reason
+            "Camera2CaptureSessionCallback : Capture sequence FAILED - " + failure.reason
         )
 
         if (!params.isOpen) {
@@ -88,7 +87,9 @@ class Camera2CaptureSessionCallback(
                 val afState = result.get(CaptureResult.CONTROL_AF_STATE)
                 MainActivity.logd(
                     "Camera2CaptureSessionCallback: STATE_WAITING_LOCK, afstate == " +
-                        afState + ", frame number: " + result.frameNumber
+                        afState +
+                        ", frame number: " +
+                        result.frameNumber
                 )
 
                 when (afState) {
@@ -116,14 +117,13 @@ class Camera2CaptureSessionCallback(
                             captureStillPicture(activity, params, testConfig)
                         }
                     }
-
                     CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
                     CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED,
                     CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED -> {
                         // AF is locked, check AE. Note CONTROL_AE_STATE can be null on some devices
                         val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
-                        if (aeState == null ||
-                            aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED
+                        if (
+                            aeState == null || aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED
                         ) {
                             MainActivity.logd(
                                 "Camera2CaptureSessionCallback : " +
@@ -137,7 +137,6 @@ class Camera2CaptureSessionCallback(
                             runPrecaptureSequence(params)
                         }
                     }
-
                     CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN,
                     CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED,
                     CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN -> {
@@ -158,38 +157,39 @@ class Camera2CaptureSessionCallback(
                     )
                     params.state = CameraState.IMAGE_REQUESTED
                     captureStillPicture(activity, params, testConfig)
-                } else when (aeState) {
-                    // Still metering, keep waiting
-                    CaptureResult.CONTROL_AE_STATE_PRECAPTURE,
-                    CaptureResult.CONTROL_AE_STATE_SEARCHING
-                    -> Unit // no-op
+                } else
+                    when (aeState) {
+                        // Still metering, keep waiting
+                        CaptureResult.CONTROL_AE_STATE_PRECAPTURE,
+                        CaptureResult.CONTROL_AE_STATE_SEARCHING -> Unit // no-op
 
-                    // AE converged, double check AF is good
-                    CaptureResult.CONTROL_AE_STATE_CONVERGED,
-                    CaptureResult.CONTROL_AE_STATE_LOCKED
-                    -> params.state = CameraState.WAITING_FOCUS_LOCK
+                        // AE converged, double check AF is good
+                        CaptureResult.CONTROL_AE_STATE_CONVERGED,
+                        CaptureResult.CONTROL_AE_STATE_LOCKED ->
+                            params.state = CameraState.WAITING_FOCUS_LOCK
 
-                    // If we need a flash, begin the capture
-                    // If AE is INACTIVE, it's in an unusual state (AF locked but AE starting up),
-                    // just do the capture to avoid getting stuck.
-                    CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
-                    CaptureResult.CONTROL_AE_STATE_INACTIVE -> {
-                        MainActivity.logd(
-                            "Camera2CaptureSessionCallback : " +
-                                "STATE_WAITING_PRECAPTURE, aeState: " + aeState +
-                                ", AE stuck or needs flash, calling captureStillPicture!"
-                        )
-                        params.state = CameraState.IMAGE_REQUESTED
-                        captureStillPicture(activity, params, testConfig)
+                        // If we need a flash, begin the capture
+                        // If AE is INACTIVE, it's in an unusual state (AF locked but AE starting
+                        // up),
+                        // just do the capture to avoid getting stuck.
+                        CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED,
+                        CaptureResult.CONTROL_AE_STATE_INACTIVE -> {
+                            MainActivity.logd(
+                                "Camera2CaptureSessionCallback : " +
+                                    "STATE_WAITING_PRECAPTURE, aeState: " +
+                                    aeState +
+                                    ", AE stuck or needs flash, calling captureStillPicture!"
+                            )
+                            params.state = CameraState.IMAGE_REQUESTED
+                            captureStillPicture(activity, params, testConfig)
+                        }
                     }
-                }
             }
-
             else -> {}
         }
     }
 
-    /** Unused but retained here as it can be useful for debugging  */
+    /** Unused but retained here as it can be useful for debugging */
     override fun onCaptureStarted(
         session: CameraCaptureSession,
         request: CaptureRequest,
@@ -206,7 +206,8 @@ class Camera2CaptureSessionCallback(
         request: CaptureRequest,
         partialResult: CaptureResult
     ) {
-        // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: onCaptureProgressed, " +
+        // MainActivity.logd("Camera2CaptureSessionCallback captureCallback: onCaptureProgressed, "
+        // +
         // "partial result frame number: " + partialResult.frameNumber)
         process(partialResult)
     }

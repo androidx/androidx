@@ -56,8 +56,7 @@ internal abstract class Camera2Module {
     @DefaultCameraBackend
     abstract fun bindCameraPipeCameraBackend(camera2Backend: Camera2Backend): CameraBackend
 
-    @Binds
-    abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
+    @Binds abstract fun bindCameraOpener(camera2CameraOpener: Camera2CameraOpener): CameraOpener
 
     @Binds
     abstract fun bindCameraMetadataProvider(
@@ -90,16 +89,16 @@ internal abstract class Camera2Module {
     ): AudioRestrictionController
 }
 
-@Scope
-internal annotation class Camera2ControllerScope
+@Scope internal annotation class Camera2ControllerScope
 
 @Camera2ControllerScope
 @Subcomponent(
     modules =
-    [
-        Camera2ControllerConfig::class,
-        Camera2ControllerModule::class,
-        Camera2CaptureSessionsModule::class]
+        [
+            Camera2ControllerConfig::class,
+            Camera2ControllerModule::class,
+            Camera2CaptureSessionsModule::class
+        ]
 )
 internal interface Camera2ControllerComponent {
     fun cameraController(): CameraController
@@ -107,6 +106,7 @@ internal interface Camera2ControllerComponent {
     @Subcomponent.Builder
     interface Builder {
         fun camera2ControllerConfig(config: Camera2ControllerConfig): Builder
+
         fun build(): Camera2ControllerComponent
     }
 }
@@ -118,17 +118,13 @@ internal class Camera2ControllerConfig(
     private val graphListener: GraphListener,
     private val streamGraph: StreamGraph,
 ) {
-    @Provides
-    fun provideCameraGraphConfig() = graphConfig
+    @Provides fun provideCameraGraphConfig() = graphConfig
 
-    @Provides
-    fun provideCameraBackend() = cameraBackend
+    @Provides fun provideCameraBackend() = cameraBackend
 
-    @Provides
-    fun provideStreamGraph() = streamGraph as StreamGraphImpl
+    @Provides fun provideStreamGraph() = streamGraph as StreamGraphImpl
 
-    @Provides
-    fun provideGraphListener() = graphListener
+    @Provides fun provideGraphListener() = graphListener
 }
 
 @Module
