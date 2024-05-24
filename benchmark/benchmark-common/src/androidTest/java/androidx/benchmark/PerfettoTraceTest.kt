@@ -47,9 +47,7 @@ class PerfettoTraceTest {
         var perfettoTrace: PerfettoTrace? = null
         PerfettoTrace.record(
             fileLabel = "testTrace",
-            traceCallback = { trace ->
-                perfettoTrace = trace
-            }
+            traceCallback = { trace -> perfettoTrace = trace }
         ) {
             // noop
         }
@@ -59,17 +57,13 @@ class PerfettoTraceTest {
         }
     }
 
-    private fun verifyRecordSuccess(
-        config: PerfettoConfig
-    ) {
+    private fun verifyRecordSuccess(config: PerfettoConfig) {
         var perfettoTrace: PerfettoTrace? = null
         val label = "successTrace${config.javaClass.simpleName}"
         PerfettoTrace.record(
             fileLabel = label,
             config = config,
-            traceCallback = { trace ->
-                perfettoTrace = trace
-            }
+            traceCallback = { trace -> perfettoTrace = trace }
         ) {
             // noop
         }
@@ -79,33 +73,32 @@ class PerfettoTraceTest {
         }
     }
 
-    private fun verifyRecordFails(
-        config: PerfettoConfig
-    ) {
+    private fun verifyRecordFails(config: PerfettoConfig) {
         var perfettoTrace: PerfettoTrace? = null
-        val exception = assertFailsWith<IllegalStateException> {
-            PerfettoTrace.record(
-                fileLabel = "failTrace",
-                config = config,
-                traceCallback = { trace ->
-                    perfettoTrace = trace
+        val exception =
+            assertFailsWith<IllegalStateException> {
+                PerfettoTrace.record(
+                    fileLabel = "failTrace",
+                    config = config,
+                    traceCallback = { trace -> perfettoTrace = trace }
+                ) {
+                    // noop
                 }
-            ) {
-                // noop
             }
-        }
         assertTrue(exception.message!!.contains("Perfetto unexpected exit code"))
         assertNull(perfettoTrace)
     }
 
-    @Test
-    fun record_invalidText() = verifyRecordFails(PerfettoConfig.Text("INVALID"))
+    @Test fun record_invalidText() = verifyRecordFails(PerfettoConfig.Text("INVALID"))
 
     @Test
     fun record_invalidBinary() = verifyRecordFails(PerfettoConfig.Binary(byteArrayOf(1, 0, 1)))
 
     @Test
-    fun record_validText() = verifyRecordSuccess(PerfettoConfig.Text("""
+    fun record_validText() =
+        verifyRecordSuccess(
+            PerfettoConfig.Text(
+                """
         # basic config generated from https://ui.perfetto.dev/#!/record
         buffers: {
             size_kb: 63488
@@ -133,19 +126,27 @@ class PerfettoTraceTest {
         incremental_state_config {
             clear_period_ms: 5000
         }
-    """.trimIndent()))
+    """
+                    .trimIndent()
+            )
+        )
 
     @Test
-    fun record_validBinary() = verifyRecordSuccess(
-        PerfettoConfig.Binary(
-            perfettoConfig(
-                atraceApps = listOf(
-                    InstrumentationRegistry.getInstrumentation().targetContext.packageName
-                ),
-                stackSamplingConfig = null
-            ).validateAndEncode()
+    fun record_validBinary() =
+        verifyRecordSuccess(
+            PerfettoConfig.Binary(
+                perfettoConfig(
+                        atraceApps =
+                            listOf(
+                                InstrumentationRegistry.getInstrumentation()
+                                    .targetContext
+                                    .packageName
+                            ),
+                        stackSamplingConfig = null
+                    )
+                    .validateAndEncode()
+            )
         )
-    )
 
     @Test
     fun record_reentrant() {
@@ -153,17 +154,13 @@ class PerfettoTraceTest {
         var perfettoTrace: PerfettoTrace? = null
         PerfettoTrace.record(
             fileLabel = "outer",
-            traceCallback = { trace ->
-                perfettoTrace = trace
-            }
+            traceCallback = { trace -> perfettoTrace = trace }
         ) {
             // tracing while tracing should fail
             assertFailsWith<IllegalStateException> {
                 PerfettoTrace.record(
                     fileLabel = "inner",
-                    traceCallback = { _ ->
-                        fail("inner trace should not complete / record")
-                    }
+                    traceCallback = { _ -> fail("inner trace should not complete / record") }
                 ) {
                     // noop
                 }

@@ -24,18 +24,14 @@ import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.interfaces.Detector
 import java.nio.ByteBuffer
 
-/**
- * Fake [Detector] with [String] as the result type.
- */
+/** Fake [Detector] with [String] as the result type. */
 class FakeDetector(
     private val result: String?,
     private val detectorType: Int,
 ) : Detector<String> {
 
-    @VisibleForTesting
-    var latestMatrix: Matrix? = null
-    @VisibleForTesting
-    var latestRotationDegrees: Int = -1
+    @VisibleForTesting var latestMatrix: Matrix? = null
+    @VisibleForTesting var latestRotationDegrees: Int = -1
 
     private var closed = false
     var taskException: Exception? = null

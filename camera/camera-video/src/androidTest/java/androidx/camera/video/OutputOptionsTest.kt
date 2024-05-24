@@ -50,8 +50,7 @@ class OutputOptionsTest {
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
 
-        val fileOutputOptions = FileOutputOptions.Builder(savedFile)
-            .build()
+        val fileOutputOptions = FileOutputOptions.Builder(savedFile).build()
 
         assertThat(fileOutputOptions).isNotNull()
         assertThat(fileOutputOptions.file).isEqualTo(savedFile)
@@ -63,23 +62,25 @@ class OutputOptionsTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         val contentResolver: ContentResolver = context.contentResolver
         val fileName = "OutputOptionTest"
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-            put(MediaStore.Video.Media.TITLE, fileName)
-            put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
-        }
+        val contentValues =
+            ContentValues().apply {
+                put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+                put(MediaStore.Video.Media.TITLE, fileName)
+                put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
+            }
 
-        val mediaStoreOutputOptions = MediaStoreOutputOptions.Builder(
-            contentResolver,
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        ).setContentValues(contentValues)
-            .build()
+        val mediaStoreOutputOptions =
+            MediaStoreOutputOptions.Builder(
+                    contentResolver,
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                )
+                .setContentValues(contentValues)
+                .build()
 
         assertThat(mediaStoreOutputOptions).isNotNull()
         assertThat(mediaStoreOutputOptions.contentResolver).isEqualTo(contentResolver)
-        assertThat(mediaStoreOutputOptions.collectionUri).isEqualTo(
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        )
+        assertThat(mediaStoreOutputOptions.collectionUri)
+            .isEqualTo(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
         assertThat(mediaStoreOutputOptions.contentValues).isEqualTo(contentValues)
     }
 
@@ -87,12 +88,8 @@ class OutputOptionsTest {
     fun canBuildFileDescriptorOutputOptions() {
         val savedFile = File.createTempFile("CameraX", ".tmp")
         savedFile.deleteOnExit()
-        ParcelFileDescriptor.open(
-            savedFile,
-            ParcelFileDescriptor.MODE_READ_WRITE
-        ).use { pfd ->
-            val fdOutputOptions = FileDescriptorOutputOptions.Builder(pfd)
-                .build()
+        ParcelFileDescriptor.open(savedFile, ParcelFileDescriptor.MODE_READ_WRITE).use { pfd ->
+            val fdOutputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
 
             assertThat(fdOutputOptions).isNotNull()
             assertThat(fdOutputOptions.parcelFileDescriptor).isEqualTo(pfd)
@@ -105,10 +102,12 @@ class OutputOptionsTest {
         val context: Context = ApplicationProvider.getApplicationContext()
         val contentResolver: ContentResolver = context.contentResolver
 
-        val mediaStoreOutputOptions = MediaStoreOutputOptions.Builder(
-            contentResolver,
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        ).build()
+        val mediaStoreOutputOptions =
+            MediaStoreOutputOptions.Builder(
+                    contentResolver,
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                )
+                .build()
 
         assertThat(mediaStoreOutputOptions.contentValues)
             .isEqualTo(MediaStoreOutputOptions.EMPTY_CONTENT_VALUES)
@@ -116,10 +115,11 @@ class OutputOptionsTest {
 
     @Test
     fun canBuildOutputOptions() {
-        val outputOptions = FakeOutputOptions.Builder()
-            .setFileSizeLimit(FILE_SIZE_LIMIT)
-            .setDurationLimitMillis(DURATION_LIMIT)
-            .build()
+        val outputOptions =
+            FakeOutputOptions.Builder()
+                .setFileSizeLimit(FILE_SIZE_LIMIT)
+                .setDurationLimitMillis(DURATION_LIMIT)
+                .build()
 
         assertThat(outputOptions).isNotNull()
         assertThat(outputOptions.fileSizeLimit).isEqualTo(FILE_SIZE_LIMIT)
@@ -152,32 +152,35 @@ class OutputOptionsTest {
     @Test
     fun setValidLocation() {
         listOf(
-            createLocation(0.0, 0.0),
-            createLocation(90.0, 180.0),
-            createLocation(-90.0, -180.0),
-            createLocation(10.1234, -100.5678),
-        ).forEach { location ->
-            val outputOptions = FakeOutputOptions.Builder().setLocation(location).build()
+                createLocation(0.0, 0.0),
+                createLocation(90.0, 180.0),
+                createLocation(-90.0, -180.0),
+                createLocation(10.1234, -100.5678),
+            )
+            .forEach { location ->
+                val outputOptions = FakeOutputOptions.Builder().setLocation(location).build()
 
-            assertWithMessage("Test $location failed")
-                .that(outputOptions.location).isEqualTo(location)
-        }
+                assertWithMessage("Test $location failed")
+                    .that(outputOptions.location)
+                    .isEqualTo(location)
+            }
     }
 
     @Test
     fun setInvalidLocation() {
         listOf(
-            createLocation(Double.NaN, 0.0),
-            createLocation(0.0, Double.NaN),
-            createLocation(90.5, 0.0),
-            createLocation(-90.5, 0.0),
-            createLocation(0.0, 180.5),
-            createLocation(0.0, -180.5),
-        ).forEach { location ->
-            assertThrows(IllegalArgumentException::class.java) {
-                FakeOutputOptions.Builder().setLocation(location)
+                createLocation(Double.NaN, 0.0),
+                createLocation(0.0, Double.NaN),
+                createLocation(90.5, 0.0),
+                createLocation(-90.5, 0.0),
+                createLocation(0.0, 180.5),
+                createLocation(0.0, -180.5),
+            )
+            .forEach { location ->
+                assertThrows(IllegalArgumentException::class.java) {
+                    FakeOutputOptions.Builder().setLocation(location)
+                }
             }
-        }
     }
 
     private fun createLocation(

@@ -120,16 +120,18 @@ open class CameraActivity : AppCompatActivity() {
             } catch (e: IllegalStateException) {
                 throw IllegalStateException(
                     "WARNING: CameraX is currently configured to a different implementation " +
-                        "this would have resulted in unexpected behavior.", e
+                        "this would have resulted in unexpected behavior.",
+                    e
                 )
             }
         }
 
         if (intent.getBooleanExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY, false)) {
-            intent = Intent(intent).apply {
-                removeExtra(KEY_CAMERA_IMPLEMENTATION)
-                removeExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY)
-            }
+            intent =
+                Intent(intent).apply {
+                    removeExtra(KEY_CAMERA_IMPLEMENTATION)
+                    removeExtra(KEY_CAMERA_IMPLEMENTATION_NO_HISTORY)
+                }
             cameraImpl = null
         }
 
@@ -148,35 +150,28 @@ open class CameraActivity : AppCompatActivity() {
     }
 
     private fun setUpCamera(cameraProvider: ProcessCameraProvider) {
-        val preview = Preview.Builder()
-            .build()
-            .apply {
+        val preview =
+            Preview.Builder().build().apply {
                 setSurfaceProvider(mBinding.previewView.getSurfaceProvider())
             }
-        mImageAnalysis = ImageAnalysis.Builder()
-            .build()
-            .apply {
+        mImageAnalysis =
+            ImageAnalysis.Builder().build().apply {
                 setAnalyzer(mAnalysisExecutor, createAnalyzer())
             }
-        mImageCapture = ImageCapture.Builder()
-            .build()
-            .also {
-                it.setCallback()
-            }
-        mCamera = cameraProvider.bindToLifecycle(
-            this,
-            getCameraSelector(),
-            preview,
-            mImageAnalysis,
-            mImageCapture
-        )
+        mImageCapture = ImageCapture.Builder().build().also { it.setCallback() }
+        mCamera =
+            cameraProvider.bindToLifecycle(
+                this,
+                getCameraSelector(),
+                preview,
+                mImageAnalysis,
+                mImageCapture
+            )
     }
 
     private fun getCameraSelector(): CameraSelector {
         val lensFacing = intent.getIntExtra(KEY_LENS_FACING, CameraSelector.LENS_FACING_BACK)
-        return CameraSelector.Builder()
-            .requireLensFacing(lensFacing)
-            .build()
+        return CameraSelector.Builder().requireLensFacing(lensFacing).build()
     }
 
     private fun createAnalyzer(): ImageAnalysis.Analyzer {
@@ -264,13 +259,18 @@ open class CameraActivity : AppCompatActivity() {
     }
 
     private fun ImageCapture.setMediaStoreCallback() {
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, "${System.currentTimeMillis()}")
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        }
-        val outputFileOptions = ImageCapture.OutputFileOptions
-            .Builder(contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-            .build()
+        val contentValues =
+            ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, "${System.currentTimeMillis()}")
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            }
+        val outputFileOptions =
+            ImageCapture.OutputFileOptions.Builder(
+                    contentResolver,
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    contentValues
+                )
+                .build()
         takePicture(
             outputFileOptions,
             CameraXExecutors.mainThreadExecutor(),
@@ -299,17 +299,13 @@ open class CameraActivity : AppCompatActivity() {
     }
 
     // region For testing
-    @VisibleForTesting
-    val mAnalysisRunning = Semaphore(0)
+    @VisibleForTesting val mAnalysisRunning = Semaphore(0)
 
-    @VisibleForTesting
-    var mAnalysisImageRotation = -1
+    @VisibleForTesting var mAnalysisImageRotation = -1
 
-    @VisibleForTesting
-    val mCaptureDone = Semaphore(0)
+    @VisibleForTesting val mCaptureDone = Semaphore(0)
 
-    @VisibleForTesting
-    var mCaptureResult: ImageCaptureResult? = null
+    @VisibleForTesting var mCaptureResult: ImageCaptureResult? = null
 
     @VisibleForTesting
     fun getSensorRotationRelativeToAnalysisTargetRotation(): Int {
@@ -325,8 +321,9 @@ open class CameraActivity : AppCompatActivity() {
 
     @VisibleForTesting
     fun getCaptureResolution(): Size {
-        val resolution = mImageCapture.attachedSurfaceResolution
-            ?: throw IllegalStateException("ImageCapture surface resolution is null")
+        val resolution =
+            mImageCapture.attachedSurfaceResolution
+                ?: throw IllegalStateException("ImageCapture surface resolution is null")
 
         val rotation = getSensorRotationRelativeToCaptureTargetRotation()
         return if (rotation == 90 || rotation == 270) {
@@ -335,6 +332,7 @@ open class CameraActivity : AppCompatActivity() {
             resolution
         }
     }
+
     // endregion
 
     companion object {
@@ -351,12 +349,12 @@ open class CameraActivity : AppCompatActivity() {
 
         private const val TAG = "MainActivity"
         private const val REQUEST_CODE_PERMISSIONS = 20
-        val PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+        val PERMISSIONS =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
             // in android 10 or later, we don't actually need WRITE_EXTERNAL_STORAGE to write to
             // the external storage.
             arrayOf(Manifest.permission.CAMERA)
-        else
-            arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            else arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
         private var cameraImpl: String? = null
     }
 }

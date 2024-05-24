@@ -17,13 +17,9 @@
 package androidx.benchmark.darwin
 
 interface TestCaseContext {
-    /**
-     * Registers a block of teardown code to run after the current test method ends.
-     */
+    /** Registers a block of teardown code to run after the current test method ends. */
     fun addTeardownBlock(block: () -> Unit)
 
-    /**
-     * Records the selected metrics for a block of code.
-     */
+    /** Records the selected metrics for a block of code. */
     fun measureWithMetrics(metrics: List<*>, options: MeasureOptions, block: () -> Unit)
 }

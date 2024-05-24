@@ -29,27 +29,22 @@ import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * The Class is based on the ListFuture in Guava and to use the CallbackToFutureAdapter instead
- * of the AbstractFuture.
+ * The Class is based on the ListFuture in Guava and to use the CallbackToFutureAdapter instead of
+ * the AbstractFuture.
  *
- * Class that implements [Futures.allAsList] and
- * [Futures.successfulAsList].
- * The idea is to create a (null-filled) List and register a listener with
- * each component future to fill out the value in the List when that future
- * completes.
-
- * @param futures          all the futures to build the list from
- * @param allMustSucceed   whether a single failure or cancellation should
- * propagate to this future
+ * Class that implements [Futures.allAsList] and [Futures.successfulAsList]. The idea is to create a
+ * (null-filled) List and register a listener with each component future to fill out the value in
+ * the List when that future completes.
+ *
+ * @param futures all the futures to build the list from
+ * @param allMustSucceed whether a single failure or cancellation should propagate to this future
  * @param listenerExecutor used to run listeners on all the passed in futures.
  */
-
 internal class ListFuture<V>(
     private var futures: List<ListenableFuture<out V>>,
     private val allMustSucceed: Boolean,
     listenerExecutor: Executor
-) :
-    ListenableFuture<List<V?>?> {
+) : ListenableFuture<List<V?>?> {
     private var futuresInternal: List<ListenableFuture<out V>>?
     private var values: MutableList<V?>?
     private val remaining: AtomicInteger
@@ -60,31 +55,36 @@ internal class ListFuture<V>(
         futuresInternal = futures
         values = ArrayList(futures.size)
         remaining = AtomicInteger(futures.size)
-        result = CallbackToFutureAdapter.getFuture(
-            object : CallbackToFutureAdapter.Resolver<List<V?>?> {
-                override fun attachCompleter(
-                    completer: CallbackToFutureAdapter.Completer<List<V?>?>
-                ): Any {
-                    Preconditions.checkState(
-                        resultNotifier == null,
-                        "The result can only set once!"
-                    )
-                    resultNotifier = completer
-                    return "ListFuture[$this]"
+        result =
+            CallbackToFutureAdapter.getFuture(
+                object : CallbackToFutureAdapter.Resolver<List<V?>?> {
+                    override fun attachCompleter(
+                        completer: CallbackToFutureAdapter.Completer<List<V?>?>
+                    ): Any {
+                        Preconditions.checkState(
+                            resultNotifier == null,
+                            "The result can only set once!"
+                        )
+                        resultNotifier = completer
+                        return "ListFuture[$this]"
+                    }
                 }
-            })
+            )
         init(listenerExecutor)
     }
 
     private fun init(listenerExecutor: Executor) {
         // First, schedule cleanup to execute when the Future is done.
-        addListener({ // By now the values array has either been set as the Future's value,
-            // or (in case of failure) is no longer useful.
-            values = null
+        addListener(
+            { // By now the values array has either been set as the Future's value,
+                // or (in case of failure) is no longer useful.
+                values = null
 
-            // Let go of the memory held by other futuresInternal
-            futuresInternal = null
-        }, ViewfinderExecutors.directExecutor())
+                // Let go of the memory held by other futuresInternal
+                futuresInternal = null
+            },
+            ViewfinderExecutors.directExecutor()
+        )
 
         // Now begin the "real" initialization.
 
@@ -113,9 +113,7 @@ internal class ListFuture<V>(
         }
     }
 
-    /**
-     * Sets the value at the given index to that of the given future.
-     */
+    /** Sets the value at the given index to that of the given future. */
     private fun setOneValue(index: Int, future: Future<out V>) {
         var localValues = values
         if (isDone || localValues == null) {
@@ -133,8 +131,7 @@ internal class ListFuture<V>(
                 future.isDone,
                 "Tried to set value from future which is not done"
             )
-            localValues[index] =
-                Futures.getUninterruptibly(future)
+            localValues[index] = Futures.getUninterruptibly(future)
         } catch (e: CancellationException) {
             if (this.allMustSucceed) {
                 // Set ourselves as cancelled. Let the input futures keep running
@@ -200,19 +197,14 @@ internal class ListFuture<V>(
         return result.get()
     }
 
-    @Throws(
-        InterruptedException::class,
-        ExecutionException::class,
-        TimeoutException::class
-    )
+    @Throws(InterruptedException::class, ExecutionException::class, TimeoutException::class)
     override fun get(timeout: Long, unit: TimeUnit): List<V?>? {
         return result[timeout, unit]
     }
 
     /**
-     * Calls the get method of all dependency futures to work around a bug in
-     * some ListenableFutures where the listeners aren't called until get() is
-     * called.
+     * Calls the get method of all dependency futures to work around a bug in some ListenableFutures
+     * where the listeners aren't called until get() is called.
      */
     @Throws(InterruptedException::class)
     private fun callAllGets() {

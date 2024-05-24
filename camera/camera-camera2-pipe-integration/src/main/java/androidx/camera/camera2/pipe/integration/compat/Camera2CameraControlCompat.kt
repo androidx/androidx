@@ -43,8 +43,11 @@ private const val TAG_KEY = "Camera2CameraControl.tag"
 @ExperimentalCamera2Interop
 interface Camera2CameraControlCompat : Request.Listener {
     fun addRequestOption(bundle: CaptureRequestOptions)
+
     fun getRequestOption(): CaptureRequestOptions
+
     fun clearRequestOption()
+
     fun cancelCurrentTask()
 
     fun applyAsync(camera: UseCaseCamera?, cancelPreviousTask: Boolean = true): Deferred<Void?>
@@ -65,18 +68,14 @@ class Camera2CameraControlCompatImpl @Inject constructor() : Camera2CameraContro
     private val lock = Any()
     private val updateSignalLock = Any()
 
-    @GuardedBy("lock")
-    private var configBuilder = Camera2ImplConfig.Builder()
-    @GuardedBy("updateSignalLock")
-    private var updateSignal: CompletableDeferred<Void?>? = null
-    @GuardedBy("updateSignalLock")
-    private var pendingSignal: CompletableDeferred<Void?>? = null
+    @GuardedBy("lock") private var configBuilder = Camera2ImplConfig.Builder()
+    @GuardedBy("updateSignalLock") private var updateSignal: CompletableDeferred<Void?>? = null
+    @GuardedBy("updateSignalLock") private var pendingSignal: CompletableDeferred<Void?>? = null
 
     override fun addRequestOption(bundle: CaptureRequestOptions) {
         synchronized(lock) {
             for (option in bundle.listOptions()) {
-                @Suppress("UNCHECKED_CAST")
-                val objectOpt = option as Config.Option<Any>
+                @Suppress("UNCHECKED_CAST") val objectOpt = option as Config.Option<Any>
                 configBuilder.mutableConfig.insertOption(
                     objectOpt,
                     Config.OptionPriority.ALWAYS_OVERRIDE,
@@ -87,32 +86,25 @@ class Camera2CameraControlCompatImpl @Inject constructor() : Camera2CameraContro
     }
 
     override fun getRequestOption(): CaptureRequestOptions =
-        synchronized(lock) {
-            CaptureRequestOptions.Builder.from(
-                configBuilder.build()
-            ).build()
-        }
+        synchronized(lock) { CaptureRequestOptions.Builder.from(configBuilder.build()).build() }
 
     override fun clearRequestOption() {
-        synchronized(lock) {
-            configBuilder = Camera2ImplConfig.Builder()
-        }
+        synchronized(lock) { configBuilder = Camera2ImplConfig.Builder() }
     }
 
-    override fun cancelCurrentTask(): Unit = synchronized(updateSignalLock) {
-        updateSignal?.also {
-            updateSignal = null
-        }?.cancelSignal("The camera control has became inactive.")
-        pendingSignal?.also {
-            pendingSignal = null
-        }?.cancelSignal("The camera control has became inactive.")
-    }
+    override fun cancelCurrentTask(): Unit =
+        synchronized(updateSignalLock) {
+            updateSignal
+                ?.also { updateSignal = null }
+                ?.cancelSignal("The camera control has became inactive.")
+            pendingSignal
+                ?.also { pendingSignal = null }
+                ?.cancelSignal("The camera control has became inactive.")
+        }
 
     override fun applyAsync(camera: UseCaseCamera?, cancelPreviousTask: Boolean): Deferred<Void?> {
         val signal: CompletableDeferred<Void?> = CompletableDeferred()
-        val config = synchronized(lock) {
-            configBuilder.build()
-        }
+        val config = synchronized(lock) { configBuilder.build() }
         synchronized(updateSignalLock) {
             if (camera != null) {
                 if (cancelPreviousTask) {
@@ -147,28 +139,27 @@ class Camera2CameraControlCompatImpl @Inject constructor() : Camera2CameraContro
 
     private fun CompletableDeferred<Void?>.cancelSignal(
         msg: String = "Camera2CameraControl was updated with new options."
-    ) = this.apply {
-        completeExceptionally(CameraControl.OperationCanceledException(msg))
-    }
+    ) = this.apply { completeExceptionally(CameraControl.OperationCanceledException(msg)) }
 
     @ExecutedBy("UseCaseThreads")
     override fun onComplete(
         requestMetadata: RequestMetadata,
         frameNumber: FrameNumber,
         result: FrameInfo
-    ): Unit = synchronized(updateSignalLock) {
-        updateSignal?.apply {
-            if (requestMetadata.containsTag(TAG_KEY, hashCode())) {
-                // Going to complete the [updateSignal] if the result contains the [TAG_KEY]
-                complete(null)
-                updateSignal = null
+    ): Unit =
+        synchronized(updateSignalLock) {
+            updateSignal?.apply {
+                if (requestMetadata.containsTag(TAG_KEY, hashCode())) {
+                    // Going to complete the [updateSignal] if the result contains the [TAG_KEY]
+                    complete(null)
+                    updateSignal = null
 
-                // Also complete the [pendingSignal] if it exists.
-                pendingSignal?.also {
-                    it.complete(null)
-                    pendingSignal = null
+                    // Also complete the [pendingSignal] if it exists.
+                    pendingSignal?.also {
+                        it.complete(null)
+                        pendingSignal = null
+                    }
                 }
             }
         }
-    }
 }

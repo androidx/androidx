@@ -39,9 +39,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 
 @HiltViewModel
-class ScannerViewModel @Inject constructor(
-    private val bluetoothLe: BluetoothLe
-) : ViewModel() {
+class ScannerViewModel @Inject constructor(private val bluetoothLe: BluetoothLe) : ViewModel() {
 
     internal companion object {
         private const val TAG = "ScannerViewModel"
@@ -58,63 +56,52 @@ class ScannerViewModel @Inject constructor(
     fun startScan() {
         Log.d(TAG, "startScan() called")
 
-        scanJob = bluetoothLe.scan()
-            .onStart {
-                Log.d(TAG, "bluetoothLe.scan() onStart")
-                _uiState.update {
-                    it.copy(isScanning = true, resultMessage = "Scan started")
+        scanJob =
+            bluetoothLe
+                .scan()
+                .onStart {
+                    Log.d(TAG, "bluetoothLe.scan() onStart")
+                    _uiState.update { it.copy(isScanning = true, resultMessage = "Scan started") }
                 }
-            }
-            .filterNot { scanResultsMap.containsKey(it.device.id) }
-            .catch { throwable ->
-                Log.e(TAG, "bluetoothLe.scan() catch", throwable)
+                .filterNot { scanResultsMap.containsKey(it.device.id) }
+                .catch { throwable ->
+                    Log.e(TAG, "bluetoothLe.scan() catch", throwable)
 
-                val message = if (throwable is ScanException) {
-                    when (throwable.errorCode) {
-                        ScanException.APPLICATION_REGISTRATION_FAILED ->
-                            "Scan failed. Application registration failed"
+                    val message =
+                        if (throwable is ScanException) {
+                            when (throwable.errorCode) {
+                                ScanException.APPLICATION_REGISTRATION_FAILED ->
+                                    "Scan failed. Application registration failed"
+                                ScanException.INTERNAL_ERROR -> "Scan failed. Internal error"
+                                ScanException.UNSUPPORTED -> "Scan failed. Feature unsupported"
+                                ScanException.OUT_OF_HARDWARE_RESOURCES ->
+                                    "Scan failed. Out of hardware resources"
+                                ScanException.SCANNING_TOO_FREQUENTLY ->
+                                    "Scan failed. Scanning too frequently"
+                                else -> "Scan failed. Error unknown"
+                            }
+                        } else if (throwable is IllegalStateException) {
+                            throwable.message
+                        } else null
 
-                        ScanException.INTERNAL_ERROR ->
-                            "Scan failed. Internal error"
+                    _uiState.update { it.copy(resultMessage = message) }
+                }
+                .onEach { scanResult ->
+                    Log.d(TAG, "bluetoothLe.scan() onEach: $scanResult")
+                    scanResultsMap[scanResult.device.id] = scanResult
+                    _uiState.update { it.copy(scanResults = scanResultsMap.values.toList()) }
+                }
+                .onCompletion { throwable ->
+                    Log.e(TAG, "bluetoothLe.scan() onCompletion", throwable)
 
-                        ScanException.UNSUPPORTED ->
-                            "Scan failed. Feature unsupported"
-
-                        ScanException.OUT_OF_HARDWARE_RESOURCES ->
-                            "Scan failed. Out of hardware resources"
-
-                        ScanException.SCANNING_TOO_FREQUENTLY ->
-                            "Scan failed. Scanning too frequently"
-
-                        else ->
-                            "Scan failed. Error unknown"
+                    _uiState.update {
+                        it.copy(isScanning = false, resultMessage = "Scan completed")
                     }
-                } else if (throwable is IllegalStateException) {
-                    throwable.message
-                } else null
-
-                _uiState.update {
-                    it.copy(resultMessage = message)
                 }
-            }
-            .onEach { scanResult ->
-                Log.d(TAG, "bluetoothLe.scan() onEach: $scanResult")
-                scanResultsMap[scanResult.device.id] = scanResult
-                _uiState.update {
-                    it.copy(scanResults = scanResultsMap.values.toList())
-                }
-            }.onCompletion { throwable ->
-                Log.e(TAG, "bluetoothLe.scan() onCompletion", throwable)
-
-                _uiState.update {
-                    it.copy(isScanning = false, resultMessage = "Scan completed")
-                }
-            }.launchIn(viewModelScope)
+                .launchIn(viewModelScope)
     }
 
     fun clearResultMessage() {
-        _uiState.update {
-            it.copy(resultMessage = null)
-        }
+        _uiState.update { it.copy(resultMessage = null) }
     }
 }

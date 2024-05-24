@@ -46,9 +46,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.test.espresso.idling.CountingIdlingResource
 import java.io.File
 
-/**
- * Main Antelope Activity
- */
+/** Main Antelope Activity */
 class MainActivity : AppCompatActivity() {
 
     companion object {
@@ -67,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         const val FIXED_FOCUS_DISTANCE: Float = 0f
         /** Constant for invalid focal length */
         val INVALID_FOCAL_LENGTH: Float = Float.MAX_VALUE
-        /** For single tests, percentage completion to show in progress bar when test is running  */
+        /** For single tests, percentage completion to show in progress bar when test is running */
         const val PROGRESS_SINGLE_PERCENTAGE = 25
 
         /** List of test results for current test run */
@@ -98,35 +96,33 @@ class MainActivity : AppCompatActivity() {
 
         val PHOTOS_PATH = Environment.DIRECTORY_DCIM + File.separatorChar + PHOTOS_DIR
         val LOG_PATH = Environment.DIRECTORY_DOCUMENTS + File.separatorChar + LOG_DIR
+
         /** Convenience wrapper for Log.d that can be toggled on/off */
         fun logd(message: String) {
-            if (camViewModel.getShouldOutputLog().value ?: false)
-                Log.d(LOG_TAG, message)
+            if (camViewModel.getShouldOutputLog().value ?: false) Log.d(LOG_TAG, message)
         }
     }
 
-    private val requestPermission = registerForActivityResult(RequestPermission()) { granted ->
-        if (granted) {
-            // We now have permission, restart the app
-            val intent = this.intent
-            finish()
-            startActivity(intent)
+    private val requestPermission =
+        registerForActivityResult(RequestPermission()) { granted ->
+            if (granted) {
+                // We now have permission, restart the app
+                val intent = this.intent
+                finish()
+                startActivity(intent)
+            }
         }
-    }
 
     lateinit var binding: ActivityMainBinding
 
-    /**
-     * Check camera permissions and set up UI
-     */
+    /** Check camera permissions and set up UI */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        camViewModel = ViewModelProvider(this)
-            .get(CamViewModel::class.java)
+        camViewModel = ViewModelProvider(this).get(CamViewModel::class.java)
         cameraParams = camViewModel.getCameraParams()
         deviceInfo = DeviceInfo()
 
@@ -136,26 +132,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.buttonSingle.setOnClickListener {
-            val testDiag = SettingsDialog.newInstance(
-                SettingsDialog.DIALOG_TYPE_SINGLE,
-                getString(R.string.settings_single_test_dialog_title),
-                cameras.toTypedArray(), cameraIds.toTypedArray()
-            )
+            val testDiag =
+                SettingsDialog.newInstance(
+                    SettingsDialog.DIALOG_TYPE_SINGLE,
+                    getString(R.string.settings_single_test_dialog_title),
+                    cameras.toTypedArray(),
+                    cameraIds.toTypedArray()
+                )
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_SINGLE)
         }
 
         binding.buttonMulti.setOnClickListener {
-            val testDiag = SettingsDialog.newInstance(
-                SettingsDialog.DIALOG_TYPE_MULTI,
-                getString(R.string.settings_multi_test_dialog_title),
-                cameras.toTypedArray(), cameraIds.toTypedArray()
-            )
+            val testDiag =
+                SettingsDialog.newInstance(
+                    SettingsDialog.DIALOG_TYPE_MULTI,
+                    getString(R.string.settings_multi_test_dialog_title),
+                    cameras.toTypedArray(),
+                    cameraIds.toTypedArray()
+                )
             testDiag.show(supportFragmentManager, SettingsDialog.DIALOG_TYPE_MULTI)
         }
 
-        binding.buttonAbort.setOnClickListener {
-            abortTests()
-        }
+        binding.buttonAbort.setOnClickListener { abortTests() }
 
         // Human readable report
         val humanReadableReportObserver =
@@ -163,9 +161,7 @@ class MainActivity : AppCompatActivity() {
         camViewModel.getHumanReadableReport().observe(this, humanReadableReportObserver)
     }
 
-    /**
-     * Set up options menu to allow debug logging and clearing cache'd data
-     */
+    /** Set up options menu to allow debug logging and clearing cache'd data */
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater: MenuInflater = menuInflater
         inflater.inflate(R.menu.main_menu, menu)
@@ -174,9 +170,7 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    /**
-     * Handle menu presses
-     */
+    /** Handle menu presses */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_logcat -> {
@@ -196,7 +190,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Update the main scrollview text
+    /**
+     * Update the main scrollview text
      *
      * @param log The new text
      * @param append Whether to append the new text or to replace the old
@@ -207,28 +202,22 @@ class MainActivity : AppCompatActivity() {
             if (append)
                 camViewModel.getHumanReadableReport().value =
                     camViewModel.getHumanReadableReport().value + log
-            else
-                camViewModel.getHumanReadableReport().value = log
+            else camViewModel.getHumanReadableReport().value = log
         }
 
         if (copyToClipboard) {
             runOnUiThread {
                 // Copy to clipboard
-                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE)
-                    as android.content.ClipboardManager
+                val clipboard =
+                    getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                 val clip = ClipData.newPlainText("Log", log)
                 clipboard.setPrimaryClip(clip)
-                Toast.makeText(
-                    this, getString(R.string.log_copied),
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this, getString(R.string.log_copied), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    /**
-     * Create human readable names for the camera devices
-     */
+    /** Create human readable names for the camera devices */
     private fun setupCameraNames() {
         cameras.clear()
         cameraIds.clear()
@@ -238,38 +227,33 @@ class MainActivity : AppCompatActivity() {
             camera += param.value.id
             cameraIds += param.value.id
 
-            if (param.value.isFront)
-                camera += " (Front)"
-            else if (param.value.isExternal)
-                camera += " (External)"
-            else
-                camera += " (Back)"
+            if (param.value.isFront) camera += " (Front)"
+            else if (param.value.isExternal) camera += " (External)" else camera += " (Back)"
 
             camera += " " + param.value.megapixels + "MP"
 
-            if (!param.value.hasAF)
-                camera += " fixed-focus"
+            if (!param.value.hasAF) camera += " fixed-focus"
 
             camera += " (min FL: " + param.value.smallestFocalLength + "mm)"
             cameras.add(camera)
         }
     }
 
-    /**
-     * Check if we have been granted the need camera and file-system permissions
-     */
+    /** Check if we have been granted the need camera and file-system permissions */
     fun checkCameraPermissions(): Boolean {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED
+        if (
+            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) !=
+                PackageManager.PERMISSION_GRANTED
         ) {
             // Launch the permission request for CAMERA
             requestPermission.launch(Manifest.permission.CAMERA)
             return false
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
+        } else if (
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
         ) {
             // Launch the permission request for WRITE_EXTERNAL_STORAGE. From Android T, skips to
             // request WRITE_EXTERNAL_STORAGE permission since it won't be granted any more.
@@ -283,10 +267,11 @@ class MainActivity : AppCompatActivity() {
     /** Start the background threads associated with the given camera device/params */
     fun startBackgroundThread(params: CameraParams) {
         if (params.backgroundThread == null) {
-            params.backgroundThread = HandlerThread(LOG_TAG).apply {
-                this.start()
-                params.backgroundHandler = Handler(this.looper)
-            }
+            params.backgroundThread =
+                HandlerThread(LOG_TAG).apply {
+                    this.start()
+                    params.backgroundHandler = Handler(this.looper)
+                }
         }
     }
 
@@ -383,9 +368,7 @@ class MainActivity : AppCompatActivity() {
         autoTestRunner(this)
     }
 
-    /**
-     * User has requested to abort the test run. Close cameras and reset the UI.
-     */
+    /** User has requested to abort the test run. Close cameras and reset the UI. */
     fun abortTests() {
         val currentConfig: TestConfig = createTestConfig("ABORT")
 
@@ -395,12 +378,10 @@ class MainActivity : AppCompatActivity() {
         when (currentConfig.api) {
             CameraAPI.CAMERA1 -> closeAllCameras(this, currentConfig)
             CameraAPI.CAMERAX -> {
-                if (null != currentParams)
-                    cameraXAbort(this, currentParams, currentConfig)
+                if (null != currentParams) cameraXAbort(this, currentParams, currentConfig)
             }
             CameraAPI.CAMERA2 -> {
-                if (null != currentParams)
-                    camera2Abort(this, currentParams)
+                if (null != currentParams) camera2Abort(this, currentParams)
             }
         }
 
@@ -447,8 +428,7 @@ class MainActivity : AppCompatActivity() {
 
             if (FocusMode.FIXED == focusMode)
                 MainActivity.camViewModel.getCurrentFocusMode().postValue(FocusMode.AUTO)
-            else
-                MainActivity.camViewModel.getCurrentFocusMode().postValue(focusMode)
+            else MainActivity.camViewModel.getCurrentFocusMode().postValue(focusMode)
 
             if (CameraAPI.CAMERAX == api) {
                 binding.surfacePreview.visibility = View.INVISIBLE

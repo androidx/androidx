@@ -32,11 +32,12 @@ class FakeAudioStreamCallback : AudioStream.AudioStreamCallback {
         timeoutMs: Long = MockConsumer.NO_TIMEOUT,
         inOrder: Boolean = false,
         onSilenceStateChanged: ((List<Boolean>) -> Unit)? = null,
-    ) = onSilencedCallbacks.verifyAcceptCallExt(
-        java.lang.Boolean::class.java,
-        inOrder,
-        timeoutMs,
-        callTimes,
-        onSilenceStateChanged,
-    )
+    ) =
+        onSilencedCallbacks.verifyAcceptCallExt(
+            java.lang.Boolean::class.java,
+            inOrder,
+            timeoutMs,
+            callTimes,
+            onSilenceStateChanged,
+        )
 }

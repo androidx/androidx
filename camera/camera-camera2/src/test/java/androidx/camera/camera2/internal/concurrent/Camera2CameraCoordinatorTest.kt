@@ -66,17 +66,21 @@ class Camera2CameraCoordinatorTest {
         val cameraCharacteristics0 = mock(CameraCharacteristics::class.java)
         Mockito.`when`(cameraCharacteristics0.get(CameraCharacteristics.LENS_FACING))
             .thenReturn(CameraCharacteristics.LENS_FACING_BACK)
-        Mockito.`when`(cameraCharacteristics0.get(
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES))
-            .thenReturn(intArrayOf(
-                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE))
+        Mockito.`when`(
+                cameraCharacteristics0.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+            )
+            .thenReturn(
+                intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
+            )
         val cameraCharacteristics1 = mock(CameraCharacteristics::class.java)
         Mockito.`when`(cameraCharacteristics1.get(CameraCharacteristics.LENS_FACING))
             .thenReturn(CameraCharacteristics.LENS_FACING_FRONT)
-        Mockito.`when`(cameraCharacteristics1.get(
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES))
-            .thenReturn(intArrayOf(
-                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE))
+        Mockito.`when`(
+                cameraCharacteristics1.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+            )
+            .thenReturn(
+                intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
+            )
         fakeCameraImpl.addCamera("0", cameraCharacteristics0)
         fakeCameraImpl.addCamera("1", cameraCharacteristics1)
         cameraCoordinator = Camera2CameraCoordinator(CameraManagerCompat.from(fakeCameraImpl))
@@ -124,14 +128,13 @@ class Camera2CameraCoordinatorTest {
 
     @Test
     fun setAndIsConcurrentCameraMode() {
-        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
-            CAMERA_OPERATING_MODE_UNSPECIFIED)
+        assertThat(cameraCoordinator.cameraOperatingMode)
+            .isEqualTo(CAMERA_OPERATING_MODE_UNSPECIFIED)
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
-        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
-            CAMERA_OPERATING_MODE_CONCURRENT)
+        assertThat(cameraCoordinator.cameraOperatingMode)
+            .isEqualTo(CAMERA_OPERATING_MODE_CONCURRENT)
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
-        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
-            CAMERA_OPERATING_MODE_SINGLE)
+        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(CAMERA_OPERATING_MODE_SINGLE)
     }
 
     @Test
@@ -139,17 +142,22 @@ class Camera2CameraCoordinatorTest {
         val listener = mock(CameraCoordinator.ConcurrentCameraModeListener::class.java)
         cameraCoordinator.addListener(listener)
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
-        verify(listener).onCameraOperatingModeUpdated(
-            CAMERA_OPERATING_MODE_UNSPECIFIED, CAMERA_OPERATING_MODE_CONCURRENT)
+        verify(listener)
+            .onCameraOperatingModeUpdated(
+                CAMERA_OPERATING_MODE_UNSPECIFIED,
+                CAMERA_OPERATING_MODE_CONCURRENT
+            )
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_SINGLE
-        verify(listener).onCameraOperatingModeUpdated(
-            CAMERA_OPERATING_MODE_CONCURRENT, CAMERA_OPERATING_MODE_SINGLE)
+        verify(listener)
+            .onCameraOperatingModeUpdated(
+                CAMERA_OPERATING_MODE_CONCURRENT,
+                CAMERA_OPERATING_MODE_SINGLE
+            )
 
         reset(listener)
         cameraCoordinator.removeListener(listener)
         cameraCoordinator.cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
-        verify(listener, never()).onCameraOperatingModeUpdated(
-            anyInt(), anyInt())
+        verify(listener, never()).onCameraOperatingModeUpdated(anyInt(), anyInt())
     }
 
     @Test
@@ -161,22 +169,22 @@ class Camera2CameraCoordinatorTest {
 
         assertThat(cameraCoordinator.concurrentCameraSelectors).isEmpty()
         assertThat(cameraCoordinator.activeConcurrentCameraInfos).isEmpty()
-        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
-            CAMERA_OPERATING_MODE_UNSPECIFIED)
+        assertThat(cameraCoordinator.cameraOperatingMode)
+            .isEqualTo(CAMERA_OPERATING_MODE_UNSPECIFIED)
     }
 
     private fun createConcurrentCameraInfos(): List<Camera2CameraInfoImpl> {
         val characteristics0 = ShadowCameraCharacteristics.newCameraCharacteristics()
         (Shadow.extract<Any>(
-            ApplicationProvider.getApplicationContext<Context>()
-                .getSystemService(Context.CAMERA_SERVICE)
-        ) as ShadowCameraManager)
+                ApplicationProvider.getApplicationContext<Context>()
+                    .getSystemService(Context.CAMERA_SERVICE)
+            ) as ShadowCameraManager)
             .addCamera("0", characteristics0)
         val characteristics1 = ShadowCameraCharacteristics.newCameraCharacteristics()
         (Shadow.extract<Any>(
-            ApplicationProvider.getApplicationContext<Context>()
-                .getSystemService(Context.CAMERA_SERVICE)
-        ) as ShadowCameraManager)
+                ApplicationProvider.getApplicationContext<Context>()
+                    .getSystemService(Context.CAMERA_SERVICE)
+            ) as ShadowCameraManager)
             .addCamera("1", characteristics1)
         val cameraManagerCompat =
             CameraManagerCompat.from((ApplicationProvider.getApplicationContext() as Context))
@@ -189,17 +197,15 @@ class Camera2CameraCoordinatorTest {
 
     private class FakeCameraManagerImpl : CameraManagerCompat.CameraManagerCompatImpl {
 
-        private val mCameraManagerImpl = CameraManagerCompat.CameraManagerCompatImpl.from(
-            ApplicationProvider.getApplicationContext(),
-            MainThreadAsyncHandler.getInstance()
-        )
+        private val mCameraManagerImpl =
+            CameraManagerCompat.CameraManagerCompatImpl.from(
+                ApplicationProvider.getApplicationContext(),
+                MainThreadAsyncHandler.getInstance()
+            )
 
         private val mCameraIdCharacteristics = HashMap<String, CameraCharacteristics>()
 
-        fun addCamera(
-            cameraId: String,
-            cameraCharacteristics: CameraCharacteristics
-        ) {
+        fun addCamera(cameraId: String, cameraCharacteristics: CameraCharacteristics) {
             mCameraIdCharacteristics[cameraId] = cameraCharacteristics
         }
 
@@ -214,11 +220,9 @@ class Camera2CameraCoordinatorTest {
         override fun registerAvailabilityCallback(
             executor: Executor,
             callback: CameraManager.AvailabilityCallback
-        ) {
-        }
+        ) {}
 
-        override fun unregisterAvailabilityCallback(callback: CameraManager.AvailabilityCallback) {
-        }
+        override fun unregisterAvailabilityCallback(callback: CameraManager.AvailabilityCallback) {}
 
         override fun getCameraCharacteristics(cameraId: String): CameraCharacteristics {
             return mCameraIdCharacteristics[cameraId]!!
@@ -228,8 +232,7 @@ class Camera2CameraCoordinatorTest {
             cameraId: String,
             executor: Executor,
             callback: CameraDevice.StateCallback
-        ) {
-        }
+        ) {}
 
         override fun getCameraManager(): CameraManager {
             return mCameraManagerImpl.cameraManager

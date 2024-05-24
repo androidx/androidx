@@ -37,9 +37,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Instrumented tests for [JpegBytes2Image].
- */
+/** Instrumented tests for [JpegBytes2Image]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -49,21 +47,21 @@ class JpegBytes2ImageDeviceTest {
 
     @Test
     fun processInput_assertOutput() {
-        val jpegBytes = updateExif(createJpegBytes(WIDTH, HEIGHT)) {
-            it.description = "description"
-        }
+        val jpegBytes =
+            updateExif(createJpegBytes(WIDTH, HEIGHT)) { it.description = "description" }
         val exif = createExif(jpegBytes)
         val matrix = Matrix()
-        val input = Packet.of(
-            jpegBytes,
-            exif,
-            JPEG,
-            SIZE,
-            CROP_RECT,
-            ROTATION_DEGREES,
-            matrix,
-            CAMERA_CAPTURE_RESULT
-        )
+        val input =
+            Packet.of(
+                jpegBytes,
+                exif,
+                JPEG,
+                SIZE,
+                CROP_RECT,
+                ROTATION_DEGREES,
+                matrix,
+                CAMERA_CAPTURE_RESULT
+            )
 
         // Act.
         val output = operation.apply(input)

@@ -26,44 +26,32 @@ import androidx.compose.ui.graphics.Matrix
  * Coordinate transformer that's used to convert coordinates from one space to another.
  *
  * [transformMatrix] must be set by whoever manipulates the coordinate space, otherwise an identity
- * will be used for the coordinate transformations. When used in a [Viewfinder], the viewfinder
- * will set this transform matrix.
- *
+ * will be used for the coordinate transformations. When used in a [Viewfinder], the viewfinder will
+ * set this transform matrix.
  */
 interface CoordinateTransformer {
-    /**
-     * Matrix that's used for coordinate transformations.
-     */
+    /** Matrix that's used for coordinate transformations. */
     val transformMatrix: Matrix
 
-    /**
-     * Returns the [Offset] in the transformed space.
-     */
+    /** Returns the [Offset] in the transformed space. */
     fun Offset.transform() = transformMatrix.map(this)
 }
 
-/**
- * CoordinateTransformer where the transformMatrix is mutable.
- */
+/** CoordinateTransformer where the transformMatrix is mutable. */
 interface MutableCoordinateTransformer : CoordinateTransformer {
     override var transformMatrix: Matrix
 }
 
-/**
- * Creates a [MutableCoordinateTransformer] with the given matrix as the transformMatrix.
- */
+/** Creates a [MutableCoordinateTransformer] with the given matrix as the transformMatrix. */
 fun MutableCoordinateTransformer(matrix: Matrix = Matrix()): MutableCoordinateTransformer =
     MutableCoordinateTransformerImpl(matrix)
 
-private class MutableCoordinateTransformerImpl(
-    initialMatrix: Matrix
-) : MutableCoordinateTransformer {
+private class MutableCoordinateTransformerImpl(initialMatrix: Matrix) :
+    MutableCoordinateTransformer {
     override var transformMatrix: Matrix by mutableStateOf(initialMatrix)
 }
 
-/**
- * [CoordinateTransformer] where the transformMatrix is the identity matrix.
- */
+/** [CoordinateTransformer] where the transformMatrix is the identity matrix. */
 object IdentityCoordinateTransformer : CoordinateTransformer {
     override val transformMatrix = Matrix()
 

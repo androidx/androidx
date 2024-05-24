@@ -32,18 +32,17 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Contains tests for [Camera2CameraInfoImpl] internal implementation.
- */
+/** Contains tests for [Camera2CameraInfoImpl] internal implementation. */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class Camera2CameraInfoImplTest {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        )
 
     private val lensFacing = CameraSelector.LENS_FACING_BACK
     private lateinit var camera2CameraInfo: Camera2CameraInfoImpl

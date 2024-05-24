@@ -36,6 +36,7 @@ class StateGraphView(
         super.onLayout(changed, left, top, right, bottom)
         unitHeight = layoutState.dataGraphHeight / stateGraphDataHolder.getNumStates()
     }
+
     override fun drawPoint(
         canvas: Canvas,
         x1: Float,

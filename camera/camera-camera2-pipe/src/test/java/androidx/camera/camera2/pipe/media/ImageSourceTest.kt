@@ -38,13 +38,14 @@ class ImageSourceTest {
     private val outputId = OutputId(42)
     private val fakeImageSize = Size(640, 480)
     private val fakeImageFormat = StreamFormat.YUV_420_888
-    private val fakeImageReader = FakeImageReader.create(
-        format = fakeImageFormat,
-        streamId = streamId,
-        outputId = outputId,
-        size = fakeImageSize,
-        capacity = 10
-    )
+    private val fakeImageReader =
+        FakeImageReader.create(
+            format = fakeImageFormat,
+            streamId = streamId,
+            outputId = outputId,
+            size = fakeImageSize,
+            capacity = 10
+        )
 
     private val imageSource = ImageSource.create(fakeImageReader)
 
@@ -106,12 +107,8 @@ class ImageSourceTest {
 
     @Test
     fun imagesWithoutAListenerAreClosed() {
-        val image = FakeImage(
-            fakeImageSize.width,
-            fakeImageSize.height,
-            fakeImageFormat.value,
-            12345
-        )
+        val image =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 12345)
 
         fakeImageReader.simulateImage(outputId, image)
         assertThat(image.isClosed).isTrue()
@@ -183,12 +180,8 @@ class ImageSourceTest {
         assertThat(fakeImageReader.isClosed).isFalse()
 
         // Now simulate the imageReader producing images after the imageSource is closed
-        val fakeImage = FakeImage(
-            fakeImageSize.width,
-            fakeImageSize.height,
-            fakeImageFormat.value,
-            54321
-        )
+        val fakeImage =
+            FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 54321)
         fakeImageReader.simulateImage(outputId, fakeImage)
         // Image is immediately closed
         assertThat(fakeImage.isClosed)

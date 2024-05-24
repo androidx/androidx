@@ -21,7 +21,9 @@ import androidx.annotation.RestrictTo
 /** Create and submit [CaptureSequence]s to an active camera instance. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CaptureSequenceProcessor<
-    out TCaptureRequest, TCaptureSequence : CaptureSequence<TCaptureRequest>> {
+    out TCaptureRequest,
+    TCaptureSequence : CaptureSequence<TCaptureRequest>
+> {
 
     /**
      * Build a [CaptureSequence] instance.

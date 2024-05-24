@@ -51,7 +51,8 @@ class ScannerFragment : Fragment() {
     private val mainViewModel by activityViewModels<MainViewModel>()
 
     private var _binding: FragmentScannerBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -80,9 +81,7 @@ class ScannerFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState
-                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-                .collect(::updateUi)
+            viewModel.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect(::updateUi)
         }
     }
 

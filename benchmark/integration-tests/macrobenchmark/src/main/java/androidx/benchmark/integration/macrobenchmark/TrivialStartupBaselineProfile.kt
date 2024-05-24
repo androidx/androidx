@@ -29,8 +29,7 @@ import org.junit.Test
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 class TrivialStartupBaselineProfile {
-    @get:Rule
-    val baselineRule = BaselineProfileRule()
+    @get:Rule val baselineRule = BaselineProfileRule()
 
     private lateinit var device: UiDevice
 

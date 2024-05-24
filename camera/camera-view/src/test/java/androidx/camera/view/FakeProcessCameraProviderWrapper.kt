@@ -29,8 +29,8 @@ import com.google.common.util.concurrent.ListenableFuture
 /**
  * Fake [ProcessCameraProviderWrapper].
  *
- * @param bindToLifecycleException the [Exception] to throw when [bindToLifecycle] is called.
- * If null, [bindToLifecycle] will not throw any error.
+ * @param bindToLifecycleException the [Exception] to throw when [bindToLifecycle] is called. If
+ *   null, [bindToLifecycle] will not throw any error.
  */
 class FakeProcessCameraProviderWrapper(
     private val camera: Camera = FakeCamera(),

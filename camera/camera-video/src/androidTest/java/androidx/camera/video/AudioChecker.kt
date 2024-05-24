@@ -61,15 +61,18 @@ class AudioChecker {
             val supportedQualities = videoCapabilities.getSupportedQualities(sdr)
             val audioSpec = AudioSpec.builder().build()
             // Get a config using the default audio spec.
-            val audioSettings = if (supportedQualities.isNotEmpty()) {
-                val quality = qualitySelector.getPrioritizedQualities(supportedQualities).first()
-                AudioSettingsAudioProfileResolver(
-                    audioSpec,
-                    videoCapabilities.getProfiles(quality, sdr)!!.defaultAudioProfile!!
-                ).get()
-            } else {
-                AudioSettingsDefaultResolver(audioSpec).get()
-            }
+            val audioSettings =
+                if (supportedQualities.isNotEmpty()) {
+                    val quality =
+                        qualitySelector.getPrioritizedQualities(supportedQualities).first()
+                    AudioSettingsAudioProfileResolver(
+                            audioSpec,
+                            videoCapabilities.getProfiles(quality, sdr)!!.defaultAudioProfile!!
+                        )
+                        .get()
+                } else {
+                    AudioSettingsDefaultResolver(audioSpec).get()
+                }
             with(AudioStreamImpl(audioSettings, null)) {
                 try {
                     start()

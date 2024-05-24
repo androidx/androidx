@@ -63,9 +63,7 @@ class SessionConfigAdapterTest {
         }
 
         // Act
-        val sessionConfigAdapter = SessionConfigAdapter(
-            useCases = listOf(fakeTestUseCase)
-        )
+        val sessionConfigAdapter = SessionConfigAdapter(useCases = listOf(fakeTestUseCase))
 
         // Assert
         assertThat(sessionConfigAdapter.isSessionConfigValid()).isFalse()
@@ -80,12 +78,17 @@ class SessionConfigAdapterTest {
         // Arrange
         val testDeferrableSurface = createTestDeferrableSurface().apply { close() }
 
-        val errorListener = object : SessionConfig.ErrorListener {
-            val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
-            override fun onError(sessionConfig: SessionConfig, error: SessionConfig.SessionError) {
-                results.add(Pair(sessionConfig, error))
+        val errorListener =
+            object : SessionConfig.ErrorListener {
+                val results = mutableListOf<Pair<SessionConfig, SessionConfig.SessionError>>()
+
+                override fun onError(
+                    sessionConfig: SessionConfig,
+                    error: SessionConfig.SessionError
+                ) {
+                    results.add(Pair(sessionConfig, error))
+                }
             }
-        }
 
         val fakeTestUseCase1 = createFakeTestUseCase {
             it.setupSessionConfig(
@@ -107,16 +110,14 @@ class SessionConfigAdapterTest {
         }
 
         // Act
-        SessionConfigAdapter(
-            useCases = listOf(fakeTestUseCase1, fakeTestUseCase2)
-        ).reportSurfaceInvalid(testDeferrableSurface)
+        SessionConfigAdapter(useCases = listOf(fakeTestUseCase1, fakeTestUseCase2))
+            .reportSurfaceInvalid(testDeferrableSurface)
 
         // Assert, verify it only reports the SURFACE_NEEDS_RESET error on one SessionConfig
         // at a time.
         assertThat(errorListener.results.size).isEqualTo(1)
-        assertThat(errorListener.results[0].second).isEqualTo(
-            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
-        )
+        assertThat(errorListener.results[0].second)
+            .isEqualTo(SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
     }
 
     @Test
@@ -133,9 +134,7 @@ class SessionConfigAdapterTest {
 
     private fun createFakeTestUseCase(block: (FakeTestUseCase) -> Unit): FakeTestUseCase = run {
         val configBuilder = FakeUseCaseConfig.Builder().setTargetName("UseCase")
-        FakeTestUseCase(configBuilder.useCaseConfig).also {
-            block(it)
-        }
+        FakeTestUseCase(configBuilder.useCaseConfig).also { block(it) }
     }
 
     private fun createTestDeferrableSurface(): TestDeferrableSurface = run {
@@ -161,9 +160,7 @@ class FakeTestUseCase(
 }
 
 open class TestDeferrableSurface : DeferrableSurface() {
-    private val surfaceTexture = SurfaceTexture(0).also {
-        it.setDefaultBufferSize(0, 0)
-    }
+    private val surfaceTexture = SurfaceTexture(0).also { it.setDefaultBufferSize(0, 0) }
     val testSurface = Surface(surfaceTexture)
 
     override fun provideSurface(): ListenableFuture<Surface> {

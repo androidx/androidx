@@ -68,11 +68,12 @@ class VideoTimebaseConverterTest {
     @Test
     fun hasQuirk_closeToUptime_noConversion() {
         // Arrange.
-        val videoTimebaseConverter = VideoTimebaseConverter(
-            systemTimeProvider,
-            Timebase.REALTIME,
-            CameraUseInconsistentTimebaseQuirk()
-        )
+        val videoTimebaseConverter =
+            VideoTimebaseConverter(
+                systemTimeProvider,
+                Timebase.REALTIME,
+                CameraUseInconsistentTimebaseQuirk()
+            )
 
         // Act.
         val outputTime1 = videoTimebaseConverter.convertToUptimeUs(800L)
@@ -86,11 +87,12 @@ class VideoTimebaseConverterTest {
     @Test
     fun hasQuirk_closeToRealtime_doConversion() {
         // Arrange.
-        val videoTimebaseConverter = VideoTimebaseConverter(
-            systemTimeProvider,
-            Timebase.UPTIME,
-            CameraUseInconsistentTimebaseQuirk()
-        )
+        val videoTimebaseConverter =
+            VideoTimebaseConverter(
+                systemTimeProvider,
+                Timebase.UPTIME,
+                CameraUseInconsistentTimebaseQuirk()
+            )
 
         // Act.
         val outputTime1 = videoTimebaseConverter.convertToUptimeUs(1800L)
@@ -104,10 +106,8 @@ class VideoTimebaseConverterTest {
     @Test
     fun systemTimeDiverged_closeToUptime_noConversion() {
         // Arrange.
-        val systemTimeProvider = FakeTimeProvider(
-            TimeUnit.SECONDS.toNanos(3),
-            TimeUnit.SECONDS.toNanos(8)
-        )
+        val systemTimeProvider =
+            FakeTimeProvider(TimeUnit.SECONDS.toNanos(3), TimeUnit.SECONDS.toNanos(8))
         val videoTimebaseConverter =
             VideoTimebaseConverter(systemTimeProvider, Timebase.REALTIME, null)
 
@@ -123,10 +123,8 @@ class VideoTimebaseConverterTest {
     @Test
     fun systemTimeDiverged_closeToRealtime_doConversion() {
         // Arrange.
-        val systemTimeProvider = FakeTimeProvider(
-            TimeUnit.SECONDS.toNanos(3),
-            TimeUnit.SECONDS.toNanos(8)
-        )
+        val systemTimeProvider =
+            FakeTimeProvider(TimeUnit.SECONDS.toNanos(3), TimeUnit.SECONDS.toNanos(8))
         val videoTimebaseConverter =
             VideoTimebaseConverter(systemTimeProvider, Timebase.UPTIME, null)
 

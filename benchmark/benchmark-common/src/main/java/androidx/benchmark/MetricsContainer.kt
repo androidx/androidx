@@ -47,9 +47,9 @@ internal class MetricsContainer(
      * ```
      *
      * NOTE: Performance of warmup is very dependent on this structure, be very careful changing
-     * changing this. E.g. using a single linear LongArray or an Array<LongArray> both caused
-     * warmup measurements of a noop loop to fluctuate, and increase significantly
-     * (from 75ns to 450ns on an API 30 Bramble).
+     * changing this. E.g. using a single linear LongArray or an Array<LongArray> both caused warmup
+     * measurements of a noop loop to fluctuate, and increase significantly (from 75ns to 450ns on
+     * an API 30 Bramble).
      */
     internal val data: List<LongArray> = List(repeatCount) { LongArray(names.size) }
 
@@ -140,21 +140,23 @@ internal class MetricsContainer(
         }
 
         return names.mapIndexed { index, name ->
-            val metricData = List(repeatCount) {
-                // convert to floats and divide by iter count here for efficiency
-                data[it][index] / maxIterations.toDouble()
-            }
-            metricData.chunked(10)
-                .forEachIndexed { chunkNum, chunk ->
-                    Log.d(
-                        BenchmarkState.TAG,
-                        name + "[%2d:%2d]: %s".format(
-                            chunkNum * 10,
-                            (chunkNum + 1) * 10,
-                            chunk.joinToString(" ") { it.toLong().toString() }
-                        )
-                    )
+            val metricData =
+                List(repeatCount) {
+                    // convert to floats and divide by iter count here for efficiency
+                    data[it][index] / maxIterations.toDouble()
                 }
+            metricData.chunked(10).forEachIndexed { chunkNum, chunk ->
+                Log.d(
+                    BenchmarkState.TAG,
+                    name +
+                        "[%2d:%2d]: %s"
+                            .format(
+                                chunkNum * 10,
+                                (chunkNum + 1) * 10,
+                                chunk.joinToString(" ") { it.toLong().toString() }
+                            )
+                )
+            }
             MetricResult(name, metricData)
         }
     }

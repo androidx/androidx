@@ -38,29 +38,32 @@ class JpegHalCorruptImageQuirkTest(
     companion object {
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "Brand: {0}")
-        fun data() = listOf(
-            arrayOf("heroqltevzw", true),
-            arrayOf("heroqltetmo", true),
-            arrayOf("k61v1_basic_ref", true),
-            arrayOf("HEROQLTEVZW", true),
-            arrayOf("Google", false),
-        )
+        fun data() =
+            listOf(
+                arrayOf("heroqltevzw", true),
+                arrayOf("heroqltetmo", true),
+                arrayOf("k61v1_basic_ref", true),
+                arrayOf("HEROQLTEVZW", true),
+                arrayOf("Google", false),
+            )
     }
 
     @Test
     fun canEnableQuirkCorrectly() {
         ShadowBuild.setDevice(device)
 
-        val cameraQuirks = CameraQuirks(
-            FakeCameraMetadata(),
-            StreamConfigurationMapCompat(
-                StreamConfigurationMapBuilder.newBuilder().build(),
-                OutputSizesCorrector(
+        val cameraQuirks =
+            CameraQuirks(
                     FakeCameraMetadata(),
-                    StreamConfigurationMapBuilder.newBuilder().build()
+                    StreamConfigurationMapCompat(
+                        StreamConfigurationMapBuilder.newBuilder().build(),
+                        OutputSizesCorrector(
+                            FakeCameraMetadata(),
+                            StreamConfigurationMapBuilder.newBuilder().build()
+                        )
+                    )
                 )
-            )
-        ).quirks
+                .quirks
 
         assertThat(cameraQuirks.contains(JpegHalCorruptImageQuirk::class.java))
             .isEqualTo(quirkEnablingExpected)

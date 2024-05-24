@@ -73,9 +73,7 @@ fun postTestResults(activity: MainActivity, testConfig: TestConfig) {
     }
 }
 
-/**
- * Set up the TestConfig object for a single test
- */
+/** Set up the TestConfig object for a single test */
 fun createSingleTestConfig(activity: MainActivity): TestConfig {
     val config = TestConfig()
 
@@ -122,9 +120,7 @@ fun createSingleTestConfig(activity: MainActivity): TestConfig {
     return config
 }
 
-/**
- * Create a test configuration given the test's name and the currently selected test values
- */
+/** Create a test configuration given the test's name and the currently selected test values */
 fun createTestConfig(testName: String): TestConfig {
     val config = TestConfig(testName)
     config.camera = MainActivity.camViewModel.getCurrentCamera().value.toString()
@@ -135,17 +131,14 @@ fun createTestConfig(testName: String): TestConfig {
     // If we don't have auto-focus, we set the focus mode to FIXED
     if (MainActivity.cameraParams.get(config.camera)?.hasAF ?: true)
         config.focusMode = MainActivity.camViewModel.getCurrentFocusMode().value ?: FocusMode.AUTO
-    else
-        config.focusMode = FocusMode.FIXED
+    else config.focusMode = FocusMode.FIXED
 
     config.setupTestResults()
 
     return config
 }
 
-/**
- * For multiple tests, configure the list of TestConfigs to run
- */
+/** For multiple tests, configure the list of TestConfigs to run */
 fun setupAutoTestRunner(activity: MainActivity) {
     MainActivity.autoTestConfigs.clear()
     val cameras: ArrayList<String> = PrefHelper.getCameraIds(activity, MainActivity.cameraParams)
@@ -160,8 +153,7 @@ fun setupAutoTestRunner(activity: MainActivity) {
     testTypes.add(TestType.MULTI_PHOTO)
     testTypes.add(TestType.MULTI_PHOTO_CHAIN)
 
-    if (doSwitchTest)
-        testTypes.add(TestType.MULTI_SWITCH)
+    if (doSwitchTest) testTypes.add(TestType.MULTI_SWITCH)
 
     MainActivity.testRun.clear()
 
@@ -170,19 +162,16 @@ fun setupAutoTestRunner(activity: MainActivity) {
             // Camera1 does not have access to physical cameras, only logical 0 and 1
             // Some devices have no camera or only 1 front-facing camera (like Chromebooks)
             // so we need to make sure they exist
-            if ((CameraAPI.CAMERA1 == api) && !logicalCameras.contains(camera))
-                continue
+            if ((CameraAPI.CAMERA1 == api) && !logicalCameras.contains(camera)) continue
 
             // Currently CameraX only supports FRONT and BACK
-            if ((CameraAPI.CAMERAX == api) && !(camera.equals("0") || camera.equals("1")))
-                continue
+            if ((CameraAPI.CAMERAX == api) && !(camera.equals("0") || camera.equals("1"))) continue
 
             for (imageSize in imageSizes) {
                 for (focusMode in focusModes) {
                     if (FocusMode.CONTINUOUS == focusMode) {
                         // If camera is fixed-focus, only run the AUTO test
-                        if (!(MainActivity.cameraParams.get(camera)?.hasAF ?: true))
-                            continue
+                        if (!(MainActivity.cameraParams.get(camera)?.hasAF ?: true)) continue
                     }
 
                     for (testType in testTypes) {
@@ -209,17 +198,19 @@ fun setupAutoTestRunner(activity: MainActivity) {
                         if (!(MainActivity.cameraParams.get(camera)?.hasAF ?: true))
                             realFocusMode = FocusMode.FIXED
 
-                        var testName = when (api) {
-                            CameraAPI.CAMERA1 -> "Camera1"
-                            CameraAPI.CAMERA2 -> "Camera2"
-                            CameraAPI.CAMERAX -> "CameraX"
-                        }
+                        var testName =
+                            when (api) {
+                                CameraAPI.CAMERA1 -> "Camera1"
+                                CameraAPI.CAMERA2 -> "Camera2"
+                                CameraAPI.CAMERAX -> "CameraX"
+                            }
 
                         testName += " - "
-                        testName += when (imageSize) {
-                            ImageCaptureSize.MIN -> "Min"
-                            ImageCaptureSize.MAX -> "Max"
-                        }
+                        testName +=
+                            when (imageSize) {
+                                ImageCaptureSize.MIN -> "Min"
+                                ImageCaptureSize.MAX -> "Max"
+                            }
                         testName += " image size - Camera device "
 
                         if (testType != TestType.MULTI_SWITCH) {
@@ -227,19 +218,21 @@ fun setupAutoTestRunner(activity: MainActivity) {
                             testName += " "
                         }
 
-                        testName += when (realFocusMode) {
-                            FocusMode.AUTO -> "(auto-focus)"
-                            FocusMode.CONTINUOUS -> "(continuous focus)"
-                            else -> "(fixed-focus)"
-                        }
+                        testName +=
+                            when (realFocusMode) {
+                                FocusMode.AUTO -> "(auto-focus)"
+                                FocusMode.CONTINUOUS -> "(continuous focus)"
+                                else -> "(fixed-focus)"
+                            }
 
                         testName += " - "
-                        testName += when (testType) {
-                            TestType.MULTI_PHOTO -> "Multiple Captures"
-                            TestType.MULTI_PHOTO_CHAIN -> "Multiple Captures (chained)"
-                            TestType.MULTI_SWITCH -> "Switch Camera"
-                            else -> "unknown test"
-                        }
+                        testName +=
+                            when (testType) {
+                                TestType.MULTI_PHOTO -> "Multiple Captures"
+                                TestType.MULTI_PHOTO_CHAIN -> "Multiple Captures (chained)"
+                                TestType.MULTI_SWITCH -> "Switch Camera"
+                                else -> "unknown test"
+                            }
 
                         val testConfig =
                             TestConfig(testName, testType, api, imageSize, realFocusMode, camera)
@@ -253,16 +246,19 @@ fun setupAutoTestRunner(activity: MainActivity) {
 
     // Add Test X of Y string to test names
     for ((index, testConfig) in MainActivity.autoTestConfigs.withIndex()) {
-        testConfig.testName = "" + (index + 1) + " of " +
-            MainActivity.autoTestConfigs.size + ": " + testConfig.testName
+        testConfig.testName =
+            "" +
+                (index + 1) +
+                " of " +
+                MainActivity.autoTestConfigs.size +
+                ": " +
+                testConfig.testName
     }
 
     testsRemaining = MainActivity.autoTestConfigs.size
 }
 
-/**
- * Run the list of tests in autoTestConfigs
- */
+/** Run the list of tests in autoTestConfigs */
 fun autoTestRunner(activity: MainActivity) {
     if (MainActivity.cameras.isEmpty()) {
         testsRemaining = 0
@@ -270,8 +266,7 @@ fun autoTestRunner(activity: MainActivity) {
     }
 
     // If something goes wrong or we are aborted, stop testing
-    if (0 == testsRemaining)
-        return
+    if (0 == testsRemaining) return
 
     val currentTest: Int = MainActivity.autoTestConfigs.size - testsRemaining + 1
     val currentConfig: TestConfig = MainActivity.autoTestConfigs.get(currentTest - 1)
@@ -280,8 +275,7 @@ fun autoTestRunner(activity: MainActivity) {
     activity.runOnUiThread {
         if (testsRemaining == MainActivity.autoTestConfigs.size)
             activity.setupUIForTest(currentConfig, false)
-        else
-            activity.setupUIForTest(currentConfig, true)
+        else activity.setupUIForTest(currentConfig, true)
     }
 
     multiCounter = 0
@@ -296,102 +290,177 @@ fun autoTestRunner(activity: MainActivity) {
 fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResults>): String {
     var output = ""
 
-    if (allTestResults.isEmpty())
-        return output
+    if (allTestResults.isEmpty()) return output
 
     val mainCamera = getMainCamera(activity, allTestResults)
 
-    val c2Auto = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
-    )
-    val c2AutoChain = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO_CHAIN
-    )
-    val c2Caf = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
-    )
-    val c2CafChain = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO_CHAIN
-    )
-    val c2AutoMin = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MIN, FocusMode.AUTO, TestType.MULTI_PHOTO
-    )
-    val c2Switch = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
-    )
-    val c1Auto = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
-    )
-    val c1Caf = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
-    )
-    val c1Switch = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
-    )
-    val cXAuto = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
-    )
-    val cXCaf = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
-    )
-    val cXSwitch = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
-    )
+    val c2Auto =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO
+        )
+    val c2AutoChain =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO_CHAIN
+        )
+    val c2Caf =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.CONTINUOUS,
+            TestType.MULTI_PHOTO
+        )
+    val c2CafChain =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.CONTINUOUS,
+            TestType.MULTI_PHOTO_CHAIN
+        )
+    val c2AutoMin =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MIN,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO
+        )
+    val c2Switch =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_SWITCH
+        )
+    val c1Auto =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA1,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO
+        )
+    val c1Caf =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA1,
+            ImageCaptureSize.MAX,
+            FocusMode.CONTINUOUS,
+            TestType.MULTI_PHOTO
+        )
+    val c1Switch =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA1,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_SWITCH
+        )
+    val cXAuto =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERAX,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO
+        )
+    val cXCaf =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERAX,
+            ImageCaptureSize.MAX,
+            FocusMode.CONTINUOUS,
+            TestType.MULTI_PHOTO
+        )
+    val cXSwitch =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERAX,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_SWITCH
+        )
 
     // Header
     val dateFormatter = SimpleDateFormat("d MMM yyyy - kk'h'mm")
     val cal: Calendar = Calendar.getInstance()
-    output += "DATE: " + dateFormatter.format(cal.time) + " (Antelope " +
-        getVersionName(activity) + ")\n"
+    output +=
+        "DATE: " + dateFormatter.format(cal.time) + " (Antelope " + getVersionName(activity) + ")\n"
 
     output += "DEVICE: " + MainActivity.deviceInfo.device + "\n\n"
     output += "CAMERAS:\n"
-    for (camera in MainActivity.cameras)
-        output += camera + "\n"
+    for (camera in MainActivity.cameras) output += camera + "\n"
     output += "\n"
 
     // Test summary
     output += "HIGH-LEVEL OVERVIEW:\n"
 
-    output += "Capture (Cam2): " + meanOfSumOfTwoArrays(c2Auto.capture, c2Auto.imageready) +
-        ", Cap chained (Cam2): " +
-        meanOfSumOfTwoArrays(c2AutoChain.capture, c2AutoChain.imageready) +
-        "\nCapture CAF (Cam2): " + meanOfSumOfTwoArrays(c2Caf.capture, c2Caf.imageready) +
-        ", Chained CAF (Cam2): " +
-        meanOfSumOfTwoArrays(c2CafChain.capture, c2CafChain.imageready) +
-        "\nCapture (Cam1): " + meanOfSumOfTwoArrays(c1Auto.capture, c1Auto.imageready) +
-        ", Cap CAF (Cam1): " + meanOfSumOfTwoArrays(c1Caf.capture, c1Caf.imageready) +
-        "\nCapture (CamX): " + meanOfSumOfTwoArrays(cXAuto.capture, cXAuto.imageready) +
-        ", Cap CAF (CamX): " + meanOfSumOfTwoArrays(cXCaf.capture, cXCaf.imageready) +
-        "\nSwitch 1->2 (Cam2): " +
-        mean(c2Switch.switchToSecond) + ", Switch 1->2 (Cam1): " + mean(c1Switch.switchToSecond) +
-        ", Switch 1->2 (CamX): " + mean(cXSwitch.switchToSecond) +
-        ", Switch 2->1 (Cam2): " +
-        mean(c2Switch.switchToFirst) + ", Switch 2->1 (Cam1): " + mean(c1Switch.switchToFirst) +
-        ", Switch 2->1 (CamX): " + mean(cXSwitch.switchToFirst) +
-        "\nCam2 Open: " + meanOfSumOfTwoArrays(c2Auto.initialization, c2Auto.previewStart) +
-        ", Cam1 Open: " + meanOfSumOfTwoArrays(c1Auto.initialization, c1Auto.previewStart) +
-        "\nCam2 Close: " + meanOfSumOfTwoArrays(c2Auto.previewClose, c2Auto.cameraClose) +
-        ", Cam1 Close: " + meanOfSumOfTwoArrays(c1Auto.previewClose, c1Auto.cameraClose) +
-        "\n∆ Min to Max Size: " + (
-        numericalMean(c2Auto.capture) +
-            numericalMean(c2Auto.imageready) - numericalMean(c2AutoMin.capture) -
-            numericalMean(c2AutoMin.imageready)
-        ) +
-        ", Init->Image saved (Cam2): " + mean(c2Auto.totalNoPreview) +
-        "\n"
+    output +=
+        "Capture (Cam2): " +
+            meanOfSumOfTwoArrays(c2Auto.capture, c2Auto.imageready) +
+            ", Cap chained (Cam2): " +
+            meanOfSumOfTwoArrays(c2AutoChain.capture, c2AutoChain.imageready) +
+            "\nCapture CAF (Cam2): " +
+            meanOfSumOfTwoArrays(c2Caf.capture, c2Caf.imageready) +
+            ", Chained CAF (Cam2): " +
+            meanOfSumOfTwoArrays(c2CafChain.capture, c2CafChain.imageready) +
+            "\nCapture (Cam1): " +
+            meanOfSumOfTwoArrays(c1Auto.capture, c1Auto.imageready) +
+            ", Cap CAF (Cam1): " +
+            meanOfSumOfTwoArrays(c1Caf.capture, c1Caf.imageready) +
+            "\nCapture (CamX): " +
+            meanOfSumOfTwoArrays(cXAuto.capture, cXAuto.imageready) +
+            ", Cap CAF (CamX): " +
+            meanOfSumOfTwoArrays(cXCaf.capture, cXCaf.imageready) +
+            "\nSwitch 1->2 (Cam2): " +
+            mean(c2Switch.switchToSecond) +
+            ", Switch 1->2 (Cam1): " +
+            mean(c1Switch.switchToSecond) +
+            ", Switch 1->2 (CamX): " +
+            mean(cXSwitch.switchToSecond) +
+            ", Switch 2->1 (Cam2): " +
+            mean(c2Switch.switchToFirst) +
+            ", Switch 2->1 (Cam1): " +
+            mean(c1Switch.switchToFirst) +
+            ", Switch 2->1 (CamX): " +
+            mean(cXSwitch.switchToFirst) +
+            "\nCam2 Open: " +
+            meanOfSumOfTwoArrays(c2Auto.initialization, c2Auto.previewStart) +
+            ", Cam1 Open: " +
+            meanOfSumOfTwoArrays(c1Auto.initialization, c1Auto.previewStart) +
+            "\nCam2 Close: " +
+            meanOfSumOfTwoArrays(c2Auto.previewClose, c2Auto.cameraClose) +
+            ", Cam1 Close: " +
+            meanOfSumOfTwoArrays(c1Auto.previewClose, c1Auto.cameraClose) +
+            "\n∆ Min to Max Size: " +
+            (numericalMean(c2Auto.capture) + numericalMean(c2Auto.imageready) -
+                numericalMean(c2AutoMin.capture) -
+                numericalMean(c2AutoMin.imageready)) +
+            ", Init->Image saved (Cam2): " +
+            mean(c2Auto.totalNoPreview) +
+            "\n"
 
     output += "\n"
 
@@ -407,118 +476,228 @@ fun testSummaryString(activity: MainActivity, allTestResults: ArrayList<TestResu
 fun testSummaryCSV(activity: MainActivity, allTestResults: ArrayList<TestResults>): String {
     var output = ""
 
-    if (allTestResults.isEmpty())
-        return output
+    if (allTestResults.isEmpty()) return output
 
     val mainCamera = getMainCamera(activity, allTestResults)
 
-    val c2Auto = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
-    )
-    val c2AutoChain = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO_CHAIN
-    )
-    val c2Caf = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
-    )
-    val c2CafChain = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO_CHAIN
-    )
-    val c2AutoMin = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MIN, FocusMode.AUTO, TestType.MULTI_PHOTO
-    )
-    val c2Switch = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA2,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
-    )
-    val c1Auto = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
-    )
-    val c1Caf = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
-    )
-    val c1Switch = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERA1,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
-    )
-    val cXAuto = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_PHOTO
-    )
-    val cXCaf = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.CONTINUOUS, TestType.MULTI_PHOTO
-    )
-    val cXSwitch = findTest(
-        allTestResults, mainCamera, CameraAPI.CAMERAX,
-        ImageCaptureSize.MAX, FocusMode.AUTO, TestType.MULTI_SWITCH
-    )
+    val c2Auto =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO
+        )
+    val c2AutoChain =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO_CHAIN
+        )
+    val c2Caf =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.CONTINUOUS,
+            TestType.MULTI_PHOTO
+        )
+    val c2CafChain =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.CONTINUOUS,
+            TestType.MULTI_PHOTO_CHAIN
+        )
+    val c2AutoMin =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MIN,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO
+        )
+    val c2Switch =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA2,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_SWITCH
+        )
+    val c1Auto =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA1,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO
+        )
+    val c1Caf =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA1,
+            ImageCaptureSize.MAX,
+            FocusMode.CONTINUOUS,
+            TestType.MULTI_PHOTO
+        )
+    val c1Switch =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERA1,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_SWITCH
+        )
+    val cXAuto =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERAX,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_PHOTO
+        )
+    val cXCaf =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERAX,
+            ImageCaptureSize.MAX,
+            FocusMode.CONTINUOUS,
+            TestType.MULTI_PHOTO
+        )
+    val cXSwitch =
+        findTest(
+            allTestResults,
+            mainCamera,
+            CameraAPI.CAMERAX,
+            ImageCaptureSize.MAX,
+            FocusMode.AUTO,
+            TestType.MULTI_SWITCH
+        )
 
     // Header
     val dateFormatter = SimpleDateFormat("d MMM yyyy - kk'h'mm")
     val cal: Calendar = Calendar.getInstance()
-    output += "DATE: " + dateFormatter.format(cal.time) + " (Antelope " +
-        getVersionName(activity) + ")" + "\n"
+    output +=
+        "DATE: " +
+            dateFormatter.format(cal.time) +
+            " (Antelope " +
+            getVersionName(activity) +
+            ")" +
+            "\n"
 
     output += "DEVICE: " + MainActivity.deviceInfo.device + "\n" + "\n"
     output += "CAMERAS: " + "\n"
-    for (camera in MainActivity.cameras)
-        output += camera + "\n"
+    for (camera in MainActivity.cameras) output += camera + "\n"
     output += "\n"
 
     // Test summary
     output += "HIGH-LEVEL OVERVIEW:\n"
 
     output += ","
-    output += "Capture (Cam2)" + "," + "Cap chained (Cam2)" + "," +
-        "Capture CAF (Cam2)" + "," + "Chained CAF (Cam2)" + "," +
-        "Capture (Cam1)" + "," + "Cap CAF (Cam1)" + "," +
-        "Capture (CamX)" + "," + "Cap CAF (CamX)" + "," +
-        "Switch 1->2 (Cam2)" + "," + "Switch 1->2 (Cam1)" + "," + "Switch 1->2 (CamX)" + "," +
-        "Switch 2->1 (Cam2)" + "," + "Switch 2->1 (Cam1)" + "," + "Switch 2->1 (CamX)" + "," +
-        "Cam2 Open" + "," + "Cam1 Open" + "," +
-        "Cam2 Close" + "," + "Cam1 Close" + "," +
-        "∆ Min to Max Size" + "," +
-        "Init->Image saved (Cam2)" +
-        "\n"
+    output +=
+        "Capture (Cam2)" +
+            "," +
+            "Cap chained (Cam2)" +
+            "," +
+            "Capture CAF (Cam2)" +
+            "," +
+            "Chained CAF (Cam2)" +
+            "," +
+            "Capture (Cam1)" +
+            "," +
+            "Cap CAF (Cam1)" +
+            "," +
+            "Capture (CamX)" +
+            "," +
+            "Cap CAF (CamX)" +
+            "," +
+            "Switch 1->2 (Cam2)" +
+            "," +
+            "Switch 1->2 (Cam1)" +
+            "," +
+            "Switch 1->2 (CamX)" +
+            "," +
+            "Switch 2->1 (Cam2)" +
+            "," +
+            "Switch 2->1 (Cam1)" +
+            "," +
+            "Switch 2->1 (CamX)" +
+            "," +
+            "Cam2 Open" +
+            "," +
+            "Cam1 Open" +
+            "," +
+            "Cam2 Close" +
+            "," +
+            "Cam1 Close" +
+            "," +
+            "∆ Min to Max Size" +
+            "," +
+            "Init->Image saved (Cam2)" +
+            "\n"
 
     output += ","
-    output += "" + meanOfSumOfTwoArrays(c2Auto.capture, c2Auto.imageready) + "," +
-        meanOfSumOfTwoArrays(c2AutoChain.capture, c2AutoChain.imageready)
-    output += "," + meanOfSumOfTwoArrays(c2Caf.capture, c2Caf.imageready) + "," +
-        meanOfSumOfTwoArrays(c2CafChain.capture, c2CafChain.imageready)
-    output += "," + meanOfSumOfTwoArrays(c1Auto.capture, c1Auto.imageready) + "," +
-        meanOfSumOfTwoArrays(c1Caf.capture, c1Caf.imageready)
-    output += "," + meanOfSumOfTwoArrays(cXAuto.capture, cXAuto.imageready) + "," +
-        meanOfSumOfTwoArrays(cXCaf.capture, cXCaf.imageready)
+    output +=
+        "" +
+            meanOfSumOfTwoArrays(c2Auto.capture, c2Auto.imageready) +
+            "," +
+            meanOfSumOfTwoArrays(c2AutoChain.capture, c2AutoChain.imageready)
+    output +=
+        "," +
+            meanOfSumOfTwoArrays(c2Caf.capture, c2Caf.imageready) +
+            "," +
+            meanOfSumOfTwoArrays(c2CafChain.capture, c2CafChain.imageready)
+    output +=
+        "," +
+            meanOfSumOfTwoArrays(c1Auto.capture, c1Auto.imageready) +
+            "," +
+            meanOfSumOfTwoArrays(c1Caf.capture, c1Caf.imageready)
+    output +=
+        "," +
+            meanOfSumOfTwoArrays(cXAuto.capture, cXAuto.imageready) +
+            "," +
+            meanOfSumOfTwoArrays(cXCaf.capture, cXCaf.imageready)
     output += "," + mean(c2Switch.switchToSecond) + "," + mean(c1Switch.switchToSecond)
     output += "," + mean(cXSwitch.switchToSecond)
     output += "," + mean(c2Switch.switchToFirst) + "," + mean(c1Switch.switchToFirst)
     output += "," + mean(cXSwitch.switchToFirst)
-    output += "," + meanOfSumOfTwoArrays(c2Auto.initialization, c2Auto.previewStart) + "," +
-        meanOfSumOfTwoArrays(c1Auto.initialization, c1Auto.previewStart)
-    output += "," + meanOfSumOfTwoArrays(c2Auto.previewClose, c2Auto.cameraClose) + "," +
-        meanOfSumOfTwoArrays(c1Auto.previewClose, c1Auto.cameraClose)
-    output += "," + (
-        numericalMean(c2Auto.capture) + numericalMean(c2Auto.imageready) -
-            numericalMean(c2AutoMin.capture) - numericalMean(c2AutoMin.imageready)
-        )
+    output +=
+        "," +
+            meanOfSumOfTwoArrays(c2Auto.initialization, c2Auto.previewStart) +
+            "," +
+            meanOfSumOfTwoArrays(c1Auto.initialization, c1Auto.previewStart)
+    output +=
+        "," +
+            meanOfSumOfTwoArrays(c2Auto.previewClose, c2Auto.cameraClose) +
+            "," +
+            meanOfSumOfTwoArrays(c1Auto.previewClose, c1Auto.cameraClose)
+    output +=
+        "," +
+            (numericalMean(c2Auto.capture) + numericalMean(c2Auto.imageready) -
+                numericalMean(c2AutoMin.capture) -
+                numericalMean(c2AutoMin.imageready))
     output += "," + mean(c2Auto.totalNoPreview) + "\n"
 
     output += "\n"
     return output
 }
 
-/**
- * Search an array of TestResults for the first test result that matches the given parameters
- */
+/** Search an array of TestResults for the first test result that matches the given parameters */
 fun findTest(
     allTestResults: ArrayList<TestResults>,
     camera: String,
@@ -530,11 +709,12 @@ fun findTest(
 
     for (testResult in allTestResults) {
         // Look for the matching test result
-        if (testResult.camera.equals(camera) &&
-            testResult.cameraAPI == api &&
-            testResult.imageCaptureSize == imageCaptureSize &&
-            (testResult.focusMode == focusMode || testResult.focusMode == FocusMode.FIXED) &&
-            testResult.testType == testType
+        if (
+            testResult.camera.equals(camera) &&
+                testResult.cameraAPI == api &&
+                testResult.imageCaptureSize == imageCaptureSize &&
+                (testResult.focusMode == focusMode || testResult.focusMode == FocusMode.FIXED) &&
+                testResult.testType == testType
         ) {
             return testResult
         }
@@ -544,39 +724,26 @@ fun findTest(
     return TestResults()
 }
 
-/**
- * The mean of a given array of longs, as a string
- */
+/** The mean of a given array of longs, as a string */
 fun mean(array: ArrayList<Long>): String {
     if (array.isEmpty()) {
         return "n/a"
-    } else
-        return Stats.meanOf(array).roundToInt().toString()
+    } else return Stats.meanOf(array).roundToInt().toString()
 }
 
-/**
- * The mean of a given array of longs, as a double
- */
+/** The mean of a given array of longs, as a double */
 fun numericalMean(array: ArrayList<Long>): Double {
-    if (array.isEmpty())
-        return 0.0
-    else
-        return Stats.meanOf(array)
+    if (array.isEmpty()) return 0.0 else return Stats.meanOf(array)
 }
 
-/**
- * The mean of two arrays of longs added together, as a string
- */
+/** The mean of two arrays of longs added together, as a string */
 fun meanOfSumOfTwoArrays(array1: ArrayList<Long>, array2: ArrayList<Long>): String {
     if (array1.isEmpty() && array2.isEmpty()) {
         return "n/a"
     }
-    if (array1.isEmpty())
-        return mean(array2)
-    if (array2.isEmpty())
-        return mean(array1)
-    else
-        return (Stats.meanOf(array1) + Stats.meanOf(array2)).roundToInt().toString()
+    if (array1.isEmpty()) return mean(array2)
+    if (array2.isEmpty()) return mean(array1)
+    else return (Stats.meanOf(array1) + Stats.meanOf(array2)).roundToInt().toString()
 }
 
 /**
@@ -591,7 +758,7 @@ fun getMainCamera(activity: MainActivity, allTestResults: ArrayList<TestResults>
         if (!param.value.isFront && !param.value.isExternal)
 
         // If only logical cameras, first rear-facing is fine
-            if (PrefHelper.getOnlyLogical(activity)) {
+        if (PrefHelper.getOnlyLogical(activity)) {
                 logd("The MAIN camera id is:" + param.value.id)
                 return param.value.id
 
@@ -607,9 +774,7 @@ fun getMainCamera(activity: MainActivity, allTestResults: ArrayList<TestResults>
     return mainCamera
 }
 
-/**
- * Return the version name of the Activity
- */
+/** Return the version name of the Activity */
 @Suppress("DEPRECATION")
 fun getVersionName(activity: MainActivity): String {
     val packageInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)

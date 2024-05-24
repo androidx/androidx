@@ -64,16 +64,16 @@ public class ConstantObservableTest {
 
         // Create on observer of CharSequence, a superclass of String
         val deferredValue = CompletableDeferred<CharSequence?>()
-        val observer: Observable.Observer<CharSequence> = object :
-            Observable.Observer<CharSequence> {
-            override fun onNewData(value: CharSequence?) {
-                deferredValue.complete(value)
-            }
+        val observer: Observable.Observer<CharSequence> =
+            object : Observable.Observer<CharSequence> {
+                override fun onNewData(value: CharSequence?) {
+                    deferredValue.complete(value)
+                }
 
-            override fun onError(t: Throwable) {
-                deferredValue.completeExceptionally(t)
+                override fun onError(t: Throwable) {
+                    deferredValue.completeExceptionally(t)
+                }
             }
-        }
 
         // Add the observer to receive the value
         constantObservable.addObserver(CameraXExecutors.directExecutor(), observer)

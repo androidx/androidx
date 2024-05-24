@@ -41,9 +41,7 @@ class ItemsAdapter(private val numItems: Int = 100) :
     RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val itemView = layoutInflater.inflate(
-            R.layout.rv_cl_appbar_item, parent, false
-        )
+        val itemView = layoutInflater.inflate(R.layout.rv_cl_appbar_item, parent, false)
         return ViewHolder(itemView)
     }
 

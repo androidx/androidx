@@ -33,37 +33,40 @@ import org.robolectric.annotation.Config
 public class FakeCameraDevicesTest {
     private val EXTERNAL_BACKEND_ID =
         CameraBackendId("androidx.camera.camera2.pipe.testing.FakeCameraDevicesTest")
-    private val metadata1 = FakeCameraMetadata(
-        mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
-    )
-    private val metadata2 = FakeCameraMetadata(
-        mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
-    )
-    private val metadata3 = FakeCameraMetadata(
-        mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_EXTERNAL)
-    )
-    private val cameraMetadataMap = mapOf(
-        FAKE_CAMERA_BACKEND_ID to listOf(metadata1, metadata2),
-        EXTERNAL_BACKEND_ID to listOf(metadata3)
-    )
+    private val metadata1 =
+        FakeCameraMetadata(
+            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
+        )
+    private val metadata2 =
+        FakeCameraMetadata(
+            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
+        )
+    private val metadata3 =
+        FakeCameraMetadata(
+            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_EXTERNAL)
+        )
+    private val cameraMetadataMap =
+        mapOf(
+            FAKE_CAMERA_BACKEND_ID to listOf(metadata1, metadata2),
+            EXTERNAL_BACKEND_ID to listOf(metadata3)
+        )
 
     @Test
     fun getCameraIdsReturnsDefaultCameraIdList() = runTest {
-        val cameraDevices = FakeCameraDevices(
-            defaultCameraBackendId = FAKE_CAMERA_BACKEND_ID,
-            concurrentCameraBackendIds = setOf(
-                setOf(CameraBackendId("0"), CameraBackendId("1")),
-                setOf(CameraBackendId("0"), CameraBackendId("2"))
-            ),
-            cameraMetadataMap = cameraMetadataMap
-        )
-        val devices = cameraDevices.getCameraIds()
-        assertThat(devices).containsExactlyElementsIn(
-            listOf(
-                metadata1.camera,
-                metadata2.camera
+        val cameraDevices =
+            FakeCameraDevices(
+                defaultCameraBackendId = FAKE_CAMERA_BACKEND_ID,
+                concurrentCameraBackendIds =
+                    setOf(
+                        setOf(CameraBackendId("0"), CameraBackendId("1")),
+                        setOf(CameraBackendId("0"), CameraBackendId("2"))
+                    ),
+                cameraMetadataMap = cameraMetadataMap
             )
-        ).inOrder()
+        val devices = cameraDevices.getCameraIds()
+        assertThat(devices)
+            .containsExactlyElementsIn(listOf(metadata1.camera, metadata2.camera))
+            .inOrder()
 
         assertThat(cameraDevices.getCameraMetadata(metadata1.camera)).isSameInstanceAs(metadata1)
         assertThat(cameraDevices.getCameraMetadata(metadata2.camera)).isSameInstanceAs(metadata2)
@@ -71,27 +74,27 @@ public class FakeCameraDevicesTest {
 
     @Test
     fun getCameraIdsWithBackendReturnsCustomCameraIdList() = runTest {
-        val cameraDevices = FakeCameraDevices(
-            defaultCameraBackendId = FAKE_CAMERA_BACKEND_ID,
-            concurrentCameraBackendIds = setOf(
-                setOf(CameraBackendId("0"), CameraBackendId("1")),
-                setOf(CameraBackendId("0"), CameraBackendId("2"))
-            ),
-            cameraMetadataMap = cameraMetadataMap
-        )
-        val devices = cameraDevices.getCameraIds(EXTERNAL_BACKEND_ID)
-        assertThat(devices).containsExactlyElementsIn(
-            listOf(
-                metadata3.camera,
+        val cameraDevices =
+            FakeCameraDevices(
+                defaultCameraBackendId = FAKE_CAMERA_BACKEND_ID,
+                concurrentCameraBackendIds =
+                    setOf(
+                        setOf(CameraBackendId("0"), CameraBackendId("1")),
+                        setOf(CameraBackendId("0"), CameraBackendId("2"))
+                    ),
+                cameraMetadataMap = cameraMetadataMap
             )
-        ).inOrder()
+        val devices = cameraDevices.getCameraIds(EXTERNAL_BACKEND_ID)
+        assertThat(devices)
+            .containsExactlyElementsIn(
+                listOf(
+                    metadata3.camera,
+                )
+            )
+            .inOrder()
 
         assertThat(cameraDevices.getCameraMetadata(metadata3.camera)).isNull()
-        assertThat(
-            cameraDevices.getCameraMetadata(
-                metadata3.camera,
-                EXTERNAL_BACKEND_ID
-            )
-        ).isSameInstanceAs(metadata3)
+        assertThat(cameraDevices.getCameraMetadata(metadata3.camera, EXTERNAL_BACKEND_ID))
+            .isSameInstanceAs(metadata3)
     }
 }

@@ -36,13 +36,15 @@ class ImageCaptureFlashNotFireQuirk : UseTorchAsFlashQuirk {
 
     companion object {
         // List of devices with the issue. See b/228800360.
-        private val BUILD_MODELS = listOf(
-            "itel w6004" // Itel W6004
-        )
-        private val BUILD_MODELS_FRONT_CAMERA = listOf(
-            "sm-j700f", // Samsung Galaxy J7
-            "sm-j710f", // Samsung Galaxy J7
-        )
+        private val BUILD_MODELS =
+            listOf(
+                "itel w6004" // Itel W6004
+            )
+        private val BUILD_MODELS_FRONT_CAMERA =
+            listOf(
+                "sm-j700f", // Samsung Galaxy J7
+                "sm-j710f", // Samsung Galaxy J7
+            )
 
         fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             val isFrontCameraAffected =

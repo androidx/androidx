@@ -77,13 +77,13 @@ class CameraHelper {
      */
     @SuppressLint("MissingPermission")
     fun startRecording(context: Context, eventListener: Consumer<VideoRecordEvent>? = null) {
-        activeRecording = videoCapture!!.let {
-            val listener = eventListener ?: generateVideoRecordEventListener()
-            prepareRecording(context, it.output).withAudioEnabled().start(
-                ContextCompat.getMainExecutor(context),
-                listener
-            )
-        }
+        activeRecording =
+            videoCapture!!.let {
+                val listener = eventListener ?: generateVideoRecordEventListener()
+                prepareRecording(context, it.output)
+                    .withAudioEnabled()
+                    .start(ContextCompat.getMainExecutor(context), listener)
+            }
     }
 
     fun stopRecording() {
@@ -130,9 +130,9 @@ class CameraHelper {
         @SuppressLint("NullAnnotationGroup")
         @OptIn(ExperimentalCamera2Interop::class)
         private fun isLegacyDevice(cameraInfo: CameraInfo): Boolean {
-            return Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
-                INFO_SUPPORTED_HARDWARE_LEVEL
-            ) == INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+            return Camera2CameraInfo.from(cameraInfo)
+                .getCameraCharacteristic(INFO_SUPPORTED_HARDWARE_LEVEL) ==
+                INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
         }
 
         private fun prepareRecording(context: Context, recorder: Recorder): PendingRecording {
@@ -143,10 +143,7 @@ class CameraHelper {
                     generateVideoMediaStoreOptions(context.contentResolver, fileName)
                 )
             } else {
-                recorder.prepareRecording(
-                    context,
-                    generateVideoFileOutputOptions(fileName)
-                )
+                recorder.prepareRecording(context, generateVideoFileOutputOptions(fileName))
             }
         }
 

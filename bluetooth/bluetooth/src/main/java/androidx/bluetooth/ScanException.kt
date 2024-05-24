@@ -62,23 +62,14 @@ class ScanException(errorCode: Int) : BluetoothException(errorCode) {
     annotation class ScanFail
 
     /** The error code associated with this exception. */
-    override val errorCode: @ScanFail Int = when (errorCode) {
-        FwkScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED ->
-            APPLICATION_REGISTRATION_FAILED
-
-        FwkScanCallback.SCAN_FAILED_INTERNAL_ERROR ->
-            INTERNAL_ERROR
-
-        FwkScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED ->
-            UNSUPPORTED
-
-        FwkScanCallback.SCAN_FAILED_OUT_OF_HARDWARE_RESOURCES ->
-            OUT_OF_HARDWARE_RESOURCES
-
-        FwkScanCallback.SCAN_FAILED_SCANNING_TOO_FREQUENTLY ->
-            SCANNING_TOO_FREQUENTLY
-
-        else ->
-            ERROR_UNKNOWN
-    }
+    override val errorCode: @ScanFail Int =
+        when (errorCode) {
+            FwkScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED ->
+                APPLICATION_REGISTRATION_FAILED
+            FwkScanCallback.SCAN_FAILED_INTERNAL_ERROR -> INTERNAL_ERROR
+            FwkScanCallback.SCAN_FAILED_FEATURE_UNSUPPORTED -> UNSUPPORTED
+            FwkScanCallback.SCAN_FAILED_OUT_OF_HARDWARE_RESOURCES -> OUT_OF_HARDWARE_RESOURCES
+            FwkScanCallback.SCAN_FAILED_SCANNING_TOO_FREQUENTLY -> SCANNING_TOO_FREQUENTLY
+            else -> ERROR_UNKNOWN
+        }
 }

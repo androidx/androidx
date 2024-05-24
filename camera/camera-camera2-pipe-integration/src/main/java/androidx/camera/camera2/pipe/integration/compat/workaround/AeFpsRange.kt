@@ -26,17 +26,16 @@ import javax.inject.Inject
  * Sets an AE target FPS range on legacy devices from [AeFpsRangeLegacyQuirk] to maintain good
  * exposure.
  */
-
 @CameraScope
 class AeFpsRange @Inject constructor(cameraQuirks: CameraQuirks) {
     private val aeTargetFpsRange: Range<Int>? by lazy {
-        /** Chooses the AE target FPS range on legacy devices.  */
+        /** Chooses the AE target FPS range on legacy devices. */
         cameraQuirks.quirks[AeFpsRangeLegacyQuirk::class.java]?.range
     }
 
     /**
-     * Sets the [android.hardware.camera2.CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]
-     * option on legacy device when possible.
+     * Sets the [android.hardware.camera2.CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] option on
+     * legacy device when possible.
      */
     fun getTargetAeFpsRange(): Range<Int>? {
         return aeTargetFpsRange

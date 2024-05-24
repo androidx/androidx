@@ -33,125 +33,84 @@ class AspectRatioUtilTest {
 
     @Test
     fun testHasMatchingAspectRatio_withNullAspectRatio() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(16, 9),
-                null
-            )
-        ).isFalse()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(16, 9), null)).isFalse()
     }
 
     @Test
     fun testHasMatchingAspectRatio_withSameAspectRatio() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(16, 9),
-                Rational(16, 9)
-            )
-        ).isTrue()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(16, 9), Rational(16, 9))).isTrue()
     }
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_720p() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(1280, 720),
-                Rational(16, 9)
-            )
-        ).isTrue()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(1280, 720), Rational(16, 9)))
+            .isTrue()
     }
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_1080p() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(1920, 1088),
-                Rational(16, 9)
-            )
-        ).isTrue()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(1920, 1088), Rational(16, 9)))
+            .isTrue()
     }
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_1440p() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(2560, 1440),
-                Rational(16, 9)
-            )
-        ).isTrue()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(2560, 1440), Rational(16, 9)))
+            .isTrue()
     }
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_2160p() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(3840, 2160),
-                Rational(16, 9)
-            )
-        ).isTrue()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(3840, 2160), Rational(16, 9)))
+            .isTrue()
     }
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_1x1() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(1088, 1088),
-                Rational(1, 1)
-            )
-        ).isTrue()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(1088, 1088), Rational(1, 1)))
+            .isTrue()
     }
 
     @Test
     fun testHasMatchingAspectRatio_withMod16AspectRatio_4x3() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(1024, 768),
-                Rational(4, 3)
-            )
-        ).isTrue()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(1024, 768), Rational(4, 3))).isTrue()
     }
 
     @Test
     fun testHasMatchingAspectRatio_withNonMod16AspectRatio() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(1281, 721),
-                Rational(16, 9)
-            )
-        ).isFalse()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(1281, 721), Rational(16, 9)))
+            .isFalse()
     }
 
     @Test
     fun testHasMatchingAspectRatio_smallerThanDefaultMod16LowerBound() {
-        assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(640, 358),
-                Rational(16, 9)
-            )
-        ).isFalse()
+        assertThat(AspectRatioUtil.hasMatchingAspectRatio(Size(640, 358), Rational(16, 9)))
+            .isFalse()
     }
 
     @Test
     fun testHasMatchingAspectRatio_setCustomMod16LowerBound() {
         assertThat(
-            AspectRatioUtil.hasMatchingAspectRatio(
-                Size(640, 358),
-                Rational(16, 9),
-                Size(320, 240)
+                AspectRatioUtil.hasMatchingAspectRatio(
+                    Size(640, 358),
+                    Rational(16, 9),
+                    Size(320, 240)
+                )
             )
-        ).isTrue()
+            .isTrue()
     }
 
     @Test
     fun sortAspectRatios() {
         // Sort the aspect ratio key set by the target aspect ratio.
-        val aspectRatios = listOf(
-            Rational(1, 1),
-            Rational(4, 3),
-            Rational(16, 9),
-            Rational(18, 9),
-            Rational(14, 9),
-        )
+        val aspectRatios =
+            listOf(
+                Rational(1, 1),
+                Rational(4, 3),
+                Rational(16, 9),
+                Rational(18, 9),
+                Rational(14, 9),
+            )
 
         val targetAspectRatio = Rational(16, 9)
         val fullFovAspectRatio = Rational(4, 3)
@@ -164,13 +123,14 @@ class AspectRatioUtilTest {
             )
         )
 
-        val expectedResult = listOf(
-            Rational(16, 9),
-            Rational(14, 9),
-            Rational(4, 3),
-            Rational(18, 9),
-            Rational(1, 1),
-        )
+        val expectedResult =
+            listOf(
+                Rational(16, 9),
+                Rational(14, 9),
+                Rational(4, 3),
+                Rational(18, 9),
+                Rational(1, 1),
+            )
 
         assertThat(aspectRatios == expectedResult).isTrue()
     }

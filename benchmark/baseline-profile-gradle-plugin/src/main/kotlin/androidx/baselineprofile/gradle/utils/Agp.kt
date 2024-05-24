@@ -24,45 +24,31 @@ import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 
 internal fun Project.agpVersion(): AndroidPluginVersion {
-    return project
-        .extensions
-        .findByType(AndroidComponentsExtension::class.java)
-        ?.pluginVersion
+    return project.extensions.findByType(AndroidComponentsExtension::class.java)?.pluginVersion
         ?: throw GradleException(
             // This can happen only if the plugin is not applied to an android module.
             """
         The module $name does not have a registered `AndroidComponentsExtension`. This can only
         happen if this is not an Android module. Please review your build.gradle to ensure this
         plugin is applied to the correct module.
-            """.trimIndent()
+            """
+                .trimIndent()
         )
 }
 
-internal enum class AgpFeature(
-    internal val version: AndroidPluginVersion
-) {
+internal enum class AgpFeature(internal val version: AndroidPluginVersion) {
 
-    APPLICATION_VARIANT_HAS_UNIT_TEST_BUILDER(
-        AndroidPluginVersion(8, 1, 0)
-    ),
-    TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES(
-        AndroidPluginVersion(8, 1, 0).alpha(7)
-    ),
-    TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS(
-        AndroidPluginVersion(8, 2, 0).alpha(3)
-    ),
-    LIBRARY_MODULE_SUPPORTS_BASELINE_PROFILE_SOURCE_SETS(
-        AndroidPluginVersion(8, 3, 0).alpha(15)
-    ),
-    TEST_VARIANT_TESTED_APKS(
-        AndroidPluginVersion(8, 3, 0)
-    )
+    APPLICATION_VARIANT_HAS_UNIT_TEST_BUILDER(AndroidPluginVersion(8, 1, 0)),
+    TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES(AndroidPluginVersion(8, 1, 0).alpha(7)),
+    TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS(AndroidPluginVersion(8, 2, 0).alpha(3)),
+    LIBRARY_MODULE_SUPPORTS_BASELINE_PROFILE_SOURCE_SETS(AndroidPluginVersion(8, 3, 0).alpha(15)),
+    TEST_VARIANT_TESTED_APKS(AndroidPluginVersion(8, 3, 0))
 }
 
 /**
- * This class should be referenced only in AGP 8.2, as the utilized api doesn't exist in
- * previous versions. Keeping it as a separate class instead of accessing the api directly
- * allows previous version of AGP to be compatible with this code base.
+ * This class should be referenced only in AGP 8.2, as the utilized api doesn't exist in previous
+ * versions. Keeping it as a separate class instead of accessing the api directly allows previous
+ * version of AGP to be compatible with this code base.
  */
 internal object InstrumentationTestRunnerArgumentsAgp82 {
     fun set(variant: TestVariant, arguments: List<Pair<String, String>>) {
@@ -79,9 +65,9 @@ internal object InstrumentationTestRunnerArgumentsAgp82 {
 }
 
 /**
- * This class should be referenced only in AGP 8.3, as the utilized api doesn't exist in
- * previous versions. Keeping it as a separate class instead of accessing the api directly
- * allows previous version of AGP to be compatible with this code base.
+ * This class should be referenced only in AGP 8.3, as the utilized api doesn't exist in previous
+ * versions. Keeping it as a separate class instead of accessing the api directly allows previous
+ * version of AGP to be compatible with this code base.
  */
 @Suppress("UnstableApiUsage")
 internal object TestedApksAgp83 {
@@ -89,8 +75,6 @@ internal object TestedApksAgp83 {
         // Note that retrieving the BuildArtifactsLoader from within the lambda causes an issue
         // with serialization (see b/325886853#comment13).
         val buildArtifactLoader = variant.artifacts.getBuiltArtifactsLoader()
-        return variant.testedApks.map {
-            buildArtifactLoader.load(it)?.applicationId ?: ""
-        }
+        return variant.testedApks.map { buildArtifactLoader.load(it)?.applicationId ?: "" }
     }
 }

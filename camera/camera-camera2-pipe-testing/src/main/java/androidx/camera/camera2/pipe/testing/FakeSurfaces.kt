@@ -28,11 +28,10 @@ import kotlinx.atomicfu.atomic
  */
 class FakeSurfaces : AutoCloseable {
     private val fakeSurfaces = mutableListOf<Surface>()
+
     fun createFakeSurface(size: Size = Size(640, 480)): Surface {
         val surface = create(size)
-        synchronized(fakeSurfaces) {
-            fakeSurfaces.add(surface)
-        }
+        synchronized(fakeSurfaces) { fakeSurfaces.add(surface) }
         return surface
     }
 

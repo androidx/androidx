@@ -17,8 +17,8 @@
 package androidx.benchmark
 
 /**
- * Annotation indicating experimental API primarily intended to allow microbenchmarks independent
- * of the BenchmarkRule JUnit4 API.
+ * Annotation indicating experimental API primarily intended to allow microbenchmarks independent of
+ * the BenchmarkRule JUnit4 API.
  */
 @RequiresOptIn
 @Retention(AnnotationRetention.BINARY)

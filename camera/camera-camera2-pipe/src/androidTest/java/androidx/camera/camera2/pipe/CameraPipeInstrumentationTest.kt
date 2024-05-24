@@ -26,7 +26,5 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class CameraPipeInstrumentationTest {
-    @Test
-    fun test() {
-    }
+    @Test fun test() {}
 }

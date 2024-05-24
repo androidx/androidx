@@ -22,13 +22,8 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import org.gradle.process.ExecOperations
 
-/**
- * Controls XCode Simulator instances.
- */
-class XCodeSimCtrl(
-    private val execOperations: ExecOperations,
-    private val destination: String
-) {
+/** Controls XCode Simulator instances. */
+class XCodeSimCtrl(private val execOperations: ExecOperations, private val destination: String) {
 
     private var destinationDesc: String? = null
     private var deviceId: String? = null
@@ -65,10 +60,7 @@ class XCodeSimCtrl(
             val deviceId: String? = null
         )
 
-        internal fun boot(
-            destination: String,
-            execOperations: ExecOperations
-        ): SimulatorInstance {
+        internal fun boot(destination: String, execOperations: ExecOperations): SimulatorInstance {
             val parsed = parse(destination)
             return when (platform(parsed)) {
                 // Simulator needs to be booted up.
@@ -78,21 +70,21 @@ class XCodeSimCtrl(
             }
         }
 
-        private fun discoverSimulatorRuntimeVersion(
-            execOperations: ExecOperations
-        ): String? {
-            val json = executeCommand(
-                execOperations, listOf(
-                    "xcrun", "simctl", "list", "runtimes", "--json"
+        private fun discoverSimulatorRuntimeVersion(execOperations: ExecOperations): String? {
+            val json =
+                executeCommand(
+                    execOperations,
+                    listOf("xcrun", "simctl", "list", "runtimes", "--json")
                 )
-            )
             val simulatorRuntimes = GsonHelpers.gson().fromJson(json, SimulatorRuntimes::class.java)
             // There is usually one version of the simulator runtime available per xcode version
-            val supported = simulatorRuntimes.runtimes.firstOrNull { runtime ->
-                runtime.isAvailable && runtime.supportedDeviceTypes.any { deviceType ->
-                    deviceType.productFamily == IPHONE_PRODUCT_FAMILY
+            val supported =
+                simulatorRuntimes.runtimes.firstOrNull { runtime ->
+                    runtime.isAvailable &&
+                        runtime.supportedDeviceTypes.any { deviceType ->
+                            deviceType.productFamily == IPHONE_PRODUCT_FAMILY
+                        }
                 }
-            }
             return supported?.version
         }
 
@@ -108,37 +100,30 @@ class XCodeSimCtrl(
             check(deviceName != null && runtimeVersion != null) {
                 "Invalid destination spec: $destination"
             }
-            val deviceId = executeCommand(
-                execOperations, listOf(
-                    "xcrun",
-                    "simctl",
-                    "create",
-                    deviceName, // Use the deviceName as the name
-                    deviceName,
-                    "iOS$runtimeVersion"
+            val deviceId =
+                executeCommand(
+                    execOperations,
+                    listOf(
+                        "xcrun",
+                        "simctl",
+                        "create",
+                        deviceName, // Use the deviceName as the name
+                        deviceName,
+                        "iOS$runtimeVersion"
+                    )
                 )
-            )
             check(deviceId.isNotBlank()) {
                 "Invalid device id for simulator: $deviceId (Destination: $destination)"
             }
-            executeCommand(
-                execOperations, listOf("xcrun", "simctl", "boot", deviceId)
-            )
+            executeCommand(execOperations, listOf("xcrun", "simctl", "boot", deviceId))
             // Return a simulator instance with the new descriptor + device id
             return SimulatorInstance(destinationDesc = "id=$deviceId", deviceId = deviceId)
         }
 
-        internal fun shutDownAndDelete(
-            execOperations: ExecOperations,
-            deviceId: String
-        ) {
+        internal fun shutDownAndDelete(execOperations: ExecOperations, deviceId: String) {
             // Cleans up the instance of the simulator that was booted up.
-            executeCommand(
-                execOperations, listOf("xcrun", "simctl", "shutdown", deviceId)
-            )
-            executeCommand(
-                execOperations, listOf("xcrun", "simctl", "delete", deviceId)
-            )
+            executeCommand(execOperations, listOf("xcrun", "simctl", "shutdown", deviceId))
+            executeCommand(execOperations, listOf("xcrun", "simctl", "delete", deviceId))
         }
 
         private fun executeCommand(execOperations: ExecOperations, args: List<String>): String {
@@ -170,11 +155,10 @@ class XCodeSimCtrl(
         }
 
         private fun parse(destination: String): Map<String, String> {
-            return destination.splitToSequence(",")
+            return destination
+                .splitToSequence(",")
                 .map { split ->
-                    check(split.contains("=")) {
-                        "Invalid destination spec: $destination"
-                    }
+                    check(split.contains("=")) { "Invalid destination spec: $destination" }
                     val (key, value) = split.split("=", limit = 2)
                     key.trim() to value.trim()
                 }

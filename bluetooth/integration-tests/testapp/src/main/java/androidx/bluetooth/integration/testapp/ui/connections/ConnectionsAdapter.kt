@@ -40,8 +40,8 @@ class ConnectionsAdapter(
 ) : RecyclerView.Adapter<ConnectionsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_connection, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_connection, parent, false)
         return ViewHolder(view)
     }
 
@@ -66,19 +66,20 @@ class ConnectionsAdapter(
         private val recyclerViewDeviceServices: RecyclerView =
             itemView.findViewById(R.id.recycler_view_device_services)
 
-        private val onCharacteristicActionClick = object : OnCharacteristicActionClick {
-            override fun onClick(
-                deviceConnection: DeviceConnection,
-                characteristic: GattCharacteristic,
-                action: @OnCharacteristicActionClick.Action Int
-            ) {
-                deviceConnection.onCharacteristicActionClick?.onClick(
-                    deviceConnection,
-                    characteristic,
-                    action
-                )
+        private val onCharacteristicActionClick =
+            object : OnCharacteristicActionClick {
+                override fun onClick(
+                    deviceConnection: DeviceConnection,
+                    characteristic: GattCharacteristic,
+                    action: @OnCharacteristicActionClick.Action Int
+                ) {
+                    deviceConnection.onCharacteristicActionClick?.onClick(
+                        deviceConnection,
+                        characteristic,
+                        action
+                    )
+                }
             }
-        }
 
         init {
             buttonReconnect.setOnClickListener {
@@ -104,22 +105,23 @@ class ConnectionsAdapter(
             when (deviceConnection.status) {
                 Status.DISCONNECTED -> {
                     textViewDeviceConnectionStatus.text = context.getString(R.string.disconnected)
-                    textViewDeviceConnectionStatus
-                        .setTextColor(ContextCompat.getColor(context, R.color.green_500))
+                    textViewDeviceConnectionStatus.setTextColor(
+                        ContextCompat.getColor(context, R.color.green_500)
+                    )
                     buttonReconnect.isVisible = true
                 }
-
                 Status.CONNECTING -> {
                     progressIndicatorDeviceConnection.isVisible = true
                     textViewDeviceConnectionStatus.text = context.getString(R.string.connecting)
-                    textViewDeviceConnectionStatus
-                        .setTextColor(ContextCompat.getColor(context, R.color.indigo_500))
+                    textViewDeviceConnectionStatus.setTextColor(
+                        ContextCompat.getColor(context, R.color.indigo_500)
+                    )
                 }
-
                 Status.CONNECTED -> {
                     textViewDeviceConnectionStatus.text = context.getString(R.string.connected)
-                    textViewDeviceConnectionStatus
-                        .setTextColor(ContextCompat.getColor(context, R.color.indigo_500))
+                    textViewDeviceConnectionStatus.setTextColor(
+                        ContextCompat.getColor(context, R.color.indigo_500)
+                    )
                     buttonDisconnect.isVisible = true
                 }
             }

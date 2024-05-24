@@ -42,14 +42,13 @@ import org.junit.runner.RunWith
 /**
  * Tests for androidx.tracing.Trace, which validate actual trace content
  *
- * These can't be defined in the androidx.tracing library, as Trace capture / validation APIs
- * are only available to the benchmark group.
+ * These can't be defined in the androidx.tracing library, as Trace capture / validation APIs are
+ * only available to the benchmark group.
  */
 @SdkSuppress(minSdkVersion = 23)
 @RunWith(AndroidJUnit4::class)
 class AndroidxTracingTraceTest {
-    @get:Rule
-    val linkRule = FileLinkingRule()
+    @get:Rule val linkRule = FileLinkingRule()
 
     @Before
     @After
@@ -78,31 +77,31 @@ class AndroidxTracingTraceTest {
         )
 
         repeat(20) {
-            "$PREFIX$it".also { label ->
-                // actual test content. This is done in the middle of the other sections
-                // to isolate it from trace truncation issues
-                if (it == 10) {
-                    Trace.setCounter("${PREFIX}counter", 1)
-                    Trace.beginSection("${PREFIX}beginSection")
-                    Trace.beginAsyncSection("${PREFIX}beginAsyncSection", 9827)
-                    Thread.sleep(50)
-                    Trace.setCounter("${PREFIX}counter", 0)
-                    Trace.endSection()
-                    Trace.endAsyncSection("${PREFIX}beginAsyncSection", 9827)
-                }
+            "$PREFIX$it"
+                .also { label ->
+                    // actual test content. This is done in the middle of the other sections
+                    // to isolate it from trace truncation issues
+                    if (it == 10) {
+                        Trace.setCounter("${PREFIX}counter", 1)
+                        Trace.beginSection("${PREFIX}beginSection")
+                        Trace.beginAsyncSection("${PREFIX}beginAsyncSection", 9827)
+                        Thread.sleep(50)
+                        Trace.setCounter("${PREFIX}counter", 0)
+                        Trace.endSection()
+                        Trace.endAsyncSection("${PREFIX}beginAsyncSection", 9827)
+                    }
 
-                // trace sections before and after actual test content, to look for problems in
-                // front/back trace truncation. If these sections are missing, it's most likely
-                // issues in trace capture
-                trace(label) { Thread.sleep(50) }
-            }
+                    // trace sections before and after actual test content, to look for problems in
+                    // front/back trace truncation. If these sections are missing, it's most likely
+                    // issues in trace capture
+                    trace(label) { Thread.sleep(50) }
+                }
         }
 
         perfettoCapture.stop(traceFilePath)
 
-        val queryResult = PerfettoTraceProcessor.runSingleSessionServer(traceFilePath) {
-            query(query = QUERY)
-        }
+        val queryResult =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFilePath) { query(query = QUERY) }
 
         val matchingSlices = queryResult.toSlices()
         assertEquals(
@@ -116,19 +115,20 @@ class AndroidxTracingTraceTest {
                 List(10) { "$PREFIX${it + 10}" },
             matchingSlices.map { it.name }
         )
-        matchingSlices
-            .forEach {
-                if (it.name.startsWith("${PREFIX}counter")) {
-                    assertEquals(0L, it.dur) // counter has no length
-                } else {
-                    assertTrue(it.dur > 30_000_000) // should be at least 30ms
-                }
+        matchingSlices.forEach {
+            if (it.name.startsWith("${PREFIX}counter")) {
+                assertEquals(0L, it.dur) // counter has no length
+            } else {
+                assertTrue(it.dur > 30_000_000) // should be at least 30ms
             }
+        }
     }
+
     companion object {
         const val PREFIX = "AndroidxTracingTraceTest_"
 
-        const val QUERY = """
+        const val QUERY =
+            """
             ------ select all relevant standard slices
             SELECT
                 slice.name as name,

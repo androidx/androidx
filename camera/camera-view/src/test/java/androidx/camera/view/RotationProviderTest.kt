@@ -33,9 +33,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val INVALID_ROTATION = -1
 
-/**
- * Unit tests for [RotationProvider].
- */
+/** Unit tests for [RotationProvider]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -57,12 +55,8 @@ class RotationProviderTest {
     fun addAndRemoveListener_noCallback() {
         var rotationNoChange = INVALID_ROTATION
         var rotationChanged = INVALID_ROTATION
-        val listenerKept = RotationProvider.Listener {
-            rotationChanged = it
-        }
-        val listenerRemoved = RotationProvider.Listener {
-            rotationNoChange = it
-        }
+        val listenerKept = RotationProvider.Listener { rotationChanged = it }
+        val listenerRemoved = RotationProvider.Listener { rotationNoChange = it }
         rotationProvider.addListener(CameraXExecutors.mainThreadExecutor(), listenerKept)
         rotationProvider.addListener(CameraXExecutors.mainThreadExecutor(), listenerRemoved)
 
@@ -80,9 +74,7 @@ class RotationProviderTest {
     fun addListener_receivesCallback() {
         // Arrange.
         var rotation = -1
-        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor()) {
-            rotation = it
-        }
+        rotationProvider.addListener(CameraXExecutors.mainThreadExecutor()) { rotation = it }
         // Act.
         rotationProvider.mOrientationListener.onOrientationChanged(0)
         shadowOf(getMainLooper()).idle()
@@ -98,8 +90,7 @@ class RotationProviderTest {
 
     @Test
     fun assertBasicOrientationToSurfaceRotation() {
-        assertThat(RotationProvider.orientationToSurfaceRotation(0))
-            .isEqualTo(Surface.ROTATION_0)
+        assertThat(RotationProvider.orientationToSurfaceRotation(0)).isEqualTo(Surface.ROTATION_0)
         assertThat(RotationProvider.orientationToSurfaceRotation(90))
             .isEqualTo(Surface.ROTATION_270)
         assertThat(RotationProvider.orientationToSurfaceRotation(180))

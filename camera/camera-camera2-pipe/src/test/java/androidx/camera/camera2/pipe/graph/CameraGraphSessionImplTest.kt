@@ -65,22 +65,18 @@ internal class CameraGraphSessionImplTest {
             graphProcessor,
             // Make sure our characteristics shows that it supports AF trigger.
             FakeCameraMetadata(
-                characteristics = mapOf(
-                    CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE to 1.0f
-                )
-            ), graphState3A, listener3A
+                characteristics =
+                    mapOf(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE to 1.0f)
+            ),
+            graphState3A,
+            listener3A
         )
     private val frameCaptureQueue = FrameCaptureQueue()
     private val sessionMutex = Mutex()
     private val sessionToken = sessionMutex.tryAcquireToken()!!
 
     private val session =
-        CameraGraphSessionImpl(
-            sessionToken,
-            graphProcessor,
-            controller3A,
-            frameCaptureQueue
-        )
+        CameraGraphSessionImpl(sessionToken, graphProcessor, controller3A, frameCaptureQueue)
 
     @Test
     fun createCameraGraphSession() {
@@ -160,10 +156,11 @@ internal class CameraGraphSessionImplTest {
             requestMetadata,
             FrameNumber(10),
             FakeFrameInfo(
-                metadata = FakeFrameMetadata(
-                    resultMetadata =
-                    mapOf(CaptureResult.CONTROL_AE_STATE to CONTROL_AE_STATE_LOCKED)
-                ),
+                metadata =
+                    FakeFrameMetadata(
+                        resultMetadata =
+                            mapOf(CaptureResult.CONTROL_AE_STATE to CONTROL_AE_STATE_LOCKED)
+                    ),
                 requestMetadata = requestMetadata
             )
         )

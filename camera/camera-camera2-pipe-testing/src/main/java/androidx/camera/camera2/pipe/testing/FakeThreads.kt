@@ -41,8 +41,7 @@ object FakeThreads {
     private fun create(scope: CoroutineScope, dispatcher: CoroutineDispatcher): Threads {
         val executor = dispatcher.asExecutor()
 
-        @Suppress("deprecation")
-        val fakeHandler = { Handler() }
+        @Suppress("deprecation") val fakeHandler = { Handler() }
 
         return Threads(
             scope,

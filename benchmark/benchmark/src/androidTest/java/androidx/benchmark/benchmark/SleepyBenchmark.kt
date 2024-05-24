@@ -26,8 +26,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * This benchmark is designed to show the difference between environments with minimum clocks
- * set, and those without.
+ * This benchmark is designed to show the difference between environments with minimum clocks set,
+ * and those without.
  *
  * The lowest levels of the clock stability waterfall (stable performance mode, and throttle
  * detection) are expected to show bigger variations between the two methods, and less stability in
@@ -36,17 +36,14 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class SleepyBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     val sourceMatrix = FloatArray(16) { it.toFloat() }
     val resultMatrix = FloatArray(16)
 
     @Suppress("NOTHING_TO_INLINE")
     inline fun theyDidTheMatrixMath() {
-        repeat(10) {
-            Matrix.translateM(resultMatrix, 0, sourceMatrix, 0, 1F, 2F, 3F)
-        }
+        repeat(10) { Matrix.translateM(resultMatrix, 0, sourceMatrix, 0, 1F, 2F, 3F) }
     }
 
     @Test
@@ -63,8 +60,6 @@ class SleepyBenchmark {
 
     @Test
     fun matrixMath() {
-        benchmarkRule.measureRepeated {
-            theyDidTheMatrixMath()
-        }
+        benchmarkRule.measureRepeated { theyDidTheMatrixMath() }
     }
 }

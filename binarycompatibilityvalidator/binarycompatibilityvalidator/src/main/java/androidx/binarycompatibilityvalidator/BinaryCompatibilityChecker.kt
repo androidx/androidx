@@ -49,14 +49,14 @@ class BinaryCompatibilityChecker(
     private val oldLibraryDeclarations by lazy {
         oldLibraryAbi.allDeclarations().associateBy { it.asTypeString() }
     }
+
     fun checkBinariesAreCompatible() {
         newLibraryAbi.checkIsBinaryCompatibleWith(oldLibraryAbi)
     }
 
     private fun LibraryAbi.checkIsBinaryCompatibleWith(olderLibraryAbi: LibraryAbi) {
         val errors = mutableListOf<String>()
-        topLevelDeclarations
-        .isBinaryCompatibleWith(
+        topLevelDeclarations.isBinaryCompatibleWith(
             olderLibraryAbi.topLevelDeclarations,
             uniqueName,
             errors
@@ -102,7 +102,7 @@ class BinaryCompatibilityChecker(
         if (this::class.java != oldDeclaration::class.java) {
             errors.add(
                 "type changed from ${this::class.simpleName} to " +
-                "${oldDeclaration::class.simpleName} for $qualifiedName"
+                    "${oldDeclaration::class.simpleName} for $qualifiedName"
             )
             return
         }
@@ -121,9 +121,10 @@ class BinaryCompatibilityChecker(
                 modality == AbiModality.OPEN && oldClass.modality == AbiModality.SEALED -> Unit
                 modality == AbiModality.OPEN && oldClass.modality == AbiModality.ABSTRACT -> Unit
                 modality == AbiModality.ABSTRACT && oldClass.modality == AbiModality.SEALED -> Unit
-                else -> errors.add(
-                    "modality changed from ${oldClass.modality} to $modality for $qualifiedName"
-                )
+                else ->
+                    errors.add(
+                        "modality changed from ${oldClass.modality} to $modality for $qualifiedName"
+                    )
             }
         }
         if (kind != oldClass.kind) {
@@ -138,22 +139,24 @@ class BinaryCompatibilityChecker(
         if (isFunction != oldClass.isFunction) {
             when {
                 isFunction && !oldClass.isFunction -> Unit
-                else -> errors.add(
-                    "isFunction changed from ${oldClass.isFunction} to $isFunction for " +
-                        "$qualifiedName"
-                )
+                else ->
+                    errors.add(
+                        "isFunction changed from ${oldClass.isFunction} to $isFunction for " +
+                            "$qualifiedName"
+                    )
             }
         }
 
         // Check that previous supertypes are still currently supertypes
-        allSuperTypes(newLibraryDeclarations).isBinaryCompatibleWith(
-            oldClass.allSuperTypes(oldLibraryDeclarations),
-            entityName = "superType",
-            uniqueId = AbiType::asString,
-            isBinaryCompatibleWith = AbiType::isBinaryCompatibleWith,
-            parentQualifiedName = qualifiedName.toString(),
-            errors = errors
-        )
+        allSuperTypes(newLibraryDeclarations)
+            .isBinaryCompatibleWith(
+                oldClass.allSuperTypes(oldLibraryDeclarations),
+                entityName = "superType",
+                uniqueId = AbiType::asString,
+                isBinaryCompatibleWith = AbiType::isBinaryCompatibleWith,
+                parentQualifiedName = qualifiedName.toString(),
+                errors = errors
+            )
         typeParameters.isBinaryCompatibleWith(
             oldClass.typeParameters,
             entityName = "typeParameter",
@@ -200,21 +203,20 @@ class BinaryCompatibilityChecker(
     private fun AbiClass.allMethodsIncludingInherited(
         oldLibraryDeclarations: Map<String, AbiDeclaration>
     ): List<AbiFunction> {
-        val functionMap = declarations.filterIsInstance<AbiFunction>().associateBy {
-            it.asUnqualifiedTypeString()
-        }.toMutableMap()
+        val functionMap =
+            declarations
+                .filterIsInstance<AbiFunction>()
+                .associateBy { it.asUnqualifiedTypeString() }
+                .toMutableMap()
         superTypes
             .map {
                 // we should throw here if we can't find the class in the package/dependencies
                 oldLibraryDeclarations[it.asString()]
-            }.filterIsInstance<AbiClass>()
-            .flatMap {
-                it.allMethodsIncludingInherited(oldLibraryDeclarations)
-            }.associateBy {
-                it.asUnqualifiedTypeString()
-            }.forEach { (key, func) ->
-                functionMap.putIfAbsent(key, func)
             }
+            .filterIsInstance<AbiClass>()
+            .flatMap { it.allMethodsIncludingInherited(oldLibraryDeclarations) }
+            .associateBy { it.asUnqualifiedTypeString() }
+            .forEach { (key, func) -> functionMap.putIfAbsent(key, func) }
         return functionMap.values.toList()
     }
 
@@ -223,40 +225,50 @@ class BinaryCompatibilityChecker(
         errors: MutableList<String>
     ) {
         if (isConstructor != otherFunction.isConstructor) {
-            errors.add("isConstructor changed from ${otherFunction.isConstructor} to " +
-                "$isConstructor for $qualifiedName")
+            errors.add(
+                "isConstructor changed from ${otherFunction.isConstructor} to " +
+                    "$isConstructor for $qualifiedName"
+            )
         }
         if (modality != otherFunction.modality) {
             when {
-                modality == AbiModality.OPEN &&
-                    otherFunction.modality == AbiModality.ABSTRACT -> Unit
-                else -> errors.add("modality changed from ${otherFunction.modality} to " +
-                    "$modality for $qualifiedName"
-                )
+                modality == AbiModality.OPEN && otherFunction.modality == AbiModality.ABSTRACT ->
+                    Unit
+                else ->
+                    errors.add(
+                        "modality changed from ${otherFunction.modality} to " +
+                            "$modality for $qualifiedName"
+                    )
             }
         }
         if (isInline != otherFunction.isInline) {
             when {
                 isInline && !otherFunction.isInline -> Unit
-                else -> errors.add("isInline changed from ${otherFunction.isInline} to $isInline " +
-                   "for $qualifiedName"
-                )
+                else ->
+                    errors.add(
+                        "isInline changed from ${otherFunction.isInline} to $isInline " +
+                            "for $qualifiedName"
+                    )
             }
         }
         if (isSuspend != otherFunction.isSuspend) {
-            errors.add("isSuspend changed from ${otherFunction.isSuspend} to $isSuspend for " +
-            "$qualifiedName")
+            errors.add(
+                "isSuspend changed from ${otherFunction.isSuspend} to $isSuspend for " +
+                    "$qualifiedName"
+            )
         }
         if (hasExtensionReceiverParameter != otherFunction.hasExtensionReceiverParameter) {
-            errors.add("hasExtensionReceiverParameter changed from " +
-                "${otherFunction.hasExtensionReceiverParameter} to " +
-                "$hasExtensionReceiverParameter for $qualifiedName"
+            errors.add(
+                "hasExtensionReceiverParameter changed from " +
+                    "${otherFunction.hasExtensionReceiverParameter} to " +
+                    "$hasExtensionReceiverParameter for $qualifiedName"
             )
         }
         if (contextReceiverParametersCount != otherFunction.contextReceiverParametersCount) {
-            errors.add("contextReceiverParametersCount changed from " +
-                "${otherFunction.contextReceiverParametersCount} to " +
-                "$contextReceiverParametersCount for $qualifiedName"
+            errors.add(
+                "contextReceiverParametersCount changed from " +
+                    "${otherFunction.contextReceiverParametersCount} to " +
+                    "$contextReceiverParametersCount for $qualifiedName"
             )
         }
         returnType.isBinaryCompatibleWith(
@@ -296,9 +308,8 @@ class BinaryCompatibilityChecker(
                 modality == AbiModality.FINAL &&
                     kind == AbiPropertyKind.VAR &&
                     oldProperty.kind == AbiPropertyKind.VAL -> Unit
-                else -> errors.add(
-                    "kind changed from ${oldProperty.kind} to $kind for $qualifiedName"
-                )
+                else ->
+                    errors.add("kind changed from ${oldProperty.kind} to $kind for $qualifiedName")
             }
         }
         val newGetter = getter
@@ -346,14 +357,17 @@ internal fun AbiTypeParameter.isBinaryCompatibleWith(
     if (isReified != otherTypeParam.isReified) {
         when {
             !isReified && otherTypeParam.isReified -> Unit
-            else -> errors.add("isReified changed from ${otherTypeParam.isReified} to $isReified " +
-                "for type param $tag on $parentQualifiedName"
-            )
+            else ->
+                errors.add(
+                    "isReified changed from ${otherTypeParam.isReified} to $isReified " +
+                        "for type param $tag on $parentQualifiedName"
+                )
         }
     }
     if (variance != otherTypeParam.variance) {
-        errors.add("variance changed from ${otherTypeParam.variance} to $variance " +
-            "for type param $tag on $parentQualifiedName"
+        errors.add(
+            "variance changed from ${otherTypeParam.variance} to $variance " +
+                "for type param $tag on $parentQualifiedName"
         )
     }
     val upperBound = upperBounds.singleOrNull()
@@ -375,8 +389,8 @@ internal fun AbiTypeParameter.isBinaryCompatibleWith(
 private val AbiType?.valueAsString: String
     get() = this?.classNameOrTag ?: "Unit / null"
 
-private fun List<AbiType>.isUnbounded():
-    Boolean = isEmpty() || single().className?.toString() == "kotlin/Any"
+private fun List<AbiType>.isUnbounded(): Boolean =
+    isEmpty() || single().className?.toString() == "kotlin/Any"
 
 private fun AbiValueParameter.isBinaryCompatibleWith(
     otherParam: AbiValueParameter,
@@ -393,10 +407,11 @@ private fun AbiValueParameter.isBinaryCompatibleWith(
     if (hasDefaultArg != otherParam.hasDefaultArg) {
         when {
             hasDefaultArg && !otherParam.hasDefaultArg -> Unit
-            else -> errors.add(
-                "hasDefaultArg changed from ${otherParam.hasDefaultArg} to $hasDefaultArg for " +
-                    "parameter ${type.classNameOrTag} of $parentQualifiedName"
-            )
+            else ->
+                errors.add(
+                    "hasDefaultArg changed from ${otherParam.hasDefaultArg} to $hasDefaultArg for " +
+                        "parameter ${type.classNameOrTag} of $parentQualifiedName"
+                )
         }
     }
     if (isNoinline != otherParam.isNoinline) {
@@ -436,12 +451,8 @@ private fun AbiType?.isBinaryCompatibleWith(
         return
     }
     when {
-        this is AbiType.Simple -> isBinaryCompatible(
-            otherType as AbiType.Simple,
-            parentQualifiedName,
-            errors,
-            kind
-        )
+        this is AbiType.Simple ->
+            isBinaryCompatible(otherType as AbiType.Simple, parentQualifiedName, errors, kind)
     }
 }
 
@@ -453,14 +464,15 @@ private fun AbiType.Simple.isBinaryCompatible(
 ) {
     val classifierRef = classifierReference
     val otherClassifierRef = otherType.classifierReference
-    val typeMatches = when (classifierReference) {
-        is ClassReference -> {
-            classifierRef.className == otherClassifierRef.className
+    val typeMatches =
+        when (classifierReference) {
+            is ClassReference -> {
+                classifierRef.className == otherClassifierRef.className
+            }
+            is TypeParameterReference -> {
+                classifierRef.tag == otherClassifierRef.tag
+            }
         }
-        is TypeParameterReference -> {
-            classifierRef.tag == otherClassifierRef.tag
-        }
-    }
     if (!typeMatches) {
         errors.add("$kind did not match for $parentQualifiedName")
         return
@@ -498,10 +510,11 @@ private fun AbiTypeArgument.isBinaryCompatibleWith(
     type.isBinaryCompatibleWith(otherTypeArgument.type, parentQualifiedName, errors)
 }
 
-private fun AbiDeclaration.asTypeString() = when (this) {
-    is AbiFunction -> qualifiedName.toString() + valueParameterString()
-    else -> qualifiedName.toString()
-}
+private fun AbiDeclaration.asTypeString() =
+    when (this) {
+        is AbiFunction -> qualifiedName.toString() + valueParameterString()
+        else -> qualifiedName.toString()
+    }
 
 private fun AbiDeclaration.asUnqualifiedTypeString(): String {
     val name = qualifiedName.relativeName.nameSegments.last().value
@@ -514,39 +527,41 @@ private fun AbiDeclaration.asUnqualifiedTypeString(): String {
 private fun AbiFunction.valueParameterString() =
     "(${valueParameters.joinToString(", ") { it.type.asString() }})"
 
-private fun AbiType.asString() = when (this) {
-    is AbiType.Dynamic -> "dynamic"
-    is AbiType.Error -> "error"
-    is AbiType.Simple -> when (classifierReference) {
-        is ClassReference -> (classifierReference as ClassReference).className.toString()
-        is TypeParameterReference -> (classifierReference as TypeParameterReference).tag
+private fun AbiType.asString() =
+    when (this) {
+        is AbiType.Dynamic -> "dynamic"
+        is AbiType.Error -> "error"
+        is AbiType.Simple ->
+            when (classifierReference) {
+                is ClassReference -> (classifierReference as ClassReference).className.toString()
+                is TypeParameterReference -> (classifierReference as TypeParameterReference).tag
+            }
     }
-}
 
 private fun AbiValueParameter.asString() = type.asString()
 
-private fun AbiTypeArgument.asString() = when (this) {
-    is StarProjection -> "*"
-    is TypeProjection -> type.asString()
-}
+private fun AbiTypeArgument.asString() =
+    when (this) {
+        is StarProjection -> "*"
+        is TypeProjection -> type.asString()
+    }
 
 class ValidationException(errors: List<String>) : Throwable(errors.joinToString("\n"))
 
 private fun LibraryAbi.allDeclarations(): List<AbiDeclaration> {
     val allDeclarations = mutableListOf<AbiDeclaration>()
-    topLevelDeclarations.declarations.forEach {
-        allDeclarations.addAll(it.allDeclarations())
-    }
+    topLevelDeclarations.declarations.forEach { allDeclarations.addAll(it.allDeclarations()) }
     return allDeclarations
 }
 
 private fun AbiDeclaration.allDeclarations(): List<AbiDeclaration> {
-    return listOf(this) + when (this) {
-        is AbiEnumEntry -> emptyList()
-        is AbiFunction -> emptyList()
-        is AbiProperty -> listOfNotNull(getter, setter)
-        is AbiClass -> declarations.flatMap { it.allDeclarations() }
-    }
+    return listOf(this) +
+        when (this) {
+            is AbiEnumEntry -> emptyList()
+            is AbiFunction -> emptyList()
+            is AbiProperty -> listOfNotNull(getter, setter)
+            is AbiClass -> declarations.flatMap { it.allDeclarations() }
+        }
 }
 
 /**
@@ -567,14 +582,10 @@ private fun <T> List<T>.isBinaryCompatibleWith(
     val oldEntities = oldEntitiesList.associateBy { it.uniqueId() }
     val newEntities = associateBy { it.uniqueId() }
     val removedEntities = oldEntities.keys - newEntities.keys
-    removedEntities.forEach {
-        errors.add("Removed $entityName $it from $parentQualifiedName")
-    }
+    removedEntities.forEach { errors.add("Removed $entityName $it from $parentQualifiedName") }
     val addedEntities = newEntities.keys - oldEntities.keys
     val disallowedAdditions = addedEntities.filterNot { newEntities[it]!!.isAllowedAddition() }
-    disallowedAdditions.forEach {
-        errors.add("Added $entityName $it to $parentQualifiedName")
-    }
+    disallowedAdditions.forEach { errors.add("Added $entityName $it to $parentQualifiedName") }
     for ((id, oldEntity) in oldEntities) {
         // if the entity is missing we'll add an error for that above, but we continue to compare
         // entities to show as many violations at once as possible

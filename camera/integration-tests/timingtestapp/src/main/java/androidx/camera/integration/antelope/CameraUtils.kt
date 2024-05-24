@@ -78,134 +78,141 @@ fun initializeCameras(activity: MainActivity) {
         for (cameraId in manager.cameraIdList) {
             var cameraParamsValid = true
 
-            val tempCameraParams = CameraParams().apply {
+            val tempCameraParams =
+                CameraParams().apply {
+                    val cameraChars = manager.getCameraCharacteristics(cameraId)
+                    val cameraCapabilities =
+                        cameraChars.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
+                            ?: IntArray(0)
 
-                val cameraChars = manager.getCameraCharacteristics(cameraId)
-                val cameraCapabilities =
-                    cameraChars.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
-                        ?: IntArray(0)
-
-                // Check supported format.
-                val map = cameraChars.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-                if (map == null || map.isOutputSupportedFor(ImageFormat.JPEG) == false) {
-                    cameraParamsValid = false
-                    logd(
-                        "Null streamConfigurationMap or not supporting JPEG output format " +
-                            "in cameraId:" + cameraId
-                    )
-                    return@apply
-                }
-
-                // Multi-camera
-                for (capability in cameraCapabilities) {
-                    if (capability ==
-                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
-                    ) {
-                        hasMulti = true
-                    } else if (capability ==
-                        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR
-                    ) {
-                        hasManualControl = true
+                    // Check supported format.
+                    val map = cameraChars.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                    if (map == null || map.isOutputSupportedFor(ImageFormat.JPEG) == false) {
+                        cameraParamsValid = false
+                        logd(
+                            "Null streamConfigurationMap or not supporting JPEG output format " +
+                                "in cameraId:" +
+                                cameraId
+                        )
+                        return@apply
                     }
+
+                    // Multi-camera
+                    for (capability in cameraCapabilities) {
+                        if (
+                            capability ==
+                                CameraCharacteristics
+                                    .REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+                        ) {
+                            hasMulti = true
+                        } else if (
+                            capability ==
+                                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_MANUAL_SENSOR
+                        ) {
+                            hasManualControl = true
+                        }
+                    }
+
+                    logd("Camera " + cameraId + " of " + numCameras)
+
+                    id = cameraId
+                    isOpen = false
+                    hasFlash = cameraChars.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
+                    isFront =
+                        CameraCharacteristics.LENS_FACING_FRONT ==
+                            cameraChars.get(CameraCharacteristics.LENS_FACING)
+
+                    isExternal =
+                        (Build.VERSION.SDK_INT >= 23 &&
+                            CameraCharacteristics.LENS_FACING_EXTERNAL ==
+                                cameraChars.get(CameraCharacteristics.LENS_FACING))
+
+                    characteristics = cameraChars
+                    focalLengths =
+                        cameraChars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+                            ?: FloatArray(0)
+                    smallestFocalLength = smallestFocalLength(focalLengths)
+                    minDeltaFromNormal = focalLengthMinDeltaFromNormal(focalLengths)
+
+                    apertures =
+                        cameraChars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_APERTURES)
+                            ?: FloatArray(0)
+                    largestAperture = largestAperture(apertures)
+                    minFocusDistance =
+                        cameraChars.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
+                            ?: MainActivity.FIXED_FOCUS_DISTANCE
+
+                    for (focalLength in focalLengths) {
+                        logd("In " + id + " found focalLength: " + focalLength)
+                    }
+                    logd("Smallest smallestFocalLength: " + smallestFocalLength)
+                    logd("minFocusDistance: " + minFocusDistance)
+
+                    for (aperture in apertures) {
+                        logd("In " + id + " found aperture: " + aperture)
+                    }
+                    logd("Largest aperture: " + largestAperture)
+
+                    if (hasManualControl) {
+                        logd("Has Manual, minFocusDistance: " + minFocusDistance)
+                    }
+
+                    // Autofocus
+                    hasAF =
+                        minFocusDistance != FIXED_FOCUS_DISTANCE // If camera is fixed focus, no AF
+
+                    effects =
+                        cameraChars.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
+                            ?: IntArray(0)
+                    hasSepia = effects.contains(CameraMetadata.CONTROL_EFFECT_MODE_SEPIA)
+                    hasMono = effects.contains(CameraMetadata.CONTROL_EFFECT_MODE_MONO)
+
+                    if (hasSepia) logd("WE HAVE Sepia!")
+                    if (hasMono) logd("WE HAVE Mono!")
+
+                    isLegacy =
+                        cameraChars.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ==
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+
+                    val activeSensorRect: Rect = cameraChars.get(SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
+                    megapixels = (activeSensorRect.width() * activeSensorRect.height()) / 1000000
+
+                    camera2DeviceStateCallback =
+                        Camera2DeviceStateCallback(this, activity, TestConfig())
+                    camera2CaptureSessionCallback =
+                        Camera2CaptureSessionCallback(activity, this, TestConfig())
+
+                    previewSurfaceView = activity.binding.surfacePreview
+                    cameraXPreviewTexture = activity.binding.texturePreview
+
+                    cameraXPreviewBuilder = Preview.Builder()
+
+                    cameraXCaptureBuilder = ImageCapture.Builder()
+
+                    imageAvailableListener = ImageAvailableListener(activity, this, TestConfig())
+
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        physicalCameras = cameraChars.physicalCameraIds
+                    }
+
+                    // Get Camera2 and CameraX image capture sizes.
+                    cam2MaxSize =
+                        Collections.max(
+                            Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
+                            CompareSizesByArea()
+                        )
+
+                    cam2MinSize =
+                        Collections.min(
+                            Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
+                            CompareSizesByArea()
+                        )
+
+                    // Use minimum image size for preview
+                    previewSurfaceView?.holder?.setFixedSize(cam2MinSize.width, cam2MinSize.height)
+
+                    setupImageReader(activity, this, TestConfig())
                 }
-
-                logd("Camera " + cameraId + " of " + numCameras)
-
-                id = cameraId
-                isOpen = false
-                hasFlash = cameraChars.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
-                isFront = CameraCharacteristics.LENS_FACING_FRONT ==
-                    cameraChars.get(CameraCharacteristics.LENS_FACING)
-
-                isExternal = (
-                    Build.VERSION.SDK_INT >= 23 &&
-                        CameraCharacteristics.LENS_FACING_EXTERNAL ==
-                        cameraChars.get(CameraCharacteristics.LENS_FACING)
-                    )
-
-                characteristics = cameraChars
-                focalLengths =
-                    cameraChars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-                    ?: FloatArray(0)
-                smallestFocalLength = smallestFocalLength(focalLengths)
-                minDeltaFromNormal = focalLengthMinDeltaFromNormal(focalLengths)
-
-                apertures = cameraChars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_APERTURES)
-                    ?: FloatArray(0)
-                largestAperture = largestAperture(apertures)
-                minFocusDistance =
-                    cameraChars.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
-                    ?: MainActivity.FIXED_FOCUS_DISTANCE
-
-                for (focalLength in focalLengths) {
-                    logd("In " + id + " found focalLength: " + focalLength)
-                }
-                logd("Smallest smallestFocalLength: " + smallestFocalLength)
-                logd("minFocusDistance: " + minFocusDistance)
-
-                for (aperture in apertures) {
-                    logd("In " + id + " found aperture: " + aperture)
-                }
-                logd("Largest aperture: " + largestAperture)
-
-                if (hasManualControl) {
-                    logd("Has Manual, minFocusDistance: " + minFocusDistance)
-                }
-
-                // Autofocus
-                hasAF = minFocusDistance != FIXED_FOCUS_DISTANCE // If camera is fixed focus, no AF
-
-                effects = cameraChars.get(CameraCharacteristics.CONTROL_AVAILABLE_EFFECTS)
-                    ?: IntArray(0)
-                hasSepia = effects.contains(CameraMetadata.CONTROL_EFFECT_MODE_SEPIA)
-                hasMono = effects.contains(CameraMetadata.CONTROL_EFFECT_MODE_MONO)
-
-                if (hasSepia)
-                    logd("WE HAVE Sepia!")
-                if (hasMono)
-                    logd("WE HAVE Mono!")
-
-                isLegacy = cameraChars.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ==
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-
-                val activeSensorRect: Rect = cameraChars.get(SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
-                megapixels = (activeSensorRect.width() * activeSensorRect.height()) / 1000000
-
-                camera2DeviceStateCallback =
-                    Camera2DeviceStateCallback(this, activity, TestConfig())
-                camera2CaptureSessionCallback =
-                    Camera2CaptureSessionCallback(activity, this, TestConfig())
-
-                previewSurfaceView = activity.binding.surfacePreview
-                cameraXPreviewTexture = activity.binding.texturePreview
-
-                cameraXPreviewBuilder = Preview.Builder()
-
-                cameraXCaptureBuilder = ImageCapture.Builder()
-
-                imageAvailableListener =
-                    ImageAvailableListener(activity, this, TestConfig())
-
-                if (Build.VERSION.SDK_INT >= 28) {
-                    physicalCameras = cameraChars.physicalCameraIds
-                }
-
-                // Get Camera2 and CameraX image capture sizes.
-                cam2MaxSize = Collections.max(
-                    Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
-                    CompareSizesByArea()
-                )
-
-                cam2MinSize = Collections.min(
-                    Arrays.asList(*map.getOutputSizes(ImageFormat.JPEG)),
-                    CompareSizesByArea()
-                )
-
-                // Use minimum image size for preview
-                previewSurfaceView?.holder?.setFixedSize(cam2MinSize.width, cam2MinSize.height)
-
-                setupImageReader(activity, this, TestConfig())
-            }
 
             if (cameraParamsValid == false) {
                 logd("Don't put Camera " + cameraId + "of " + numCameras)
@@ -232,34 +239,28 @@ fun setupImageReader(activity: MainActivity, params: CameraParams, testConfig: T
 
         val useLargest = testConfig.imageCaptureSize == ImageCaptureSize.MAX
 
-        val size = if (useLargest)
-            params.cam2MaxSize
-        else
-            params.cam2MinSize
+        val size = if (useLargest) params.cam2MaxSize else params.cam2MinSize
 
         params.imageReader?.close()
-        params.imageReader = ImageReader.newInstance(
-            size.width, size.height,
-            ImageFormat.JPEG, 5
-        )
+        params.imageReader = ImageReader.newInstance(size.width, size.height, ImageFormat.JPEG, 5)
         params.imageReader?.setOnImageAvailableListener(
-            params.imageAvailableListener, params.backgroundHandler
+            params.imageAvailableListener,
+            params.backgroundHandler
         )
     }
 }
 
 /** Finds the smallest focal length in the given array, useful for finding the widest angle lens */
-fun smallestFocalLength(focalLengths: FloatArray): Float = focalLengths.minOrNull()
-    ?: MainActivity.INVALID_FOCAL_LENGTH
+fun smallestFocalLength(focalLengths: FloatArray): Float =
+    focalLengths.minOrNull() ?: MainActivity.INVALID_FOCAL_LENGTH
 
 /** Finds the largest aperture in the array of focal lengths */
-fun largestAperture(apertures: FloatArray): Float = apertures.maxOrNull()
-    ?: MainActivity.NO_APERTURE
+fun largestAperture(apertures: FloatArray): Float =
+    apertures.maxOrNull() ?: MainActivity.NO_APERTURE
 
 /** Finds the most "normal" focal length in the array of focal lengths */
 fun focalLengthMinDeltaFromNormal(focalLengths: FloatArray): Float =
-    focalLengths.minByOrNull { Math.abs(it - MainActivity.NORMAL_FOCAL_LENGTH) }
-        ?: Float.MAX_VALUE
+    focalLengths.minByOrNull { Math.abs(it - MainActivity.NORMAL_FOCAL_LENGTH) } ?: Float.MAX_VALUE
 
 /** Adds automatic flash to the given CaptureRequest.Builder */
 fun setAutoFlash(params: CameraParams, requestBuilder: CaptureRequest.Builder?) {
@@ -271,17 +272,15 @@ fun setAutoFlash(params: CameraParams, requestBuilder: CaptureRequest.Builder?) 
             )
 
             // Force flash always on
-//            requestBuilder?.set(CaptureRequest.CONTROL_AE_MODE,
-//                    CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+            //            requestBuilder?.set(CaptureRequest.CONTROL_AE_MODE,
+            //                    CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
         }
     } catch (e: Exception) {
         // Do nothing
     }
 }
 
-/**
- * We have to take sensor orientation into account and rotate JPEG properly.
- */
+/** We have to take sensor orientation into account and rotate JPEG properly. */
 fun getOrientation(params: CameraParams, rotation: Int): Int {
     val orientations = SparseIntArray()
     orientations.append(Surface.ROTATION_0, 90)
@@ -292,7 +291,8 @@ fun getOrientation(params: CameraParams, rotation: Int): Int {
     logd(
         "Orientation: sensor: " +
             params.characteristics?.get(CameraCharacteristics.SENSOR_ORIENTATION) +
-            " and current rotation: " + orientations.get(rotation)
+            " and current rotation: " +
+            orientations.get(rotation)
     )
     val sensorRotation: Int =
         params.characteristics?.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0

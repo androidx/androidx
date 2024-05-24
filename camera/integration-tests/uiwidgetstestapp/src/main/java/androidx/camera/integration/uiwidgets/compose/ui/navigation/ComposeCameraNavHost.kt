@@ -39,17 +39,12 @@ fun ComposeCameraNavHost(
         startDestination = ComposeCameraScreen.ImageCapture.name,
         modifier = modifier
     ) {
-        composable(ComposeCameraScreen.Viewfinder.name) {
-            ViewfinderScreen()
-        }
+        composable(ComposeCameraScreen.Viewfinder.name) { ViewfinderScreen() }
 
         composable(ComposeCameraScreen.ImageCapture.name) {
             ImageCaptureScreen(
                 onStreamStateChange = { state ->
-                    onStreamStateChange(
-                        ComposeCameraScreen.ImageCapture,
-                        state
-                    )
+                    onStreamStateChange(ComposeCameraScreen.ImageCapture, state)
                 }
             )
         }
@@ -57,10 +52,7 @@ fun ComposeCameraNavHost(
         composable(ComposeCameraScreen.VideoCapture.name) {
             VideoCaptureScreen(
                 onStreamStateChange = { state ->
-                    onStreamStateChange(
-                        ComposeCameraScreen.VideoCapture,
-                        state
-                    )
+                    onStreamStateChange(ComposeCameraScreen.VideoCapture, state)
                 }
             )
         }

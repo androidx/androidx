@@ -42,23 +42,16 @@ class CamcorderProfileResolutionQuirkTest {
 
     @Test
     fun loadByHardwareLevel() {
-        var cameraMetadata =
-            createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
-        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata))
-            .isFalse()
+        var cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL)
+        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isFalse()
 
-        cameraMetadata =
-            createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3)
-        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata))
-            .isFalse()
+        cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3)
+        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isFalse()
 
-        cameraMetadata =
-            createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
-        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata))
-            .isFalse()
+        cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED)
+        assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isFalse()
 
-        cameraMetadata =
-            createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+        cameraMetadata = createCameraMetaData(CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
         assertThat(CamcorderProfileResolutionQuirk.isEnabled(cameraMetadata)).isTrue()
     }
 
@@ -66,20 +59,22 @@ class CamcorderProfileResolutionQuirkTest {
     fun canGetCorrectSupportedSizes() {
         val cameraMetadata =
             createCameraMetaData(
-                supportedSizes = arrayOf(
-                    EncoderProfilesUtil.RESOLUTION_2160P,
-                    EncoderProfilesUtil.RESOLUTION_1080P
+                supportedSizes =
+                    arrayOf(
+                        EncoderProfilesUtil.RESOLUTION_2160P,
+                        EncoderProfilesUtil.RESOLUTION_1080P
+                    )
+            )
+        val quirk =
+            CamcorderProfileResolutionQuirk(
+                StreamConfigurationMapCompat(
+                    cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!,
+                    OutputSizesCorrector(
+                        cameraMetadata,
+                        cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
+                    )
                 )
             )
-        val quirk = CamcorderProfileResolutionQuirk(
-            StreamConfigurationMapCompat(
-                cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!,
-                OutputSizesCorrector(
-                    cameraMetadata,
-                    cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]!!
-                )
-            )
-        )
 
         assertThat(quirk.getSupportedResolutions()[0])
             .isEqualTo(EncoderProfilesUtil.RESOLUTION_2160P)
@@ -99,11 +94,12 @@ class CamcorderProfileResolutionQuirkTest {
         Mockito.`when`(mockMap.getOutputSizes(ArgumentMatchers.anyInt())).thenReturn(supportedSizes)
 
         return FakeCameraMetadata(
-            characteristics = mapOf(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
-                CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap
-            )
+            characteristics =
+                mapOf(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
+                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK,
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to mockMap
+                )
         )
     }
 }

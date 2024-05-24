@@ -53,9 +53,7 @@ class CameraViewfinderBitmapTest {
 
     @get:Rule
     val mActivityRule: ActivityScenarioRule<FakeActivity> =
-        ActivityScenarioRule<FakeActivity>(
-            FakeActivity::class.java
-        )
+        ActivityScenarioRule<FakeActivity>(FakeActivity::class.java)
 
     companion object {
         private const val ANY_WIDTH = 640
@@ -72,21 +70,20 @@ class CameraViewfinderBitmapTest {
         CoreAppTestUtil.prepareDeviceUI(mInstrumentation)
         mContext = ApplicationProvider.getApplicationContext()
 
-        val cameraManager = ApplicationProvider.getApplicationContext<Context>().getSystemService(
-            Context.CAMERA_SERVICE
-        ) as CameraManager
+        val cameraManager =
+            ApplicationProvider.getApplicationContext<Context>()
+                .getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val cameraIds = cameraManager.cameraIdList
         Assume.assumeTrue("No cameras found on device.", cameraIds.isNotEmpty())
         val cameraId = cameraIds[0]
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-        mSurfaceRequest = ViewfinderSurfaceRequest.Builder(ANY_SIZE)
-            .populateFromCharacteristics(characteristics)
-            .build()
+        mSurfaceRequest =
+            ViewfinderSurfaceRequest.Builder(ANY_SIZE)
+                .populateFromCharacteristics(characteristics)
+                .build()
     }
 
-    @After
-    fun tearDown() {
-    }
+    @After fun tearDown() {}
 
     @Test
     @Throws(Throwable::class)
@@ -95,26 +92,27 @@ class CameraViewfinderBitmapTest {
         val viewfinder: CameraViewfinder = setUpViewfinder(FILL_CENTER)
 
         // assert
-        runOnMainThread(Runnable {
-            val surfaceListenableFuture: ListenableFuture<Surface?> =
-                viewfinder.requestSurfaceAsync(mSurfaceRequest)
+        runOnMainThread(
+            Runnable {
+                val surfaceListenableFuture: ListenableFuture<Surface?> =
+                    viewfinder.requestSurfaceAsync(mSurfaceRequest)
 
-            Futures.addCallback<Surface?>(
-                surfaceListenableFuture,
-                object : FutureCallback<Surface?> {
-                    override fun onSuccess(result: Surface?) {
-                        val bitmap: Bitmap? = viewfinder.getBitmap()
-                        Truth.assertThat(bitmap).isNotNull()
-                        Truth.assertThat(bitmap?.width).isNotEqualTo(0)
-                        Truth.assertThat(bitmap?.height).isNotEqualTo(0)
-                    }
+                Futures.addCallback<Surface?>(
+                    surfaceListenableFuture,
+                    object : FutureCallback<Surface?> {
+                        override fun onSuccess(result: Surface?) {
+                            val bitmap: Bitmap? = viewfinder.getBitmap()
+                            Truth.assertThat(bitmap).isNotNull()
+                            Truth.assertThat(bitmap?.width).isNotEqualTo(0)
+                            Truth.assertThat(bitmap?.height).isNotEqualTo(0)
+                        }
 
-                    override fun onFailure(t: Throwable) {
-                    }
-                },
-                ContextCompat.getMainExecutor(mContext)
-            )
-        })
+                        override fun onFailure(t: Throwable) {}
+                    },
+                    ContextCompat.getMainExecutor(mContext)
+                )
+            }
+        )
     }
 
     @Test
@@ -124,43 +122,42 @@ class CameraViewfinderBitmapTest {
         val viewfinder: CameraViewfinder = setUpViewfinder(FILL_CENTER)
 
         // assert
-        runOnMainThread(Runnable {
-            val surfaceListenableFuture: ListenableFuture<Surface?> =
-                viewfinder.requestSurfaceAsync(mSurfaceRequest)
+        runOnMainThread(
+            Runnable {
+                val surfaceListenableFuture: ListenableFuture<Surface?> =
+                    viewfinder.requestSurfaceAsync(mSurfaceRequest)
 
-            Futures.addCallback<Surface?>(
-                surfaceListenableFuture,
-                object : FutureCallback<Surface?> {
-                    override fun onSuccess(result: Surface?) {
-                        val bitmap: Bitmap? = viewfinder.getBitmap()
-                        Truth.assertThat(bitmap).isNotNull()
-                        Truth.assertThat(bitmap?.width).isNotEqualTo(0)
-                        Truth.assertThat(bitmap?.height).isNotEqualTo(0)
-                    }
+                Futures.addCallback<Surface?>(
+                    surfaceListenableFuture,
+                    object : FutureCallback<Surface?> {
+                        override fun onSuccess(result: Surface?) {
+                            val bitmap: Bitmap? = viewfinder.getBitmap()
+                            Truth.assertThat(bitmap).isNotNull()
+                            Truth.assertThat(bitmap?.width).isNotEqualTo(0)
+                            Truth.assertThat(bitmap?.height).isNotEqualTo(0)
+                        }
 
-                    override fun onFailure(t: Throwable) {
-                    }
-                },
-                ContextCompat.getMainExecutor(mContext)
-            )
-        })
+                        override fun onFailure(t: Throwable) {}
+                    },
+                    ContextCompat.getMainExecutor(mContext)
+                )
+            }
+        )
     }
 
-    private fun setUpViewfinder(
-        scaleType: CameraViewfinder.ScaleType
-    ): CameraViewfinder {
+    private fun setUpViewfinder(scaleType: CameraViewfinder.ScaleType): CameraViewfinder {
         val viewfinderAtomicReference: AtomicReference<CameraViewfinder> =
             AtomicReference<CameraViewfinder>()
         runOnMainThread {
-            val viewfiner =
-                CameraViewfinder(ApplicationProvider.getApplicationContext<Context>())
+            val viewfiner = CameraViewfinder(ApplicationProvider.getApplicationContext<Context>())
             viewfiner.setScaleType(scaleType)
-            mActivityRule.getScenario().onActivity(
-                ActivityAction<FakeActivity> { activity: FakeActivity ->
-                    activity.setContentView(
-                        viewfiner
-                    )
-                })
+            mActivityRule
+                .getScenario()
+                .onActivity(
+                    ActivityAction<FakeActivity> { activity: FakeActivity ->
+                        activity.setContentView(viewfiner)
+                    }
+                )
             viewfinderAtomicReference.set(viewfiner)
         }
         return viewfinderAtomicReference.get()

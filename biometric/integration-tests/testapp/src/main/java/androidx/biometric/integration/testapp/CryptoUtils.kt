@@ -29,19 +29,13 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
-/**
- * A message payload to be encrypted by the application.
- */
+/** A message payload to be encrypted by the application. */
 internal const val PAYLOAD = "hello"
 
-/**
- * A name used to refer to an app-specified secret key.
- */
+/** A name used to refer to an app-specified secret key. */
 private const val KEY_NAME = "mySecretKey"
 
-/**
- * The name of the Android keystore provider instance.
- */
+/** The name of the Android keystore provider instance. */
 private const val KEYSTORE_INSTANCE = "AndroidKeyStore"
 
 /**
@@ -57,25 +51,26 @@ internal fun createCryptoObject(
 ): BiometricPrompt.CryptoObject {
     // Create a spec for the key to be generated.
     val keyPurpose = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-    val keySpec = Api23Impl.createKeyGenParameterSpecBuilder(KEY_NAME, keyPurpose).run {
-        Api23Impl.setBlockModeCBC(this)
-        Api23Impl.setEncryptionPaddingPKCS7(this)
-        Api23Impl.setUserAuthenticationRequired(this, true)
+    val keySpec =
+        Api23Impl.createKeyGenParameterSpecBuilder(KEY_NAME, keyPurpose).run {
+            Api23Impl.setBlockModeCBC(this)
+            Api23Impl.setEncryptionPaddingPKCS7(this)
+            Api23Impl.setUserAuthenticationRequired(this, true)
 
-        // Require authentication for each use of the key.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Api30Impl.setUserAuthenticationParameters(
-                this,
-                timeout = 0,
-                allowBiometricAuth,
-                allowDeviceCredentialAuth
-            )
-        } else {
-            Api23Impl.setUserAuthenticationValidityDurationSeconds(this, -1)
+            // Require authentication for each use of the key.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Api30Impl.setUserAuthenticationParameters(
+                    this,
+                    timeout = 0,
+                    allowBiometricAuth,
+                    allowDeviceCredentialAuth
+                )
+            } else {
+                Api23Impl.setUserAuthenticationValidityDurationSeconds(this, -1)
+            }
+
+            Api23Impl.buildKeyGenParameterSpec(this)
         }
-
-        Api23Impl.buildKeyGenParameterSpec(this)
-    }
 
     // Generate and store the key in the Android keystore.
     KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE).run {
@@ -88,29 +83,25 @@ internal fun createCryptoObject(
     return BiometricPrompt.CryptoObject(cipher)
 }
 
-/**
- * Returns the cipher that will be used for encryption.
- */
+/** Returns the cipher that will be used for encryption. */
 @RequiresApi(Build.VERSION_CODES.M)
 private fun getCipher(): Cipher {
     return Cipher.getInstance(
-        KeyProperties.KEY_ALGORITHM_AES + "/" +
-            KeyProperties.BLOCK_MODE_CBC + "/" +
+        KeyProperties.KEY_ALGORITHM_AES +
+            "/" +
+            KeyProperties.BLOCK_MODE_CBC +
+            "/" +
             KeyProperties.ENCRYPTION_PADDING_PKCS7
     )
 }
 
-/**
- * Returns the previously generated secret key from keystore.
- */
+/** Returns the previously generated secret key from keystore. */
 private fun getSecretKey(): SecretKey {
     val keyStore = KeyStore.getInstance(KEYSTORE_INSTANCE).apply { load(null) }
     return keyStore.getKey(KEY_NAME, null) as SecretKey
 }
 
-/**
- * Nested class to avoid verification errors for methods introduced in Android 11 (API 30).
- */
+/** Nested class to avoid verification errors for methods introduced in Android 11 (API 30). */
 @RequiresApi(Build.VERSION_CODES.R)
 private object Api30Impl {
     @DoNotInline
@@ -133,9 +124,7 @@ private object Api30Impl {
     }
 }
 
-/**
- * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
- */
+/** Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23). */
 @RequiresApi(Build.VERSION_CODES.M)
 private object Api23Impl {
     @DoNotInline

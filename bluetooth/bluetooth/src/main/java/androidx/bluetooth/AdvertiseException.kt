@@ -49,24 +49,16 @@ class AdvertiseException(errorCode: Int) : BluetoothException(errorCode) {
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
-    @IntDef(
-        DATA_TOO_LARGE,
-        TOO_MANY_ADVERTISERS,
-        INTERNAL_ERROR,
-        UNSUPPORTED
-    )
+    @IntDef(DATA_TOO_LARGE, TOO_MANY_ADVERTISERS, INTERNAL_ERROR, UNSUPPORTED)
     annotation class AdvertiseFail
 
     /** The error code associated with this exception. */
-    override val errorCode: @AdvertiseFail Int = when (errorCode) {
-        FwkAdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE -> DATA_TOO_LARGE
-
-        FwkAdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> TOO_MANY_ADVERTISERS
-
-        FwkAdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR -> INTERNAL_ERROR
-
-        FwkAdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> UNSUPPORTED
-
-        else -> ERROR_UNKNOWN
-    }
+    override val errorCode: @AdvertiseFail Int =
+        when (errorCode) {
+            FwkAdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE -> DATA_TOO_LARGE
+            FwkAdvertiseCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> TOO_MANY_ADVERTISERS
+            FwkAdvertiseCallback.ADVERTISE_FAILED_INTERNAL_ERROR -> INTERNAL_ERROR
+            FwkAdvertiseCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> UNSUPPORTED
+            else -> ERROR_UNKNOWN
+        }
 }

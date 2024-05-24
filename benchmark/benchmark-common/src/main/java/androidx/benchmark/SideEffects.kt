@@ -24,9 +24,8 @@ import androidx.annotation.RestrictTo
  * Disables the [packages] during the course of a benchmark thereby reducing the amount of noise.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class DisablePackages(
-    private val packages: List<String> = DEFAULT_PACKAGES_TO_DISABLE
-) : SideEffect {
+class DisablePackages(private val packages: List<String> = DEFAULT_PACKAGES_TO_DISABLE) :
+    SideEffect {
     override fun name(): String {
         return "DisablePackages"
     }
@@ -49,49 +48,50 @@ class DisablePackages(
         // A list of packages to disable
         // google3/configs/wireless/android/testing/atp/prod/android-crystalball-eng/health/microbench/power/modifications.gcl
         // https://source.corp.google.com/piper///depot/google3/java/com/google/android/libraries/swpower/fixture/DisableModule.java
-        internal val DEFAULT_PACKAGES_TO_DISABLE = listOf(
-            "com.android.chrome",
-            "com.android.ramdump",
-            "com.android.vending",
-            "com.google.android.GoogleCamera",
-            "com.google.android.apps.docs",
-            "com.google.android.apps.gcs",
-            "com.google.android.apps.internal.betterbug",
-            "com.google.android.apps.maps",
-            "com.google.android.apps.messaging",
-            "com.google.android.apps.nbu.files",
-            "com.google.android.apps.photos",
-            "com.google.android.apps.pixelmigrate",
-            "com.google.android.apps.scone",
-            "com.google.android.apps.speechservices",
-            "com.google.android.apps.tachyon",
-            "com.google.android.apps.tips",
-            "com.google.android.apps.turbo",
-            "com.google.android.apps.tycho",
-            "com.google.android.apps.wellbeing",
-            "com.google.android.apps.work.clouddpc",
-            "com.google.android.apps.youtube.music",
-            "com.google.android.as",
-            "com.google.android.calculator",
-            "com.google.android.calendar",
-            "com.google.android.carrier",
-            "com.google.android.configupdater",
-            "com.google.android.contacts",
-            "com.google.android.deskclock",
-            "com.google.android.dialer",
-            "com.google.android.gm",
-            "com.google.android.gms",
-            "com.google.android.googlequicksearchbox",
-            "com.google.android.ims",
-            "com.google.android.inputmethod.latin",
-            "com.google.android.marvin.talkback",
-            "com.google.android.partnersetup",
-            "com.google.android.settings.intelligence",
-            "com.google.android.tts",
-            "com.google.android.videos",
-            "com.google.android.volta",
-            "com.google.android.youtube"
-        )
+        internal val DEFAULT_PACKAGES_TO_DISABLE =
+            listOf(
+                "com.android.chrome",
+                "com.android.ramdump",
+                "com.android.vending",
+                "com.google.android.GoogleCamera",
+                "com.google.android.apps.docs",
+                "com.google.android.apps.gcs",
+                "com.google.android.apps.internal.betterbug",
+                "com.google.android.apps.maps",
+                "com.google.android.apps.messaging",
+                "com.google.android.apps.nbu.files",
+                "com.google.android.apps.photos",
+                "com.google.android.apps.pixelmigrate",
+                "com.google.android.apps.scone",
+                "com.google.android.apps.speechservices",
+                "com.google.android.apps.tachyon",
+                "com.google.android.apps.tips",
+                "com.google.android.apps.turbo",
+                "com.google.android.apps.tycho",
+                "com.google.android.apps.wellbeing",
+                "com.google.android.apps.work.clouddpc",
+                "com.google.android.apps.youtube.music",
+                "com.google.android.as",
+                "com.google.android.calculator",
+                "com.google.android.calendar",
+                "com.google.android.carrier",
+                "com.google.android.configupdater",
+                "com.google.android.contacts",
+                "com.google.android.deskclock",
+                "com.google.android.dialer",
+                "com.google.android.gm",
+                "com.google.android.gms",
+                "com.google.android.googlequicksearchbox",
+                "com.google.android.ims",
+                "com.google.android.inputmethod.latin",
+                "com.google.android.marvin.talkback",
+                "com.google.android.partnersetup",
+                "com.google.android.settings.intelligence",
+                "com.google.android.tts",
+                "com.google.android.videos",
+                "com.google.android.volta",
+                "com.google.android.youtube"
+            )
     }
 }
 

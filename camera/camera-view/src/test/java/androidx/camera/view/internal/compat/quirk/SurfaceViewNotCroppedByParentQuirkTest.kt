@@ -25,9 +25,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.util.ReflectionHelpers
 
-/**
- * Instrument tests for [SurfaceViewNotCroppedByParentQuirk].
- */
+/** Instrument tests for [SurfaceViewNotCroppedByParentQuirk]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -40,9 +38,7 @@ class SurfaceViewNotCroppedByParentQuirkTest {
         ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Xiaomi")
 
         // Act.
-        val quirk = DeviceQuirks.get(
-            SurfaceViewNotCroppedByParentQuirk::class.java
-        )
+        val quirk = DeviceQuirks.get(SurfaceViewNotCroppedByParentQuirk::class.java)
 
         // Assert.
         assertThat(quirk).isNotNull()

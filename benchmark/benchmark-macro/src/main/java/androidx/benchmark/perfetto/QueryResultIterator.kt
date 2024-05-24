@@ -18,21 +18,20 @@ package androidx.benchmark.perfetto
 
 import perfetto.protos.QueryResult
 
-/**
- * Iterator for results from a [PerfettoTraceProcessor] query.
- */
+/** Iterator for results from a [PerfettoTraceProcessor] query. */
 internal class QueryResultIterator constructor(queryResult: QueryResult) : Iterator<Row> {
-    private val dataLists = object {
-        val stringBatches = mutableListOf<String>()
-        val varIntBatches = mutableListOf<Long>()
-        val float64Batches = mutableListOf<Double>()
-        val blobBatches = mutableListOf<ByteArray>()
+    private val dataLists =
+        object {
+            val stringBatches = mutableListOf<String>()
+            val varIntBatches = mutableListOf<Long>()
+            val float64Batches = mutableListOf<Double>()
+            val blobBatches = mutableListOf<ByteArray>()
 
-        var stringIndex = 0
-        var varIntIndex = 0
-        var float64Index = 0
-        var blobIndex = 0
-    }
+            var stringIndex = 0
+            var varIntIndex = 0
+            var float64Index = 0
+            var blobIndex = 0
+        }
 
     private val cells = mutableListOf<QueryResult.CellsBatch.CellType>()
     private val columnNames = queryResult.column_names
@@ -56,23 +55,17 @@ internal class QueryResultIterator constructor(queryResult: QueryResult) : Itera
         count = if (columnCount > 0) cells.size / columnCount else 0
     }
 
-    /**
-     * Returns the number of rows in the query result.
-     */
+    /** Returns the number of rows in the query result. */
     fun size(): Int {
         return count
     }
 
-    /**
-     * Returns true whether there are no results stored in this iterator, false otherwise.
-     */
+    /** Returns true whether there are no results stored in this iterator, false otherwise. */
     fun isEmpty(): Boolean {
         return count == 0
     }
 
-    /**
-     * Returns true if there are more rows not yet parsed from the query result.
-     */
+    /** Returns true if there are more rows not yet parsed from the query result. */
     override fun hasNext(): Boolean {
         return currentIndex < count
     }
@@ -95,32 +88,32 @@ internal class QueryResultIterator constructor(queryResult: QueryResult) : Itera
         for ((num, columnName) in columnNames.withIndex()) {
             val colType = cells[baseCellIndex + num]
             val colIndex: Int
-            row[columnName] = when (colType) {
-                QueryResult.CellsBatch.CellType.CELL_STRING -> {
-                    colIndex = dataLists.stringIndex
-                    dataLists.stringIndex += 1
-                    dataLists.stringBatches[colIndex]
+            row[columnName] =
+                when (colType) {
+                    QueryResult.CellsBatch.CellType.CELL_STRING -> {
+                        colIndex = dataLists.stringIndex
+                        dataLists.stringIndex += 1
+                        dataLists.stringBatches[colIndex]
+                    }
+                    QueryResult.CellsBatch.CellType.CELL_VARINT -> {
+                        colIndex = dataLists.varIntIndex
+                        dataLists.varIntIndex += 1
+                        dataLists.varIntBatches[colIndex]
+                    }
+                    QueryResult.CellsBatch.CellType.CELL_FLOAT64 -> {
+                        colIndex = dataLists.float64Index
+                        dataLists.float64Index += 1
+                        dataLists.float64Batches[colIndex]
+                    }
+                    QueryResult.CellsBatch.CellType.CELL_BLOB -> {
+                        colIndex = dataLists.blobIndex
+                        dataLists.blobIndex += 1
+                        dataLists.blobBatches[colIndex]
+                    }
+                    QueryResult.CellsBatch.CellType.CELL_INVALID ->
+                        throw IllegalArgumentException("Invalid cell type")
+                    QueryResult.CellsBatch.CellType.CELL_NULL -> null
                 }
-                QueryResult.CellsBatch.CellType.CELL_VARINT -> {
-                    colIndex = dataLists.varIntIndex
-                    dataLists.varIntIndex += 1
-                    dataLists.varIntBatches[colIndex]
-                }
-                QueryResult.CellsBatch.CellType.CELL_FLOAT64 -> {
-                    colIndex = dataLists.float64Index
-                    dataLists.float64Index += 1
-                    dataLists.float64Batches[colIndex]
-                }
-                QueryResult.CellsBatch.CellType.CELL_BLOB -> {
-                    colIndex = dataLists.blobIndex
-                    dataLists.blobIndex += 1
-                    dataLists.blobBatches[colIndex]
-                }
-                QueryResult.CellsBatch.CellType.CELL_INVALID ->
-                    throw IllegalArgumentException("Invalid cell type")
-                QueryResult.CellsBatch.CellType.CELL_NULL ->
-                    null
-            }
         }
 
         currentIndex += 1

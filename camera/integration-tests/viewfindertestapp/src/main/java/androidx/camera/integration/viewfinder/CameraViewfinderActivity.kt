@@ -24,9 +24,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-/**
- * Activity for {@link CameraViewfinder}.
- */
+/** Activity for {@link CameraViewfinder}. */
 class CameraViewfinderActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,7 +36,8 @@ class CameraViewfinderActivity : AppCompatActivity() {
         }
 
         if (null == savedInstanceState) {
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .replace(R.id.container, CameraViewfinderFoldableFragment())
                 .commit()
         }
@@ -56,11 +55,11 @@ class CameraViewfinderActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_CODE_PERMISSIONS = 20
-        val PERMISSIONS = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
-        // in android 10 or later, we don't actually need WRITE_EXTERNAL_STORAGE to write to
-        // the external storage.
+        val PERMISSIONS =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+            // in android 10 or later, we don't actually need WRITE_EXTERNAL_STORAGE to write to
+            // the external storage.
             arrayOf(Manifest.permission.CAMERA)
-        else
-            arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            else arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 }

@@ -21,22 +21,20 @@ import android.util.Size
 import java.util.Collections
 import kotlin.collections.ArrayList
 
-/**
- * Compares two `Size`s based on their areas.
- */
+/** Compares two `Size`s based on their areas. */
 internal class CompareSizesByArea : Comparator<Size> {
     override fun compare(lhs: Size, rhs: Size): Int {
         // We cast here to ensure the multiplications won't overflow
         return java.lang.Long.signum(
-            lhs.width.toLong() * lhs.height -
-                rhs.width.toLong() * rhs.height
+            lhs.width.toLong() * lhs.height - rhs.width.toLong() * rhs.height
         )
     }
 }
 
 /**
- * Given `choices` of `Size`s supported by a camera, chooses the smallest one whose
- * width and height are at least as large as the respective requested values.
+ * Given `choices` of `Size`s supported by a camera, chooses the smallest one whose width and height
+ * are at least as large as the respective requested values.
+ *
  * @param choices The list of sizes that the camera supports for the intended output class
  * @param width The minimum desired width
  * @param height The minimum desired height

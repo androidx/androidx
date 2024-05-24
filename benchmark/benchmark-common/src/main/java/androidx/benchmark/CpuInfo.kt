@@ -29,9 +29,7 @@ internal object CpuInfo {
     val locked: Boolean
     val maxFreqHz: Long
 
-    /**
-     * Representation of clock info in `/sys/devices/system/cpu/cpu#/`
-     */
+    /** Representation of clock info in `/sys/devices/system/cpu/cpu#/` */
     data class CoreDir(
         val path: String,
 
@@ -50,58 +48,66 @@ internal object CpuInfo {
 
     init {
         val cpuDir = File("/sys/devices/system/cpu")
-        coreDirs = cpuDir.list { current, name ->
-            File(current, name).isDirectory && name.matches(Regex("^cpu[0-9]+"))
-        }?.map { coreDir ->
-            val path = "${cpuDir.absolutePath}/$coreDir"
+        coreDirs =
+            cpuDir
+                .list { current, name ->
+                    File(current, name).isDirectory && name.matches(Regex("^cpu[0-9]+"))
+                }
+                ?.map { coreDir ->
+                    val path = "${cpuDir.absolutePath}/$coreDir"
 
-            CoreDir(
-                // enables testing
-                path = path,
+                    CoreDir(
+                        // enables testing
+                        path = path,
 
-                // online, or true if can't access
-                online = readFileTextOrNull("$path/online") != "0",
+                        // online, or true if can't access
+                        online = readFileTextOrNull("$path/online") != "0",
 
-                // sorted list of scaling_available_frequencies, or listOf(-1) if can't access
-                availableFreqs = readFileTextOrNull("$path/cpufreq/scaling_available_frequencies")
-                    ?.split(Regex("\\s+"))
-                    ?.filter { it.isNotBlank() }
-                    ?.map { it.toLong() }
-                    ?.sorted()
-                    ?: listOf(-1),
+                        // sorted list of scaling_available_frequencies, or listOf(-1) if can't
+                        // access
+                        availableFreqs =
+                            readFileTextOrNull("$path/cpufreq/scaling_available_frequencies")
+                                ?.split(Regex("\\s+"))
+                                ?.filter { it.isNotBlank() }
+                                ?.map { it.toLong() }
+                                ?.sorted() ?: listOf(-1),
 
-                // scaling_min_freq, or -1 if can't access
-                setSpeedKhz = Shell.catProcFileLong("$path/cpufreq/scaling_setspeed")
-                    ?: readFileTextOrNull("$path/cpufreq/scaling_min_freq")?.toLong()
-                    ?: -1,
-                maxFreqKhz = readFileTextOrNull("$path/cpufreq/cpuinfo_max_freq")?.toLong() ?: -1L
-            )
-        } ?: emptyList()
+                        // scaling_min_freq, or -1 if can't access
+                        setSpeedKhz =
+                            Shell.catProcFileLong("$path/cpufreq/scaling_setspeed")
+                                ?: readFileTextOrNull("$path/cpufreq/scaling_min_freq")?.toLong()
+                                ?: -1,
+                        maxFreqKhz =
+                            readFileTextOrNull("$path/cpufreq/cpuinfo_max_freq")?.toLong() ?: -1L
+                    )
+                } ?: emptyList()
 
-        maxFreqHz = coreDirs
-            .filter { it.maxFreqKhz != -1L }
-            .maxByOrNull { it.maxFreqKhz }
-            ?.maxFreqKhz?.times(1000) ?: -1
+        maxFreqHz =
+            coreDirs
+                .filter { it.maxFreqKhz != -1L }
+                .maxByOrNull { it.maxFreqKhz }
+                ?.maxFreqKhz
+                ?.times(1000) ?: -1
 
         locked = isCpuLocked(coreDirs)
-        coreDirs.forEachIndexed { index, coreDir ->
-            Log.d(TAG, "cpu$index $coreDir")
-        }
+        coreDirs.forEachIndexed { index, coreDir -> Log.d(TAG, "cpu$index $coreDir") }
     }
 
     fun isCpuLocked(coreDirs: List<CoreDir>): Boolean {
         val onlineCores = coreDirs.filter { it.online }
 
-        onlineCores.groupBy { it.availableFreqs }.forEach { (_, similarCores) ->
-            if (similarCores.any { it.setSpeedKhz != similarCores.first().setSpeedKhz }) {
-                Log.d(
-                    TAG,
-                    "Clocks not locked: cores with same available frequencies " +
-                        "running with different current min freq"
-                )
-                return false
+        onlineCores
+            .groupBy { it.availableFreqs }
+            .forEach { (_, similarCores) ->
+                if (similarCores.any { it.setSpeedKhz != similarCores.first().setSpeedKhz }) {
+                    Log.d(
+                        TAG,
+                        "Clocks not locked: cores with same available frequencies " +
+                            "running with different current min freq"
+                    )
+                    return false
+                }
             }
-        }
 
         if (onlineCores.any { it.availableFreqs.minOrNull() == it.setSpeedKhz }) {
             Log.d(TAG, "Clocks not locked: online cores with min freq == min avail freq")
@@ -111,9 +117,7 @@ internal object CpuInfo {
         return true
     }
 
-    /**
-     * Read the text of a file as a String, null if file doesn't exist or can't be read.
-     */
+    /** Read the text of a file as a String, null if file doesn't exist or can't be read. */
     private fun readFileTextOrNull(path: String): String? {
         try {
             File(path).run {

@@ -43,16 +43,15 @@ abstract class MetricCapture(
      * Called at the start of each run.
      *
      * @param timeNs Current time, just before starting metrics. Can be used directly to drive a
-     * timing metric produced.
+     *   timing metric produced.
      */
     abstract fun captureStart(timeNs: Long)
 
     /**
      * Mark the end of a run, and store offset metrics in the output array, per sub metric.
      *
-     * To output values, store them in the output array offset by both the parameter offset,
-     * and their submetric index, for example:
-     *
+     * To output values, store them in the output array offset by both the parameter offset, and
+     * their submetric index, for example:
      * ```
      * class MyMetricCapture("firstSubMetricName", "secondSubMetricName") {
      *     //...
@@ -65,19 +64,15 @@ abstract class MetricCapture(
      *
      * @param timeNs Time of metric capture start, in monotonic time ([java.lang.System.nanoTime])
      * @param output LongArray sized to hold all simultaneous sub metric outputs, use `offset` as
-     *  the initial position in `output` to start writing submetrics.
+     *   the initial position in `output` to start writing submetrics.
      * @param offset Offset into the output array to start writing sub metrics.
      */
     abstract fun captureStop(timeNs: Long, output: LongArray, offset: Int)
 
-    /**
-     * Pause data collection.
-     */
+    /** Pause data collection. */
     abstract fun capturePaused()
 
-    /**
-     * Resume data collection
-     */
+    /** Resume data collection */
     abstract fun captureResumed()
 
     override fun equals(other: Any?): Boolean {
@@ -97,9 +92,8 @@ abstract class MetricCapture(
  * @param name Metric name of the measured time, defaults to `timeNs`.
  */
 @ExperimentalBenchmarkConfigApi
-class TimeCapture @JvmOverloads constructor(name: String = "timeNs") : MetricCapture(
-    names = listOf(name)
-) {
+class TimeCapture @JvmOverloads constructor(name: String = "timeNs") :
+    MetricCapture(names = listOf(name)) {
     private var currentStarted = 0L
     private var currentPausedStarted = 0L
     private var currentTotalPaused = 0L
@@ -123,9 +117,7 @@ class TimeCapture @JvmOverloads constructor(name: String = "timeNs") : MetricCap
 }
 
 @Suppress("DEPRECATION")
-internal class AllocationCountCapture : MetricCapture(
-    names = listOf("allocationCount")
-) {
+internal class AllocationCountCapture : MetricCapture(names = listOf("allocationCount")) {
     private var currentPausedStarted = 0
     private var currentTotalPaused = 0
 
@@ -158,9 +150,7 @@ internal class CpuEventCounterCapture(
     constructor(
         cpuEventCounter: CpuEventCounter,
         mask: Int
-    ) : this(cpuEventCounter, CpuEventCounter.Event.values().filter {
-        it.flag.and(mask) != 0
-    })
+    ) : this(cpuEventCounter, CpuEventCounter.Event.values().filter { it.flag.and(mask) != 0 })
 
     private val values = CpuEventCounter.Values()
     private val flags = events.getFlags()
@@ -181,9 +171,7 @@ internal class CpuEventCounterCapture(
     override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
         cpuEventCounter.stop()
         cpuEventCounter.read(values)
-        events.forEachIndexed { index, event ->
-            output[offset + index] = values.getValue(event)
-        }
+        events.forEachIndexed { index, event -> output[offset + index] = values.getValue(event) }
     }
 
     override fun capturePaused() {

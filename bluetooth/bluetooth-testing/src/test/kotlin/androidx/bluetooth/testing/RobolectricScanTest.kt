@@ -47,11 +47,12 @@ class RobolectricScanTest {
 
     private val bluetoothLe = BluetoothLe(RuntimeEnvironment.getApplication())
 
-    private val scanResults = listOf(
-        createScanResult("00:00:00:00:00:01"),
-        createScanResult("00:00:00:00:00:02"),
-        createScanResult("00:00:00:00:00:03")
-    )
+    private val scanResults =
+        listOf(
+            createScanResult("00:00:00:00:00:01"),
+            createScanResult("00:00:00:00:00:02"),
+            createScanResult("00:00:00:00:00:03")
+        )
 
     @Before
     fun setUp() {
@@ -60,9 +61,8 @@ class RobolectricScanTest {
 
     @Test
     fun scanTest() = runTest {
-        bluetoothLe.scan(listOf(ScanFilter()))
-            .collectIndexed { index, value ->
-                assertEquals(scanResults[index].deviceAddress.address, value.deviceAddress.address)
+        bluetoothLe.scan(listOf(ScanFilter())).collectIndexed { index, value ->
+            assertEquals(scanResults[index].deviceAddress.address, value.deviceAddress.address)
         }
     }
 
@@ -75,25 +75,25 @@ class RobolectricScanTest {
         val periodicAdvertisingInterval = 8
 
         // TODO(kihongs) Find a way to create framework ScanRecord and use in test
-        val fwkScanResult = FwkScanResult(
-            fwkBluetoothDevice,
-            1,
-            0,
-            0,
-            0,
-            0,
-            rssi,
-            periodicAdvertisingInterval,
-            null,
-            timeStampNanos
-        )
+        val fwkScanResult =
+            FwkScanResult(
+                fwkBluetoothDevice,
+                1,
+                0,
+                0,
+                0,
+                0,
+                rssi,
+                periodicAdvertisingInterval,
+                null,
+                timeStampNanos
+            )
         return ScanResult(fwkScanResult)
     }
 }
 
 class ScanImplForTesting(val scanResults: List<ScanResult>) : ScanImpl {
-    override val fwkSettings: FwkScanSettings = FwkScanSettings.Builder()
-        .build()
+    override val fwkSettings: FwkScanSettings = FwkScanSettings.Builder().build()
 
     override fun scan(filters: List<ScanFilter>): Flow<ScanResult> {
         return scanResults.asFlow()

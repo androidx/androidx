@@ -27,10 +27,9 @@ import androidx.camera.camera2.pipe.FrameNumber
  * Interface for merging functionality of [CameraCaptureSession.CaptureCallback] and
  * [CameraExtensionSession.ExtensionCaptureCallback].
  *
- * [CameraCaptureSession.CaptureCallback] and [CameraExtensionSession.ExtensionCaptureCallback]
- * are abstract classes, so a class cannot extend both of them. This interface prevents duplication
- * of code and developer facing endpoints because it is agnostic of which session type it is
- * used for.
+ * [CameraCaptureSession.CaptureCallback] and [CameraExtensionSession.ExtensionCaptureCallback] are
+ * abstract classes, so a class cannot extend both of them. This interface prevents duplication of
+ * code and developer facing endpoints because it is agnostic of which session type it is used for.
  */
 internal interface Camera2CaptureCallback {
     fun onCaptureStarted(
@@ -47,10 +46,7 @@ internal interface Camera2CaptureCallback {
         frameNumber: FrameNumber
     )
 
-    fun onCaptureFailed(
-        captureRequest: CaptureRequest,
-        frameNumber: FrameNumber
-    )
+    fun onCaptureFailed(captureRequest: CaptureRequest, frameNumber: FrameNumber)
 
     fun onCaptureSequenceCompleted(captureSequenceId: Int, captureFrameNumber: Long)
 

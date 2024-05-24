@@ -43,9 +43,7 @@ import org.jetbrains.kotlin.library.abi.impl.TypeProjectionImpl
 // This file contains Cursor methods specific to parsing klib dump files
 
 internal fun Cursor.parseAbiModality(): AbiModality? {
-    val parsed = parseAbiModalityString(peek = true)?.let {
-        AbiModality.valueOf(it)
-    }
+    val parsed = parseAbiModalityString(peek = true)?.let { AbiModality.valueOf(it) }
     if (parsed != null) {
         parseAbiModalityString()
     }
@@ -53,9 +51,7 @@ internal fun Cursor.parseAbiModality(): AbiModality? {
 }
 
 internal fun Cursor.parseClassKind(peek: Boolean = false): AbiClassKind? {
-    val parsed = parseClassKindString(peek = true)?.let {
-        AbiClassKind.valueOf(it)
-    }
+    val parsed = parseClassKindString(peek = true)?.let { AbiClassKind.valueOf(it) }
     if (parsed != null && !peek) {
         parseClassKindString()
     }
@@ -63,9 +59,7 @@ internal fun Cursor.parseClassKind(peek: Boolean = false): AbiClassKind? {
 }
 
 internal fun Cursor.parsePropertyKind(peek: Boolean = false): AbiPropertyKind? {
-    val parsed = parsePropertyKindString(peek = true)?.let {
-        AbiPropertyKind.valueOf(it)
-    }
+    val parsed = parsePropertyKindString(peek = true)?.let { AbiPropertyKind.valueOf(it) }
     if (parsed != null && !peek) {
         parsePropertyKindString()
     }
@@ -98,6 +92,7 @@ internal fun Cursor.hasPropertyKind(): Boolean {
 internal fun Cursor.hasEnumEntry(): Boolean = parseEnumEntryKind(peek = true) != null
 
 internal fun Cursor.hasGetter() = hasPropertyAccessor(GetterOrSetter.GETTER)
+
 internal fun Cursor.hasSetter() = hasPropertyAccessor(GetterOrSetter.SETTER)
 
 internal fun Cursor.hasGetterOrSetter() = hasGetter() || hasSetter()
@@ -147,21 +142,17 @@ internal fun Cursor.parseFunctionModifiers(): Set<String> {
 }
 
 internal fun Cursor.parseAbiQualifiedName(peek: Boolean = false): AbiQualifiedName? {
-    val symbol = parseSymbol("^[a-zA-Z0-9\\.]+\\/[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?", peek)
-        ?: return null
+    val symbol =
+        parseSymbol("^[a-zA-Z0-9\\.]+\\/[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)?", peek) ?: return null
     val (packageName, relativeName) = symbol.split("/")
-    return AbiQualifiedName(
-        AbiCompoundName(packageName),
-        AbiCompoundName(relativeName)
-    )
+    return AbiQualifiedName(AbiCompoundName(packageName), AbiCompoundName(relativeName))
 }
 
 internal fun Cursor.parseAbiType(peek: Boolean = false): AbiType? {
     val cursor = subCursor(peek)
     // A type will either be a qualified name (kotlin/Array) or a type reference (#A)
     // try to parse a qualified name and a type reference if it doesn't exist
-    val abiQualifiedName = cursor.parseAbiQualifiedName()
-        ?: return cursor.parseTypeReference()
+    val abiQualifiedName = cursor.parseAbiQualifiedName() ?: return cursor.parseTypeReference()
     val typeArgs = cursor.parseTypeArgs() ?: emptyList()
     val nullability = cursor.parseNullability(assumeNotNull = true)
     return SimpleTypeImpl(
@@ -190,10 +181,7 @@ internal fun Cursor.parseTypeArg(peek: Boolean = false): AbiTypeArgument? {
         return StarProjectionImpl
     }
     val type = cursor.parseAbiType(peek) ?: return null
-    return TypeProjectionImpl(
-        type = type,
-        variance = variance
-    )
+    return TypeProjectionImpl(type = type, variance = variance)
 }
 
 internal fun Cursor.parseAbiVariance(): AbiVariance {
@@ -220,11 +208,12 @@ internal fun Cursor.parseNullability(assumeNotNull: Boolean = false): AbiTypeNul
     return when {
         nullable -> AbiTypeNullability.MARKED_NULLABLE
         definitelyNotNull -> AbiTypeNullability.DEFINITELY_NOT_NULL
-        else -> if (assumeNotNull) {
-            AbiTypeNullability.DEFINITELY_NOT_NULL
-        } else {
-            AbiTypeNullability.NOT_SPECIFIED
-        }
+        else ->
+            if (assumeNotNull) {
+                AbiTypeNullability.DEFINITELY_NOT_NULL
+            } else {
+                AbiTypeNullability.NOT_SPECIFIED
+            }
     }
 }
 
@@ -344,7 +333,7 @@ internal fun Cursor.parseEnumName() = parseSymbol("^[A-Z_]+")
 /**
  * Used to check if declarations after a property are getter / setter methods which should be
  * attached to that property.
-*/
+ */
 private fun Cursor.hasPropertyAccessor(type: GetterOrSetter): Boolean {
     val subCursor = copy()
     subCursor.parseAbiModality()
@@ -361,7 +350,12 @@ private fun Cursor.hasPropertyAccessor(type: GetterOrSetter): Boolean {
     }
 }
 
-private fun Cursor.subCursor(peek: Boolean) = if (peek) { copy() } else { this }
+private fun Cursor.subCursor(peek: Boolean) =
+    if (peek) {
+        copy()
+    } else {
+        this
+    }
 
 private fun Cursor.parseTypeParamsString(peek: Boolean = false): String? {
     if (parseSymbol("^<(get|set)\\-", peek = true) != null) {
@@ -372,9 +366,8 @@ private fun Cursor.parseTypeParamsString(peek: Boolean = false): String? {
     cursor.parseSymbol("^<")?.let { result.append(it) } ?: return null
     var openBracketCount = 1
     while (openBracketCount > 0) {
-        val nextSymbol = cursor.parseSymbol(".", skipInlineWhitespace = false).also {
-            result.append(it)
-        }
+        val nextSymbol =
+            cursor.parseSymbol(".", skipInlineWhitespace = false).also { result.append(it) }
         when (nextSymbol) {
             "<" -> openBracketCount++
             ">" -> openBracketCount--
@@ -397,10 +390,9 @@ private fun Cursor.parsePropertyKindString(peek: Boolean = false) =
     parseSymbol("^(const\\sval|val|var)", peek)?.uppercase()?.replace(" ", "_")
 
 private fun Cursor.parseClassKindString(peek: Boolean = false) =
-    parseSymbol(
-        "^(class|interface|object|enum\\sclass|annotation\\sclass)",
-        peek
-    )?.uppercase()?.replace(" ", "_")
+    parseSymbol("^(class|interface|object|enum\\sclass|annotation\\sclass)", peek)
+        ?.uppercase()
+        ?.replace(" ", "_")
 
 private enum class GetterOrSetter() {
     GETTER,

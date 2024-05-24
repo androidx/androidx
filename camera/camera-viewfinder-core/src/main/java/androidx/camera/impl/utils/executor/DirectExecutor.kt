@@ -18,17 +18,14 @@ package androidx.camera.impl.utils.executor
 
 import java.util.concurrent.Executor
 
-/**
- * An [Executor] that runs each task in the thread that invokes [Executor.execute].
- */
+/** An [Executor] that runs each task in the thread that invokes [Executor.execute]. */
 internal class DirectExecutor : Executor {
     override fun execute(command: Runnable) {
         command.run()
     }
 
     companion object {
-        @Volatile
-        private var directExecutor: DirectExecutor? = null
+        @Volatile private var directExecutor: DirectExecutor? = null
         val instance: Executor
             get() {
                 if (directExecutor != null) {

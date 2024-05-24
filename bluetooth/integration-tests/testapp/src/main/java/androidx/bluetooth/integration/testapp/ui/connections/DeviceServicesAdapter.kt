@@ -32,8 +32,8 @@ class DeviceServicesAdapter(
 ) : RecyclerView.Adapter<DeviceServicesAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_device_service, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.item_device_service, parent, false)
         return ViewHolder(view)
     }
 
@@ -55,11 +55,12 @@ class DeviceServicesAdapter(
         fun bind(deviceConnection: DeviceConnection, service: GattService) {
             textViewUuid.text = service.uuid.toString()
 
-            recyclerViewServiceCharacteristic.adapter = DeviceServiceCharacteristicsAdapter(
-                deviceConnection,
-                service.characteristics,
-                onCharacteristicActionClick
-            )
+            recyclerViewServiceCharacteristic.adapter =
+                DeviceServiceCharacteristicsAdapter(
+                    deviceConnection,
+                    service.characteristics,
+                    onCharacteristicActionClick
+                )
         }
     }
 }

@@ -27,45 +27,48 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 29)
 @OptIn(ExperimentalMetricApi::class)
 class PowerMetricTest {
-    private val captureInfo = Metric.CaptureInfo(
-        31,
-        "androidx.benchmark.integration.macrobenchmark.target",
-        "androidx.benchmark.macro",
-        StartupMode.COLD
-    )
+    private val captureInfo =
+        Metric.CaptureInfo(
+            31,
+            "androidx.benchmark.integration.macrobenchmark.target",
+            "androidx.benchmark.macro",
+            StartupMode.COLD
+        )
 
     @Test
     fun successfulFixedTraceEnergyBreakdown() {
         assumeTrue(isAbiSupported())
 
         val traceFile = createTempFileFromAsset("api32_odpm_rails", ".perfetto-trace")
-        val categories = PowerCategory.values()
-            .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
+        val categories =
+            PowerCategory.values().associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
 
-        val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Energy(categories)).getMeasurements(captureInfo, this)
-        }
+        val actualMetrics =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+                PowerMetric(PowerMetric.Energy(categories)).getMeasurements(captureInfo, this)
+            }
 
         assertEqualMeasurements(
-            expected = listOf(
-                Measurement("energyComponentCpuBigUws", 31935.0),
-                Measurement("energyComponentCpuLittleUws", 303264.0),
-                Measurement("energyComponentCpuMidUws", 55179.0),
-                Measurement("energyComponentDisplayUws", 1006934.0),
-                Measurement("energyComponentGpuUws", 66555.0),
-                Measurement("energyComponentDdrAUws", 48458.0),
-                Measurement("energyComponentDdrBUws", 54988.0),
-                Measurement("energyComponentDdrCUws", 100082.0),
-                Measurement("energyComponentMemoryInterfaceUws", 151912.0),
-                Measurement("energyComponentTpuUws", 50775.0),
-                Measurement("energyComponentAocLogicUws", 74972.0),
-                Measurement("energyComponentAocMemoryUws", 19601.0),
-                Measurement("energyComponentModemUws", 8369.0),
-                Measurement("energyComponentRadioFrontendUws", 0.0),
-                Measurement("energyComponentWifiBtUws", 493868.0),
-                Measurement("energyComponentSystemFabricUws", 122766.0),
-                Measurement("energyTotalUws", 2589658.0)
-            ),
+            expected =
+                listOf(
+                    Measurement("energyComponentCpuBigUws", 31935.0),
+                    Measurement("energyComponentCpuLittleUws", 303264.0),
+                    Measurement("energyComponentCpuMidUws", 55179.0),
+                    Measurement("energyComponentDisplayUws", 1006934.0),
+                    Measurement("energyComponentGpuUws", 66555.0),
+                    Measurement("energyComponentDdrAUws", 48458.0),
+                    Measurement("energyComponentDdrBUws", 54988.0),
+                    Measurement("energyComponentDdrCUws", 100082.0),
+                    Measurement("energyComponentMemoryInterfaceUws", 151912.0),
+                    Measurement("energyComponentTpuUws", 50775.0),
+                    Measurement("energyComponentAocLogicUws", 74972.0),
+                    Measurement("energyComponentAocMemoryUws", 19601.0),
+                    Measurement("energyComponentModemUws", 8369.0),
+                    Measurement("energyComponentRadioFrontendUws", 0.0),
+                    Measurement("energyComponentWifiBtUws", 493868.0),
+                    Measurement("energyComponentSystemFabricUws", 122766.0),
+                    Measurement("energyTotalUws", 2589658.0)
+                ),
             observed = actualMetrics,
             threshold = 0.1
         )
@@ -76,24 +79,25 @@ class PowerMetricTest {
         assumeTrue(isAbiSupported())
 
         val traceFile = createTempFileFromAsset("api32_odpm_rails", ".perfetto-trace")
-        val categories = PowerCategory.values()
-            .associateWith { PowerCategoryDisplayLevel.TOTAL }
+        val categories = PowerCategory.values().associateWith { PowerCategoryDisplayLevel.TOTAL }
 
-        val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Power(categories)).getMeasurements(captureInfo, this)
-        }
+        val actualMetrics =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+                PowerMetric(PowerMetric.Power(categories)).getMeasurements(captureInfo, this)
+            }
 
         assertEqualMeasurements(
-            expected = listOf(
-                Measurement("powerCategoryCpuUw", 80.94090814845532),
-                Measurement("powerCategoryDisplayUw", 208.77752436243003),
-                Measurement("powerCategoryGpuUw", 13.799502384408045),
-                Measurement("powerCategoryMemoryUw", 73.69686916856728),
-                Measurement("powerCategoryMachineLearningUw", 10.527679867302508),
-                Measurement("powerCategoryNetworkUw", 123.74248393116318),
-                Measurement("powerUncategorizedUw", 25.454281567489115),
-                Measurement("powerTotalUw", 536.9392494298155),
-            ),
+            expected =
+                listOf(
+                    Measurement("powerCategoryCpuUw", 80.94090814845532),
+                    Measurement("powerCategoryDisplayUw", 208.77752436243003),
+                    Measurement("powerCategoryGpuUw", 13.799502384408045),
+                    Measurement("powerCategoryMemoryUw", 73.69686916856728),
+                    Measurement("powerCategoryMachineLearningUw", 10.527679867302508),
+                    Measurement("powerCategoryNetworkUw", 123.74248393116318),
+                    Measurement("powerUncategorizedUw", 25.454281567489115),
+                    Measurement("powerTotalUw", 536.9392494298155),
+                ),
             observed = actualMetrics,
             threshold = 0.00001
         )
@@ -104,28 +108,31 @@ class PowerMetricTest {
         assumeTrue(isAbiSupported())
 
         val traceFile = createTempFileFromAsset("api32_odpm_rails", ".perfetto-trace")
-        val categories = mapOf(
-            PowerCategory.DISPLAY to PowerCategoryDisplayLevel.TOTAL,
-            PowerCategory.MEMORY to PowerCategoryDisplayLevel.TOTAL,
-            PowerCategory.CPU to PowerCategoryDisplayLevel.TOTAL,
-            PowerCategory.NETWORK to PowerCategoryDisplayLevel.TOTAL,
-            PowerCategory.UNCATEGORIZED to PowerCategoryDisplayLevel.BREAKDOWN
-        )
+        val categories =
+            mapOf(
+                PowerCategory.DISPLAY to PowerCategoryDisplayLevel.TOTAL,
+                PowerCategory.MEMORY to PowerCategoryDisplayLevel.TOTAL,
+                PowerCategory.CPU to PowerCategoryDisplayLevel.TOTAL,
+                PowerCategory.NETWORK to PowerCategoryDisplayLevel.TOTAL,
+                PowerCategory.UNCATEGORIZED to PowerCategoryDisplayLevel.BREAKDOWN
+            )
 
-        val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Power(categories)).getMeasurements(captureInfo, this)
-        }
+        val actualMetrics =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+                PowerMetric(PowerMetric.Power(categories)).getMeasurements(captureInfo, this)
+            }
 
         assertEqualMeasurements(
-            expected = listOf(
-                Measurement("powerCategoryCpuUw", 80.94090814845532),
-                Measurement("powerCategoryDisplayUw", 208.77752436243003),
-                Measurement("powerCategoryMemoryUw", 73.69686916856728),
-                Measurement("powerCategoryNetworkUw", 123.74248393116318),
-                Measurement("powerComponentSystemFabricUw", 25.454281567489115),
-                Measurement("powerUnselectedUw", 24.327182251710553),
-                Measurement("powerTotalUw", 536.9392494298155)
-            ),
+            expected =
+                listOf(
+                    Measurement("powerCategoryCpuUw", 80.94090814845532),
+                    Measurement("powerCategoryDisplayUw", 208.77752436243003),
+                    Measurement("powerCategoryMemoryUw", 73.69686916856728),
+                    Measurement("powerCategoryNetworkUw", 123.74248393116318),
+                    Measurement("powerComponentSystemFabricUw", 25.454281567489115),
+                    Measurement("powerUnselectedUw", 24.327182251710553),
+                    Measurement("powerTotalUw", 536.9392494298155)
+                ),
             observed = actualMetrics,
             threshold = 0.00001
         )
@@ -136,12 +143,13 @@ class PowerMetricTest {
         assumeTrue(isAbiSupported())
 
         val traceFile = createTempFileFromAsset("api31_odpm_rails_empty", ".perfetto-trace")
-        val categories = PowerCategory.values()
-            .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
+        val categories =
+            PowerCategory.values().associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
 
-        val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Energy(categories)).getMeasurements(captureInfo, this)
-        }
+        val actualMetrics =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+                PowerMetric(PowerMetric.Energy(categories)).getMeasurements(captureInfo, this)
+            }
 
         assertEquals(emptyList(), actualMetrics)
     }
@@ -153,16 +161,18 @@ class PowerMetricTest {
 
         val traceFile = createTempFileFromAsset("api31_battery_discharge", ".perfetto-trace")
 
-        val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Battery()).getMeasurements(captureInfo, this)
-        }
+        val actualMetrics =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+                PowerMetric(PowerMetric.Battery()).getMeasurements(captureInfo, this)
+            }
 
         assertEqualMeasurements(
-            expected = listOf(
-                Measurement("batteryStartMah", 1020.0),
-                Measurement("batteryEndMah", 1007.0),
-                Measurement("batteryDiffMah", 13.0)
-            ),
+            expected =
+                listOf(
+                    Measurement("batteryStartMah", 1020.0),
+                    Measurement("batteryEndMah", 1007.0),
+                    Measurement("batteryDiffMah", 13.0)
+                ),
             observed = actualMetrics,
             threshold = 0.1
         )

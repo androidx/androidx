@@ -35,10 +35,7 @@ import java.nio.ByteBuffer
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * Instrumented tests for [RgbaImageProxy].
- */
-
+/** Instrumented tests for [RgbaImageProxy]. */
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
@@ -49,16 +46,17 @@ class RgbaImageProxyDeviceTest {
         // Arrange.
         val bitmap = TestImageUtil.createBitmap(WIDTH, HEIGHT)
         // Act.
-        val image = RgbaImageProxy(
-            Packet.of(
-                bitmap,
-                ExifUtil.createExif(TestImageUtil.createJpegBytes(WIDTH, HEIGHT)),
-                CROP_RECT,
-                ROTATION_DEGREES,
-                SENSOR_TO_BUFFER,
-                CAMERA_CAPTURE_RESULT
+        val image =
+            RgbaImageProxy(
+                Packet.of(
+                    bitmap,
+                    ExifUtil.createExif(TestImageUtil.createJpegBytes(WIDTH, HEIGHT)),
+                    CROP_RECT,
+                    ROTATION_DEGREES,
+                    SENSOR_TO_BUFFER,
+                    CAMERA_CAPTURE_RESULT
+                )
             )
-        )
         // Assert.
         val restoredBitmap = Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888)
         restoredBitmap.copyPixelsFromBuffer(image.planes[0].buffer)
@@ -80,16 +78,17 @@ class RgbaImageProxyDeviceTest {
         val byteBuffer = ByteBuffer.allocateDirect(bitmap.allocationByteCount)
         bitmap.copyPixelsToBuffer(byteBuffer)
         // Act.
-        val image = RgbaImageProxy(
-            byteBuffer,
-            4,
-            bitmap.width,
-            bitmap.height,
-            CROP_RECT,
-            ROTATION_DEGREES,
-            SENSOR_TO_BUFFER,
-            TIMESTAMP
-        )
+        val image =
+            RgbaImageProxy(
+                byteBuffer,
+                4,
+                bitmap.width,
+                bitmap.height,
+                CROP_RECT,
+                ROTATION_DEGREES,
+                SENSOR_TO_BUFFER,
+                TIMESTAMP
+            )
         // Assert.
         val restoredBitmap = image.createBitmap()
         assertThat(TestImageUtil.getAverageDiff(bitmap, restoredBitmap)).isEqualTo(0)
@@ -105,16 +104,17 @@ class RgbaImageProxyDeviceTest {
     fun closeImage_invokingMethodsThrowsException() {
         // Arrange.
         val bitmap = TestImageUtil.createBitmap(WIDTH, HEIGHT)
-        val image = RgbaImageProxy(
-            Packet.of(
-                bitmap,
-                ExifUtil.createExif(TestImageUtil.createJpegBytes(WIDTH, HEIGHT)),
-                CROP_RECT,
-                ROTATION_DEGREES,
-                SENSOR_TO_BUFFER,
-                CAMERA_CAPTURE_RESULT
+        val image =
+            RgbaImageProxy(
+                Packet.of(
+                    bitmap,
+                    ExifUtil.createExif(TestImageUtil.createJpegBytes(WIDTH, HEIGHT)),
+                    CROP_RECT,
+                    ROTATION_DEGREES,
+                    SENSOR_TO_BUFFER,
+                    CAMERA_CAPTURE_RESULT
+                )
             )
-        )
         // Act.
         image.close()
         // Assert

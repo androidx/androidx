@@ -38,12 +38,10 @@ object Log {
     // This indicates the lowest log level that will always log.
     private const val LOG_LEVEL = LOG_LEVEL_DEBUG
 
-    val DEBUG_LOGGABLE: Boolean =
-        LOG_LEVEL <= LOG_LEVEL_DEBUG || Log.isLoggable(TAG, Log.DEBUG)
+    val DEBUG_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_DEBUG || Log.isLoggable(TAG, Log.DEBUG)
     val INFO_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_INFO || Log.isLoggable(TAG, Log.INFO)
     val WARN_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_WARN || Log.isLoggable(TAG, Log.WARN)
-    val ERROR_LOGGABLE: Boolean =
-        LOG_LEVEL <= LOG_LEVEL_ERROR || Log.isLoggable(TAG, Log.ERROR)
+    val ERROR_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_ERROR || Log.isLoggable(TAG, Log.ERROR)
 
     /** Debug functions log noisy information related to the internals of the system. */
     inline fun debug(crossinline msg: () -> String) {

@@ -59,34 +59,44 @@ class ExtraSupportedQualityQuirkTest {
         ShadowBuild.setBrand(MOTO_C_BRAND)
         ShadowBuild.setModel(MOTO_C_MODEL)
         val cameraInfo = FakeCameraInfoInternal("1", CameraSelector.LENS_FACING_FRONT)
-        val profilesCif = EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-            DEFAULT_DURATION,
-            DEFAULT_OUTPUT_FORMAT,
-            listOf(createFakeAudioProfileProxy()),
-            listOf(createFakeVideoProfileProxy(
-                RESOLUTION_CIF.width,
-                RESOLUTION_CIF.height,
-            ))
-        )
-        val profilesQcif = EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
-            DEFAULT_DURATION,
-            DEFAULT_OUTPUT_FORMAT,
-            listOf(createFakeAudioProfileProxy()),
-            listOf(createFakeVideoProfileProxy(
-                RESOLUTION_QCIF.width,
-                RESOLUTION_QCIF.height,
-            ))
-        )
-        val encoderProfileProvider = FakeEncoderProfilesProvider.Builder()
-            .add(QUALITY_HIGH, profilesCif)
-            .add(QUALITY_CIF, profilesCif)
-            .add(QUALITY_QCIF, profilesQcif)
-            .add(QUALITY_LOW, profilesQcif)
-            .build()
+        val profilesCif =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                DEFAULT_DURATION,
+                DEFAULT_OUTPUT_FORMAT,
+                listOf(createFakeAudioProfileProxy()),
+                listOf(
+                    createFakeVideoProfileProxy(
+                        RESOLUTION_CIF.width,
+                        RESOLUTION_CIF.height,
+                    )
+                )
+            )
+        val profilesQcif =
+            EncoderProfilesProxy.ImmutableEncoderProfilesProxy.create(
+                DEFAULT_DURATION,
+                DEFAULT_OUTPUT_FORMAT,
+                listOf(createFakeAudioProfileProxy()),
+                listOf(
+                    createFakeVideoProfileProxy(
+                        RESOLUTION_QCIF.width,
+                        RESOLUTION_QCIF.height,
+                    )
+                )
+            )
+        val encoderProfileProvider =
+            FakeEncoderProfilesProvider.Builder()
+                .add(QUALITY_HIGH, profilesCif)
+                .add(QUALITY_CIF, profilesCif)
+                .add(QUALITY_QCIF, profilesQcif)
+                .add(QUALITY_LOW, profilesQcif)
+                .build()
 
         // Act.
-        val qualityEncoderProfilesMap = ExtraSupportedQualityQuirk()
-            .getExtraEncoderProfiles(cameraInfo, encoderProfileProvider) {
+        val qualityEncoderProfilesMap =
+            ExtraSupportedQualityQuirk().getExtraEncoderProfiles(
+                cameraInfo,
+                encoderProfileProvider
+            ) {
                 FakeVideoEncoderInfo()
             }
 

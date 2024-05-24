@@ -35,11 +35,9 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class PreviewLifecycleStatusChangeStressTest constructor(
-    implName: String,
-    cameraConfig: CameraXConfig,
-    cameraId: String
-) : LifecycleStatusChangeStressTestBase(implName, cameraConfig, cameraId) {
+class PreviewLifecycleStatusChangeStressTest
+constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
+    LifecycleStatusChangeStressTestBase(implName, cameraConfig, cameraId) {
 
     @LabTestRule.LabTestOnly
     @Test
@@ -104,7 +102,7 @@ class PreviewLifecycleStatusChangeStressTest constructor(
         )
     }
 
-        @LabTestRule.LabTestOnly
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterPauseResumeRepeatedly_withPreviewImageCapture() {

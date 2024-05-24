@@ -21,23 +21,18 @@ import androidx.benchmark.darwin.gradle.xcode.ActionsInvocationRecord
 import com.google.gson.annotations.SerializedName
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
-/**
- * https://skia.googlesource.com/buildbot/+/refs/heads/main/perf/FORMAT.md
- */
-
+/** https://skia.googlesource.com/buildbot/+/refs/heads/main/perf/FORMAT.md */
 data class Stat(val value: String, val measurement: Double)
-data class Measurements(
-    @SerializedName("stat")
-    val stats: List<Stat>
-)
+
+data class Measurements(@SerializedName("stat") val stats: List<Stat>)
 
 data class Metric(val key: Map<String, String>, val measurements: Measurements)
+
 data class Metrics(
     val key: Map<String, String>,
     val results: List<Metric>,
     val version: Long = 1L,
-    @SerializedName("git_hash")
-    val referenceSha: String? = null
+    @SerializedName("git_hash") val referenceSha: String? = null
 ) {
     companion object {
         fun buildMetrics(
@@ -47,31 +42,31 @@ data class Metrics(
         ): Metrics {
             require(record.actions.actionRecords.isNotEmpty())
             val runDestination = record.actions.actionRecords.first().runDestination
-            val metricsKeys = mapOf(
-                "destination" to runDestination.displayName.value,
-                "arch" to runDestination.targetArchitecture.value,
-                "targetSdk" to runDestination.targetSDKRecord.identifier.value,
-                "identifier" to runDestination.localComputerRecord.identifier.value,
-                "modelName" to runDestination.localComputerRecord.modelName.value,
-                "modelCode" to runDestination.localComputerRecord.modelCode.value
-            )
+            val metricsKeys =
+                mapOf(
+                    "destination" to runDestination.displayName.value,
+                    "arch" to runDestination.targetArchitecture.value,
+                    "targetSdk" to runDestination.targetSDKRecord.identifier.value,
+                    "identifier" to runDestination.localComputerRecord.identifier.value,
+                    "modelName" to runDestination.localComputerRecord.modelName.value,
+                    "modelCode" to runDestination.localComputerRecord.modelCode.value
+                )
             val results = summaries.flatMap { it.toMetrics() }
             return Metrics(metricsKeys, results, referenceSha = referenceSha)
         }
 
         private fun ActionTestSummary.toMetrics(): List<Metric> {
             return performanceMetrics.values.map { metricSummary ->
-                val key = mutableMapOf(
-                    "testDescription" to (title() ?: "No description"),
-                    "metricName" to metricSummary.displayName.value,
-                    "metricIdentifier" to metricSummary.identifier.value,
-                    "polarity" to metricSummary.polarity.value,
-                    "units" to metricSummary.unitOfMeasurement.value,
-                )
+                val key =
+                    mutableMapOf(
+                        "testDescription" to (title() ?: "No description"),
+                        "metricName" to metricSummary.displayName.value,
+                        "metricIdentifier" to metricSummary.identifier.value,
+                        "polarity" to metricSummary.polarity.value,
+                        "units" to metricSummary.unitOfMeasurement.value,
+                    )
                 val statistics = DescriptiveStatistics()
-                metricSummary.measurements.values.forEach {
-                    statistics.addValue(it.value)
-                }
+                metricSummary.measurements.values.forEach { statistics.addValue(it.value) }
                 val min = Stat("min", statistics.min)
                 // The 50th percentile is the median
                 val median = Stat("median", statistics.getPercentile(50.0))

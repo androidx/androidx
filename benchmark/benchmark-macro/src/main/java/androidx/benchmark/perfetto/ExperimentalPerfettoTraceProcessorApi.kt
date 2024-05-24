@@ -17,8 +17,8 @@
 package androidx.benchmark.perfetto
 
 /**
- * Annotation indicating experimental API for querying data from Perfetto traces with
- * Perfetto Trace Processor.
+ * Annotation indicating experimental API for querying data from Perfetto traces with Perfetto Trace
+ * Processor.
  */
 @RequiresOptIn
 @Retention(AnnotationRetention.BINARY)

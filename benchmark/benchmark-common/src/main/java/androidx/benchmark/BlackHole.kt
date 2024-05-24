@@ -22,8 +22,8 @@ import dalvik.annotation.optimization.FastNative
 /**
  * Function calls which can be used to prevent optimization of results.
  *
- * Both the Kotlin compiler and R8 can remove code you intend to benchmark.
- * To prevent this, pass the result to [BlackHole.consume].
+ * Both the Kotlin compiler and R8 can remove code you intend to benchmark. To prevent this, pass
+ * the result to [BlackHole.consume].
  */
 @ExperimentalBlackHoleApi
 object BlackHole {

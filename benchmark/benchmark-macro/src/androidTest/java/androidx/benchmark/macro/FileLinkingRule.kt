@@ -30,9 +30,9 @@ import org.junit.runners.model.Statement
 /**
  * Rule to enable linking files and traces to Studio UI for macrobench correctness tests.
  *
- * Filepaths are registered, and reported, but files are not created by this class, that should
- * be handled by the test. Ensure you don't clean up the file - it needs to persist to be copied
- * over by Studio.
+ * Filepaths are registered, and reported, but files are not created by this class, that should be
+ * handled by the test. Ensure you don't clean up the file - it needs to persist to be copied over
+ * by Studio.
  */
 class FileLinkingRule : TestRule {
     private lateinit var currentDescription: Description
@@ -43,16 +43,16 @@ class FileLinkingRule : TestRule {
         @Suppress("SameParameterValue") extension: String,
     ): String {
         // remove parens / brackets, as it confuses linking
-        val methodLabel = currentDescription.toUniqueName()
-            .replace("(", "_")
-            .replace(")", "_")
-            .replace("[", "_")
-            .replace("]", "_")
+        val methodLabel =
+            currentDescription
+                .toUniqueName()
+                .replace("(", "_")
+                .replace(")", "_")
+                .replace("[", "_")
+                .replace("]", "_")
 
-        val file = File(
-            Outputs.dirUsableByAppAndShell,
-            "${label}_${Outputs.dateToFileName()}.$extension"
-        )
+        val file =
+            File(Outputs.dirUsableByAppAndShell, "${label}_${Outputs.dateToFileName()}.$extension")
         val absolutePath: String = file.absolutePath
         val relativePath = Outputs.relativePathFor(absolutePath)
 
@@ -63,44 +63,38 @@ class FileLinkingRule : TestRule {
     /**
      * Map of trace abs path -> process to highlight.
      *
-     * After trace is complete (at end of test), we write a UI state packet to it, so trace UI
-     * can highlight/select the relevant process.
+     * After trace is complete (at end of test), we write a UI state packet to it, so trace UI can
+     * highlight/select the relevant process.
      */
     private val traceToPackageMap = mutableMapOf<String, String>()
 
-    fun createReportedTracePath(
-        packageName: String,
-        label: String = "trace"
-    ): String {
+    fun createReportedTracePath(packageName: String, label: String = "trace"): String {
         val absolutePath = createReportedFilePath(label, "perfetto-trace")
         traceToPackageMap[absolutePath] = packageName
         return absolutePath
     }
 
     override fun apply(base: Statement, description: Description): Statement {
-        return RuleChain
-            .outerRule(::applyInternal)
-            .apply(base, description)
+        return RuleChain.outerRule(::applyInternal).apply(base, description)
     }
 
-    private fun applyInternal(base: Statement, description: Description) = object : Statement() {
-        override fun evaluate() {
-            currentDescription = description
-            try {
-                base.evaluate()
-            } finally {
-                flush()
+    private fun applyInternal(base: Statement, description: Description) =
+        object : Statement() {
+            override fun evaluate() {
+                currentDescription = description
+                try {
+                    base.evaluate()
+                } finally {
+                    flush()
+                }
             }
         }
-    }
 
     private fun flush() {
         traceToPackageMap.forEach { entry ->
             File(entry.key).apply {
                 if (exists()) {
-                    appendUiState(
-                        UiState(null, null, entry.value)
-                    )
+                    appendUiState(UiState(null, null, entry.value))
                 }
             }
         }

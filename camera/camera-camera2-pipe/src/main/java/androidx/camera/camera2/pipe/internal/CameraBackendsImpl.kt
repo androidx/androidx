@@ -46,6 +46,7 @@ internal class CameraBackendsImpl(
 
     override val allIds: Set<CameraBackendId>
         get() = cameraBackends.keys
+
     override val activeIds: Set<CameraBackendId>
         get() = synchronized(lock) { activeCameraBackends.keys }
 

@@ -51,7 +51,8 @@ class GattServerFragment : Fragment() {
     private val viewModel: GattServerViewModel by viewModels()
 
     private var _binding: FragmentGattServerBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,15 +66,10 @@ class GattServerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonAddService.setOnClickListener {
-            onAddGattService()
-        }
+        binding.buttonAddService.setOnClickListener { onAddGattService() }
 
         gattServerServicesAdapter =
-            GattServerServicesAdapter(
-                viewModel.gattServerServices,
-                ::onAddGattCharacteristic
-            )
+            GattServerServicesAdapter(viewModel.gattServerServices, ::onAddGattCharacteristic)
         binding.recyclerViewGattServerServices.adapter = gattServerServicesAdapter
 
         binding.buttonGattServer.setOnClickListener {
@@ -85,9 +81,7 @@ class GattServerFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState
-                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-                .collect(::updateUi)
+            viewModel.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect(::updateUi)
         }
     }
 
@@ -108,17 +102,19 @@ class GattServerFragment : Fragment() {
             .setPositiveButton(getString(R.string.add)) { _, _ ->
                 val editTextInput = editTextUuid.text.toString()
                 try {
-                    val uuid = UUID.fromString(
-                        when (editTextInput.length) {
-                            4 -> "0000$editTextInput-0000-1000-8000-00805F9B34FB"
-                            8 -> "$editTextInput-0000-1000-8000-00805F9B34FB"
-                            else -> editTextInput
-                        }
-                    )
+                    val uuid =
+                        UUID.fromString(
+                            when (editTextInput.length) {
+                                4 -> "0000$editTextInput-0000-1000-8000-00805F9B34FB"
+                                8 -> "$editTextInput-0000-1000-8000-00805F9B34FB"
+                                else -> editTextInput
+                            }
+                        )
                     val service = GattService(uuid, listOf())
                     viewModel.addGattService(service)
-                    gattServerServicesAdapter
-                        ?.notifyItemInserted(viewModel.gattServerServices.size - 1)
+                    gattServerServicesAdapter?.notifyItemInserted(
+                        viewModel.gattServerServices.size - 1
+                    )
                 } catch (e: Exception) {
                     Log.d(TAG, e.toString())
                     toast(getString(R.string.invalid_uuid)).show()
@@ -131,7 +127,8 @@ class GattServerFragment : Fragment() {
 
     private fun onAddGattCharacteristic(bluetoothGattService: GattService) {
         Log.d(
-            TAG, "onAddGattCharacteristic() called with: " +
+            TAG,
+            "onAddGattCharacteristic() called with: " +
                 "bluetoothGattService = $bluetoothGattService"
         )
 
@@ -180,13 +177,14 @@ class GattServerFragment : Fragment() {
                 }
 
                 try {
-                    val uuid = UUID.fromString(
-                        when (uuidText.length) {
-                            4 -> "0000$uuidText-0000-1000-8000-00805F9B34FB"
-                            8 -> "$uuidText-0000-1000-8000-00805F9B34FB"
-                            else -> uuidText
-                        }
-                    )
+                    val uuid =
+                        UUID.fromString(
+                            when (uuidText.length) {
+                                4 -> "0000$uuidText-0000-1000-8000-00805F9B34FB"
+                                8 -> "$uuidText-0000-1000-8000-00805F9B34FB"
+                                else -> uuidText
+                            }
+                        )
                     val sampleCharacteristic = GattCharacteristic(uuid, properties)
 
                     val index = viewModel.gattServerServices.indexOf(bluetoothGattService)

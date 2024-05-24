@@ -25,17 +25,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * Shows an authentication prompt to the user.
  *
  * @param host A wrapper for the component that will host the prompt.
- *
  * @return [AuthenticationResult] for a successful authentication.
- *
- * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
- * authentication has stopped.
+ * @throws AuthPromptErrorException when an unrecoverable error has been encountered and
+ *   authentication has stopped.
  * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
- *
- * @see Class2BiometricOrCredentialAuthPrompt.authenticate(
- *     AuthPromptHost,
- *     AuthPromptCallback
- * )
+ * @see Class2BiometricOrCredentialAuthPrompt.authenticate( AuthPromptHost, AuthPromptCallback )
  *
  * @sample androidx.biometric.samples.auth.class2BiometricOrCredentialAuth
  */
@@ -43,15 +37,10 @@ public suspend fun Class2BiometricOrCredentialAuthPrompt.authenticate(
     host: AuthPromptHost,
 ): AuthenticationResult {
     return suspendCancellableCoroutine { continuation ->
-        val authPrompt = startAuthentication(
-            host,
-            Runnable::run,
-            CoroutineAuthPromptCallback(continuation)
-        )
+        val authPrompt =
+            startAuthentication(host, Runnable::run, CoroutineAuthPromptCallback(continuation))
 
-        continuation.invokeOnCancellation {
-            authPrompt.cancelAuthentication()
-        }
+        continuation.invokeOnCancellation { authPrompt.cancelAuthentication() }
     }
 }
 
@@ -69,7 +58,6 @@ public suspend fun Class2BiometricOrCredentialAuthPrompt.authenticate(
  * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
  * @return An [AuthPrompt] handle to the shown prompt.
- *
  * @see Class2BiometricOrCredentialAuthPrompt
  */
 public fun FragmentActivity.startClass2BiometricOrCredentialAuthentication(
@@ -102,13 +90,10 @@ public fun FragmentActivity.startClass2BiometricOrCredentialAuthentication(
  * @param subtitle An optional subtitle to be displayed on the prompt.
  * @param description An optional description to be displayed on the prompt.
  * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
- *
  * @return [AuthenticationResult] for a successful authentication.
- *
- * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
- * authentication has stopped.
+ * @throws AuthPromptErrorException when an unrecoverable error has been encountered and
+ *   authentication has stopped.
  * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
- *
  * @see Class2BiometricOrCredentialAuthPrompt
  */
 public suspend fun FragmentActivity.authenticateWithClass2BiometricsOrCredentials(
@@ -117,12 +102,13 @@ public suspend fun FragmentActivity.authenticateWithClass2BiometricsOrCredential
     description: CharSequence? = null,
     confirmationRequired: Boolean = true,
 ): AuthenticationResult {
-    val authPrompt = buildClass2BiometricOrCredentialAuthPrompt(
-        title,
-        subtitle,
-        description,
-        confirmationRequired,
-    )
+    val authPrompt =
+        buildClass2BiometricOrCredentialAuthPrompt(
+            title,
+            subtitle,
+            description,
+            confirmationRequired,
+        )
 
     return authPrompt.authenticate(AuthPromptHost(this))
 }
@@ -141,7 +127,6 @@ public suspend fun FragmentActivity.authenticateWithClass2BiometricsOrCredential
  * @param executor An executor for [callback] methods. If `null`, these will run on the main thread.
  * @param callback The object that will receive and process authentication events.
  * @return An [AuthPrompt] handle to the shown prompt.
- *
  * @see Class2BiometricOrCredentialAuthPrompt
  */
 public fun Fragment.startClass2BiometricOrCredentialAuthentication(
@@ -175,11 +160,9 @@ public fun Fragment.startClass2BiometricOrCredentialAuthentication(
  * @param description An optional description to be displayed on the prompt.
  * @param confirmationRequired Whether user confirmation should be required for passive biometrics.
  * @return An [AuthPrompt] handle to the shown prompt.
- *
- * @throws AuthPromptErrorException  when an unrecoverable error has been encountered and
- * authentication has stopped.
+ * @throws AuthPromptErrorException when an unrecoverable error has been encountered and
+ *   authentication has stopped.
  * @throws AuthPromptFailureException when an authentication attempt by the user has been rejected.
- *
  * @see Class2BiometricOrCredentialAuthPrompt
  */
 public suspend fun Fragment.authenticateWithClass2BiometricsOrCredentials(
@@ -188,12 +171,13 @@ public suspend fun Fragment.authenticateWithClass2BiometricsOrCredentials(
     description: CharSequence? = null,
     confirmationRequired: Boolean = true,
 ): AuthenticationResult {
-    val authPrompt = buildClass2BiometricOrCredentialAuthPrompt(
-        title,
-        subtitle,
-        description,
-        confirmationRequired,
-    )
+    val authPrompt =
+        buildClass2BiometricOrCredentialAuthPrompt(
+            title,
+            subtitle,
+            description,
+            confirmationRequired,
+        )
 
     return authPrompt.authenticate(AuthPromptHost(this))
 }
@@ -211,12 +195,13 @@ private fun startClass2BiometricOrCredentialAuthenticationInternal(
     executor: Executor?,
     callback: AuthPromptCallback
 ): AuthPrompt {
-    val prompt = buildClass2BiometricOrCredentialAuthPrompt(
-        title,
-        subtitle,
-        description,
-        confirmationRequired,
-    )
+    val prompt =
+        buildClass2BiometricOrCredentialAuthPrompt(
+            title,
+            subtitle,
+            description,
+            confirmationRequired,
+        )
 
     return if (executor == null) {
         prompt.startAuthentication(host, callback)
@@ -225,18 +210,17 @@ private fun startClass2BiometricOrCredentialAuthenticationInternal(
     }
 }
 
-/**
- * Creates a [Class2BiometricOrCredentialAuthPrompt] with the given parameters.
- */
+/** Creates a [Class2BiometricOrCredentialAuthPrompt] with the given parameters. */
 private fun buildClass2BiometricOrCredentialAuthPrompt(
     title: CharSequence,
     subtitle: CharSequence? = null,
     description: CharSequence? = null,
     confirmationRequired: Boolean = true,
-): Class2BiometricOrCredentialAuthPrompt = Class2BiometricOrCredentialAuthPrompt.Builder(title)
-    .apply {
-        subtitle?.let { setSubtitle(it) }
-        description?.let { setDescription(it) }
-        setConfirmationRequired(confirmationRequired)
-    }
-    .build()
+): Class2BiometricOrCredentialAuthPrompt =
+    Class2BiometricOrCredentialAuthPrompt.Builder(title)
+        .apply {
+            subtitle?.let { setSubtitle(it) }
+            description?.let { setDescription(it) }
+            setConfirmationRequired(confirmationRequired)
+        }
+        .build()

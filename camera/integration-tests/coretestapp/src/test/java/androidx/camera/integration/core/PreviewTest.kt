@@ -55,10 +55,11 @@ class PreviewTest(
     companion object {
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "LensFacing = {0}")
-        fun data() = listOf(
-            arrayOf(CameraSelector.LENS_FACING_BACK),
-            arrayOf(CameraSelector.LENS_FACING_FRONT),
-        )
+        fun data() =
+            listOf(
+                arrayOf(CameraSelector.LENS_FACING_BACK),
+                arrayOf(CameraSelector.LENS_FACING_FRONT),
+            )
     }
 
     @After
@@ -83,31 +84,24 @@ class PreviewTest(
 
         preview = bindPreview { request ->
             val surfaceTexture = SurfaceTexture(0)
-            surfaceTexture.setDefaultBufferSize(
-                request.resolution.width,
-                request.resolution.height
-            )
+            surfaceTexture.setDefaultBufferSize(request.resolution.width, request.resolution.height)
             surfaceTexture.detachFromGLContext()
             val frameUpdateThread = HandlerThread("frameUpdateThread").apply { start() }
 
-            surfaceTexture.setOnFrameAvailableListener({
-                countDownLatch.countDown()
-            }, Handler(frameUpdateThread.getLooper()))
+            surfaceTexture.setOnFrameAvailableListener(
+                { countDownLatch.countDown() },
+                Handler(frameUpdateThread.getLooper())
+            )
 
             val surface = Surface(surfaceTexture)
-            request.provideSurface(
-                surface,
-                CameraXExecutors.directExecutor()
-            ) {
+            request.provideSurface(surface, CameraXExecutors.directExecutor()) {
                 surface.release()
                 surfaceTexture.release()
                 frameUpdateThread.quitSafely()
             }
         }
 
-        repeat(5) {
-            camera.simulateCaptureFrameAsync().get(3, TimeUnit.SECONDS)
-        }
+        repeat(5) { camera.simulateCaptureFrameAsync().get(3, TimeUnit.SECONDS) }
 
         assertThat(countDownLatch.await(3, TimeUnit.SECONDS)).isTrue()
     }
@@ -124,11 +118,12 @@ class PreviewTest(
             CameraSelector.Builder().requireLensFacing(lensFacing).build(),
             preview
         )
-        camera = when (lensFacing) {
-            CameraSelector.LENS_FACING_BACK -> FakeAppConfig.getBackCamera()
-            CameraSelector.LENS_FACING_FRONT -> FakeAppConfig.getFrontCamera()
-            else -> throw AssertionError("Unsupported lens facing: $lensFacing")
-        }
+        camera =
+            when (lensFacing) {
+                CameraSelector.LENS_FACING_BACK -> FakeAppConfig.getBackCamera()
+                CameraSelector.LENS_FACING_FRONT -> FakeAppConfig.getFrontCamera()
+                else -> throw AssertionError("Unsupported lens facing: $lensFacing")
+            }
 
         return preview
     }

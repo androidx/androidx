@@ -30,8 +30,7 @@ class FakeCameraConfig(
     private val postviewSupported: Boolean = false,
     private val captureProcessProgressSupported: Boolean = false
 ) : CameraConfig {
-    private val useCaseConfigFactory =
-        UseCaseConfigFactory { _, _ -> null }
+    private val useCaseConfigFactory = UseCaseConfigFactory { _, _ -> null }
     private val identifier = Identifier.create(Any())
 
     override fun getUseCaseConfigFactory(): UseCaseConfigFactory {

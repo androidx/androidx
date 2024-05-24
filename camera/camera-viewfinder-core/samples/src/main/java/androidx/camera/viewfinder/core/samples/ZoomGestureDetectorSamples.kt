@@ -32,28 +32,27 @@ private lateinit var camera: Camera
 
 @Sampled
 fun onTouchEventSample(event: MotionEvent): Boolean {
-    val zoomGestureDetector = ZoomGestureDetector(context) { zoomEvent ->
-        when (zoomEvent) {
-            is ZoomEvent.Move -> {
-                val zoomState = camera.cameraInfo.zoomState.value!!
-                val ratio = zoomState.zoomRatio * zoomEvent.scaleFactor
-                val minRatio = zoomState.minZoomRatio
-                val maxRatio = zoomState.maxZoomRatio
-                val clampedRatio = min(max(ratio, minRatio), maxRatio)
-                camera.cameraControl.setZoomRatio(clampedRatio)
+    val zoomGestureDetector =
+        ZoomGestureDetector(context) { zoomEvent ->
+            when (zoomEvent) {
+                is ZoomEvent.Move -> {
+                    val zoomState = camera.cameraInfo.zoomState.value!!
+                    val ratio = zoomState.zoomRatio * zoomEvent.scaleFactor
+                    val minRatio = zoomState.minZoomRatio
+                    val maxRatio = zoomState.maxZoomRatio
+                    val clampedRatio = min(max(ratio, minRatio), maxRatio)
+                    camera.cameraControl.setZoomRatio(clampedRatio)
+                }
+                is ZoomEvent.Begin -> {
+                    // Handle the begin event. For example, determine whether this gesture
+                    // should be processed further.
+                }
+                is ZoomEvent.End -> {
+                    // Handle the end event. For example, show a UI indicator.
+                }
             }
-
-            is ZoomEvent.Begin -> {
-                // Handle the begin event. For example, determine whether this gesture
-                // should be processed further.
-            }
-
-            is ZoomEvent.End -> {
-                // Handle the end event. For example, show a UI indicator.
-            }
+            true
         }
-        true
-    }
 
     return zoomGestureDetector.onTouchEvent(event)
 }

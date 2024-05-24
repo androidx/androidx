@@ -62,10 +62,11 @@ class CaptureSessionStateTest {
             ): CaptureSequenceProcessor<Request, FakeCaptureSequence> = fakeCaptureSequenceProcessor
         }
     private val timeSource = SystemTimeSource()
-    private val cameraGraphFlags = CameraGraph.Flags(
-        quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
-        quirkCloseCaptureSessionOnDisconnect = false,
-    )
+    private val cameraGraphFlags =
+        CameraGraph.Flags(
+            quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
+            quirkCloseCaptureSessionOnDisconnect = false,
+        )
 
     private val surface1: Surface = Surface(SurfaceTexture(1))
     private val surface2: Surface = Surface(SurfaceTexture(2))
@@ -75,7 +76,8 @@ class CaptureSessionStateTest {
 
     private val captureSessionFactory =
         FakeCaptureSessionFactory(
-            requiredStreams = setOf(stream1, stream2), deferrableStreams = setOf(stream3Deferred)
+            requiredStreams = setOf(stream1, stream2),
+            deferrableStreams = setOf(stream3Deferred)
         )
 
     private val fakeCameraDevice: CameraDeviceWrapper = mock()

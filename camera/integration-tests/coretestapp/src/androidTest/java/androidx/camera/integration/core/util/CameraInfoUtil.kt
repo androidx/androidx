@@ -25,19 +25,14 @@ import java.util.Collections
 object CameraInfoUtil {
 
     @JvmStatic
-    fun getHighResolutionOutputSizes(
-        cameraInfo: CameraInfo,
-        imageFormat: Int
-    ): List<Size> = (cameraInfo as CameraInfoInternal).getSupportedHighResolutions(imageFormat)
+    fun getHighResolutionOutputSizes(cameraInfo: CameraInfo, imageFormat: Int): List<Size> =
+        (cameraInfo as CameraInfoInternal).getSupportedHighResolutions(imageFormat)
 
     @JvmStatic
-    fun getMaxHighResolutionOutputSize(
-        cameraInfo: CameraInfo,
-        imageFormat: Int
-    ): Size? {
+    fun getMaxHighResolutionOutputSize(cameraInfo: CameraInfo, imageFormat: Int): Size? {
         val highResolutionOutputSizes = getHighResolutionOutputSizes(cameraInfo, imageFormat)
         return if (highResolutionOutputSizes.isEmpty()) {
-             null
+            null
         } else {
             Collections.max(highResolutionOutputSizes, CompareSizesByArea())
         }

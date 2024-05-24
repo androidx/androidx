@@ -25,14 +25,14 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class MetricsContainerTest {
-    internal class TestMetricCapture(
-        names: List<String>,
-        private val data: List<LongArray>
-    ) : MetricCapture(names) {
+    internal class TestMetricCapture(names: List<String>, private val data: List<LongArray>) :
+        MetricCapture(names) {
         private var repeatIndex = 0
 
         override fun captureStart(timeNs: Long) {}
+
         override fun capturePaused() {}
+
         override fun captureResumed() {}
 
         override fun captureStop(timeNs: Long, output: LongArray, offset: Int) {
@@ -43,18 +43,16 @@ class MetricsContainerTest {
 
     @Test
     fun basic() {
-        val container = MetricsContainer(
-            arrayOf(
-                TestMetricCapture(
-                    names = listOf("foo", "bar"), data = listOf(
-                        longArrayOf(0, 6),
-                        longArrayOf(2, 8),
-                        longArrayOf(4, 10)
+        val container =
+            MetricsContainer(
+                arrayOf(
+                    TestMetricCapture(
+                        names = listOf("foo", "bar"),
+                        data = listOf(longArrayOf(0, 6), longArrayOf(2, 8), longArrayOf(4, 10))
                     )
-                )
-            ),
-            repeatCount = 3
-        )
+                ),
+                repeatCount = 3
+            )
         container.captureInit()
         repeat(3) {
             container.captureStart()
@@ -71,25 +69,20 @@ class MetricsContainerTest {
 
     @Test
     fun multiMetricCapture() {
-        val container = MetricsContainer(
-            arrayOf(
-                TestMetricCapture(
-                    names = listOf("foo", "bar"), data = listOf(
-                        longArrayOf(0, 6),
-                        longArrayOf(2, 8),
-                        longArrayOf(4, 10)
-                    )
+        val container =
+            MetricsContainer(
+                arrayOf(
+                    TestMetricCapture(
+                        names = listOf("foo", "bar"),
+                        data = listOf(longArrayOf(0, 6), longArrayOf(2, 8), longArrayOf(4, 10))
+                    ),
+                    TestMetricCapture(
+                        names = listOf("baz"),
+                        data = listOf(longArrayOf(12), longArrayOf(14), longArrayOf(16))
+                    ),
                 ),
-                TestMetricCapture(
-                    names = listOf("baz"), data = listOf(
-                        longArrayOf(12),
-                        longArrayOf(14),
-                        longArrayOf(16)
-                    )
-                ),
-            ),
-            repeatCount = 3
-        )
+                repeatCount = 3
+            )
         container.captureInit()
         repeat(3) {
             container.captureStart()

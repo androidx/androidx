@@ -27,8 +27,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Test to help validate compilation occurs.
- * In the future, consider moving this to be a module-wide configurable assert
+ * Test to help validate compilation occurs. In the future, consider moving this to be a module-wide
+ * configurable assert
  *
  * Note that while most non-benchmark tests shouldn't live in benchmark modules, this is an
  * exception, as it's validating runtime conditions (esp in CI)
@@ -40,9 +40,10 @@ class VerifyBenchmarkCompiledTest {
     @Test
     fun verifyCompilation() {
         assumeFalse("ignoring compilation state in dry run mode", Arguments.dryRunMode)
-        val stdout = Shell.executeScriptCaptureStdout(
-            "dumpsys package dexopt | grep -A 1 \"androidx.benchmark.benchmark.test\""
-        )
+        val stdout =
+            Shell.executeScriptCaptureStdout(
+                "dumpsys package dexopt | grep -A 1 \"androidx.benchmark.benchmark.test\""
+            )
         assertTrue(
             "expected exactly one instance of compilation status, output = $stdout",
             stdout.indexOf("[status=") == stdout.lastIndexOf("[status=")

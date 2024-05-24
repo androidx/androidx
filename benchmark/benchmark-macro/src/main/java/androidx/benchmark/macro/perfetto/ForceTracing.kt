@@ -20,8 +20,8 @@ import android.os.Build
 import android.os.Trace
 
 /**
- * Wrapper that uses standard app tracing above API 24, and forces trace sections via reflection
- * on 23 and below.
+ * Wrapper that uses standard app tracing above API 24, and forces trace sections via reflection on
+ * 23 and below.
  *
  * Prior to API 24, all apps with tracing enabled had to be listed in a single setprop, fully
  * enumerated by package name. As a setprop can only be 91 chars long, it's easy to hit cases where
@@ -30,20 +30,17 @@ import android.os.Trace
  * via reflection, and the TRACE_TAG_ALWAYS tag.
  */
 internal object ForceTracing {
-    private val traceBeginMethod = if (Build.VERSION.SDK_INT < 24) {
-        android.os.Trace::class.java.getMethod(
-            "traceBegin",
-            Long::class.javaPrimitiveType,
-            String::class.java
-        )
-    } else null
+    private val traceBeginMethod =
+        if (Build.VERSION.SDK_INT < 24) {
+            android.os.Trace::class
+                .java
+                .getMethod("traceBegin", Long::class.javaPrimitiveType, String::class.java)
+        } else null
 
-    private val traceEndMethod = if (Build.VERSION.SDK_INT < 24) {
-        android.os.Trace::class.java.getMethod(
-            "traceEnd",
-            Long::class.javaPrimitiveType
-        )
-    } else null
+    private val traceEndMethod =
+        if (Build.VERSION.SDK_INT < 24) {
+            android.os.Trace::class.java.getMethod("traceEnd", Long::class.javaPrimitiveType)
+        } else null
 
     private const val TRACE_TAG_ALWAYS = 1L shl 0 // copied from android.os.Trace
 

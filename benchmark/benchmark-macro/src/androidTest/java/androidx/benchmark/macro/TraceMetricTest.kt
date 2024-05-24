@@ -25,24 +25,21 @@ import org.junit.Test
 @MediumTest
 @OptIn(ExperimentalMetricApi::class)
 class TraceMetricTest {
-    private val api31HotStart = createTempFileFromAsset(
-        prefix = "api31_startup_hot",
-        suffix = ".perfetto-trace"
-    ).absolutePath
+    private val api31HotStart =
+        createTempFileFromAsset(prefix = "api31_startup_hot", suffix = ".perfetto-trace")
+            .absolutePath
 
     @Test
-    fun verifyActivityResume() = verifyActivityResume(
-        tracePath = api31HotStart,
-        expectedMs = 0.322
-    )
+    fun verifyActivityResume() = verifyActivityResume(tracePath = api31HotStart, expectedMs = 0.322)
 
     class ActivityResumeMetric : TraceMetric() {
         override fun getMeasurements(
             captureInfo: CaptureInfo,
             traceSession: PerfettoTraceProcessor.Session
         ): List<Measurement> {
-            val rowSequence = traceSession.query(
-                """
+            val rowSequence =
+                traceSession.query(
+                    """
                 SELECT
                     slice.name as name,
                     slice.ts as ts,
@@ -54,8 +51,9 @@ class TraceMetricTest {
                 WHERE
                     process.name LIKE "${captureInfo.targetPackageName}"
                         AND slice.name LIKE "activityResume"
-                """.trimIndent()
-            )
+                """
+                        .trimIndent()
+                )
             val row = rowSequence.firstOrNull()
             val activityResultNs = row?.long("dur")
             println("ns $row, $activityResultNs")
@@ -68,12 +66,13 @@ class TraceMetricTest {
     }
 
     companion object {
-        private val captureInfo = Metric.CaptureInfo(
-            targetPackageName = Packages.TARGET,
-            testPackageName = Packages.TEST,
-            startupMode = StartupMode.HOT,
-            apiLevel = 31
-        )
+        private val captureInfo =
+            Metric.CaptureInfo(
+                targetPackageName = Packages.TARGET,
+                testPackageName = Packages.TEST,
+                startupMode = StartupMode.HOT,
+                apiLevel = 31
+            )
 
         private fun verifyActivityResume(
             tracePath: String,
@@ -83,12 +82,10 @@ class TraceMetricTest {
             val metric = ActivityResumeMetric()
             metric.configure(packageName = Packages.TEST)
 
-            val result = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-                metric.getMeasurements(
-                    captureInfo = captureInfo,
-                    traceSession = this
-                )
-            }
+            val result =
+                PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
+                    metric.getMeasurements(captureInfo = captureInfo, traceSession = this)
+                }
 
             assertEqualMeasurements(
                 expected = listOf(Metric.Measurement("activityResumeMs", expectedMs)),

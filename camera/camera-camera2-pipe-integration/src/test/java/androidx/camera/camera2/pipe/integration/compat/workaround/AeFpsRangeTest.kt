@@ -36,13 +36,8 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 class AeFpsRangeTest {
     @Test
     fun validEntryExists_correctRangeIsSelected() {
-        val availableFpsRanges: Array<Range<Int>> = arrayOf(
-            Range(25, 30),
-            Range(7, 33),
-            Range(15, 30),
-            Range(11, 22),
-            Range(30, 30)
-        )
+        val availableFpsRanges: Array<Range<Int>> =
+            arrayOf(Range(25, 30), Range(7, 33), Range(15, 30), Range(11, 22), Range(30, 30))
         val aeFpsRange: AeFpsRange =
             createAeFpsRange(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
@@ -54,12 +49,8 @@ class AeFpsRangeTest {
 
     @Test
     fun noValidEntry_doesNotSetFpsRange() {
-        val availableFpsRanges: Array<Range<Int>> = arrayOf(
-            Range(25, 25),
-            Range(7, 33),
-            Range(15, 24),
-            Range(11, 22)
-        )
+        val availableFpsRanges: Array<Range<Int>> =
+            arrayOf(Range(25, 25), Range(7, 33), Range(15, 24), Range(11, 22))
         val aeFpsRange =
             createAeFpsRange(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
@@ -72,19 +63,14 @@ class AeFpsRangeTest {
     @Test
     fun availableArrayIsNull_doesNotSetFpsRange() {
         val aeFpsRange =
-            createAeFpsRange(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
-                null
-            )
+            createAeFpsRange(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, null)
         val pick = getAeFpsRange(aeFpsRange)
         assertThat(pick).isNull()
     }
 
     @Test
     fun limitedDevices_doesNotSetFpsRange() {
-        val availableFpsRanges: Array<Range<Int>> = arrayOf(
-            Range(15, 30)
-        )
+        val availableFpsRanges: Array<Range<Int>> = arrayOf(Range(15, 30))
         val aeFpsRange =
             createAeFpsRange(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
@@ -96,9 +82,7 @@ class AeFpsRangeTest {
 
     @Test
     fun fullDevices_doesNotSetFpsRange() {
-        val availableFpsRanges: Array<Range<Int>> = arrayOf(
-            Range(15, 30)
-        )
+        val availableFpsRanges: Array<Range<Int>> = arrayOf(Range(15, 30))
         val aeFpsRange =
             createAeFpsRange(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
@@ -110,9 +94,7 @@ class AeFpsRangeTest {
 
     @Test
     fun level3Devices_doesNotSetFpsRange() {
-        val availableFpsRanges: Array<Range<Int>> = arrayOf(
-            Range(15, 30)
-        )
+        val availableFpsRanges: Array<Range<Int>> = arrayOf(Range(15, 30))
         val aeFpsRange =
             createAeFpsRange(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
@@ -128,13 +110,15 @@ class AeFpsRangeTest {
     ): AeFpsRange {
         val streamConfigurationMap = StreamConfigurationMapBuilder.newBuilder().build()
 
-        val metadata = FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
-                CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to availableFpsRanges,
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap
+        val metadata =
+            FakeCameraMetadata(
+                mapOf(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to hardwareLevel,
+                    CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES to
+                        availableFpsRanges,
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP to streamConfigurationMap
+                )
             )
-        )
         return AeFpsRange(
             CameraQuirks(
                 metadata,

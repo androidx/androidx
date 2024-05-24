@@ -25,8 +25,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.core.InitializationException
 
 /**
- * The [CameraCompatibilityFilter] is responsible for filtering out Cameras that
- * doesn't contains REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE capability.
+ * The [CameraCompatibilityFilter] is responsible for filtering out Cameras that doesn't contains
+ * REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE capability.
  */
 object CameraCompatibilityFilter {
 
@@ -61,9 +61,7 @@ object CameraCompatibilityFilter {
             return true
         }
         try {
-            val cameraMetadata = checkNotNull(
-                cameraDevices.awaitCameraMetadata(CameraId(cameraId))
-            )
+            val cameraMetadata = checkNotNull(cameraDevices.awaitCameraMetadata(CameraId(cameraId)))
             val availableCapabilities =
                 cameraMetadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
             if (availableCapabilities != null) {

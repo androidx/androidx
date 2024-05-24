@@ -34,22 +34,17 @@ class KillSystemProcessTest {
     fun killSystemUiTest() {
         // Don't run these tests on an emulator
         assumeTrue(DeviceInfo.isRooted && !DeviceInfo.isEmulator)
-        val scope = MacrobenchmarkScope(
-            packageName = SYSTEM_UI,
-            launchWithClearTask = true
-        )
+        val scope = MacrobenchmarkScope(packageName = SYSTEM_UI, launchWithClearTask = true)
         assertTrue { Shell.isPackageAlive(scope.packageName) }
         // Look at the last kill exit record and keep track of that.
         val start = applicationExitTimestamps(packageName = scope.packageName).maxOrNull() ?: 0L
         scope.killProcess()
         // Wait for some time for the book-keeping to be complete
-        @Suppress("BanThreadSleep")
-        Thread.sleep(DELAY)
+        @Suppress("BanThreadSleep") Thread.sleep(DELAY)
         assertTrue(
             // Here we want to make sure that there is at least one new timestamp
             // more recent than the last ones we looked at.
-            applicationExitTimestamps(packageName = scope.packageName)
-                .any { it >= start }
+            applicationExitTimestamps(packageName = scope.packageName).any { it >= start }
         )
     }
 
@@ -73,17 +68,18 @@ class KillSystemProcessTest {
             //        ApplicationExitInfo #0:
             //          timestamp=2024-01-23 00:54:34.671 pid=1967 realUid=10085 packageUid=10085
 
-            val output = Shell.executeScriptCaptureStdoutStderr(
-                "dumpsys activity exit-info $packageName"
-            )
+            val output =
+                Shell.executeScriptCaptureStdoutStderr("dumpsys activity exit-info $packageName")
             require(output.stderr.isBlank())
             return output.stdout.lines().mapNotNull { line ->
                 val start = line.indexOf(TIMESTAMP_START_MARKER)
                 val end = line.indexOf(TIMESTAMP_END_MARKER, startIndex = start)
                 if (start >= 0 && end >= 0) {
-                    val timestamp = line.substringAfter(TIMESTAMP_START_MARKER)
-                        .substringBefore(TIMESTAMP_END_MARKER)
-                        .trim()
+                    val timestamp =
+                        line
+                            .substringAfter(TIMESTAMP_START_MARKER)
+                            .substringBefore(TIMESTAMP_END_MARKER)
+                            .trim()
 
                     TIMESTAMP_FORMAT.parse(timestamp)?.time
                 } else {

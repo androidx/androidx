@@ -77,7 +77,8 @@ class StreamSharingActivity : AppCompatActivity() {
     private var cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     private var camera: Camera? = null
     private var previewViewMode: ImplementationMode = ImplementationMode.PERFORMANCE
-    private var previewViewScaleType = PreviewView.ScaleType.FILL_CENTER;
+    private var previewViewScaleType = PreviewView.ScaleType.FILL_CENTER
+
     private var activeRecording: Recording? = null
     private var isUseCasesBound: Boolean = false
     private var deviceOrientation: Int = -1
@@ -106,9 +107,7 @@ class StreamSharingActivity : AppCompatActivity() {
         previewView.scaleType = previewViewScaleType
         previewView.implementationMode = previewViewMode
         exportButton = findViewById(R.id.export_button)
-        exportButton.setOnClickListener {
-            exportTestInformation()
-        }
+        exportButton.setOnClickListener { exportTestInformation() }
         recordButton = findViewById(R.id.record_button)
         recordButton.setOnClickListener {
             if (activeRecording == null) startRecording() else stopRecording()
@@ -156,35 +155,36 @@ class StreamSharingActivity : AppCompatActivity() {
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(applicationContext)
-        cameraProviderFuture.addListener({
-            bindUseCases(cameraProviderFuture.get())
-        }, ContextCompat.getMainExecutor(applicationContext))
+        cameraProviderFuture.addListener(
+            { bindUseCases(cameraProviderFuture.get()) },
+            ContextCompat.getMainExecutor(applicationContext)
+        )
     }
 
     private fun bindUseCases(cameraProvider: ProcessCameraProvider) {
         enableRecording(false)
         isUseCasesBound = false
         cameraProvider.unbindAll()
-        useCases = arrayOf(
-            createPreview(),
-            createImageCapture(),
-            createImageAnalysis(),
-            createVideoCapture()
-        )
-        isUseCasesBound = try {
-            camera = cameraProvider.bindToLifecycle(this, cameraSelector, *useCases)
-            enableRecording(true)
-            true
-        } catch (exception: Exception) {
-            Logger.e(TAG, "Failed to bind use cases.", exception)
-            false
-        }
+        useCases =
+            arrayOf(
+                createPreview(),
+                createImageCapture(),
+                createImageAnalysis(),
+                createVideoCapture()
+            )
+        isUseCasesBound =
+            try {
+                camera = cameraProvider.bindToLifecycle(this, cameraSelector, *useCases)
+                enableRecording(true)
+                true
+            } catch (exception: Exception) {
+                Logger.e(TAG, "Failed to bind use cases.", exception)
+                false
+            }
     }
 
     private fun createPreview(): Preview {
-        return Preview.Builder().build().apply {
-            setSurfaceProvider(previewView.surfaceProvider)
-        }
+        return Preview.Builder().build().apply { setSurfaceProvider(previewView.surfaceProvider) }
     }
 
     private fun createImageCapture(): ImageCapture {
@@ -227,12 +227,12 @@ class StreamSharingActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     private fun startRecording() {
         recordButton.text = getString(R.string.btn_video_stop_recording)
-        activeRecording = getVideoCapture()!!.let {
-            prepareRecording(applicationContext, it.output).withAudioEnabled().start(
-                CameraXExecutors.directExecutor(),
-                generateVideoRecordEventListener()
-            )
-        }
+        activeRecording =
+            getVideoCapture()!!.let {
+                prepareRecording(applicationContext, it.output)
+                    .withAudioEnabled()
+                    .start(CameraXExecutors.directExecutor(), generateVideoRecordEventListener())
+            }
     }
 
     private fun stopRecording() {
@@ -256,8 +256,10 @@ class StreamSharingActivity : AppCompatActivity() {
 
     private fun exportTestInformation() {
         val fileName = generateFileName(PREFIX_INFORMATION)
-        val information = "$KEY_ORIENTATION:$deviceOrientation" +
-            "\n" + "$KEY_STREAM_SHARING_STATE:${isStreamSharingEnabled()}"
+        val information =
+            "$KEY_ORIENTATION:$deviceOrientation" +
+                "\n" +
+                "$KEY_STREAM_SHARING_STATE:${isStreamSharingEnabled()}"
 
         writeTextToExternalFile(information, fileName)
     }
@@ -276,15 +278,10 @@ class StreamSharingActivity : AppCompatActivity() {
                     VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED,
                     VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED,
                     VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE,
-                    VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE -> Logger.d(
-                        TAG,
-                        "Video saved to: $uri"
-                    )
-
-                    else -> Logger.e(
-                        TAG,
-                        "Failed to save video: uri $uri with code (${event.error})"
-                    )
+                    VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE ->
+                        Logger.d(TAG, "Video saved to: $uri")
+                    else ->
+                        Logger.e(TAG, "Failed to save video: uri $uri with code (${event.error})")
                 }
             }
         }

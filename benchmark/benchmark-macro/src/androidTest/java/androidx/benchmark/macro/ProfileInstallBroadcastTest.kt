@@ -40,10 +40,7 @@ class ProfileInstallBroadcastTest {
     fun installProfile_missing() {
         val errorString = ProfileInstallBroadcast.installProfile(Packages.MISSING)
         assertNotNull(errorString)
-        assertContains(
-            errorString!!,
-            "The baseline profile install broadcast was not received"
-        )
+        assertContains(errorString!!, "The baseline profile install broadcast was not received")
     }
 
     @Test

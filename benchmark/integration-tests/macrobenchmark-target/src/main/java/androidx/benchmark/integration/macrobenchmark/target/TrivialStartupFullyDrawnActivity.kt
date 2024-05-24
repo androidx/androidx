@@ -21,9 +21,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.tracing.Trace
 
-/**
- * Trivial activity which triggers reportFullyDrawn ~500ms after resume
- */
+/** Trivial activity which triggers reportFullyDrawn ~500ms after resume */
 class TrivialStartupFullyDrawnActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

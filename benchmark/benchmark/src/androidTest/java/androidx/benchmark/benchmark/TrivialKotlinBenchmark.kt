@@ -27,17 +27,13 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TrivialKotlinBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
-    @Test
-    fun nothing() = benchmarkRule.measureRepeated { }
+    @Test fun nothing() = benchmarkRule.measureRepeated {}
 
     @Test
     fun increment() {
         var i = 0
-        benchmarkRule.measureRepeated {
-            i++
-        }
+        benchmarkRule.measureRepeated { i++ }
     }
 }

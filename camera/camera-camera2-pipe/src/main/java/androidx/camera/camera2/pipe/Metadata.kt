@@ -29,14 +29,14 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface Metadata {
     operator fun <T> get(key: Key<T>): T?
+
     fun <T> getOrDefault(key: Key<T>, default: T): T
 
     /** Metadata keys provide values or controls that are provided or computed by CameraPipe. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     class Key<T> private constructor(private val name: String) {
         companion object {
-            @JvmStatic
-            internal val keys: MutableSet<String> = HashSet()
+            @JvmStatic internal val keys: MutableSet<String> = HashSet()
 
             /**
              * This will create a new Key instance, and will check to see that the key has not been

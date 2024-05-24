@@ -38,9 +38,10 @@ class FakeCameraDevices(
             "FakeCameraDevices must include $defaultCameraBackendId"
         }
 
-        cameraBackends = cameraMetadataMap.mapValues { entry ->
-            FakeCameraBackend(entry.value.associateBy { it.camera })
-        }
+        cameraBackends =
+            cameraMetadataMap.mapValues { entry ->
+                FakeCameraBackend(entry.value.associateBy { it.camera })
+            }
     }
 
     override suspend fun getCameraIds(cameraBackendId: CameraBackendId?): List<CameraId>? =
@@ -56,11 +57,13 @@ class FakeCameraDevices(
     ): Set<Set<CameraId>> = awaitConcurrentCameraIds(cameraBackendId)
 
     override fun awaitConcurrentCameraIds(cameraBackendId: CameraBackendId?): Set<Set<CameraId>> {
-        return concurrentCameraBackendIds.map { concurrentCameraIds ->
-            concurrentCameraIds.map { cameraId ->
-                CameraId.fromCamera2Id(cameraId.value)
-            }.toSet()
-        }.toSet()
+        return concurrentCameraBackendIds
+            .map { concurrentCameraIds ->
+                concurrentCameraIds
+                    .map { cameraId -> CameraId.fromCamera2Id(cameraId.value) }
+                    .toSet()
+            }
+            .toSet()
     }
 
     override suspend fun getCameraMetadata(

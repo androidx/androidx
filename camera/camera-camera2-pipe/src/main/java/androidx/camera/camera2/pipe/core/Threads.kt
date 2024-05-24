@@ -41,6 +41,7 @@ class Threads(
 
     val camera2Handler: Handler
         get() = _camera2Handler.value
+
     val camera2Executor: Executor
         get() = _camera2Executor.value
 }

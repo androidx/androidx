@@ -77,22 +77,18 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class PreviewTest(
-    private val implName: String,
-    private val cameraConfig: CameraXConfig
-) {
+class PreviewTest(private val implName: String, private val cameraConfig: CameraXConfig) {
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraConfig))
 
-    @get:Rule
-    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+    @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
         private const val ANY_THREAD_NAME = "any-thread-name"
@@ -100,10 +96,11 @@ class PreviewTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun data() = listOf(
-            arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-            arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
-        )
+        fun data() =
+            listOf(
+                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
+                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+            )
     }
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -124,11 +121,12 @@ class PreviewTest(
         CameraXUtil.initialize(context!!, cameraConfig).get()
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        defaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.config).also {
-            it.mutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
-        }
-        surfaceFutureSemaphore = Semaphore( /*permits=*/0)
-        safeToReleaseSemaphore = Semaphore( /*permits=*/0)
+        defaultBuilder =
+            Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.config).also {
+                it.mutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
+            }
+        surfaceFutureSemaphore = Semaphore(/* permits= */ 0)
+        safeToReleaseSemaphore = Semaphore(/* permits= */ 0)
     }
 
     @After
@@ -170,9 +168,7 @@ class PreviewTest(
             }
         }
         camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
-        withTimeout(3_000) {
-            completableDeferred.await()
-        }
+        withTimeout(3_000) { completableDeferred.await() }
     }
 
     @Test
@@ -196,9 +192,7 @@ class PreviewTest(
         Truth.assertThat(surfaceFutureSemaphore!!.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
 
         // Remove the UseCase from the camera
-        instrumentation.runOnMainSync {
-            camera!!.removeUseCases(setOf<UseCase>(preview))
-        }
+        instrumentation.runOnMainSync { camera!!.removeUseCases(setOf<UseCase>(preview)) }
 
         // Assert.
         Truth.assertThat(safeToReleaseSemaphore!!.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
@@ -232,7 +226,8 @@ class PreviewTest(
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(
                 workExecutorWithNamedThread,
-                getSurfaceProvider { newValue: String -> threadName.set(newValue) })
+                getSurfaceProvider { newValue: String -> threadName.set(newValue) }
+            )
         }
 
         // Act.
@@ -274,7 +269,8 @@ class PreviewTest(
         instrumentation.runOnMainSync {
             preview.setSurfaceProvider(
                 workExecutorWithNamedThread,
-                getSurfaceProvider { newValue: String -> threadName.set(newValue) })
+                getSurfaceProvider { newValue: String -> threadName.set(newValue) }
+            )
         }
 
         // Assert.
@@ -357,19 +353,19 @@ class PreviewTest(
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         val useCase = Preview.Builder().setTargetResolution(DEFAULT_RESOLUTION).build()
         Truth.assertThat(
-            useCase.currentConfig.containsOption(
-                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO
+                useCase.currentConfig.containsOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
             )
-        ).isFalse()
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context!!,
-            CameraSelector.DEFAULT_BACK_CAMERA, useCase
-        )
+            .isFalse()
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context!!,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase
+            )
         Truth.assertThat(
-            useCase.currentConfig.containsOption(
-                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO
+                useCase.currentConfig.containsOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
             )
-        ).isFalse()
+            .isFalse()
     }
 
     @Test
@@ -432,7 +428,7 @@ class PreviewTest(
         Truth.assertThat(safeToReleaseSemaphore!!.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
 
         // Recreate the semaphore to monitor the frame available callback.
-        surfaceFutureSemaphore = Semaphore( /*permits=*/0)
+        surfaceFutureSemaphore = Semaphore(/* permits= */ 0)
         // Rebind the use case to the same camera.
         camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
 
@@ -449,10 +445,12 @@ class PreviewTest(
         instrumentation.runOnMainSync { preview.setSurfaceProvider(getSurfaceProvider(null)) }
 
         // This is the first time the use case bound to the lifecycle.
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context!!,
-            CameraSelector.DEFAULT_BACK_CAMERA, preview
-        )
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context!!,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                preview
+            )
 
         // Check the frame available callback is called.
         Truth.assertThat(surfaceFutureSemaphore!!.tryAcquire(10, TimeUnit.SECONDS)).isTrue()
@@ -463,12 +461,14 @@ class PreviewTest(
         Truth.assertThat(safeToReleaseSemaphore!!.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
 
         // Recreate the semaphore to monitor the frame available callback.
-        surfaceFutureSemaphore = Semaphore( /*permits=*/0)
+        surfaceFutureSemaphore = Semaphore(/* permits= */ 0)
         // Rebind the use case to different camera.
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context!!,
-            CameraSelector.DEFAULT_FRONT_CAMERA, preview
-        )
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context!!,
+                CameraSelector.DEFAULT_FRONT_CAMERA,
+                preview
+            )
 
         // Check the frame available callback can be called after reusing the use case.
         Truth.assertThat(surfaceFutureSemaphore!!.tryAcquire(10, TimeUnit.SECONDS)).isTrue()
@@ -477,16 +477,13 @@ class PreviewTest(
     @Test
     fun returnValidTargetRotation_afterUseCaseIsCreated() {
         val imageCapture = ImageCapture.Builder().build()
-        Truth.assertThat(imageCapture.targetRotation).isNotEqualTo(
-            ImageOutputConfig.INVALID_ROTATION
-        )
+        Truth.assertThat(imageCapture.targetRotation)
+            .isNotEqualTo(ImageOutputConfig.INVALID_ROTATION)
     }
 
     @Test
     fun returnCorrectTargetRotation_afterUseCaseIsAttached() {
-        val preview = Preview.Builder().setTargetRotation(
-            Surface.ROTATION_180
-        ).build()
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_180).build()
         camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
         Truth.assertThat(preview.targetRotation).isEqualTo(Surface.ROTATION_180)
     }
@@ -506,13 +503,12 @@ class PreviewTest(
                 SurfaceTextureProvider.createSurfaceTextureProvider(
                     object : SurfaceTextureCallback {
                         private var mIsReleased = false
+
                         override fun onSurfaceTextureReady(
                             surfaceTexture: SurfaceTexture,
                             resolution: Size
                         ) {
-                            surfaceTexture.attachToGLContext(
-                                GLUtil.getTexIdFromGLContext()
-                            )
+                            surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext())
                             surfaceTexture.setOnFrameAvailableListener {
                                 surfaceFutureSemaphore!!.release()
                                 synchronized(this) {
@@ -523,15 +519,14 @@ class PreviewTest(
                             }
                         }
 
-                        override fun onSafeToRelease(
-                            surfaceTexture: SurfaceTexture
-                        ) {
+                        override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
                             synchronized(this) {
                                 mIsReleased = true
                                 surfaceTexture.release()
                             }
                         }
-                    })
+                    }
+                )
             )
         }
         camera = CameraUtil.createCameraAndAttachUseCase(context!!, cameraSelector, preview)
@@ -544,10 +539,7 @@ class PreviewTest(
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
         //  done on the main thread
         instrumentation.runOnMainSync {
-            preview.setSurfaceProvider(
-                CameraXExecutors.mainThreadExecutor(),
-                null
-            )
+            preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(), null)
         }
 
         // Assert.
@@ -562,14 +554,11 @@ class PreviewTest(
         //  ResolutionSelector logic
         assumeTrue(implName != CameraPipeConfig::class.simpleName)
 
-        val cameraInfo = CameraUtil.createCameraUseCaseAdapter(
-            context!!,
-            CameraSelector.DEFAULT_BACK_CAMERA
-        ).cameraInfo
-        val maxHighResolutionOutputSize = CameraInfoUtil.getMaxHighResolutionOutputSize(
-            cameraInfo,
-            ImageFormat.PRIVATE
-        )
+        val cameraInfo =
+            CameraUtil.createCameraUseCaseAdapter(context!!, CameraSelector.DEFAULT_BACK_CAMERA)
+                .cameraInfo
+        val maxHighResolutionOutputSize =
+            CameraInfoUtil.getMaxHighResolutionOutputSize(cameraInfo, ImageFormat.PRIVATE)
         // Only runs the test when the device has high resolution output sizes
         assumeTrue(maxHighResolutionOutputSize != null)
 
@@ -578,9 +567,7 @@ class PreviewTest(
             ResolutionSelector.Builder()
                 .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
                 .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                .setResolutionFilter { _, _ ->
-                    listOf(maxHighResolutionOutputSize)
-                }
+                .setResolutionFilter { _, _ -> listOf(maxHighResolutionOutputSize) }
                 .build()
         val preview = Preview.Builder().setResolutionSelector(resolutionSelector).build()
 
@@ -601,90 +588,101 @@ class PreviewTest(
     fun defaultMaxResolutionCanBeKept_whenResolutionStrategyIsNotSet() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         val useCase = Preview.Builder().build()
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context!!,
-            CameraSelector.DEFAULT_BACK_CAMERA, useCase
-        )
-        Truth.assertThat(
-            useCase.currentConfig.containsOption(
-                ImageOutputConfig.OPTION_MAX_RESOLUTION
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context!!,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase
             )
-        ).isTrue()
+        Truth.assertThat(
+                useCase.currentConfig.containsOption(ImageOutputConfig.OPTION_MAX_RESOLUTION)
+            )
+            .isTrue()
     }
 
     @Test
     fun defaultMaxResolutionCanBeRemoved_whenResolutionStrategyIsSet() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        val useCase = Preview.Builder().setResolutionSelector(
-            ResolutionSelector.Builder()
-                .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build()
-        ).build()
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context!!,
-            CameraSelector.DEFAULT_BACK_CAMERA, useCase
-        )
-        Truth.assertThat(
-            useCase.currentConfig.containsOption(
-                ImageOutputConfig.OPTION_MAX_RESOLUTION
+        val useCase =
+            Preview.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
+                        .build()
+                )
+                .build()
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context!!,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase
             )
-        ).isFalse()
+        Truth.assertThat(
+                useCase.currentConfig.containsOption(ImageOutputConfig.OPTION_MAX_RESOLUTION)
+            )
+            .isFalse()
     }
 
     @Test
     fun resolutionSelectorConfigCorrectlyMerged_afterBindToLifecycle() {
         val resolutionFilter = ResolutionFilter { supportedSizes, _ -> supportedSizes }
-        val useCase = Preview.Builder().setResolutionSelector(
-            ResolutionSelector.Builder().setResolutionFilter(resolutionFilter)
-                .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE).build()
-        ).build()
-        camera = CameraUtil.createCameraAndAttachUseCase(
-            context!!,
-            CameraSelector.DEFAULT_BACK_CAMERA, useCase
-        )
+        val useCase =
+            Preview.Builder()
+                .setResolutionSelector(
+                    ResolutionSelector.Builder()
+                        .setResolutionFilter(resolutionFilter)
+                        .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+                        .build()
+                )
+                .build()
+        camera =
+            CameraUtil.createCameraAndAttachUseCase(
+                context!!,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                useCase
+            )
         val resolutionSelector = useCase.currentConfig.retrieveOption(OPTION_RESOLUTION_SELECTOR)
         // The default 4:3 AspectRatioStrategy is kept
-        Truth.assertThat(resolutionSelector!!.aspectRatioStrategy).isEqualTo(
-            AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY
-        )
+        Truth.assertThat(resolutionSelector!!.aspectRatioStrategy)
+            .isEqualTo(AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
         // The default highest available ResolutionStrategy is kept
-        Truth.assertThat(resolutionSelector.resolutionStrategy).isEqualTo(
-            ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY
-        )
+        Truth.assertThat(resolutionSelector.resolutionStrategy)
+            .isEqualTo(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
         // The set resolutionFilter is kept
         Truth.assertThat(resolutionSelector.resolutionFilter).isEqualTo(resolutionFilter)
         // The set allowedResolutionMode is kept
-        Truth.assertThat(resolutionSelector.allowedResolutionMode).isEqualTo(
-            PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
-        )
+        Truth.assertThat(resolutionSelector.allowedResolutionMode)
+            .isEqualTo(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
     }
 
     private val workExecutorWithNamedThread: Executor
         get() {
-            val threadFactory =
-                ThreadFactory { runnable: Runnable? -> Thread(runnable, ANY_THREAD_NAME) }
+            val threadFactory = ThreadFactory { runnable: Runnable? ->
+                Thread(runnable, ANY_THREAD_NAME)
+            }
             return Executors.newSingleThreadExecutor(threadFactory)
         }
 
-    private fun getSurfaceProvider(
-        threadNameConsumer: Consumer<String>?
-    ): Preview.SurfaceProvider {
-        return SurfaceTextureProvider.createSurfaceTextureProvider(object : SurfaceTextureCallback {
-            override fun onSurfaceTextureReady(
-                surfaceTexture: SurfaceTexture,
-                resolution: Size
-            ) {
-                threadNameConsumer?.accept(Thread.currentThread().name)
-                previewResolution = resolution
-                surfaceTexture.setOnFrameAvailableListener {
-                    surfaceFutureSemaphore!!.release()
+    private fun getSurfaceProvider(threadNameConsumer: Consumer<String>?): Preview.SurfaceProvider {
+        return SurfaceTextureProvider.createSurfaceTextureProvider(
+            object : SurfaceTextureCallback {
+                override fun onSurfaceTextureReady(
+                    surfaceTexture: SurfaceTexture,
+                    resolution: Size
+                ) {
+                    threadNameConsumer?.accept(Thread.currentThread().name)
+                    previewResolution = resolution
+                    surfaceTexture.setOnFrameAvailableListener {
+                        surfaceFutureSemaphore!!.release()
+                    }
+                }
+
+                override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
+                    surfaceTexture.release()
+                    safeToReleaseSemaphore!!.release()
                 }
             }
-
-            override fun onSafeToRelease(surfaceTexture: SurfaceTexture) {
-                surfaceTexture.release()
-                safeToReleaseSemaphore!!.release()
-            }
-        })
+        )
     }
 
     /*

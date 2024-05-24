@@ -23,22 +23,20 @@ import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
 import androidx.camera.integration.antelope.testEnded
 
-/**
- * Callbacks that track the state of the camera device using the Camera X API.
- */
+/** Callbacks that track the state of the camera device using the Camera X API. */
 class CameraXDeviceStateCallback(
     internal var params: CameraParams,
     internal var activity: MainActivity,
     internal var testConfig: TestConfig
 ) : CameraDevice.StateCallback() {
 
-    /**
-     * Camera device has opened successfully, record timing and initiate the preview stream.
-     */
+    /** Camera device has opened successfully, record timing and initiate the preview stream. */
     override fun onOpened(cameraDevice: CameraDevice) {
         MainActivity.logd(
-            "In CameraXStateCallback onOpened: " + cameraDevice.id +
-                " current test: " + testConfig.currentRunningTest.toString()
+            "In CameraXStateCallback onOpened: " +
+                cameraDevice.id +
+                " current test: " +
+                testConfig.currentRunningTest.toString()
         )
 
         params.timer.openEnd = System.currentTimeMillis()
@@ -51,7 +49,6 @@ class CameraXDeviceStateCallback(
                 testConfig.testFinished = true
                 closeCameraX(activity, params, testConfig)
             }
-
             else -> {
                 params.timer.previewStart = System.currentTimeMillis()
             }
@@ -73,8 +70,9 @@ class CameraXDeviceStateCallback(
             return
         }
 
-        if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+        if (
+            (testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
+                (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
         ) {
 
             // First camera closed, now start the second
@@ -92,22 +90,17 @@ class CameraXDeviceStateCallback(
         }
     }
 
-    /**
-     * Camera has been disconnected. Whatever was happening, it won't work now.
-     */
+    /** Camera has been disconnected. Whatever was happening, it won't work now. */
     override fun onDisconnected(cameraDevice: CameraDevice) {
         MainActivity.logd("In CameraXStateCallback onDisconnected: " + params.id)
         testConfig.testFinished = false // Whatever we are doing will fail now, try to exit
         closeCameraX(activity, params, testConfig)
     }
 
-    /**
-     * Camera device has thrown an error. Try to recover or fail gracefully.
-     */
+    /** Camera device has thrown an error. Try to recover or fail gracefully. */
     override fun onError(cameraDevice: CameraDevice, error: Int) {
         MainActivity.logd(
-            "In CameraXStateCallback onError: " +
-                cameraDevice.id + " and error: " + error
+            "In CameraXStateCallback onError: " + cameraDevice.id + " and error: " + error
         )
 
         when (error) {
@@ -117,17 +110,14 @@ class CameraXDeviceStateCallback(
                 closeACamera(activity, testConfig)
                 cameraXOpenCamera(activity, params, testConfig)
             }
-
             CameraDevice.StateCallback.ERROR_CAMERA_DEVICE -> {
                 MainActivity.logd("Fatal camerax error, close and try to re-initialize...")
                 closeCameraX(activity, params, testConfig)
                 cameraXOpenCamera(activity, params, testConfig)
             }
-
             CameraDevice.StateCallback.ERROR_CAMERA_IN_USE -> {
                 MainActivity.logd("This camera is already open... doing nothing")
             }
-
             else -> {
                 testConfig.testFinished = false // Whatever we are doing will fail now, try to exit
                 closeCameraX(activity, params, testConfig)

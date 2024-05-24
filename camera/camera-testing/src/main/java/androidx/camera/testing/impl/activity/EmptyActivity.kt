@@ -18,7 +18,5 @@ package androidx.camera.testing.impl.activity
 
 import androidx.appcompat.app.AppCompatActivity
 
-/**
- * An empty Activity.
- */
+/** An empty Activity. */
 class EmptyActivity : AppCompatActivity()

@@ -26,9 +26,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 
-/**
- * Waits until the viewfinder has received frames and its idling resource has become idle.
- */
+/** Waits until the viewfinder has received frames and its idling resource has become idle. */
 internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
     val idlingResource = withActivity {
         resetViewIdlingResource()
@@ -43,9 +41,8 @@ internal fun ActivityScenario<CameraXActivity>.waitForViewfinderIdle() {
         IdlingRegistry.getInstance().unregister(idlingResource)
     }
 }
-/**
- * Waits until the viewfinder has received frames and its idling resource has become idle.
- */
+
+/** Waits until the viewfinder has received frames and its idling resource has become idle. */
 internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderIdle() {
     val idlingResource = withActivity {
         resetViewIdlingResource()
@@ -63,7 +60,7 @@ internal fun ActivityScenario<CameraXActivity>.switchCameraAndWaitForViewfinderI
  * Waits until an image has been saved and its idling resource has become idle.
  *
  * @param captureRequestsCount the capture requests count to issue to continuously take pictures
- * without waiting for the previous capture requests to be done.
+ *   without waiting for the previous capture requests to be done.
  */
 internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedIdle(
     captureRequestsCount: Int = 1
@@ -75,9 +72,7 @@ internal fun ActivityScenario<CameraXActivity>.takePictureAndWaitForImageSavedId
     try {
         // Perform click to take a picture.
         Espresso.onView(ViewMatchers.withId(R.id.Picture)).apply {
-            repeat(captureRequestsCount) {
-                perform(click())
-            }
+            repeat(captureRequestsCount) { perform(click()) }
         }
         // Registers the idling resource and wait for it being idle after performing the click
         // operations. So that the click operations can be performed continuously without wait for
@@ -118,9 +113,7 @@ internal fun ActivityScenario<CameraXActivity>.waitForImageAnalysisIdle() {
     }
 }
 
-/**
- * Waits until a video has been saved and its idling resource has become idle.
- */
+/** Waits until a video has been saved and its idling resource has become idle. */
 internal fun ActivityScenario<CameraXActivity>.recordVideoAndWaitForVideoSavedIdle() {
     val idlingResource = withActivity {
         // Make sure that the test target use case is not null

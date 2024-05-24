@@ -79,6 +79,7 @@ public class OutputsTest {
             assertTrue(contains("-startup-prof-") && endsWith(".txt"))
         }
     }
+
     @Test
     public fun sanitizeFilename() {
         assertEquals(
@@ -89,13 +90,8 @@ public class OutputsTest {
 
     @Test
     public fun sanitizeFilename_tooLong() {
-        assertEquals(
-            "a".repeat(199),
-            Outputs.sanitizeFilename("a".repeat(199))
-        )
-        assertFailsWith<IllegalArgumentException> {
-            Outputs.sanitizeFilename("a".repeat(200))
-        }
+        assertEquals("a".repeat(199), Outputs.sanitizeFilename("a".repeat(199)))
+        assertFailsWith<IllegalArgumentException> { Outputs.sanitizeFilename("a".repeat(200)) }
     }
 
     @Test
@@ -171,10 +167,7 @@ public class OutputsTest {
         Shell.executeScriptSilent("rm -f $path")
         try {
             Shell.executeScriptSilent("echo test > $path")
-            assertEquals(
-                "test\n",
-                Shell.executeScriptCaptureStdout("cat $path")
-            )
+            assertEquals("test\n", Shell.executeScriptCaptureStdout("cat $path"))
             file.appendBytes("extra".toByteArray())
         } finally {
             Shell.executeScriptSilent("rm -f $path")
@@ -194,10 +187,7 @@ public class OutputsTest {
         Shell.executeScriptSilent("rm -f $path")
         try {
             Shell.executeScriptSilent("echo test > $path")
-            assertEquals(
-                "test\n",
-                File(path).readText()
-            )
+            assertEquals("test\n", File(path).readText())
             file.appendBytes("extra".toByteArray())
         } finally {
             Shell.executeScriptSilent("rm -f $path")

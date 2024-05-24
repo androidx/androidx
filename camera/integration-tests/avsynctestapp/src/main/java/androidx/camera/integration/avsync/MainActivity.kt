@@ -42,24 +42,20 @@ class MainActivity : ComponentActivity() {
 
         handleScreenLock()
         setScreenBrightness()
-        setContent {
-            App(getBeepFrequency(), getBeepEnabled())
-        }
+        setContent { App(getBeepFrequency(), getBeepEnabled()) }
     }
 
     private fun handleScreenLock() {
         if (Build.VERSION.SDK_INT >= 27) {
             Api27Impl.setShowWhenLocked(this, true)
             Api27Impl.setTurnScreenOn(this, true)
-            window.addFlags(
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-            )
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         } else {
             @Suppress("DEPRECATION")
             window.addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                    or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
-                    or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
             )
         }
     }
@@ -104,7 +100,5 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App(beepFrequency: Int, beepEnabled: Boolean) {
-    MaterialTheme {
-        SignalGeneratorScreen(beepFrequency, beepEnabled)
-    }
+    MaterialTheme { SignalGeneratorScreen(beepFrequency, beepEnabled) }
 }

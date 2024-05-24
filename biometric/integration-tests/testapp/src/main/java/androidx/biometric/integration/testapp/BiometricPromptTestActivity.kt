@@ -28,20 +28,14 @@ import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import java.security.InvalidAlgorithmParameterException
 
-/**
- * Interactive test activity for the [BiometricPrompt] and [BiometricManager] APIs.
- */
+/** Interactive test activity for the [BiometricPrompt] and [BiometricManager] APIs. */
 class BiometricPromptTestActivity : FragmentActivity() {
     private lateinit var binding: BiometricPromptTestActivityBinding
 
-    /**
-     * The prompt used for authentication.
-     */
+    /** The prompt used for authentication. */
     private lateinit var biometricPrompt: BiometricPrompt
 
-    /**
-     * A bit field representing the currently allowed authenticator type(s).
-     */
+    /** A bit field representing the currently allowed authenticator type(s). */
     private val allowedAuthenticators: Int
         get() {
             var authenticators = 0
@@ -57,18 +51,14 @@ class BiometricPromptTestActivity : FragmentActivity() {
             return authenticators
         }
 
-    /**
-     * Whether the selected options allow for biometric authentication.
-     */
+    /** Whether the selected options allow for biometric authentication. */
     private val isBiometricAllowed: Boolean
         get() {
             return binding.allowBiometricStrongCheckbox.isChecked ||
                 binding.allowBiometricWeakCheckbox.isChecked
         }
 
-    /**
-     * Whether the selected options allow for device credential authentication.
-     */
+    /** Whether the selected options allow for device credential authentication. */
     private val isCredentialAllowed: Boolean
         get() = binding.allowDeviceCredentialCheckbox.isChecked
 
@@ -107,30 +97,27 @@ class BiometricPromptTestActivity : FragmentActivity() {
         outState.putCharSequence(KEY_LOG_TEXT, binding.common.logTextView.text)
     }
 
-    /**
-     * Logs the authentication status given by [BiometricManager.canAuthenticate].
-     */
+    /** Logs the authentication status given by [BiometricManager.canAuthenticate]. */
     private fun canAuthenticate() {
         val result = BiometricManager.from(this).canAuthenticate(allowedAuthenticators)
         log("canAuthenticate: ${result.toAuthenticationStatusString()}")
     }
 
-    /**
-     * Launches the [BiometricPrompt] to begin authentication.
-     */
+    /** Launches the [BiometricPrompt] to begin authentication. */
     private fun authenticate() {
-        val infoBuilder = BiometricPrompt.PromptInfo.Builder().apply {
-            setTitle(getString(R.string.biometric_prompt_title))
-            setSubtitle(getString(R.string.biometric_prompt_subtitle))
-            setDescription(getString(R.string.biometric_prompt_description))
-            setConfirmationRequired(binding.common.requireConfirmationCheckbox.isChecked)
-            setAllowedAuthenticators(allowedAuthenticators)
+        val infoBuilder =
+            BiometricPrompt.PromptInfo.Builder().apply {
+                setTitle(getString(R.string.biometric_prompt_title))
+                setSubtitle(getString(R.string.biometric_prompt_subtitle))
+                setDescription(getString(R.string.biometric_prompt_description))
+                setConfirmationRequired(binding.common.requireConfirmationCheckbox.isChecked)
+                setAllowedAuthenticators(allowedAuthenticators)
 
-            // Set the negative button text ONLY if device credential auth is not allowed.
-            if (allowedAuthenticators and Authenticators.DEVICE_CREDENTIAL == 0) {
-                setNegativeButtonText(getString(R.string.biometric_prompt_negative_text))
+                // Set the negative button text ONLY if device credential auth is not allowed.
+                if (allowedAuthenticators and Authenticators.DEVICE_CREDENTIAL == 0) {
+                    setNegativeButtonText(getString(R.string.biometric_prompt_negative_text))
+                }
             }
-        }
 
         val info: BiometricPrompt.PromptInfo?
         try {
@@ -147,9 +134,7 @@ class BiometricPromptTestActivity : FragmentActivity() {
         }
     }
 
-    /**
-     * Launches the [BiometricPrompt] to begin crypto-based authentication.
-     */
+    /** Launches the [BiometricPrompt] to begin crypto-based authentication. */
     @Suppress("DEPRECATION")
     private fun authenticateWithCrypto(info: BiometricPrompt.PromptInfo) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -163,32 +148,26 @@ class BiometricPromptTestActivity : FragmentActivity() {
             biometricPrompt.authenticate(info, cryptoObject)
         } catch (e: Exception) {
             when (e) {
-                is IllegalArgumentException, is InvalidAlgorithmParameterException -> log("$e")
+                is IllegalArgumentException,
+                is InvalidAlgorithmParameterException -> log("$e")
                 else -> throw e
             }
         }
     }
 
-    /**
-     * Logs a new [message] to the in-app [TextView].
-     */
+    /** Logs a new [message] to the in-app [TextView]. */
     internal fun log(message: CharSequence) {
         binding.common.logTextView.prependLogMessage(message)
     }
 
-    /**
-     * Clears all logged messages from the in-app [TextView].
-     */
+    /** Clears all logged messages from the in-app [TextView]. */
     private fun clearLog() {
         binding.common.logTextView.text = ""
     }
 
-    /**
-     * Sample callback that logs all authentication events.
-     */
-    private class AuthCallback(
-        activity: BiometricPromptTestActivity
-    ) : BiometricPrompt.AuthenticationCallback() {
+    /** Sample callback that logs all authentication events. */
+    private class AuthCallback(activity: BiometricPromptTestActivity) :
+        BiometricPrompt.AuthenticationCallback() {
         private val activityRef = WeakReference(activity)
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -203,9 +182,10 @@ class BiometricPromptTestActivity : FragmentActivity() {
 
                 // Encrypt a test payload using the result of crypto-based auth.
                 if (binding.common.useCryptoAuthCheckbox.isChecked) {
-                    val encryptedPayload = result.cryptoObject?.cipher?.doFinal(
-                        PAYLOAD.toByteArray(Charset.defaultCharset())
-                    )
+                    val encryptedPayload =
+                        result.cryptoObject
+                            ?.cipher
+                            ?.doFinal(PAYLOAD.toByteArray(Charset.defaultCharset()))
                     log("Encrypted payload: ${encryptedPayload?.contentToString()}")
                 }
             }

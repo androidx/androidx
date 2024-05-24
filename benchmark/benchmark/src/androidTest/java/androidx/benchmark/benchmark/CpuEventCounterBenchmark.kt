@@ -33,16 +33,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 21)
 class CpuEventCounterBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
     private val values = CpuEventCounter.Values()
 
     @Before
     fun before() {
         // skip test if need root, or event fails to enable
-        CpuEventCounter.forceEnable()?.let { errorMessage ->
-            assumeTrue(errorMessage, false)
-        }
+        CpuEventCounter.forceEnable()?.let { errorMessage -> assumeTrue(errorMessage, false) }
     }
 
     @After
@@ -56,22 +53,21 @@ class CpuEventCounterBenchmark {
      * We can expect to see some portion of this impact measurements directtly.
      */
     @Test
-    fun startStopOnly() = CpuEventCounter().use { counter ->
-        counter.resetEvents(
-            listOf(
-                CpuEventCounter.Event.CpuCycles,
-                CpuEventCounter.Event.L1IMisses,
-                CpuEventCounter.Event.Instructions,
+    fun startStopOnly() =
+        CpuEventCounter().use { counter ->
+            counter.resetEvents(
+                listOf(
+                    CpuEventCounter.Event.CpuCycles,
+                    CpuEventCounter.Event.L1IMisses,
+                    CpuEventCounter.Event.Instructions,
+                )
             )
-        )
-        benchmarkRule.measureRepeated {
-            runWithTimingDisabled {
-                counter.reset()
+            benchmarkRule.measureRepeated {
+                runWithTimingDisabled { counter.reset() }
+                counter.start()
+                counter.stop()
             }
-            counter.start()
-            counter.stop()
         }
-    }
 
     /**
      * Measures full per measurement iteration cost
@@ -80,23 +76,24 @@ class CpuEventCounterBenchmark {
      * may correlate with other intrusiveness, e.g. cache interference from reset/reading values
      */
     @Test
-    fun perIterationCost() = CpuEventCounter().use { counter ->
-        counter.resetEvents(
-            listOf(
-                CpuEventCounter.Event.CpuCycles,
-                CpuEventCounter.Event.L1IMisses,
-                CpuEventCounter.Event.Instructions,
+    fun perIterationCost() =
+        CpuEventCounter().use { counter ->
+            counter.resetEvents(
+                listOf(
+                    CpuEventCounter.Event.CpuCycles,
+                    CpuEventCounter.Event.L1IMisses,
+                    CpuEventCounter.Event.Instructions,
+                )
             )
-        )
-        var out = 0L
-        benchmarkRule.measureRepeated {
-            counter.reset()
-            counter.start()
-            counter.stop()
-            counter.read(values)
-            out += values.getValue(CpuEventCounter.Event.CpuCycles)
-            out += values.getValue(CpuEventCounter.Event.L1IMisses)
-            out += values.getValue(CpuEventCounter.Event.Instructions)
+            var out = 0L
+            benchmarkRule.measureRepeated {
+                counter.reset()
+                counter.start()
+                counter.stop()
+                counter.read(values)
+                out += values.getValue(CpuEventCounter.Event.CpuCycles)
+                out += values.getValue(CpuEventCounter.Event.L1IMisses)
+                out += values.getValue(CpuEventCounter.Event.Instructions)
+            }
         }
-    }
 }

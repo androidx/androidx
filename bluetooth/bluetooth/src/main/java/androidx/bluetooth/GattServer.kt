@@ -60,9 +60,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-/**
- * Class for handling operations as a GATT server role
- */
+/** Class for handling operations as a GATT server role */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class GattServer(private val context: Context) {
 
@@ -72,11 +70,17 @@ class GattServer(private val context: Context) {
 
     interface FrameworkAdapter {
         var fwkGattServer: FwkBluetoothGattServer?
+
         fun isOpened(): Boolean
+
         fun openGattServer(context: Context, fwkCallback: FwkBluetoothGattServerCallback)
+
         fun closeGattServer()
+
         fun clearServices()
+
         fun addService(fwkService: FwkBluetoothGattService)
+
         fun notifyCharacteristicChanged(
             fwkDevice: FwkBluetoothDevice,
             fwkCharacteristic: FwkBluetoothGattCharacteristic,
@@ -102,7 +106,9 @@ class GattServer(private val context: Context) {
 
         val device: BluetoothDevice
         var pendingWriteParts: MutableList<GattServerRequest.WriteCharacteristics.Part>
+
         suspend fun acceptConnection(block: suspend GattServerSessionScope.() -> Unit)
+
         fun rejectConnection()
 
         fun sendResponse(requestId: Int, status: Int, offset: Int, value: ByteArray?)
@@ -114,13 +120,11 @@ class GattServer(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     var fwkAdapter: FrameworkAdapter =
         if (Build.VERSION.SDK_INT >= 33) FrameworkAdapterApi33()
-        else if (Build.VERSION.SDK_INT >= 31) FrameworkAdapterApi31()
-        else FrameworkAdapterBase()
+        else if (Build.VERSION.SDK_INT >= 31) FrameworkAdapterApi31() else FrameworkAdapterBase()
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private inner class GattServerFlowImpl(
-        private val services: List<GattService>
-    ) : AbstractFlow<GattServerConnectRequest>(), GattServerConnectFlow {
+    private inner class GattServerFlowImpl(private val services: List<GattService>) :
+        AbstractFlow<GattServerConnectRequest>(), GattServerConnectFlow {
         private val attributeMap = AttributeMap()
 
         // Should be accessed only from the callback thread
@@ -155,175 +159,194 @@ class GattServer(private val context: Context) {
             val connectRequests = callbackFlow {
                 attributeMap.updateWithServices(services)
 
-                val callback = object : FwkBluetoothGattServerCallback() {
-                    override fun onConnectionStateChange(
-                        fwkDevice: FwkBluetoothDevice,
-                        status: Int,
-                        newState: Int
-                    ) {
-                        when (newState) {
-                            FwkBluetoothProfile.STATE_CONNECTED -> {
-                                trySend(
-                                    GattServerConnectRequest(
-                                        addSession(fwkDevice)
-                                    )
-                                )
+                val callback =
+                    object : FwkBluetoothGattServerCallback() {
+                        override fun onConnectionStateChange(
+                            fwkDevice: FwkBluetoothDevice,
+                            status: Int,
+                            newState: Int
+                        ) {
+                            when (newState) {
+                                FwkBluetoothProfile.STATE_CONNECTED -> {
+                                    trySend(GattServerConnectRequest(addSession(fwkDevice)))
+                                }
+                                FwkBluetoothProfile.STATE_DISCONNECTED -> removeSession(fwkDevice)
                             }
-
-                            FwkBluetoothProfile.STATE_DISCONNECTED -> removeSession(fwkDevice)
                         }
-                    }
 
-                    override fun onServiceAdded(status: Int, service: FwkBluetoothGattService) {
-                        serviceCallbackChannel?.trySend(service)
-                    }
+                        override fun onServiceAdded(status: Int, service: FwkBluetoothGattService) {
+                            serviceCallbackChannel?.trySend(service)
+                        }
 
-                    override fun onCharacteristicReadRequest(
-                        fwkDevice: FwkBluetoothDevice,
-                        requestId: Int,
-                        offset: Int,
-                        fwkCharacteristic: FwkBluetoothGattCharacteristic
-                    ) {
-                        attributeMap.fromFwkCharacteristic(fwkCharacteristic)?.let { char ->
-                            findActiveSessionWithDevice(fwkDevice)?.run {
-                                requestChannel.trySend(
-                                    GattServerRequest.ReadCharacteristic(
-                                        this, requestId, offset, char
+                        override fun onCharacteristicReadRequest(
+                            fwkDevice: FwkBluetoothDevice,
+                            requestId: Int,
+                            offset: Int,
+                            fwkCharacteristic: FwkBluetoothGattCharacteristic
+                        ) {
+                            attributeMap.fromFwkCharacteristic(fwkCharacteristic)?.let { char ->
+                                findActiveSessionWithDevice(fwkDevice)?.run {
+                                    requestChannel.trySend(
+                                        GattServerRequest.ReadCharacteristic(
+                                            this,
+                                            requestId,
+                                            offset,
+                                            char
+                                        )
                                     )
-                                )
+                                }
                             }
-                        } ?: run {
-                            fwkAdapter.sendResponse(
-                                fwkDevice, requestId, FwkBluetoothGatt.GATT_READ_NOT_PERMITTED,
-                                offset, /*value=*/null
-                            )
+                                ?: run {
+                                    fwkAdapter.sendResponse(
+                                        fwkDevice,
+                                        requestId,
+                                        FwkBluetoothGatt.GATT_READ_NOT_PERMITTED,
+                                        offset,
+                                        /*value=*/ null
+                                    )
+                                }
                         }
-                    }
 
-                    override fun onCharacteristicWriteRequest(
-                        fwkDevice: FwkBluetoothDevice,
-                        requestId: Int,
-                        fwkCharacteristic: FwkBluetoothGattCharacteristic,
-                        preparedWrite: Boolean,
-                        responseNeeded: Boolean,
-                        offset: Int,
-                        value: ByteArray
-                    ) {
-                        attributeMap.fromFwkCharacteristic(fwkCharacteristic)?.let { char ->
-                            findActiveSessionWithDevice(fwkDevice)?.let { session ->
-                                if (preparedWrite) {
-                                    session.pendingWriteParts.add(
-                                        GattServerRequest.WriteCharacteristics.Part(
-                                            char,
+                        override fun onCharacteristicWriteRequest(
+                            fwkDevice: FwkBluetoothDevice,
+                            requestId: Int,
+                            fwkCharacteristic: FwkBluetoothGattCharacteristic,
+                            preparedWrite: Boolean,
+                            responseNeeded: Boolean,
+                            offset: Int,
+                            value: ByteArray
+                        ) {
+                            attributeMap.fromFwkCharacteristic(fwkCharacteristic)?.let { char ->
+                                findActiveSessionWithDevice(fwkDevice)?.let { session ->
+                                    if (preparedWrite) {
+                                        session.pendingWriteParts.add(
+                                            GattServerRequest.WriteCharacteristics.Part(
+                                                char,
+                                                offset,
+                                                value
+                                            )
+                                        )
+                                        fwkAdapter.sendResponse(
+                                            fwkDevice,
+                                            requestId,
+                                            FwkBluetoothGatt.GATT_SUCCESS,
                                             offset,
                                             value
                                         )
-                                    )
+                                    } else {
+                                        session.requestChannel.trySend(
+                                            GattServerRequest.WriteCharacteristics(
+                                                session,
+                                                requestId,
+                                                listOf(
+                                                    GattServerRequest.WriteCharacteristics.Part(
+                                                        char,
+                                                        0,
+                                                        value
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                                ?: run {
                                     fwkAdapter.sendResponse(
-                                        fwkDevice, requestId,
-                                        FwkBluetoothGatt.GATT_SUCCESS, offset, value
+                                        fwkDevice,
+                                        requestId,
+                                        FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED,
+                                        offset,
+                                        /*value=*/ null
                                     )
-                                } else {
+                                }
+                        }
+
+                        override fun onExecuteWrite(
+                            fwkDevice: FwkBluetoothDevice,
+                            requestId: Int,
+                            execute: Boolean
+                        ) {
+                            findActiveSessionWithDevice(fwkDevice)?.let { session ->
+                                if (execute) {
                                     session.requestChannel.trySend(
                                         GattServerRequest.WriteCharacteristics(
                                             session,
                                             requestId,
-                                            listOf(
-                                                GattServerRequest.WriteCharacteristics.Part(
-                                                    char,
-                                                    0,
-                                                    value
-                                                )
-                                            )
+                                            session.pendingWriteParts
                                         )
                                     )
-                                }
-                            }
-                        } ?: run {
-                            fwkAdapter.sendResponse(
-                                fwkDevice, requestId,
-                                FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED, offset, /*value=*/null
-                            )
-                        }
-                    }
-
-                    override fun onExecuteWrite(
-                        fwkDevice: FwkBluetoothDevice,
-                        requestId: Int,
-                        execute: Boolean
-                    ) {
-                        findActiveSessionWithDevice(fwkDevice)?.let { session ->
-                            if (execute) {
-                                session.requestChannel.trySend(
-                                    GattServerRequest.WriteCharacteristics(
-                                        session,
-                                        requestId,
-                                        session.pendingWriteParts
-                                    )
-                                )
-                            } else {
-                                fwkAdapter.sendResponse(
-                                    fwkDevice, requestId,
-                                    FwkBluetoothGatt.GATT_SUCCESS, /*offset=*/0, /*value=*/null
-                                )
-                            }
-                            session.pendingWriteParts = mutableListOf()
-                        } ?: run {
-                            fwkAdapter.sendResponse(
-                                fwkDevice, requestId,
-                                FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED,
-                                /*offset=*/0, /*value=*/null
-                            )
-                        }
-                    }
-
-                    override fun onDescriptorWriteRequest(
-                        fwkDevice: FwkBluetoothDevice,
-                        requestId: Int,
-                        descriptor: FwkBluetoothGattDescriptor,
-                        preparedWrite: Boolean,
-                        responseNeeded: Boolean,
-                        offset: Int,
-                        value: ByteArray?
-                    ) {
-                        findActiveSessionWithDevice(fwkDevice)?.let { session ->
-                            if (descriptor.uuid == UUID_CCCD) {
-                                attributeMap.fromFwkCharacteristic(descriptor.characteristic)
-                                    ?.let { char ->
-                                        session.writeCccd(requestId, char, value)
-                                    } ?: run {
+                                } else {
                                     fwkAdapter.sendResponse(
-                                        fwkDevice, requestId,
-                                        FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED,
-                                        /*offset=*/0, /*value=*/null
+                                        fwkDevice,
+                                        requestId,
+                                        FwkBluetoothGatt.GATT_SUCCESS,
+                                        /*offset=*/ 0,
+                                        /*value=*/ null
                                     )
                                 }
+                                session.pendingWriteParts = mutableListOf()
                             }
-                        } ?: run {
-                            fwkAdapter.sendResponse(
-                                fwkDevice, requestId,
-                                FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED,
-                                /*offset=*/0, /*value=*/null
-                            )
+                                ?: run {
+                                    fwkAdapter.sendResponse(
+                                        fwkDevice,
+                                        requestId,
+                                        FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED,
+                                        /*offset=*/ 0,
+                                        /*value=*/ null
+                                    )
+                                }
+                        }
+
+                        override fun onDescriptorWriteRequest(
+                            fwkDevice: FwkBluetoothDevice,
+                            requestId: Int,
+                            descriptor: FwkBluetoothGattDescriptor,
+                            preparedWrite: Boolean,
+                            responseNeeded: Boolean,
+                            offset: Int,
+                            value: ByteArray?
+                        ) {
+                            findActiveSessionWithDevice(fwkDevice)?.let { session ->
+                                if (descriptor.uuid == UUID_CCCD) {
+                                    attributeMap
+                                        .fromFwkCharacteristic(descriptor.characteristic)
+                                        ?.let { char -> session.writeCccd(requestId, char, value) }
+                                        ?: run {
+                                            fwkAdapter.sendResponse(
+                                                fwkDevice,
+                                                requestId,
+                                                FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED,
+                                                /*offset=*/ 0,
+                                                /*value=*/ null
+                                            )
+                                        }
+                                }
+                            }
+                                ?: run {
+                                    fwkAdapter.sendResponse(
+                                        fwkDevice,
+                                        requestId,
+                                        FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED,
+                                        /*offset=*/ 0,
+                                        /*value=*/ null
+                                    )
+                                }
+                        }
+
+                        override fun onNotificationSent(
+                            fwkDevice: FwkBluetoothDevice,
+                            status: Int
+                        ) {
+                            notifyJob?.complete(status == FwkBluetoothGatt.GATT_SUCCESS)
+                            notifyJob = null
                         }
                     }
-
-                    override fun onNotificationSent(
-                        fwkDevice: FwkBluetoothDevice,
-                        status: Int
-                    ) {
-                        notifyJob?.complete(status == FwkBluetoothGatt.GATT_SUCCESS)
-                        notifyJob = null
-                    }
-                }
                 fwkAdapter.openGattServer(context, callback)
                 addServices(services)
 
                 onOpened?.invoke()
 
-                awaitClose {
-                    fwkAdapter.closeGattServer()
-                }
+                awaitClose { fwkAdapter.closeGattServer() }
                 onClosed?.invoke()
             }
 
@@ -344,9 +367,7 @@ class GattServer(private val context: Context) {
         }
 
         private fun addSession(fwkDevice: FwkBluetoothDevice): GattServer.Session {
-            return Session(BluetoothDevice(fwkDevice)).apply {
-                sessions[fwkDevice] = this
-            }
+            return Session(BluetoothDevice(fwkDevice)).apply { sessions[fwkDevice] = this }
         }
 
         private fun removeSession(fwkDevice: FwkBluetoothDevice) {
@@ -375,7 +396,8 @@ class GattServer(private val context: Context) {
             override suspend fun acceptConnection(
                 block: suspend GattServerSessionScope.() -> Unit
             ) {
-                if (!state.compareAndSet(
+                if (
+                    !state.compareAndSet(
                         GattServer.Session.STATE_CONNECTING,
                         GattServer.Session.STATE_CONNECTED
                     )
@@ -383,55 +405,59 @@ class GattServer(private val context: Context) {
                     throw IllegalStateException("the request is already handled")
                 }
 
-                val scope = object : GattServerSessionScope {
-                    override val device: BluetoothDevice
-                        get() = this@Session.device
-                    override val requests = requestChannel.receiveAsFlow()
+                val scope =
+                    object : GattServerSessionScope {
+                        override val device: BluetoothDevice
+                            get() = this@Session.device
 
-                    override val subscribedCharacteristics: StateFlow<Set<GattCharacteristic>> =
-                        subscribedCharacteristicsFlow.asStateFlow()
+                        override val requests = requestChannel.receiveAsFlow()
 
-                    override suspend fun notify(
-                        characteristic: GattCharacteristic,
-                        value: ByteArray
-                    ) {
-                        if (value.size > GattCommon.MAX_ATTR_LENGTH) {
-                            throw IllegalArgumentException("too long value to notify")
-                        }
-                        if (!characteristic.isSubscribable) {
-                            throw IllegalArgumentException(
-                                "The characteristic can not be notified"
-                            )
-                        }
-                        // Should not check if the client subscribed to the characteristic.
-                        notifyMutex.withLock {
-                            CompletableDeferred<Boolean>().also {
-                                // This is completed when the callback is received
-                                notifyJob = it
-                                fwkAdapter.notifyCharacteristicChanged(
-                                    device.fwkDevice,
-                                    characteristic.fwkCharacteristic,
-                                    // Prefer notification over indication
-                                    (characteristic.properties and PROPERTY_NOTIFY) == 0,
-                                    value
-                                ).let { notifyResult ->
-                                    if (notifyResult != FwkBluetoothStatusCodes.SUCCESS) {
-                                        throw CancellationException(
-                                            "notify failed with " +
-                                                "error: {$notifyResult}"
+                        override val subscribedCharacteristics: StateFlow<Set<GattCharacteristic>> =
+                            subscribedCharacteristicsFlow.asStateFlow()
+
+                        override suspend fun notify(
+                            characteristic: GattCharacteristic,
+                            value: ByteArray
+                        ) {
+                            if (value.size > GattCommon.MAX_ATTR_LENGTH) {
+                                throw IllegalArgumentException("too long value to notify")
+                            }
+                            if (!characteristic.isSubscribable) {
+                                throw IllegalArgumentException(
+                                    "The characteristic can not be notified"
+                                )
+                            }
+                            // Should not check if the client subscribed to the characteristic.
+                            notifyMutex.withLock {
+                                CompletableDeferred<Boolean>().also {
+                                    // This is completed when the callback is received
+                                    notifyJob = it
+                                    fwkAdapter
+                                        .notifyCharacteristicChanged(
+                                            device.fwkDevice,
+                                            characteristic.fwkCharacteristic,
+                                            // Prefer notification over indication
+                                            (characteristic.properties and PROPERTY_NOTIFY) == 0,
+                                            value
                                         )
-                                    }
+                                        .let { notifyResult ->
+                                            if (notifyResult != FwkBluetoothStatusCodes.SUCCESS) {
+                                                throw CancellationException(
+                                                    "notify failed with " + "error: {$notifyResult}"
+                                                )
+                                            }
+                                        }
+                                    it.await()
                                 }
-                                it.await()
                             }
                         }
                     }
-                }
                 scope.block()
             }
 
             override fun rejectConnection() {
-                if (!state.compareAndSet(
+                if (
+                    !state.compareAndSet(
                         GattServer.Session.STATE_CONNECTING,
                         GattServer.Session.STATE_DISCONNECTED
                     )
@@ -440,12 +466,7 @@ class GattServer(private val context: Context) {
                 }
             }
 
-            override fun sendResponse(
-                requestId: Int,
-                status: Int,
-                offset: Int,
-                value: ByteArray?
-            ) {
+            override fun sendResponse(requestId: Int, status: Int, offset: Int, value: ByteArray?) {
                 fwkAdapter.sendResponse(device.fwkDevice, requestId, status, offset, value)
             }
 
@@ -456,22 +477,27 @@ class GattServer(private val context: Context) {
             ) {
                 if (value == null || value.isEmpty()) {
                     fwkAdapter.sendResponse(
-                        device.fwkDevice, requestId,
+                        device.fwkDevice,
+                        requestId,
                         GATT_INVALID_ATTRIBUTE_LENGTH,
-                        /*offset=*/0, /*value=*/null
+                        /*offset=*/ 0,
+                        /*value=*/ null
                     )
                     return
                 }
                 val indicate = (value[0] and 0x01).toInt() != 0
                 val notify = (value[0] and 0x02).toInt() != 0
 
-                if ((indicate && (characteristic.properties and PROPERTY_INDICATE) != 0) ||
-                    (notify && (characteristic.properties and PROPERTY_NOTIFY) != 0)
+                if (
+                    (indicate && (characteristic.properties and PROPERTY_INDICATE) != 0) ||
+                        (notify && (characteristic.properties and PROPERTY_NOTIFY) != 0)
                 ) {
                     fwkAdapter.sendResponse(
-                        device.fwkDevice, requestId,
+                        device.fwkDevice,
+                        requestId,
                         GATT_WRITE_NOT_PERMITTED,
-                        /*offset=*/0, /*value=*/null
+                        /*offset=*/ 0,
+                        /*value=*/ null
                     )
                     return
                 }
@@ -535,7 +561,8 @@ class GattServer(private val context: Context) {
             value: ByteArray
         ): Int? {
             fwkCharacteristic.value = value
-            return fwkGattServer?.notifyCharacteristicChanged(fwkDevice, fwkCharacteristic, confirm)
+            return fwkGattServer
+                ?.notifyCharacteristicChanged(fwkDevice, fwkCharacteristic, confirm)
                 ?.let {
                     if (it) FwkBluetoothStatusCodes.SUCCESS
                     else FwkBluetoothStatusCodes.ERROR_UNKNOWN
@@ -618,20 +645,18 @@ class GattServer(private val context: Context) {
     }
 }
 
-/**
- * A flow of [GattServerConnectRequest] returned by calling [BluetoothLe.openGattServer].
- */
+/** A flow of [GattServerConnectRequest] returned by calling [BluetoothLe.openGattServer]. */
 interface GattServerConnectFlow : Flow<GattServerConnectRequest> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun onOpened(action: suspend () -> Unit): GattServerConnectFlow
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun onClosed(action: suspend () -> Unit): GattServerConnectFlow
+
     /**
      * Updates the services provided by the opened GATT server.
      *
      * @param services a new list of services that should be provided
-     *
      * @throws IllegalStateException if it's called before the server is opened.
      */
     suspend fun updateServices(services: List<GattService>)

@@ -57,5 +57,4 @@ internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE = "baselin
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK = "macrobenchmark"
 
 // This should be aligned with `androidx.benchmark.Arguments#targetPackageName`
-internal const val INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME =
-    "androidx.benchmark.targetPackageName"
+internal const val INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME = "androidx.benchmark.targetPackageName"

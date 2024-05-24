@@ -34,11 +34,9 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class VideoCaptureSwitchCameraStressTest constructor(
-    implName: String,
-    cameraConfig: CameraXConfig,
-    cameraId: String
-) : SwitchCameraStressTestBase(implName, cameraConfig, cameraId) {
+class VideoCaptureSwitchCameraStressTest
+constructor(implName: String, cameraConfig: CameraXConfig, cameraId: String) :
+    SwitchCameraStressTestBase(implName, cameraConfig, cameraId) {
 
     @LabTestRule.LabTestOnly
     @Test

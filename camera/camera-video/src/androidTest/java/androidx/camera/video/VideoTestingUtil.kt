@@ -72,10 +72,8 @@ fun assumeNotBrokenEmulator() {
     )
 }
 
-fun getRotationNeeded(
-    videoCapture: VideoCapture<Recorder>,
-    cameraInfo: CameraInfo
-) = cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
+fun getRotationNeeded(videoCapture: VideoCapture<Recorder>, cameraInfo: CameraInfo) =
+    cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
 
 fun verifyVideoResolution(context: Context, file: File, expectedResolution: Size) {
     MediaMetadataRetriever().useAndRelease {

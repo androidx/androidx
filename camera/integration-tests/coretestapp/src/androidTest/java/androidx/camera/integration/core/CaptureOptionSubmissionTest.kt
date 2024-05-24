@@ -91,17 +91,18 @@ class CaptureOptionSubmissionTest(
     private val cameraConfig: CameraXConfig
 ) {
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CameraPipeConfig::class.simpleName,
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName == CameraPipeConfig::class.simpleName,
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
-    @get:Rule
-    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+    @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var cameraProvider: ProcessCameraProvider
@@ -127,9 +128,7 @@ class CaptureOptionSubmissionTest(
     @After
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) {
-                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-            }
+            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
         }
     }
 
@@ -159,20 +158,23 @@ class CaptureOptionSubmissionTest(
             }
 
             var lastSubmittedFpsRange: Range<Int>? = null
-            val result = sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
-                    lastSubmittedFpsRange = it
+            val result =
+                sessionCaptureCallback.verify { captureRequest, _ ->
+                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                        lastSubmittedFpsRange = it
+                    }
+                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
                 }
-                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
-            }
 
             bindUseCases(listOf(Preview.Builder().setTargetFrameRate(targetFpsRange)))
 
             val isCompleted = result.awaitUntil(timeoutMillis = 10000)
             assertWithMessage(
-                "Test failed for targetFpsRange = $targetFpsRange" +
-                    ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
-            ).that(isCompleted).isTrue()
+                    "Test failed for targetFpsRange = $targetFpsRange" +
+                        ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
+                )
+                .that(isCompleted)
+                .isTrue()
 
             unbindAllUseCases()
         }
@@ -199,12 +201,13 @@ class CaptureOptionSubmissionTest(
                 }
 
                 var lastSubmittedFpsRange: Range<Int>? = null
-                val result = sessionCaptureCallback.verify { captureRequest, _ ->
-                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
-                        lastSubmittedFpsRange = it
+                val result =
+                    sessionCaptureCallback.verify { captureRequest, _ ->
+                        captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                            lastSubmittedFpsRange = it
+                        }
+                        captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
                     }
-                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
-                }
 
                 bindUseCases(
                     listOf(
@@ -215,9 +218,11 @@ class CaptureOptionSubmissionTest(
 
                 val isCompleted = result.awaitUntil(timeoutMillis = 10000)
                 assertWithMessage(
-                    "Test failed for targetFpsRange = $targetFpsRange" +
-                        ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
-                ).that(isCompleted).isTrue()
+                        "Test failed for targetFpsRange = $targetFpsRange" +
+                            ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
+                    )
+                    .that(isCompleted)
+                    .isTrue()
 
                 unbindAllUseCases()
             }
@@ -245,29 +250,37 @@ class CaptureOptionSubmissionTest(
             }
 
             var lastSubmittedFpsRange: Range<Int>? = null
-            val result = sessionCaptureCallback.verify { captureRequest, _ ->
-                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
-                    lastSubmittedFpsRange = it
+            val result =
+                sessionCaptureCallback.verify { captureRequest, _ ->
+                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                        lastSubmittedFpsRange = it
+                    }
+                    captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
                 }
-                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == targetFpsRange
-            }
 
-            bindUseCases(listOf(
-                // since Preview & VideoCapture already has FPS APIs, Camera2Interop isn't needed
-                // when they are bound. Also, ImageCapture-only is more complex due to
-                // MeteringRepeating and may pick up further issues.
-                ImageCapture.Builder().also {
-                    Camera2Interop.Extender(it).setCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, targetFpsRange
-                    )
-                }
-            ))
+            bindUseCases(
+                listOf(
+                    // since Preview & VideoCapture already has FPS APIs, Camera2Interop isn't
+                    // needed
+                    // when they are bound. Also, ImageCapture-only is more complex due to
+                    // MeteringRepeating and may pick up further issues.
+                    ImageCapture.Builder().also {
+                        Camera2Interop.Extender(it)
+                            .setCaptureRequestOption(
+                                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+                                targetFpsRange
+                            )
+                    }
+                )
+            )
 
             val isCompleted = result.awaitUntil(timeoutMillis = 10000)
             assertWithMessage(
-                "Test failed for FPS range = $targetFpsRange" +
-                    ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
-            ).that(isCompleted).isTrue()
+                    "Test failed for FPS range = $targetFpsRange" +
+                        ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
+                )
+                .that(isCompleted)
+                .isTrue()
 
             unbindAllUseCases()
 
@@ -292,12 +305,13 @@ class CaptureOptionSubmissionTest(
         val interopFpsRange = getSupportedFpsRanges().last { it.upper <= 30 }
 
         var lastSubmittedFpsRange: Range<Int>? = null
-        val result = sessionCaptureCallback.verify { captureRequest, _ ->
-            captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
-                lastSubmittedFpsRange = it
+        val result =
+            sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE]?.let {
+                    lastSubmittedFpsRange = it
+                }
+                captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == interopFpsRange
             }
-            captureRequest[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] == interopFpsRange
-        }
 
         bindUseCases(
             listOf(
@@ -305,19 +319,22 @@ class CaptureOptionSubmissionTest(
                 // since Preview & VideoCapture already has FPS APIs, Camera2Interop isn't needed
                 // when they are bound.
                 ImageCapture.Builder().also {
-                    Camera2Interop.Extender(it).setCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, interopFpsRange
-                    )
+                    Camera2Interop.Extender(it)
+                        .setCaptureRequestOption(
+                            CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
+                            interopFpsRange
+                        )
                 }
-
             )
         )
 
         val isCompleted = result.awaitUntil(timeoutMillis = 10000)
         assertWithMessage(
-            "Test failed for FPS range = $interopFpsRange" +
-                ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
-        ).that(isCompleted).isTrue()
+                "Test failed for FPS range = $interopFpsRange" +
+                    ", lastSubmittedFpsRange = $lastSubmittedFpsRange"
+            )
+            .that(isCompleted)
+            .isTrue()
     }
 
     @Test
@@ -331,12 +348,11 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result = sessionCaptureCallback.verify { captureRequest, _ ->
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
-                lastSubmittedMode = it
+        val result =
+            sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
             }
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-        }
 
         bindUseCases(
             listOf(
@@ -347,9 +363,11 @@ class CaptureOptionSubmissionTest(
 
         val isCompleted = result.awaitUntil(timeoutMillis = 10000)
         assertWithMessage(
-            "Test failed for stabilization mode = $targetStabilizationMode" +
-                ", lastSubmittedMode = $lastSubmittedMode"
-        ).that(isCompleted).isTrue()
+                "Test failed for stabilization mode = $targetStabilizationMode" +
+                    ", lastSubmittedMode = $lastSubmittedMode"
+            )
+            .that(isCompleted)
+            .isTrue()
     }
 
     @Test
@@ -362,12 +380,11 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result = sessionCaptureCallback.verify { captureRequest, _ ->
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
-                lastSubmittedMode = it
+        val result =
+            sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
             }
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-        }
 
         bindUseCases(
             listOf(
@@ -378,9 +395,11 @@ class CaptureOptionSubmissionTest(
 
         val isCompleted = result.awaitUntil(timeoutMillis = 10000)
         assertWithMessage(
-            "Test failed for stabilization mode = $targetStabilizationMode" +
-                ", lastSubmittedMode = $lastSubmittedMode"
-        ).that(isCompleted).isTrue()
+                "Test failed for stabilization mode = $targetStabilizationMode" +
+                    ", lastSubmittedMode = $lastSubmittedMode"
+            )
+            .that(isCompleted)
+            .isTrue()
     }
 
     @Test
@@ -399,12 +418,11 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result = sessionCaptureCallback.verify { captureRequest, _ ->
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
-                lastSubmittedMode = it
+        val result =
+            sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
             }
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-        }
 
         bindUseCases(
             listOf(
@@ -415,9 +433,11 @@ class CaptureOptionSubmissionTest(
 
         val isCompleted = result.awaitUntil(timeoutMillis = 10000)
         assertWithMessage(
-            "Test failed for stabilization mode = $targetStabilizationMode" +
-                ", lastSubmittedMode = $lastSubmittedMode"
-        ).that(isCompleted).isTrue()
+                "Test failed for stabilization mode = $targetStabilizationMode" +
+                    ", lastSubmittedMode = $lastSubmittedMode"
+            )
+            .that(isCompleted)
+            .isTrue()
     }
 
     @Test
@@ -430,29 +450,34 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result = sessionCaptureCallback.verify { captureRequest, _ ->
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
-                lastSubmittedMode = it
+        val result =
+            sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
             }
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-        }
 
-        bindUseCases(listOf(
-            // since Preview & VideoCapture already has stabilization APIs, Camera2Interop isn't
-            // needed when they are bound. Also, ImageCapture-only is more complex due to
-            // MeteringRepeating and may pick up further issues.
-            ImageCapture.Builder().also {
-                Camera2Interop.Extender(it).setCaptureRequestOption(
-                    CONTROL_VIDEO_STABILIZATION_MODE, targetStabilizationMode
-                )
-            }
-        ))
+        bindUseCases(
+            listOf(
+                // since Preview & VideoCapture already has stabilization APIs, Camera2Interop isn't
+                // needed when they are bound. Also, ImageCapture-only is more complex due to
+                // MeteringRepeating and may pick up further issues.
+                ImageCapture.Builder().also {
+                    Camera2Interop.Extender(it)
+                        .setCaptureRequestOption(
+                            CONTROL_VIDEO_STABILIZATION_MODE,
+                            targetStabilizationMode
+                        )
+                }
+            )
+        )
 
         val isCompleted = result.awaitUntil(timeoutMillis = 10000)
         assertWithMessage(
-            "Test failed for stabilization mode = $targetStabilizationMode" +
-                ", lastSubmittedMode = $lastSubmittedMode"
-        ).that(isCompleted).isTrue()
+                "Test failed for stabilization mode = $targetStabilizationMode" +
+                    ", lastSubmittedMode = $lastSubmittedMode"
+            )
+            .that(isCompleted)
+            .isTrue()
     }
 
     @Test
@@ -465,30 +490,35 @@ class CaptureOptionSubmissionTest(
         )
 
         var lastSubmittedMode: Int? = null
-        val result = sessionCaptureCallback.verify { captureRequest, _ ->
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let {
-                lastSubmittedMode = it
+        val result =
+            sessionCaptureCallback.verify { captureRequest, _ ->
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE]?.let { lastSubmittedMode = it }
+                captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
             }
-            captureRequest[CONTROL_VIDEO_STABILIZATION_MODE] == targetStabilizationMode
-        }
 
-        bindUseCases(listOf(
-            // since Preview & VideoCapture already has stabilization APIs, Camera2Interop isn't
-            // needed when they are bound. Also, ImageCapture-only is more complex due to
-            // MeteringRepeating and may pick up further issues.
-            ImageAnalysis.Builder().also {
-                Camera2Interop.Extender(it).setCaptureRequestOption(
-                    CONTROL_VIDEO_STABILIZATION_MODE, targetStabilizationMode
-                )
-            },
-            VideoCapture.Builder(Recorder.Builder().build()).setVideoStabilizationEnabled(true)
-        ))
+        bindUseCases(
+            listOf(
+                // since Preview & VideoCapture already has stabilization APIs, Camera2Interop isn't
+                // needed when they are bound. Also, ImageCapture-only is more complex due to
+                // MeteringRepeating and may pick up further issues.
+                ImageAnalysis.Builder().also {
+                    Camera2Interop.Extender(it)
+                        .setCaptureRequestOption(
+                            CONTROL_VIDEO_STABILIZATION_MODE,
+                            targetStabilizationMode
+                        )
+                },
+                VideoCapture.Builder(Recorder.Builder().build()).setVideoStabilizationEnabled(true)
+            )
+        )
 
         val isCompleted = result.awaitUntil(timeoutMillis = 10000)
         assertWithMessage(
-            "Test failed for stabilization mode = $targetStabilizationMode" +
-                ", lastSubmittedMode = $lastSubmittedMode"
-        ).that(isCompleted).isTrue()
+                "Test failed for stabilization mode = $targetStabilizationMode" +
+                    ", lastSubmittedMode = $lastSubmittedMode"
+            )
+            .that(isCompleted)
+            .isTrue()
     }
 
     // TODO - Adds tests to check capture option is consistent for both non-repeating and repeating
@@ -537,24 +567,31 @@ class CaptureOptionSubmissionTest(
             val useCases = mutableListOf<UseCase>()
 
             useCaseBuilders.forEachIndexed { index, builder ->
-                useCases.add(builder.also {
-                    if (index == 0) { // adding to just one use case is enough
-                        CameraPipeUtil.setCameraCaptureSessionCallback(
-                            implName,
-                            it,
-                            sessionCaptureCallback
-                        )
-                    }
-                }.build().apply {
-                    if (this is Preview) {
-                        setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
-                    }
-                    if (this is ImageAnalysis) {
-                        setAnalyzer(CameraXExecutors.directExecutor()) { imageProxy ->
-                            imageProxy.close()
+                useCases.add(
+                    builder
+                        .also {
+                            if (index == 0) { // adding to just one use case is enough
+                                CameraPipeUtil.setCameraCaptureSessionCallback(
+                                    implName,
+                                    it,
+                                    sessionCaptureCallback
+                                )
+                            }
                         }
-                    }
-                })
+                        .build()
+                        .apply {
+                            if (this is Preview) {
+                                setSurfaceProvider(
+                                    SurfaceTextureProvider.createSurfaceTextureProvider()
+                                )
+                            }
+                            if (this is ImageAnalysis) {
+                                setAnalyzer(CameraXExecutors.directExecutor()) { imageProxy ->
+                                    imageProxy.close()
+                                }
+                            }
+                        }
+                )
             }
 
             cameraProvider.bindToLifecycle(
@@ -566,38 +603,32 @@ class CaptureOptionSubmissionTest(
     }
 
     private suspend fun unbindAllUseCases() {
-        withContext(Dispatchers.Main) {
-            cameraProvider.unbindAll()
-        }
+        withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
     }
 
     class CaptureCallback : CameraCaptureSession.CaptureCallback() {
         data class Verification(
-            val condition: (
-                captureRequest: CaptureRequest,
-                captureResult: TotalCaptureResult
-            ) -> Boolean,
+            val condition:
+                (captureRequest: CaptureRequest, captureResult: TotalCaptureResult) -> Boolean,
             val isVerified: CompletableDeferred<Unit>
         )
 
         private var pendingVerifications = mutableListOf<Verification>()
 
-        /**
-         * Returns a [Deferred] representing if verification has been completed
-         */
+        /** Returns a [Deferred] representing if verification has been completed */
         fun verify(
-            condition: (
-                captureRequest: CaptureRequest,
-                captureResult: TotalCaptureResult
-            ) -> Boolean = { _, _ -> false },
-        ): Deferred<Unit> = CompletableDeferred<Unit>().apply {
-            val verification = Verification(condition, this)
-            pendingVerifications.add(verification)
+            condition:
+                (captureRequest: CaptureRequest, captureResult: TotalCaptureResult) -> Boolean =
+                { _, _ ->
+                    false
+                },
+        ): Deferred<Unit> =
+            CompletableDeferred<Unit>().apply {
+                val verification = Verification(condition, this)
+                pendingVerifications.add(verification)
 
-            invokeOnCompletion {
-                pendingVerifications.remove(verification)
+                invokeOnCompletion { pendingVerifications.remove(verification) }
             }
-        }
 
         override fun onCaptureCompleted(
             session: CameraCaptureSession,
@@ -615,20 +646,22 @@ class CaptureOptionSubmissionTest(
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "selector={0},config={2}")
-        fun data() = listOf(
-            arrayOf(
-                "back",
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                Camera2Config::class.simpleName,
-                Camera2Config.defaultConfig()
-            ),
-            arrayOf(
-                "back",
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                CameraPipeConfig::class.simpleName,
-                CameraPipeConfig.defaultConfig()
-            ),
-            // front camera is not important with the current test, but may be required in future
-        )
+        fun data() =
+            listOf(
+                arrayOf(
+                    "back",
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    Camera2Config::class.simpleName,
+                    Camera2Config.defaultConfig()
+                ),
+                arrayOf(
+                    "back",
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    CameraPipeConfig::class.simpleName,
+                    CameraPipeConfig.defaultConfig()
+                ),
+                // front camera is not important with the current test, but may be required in
+                // future
+            )
     }
 }

@@ -53,12 +53,13 @@ class InMemoryTracingTest {
                 timestamp = packet.timestamp,
                 timestamp_clock_id = 3,
                 incremental_state_cleared = true,
-                track_descriptor = TrackDescriptor(
-                    uuid = packet.track_descriptor?.uuid,
-                    name = "testLabel",
-                    thread = ThreadDescriptor(pid = Process.myPid(), tid = Process.myTid()),
-                    disallow_merging_with_system_tracks = true
-                )
+                track_descriptor =
+                    TrackDescriptor(
+                        uuid = packet.track_descriptor?.uuid,
+                        name = "testLabel",
+                        thread = ThreadDescriptor(pid = Process.myPid(), tid = Process.myTid()),
+                        disallow_merging_with_system_tracks = true
+                    )
             )
         )
     }
@@ -86,12 +87,13 @@ class InMemoryTracingTest {
                     timestamp = timestamp,
                     timestamp_clock_id = 3,
                     trusted_packet_sequence_id = trusted_packet_sequence_id,
-                    track_event = TrackEvent(
-                        type = TrackEvent.Type.TYPE_SLICE_BEGIN,
-                        track_uuid = descriptor.uuid,
-                        categories = listOf("benchmark"),
-                        name = "test trace section"
-                    )
+                    track_event =
+                        TrackEvent(
+                            type = TrackEvent.Type.TYPE_SLICE_BEGIN,
+                            track_uuid = descriptor.uuid,
+                            categories = listOf("benchmark"),
+                            name = "test trace section"
+                        )
                 ),
                 this
             )
@@ -103,10 +105,11 @@ class InMemoryTracingTest {
                     timestamp = timestamp,
                     timestamp_clock_id = 3,
                     trusted_packet_sequence_id = trusted_packet_sequence_id,
-                    track_event = TrackEvent(
-                        type = TrackEvent.Type.TYPE_SLICE_END,
-                        track_uuid = descriptor.uuid,
-                    )
+                    track_event =
+                        TrackEvent(
+                            type = TrackEvent.Type.TYPE_SLICE_END,
+                            track_uuid = descriptor.uuid,
+                        )
                 ),
                 this
             )
@@ -117,8 +120,7 @@ class InMemoryTracingTest {
 @Suppress("SameParameterValue")
 internal fun createTempFileFromAsset(prefix: String, suffix: String): File {
     val file = File.createTempFile(prefix, suffix, Outputs.dirUsableByAppAndShell)
-    InstrumentationRegistry
-        .getInstrumentation()
+    InstrumentationRegistry.getInstrumentation()
         .context
         .assets
         .open(prefix + suffix)

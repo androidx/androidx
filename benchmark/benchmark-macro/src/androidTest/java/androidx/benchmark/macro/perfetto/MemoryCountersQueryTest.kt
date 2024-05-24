@@ -33,22 +33,22 @@ class MemoryCountersQueryTest {
     fun fixedTrace31() {
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
-        val metrics = PerfettoTraceProcessor.runSingleSessionServer(
-            traceFile.absolutePath
-        ) {
-            MemoryCountersQuery.getMemoryCounters(
-                this,
-                "androidx.benchmark.integration.macrobenchmark.target"
+        val metrics =
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+                MemoryCountersQuery.getMemoryCounters(
+                    this,
+                    "androidx.benchmark.integration.macrobenchmark.target"
+                )
+            }
+        val expectedMetrics =
+            MemoryCountersQuery.SubMetrics(
+                minorPageFaults = 3431.0,
+                majorPageFaults = 6.0,
+                pageFaultsBackedBySwapCache = 0.0,
+                pageFaultsBackedByReadIO = 8.0,
+                memoryCompactionEvents = 0.0,
+                memoryReclaimEvents = 0.0
             )
-        }
-        val expectedMetrics = MemoryCountersQuery.SubMetrics(
-            minorPageFaults = 3431.0,
-            majorPageFaults = 6.0,
-            pageFaultsBackedBySwapCache = 0.0,
-            pageFaultsBackedByReadIO = 8.0,
-            memoryCompactionEvents = 0.0,
-            memoryReclaimEvents = 0.0
-        )
         assertEquals(expectedMetrics, metrics)
     }
 }

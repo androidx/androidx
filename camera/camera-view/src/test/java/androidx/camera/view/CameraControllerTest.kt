@@ -70,9 +70,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [CameraController].
- */
+/** Unit tests for [CameraController]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -88,14 +86,14 @@ class CameraControllerTest {
     private lateinit var controller: LifecycleCameraController
 
     @Suppress("deprecation")
-    private val targetSizeWithAspectRatio =
-        CameraController.OutputSize(AspectRatio.RATIO_16_9)
-    private val resolutionSelector = ResolutionSelector.Builder()
-        .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY).build()
+    private val targetSizeWithAspectRatio = CameraController.OutputSize(AspectRatio.RATIO_16_9)
+    private val resolutionSelector =
+        ResolutionSelector.Builder()
+            .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+            .build()
 
     @Suppress("deprecation")
-    private val targetSizeWithResolution =
-        CameraController.OutputSize(Size(1080, 1960))
+    private val targetSizeWithResolution = CameraController.OutputSize(Size(1080, 1960))
     private val targetVideoQuality = Quality.HIGHEST
     private val fakeViewPort = ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
     private val fakeCameraControl = FakeCameraControl()
@@ -106,13 +104,14 @@ class CameraControllerTest {
 
     @Before
     fun setUp() {
-        val lifecycleCameraProviderFuture = CallbackToFutureAdapter.getFuture { completer ->
-            lifecycleCameraProviderCompleter = completer
-            "CameraControllerTest.lifecycleCameraProviderFuture"
-        }
+        val lifecycleCameraProviderFuture =
+            CallbackToFutureAdapter.getFuture { completer ->
+                lifecycleCameraProviderCompleter = completer
+                "CameraControllerTest.lifecycleCameraProviderFuture"
+            }
         controller = LifecycleCameraController(context, lifecycleCameraProviderFuture)
         controller.bindToLifecycle(FakeLifecycleOwner())
-        controller.attachPreviewSurface({ }, fakeViewPort)
+        controller.attachPreviewSurface({}, fakeViewPort)
     }
 
     @Test
@@ -122,12 +121,7 @@ class CameraControllerTest {
         assertThat(processCameraProviderWrapper.unbindInvoked()).isFalse()
         // Act.
         controller.setEffects(
-            setOf(
-                FakeSurfaceEffect(
-                    directExecutor(),
-                    FakeSurfaceProcessor(directExecutor())
-                )
-            )
+            setOf(FakeSurfaceEffect(directExecutor(), FakeSurfaceProcessor(directExecutor())))
         )
         // Assert.
         assertThat(processCameraProviderWrapper.unbindInvoked()).isTrue()
@@ -263,9 +257,7 @@ class CameraControllerTest {
             .isEqualTo(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
     }
 
-    /**
-     * Creates a [ImageAnalysis.Analyzer] with the given resolution override.
-     */
+    /** Creates a [ImageAnalysis.Analyzer] with the given resolution override. */
     private fun createAnalyzer(size: Size?): ImageAnalysis.Analyzer {
         return object : ImageAnalysis.Analyzer {
             override fun analyze(image: ImageProxy) {
@@ -282,19 +274,16 @@ class CameraControllerTest {
     fun viewTransform_valueIsPassedToAnalyzer() {
         // Non-null value passed to analyzer.
         assertThat(
-            getPreviewTransformPassedToAnalyzer(
-                COORDINATE_SYSTEM_VIEW_REFERENCED,
-                previewViewTransform
+                getPreviewTransformPassedToAnalyzer(
+                    COORDINATE_SYSTEM_VIEW_REFERENCED,
+                    previewViewTransform
+                )
             )
-        ).isEqualTo(previewViewTransform)
+            .isEqualTo(previewViewTransform)
 
         // Null value passed to analyzer.
-        assertThat(
-            getPreviewTransformPassedToAnalyzer(
-                COORDINATE_SYSTEM_VIEW_REFERENCED,
-                null
-            )
-        ).isEqualTo(null)
+        assertThat(getPreviewTransformPassedToAnalyzer(COORDINATE_SYSTEM_VIEW_REFERENCED, null))
+            .isEqualTo(null)
     }
 
     @Test
@@ -302,11 +291,13 @@ class CameraControllerTest {
         // Value not passed to analyzer. Analyzer still has it's original value which is identity
         // matrix.
         assertThat(
-            getPreviewTransformPassedToAnalyzer(
-                COORDINATE_SYSTEM_ORIGINAL,
-                previewViewTransform
-            )!!.isIdentity
-        ).isTrue()
+                getPreviewTransformPassedToAnalyzer(
+                        COORDINATE_SYSTEM_ORIGINAL,
+                        previewViewTransform
+                    )!!
+                    .isIdentity
+            )
+            .isTrue()
     }
 
     private fun getPreviewTransformPassedToAnalyzer(
@@ -314,19 +305,20 @@ class CameraControllerTest {
         previewTransform: Matrix?
     ): Matrix? {
         var matrix: Matrix? = Matrix()
-        val analyzer = object : ImageAnalysis.Analyzer {
-            override fun analyze(image: ImageProxy) {
-                // no-op
-            }
+        val analyzer =
+            object : ImageAnalysis.Analyzer {
+                override fun analyze(image: ImageProxy) {
+                    // no-op
+                }
 
-            override fun updateTransform(newMatrix: Matrix?) {
-                matrix = newMatrix
-            }
+                override fun updateTransform(newMatrix: Matrix?) {
+                    matrix = newMatrix
+                }
 
-            override fun getTargetCoordinateSystem(): Int {
-                return coordinateSystem
+                override fun getTargetCoordinateSystem(): Int {
+                    return coordinateSystem
+                }
             }
-        }
         controller.setImageAnalysisAnalyzer(mainThreadExecutor(), analyzer)
         controller.updatePreviewViewTransform(previewTransform)
         return matrix
@@ -556,8 +548,7 @@ class CameraControllerTest {
                         screenFlashListener.onCompleted()
                     }
 
-                    override fun clear() {
-                    }
+                    override fun clear() {}
                 }
             )
         )
@@ -602,7 +593,7 @@ class CameraControllerTest {
     @Test
     fun preview_surfaceProviderIsPreserved_afterRebind() {
         // Arrange.
-        val surfaceProvider = SurfaceProvider { }
+        val surfaceProvider = SurfaceProvider {}
         controller.attachPreviewSurface(surfaceProvider, fakeViewPort)
 
         // Act: Setting a different resolution selector triggers a rebinding.
@@ -629,7 +620,7 @@ class CameraControllerTest {
     fun setViewport_overrideUseCasesAspectRatioIfNotSetYet() {
         // Arrange & Act: Set a 16:9 viewport.
         controller.attachPreviewSurface(
-            { },
+            {},
             ViewPort.Builder(Rational(9, 16), Surface.ROTATION_90).build()
         )
 
@@ -637,19 +628,13 @@ class CameraControllerTest {
         // which should be 16:9.
         val previewConfig = controller.mPreview.currentConfig as ImageOutputConfig
         assertThat(previewConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
-            .isEqualTo(
-                RATIO_16_9
-            )
+            .isEqualTo(RATIO_16_9)
         val imageCaptureConfig = controller.mImageCapture.currentConfig as ImageOutputConfig
         assertThat(imageCaptureConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
-            .isEqualTo(
-                RATIO_16_9
-            )
+            .isEqualTo(RATIO_16_9)
         val imageAnalysisConfig = controller.mImageAnalysis.currentConfig as ImageOutputConfig
         assertThat(imageAnalysisConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
-            .isEqualTo(
-                RATIO_16_9
-            )
+            .isEqualTo(RATIO_16_9)
         assertThat(controller.mVideoCapture.output.aspectRatio).isEqualTo(RATIO_16_9)
     }
 
@@ -657,7 +642,7 @@ class CameraControllerTest {
     fun setViewport_notOverrideUseCasesAspectRatioIfAlreadySet() {
         // Arrange: Set a 4:3 viewport.
         controller.attachPreviewSurface(
-            { },
+            {},
             ViewPort.Builder(Rational(4, 3), Surface.ROTATION_0).build()
         )
 

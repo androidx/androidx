@@ -54,39 +54,25 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraGraphSimulatorTest {
-    private val metadata = FakeCameraMetadata(
-        mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
-    )
+    private val metadata =
+        FakeCameraMetadata(
+            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
+        )
 
-    private val streamConfig = CameraStream.Config.create(
-        Size(640, 480),
-        StreamFormat.YUV_420_888
-    )
+    private val streamConfig = CameraStream.Config.create(Size(640, 480), StreamFormat.YUV_420_888)
 
-    private val graphConfig = CameraGraph.Config(
-        camera = metadata.camera,
-        streams = listOf(streamConfig)
-    )
+    private val graphConfig =
+        CameraGraph.Config(camera = metadata.camera, streams = listOf(streamConfig))
 
     private val context = ApplicationProvider.getApplicationContext() as Context
 
     @Test
     fun simulatorCanSimulateRepeatingFrames() = runTest {
-        CameraGraphSimulator.create(
-            this,
-            context,
-            metadata,
-            graphConfig
-        ).use { simulator ->
+        CameraGraphSimulator.create(this, context, metadata, graphConfig).use { simulator ->
             val stream = simulator.cameraGraph.streams[streamConfig]!!
             val listener = FakeRequestListener()
-            val request = Request(
-                streams = listOf(stream.id),
-                listeners = listOf(listener)
-            )
-            simulator.cameraGraph.acquireSession().use {
-                it.startRepeating(request)
-            }
+            val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
+            simulator.cameraGraph.acquireSession().use { it.startRepeating(request) }
             simulator.cameraGraph.start()
             simulator.simulateCameraStarted()
             simulator.simulateFakeSurfaceConfiguration()
@@ -105,14 +91,12 @@ class CameraGraphSimulatorTest {
             assertThat(startEvent.timestamp.value).isGreaterThan(0)
             assertThat(startEvent.requestMetadata.repeating).isTrue()
             assertThat(startEvent.requestMetadata.request.streams).contains(stream.id)
-            assertThat(startEvent.requestMetadata.template)
-                .isEqualTo(graphConfig.defaultTemplate)
+            assertThat(startEvent.requestMetadata.template).isEqualTo(graphConfig.defaultTemplate)
 
-            val totalCaptureResultEvent = withContext(Dispatchers.IO) {
-                withTimeoutOrNull(timeMillis = 50) {
-                    listener.onTotalCaptureResultFlow.first()
+            val totalCaptureResultEvent =
+                withContext(Dispatchers.IO) {
+                    withTimeoutOrNull(timeMillis = 50) { listener.onTotalCaptureResultFlow.first() }
                 }
-            }
 
             assertThat(totalCaptureResultEvent).isNull()
 
@@ -134,9 +118,7 @@ class CameraGraphSimulatorTest {
 
                 frame.simulateComplete(
                     resultMetadata,
-                    extraMetadata = mapOf(
-                        CaptureResult.LENS_APERTURE to 4.0f
-                    )
+                    extraMetadata = mapOf(CaptureResult.LENS_APERTURE to 4.0f)
                 )
             }
 
@@ -165,9 +147,8 @@ class CameraGraphSimulatorTest {
             assertThat(completedEvent.frameNumber).isEqualTo(frame.frameNumber)
             assertThat(completedEvent.frameInfo.camera).isEqualTo(metadata.camera)
             assertThat(completedEvent.frameInfo.metadata[CaptureResult.LENS_STATE]).isEqualTo(1)
-            assertThat(completedEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE]).isEqualTo(
-                4.0f
-            )
+            assertThat(completedEvent.frameInfo.metadata[CaptureResult.LENS_APERTURE])
+                .isEqualTo(4.0f)
             assertThat(completedEvent.frameInfo.metadata[CaptureResult.FLASH_STATE]).isEqualTo(3)
 
             simulateCallbacks.join()
@@ -176,22 +157,12 @@ class CameraGraphSimulatorTest {
 
     @Test
     fun simulatorAbortsRequests() = runTest {
-        CameraGraphSimulator.create(
-            this,
-            context,
-            metadata,
-            graphConfig
-        ).use { simulator ->
+        CameraGraphSimulator.create(this, context, metadata, graphConfig).use { simulator ->
             val stream = simulator.cameraGraph.streams[streamConfig]!!
             val listener = FakeRequestListener()
-            val request = Request(
-                streams = listOf(stream.id),
-                listeners = listOf(listener)
-            )
+            val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
 
-            simulator.cameraGraph.acquireSession().use {
-                it.submit(request = request)
-            }
+            simulator.cameraGraph.acquireSession().use { it.submit(request = request) }
             simulator.cameraGraph.close()
 
             val abortedEvent = listener.onAbortedFlow.first()
@@ -201,22 +172,12 @@ class CameraGraphSimulatorTest {
 
     @Test
     fun simulatorCanIssueBufferLoss() = runTest {
-        CameraGraphSimulator.create(
-            this,
-            context,
-            metadata,
-            graphConfig
-        ).use { simulator ->
+        CameraGraphSimulator.create(this, context, metadata, graphConfig).use { simulator ->
             val stream = simulator.cameraGraph.streams[streamConfig]!!
             val listener = FakeRequestListener()
-            val request = Request(
-                streams = listOf(stream.id),
-                listeners = listOf(listener)
-            )
+            val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
 
-            simulator.cameraGraph.acquireSession().use {
-                it.submit(request = request)
-            }
+            simulator.cameraGraph.acquireSession().use { it.submit(request = request) }
 
             simulator.cameraGraph.start()
             simulator.simulateCameraStarted()
@@ -236,22 +197,12 @@ class CameraGraphSimulatorTest {
 
     @Test
     fun simulatorCanIssueMultipleFrames() = runTest {
-        CameraGraphSimulator.create(
-            this,
-            context,
-            metadata,
-            graphConfig
-        ).use { simulator ->
+        CameraGraphSimulator.create(this, context, metadata, graphConfig).use { simulator ->
             val stream = simulator.cameraGraph.streams[streamConfig]!!
             val listener = FakeRequestListener()
-            val request = Request(
-                streams = listOf(stream.id),
-                listeners = listOf(listener)
-            )
+            val request = Request(streams = listOf(stream.id), listeners = listOf(listener))
 
-            simulator.cameraGraph.acquireSession().use {
-                it.startRepeating(request = request)
-            }
+            simulator.cameraGraph.acquireSession().use { it.startRepeating(request = request) }
             simulator.cameraGraph.start()
             simulator.simulateCameraStarted()
             simulator.simulateFakeSurfaceConfiguration()
@@ -283,9 +234,8 @@ class CameraGraphSimulatorTest {
                 frame3.simulateComplete(resultMetadata)
             }
 
-            val startEvents = withTimeout(timeMillis = 250) {
-                listener.onStartedFlow.take(3).toList()
-            }
+            val startEvents =
+                withTimeout(timeMillis = 250) { listener.onStartedFlow.take(3).toList() }
             assertThat(startEvents).hasSize(3)
 
             val event1 = startEvents[0]
@@ -308,9 +258,8 @@ class CameraGraphSimulatorTest {
             assertThat(event2.requestMetadata.request).isSameInstanceAs(request)
             assertThat(event3.requestMetadata.request).isSameInstanceAs(request)
 
-            val completeEvents = withTimeout(timeMillis = 250) {
-                listener.onCompleteFlow.take(3).toList()
-            }
+            val completeEvents =
+                withTimeout(timeMillis = 250) { listener.onCompleteFlow.take(3).toList() }
             assertThat(completeEvents).hasSize(3)
 
             val completeEvent1 = completeEvents[0]
@@ -334,12 +283,7 @@ class CameraGraphSimulatorTest {
 
     @Test
     fun simulatorCanSimulateGraphState() = runTest {
-        CameraGraphSimulator.create(
-            this,
-            context,
-            metadata,
-            graphConfig
-        ).use { simulator ->
+        CameraGraphSimulator.create(this, context, metadata, graphConfig).use { simulator ->
             assertThat(simulator.cameraGraph.graphState.value).isEqualTo(GraphStateStopped)
 
             simulator.cameraGraph.start()
@@ -358,12 +302,7 @@ class CameraGraphSimulatorTest {
 
     @Test
     fun simulatorCanSimulateGraphError() = runTest {
-        CameraGraphSimulator.create(
-            this,
-            context,
-            metadata,
-            graphConfig
-        ).use { simulator ->
+        CameraGraphSimulator.create(this, context, metadata, graphConfig).use { simulator ->
             val error = GraphStateError(CameraError.ERROR_CAMERA_DEVICE, willAttemptRetry = true)
 
             simulator.simulateCameraError(error)

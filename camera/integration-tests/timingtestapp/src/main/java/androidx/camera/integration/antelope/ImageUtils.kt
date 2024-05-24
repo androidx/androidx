@@ -62,15 +62,15 @@ class ImageAvailableListener(
 
     override fun onImageAvailable(reader: ImageReader) {
         logd(
-            "onImageAvailable enter. Current test: " + testConfig.currentRunningTest +
-                " state: " + params.state
+            "onImageAvailable enter. Current test: " +
+                testConfig.currentRunningTest +
+                " state: " +
+                params.state
         )
 
         // Only save 1 photo each time
-        if (CameraState.IMAGE_REQUESTED != params.state)
-            return
-        else
-            params.state = CameraState.UNINITIALIZED
+        if (CameraState.IMAGE_REQUESTED != params.state) return
+        else params.state = CameraState.UNINITIALIZED
 
         val image = reader.acquireLatestImage()
 
@@ -89,28 +89,28 @@ class ImageAvailableListener(
 
                 params.backgroundHandler?.post(
                     ImageSaver(
-                        activity, bytes, capturedImageRotation,
-                        params.isFront, params, testConfig
+                        activity,
+                        bytes,
+                        capturedImageRotation,
+                        params.isFront,
+                        params,
+                        testConfig
                     )
                 )
             }
 
             // TODO: add RAW support
-            ImageFormat.RAW_SENSOR -> {
-            }
-
-            else -> {
-            }
+            ImageFormat.RAW_SENSOR -> {}
+            else -> {}
         }
 
         image.close()
     }
 }
 
-/**
- * Asynchronously save ByteArray to disk
- */
-class ImageSaver internal constructor(
+/** Asynchronously save ByteArray to disk */
+class ImageSaver
+internal constructor(
     private val activity: MainActivity,
     private val bytes: ByteArray,
     private val rotation: Int,
@@ -123,8 +123,8 @@ class ImageSaver internal constructor(
         logd("ImageSaver. ImageSaver is running, saving image to disk.")
 
         // TODO: Once Android supports HDR+ detection add this in
-//        if (isHDRPlus(bytes))
-//            params.timer.isHDRPlus = true;
+        //        if (isHDRPlus(bytes))
+        //            params.timer.isHDRPlus = true;
 
         writeFile(activity, bytes)
 
@@ -144,21 +144,14 @@ class ImageSaver internal constructor(
     }
 }
 
-/**
- * Rotate a given Bitmap by degrees
- */
+/** Rotate a given Bitmap by degrees */
 fun rotateBitmap(original: Bitmap, degrees: Float): Bitmap {
     val matrix = Matrix()
     matrix.postRotate(degrees)
-    return Bitmap.createBitmap(
-        original, 0, 0, original.width, original.height,
-        matrix, true
-    )
+    return Bitmap.createBitmap(original, 0, 0, original.width, original.height, matrix, true)
 }
 
-/**
- * Scale a given Bitmap by scaleFactor
- */
+/** Scale a given Bitmap by scaleFactor */
 fun scaleBitmap(bitmap: Bitmap, scaleFactor: Float): Bitmap {
     val scaledWidth = Math.round(bitmap.width * scaleFactor)
     val scaledHeight = Math.round(bitmap.height * scaleFactor)
@@ -166,26 +159,20 @@ fun scaleBitmap(bitmap: Bitmap, scaleFactor: Float): Bitmap {
     return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
 }
 
-/**
- * Flip a Bitmap horizontal
- */
+/** Flip a Bitmap horizontal */
 fun horizontalFlip(bitmap: Bitmap): Bitmap {
     val matrix = Matrix()
     matrix.preScale(-1.0f, 1.0f)
     return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
 }
 
-/**
- * Generate a timestamp to append to saved filenames.
- */
+/** Generate a timestamp to append to saved filenames. */
 fun generateTimestamp(): String {
     val sdf = SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS", Locale.US)
     return sdf.format(Date())
 }
 
-/**
- * Actually write a byteArray file to disk. Assume the file is a jpg and use that extension
- */
+/** Actually write a byteArray file to disk. Assume the file is a jpg and use that extension */
 fun writeFile(activity: MainActivity, bytes: ByteArray) {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
         writeFileAfterQ(activity, bytes)
@@ -201,25 +188,30 @@ fun writeFile(activity: MainActivity, bytes: ByteArray) {
  * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
  */
 fun writeFileBeforeQ(activity: MainActivity, bytes: ByteArray) {
-    val jpgFile = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        File.separatorChar + PHOTOS_DIR + File.separatorChar +
-            "Antelope" + generateTimestamp() + ".jpg"
-    )
+    val jpgFile =
+        File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+            File.separatorChar +
+                PHOTOS_DIR +
+                File.separatorChar +
+                "Antelope" +
+                generateTimestamp() +
+                ".jpg"
+        )
 
-    val photosDir = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        PHOTOS_DIR
-    )
+    val photosDir =
+        File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), PHOTOS_DIR)
 
     if (!photosDir.exists()) {
         val createSuccess = photosDir.mkdir()
         if (!createSuccess) {
             activity.runOnUiThread {
                 Toast.makeText(
-                    activity, "DCIM/" + PHOTOS_DIR + " creation failed.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                        activity,
+                        "DCIM/" + PHOTOS_DIR + " creation failed.",
+                        Toast.LENGTH_SHORT
+                    )
+                    .show()
             }
             logd("Photo storage directory DCIM/" + PHOTOS_DIR + " creation failed!!")
         } else {
@@ -263,11 +255,12 @@ fun writeFileBeforeQ(activity: MainActivity, bytes: ByteArray) {
  */
 fun writeFileAfterQ(activity: MainActivity, bytes: ByteArray) {
     val resolver: ContentResolver = activity.contentResolver
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, generateTimestamp().toString() + ".jpg")
-        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        put(MediaStore.MediaColumns.RELATIVE_PATH, PHOTOS_PATH)
-    }
+    val contentValues =
+        ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, generateTimestamp().toString() + ".jpg")
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, PHOTOS_PATH)
+        }
 
     val imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
     if (imageUri != null) {
@@ -294,17 +287,12 @@ fun writeFileAfterQ(activity: MainActivity, bytes: ByteArray) {
         }
     } else {
         activity.runOnUiThread {
-            Toast.makeText(
-                activity, "Image file creation failed.",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(activity, "Image file creation failed.", Toast.LENGTH_SHORT).show()
         }
     }
 }
 
-/**
- * Delete all the photos generated by testing
- */
+/** Delete all the photos generated by testing */
 fun deleteTestPhotos(activity: MainActivity) {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
         deleteTestPhotosAfterQ(activity)
@@ -325,15 +313,12 @@ fun deleteTestPhotos(activity: MainActivity) {
  * https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
  */
 fun deleteTestPhotosBeforeQ(activity: MainActivity) {
-    val photosDir = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        PHOTOS_DIR
-    )
+    val photosDir =
+        File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), PHOTOS_DIR)
 
     if (photosDir.exists()) {
 
-        for (photo in photosDir.listFiles()!!)
-            photo.delete()
+        for (photo in photosDir.listFiles()!!) photo.delete()
 
         // Files are deleted, let media scanner know
         val scannerIntent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
@@ -352,11 +337,7 @@ fun deleteTestPhotosAfterQ(activity: MainActivity) {
     val selection = MediaStore.MediaColumns.RELATIVE_PATH + " like ?"
     val selectionArgs = arrayOf("%$PHOTOS_PATH%")
 
-    resolver.delete(
-        imageDirUri,
-        selection,
-        selectionArgs
-    )
+    resolver.delete(imageDirUri, selection, selectionArgs)
 }
 
 /**
@@ -425,17 +406,17 @@ class CameraXImageAvailableListener(
 
                 params.backgroundHandler?.post(
                     ImageSaver(
-                        activity, bytes, capturedImageRotation,
-                        params.isFront, params, testConfig
+                        activity,
+                        bytes,
+                        capturedImageRotation,
+                        params.isFront,
+                        params,
+                        testConfig
                     )
                 )
             }
-
-            ImageFormat.RAW_SENSOR -> {
-            }
-
-            else -> {
-            }
+            ImageFormat.RAW_SENSOR -> {}
+            else -> {}
         }
 
         image.close()

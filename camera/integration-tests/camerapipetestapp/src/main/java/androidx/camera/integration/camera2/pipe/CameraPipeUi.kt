@@ -26,9 +26,7 @@ import android.widget.TextView
 
 class CameraPipeUi private constructor(activity: Activity) {
     companion object {
-        /**
-         * Set the content view for the activity and then bind basic interactions together.
-         */
+        /** Set the content view for the activity and then bind basic interactions together. */
         fun inflate(activity: Activity): CameraPipeUi {
             activity.setContentView(R.layout.activity_main)
             return CameraPipeUi(activity)
@@ -46,14 +44,12 @@ class CameraPipeUi private constructor(activity: Activity) {
     val infoText: TextView = activity.findViewById(R.id.info_text)
 
     @Suppress("DEPRECATION")
-    private val recordBackground: Drawable = activity.resources.getDrawable(
-        R.drawable.theme_round_button_record
-    )
+    private val recordBackground: Drawable =
+        activity.resources.getDrawable(R.drawable.theme_round_button_record)
 
     @Suppress("DEPRECATION")
-    private val defaultBackground: Drawable = activity.resources.getDrawable(
-        R.drawable.theme_round_button_default
-    )
+    private val defaultBackground: Drawable =
+        activity.resources.getDrawable(R.drawable.theme_round_button_default)
 
     init {
         val infoViewContainer: ScrollView = activity.findViewById(R.id.info_view)

@@ -25,10 +25,10 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.ImageCaptureConfig
 
 /**
- * Turns on or turns off HDR+ on Pixel devices depending on the image capture use case's
- * capture mode. When the mode is [ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY], HDR+ is
- * turned off by disabling ZSL. When the mode is
- * [ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY], HDR+ is turned on by enabling ZSL.
+ * Turns on or turns off HDR+ on Pixel devices depending on the image capture use case's capture
+ * mode. When the mode is [ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY], HDR+ is turned off by
+ * disabling ZSL. When the mode is [ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY], HDR+ is turned on
+ * by enabling ZSL.
  *
  * @see ImageCapturePixelHDRPlusQuirk
  */

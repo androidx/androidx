@@ -35,16 +35,15 @@ class MemoryUsageQueryTest {
     fun fixedTrace31() {
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
-        PerfettoTraceProcessor.runSingleSessionServer(
-            traceFile.absolutePath
-        ) {
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             // Note: this particular trace has same values for last and max
-            val expected = mapOf(
-                SubMetric.HeapSize to 3067,
-                SubMetric.RssAnon to 47260,
-                SubMetric.RssFile to 67668,
-                SubMetric.RssShmem to 1160
-            )
+            val expected =
+                mapOf(
+                    SubMetric.HeapSize to 3067,
+                    SubMetric.RssAnon to 47260,
+                    SubMetric.RssFile to 67668,
+                    SubMetric.RssShmem to 1160
+                )
             assertEquals(
                 expected,
                 MemoryUsageQuery.getMemoryUsageKb(
@@ -68,11 +67,8 @@ class MemoryUsageQueryTest {
     @MediumTest
     fun fixedTrace33() {
         assumeTrue(PerfettoHelper.isAbiSupported())
-        val traceFile =
-            createTempFileFromAsset("api33_motionlayout_messagejson", ".perfetto-trace")
-        PerfettoTraceProcessor.runSingleSessionServer(
-            traceFile.absolutePath
-        ) {
+        val traceFile = createTempFileFromAsset("api33_motionlayout_messagejson", ".perfetto-trace")
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
                 mapOf(
                     SubMetric.HeapSize to 25019,
@@ -107,9 +103,7 @@ class MemoryUsageQueryTest {
     fun fixedGpuTrace34() {
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api34_startup_cold", ".perfetto-trace")
-        PerfettoTraceProcessor.runSingleSessionServer(
-            traceFile.absolutePath
-        ) {
+        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
                 mapOf(
                     SubMetric.Gpu to 30840,

@@ -43,7 +43,7 @@ class DataManager(private val visualizationDefaults: VisualizationDefaults) {
                         graphData = GraphDataSortedRingBuffer()
                     )
 
-                /** Because the top row of any graph view is a key value view*/
+                /** Because the top row of any graph view is a key value view */
                 if (!keyValueDataHolders.containsKey(key))
                     keyValueDataHolders[key] = KeyValueDataHolder()
             }
@@ -53,7 +53,7 @@ class DataManager(private val visualizationDefaults: VisualizationDefaults) {
             StateDetails.intToStringMap[key]?.let { map ->
                 graphDataHolders[key] = GraphDataHolderStateImpl(map, GraphDataSortedRingBuffer())
 
-                /** Because the top row of any graph view is a key value view*/
+                /** Because the top row of any graph view is a key value view */
                 if (!keyValueDataHolders.containsKey(key))
                     keyValueDataHolders[key] = KeyValueDataHolder()
             }

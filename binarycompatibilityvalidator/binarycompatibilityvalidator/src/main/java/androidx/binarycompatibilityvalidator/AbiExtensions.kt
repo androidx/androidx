@@ -27,18 +27,19 @@ import org.jetbrains.kotlin.library.abi.AbiVariance
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 
 // Convenience extensions for accessing properties that may exist without have to cast repeatedly
-// For sources with documentation see https://github.com/JetBrains/kotlin/blob/master/compiler/util-klib-abi/src/org/jetbrains/kotlin/library/abi/LibraryAbi.kt
+// For sources with documentation see
+// https://github.com/JetBrains/kotlin/blob/master/compiler/util-klib-abi/src/org/jetbrains/kotlin/library/abi/LibraryAbi.kt
 
-/** A classifier reference is either a simple class or a type reference **/
+/** A classifier reference is either a simple class or a type reference */
 internal val AbiType.classifierReference: AbiClassifierReference?
     get() = (this as? AbiType.Simple)?.classifierReference
-/** The class name from a regular type e.g. 'Array' **/
+/** The class name from a regular type e.g. 'Array' */
 internal val AbiType.className: AbiQualifiedName?
     get() = classifierReference?.className
-/** A tag from a type type parameter reference e.g. 'T' **/
+/** A tag from a type type parameter reference e.g. 'T' */
 internal val AbiType.tag: String?
     get() = classifierReference?.tag
-/** The string representation of a type, whether it is a simple type or a type reference **/
+/** The string representation of a type, whether it is a simple type or a type reference */
 internal val AbiType.classNameOrTag: String?
     get() = className?.toString() ?: tag
 internal val AbiType.nullability: AbiTypeNullability?

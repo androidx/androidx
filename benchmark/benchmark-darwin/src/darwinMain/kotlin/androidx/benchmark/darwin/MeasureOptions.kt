@@ -16,9 +16,7 @@
 
 package androidx.benchmark.darwin
 
-/**
- * Test measurement options that control how many iterations to run.
- */
+/** Test measurement options that control how many iterations to run. */
 expect class MeasureOptions {
     var iterationCount: ULong
 }

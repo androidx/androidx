@@ -26,9 +26,7 @@ import org.junit.Test
 
 class DataTransformations1DTests {
 
-    /**
-     * LENS_FOCUS_DISTANCE tests
-     */
+    /** LENS_FOCUS_DISTANCE tests */
     @Test
     fun lensFocusDistance_nullTest() {
         assertThat(DataTransformations1D.convert(LENS_FOCUS_DISTANCE, null)).isNull()
@@ -42,9 +40,7 @@ class DataTransformations1DTests {
         (0 until nums.size).forEach {
             val transformedData = DataTransformations1D.convert(LENS_FOCUS_DISTANCE, nums[it])
             assertThat(transformedData is Float).isTrue()
-            assertThat(transformedData as Float)
-                .isWithin(0.0001f)
-                .of(transformedNums[it])
+            assertThat(transformedData as Float).isWithin(0.0001f).of(transformedNums[it])
         }
     }
 
@@ -63,9 +59,7 @@ class DataTransformations1DTests {
         DataTransformations1D.convert(LENS_FOCUS_DISTANCE, arrayListOf(1, 2))
     }
 
-    /**
-     * CONTROL_AE_MODE tests
-     */
+    /** CONTROL_AE_MODE tests */
     @Test
     fun controlAEMode_nullTest() {
         assertThat(DataTransformations1D.convert(CONTROL_AE_MODE, null)).isNull()
@@ -83,9 +77,7 @@ class DataTransformations1DTests {
         DataTransformations1D.convert(CONTROL_AE_MODE, 18F)
     }
 
-    /**
-     * STATISTICS_FACES tests
-     */
+    /** STATISTICS_FACES tests */
     @Test
     fun statisticsFaces_nullTest() {
         assertThat(DataTransformations1D.convert(STATISTICS_FACES, null)).isNull()
@@ -102,9 +94,7 @@ class DataTransformations1DTests {
         DataTransformations1D.convert(STATISTICS_FACES, 18L)
     }
 
-    /**
-     * Tests for keys with no specific transformation e.g. LENS_FOCAL_LENGTH
-     */
+    /** Tests for keys with no specific transformation e.g. LENS_FOCAL_LENGTH */
     @Test
     fun lensFocalLength_nullTest() {
         assertThat(DataTransformations1D.convert(LENS_FOCAL_LENGTH, null)).isNull()
@@ -115,9 +105,7 @@ class DataTransformations1DTests {
         val keyDataFloat = 29.9f
         val transformedDataFloat = DataTransformations1D.convert(LENS_FOCAL_LENGTH, keyDataFloat)
         assertThat(transformedDataFloat is Float).isTrue()
-        assertThat(keyDataFloat)
-            .isWithin(0.0001f)
-            .of(transformedDataFloat as Float)
+        assertThat(keyDataFloat).isWithin(0.0001f).of(transformedDataFloat as Float)
 
         val keyDataInt = 29
         val transformedDataInt = DataTransformations1D.convert(LENS_FOCAL_LENGTH, keyDataInt)

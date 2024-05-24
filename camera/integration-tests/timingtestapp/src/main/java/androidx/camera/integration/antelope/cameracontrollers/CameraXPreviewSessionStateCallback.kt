@@ -23,9 +23,7 @@ import androidx.camera.integration.antelope.PrefHelper
 import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
 
-/**
- * Callbacks that track the state of a preview capture session.
- */
+/** Callbacks that track the state of a preview capture session. */
 class CameraXPreviewSessionStateCallback(
     internal var activity: MainActivity,
     internal var params: CameraParams,
@@ -35,7 +33,6 @@ class CameraXPreviewSessionStateCallback(
     /**
      * Preview session is open and frames are coming through. If the test is preview only, record
      * results and close the camera, if a switch or image capture test, proceed to the next step.
-     *
      */
     override fun onActive(session: CameraCaptureSession) {
         if (params.cameraXLifecycle.isFinished()) {
@@ -44,8 +41,9 @@ class CameraXPreviewSessionStateCallback(
         }
 
         // Prevent duplicate captures from being triggered if running a capture test
-        if (testConfig.currentRunningTest != TestType.MULTI_SWITCH &&
-            testConfig.currentRunningTest != TestType.SWITCH_CAMERA
+        if (
+            testConfig.currentRunningTest != TestType.MULTI_SWITCH &&
+                testConfig.currentRunningTest != TestType.SWITCH_CAMERA
         ) {
             if (testConfig.isFirstOnActive) {
                 testConfig.isFirstOnActive = false
@@ -61,8 +59,8 @@ class CameraXPreviewSessionStateCallback(
                 testConfig.testFinished = true
                 closeCameraX(activity, params, testConfig)
             }
-
-            TestType.SWITCH_CAMERA, TestType.MULTI_SWITCH -> {
+            TestType.SWITCH_CAMERA,
+            TestType.MULTI_SWITCH -> {
                 if (testConfig.switchTestCurrentCamera == testConfig.switchTestCameras.get(0)) {
                     if (testConfig.testFinished) {
                         params.timer.switchToFirstEnd = System.currentTimeMillis()
@@ -80,7 +78,6 @@ class CameraXPreviewSessionStateCallback(
                     closePreviewAndCamera(activity, params, testConfig)
                 }
             }
-
             else -> {
                 cameraXTakePicture(activity, params, testConfig)
             }
@@ -88,24 +85,18 @@ class CameraXPreviewSessionStateCallback(
         super.onActive(session)
     }
 
-    /**
-     * Preview session has been configured. Camera X handles the next step.
-     */
+    /** Preview session has been configured. Camera X handles the next step. */
     override fun onConfigured(cameraCaptureSession: CameraCaptureSession) {
         MainActivity.logd("In onConfigured: CaptureSession configured!")
     }
 
-    /**
-     * Configuration of the preview stream failed, try again.
-     */
+    /** Configuration of the preview stream failed, try again. */
     override fun onConfigureFailed(cameraCaptureSession: CameraCaptureSession) {
         MainActivity.logd("CameraX preview initialization failed. Closing camera.")
         closeCameraX(activity, params, testConfig)
     }
 
-    /**
-     * Preview session has been closed. Camera X handles the next step.
-     */
+    /** Preview session has been closed. Camera X handles the next step. */
     override fun onClosed(session: CameraCaptureSession) {
         MainActivity.logd("In CameraXPreviewSessionStateCallback onClosed.")
     }

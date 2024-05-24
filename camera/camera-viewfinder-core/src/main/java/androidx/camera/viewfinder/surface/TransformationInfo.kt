@@ -19,39 +19,26 @@ package androidx.camera.viewfinder.surface
 /**
  * Transformation information associated with the preview output.
  *
- * This information can be used to transform the Surface of a ViewFinder to be suitable
- * to be displayed.
+ * This information can be used to transform the Surface of a ViewFinder to be suitable to be
+ * displayed.
  */
 class TransformationInfo(
 
-    /**
-     * Rotation of the source, relative to the device's natural rotation.
-     */
+    /** Rotation of the source, relative to the device's natural rotation. */
     val sourceRotation: Int,
 
-    /**
-     * Left offset of the cropRect in pixels
-     */
+    /** Left offset of the cropRect in pixels */
     val cropRectLeft: Int,
 
-    /**
-     * Top offset of the cropRect in pixels
-     */
+    /** Top offset of the cropRect in pixels */
     val cropRectTop: Int,
 
-    /**
-     * Right offset of the cropRect in pixels
-     */
+    /** Right offset of the cropRect in pixels */
     val cropRectRight: Int,
 
-    /**
-     * Bottom offset of the cropRect in pixels
-     */
+    /** Bottom offset of the cropRect in pixels */
     val cropRectBottom: Int,
-
-    @get:JvmName("shouldMirror")
-    val shouldMirror: Boolean,
-
+    @get:JvmName("shouldMirror") val shouldMirror: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

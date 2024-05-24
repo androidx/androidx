@@ -39,17 +39,11 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment
 internal class ConfigurationManager(private val project: Project) {
 
     private fun AttributeContainer.usage(value: String) {
-        attribute(
-            Usage.USAGE_ATTRIBUTE,
-            project.objects.named(Usage::class.java, value)
-        )
+        attribute(Usage.USAGE_ATTRIBUTE, project.objects.named(Usage::class.java, value))
     }
 
     private fun AttributeContainer.buildType(value: String) {
-        attribute(
-            BuildTypeAttr.ATTRIBUTE,
-            project.objects.named(BuildTypeAttr::class.java, value)
-        )
+        attribute(BuildTypeAttr.ATTRIBUTE, project.objects.named(BuildTypeAttr::class.java, value))
     }
 
     private fun AttributeContainer.targetJvmEnvironment(value: String) {
@@ -96,7 +90,6 @@ internal class ConfigurationManager(private val project: Project) {
         agpVersion: String? = project.agpVersion().versionString()
     ): Configuration {
         return project.configurations.maybeCreate(camelCase(*(nameParts.toTypedArray()))).apply {
-
             isCanBeResolved = canBeResolved
             isCanBeConsumed = canBeConsumed
 
@@ -114,11 +107,12 @@ internal class ConfigurationManager(private val project: Project) {
     }
 
     private fun AndroidPluginVersion.versionString(): String {
-        val preview = if (!previewType.isNullOrBlank()) {
-            "-$previewType$preview"
-        } else {
-            ""
-        }
+        val preview =
+            if (!previewType.isNullOrBlank()) {
+                "-$previewType$preview"
+            } else {
+                ""
+            }
         return "$major.$minor.$micro$preview"
     }
 }

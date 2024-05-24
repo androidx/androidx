@@ -97,10 +97,11 @@ fun ViewfinderScreen(
     // This instance needs to be carefully used in controlled environments (e.g. LaunchedEffect)
     val previewView = remember {
         PreviewView(localContext).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            layoutParams =
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
 
             // Uses TextureView. Required by MLKitAnalyzer to acquire the correct OutputTransform
             implementationMode = PreviewView.ImplementationMode.COMPATIBLE
@@ -118,9 +119,7 @@ fun ViewfinderScreen(
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        AndroidView(
-            factory = { previewView }
-        )
+        AndroidView(factory = { previewView })
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter),
@@ -134,17 +133,12 @@ fun ViewfinderScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row(modifier = Modifier.weight(1f)) {
-                        Slider(
-                            value = linearZoom,
-                            onValueChange = onLinearZoomChange
-                        )
+                        Slider(value = linearZoom, onValueChange = onLinearZoomChange)
                     }
 
                     Text(
                         text = "%.2f x".format(zoomRatio),
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp)
-                            .background(Color.White)
+                        modifier = Modifier.padding(horizontal = 10.dp).background(Color.White)
                     )
                 }
             }

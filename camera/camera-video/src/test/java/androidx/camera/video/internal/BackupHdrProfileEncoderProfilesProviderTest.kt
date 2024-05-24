@@ -46,14 +46,15 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class BackupHdrProfileEncoderProfilesProviderTest {
 
-    private val defaultProvider = createFakeEncoderProfilesProvider(
-        mapOf(
-            QUALITY_2160P to PROFILES_2160P,
-            QUALITY_1080P to PROFILES_1080P,
-            QUALITY_720P to PROFILES_720P,
-            QUALITY_480P to PROFILES_480P
+    private val defaultProvider =
+        createFakeEncoderProfilesProvider(
+            mapOf(
+                QUALITY_2160P to PROFILES_2160P,
+                QUALITY_1080P to PROFILES_1080P,
+                QUALITY_720P to PROFILES_720P,
+                QUALITY_480P to PROFILES_480P
+            )
         )
-    )
     private val videoEncoderFinder =
         Function<VideoEncoderConfig, VideoEncoderInfo> { FakeVideoEncoderInfo() }
 
@@ -91,10 +92,12 @@ class BackupHdrProfileEncoderProfilesProviderTest {
     private fun createFakeEncoderProfilesProvider(
         qualityToProfilesMap: Map<Int, EncoderProfilesProxy> = emptyMap()
     ): EncoderProfilesProvider {
-        return FakeEncoderProfilesProvider.Builder().also { builder ->
-            for ((quality, profiles) in qualityToProfilesMap) {
-                builder.add(quality, profiles)
+        return FakeEncoderProfilesProvider.Builder()
+            .also { builder ->
+                for ((quality, profiles) in qualityToProfilesMap) {
+                    builder.add(quality, profiles)
+                }
             }
-        }.build()
+            .build()
     }
 }

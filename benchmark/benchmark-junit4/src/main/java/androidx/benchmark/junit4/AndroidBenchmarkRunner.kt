@@ -27,7 +27,6 @@ import androidx.test.runner.AndroidJUnitRunner
  * interference.
  *
  * To use this runner, put the following in your module level `build.gradle`:
- *
  * ```
  * android {
  *     defaultConfig {
@@ -80,9 +79,7 @@ public open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         // Before/After each test, from the test thread, synchronously launch
         // our IsolationActivity if it's not already resumed
         var isResumed = false
-        runOnMainSync {
-            isResumed = IsolationActivity.resumed
-        }
+        runOnMainSync { isResumed = IsolationActivity.resumed }
         // dryRunMode doesn't care about isolation or sustained perf mode, so skip launch cost
         if (!isResumed && !Arguments.dryRunMode) {
             IsolationActivity.launchSingleton()

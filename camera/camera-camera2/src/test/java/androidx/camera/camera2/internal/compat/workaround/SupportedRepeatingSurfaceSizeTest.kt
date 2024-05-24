@@ -41,18 +41,19 @@ class SupportedRepeatingSurfaceSizeTest(
 
         @JvmStatic
         @ParameterizedRobolectricTestRunner.Parameters(name = "brand={0}, model={1}")
-        fun data() = mutableListOf<Array<Any?>>().apply {
-            add(
-                arrayOf(
-                    "Huawei",
-                    "mha-l29",
-                    arrayOf(Size(320, 240), Size(352, 288), Size(400, 400))
+        fun data() =
+            mutableListOf<Array<Any?>>().apply {
+                add(
+                    arrayOf(
+                        "Huawei",
+                        "mha-l29",
+                        arrayOf(Size(320, 240), Size(352, 288), Size(400, 400))
+                    )
                 )
-            )
-            add(arrayOf("Huawei", "Not_mha-l29", input_sizes))
-            add(arrayOf("Not_Huawei", "mha-l29", input_sizes))
-            add(arrayOf("Not_Huawei", "Not_mha-l29", input_sizes))
-        }
+                add(arrayOf("Huawei", "Not_mha-l29", input_sizes))
+                add(arrayOf("Not_Huawei", "mha-l29", input_sizes))
+                add(arrayOf("Not_Huawei", "Not_mha-l29", input_sizes))
+            }
     }
 
     @Before
@@ -63,8 +64,7 @@ class SupportedRepeatingSurfaceSizeTest(
 
     @Test
     fun getSurfaceSizes() {
-        assertThat(
-            SupportedRepeatingSurfaceSize().getSupportedSizes(input_sizes).asList()
-        ).containsExactlyElementsIn(result_sizes)
+        assertThat(SupportedRepeatingSurfaceSize().getSupportedSizes(input_sizes).asList())
+            .containsExactlyElementsIn(result_sizes)
     }
 }

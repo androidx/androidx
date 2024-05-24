@@ -34,7 +34,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CaptureResultImageMatcherTest {
-    private val matcher = CaptureResultImageMatcher();
+    private val matcher = CaptureResultImageMatcher()
+
     private val imagesRetrieved = mutableListOf<ImageReference>()
     private val stageIdsRetrieved = mutableListOf<Int>()
 
@@ -48,8 +49,7 @@ class CaptureResultImageMatcherTest {
 
     private fun createCaptureResult(timestamp: Long): TotalCaptureResult {
         val captureResult = Mockito.mock(TotalCaptureResult::class.java)
-        `when`(captureResult.get(CaptureResult.SENSOR_TIMESTAMP))
-            .thenReturn(timestamp)
+        `when`(captureResult.get(CaptureResult.SENSOR_TIMESTAMP)).thenReturn(timestamp)
         return captureResult
     }
 
@@ -140,8 +140,8 @@ class CaptureResultImageMatcherTest {
         matcher.captureResultIncoming(captureResult4, 4)
         matcher.imageIncoming(imageRef4)
 
-        assertThat(imagesRetrieved).containsExactly(
-            imageRef0, imageRef1, imageRef2, imageRef3, imageRef4)
+        assertThat(imagesRetrieved)
+            .containsExactly(imageRef0, imageRef1, imageRef2, imageRef3, imageRef4)
         assertThat(stageIdsRetrieved).containsExactly(0, 1, 2, 3, 4)
     }
 
@@ -239,6 +239,7 @@ class CaptureResultImageMatcherTest {
 
     class FakeImageReference(val image: Image) : ImageReference {
         var refCount = 1
+
         override fun increment(): Boolean {
             if (refCount <= 0) {
                 return false

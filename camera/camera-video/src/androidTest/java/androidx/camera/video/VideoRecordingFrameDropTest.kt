@@ -86,18 +86,19 @@ class VideoRecordingFrameDropTest(
 ) {
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName.contains(CameraPipeConfig::class.simpleName!!),
-    )
+    val cameraPipeConfigTestRule =
+        CameraPipeConfigTestRule(
+            active = implName.contains(CameraPipeConfig::class.simpleName!!),
+        )
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
+    val cameraRule =
+        CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
+            CameraUtil.PreTestCameraIdList(cameraConfig)
+        )
 
     // Due to the flaky nature of this test, it should only be run in the lab
-    @get:Rule
-    val labTestRule = LabTestRule()
+    @get:Rule val labTestRule = LabTestRule()
 
     @get:Rule
     val permissionRule: GrantPermissionRule =
@@ -106,8 +107,7 @@ class VideoRecordingFrameDropTest(
             Manifest.permission.RECORD_AUDIO
         )
 
-    @get:Rule
-    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+    @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     data class PerSelectorTestData(
         var hasResult: Boolean = false,
@@ -228,17 +228,21 @@ class VideoRecordingFrameDropTest(
         needsShutdown = true
 
         val droppedFrameFlow = MutableSharedFlow<Long>(replay = Channel.UNLIMITED)
-        val captureCallback = object : CameraCaptureSession.CaptureCallback() {
-            override fun onCaptureBufferLost(
-                session: CameraCaptureSession,
-                request: CaptureRequest,
-                target: Surface,
-                frameNumber: Long
-            ) {
-                Logger.e(TAG, "Frame drop detected! [Frame number: $frameNumber, Target: $target]")
-                droppedFrameFlow.tryEmit(frameNumber)
+        val captureCallback =
+            object : CameraCaptureSession.CaptureCallback() {
+                override fun onCaptureBufferLost(
+                    session: CameraCaptureSession,
+                    request: CaptureRequest,
+                    target: Surface,
+                    frameNumber: Long
+                ) {
+                    Logger.e(
+                        TAG,
+                        "Frame drop detected! [Frame number: $frameNumber, Target: $target]"
+                    )
+                    droppedFrameFlow.tryEmit(frameNumber)
+                }
             }
-        }
 
         val droppedFrames = mutableSetOf<Long>()
         val droppedFrameJob = launch {
@@ -248,22 +252,23 @@ class VideoRecordingFrameDropTest(
         val aspectRatio = AspectRatio.RATIO_16_9
 
         // Create video capture with a recorder
-        val videoCapture = VideoCapture.withOutput(
-            Recorder.Builder().setQualitySelector(
-                QualitySelector.from(Quality.HIGHEST)
-            ).build()
-        )
+        val videoCapture =
+            VideoCapture.withOutput(
+                Recorder.Builder().setQualitySelector(QualitySelector.from(Quality.HIGHEST)).build()
+            )
 
         // Add Preview to ensure the preview stream does not drop frames during/after recordings
-        val preview = Preview.Builder()
-            .setTargetAspectRatio(aspectRatio)
-            .apply { Camera2Interop.Extender(this).setSessionCaptureCallback(captureCallback) }
-            .build()
+        val preview =
+            Preview.Builder()
+                .setTargetAspectRatio(aspectRatio)
+                .apply { Camera2Interop.Extender(this).setSessionCaptureCallback(captureCallback) }
+                .build()
 
-        val imageCapture = ImageCapture.Builder()
-            .setTargetAspectRatio(aspectRatio)
-            .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
-            .build()
+        val imageCapture =
+            ImageCapture.Builder()
+                .setTargetAspectRatio(aspectRatio)
+                .setCaptureMode(CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .build()
 
         withContext(Dispatchers.Main) {
             val lifecycleOwner = FakeLifecycleOwner()
@@ -273,25 +278,25 @@ class VideoRecordingFrameDropTest(
             )
             val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector)
 
-            val isImageCaptureSupportedAs3rdUseCase = camera.isUseCasesCombinationSupported(
-                preview,
-                videoCapture,
-                imageCapture
-            )
-            val useCaseGroup = UseCaseGroup.Builder()
-                .addUseCase(videoCapture)
-                .addUseCase(preview)
-                .apply {
-                    if (isImageCaptureSupportedAs3rdUseCase) {
-                        addUseCase(imageCapture)
-                    } else {
-                        Logger.d(
-                            TAG, "Skipping ImageCapture use case, because this device" +
-                                " doesn't support 3 use case combination" +
-                                " (Preview, Video, ImageCapture)."
-                        )
+            val isImageCaptureSupportedAs3rdUseCase =
+                camera.isUseCasesCombinationSupported(preview, videoCapture, imageCapture)
+            val useCaseGroup =
+                UseCaseGroup.Builder()
+                    .addUseCase(videoCapture)
+                    .addUseCase(preview)
+                    .apply {
+                        if (isImageCaptureSupportedAs3rdUseCase) {
+                            addUseCase(imageCapture)
+                        } else {
+                            Logger.d(
+                                TAG,
+                                "Skipping ImageCapture use case, because this device" +
+                                    " doesn't support 3 use case combination" +
+                                    " (Preview, Video, ImageCapture)."
+                            )
+                        }
                     }
-                }.build()
+                    .build()
 
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup)
 
@@ -313,9 +318,7 @@ class VideoRecordingFrameDropTest(
             } finally {
                 lifecycleOwner.pauseAndStop()
                 lifecycleOwner.destroy()
-                withContext(Dispatchers.IO) {
-                    files.forEach { it.delete() }
-                }
+                withContext(Dispatchers.IO) { files.forEach { it.delete() } }
             }
         }
 
@@ -330,8 +333,8 @@ class VideoRecordingFrameDropTest(
     ): File {
         val tmpFile = createTempFileForRecording().apply { deleteOnExit() }
 
-        videoCapture.output.prepareRecording(context,
-            FileOutputOptions.Builder(tmpFile).build())
+        videoCapture.output
+            .prepareRecording(context, FileOutputOptions.Builder(tmpFile).build())
             .withAudioEnabled()
             .startWithRecording { eventFlow ->
                 // Wait for our first status event to ensure recording is started
@@ -370,13 +373,11 @@ class VideoRecordingFrameDropTest(
     }
 
     @Suppress("BlockingMethodInNonBlockingContext") // See b/177458751
-    private suspend fun createTempFileForRecording() = withContext(Dispatchers.IO) {
-        File.createTempFile("CameraX", ".tmp")
-    }
+    private suspend fun createTempFileForRecording() =
+        withContext(Dispatchers.IO) { File.createTempFile("CameraX", ".tmp") }
 
-    private suspend inline fun <reified T : VideoRecordEvent>
-        SharedFlow<VideoRecordEvent>.waitForEvent(timeoutMs: Long) =
-        withTimeout(timeoutMs) { takeWhile { it !is T } }
+    private suspend inline fun <reified T : VideoRecordEvent> SharedFlow<VideoRecordEvent>
+        .waitForEvent(timeoutMs: Long) = withTimeout(timeoutMs) { takeWhile { it !is T } }
 
     /**
      * Executes the given block in the scope of a recording [Recording] with a [SharedFlow]
@@ -387,24 +388,29 @@ class VideoRecordingFrameDropTest(
         crossinline block: suspend Recording.(SharedFlow<VideoRecordEvent>) -> Unit
     ) {
         val eventFlow = MutableSharedFlow<VideoRecordEvent>(replay = 1)
-        val eventListener = Consumer<VideoRecordEvent> { event ->
-            when (event) {
-                is VideoRecordEvent.Pause,
-                is VideoRecordEvent.Resume,
-                is VideoRecordEvent.Finalize -> {
-                    // For all of these events, we need to reset the replay cache since we want
-                    // them to be the first event received by new subscribers. The same is true for
-                    // Start, but since no events should exist before start, we don't need to reset
-                    // in that case.
-                    eventFlow.resetReplayCache()
+        val eventListener =
+            Consumer<VideoRecordEvent> { event ->
+                when (event) {
+                    is VideoRecordEvent.Pause,
+                    is VideoRecordEvent.Resume,
+                    is VideoRecordEvent.Finalize -> {
+                        // For all of these events, we need to reset the replay cache since we want
+                        // them to be the first event received by new subscribers. The same is true
+                        // for
+                        // Start, but since no events should exist before start, we don't need to
+                        // reset
+                        // in that case.
+                        eventFlow.resetReplayCache()
+                    }
                 }
+                // We still try to emit every event. This should cause the replay cache to contain
+                // one
+                // of Start, Pause, Resume or Finalize. Status events will always only be sent after
+                // Start or Resume, so they will only be sent to subscribers that have received one
+                // of
+                // those events already.
+                eventFlow.tryEmit(event)
             }
-            // We still try to emit every event. This should cause the replay cache to contain one
-            // of Start, Pause, Resume or Finalize. Status events will always only be sent after
-            // Start or Resume, so they will only be sent to subscribers that have received one of
-            // those events already.
-            eventFlow.tryEmit(event)
-        }
 
         val recording = start(CameraXExecutors.directExecutor(), eventListener)
         recording.use { it.apply { block(eventFlow) } }

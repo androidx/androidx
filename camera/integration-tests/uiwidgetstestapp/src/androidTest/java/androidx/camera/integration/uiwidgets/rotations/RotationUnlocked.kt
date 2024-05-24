@@ -19,11 +19,13 @@ package androidx.camera.integration.uiwidgets.rotations
 import androidx.test.uiautomator.UiDevice
 
 /**
- * Defines how to rotate in the context of an activity with an unlocked orientation. It assumes
- * the test has been set up so that the device is starting in a natural orientation.
+ * Defines how to rotate in the context of an activity with an unlocked orientation. It assumes the
+ * test has been set up so that the device is starting in a natural orientation.
  */
 sealed class RotationUnlocked(val shouldRotate: Boolean, val rotate: (UiDevice) -> Unit) {
     object Natural : RotationUnlocked(false, {})
+
     object Left : RotationUnlocked(true, UiDevice::setOrientationLeft)
+
     object Right : RotationUnlocked(true, UiDevice::setOrientationRight)
 }

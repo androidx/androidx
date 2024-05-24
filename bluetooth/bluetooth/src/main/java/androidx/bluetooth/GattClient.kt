@@ -57,9 +57,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 
-/**
- * A class for handling operations as a GATT client role.
- */
+/** A class for handling operations as a GATT client role. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class GattClient(private val context: Context) {
 
@@ -68,9 +66,7 @@ class GattClient(private val context: Context) {
     companion object {
         private const val TAG = "GattClient"
 
-        /**
-         * The maximum ATT size + header(3)
-         */
+        /** The maximum ATT size + header(3) */
         private const val GATT_MAX_MTU = MAX_ATTR_LENGTH + 3
 
         private const val CONNECT_TIMEOUT_MS = 30_000L
@@ -78,26 +74,36 @@ class GattClient(private val context: Context) {
 
     interface FrameworkAdapter {
         var fwkBluetoothGatt: FwkBluetoothGatt?
+
         fun connectGatt(
             context: Context,
             fwkDevice: FwkBluetoothDevice,
             fwkCallback: FwkBluetoothGattCallback
         ): Boolean
+
         fun requestMtu(mtu: Int)
+
         fun discoverServices()
+
         fun getServices(): List<FwkBluetoothGattService>
+
         fun getService(uuid: UUID): FwkBluetoothGattService?
+
         fun readCharacteristic(fwkCharacteristic: FwkBluetoothGattCharacteristic)
+
         fun writeCharacteristic(
             fwkCharacteristic: FwkBluetoothGattCharacteristic,
             value: ByteArray,
             writeType: Int
         )
+
         fun writeDescriptor(fwkDescriptor: FwkBluetoothGattDescriptor, value: ByteArray)
+
         fun setCharacteristicNotification(
             fwkCharacteristic: FwkBluetoothGattCharacteristic,
             enable: Boolean
         )
+
         fun closeGatt()
     }
 
@@ -105,8 +111,7 @@ class GattClient(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     var fwkAdapter: FrameworkAdapter =
         if (Build.VERSION.SDK_INT >= 33) FrameworkAdapterApi33()
-        else if (Build.VERSION.SDK_INT >= 31) FrameworkAdapterApi31()
-        else FrameworkAdapterBase()
+        else if (Build.VERSION.SDK_INT >= 31) FrameworkAdapterApi31() else FrameworkAdapterBase()
 
     private sealed interface CallbackResult {
         class OnCharacteristicRead(
@@ -115,10 +120,8 @@ class GattClient(private val context: Context) {
             val status: Int
         ) : CallbackResult
 
-        class OnCharacteristicWrite(
-            val characteristic: GattCharacteristic,
-            val status: Int
-        ) : CallbackResult
+        class OnCharacteristicWrite(val characteristic: GattCharacteristic, val status: Int) :
+            CallbackResult
 
         class OnDescriptorRead(
             val fwkDescriptor: FwkBluetoothGattDescriptor,
@@ -126,320 +129,343 @@ class GattClient(private val context: Context) {
             val status: Int
         ) : CallbackResult
 
-        class OnDescriptorWrite(
-            val fwkDescriptor: FwkBluetoothGattDescriptor,
-            val status: Int
-        ) : CallbackResult
+        class OnDescriptorWrite(val fwkDescriptor: FwkBluetoothGattDescriptor, val status: Int) :
+            CallbackResult
     }
 
     private interface SubscribeListener {
         fun onCharacteristicNotification(value: ByteArray)
+
         fun finish()
     }
 
     @SuppressLint("MissingPermission")
-    suspend fun <R> connect(
-        device: BluetoothDevice,
-        block: suspend GattClientScope.() -> R
-    ): R = coroutineScope {
-        val connectResult = CompletableDeferred<Unit>(parent = coroutineContext.job)
-        val callbackResultsFlow =
-            MutableSharedFlow<CallbackResult>(extraBufferCapacity = Int.MAX_VALUE)
-        val subscribeMap = mutableMapOf<FwkBluetoothGattCharacteristic, SubscribeListener>()
-        val subscribeMutex = Mutex()
-        val attributeMap = AttributeMap()
-        val servicesFlow = MutableStateFlow<List<GattService>>(listOf())
+    suspend fun <R> connect(device: BluetoothDevice, block: suspend GattClientScope.() -> R): R =
+        coroutineScope {
+            val connectResult = CompletableDeferred<Unit>(parent = coroutineContext.job)
+            val callbackResultsFlow =
+                MutableSharedFlow<CallbackResult>(extraBufferCapacity = Int.MAX_VALUE)
+            val subscribeMap = mutableMapOf<FwkBluetoothGattCharacteristic, SubscribeListener>()
+            val subscribeMutex = Mutex()
+            val attributeMap = AttributeMap()
+            val servicesFlow = MutableStateFlow<List<GattService>>(listOf())
 
-        val fwkCallback = object : FwkBluetoothGattCallback() {
-            override fun onConnectionStateChange(
-                gatt: FwkBluetoothGatt?,
-                status: Int,
-                newState: Int
-            ) {
-                if (newState == FwkBluetoothGatt.STATE_CONNECTED) {
-                    fwkAdapter.requestMtu(GATT_MAX_MTU)
-                } else {
-                    cancel("connect failed")
-                }
-            }
-
-            override fun onMtuChanged(gatt: FwkBluetoothGatt?, mtu: Int, status: Int) {
-                if (status == FwkBluetoothGatt.GATT_SUCCESS) {
-                    fwkAdapter.discoverServices()
-                } else {
-                    cancel("mtu request failed")
-                }
-            }
-
-            override fun onServicesDiscovered(gatt: FwkBluetoothGatt?, status: Int) {
-                attributeMap.updateWithFrameworkServices(fwkAdapter.getServices())
-                if (status == FwkBluetoothGatt.GATT_SUCCESS) connectResult.complete(Unit)
-                else cancel("service discover failed")
-                servicesFlow.tryEmit(attributeMap.getServices())
-                if (connectResult.isActive) {
-                    if (status == FwkBluetoothGatt.GATT_SUCCESS) connectResult.complete(Unit)
-                    else connectResult.cancel("service discover failed")
-                }
-            }
-
-            override fun onServiceChanged(gatt: FwkBluetoothGatt) {
-                // TODO: under API 31, we have to subscribe to the service changed characteristic.
-                fwkAdapter.discoverServices()
-            }
-
-            override fun onCharacteristicRead(
-                fwkBluetoothGatt: FwkBluetoothGatt,
-                fwkCharacteristic: FwkBluetoothGattCharacteristic,
-                value: ByteArray,
-                status: Int
-            ) {
-                attributeMap.fromFwkCharacteristic(fwkCharacteristic)?.let {
-                    callbackResultsFlow.tryEmit(
-                        CallbackResult.OnCharacteristicRead(it, value, status)
-                    )
-                }
-            }
-
-            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
-            override fun onCharacteristicRead(
-                fwkBluetoothGatt: FwkBluetoothGatt,
-                fwkCharacteristic: FwkBluetoothGattCharacteristic,
-                status: Int
-            ) {
-                onCharacteristicRead(
-                    fwkBluetoothGatt,
-                    fwkCharacteristic,
-                    fwkCharacteristic.value,
-                    status
-                )
-            }
-
-            override fun onCharacteristicWrite(
-                fwkBluetoothGatt: FwkBluetoothGatt,
-                fwkCharacteristic: FwkBluetoothGattCharacteristic,
-                status: Int
-            ) {
-                attributeMap.fromFwkCharacteristic(fwkCharacteristic)?.let {
-                    callbackResultsFlow.tryEmit(
-                        CallbackResult.OnCharacteristicWrite(it, status)
-                    )
-                }
-            }
-
-            override fun onDescriptorRead(
-                fwkBluetoothGatt: FwkBluetoothGatt,
-                fwkDescriptor: FwkBluetoothGattDescriptor,
-                status: Int,
-                value: ByteArray
-            ) {
-                callbackResultsFlow.tryEmit(
-                    CallbackResult.OnDescriptorRead(fwkDescriptor, value, status)
-                )
-            }
-
-            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
-            override fun onDescriptorRead(
-                fwkBluetoothGatt: FwkBluetoothGatt,
-                fwkDescriptor: FwkBluetoothGattDescriptor,
-                status: Int
-            ) {
-                onDescriptorRead(fwkBluetoothGatt, fwkDescriptor, status, fwkDescriptor.value)
-            }
-
-            override fun onDescriptorWrite(
-                fwkBluetoothGatt: FwkBluetoothGatt,
-                fwkDescriptor: FwkBluetoothGattDescriptor,
-                status: Int
-            ) {
-                callbackResultsFlow.tryEmit(
-                    CallbackResult.OnDescriptorWrite(fwkDescriptor, status)
-                )
-            }
-
-            override fun onCharacteristicChanged(
-                fwkBluetoothGatt: FwkBluetoothGatt,
-                fwkCharacteristic: FwkBluetoothGattCharacteristic,
-                value: ByteArray
-            ) {
-                launch {
-                    subscribeMutex.withLock {
-                        subscribeMap[fwkCharacteristic]?.onCharacteristicNotification(value)
-                    }
-                }
-            }
-
-            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
-            override fun onCharacteristicChanged(
-                fwkBluetoothGatt: FwkBluetoothGatt,
-                fwkCharacteristic: FwkBluetoothGattCharacteristic,
-            ) {
-                onCharacteristicChanged(
-                    fwkBluetoothGatt,
-                    fwkCharacteristic,
-                    fwkCharacteristic.value
-                )
-            }
-        }
-
-        if (!fwkAdapter.connectGatt(context, device.fwkDevice, fwkCallback)) {
-            throw CancellationException("failed to connect")
-        }
-
-        withTimeout(CONNECT_TIMEOUT_MS) {
-            connectResult.await()
-        }
-
-        val gattClientScope = object : GattClientScope {
-            val taskMutex = Mutex()
-
-            suspend fun <R> runTask(block: suspend () -> R): R {
-                taskMutex.withLock {
-                    return block()
-                }
-            }
-
-            override val servicesFlow: StateFlow<List<GattService>> = servicesFlow.asStateFlow()
-
-            override fun getService(uuid: UUID): GattService? {
-                return fwkAdapter.getService(uuid)?.let { attributeMap.fromFwkService(it) }
-            }
-
-            override suspend fun readCharacteristic(characteristic: GattCharacteristic):
-                Result<ByteArray> {
-                if (characteristic.properties and GattCharacteristic.PROPERTY_READ == 0) {
-                    return Result.failure(IllegalArgumentException("can't read the characteristic"))
-                }
-                return runTask {
-                    fwkAdapter.readCharacteristic(characteristic.fwkCharacteristic)
-                    val res = takeMatchingResult<CallbackResult.OnCharacteristicRead>(
-                        callbackResultsFlow
+            val fwkCallback =
+                object : FwkBluetoothGattCallback() {
+                    override fun onConnectionStateChange(
+                        gatt: FwkBluetoothGatt?,
+                        status: Int,
+                        newState: Int
                     ) {
-                        it.characteristic == characteristic
-                    }
-
-                    if (res.status == FwkBluetoothGatt.GATT_SUCCESS) Result.success(res.value)
-                    // TODO: throw precise reason if we can gather the info
-                    else Result.failure(CancellationException("fail"))
-                }
-            }
-
-            override suspend fun writeCharacteristic(
-                characteristic: GattCharacteristic,
-                value: ByteArray
-            ): Result<Unit> {
-                val writeType =
-                    if (characteristic.properties and PROPERTY_WRITE_NO_RESPONSE != 0)
-                        FwkBluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
-                    else if (characteristic.properties and PROPERTY_WRITE != 0)
-                        FwkBluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                    else throw IllegalArgumentException("can't write to the characteristic")
-
-                if (value.size > MAX_ATTR_LENGTH) {
-                    throw IllegalArgumentException("too long value to write")
-                }
-
-                return runTask {
-                    fwkAdapter.writeCharacteristic(
-                        characteristic.fwkCharacteristic, value, writeType
-                    )
-                    val res = takeMatchingResult<CallbackResult.OnCharacteristicWrite>(
-                        callbackResultsFlow
-                    ) {
-                        it.characteristic == characteristic
-                    }
-                    if (res.status == FwkBluetoothGatt.GATT_SUCCESS) Result.success(Unit)
-                    // TODO: throw precise reason if we can gather the info
-                    else Result.failure(CancellationException("fail with error = ${res.status}"))
-                }
-            }
-
-            override fun subscribeToCharacteristic(characteristic: GattCharacteristic):
-                Flow<ByteArray> {
-                if (!characteristic.isSubscribable) {
-                    return emptyFlow()
-                }
-                val cccd = characteristic.fwkCharacteristic.getDescriptor(UUID_CCCD)
-                    ?: return emptyFlow()
-
-                return callbackFlow {
-                    val listener = object : SubscribeListener {
-                        override fun onCharacteristicNotification(value: ByteArray) {
-                            trySend(value)
-                        }
-
-                        override fun finish() {
-                            close()
+                        if (newState == FwkBluetoothGatt.STATE_CONNECTED) {
+                            fwkAdapter.requestMtu(GATT_MAX_MTU)
+                        } else {
+                            cancel("connect failed")
                         }
                     }
-                    if (!registerSubscribeListener(characteristic.fwkCharacteristic, listener)) {
-                        throw IllegalStateException("already subscribed")
+
+                    override fun onMtuChanged(gatt: FwkBluetoothGatt?, mtu: Int, status: Int) {
+                        if (status == FwkBluetoothGatt.GATT_SUCCESS) {
+                            fwkAdapter.discoverServices()
+                        } else {
+                            cancel("mtu request failed")
+                        }
                     }
 
-                    runTask {
-                        fwkAdapter.setCharacteristicNotification(
-                            characteristic.fwkCharacteristic, /*enable=*/true
+                    override fun onServicesDiscovered(gatt: FwkBluetoothGatt?, status: Int) {
+                        attributeMap.updateWithFrameworkServices(fwkAdapter.getServices())
+                        if (status == FwkBluetoothGatt.GATT_SUCCESS) connectResult.complete(Unit)
+                        else cancel("service discover failed")
+                        servicesFlow.tryEmit(attributeMap.getServices())
+                        if (connectResult.isActive) {
+                            if (status == FwkBluetoothGatt.GATT_SUCCESS)
+                                connectResult.complete(Unit)
+                            else connectResult.cancel("service discover failed")
+                        }
+                    }
+
+                    override fun onServiceChanged(gatt: FwkBluetoothGatt) {
+                        // TODO: under API 31, we have to subscribe to the service changed
+                        // characteristic.
+                        fwkAdapter.discoverServices()
+                    }
+
+                    override fun onCharacteristicRead(
+                        fwkBluetoothGatt: FwkBluetoothGatt,
+                        fwkCharacteristic: FwkBluetoothGattCharacteristic,
+                        value: ByteArray,
+                        status: Int
+                    ) {
+                        attributeMap.fromFwkCharacteristic(fwkCharacteristic)?.let {
+                            callbackResultsFlow.tryEmit(
+                                CallbackResult.OnCharacteristicRead(it, value, status)
+                            )
+                        }
+                    }
+
+                    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+                    override fun onCharacteristicRead(
+                        fwkBluetoothGatt: FwkBluetoothGatt,
+                        fwkCharacteristic: FwkBluetoothGattCharacteristic,
+                        status: Int
+                    ) {
+                        onCharacteristicRead(
+                            fwkBluetoothGatt,
+                            fwkCharacteristic,
+                            fwkCharacteristic.value,
+                            status
                         )
+                    }
 
-                        val cccdValue =
-                            // Prefer notification over indication
-                            if ((characteristic.properties and PROPERTY_NOTIFY) != 0)
-                                FwkBluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                            else FwkBluetoothGattDescriptor.ENABLE_INDICATION_VALUE
-
-                        fwkAdapter.writeDescriptor(cccd, cccdValue)
-                        val res = takeMatchingResult<CallbackResult.OnDescriptorWrite>(
-                            callbackResultsFlow
-                        ) {
-                            it.fwkDescriptor == cccd
-                        }
-                        if (res.status != FwkBluetoothGatt.GATT_SUCCESS) {
-                            cancel("failed to set notification")
+                    override fun onCharacteristicWrite(
+                        fwkBluetoothGatt: FwkBluetoothGatt,
+                        fwkCharacteristic: FwkBluetoothGattCharacteristic,
+                        status: Int
+                    ) {
+                        attributeMap.fromFwkCharacteristic(fwkCharacteristic)?.let {
+                            callbackResultsFlow.tryEmit(
+                                CallbackResult.OnCharacteristicWrite(it, status)
+                            )
                         }
                     }
 
-                    awaitClose {
+                    override fun onDescriptorRead(
+                        fwkBluetoothGatt: FwkBluetoothGatt,
+                        fwkDescriptor: FwkBluetoothGattDescriptor,
+                        status: Int,
+                        value: ByteArray
+                    ) {
+                        callbackResultsFlow.tryEmit(
+                            CallbackResult.OnDescriptorRead(fwkDescriptor, value, status)
+                        )
+                    }
+
+                    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+                    override fun onDescriptorRead(
+                        fwkBluetoothGatt: FwkBluetoothGatt,
+                        fwkDescriptor: FwkBluetoothGattDescriptor,
+                        status: Int
+                    ) {
+                        onDescriptorRead(
+                            fwkBluetoothGatt,
+                            fwkDescriptor,
+                            status,
+                            fwkDescriptor.value
+                        )
+                    }
+
+                    override fun onDescriptorWrite(
+                        fwkBluetoothGatt: FwkBluetoothGatt,
+                        fwkDescriptor: FwkBluetoothGattDescriptor,
+                        status: Int
+                    ) {
+                        callbackResultsFlow.tryEmit(
+                            CallbackResult.OnDescriptorWrite(fwkDescriptor, status)
+                        )
+                    }
+
+                    override fun onCharacteristicChanged(
+                        fwkBluetoothGatt: FwkBluetoothGatt,
+                        fwkCharacteristic: FwkBluetoothGattCharacteristic,
+                        value: ByteArray
+                    ) {
                         launch {
-                            unregisterSubscribeListener(characteristic.fwkCharacteristic)
+                            subscribeMutex.withLock {
+                                subscribeMap[fwkCharacteristic]?.onCharacteristicNotification(value)
+                            }
                         }
-                        fwkAdapter.setCharacteristicNotification(
-                            characteristic.fwkCharacteristic, /*enable=*/false
-                        )
-                        fwkAdapter.writeDescriptor(
-                            cccd,
-                            FwkBluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+                    }
+
+                    @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+                    override fun onCharacteristicChanged(
+                        fwkBluetoothGatt: FwkBluetoothGatt,
+                        fwkCharacteristic: FwkBluetoothGattCharacteristic,
+                    ) {
+                        onCharacteristicChanged(
+                            fwkBluetoothGatt,
+                            fwkCharacteristic,
+                            fwkCharacteristic.value
                         )
                     }
                 }
+
+            if (!fwkAdapter.connectGatt(context, device.fwkDevice, fwkCallback)) {
+                throw CancellationException("failed to connect")
             }
 
-            private suspend fun registerSubscribeListener(
-                fwkCharacteristic: FwkBluetoothGattCharacteristic,
-                callback: SubscribeListener
-            ): Boolean {
-                subscribeMutex.withLock {
-                    if (subscribeMap.containsKey(fwkCharacteristic)) {
-                        return false
+            withTimeout(CONNECT_TIMEOUT_MS) { connectResult.await() }
+
+            val gattClientScope =
+                object : GattClientScope {
+                    val taskMutex = Mutex()
+
+                    suspend fun <R> runTask(block: suspend () -> R): R {
+                        taskMutex.withLock {
+                            return block()
+                        }
                     }
-                    subscribeMap[fwkCharacteristic] = callback
-                    return true
+
+                    override val servicesFlow: StateFlow<List<GattService>> =
+                        servicesFlow.asStateFlow()
+
+                    override fun getService(uuid: UUID): GattService? {
+                        return fwkAdapter.getService(uuid)?.let { attributeMap.fromFwkService(it) }
+                    }
+
+                    override suspend fun readCharacteristic(
+                        characteristic: GattCharacteristic
+                    ): Result<ByteArray> {
+                        if (characteristic.properties and GattCharacteristic.PROPERTY_READ == 0) {
+                            return Result.failure(
+                                IllegalArgumentException("can't read the characteristic")
+                            )
+                        }
+                        return runTask {
+                            fwkAdapter.readCharacteristic(characteristic.fwkCharacteristic)
+                            val res =
+                                takeMatchingResult<CallbackResult.OnCharacteristicRead>(
+                                    callbackResultsFlow
+                                ) {
+                                    it.characteristic == characteristic
+                                }
+
+                            if (res.status == FwkBluetoothGatt.GATT_SUCCESS)
+                                Result.success(res.value)
+                            // TODO: throw precise reason if we can gather the info
+                            else Result.failure(CancellationException("fail"))
+                        }
+                    }
+
+                    override suspend fun writeCharacteristic(
+                        characteristic: GattCharacteristic,
+                        value: ByteArray
+                    ): Result<Unit> {
+                        val writeType =
+                            if (characteristic.properties and PROPERTY_WRITE_NO_RESPONSE != 0)
+                                FwkBluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE
+                            else if (characteristic.properties and PROPERTY_WRITE != 0)
+                                FwkBluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                            else throw IllegalArgumentException("can't write to the characteristic")
+
+                        if (value.size > MAX_ATTR_LENGTH) {
+                            throw IllegalArgumentException("too long value to write")
+                        }
+
+                        return runTask {
+                            fwkAdapter.writeCharacteristic(
+                                characteristic.fwkCharacteristic,
+                                value,
+                                writeType
+                            )
+                            val res =
+                                takeMatchingResult<CallbackResult.OnCharacteristicWrite>(
+                                    callbackResultsFlow
+                                ) {
+                                    it.characteristic == characteristic
+                                }
+                            if (res.status == FwkBluetoothGatt.GATT_SUCCESS) Result.success(Unit)
+                            // TODO: throw precise reason if we can gather the info
+                            else
+                                Result.failure(
+                                    CancellationException("fail with error = ${res.status}")
+                                )
+                        }
+                    }
+
+                    override fun subscribeToCharacteristic(
+                        characteristic: GattCharacteristic
+                    ): Flow<ByteArray> {
+                        if (!characteristic.isSubscribable) {
+                            return emptyFlow()
+                        }
+                        val cccd =
+                            characteristic.fwkCharacteristic.getDescriptor(UUID_CCCD)
+                                ?: return emptyFlow()
+
+                        return callbackFlow {
+                            val listener =
+                                object : SubscribeListener {
+                                    override fun onCharacteristicNotification(value: ByteArray) {
+                                        trySend(value)
+                                    }
+
+                                    override fun finish() {
+                                        close()
+                                    }
+                                }
+                            if (
+                                !registerSubscribeListener(
+                                    characteristic.fwkCharacteristic,
+                                    listener
+                                )
+                            ) {
+                                throw IllegalStateException("already subscribed")
+                            }
+
+                            runTask {
+                                fwkAdapter.setCharacteristicNotification(
+                                    characteristic.fwkCharacteristic,
+                                    /*enable=*/ true
+                                )
+
+                                val cccdValue =
+                                    // Prefer notification over indication
+                                    if ((characteristic.properties and PROPERTY_NOTIFY) != 0)
+                                        FwkBluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                                    else FwkBluetoothGattDescriptor.ENABLE_INDICATION_VALUE
+
+                                fwkAdapter.writeDescriptor(cccd, cccdValue)
+                                val res =
+                                    takeMatchingResult<CallbackResult.OnDescriptorWrite>(
+                                        callbackResultsFlow
+                                    ) {
+                                        it.fwkDescriptor == cccd
+                                    }
+                                if (res.status != FwkBluetoothGatt.GATT_SUCCESS) {
+                                    cancel("failed to set notification")
+                                }
+                            }
+
+                            awaitClose {
+                                launch {
+                                    unregisterSubscribeListener(characteristic.fwkCharacteristic)
+                                }
+                                fwkAdapter.setCharacteristicNotification(
+                                    characteristic.fwkCharacteristic,
+                                    /*enable=*/ false
+                                )
+                                fwkAdapter.writeDescriptor(
+                                    cccd,
+                                    FwkBluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+                                )
+                            }
+                        }
+                    }
+
+                    private suspend fun registerSubscribeListener(
+                        fwkCharacteristic: FwkBluetoothGattCharacteristic,
+                        callback: SubscribeListener
+                    ): Boolean {
+                        subscribeMutex.withLock {
+                            if (subscribeMap.containsKey(fwkCharacteristic)) {
+                                return false
+                            }
+                            subscribeMap[fwkCharacteristic] = callback
+                            return true
+                        }
+                    }
+
+                    private suspend fun unregisterSubscribeListener(
+                        fwkCharacteristic: FwkBluetoothGattCharacteristic
+                    ) {
+                        subscribeMutex.withLock { subscribeMap.remove(fwkCharacteristic) }
+                    }
                 }
-            }
 
-            private suspend fun unregisterSubscribeListener(
-                fwkCharacteristic: FwkBluetoothGattCharacteristic
-            ) {
-                subscribeMutex.withLock {
-                    subscribeMap.remove(fwkCharacteristic)
-                }
-            }
+            coroutineContext.job.invokeOnCompletion { fwkAdapter.closeGatt() }
+
+            gattClientScope.block()
         }
-
-        coroutineContext.job.invokeOnCompletion {
-            fwkAdapter.closeGatt()
-        }
-
-        gattClientScope.block()
-    }
 
     private suspend inline fun <reified R : CallbackResult> takeMatchingResult(
         flow: SharedFlow<CallbackResult>,
@@ -458,7 +484,7 @@ class GattClient(private val context: Context) {
             fwkDevice: FwkBluetoothDevice,
             fwkCallback: FwkBluetoothGattCallback
         ): Boolean {
-            fwkBluetoothGatt = fwkDevice.connectGatt(context, /*autoConnect=*/false, fwkCallback)
+            fwkBluetoothGatt = fwkDevice.connectGatt(context, /* autoConnect= */ false, fwkCallback)
             return fwkBluetoothGatt != null
         }
 
@@ -585,10 +611,7 @@ class GattClient(private val context: Context) {
         }
 
         @RequiresPermission(BLUETOOTH_CONNECT)
-        override fun writeDescriptor(
-            fwkDescriptor: FwkBluetoothGattDescriptor,
-            value: ByteArray
-        ) {
+        override fun writeDescriptor(fwkDescriptor: FwkBluetoothGattDescriptor, value: ByteArray) {
             fwkBluetoothGatt?.writeDescriptor(fwkDescriptor, value)
         }
     }

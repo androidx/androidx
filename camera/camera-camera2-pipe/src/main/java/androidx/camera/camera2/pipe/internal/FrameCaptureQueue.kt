@@ -39,20 +39,16 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 internal class FrameCaptureQueue @Inject constructor() : AutoCloseable {
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private val queue = ArrayDeque<FrameCaptureImpl>()
+    @GuardedBy("lock") private val queue = ArrayDeque<FrameCaptureImpl>()
 
-    @GuardedBy("lock")
-    private var closed = false
+    @GuardedBy("lock") private var closed = false
 
     fun remove(request: Request): FrameCaptureImpl? =
         synchronized(lock) {
             if (closed) return null
 
             // If an item matching this request exists, remove it from the queue and return it.
-            queue.firstOrNull {
-                it.request == request
-            }?.also { queue.remove(it) }
+            queue.firstOrNull { it.request == request }?.also { queue.remove(it) }
         }
 
     /**
@@ -71,20 +67,22 @@ internal class FrameCaptureQueue @Inject constructor() : AutoCloseable {
         }
 
     /**
-     * Tell the [FrameDistributor] that a specific list of requests will be submitted to the
-     * camera and to create placeholders.
+     * Tell the [FrameDistributor] that a specific list of requests will be submitted to the camera
+     * and to create placeholders.
      */
     fun enqueue(requests: List<Request>): List<FrameCapture> =
         synchronized(lock) {
-            requests.map { FrameCaptureImpl(it) }.also {
-                if (!closed) {
-                    queue.addAll(it)
-                } else {
-                    for (result in it) {
-                        result.close()
+            requests
+                .map { FrameCaptureImpl(it) }
+                .also {
+                    if (!closed) {
+                        queue.addAll(it)
+                    } else {
+                        for (result in it) {
+                            result.close()
+                        }
                     }
                 }
-            }
         }
 
     override fun close() {
@@ -168,9 +166,7 @@ internal class FrameCaptureQueue @Inject constructor() : AutoCloseable {
         }
 
         override fun addListener(listener: Frame.Listener) {
-            val success = synchronized(this) {
-                frameListeners?.add(listener) == true
-            }
+            val success = synchronized(this) { frameListeners?.add(listener) == true }
             // If the list of listeners is null, then we've already completed this deferred output
             // frame.
             if (!success) {
@@ -190,9 +186,7 @@ internal class FrameCaptureQueue @Inject constructor() : AutoCloseable {
 
                 // We should close all of the object if we successfully remove it from the list.
                 // Otherwise, this operation is a no-op.
-                synchronized(lock) {
-                    queue.remove(this)
-                }
+                synchronized(lock) { queue.remove(this) }
             }
         }
     }

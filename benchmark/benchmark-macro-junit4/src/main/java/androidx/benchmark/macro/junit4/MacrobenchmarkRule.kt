@@ -57,8 +57,8 @@ import org.junit.runners.model.Statement
  *     }
  * ```
  *
- * See the [Macrobenchmark Guide](https://developer.android.com/studio/profile/macrobenchmark)
- * for more information on macrobenchmarks.
+ * See the [Macrobenchmark Guide](https://developer.android.com/studio/profile/macrobenchmark) for
+ * more information on macrobenchmarks.
  */
 public class MacrobenchmarkRule : TestRule {
     private lateinit var currentDescription: Description
@@ -78,21 +78,21 @@ public class MacrobenchmarkRule : TestRule {
      *     }
      * ```
      *
-     * @param packageName ApplicationId / Application manifest package name of the app for
-     *   which profiles are generated.
+     * @param packageName ApplicationId / Application manifest package name of the app for which
+     *   profiles are generated.
      * @param metrics List of metrics to measure.
      * @param compilationMode Mode of compilation used before capturing measurement, such as
-     * [CompilationMode.Partial], defaults to [CompilationMode.DEFAULT].
+     *   [CompilationMode.Partial], defaults to [CompilationMode.DEFAULT].
      * @param startupMode Optional mode to force app launches performed with
-     * [MacrobenchmarkScope.startActivityAndWait] (and similar variants) to be of the assigned
-     * type. For example, `COLD` launches kill the process before the measureBlock, to ensure
-     * startups will go through full process creation. Generally, leave as null for non-startup
-     * benchmarks.
+     *   [MacrobenchmarkScope.startActivityAndWait] (and similar variants) to be of the assigned
+     *   type. For example, `COLD` launches kill the process before the measureBlock, to ensure
+     *   startups will go through full process creation. Generally, leave as null for non-startup
+     *   benchmarks.
      * @param iterations Number of times the [measureBlock] will be run during measurement. Note
-     * that total iteration count may not match, due to warmup iterations needed for the
-     * [compilationMode].
+     *   that total iteration count may not match, due to warmup iterations needed for the
+     *   [compilationMode].
      * @param setupBlock The block performing app actions each iteration, prior to the
-     * [measureBlock]. For example, navigating to a UI where scrolling will be measured.
+     *   [measureBlock]. For example, navigating to a UI where scrolling will be measured.
      * @param measureBlock The block performing app actions to benchmark each iteration.
      */
     @JvmOverloads
@@ -101,8 +101,7 @@ public class MacrobenchmarkRule : TestRule {
         metrics: List<Metric>,
         compilationMode: CompilationMode = CompilationMode.DEFAULT,
         startupMode: StartupMode? = null,
-        @IntRange(from = 1)
-        iterations: Int,
+        @IntRange(from = 1) iterations: Int,
         setupBlock: MacrobenchmarkScope.() -> Unit = {},
         measureBlock: MacrobenchmarkScope.() -> Unit
     ) {
@@ -145,23 +144,23 @@ public class MacrobenchmarkRule : TestRule {
      * the same panel, selecting recording options, and then clicking `Recording command` to access
      * the generated text proto.
      *
-     * @param packageName ApplicationId / Application manifest package name of the app for
-     *   which profiles are generated.
+     * @param packageName ApplicationId / Application manifest package name of the app for which
+     *   profiles are generated.
      * @param metrics List of metrics to measure.
      * @param compilationMode Mode of compilation used before capturing measurement, such as
-     * [CompilationMode.Partial], defaults to [CompilationMode.DEFAULT].
+     *   [CompilationMode.Partial], defaults to [CompilationMode.DEFAULT].
      * @param startupMode Optional mode to force app launches performed with
-     * [MacrobenchmarkScope.startActivityAndWait] (and similar variants) to be of the assigned
-     * type. For example, `COLD` launches kill the process before the measureBlock, to ensure
-     * startups will go through full process creation. Generally, leave as null for non-startup
-     * benchmarks.
+     *   [MacrobenchmarkScope.startActivityAndWait] (and similar variants) to be of the assigned
+     *   type. For example, `COLD` launches kill the process before the measureBlock, to ensure
+     *   startups will go through full process creation. Generally, leave as null for non-startup
+     *   benchmarks.
      * @param iterations Number of times the [measureBlock] will be run during measurement. Note
-     * that total iteration count may not match, due to warmup iterations needed for the
-     * [compilationMode].
+     *   that total iteration count may not match, due to warmup iterations needed for the
+     *   [compilationMode].
      * @param perfettoConfig Configuration for Perfetto trace capture during each iteration. Note
-     * that insufficient or invalid configs may result in built-in [Metric]s not working.
+     *   that insufficient or invalid configs may result in built-in [Metric]s not working.
      * @param setupBlock The block performing app actions each iteration, prior to the
-     * [measureBlock]. For example, navigating to a UI where scrolling will be measured.
+     *   [measureBlock]. For example, navigating to a UI where scrolling will be measured.
      * @param measureBlock The block performing app actions to benchmark each iteration.
      */
     @ExperimentalPerfettoCaptureApi
@@ -169,8 +168,7 @@ public class MacrobenchmarkRule : TestRule {
     fun measureRepeated(
         packageName: String,
         metrics: List<Metric>,
-        @IntRange(from = 1)
-        iterations: Int,
+        @IntRange(from = 1) iterations: Int,
         perfettoConfig: PerfettoConfig,
         compilationMode: CompilationMode = CompilationMode.DEFAULT,
         startupMode: StartupMode? = null,
@@ -194,19 +192,21 @@ public class MacrobenchmarkRule : TestRule {
 
     override fun apply(base: Statement, description: Description): Statement {
         // Grant external storage, as it may be needed for test output directory.
-        return RuleChain
-            .outerRule(GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        return RuleChain.outerRule(
+                GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            )
             .around(::applyInternal)
             .apply(base, description)
     }
 
-    private fun applyInternal(base: Statement, description: Description) = object : Statement() {
-        override fun evaluate() {
-            assumeTrue(Arguments.RuleType.Macrobenchmark in Arguments.enabledRules)
-            currentDescription = description
-            base.evaluate()
+    private fun applyInternal(base: Statement, description: Description) =
+        object : Statement() {
+            override fun evaluate() {
+                assumeTrue(Arguments.RuleType.Macrobenchmark in Arguments.enabledRules)
+                currentDescription = description
+                base.evaluate()
+            }
         }
-    }
 
     private fun Description.toUniqueName() = testClass.simpleName + "_" + methodName
 }

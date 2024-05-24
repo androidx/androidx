@@ -49,36 +49,24 @@ class FakeCaptureSequenceProcessor(
     private val eventChannel = Channel<Event>(Channel.UNLIMITED)
     private val requestCounter = atomic(0L)
 
-    @GuardedBy("lock")
-    private var pendingSequence: CompletableDeferred<FakeCaptureSequence>? = null
+    @GuardedBy("lock") private var pendingSequence: CompletableDeferred<FakeCaptureSequence>? = null
 
-    @GuardedBy("lock")
-    private val queue: MutableList<FakeCaptureSequence> = mutableListOf()
+    @GuardedBy("lock") private val queue: MutableList<FakeCaptureSequence> = mutableListOf()
 
-    @GuardedBy("lock")
-    private var repeatingRequestSequence: FakeCaptureSequence? = null
+    @GuardedBy("lock") private var repeatingRequestSequence: FakeCaptureSequence? = null
 
-    @GuardedBy("lock")
-    private var _rejectRequests = false
+    @GuardedBy("lock") private var _rejectRequests = false
 
     var rejectRequests: Boolean
-        get() = synchronized(lock) {
-            _rejectRequests
-        }
+        get() = synchronized(lock) { _rejectRequests }
         set(value) {
-            synchronized(lock) {
-                _rejectRequests = value
-            }
+            synchronized(lock) { _rejectRequests = value }
         }
 
     private var _surfaceMap: Map<StreamId, Surface> = emptyMap()
     var surfaceMap: Map<StreamId, Surface>
-        get() = synchronized(lock) {
-            _surfaceMap
-        }
-        set(value) = synchronized(lock) {
-            _surfaceMap = value
-        }
+        get() = synchronized(lock) { _surfaceMap }
+        set(value) = synchronized(lock) { _surfaceMap = value }
 
     override fun build(
         isRepeating: Boolean,
@@ -138,12 +126,11 @@ class FakeCaptureSequenceProcessor(
     }
 
     override fun stopRepeating() {
-        val requestSequence = synchronized(lock) {
-            check(eventChannel.trySend(Event(stop = true)).isSuccess)
-            repeatingRequestSequence.also {
-                repeatingRequestSequence = null
+        val requestSequence =
+            synchronized(lock) {
+                check(eventChannel.trySend(Event(stop = true)).isSuccess)
+                repeatingRequestSequence.also { repeatingRequestSequence = null }
             }
-        }
         requestSequence?.invokeOnSequenceAborted()
     }
 
@@ -154,12 +141,9 @@ class FakeCaptureSequenceProcessor(
         }
     }
 
-    /**
-     * Get the next event from queue with an option to specify a timeout for tests.
-     */
-    suspend fun nextEvent(timeMillis: Long = 500): Event = withTimeout(timeMillis) {
-        eventChannel.receive()
-    }
+    /** Get the next event from queue with an option to specify a timeout for tests. */
+    suspend fun nextEvent(timeMillis: Long = 500): Event =
+        withTimeout(timeMillis) { eventChannel.receive() }
 
     suspend fun nextRequestSequence(): FakeCaptureSequence {
         while (true) {
@@ -229,15 +213,16 @@ class FakeCaptureSequenceProcessor(
                 streamMap[stream] = surface
             }
 
-            val requestMetadata = FakeRequestMetadata(
-                request = request,
-                requestParameters = captureParameters,
-                metadata = metadataParameters,
-                template = request.template ?: defaultTemplate,
-                streams = streamMap,
-                repeating = repeating,
-                requestNumber = requestNumber
-            )
+            val requestMetadata =
+                FakeRequestMetadata(
+                    request = request,
+                    requestParameters = captureParameters,
+                    metadata = metadataParameters,
+                    template = request.template ?: defaultTemplate,
+                    streams = streamMap,
+                    repeating = repeating,
+                    requestNumber = requestNumber
+                )
             requestInfoList.add(requestMetadata)
             requestInfoMap[request] = requestMetadata
         }
@@ -257,9 +242,7 @@ class FakeCaptureSequenceProcessor(
         )
     }
 
-    /**
-     * TODO: It's probably better to model this as a sealed class.
-     */
+    /** TODO: It's probably better to model this as a sealed class. */
     data class Event(
         val requestSequence: FakeCaptureSequence? = null,
         val rejected: Boolean = false,

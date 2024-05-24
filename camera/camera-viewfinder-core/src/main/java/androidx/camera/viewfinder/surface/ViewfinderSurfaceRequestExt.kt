@@ -26,23 +26,24 @@ import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Companion.MIR
 /**
  * Populates [ViewfinderSurfaceRequest.Builder] from [CameraCharacteristics].
  *
- * The [CameraCharacteristics] will be used to populate information including lens facing,
- * sensor orientation and [ImplementationMode].
- * If the hardware level is legacy, the [ImplementationMode] will be set to
- * [ImplementationMode.EMBEDDED].
+ * The [CameraCharacteristics] will be used to populate information including lens facing, sensor
+ * orientation and [ImplementationMode]. If the hardware level is legacy, the [ImplementationMode]
+ * will be set to [ImplementationMode.EMBEDDED].
  */
 @SuppressLint("ClassVerificationFailure")
 fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(
     cameraCharacteristics: CameraCharacteristics
 ): ViewfinderSurfaceRequest.Builder {
     val lensFacing = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)!!
-    val mirrorMode = if (lensFacing == CameraMetadata.LENS_FACING_FRONT)
-        MIRROR_MODE_HORIZONTAL else MIRROR_MODE_NONE
+    val mirrorMode =
+        if (lensFacing == CameraMetadata.LENS_FACING_FRONT) MIRROR_MODE_HORIZONTAL
+        else MIRROR_MODE_NONE
     setOutputMirrorMode(mirrorMode)
-    setSourceOrientation(
-        cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!)
-    if (cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-        == CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+    setSourceOrientation(cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!)
+    if (
+        cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ==
+            CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    ) {
         setImplementationMode(androidx.camera.viewfinder.surface.ImplementationMode.EMBEDDED)
     }
     return this

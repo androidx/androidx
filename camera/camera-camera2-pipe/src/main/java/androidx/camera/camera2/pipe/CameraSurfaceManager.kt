@@ -46,11 +46,9 @@ class CameraSurfaceManager {
 
     private val lock = Any()
 
-    @GuardedBy("lock")
-    private val useCountMap: MutableMap<Surface, Int> = mutableMapOf()
+    @GuardedBy("lock") private val useCountMap: MutableMap<Surface, Int> = mutableMapOf()
 
-    @GuardedBy("lock")
-    private val listeners: MutableSet<SurfaceListener> = mutableSetOf()
+    @GuardedBy("lock") private val listeners: MutableSet<SurfaceListener> = mutableSetOf()
 
     /**
      * A new [SurfaceToken] is issued when a [Surface] is registered in CameraSurfaceManager. When
@@ -59,6 +57,7 @@ class CameraSurfaceManager {
     inner class SurfaceToken(internal val surface: Surface) : AutoCloseable {
         private val debugId = surfaceTokenDebugIds.incrementAndGet()
         private val closed = atomic(false)
+
         override fun close() {
             if (closed.compareAndSet(expect = false, update = true)) {
                 Log.debug { "SurfaceToken $this closed" }

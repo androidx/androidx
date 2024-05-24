@@ -21,5 +21,5 @@ package androidx.camera.integration.camera2.pipe
 import java.util.Locale
 
 inline fun Double.formatMilliTime(decimals: Int = 4) = "%.${decimals}f ms".format(Locale.ROOT, this)
-inline fun Long.formatNanoTime(decimals: Int = 4) =
-    (this / 1_000_000.0).formatMilliTime(decimals)
+
+inline fun Long.formatNanoTime(decimals: Int = 4) = (this / 1_000_000.0).formatMilliTime(decimals)

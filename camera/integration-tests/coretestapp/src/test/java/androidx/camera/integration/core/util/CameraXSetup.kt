@@ -28,16 +28,18 @@ fun getFakeConfigCameraProvider(context: Context): ProcessCameraProvider {
     var cameraProvider: ProcessCameraProvider? = null
     val latch = CountDownLatch(1)
     ProcessCameraProvider.configureInstance(FakeAppConfig.create())
-    ProcessCameraProvider.getInstance(context).addListener(
-        {
-            cameraProvider = ProcessCameraProvider.getInstance(context).get()
-            latch.countDown()
-        },
-        CameraXExecutors.directExecutor()
-    )
+    ProcessCameraProvider.getInstance(context)
+        .addListener(
+            {
+                cameraProvider = ProcessCameraProvider.getInstance(context).get()
+                latch.countDown()
+            },
+            CameraXExecutors.directExecutor()
+        )
 
     Truth.assertWithMessage("ProcessCameraProvider.getInstance timed out!")
-        .that(latch.await(5, TimeUnit.SECONDS)).isTrue()
+        .that(latch.await(5, TimeUnit.SECONDS))
+        .isTrue()
 
     return cameraProvider!!
 }

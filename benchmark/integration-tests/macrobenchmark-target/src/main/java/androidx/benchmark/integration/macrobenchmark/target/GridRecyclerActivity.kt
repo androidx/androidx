@@ -33,9 +33,7 @@ class GridRecyclerActivity : AppCompatActivity() {
         recycler.adapter = adapter
     }
 
-    private fun entries(size: Int) = List(size) {
-        Entry("$it")
-    }
+    private fun entries(size: Int) = List(size) { Entry("$it") }
 
     companion object {
         const val EXTRA_ITEM_COUNT = "ITEM_COUNT"

@@ -37,46 +37,37 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.process.ExecOperations
 
 @CacheableTask
-abstract class DarwinBenchmarkResultsTask @Inject constructor(
-    private val execOperations: ExecOperations
-) : DefaultTask() {
+abstract class DarwinBenchmarkResultsTask
+@Inject
+constructor(private val execOperations: ExecOperations) : DefaultTask() {
     @get:InputDirectory
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val xcResultPath: DirectoryProperty
 
-    @get:Input
-    @get:Optional
-    abstract val referenceSha: Property<String>
+    @get:Input @get:Optional abstract val referenceSha: Property<String>
 
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    @get:OutputFile abstract val outputFile: RegularFileProperty
 
-    @get:OutputFile
-    @get:Optional
-    abstract val distFile: RegularFileProperty
+    @get:OutputFile @get:Optional abstract val distFile: RegularFileProperty
 
     @TaskAction
     fun benchmarkResults() {
         val xcResultFile = xcResultPath.get().asFile
-        val parser = XcResultParser(xcResultFile) { args ->
-            val output = ByteArrayOutputStream()
-            execOperations.exec { spec ->
-                spec.commandLine = args
-                spec.standardOutput = output
-            }
-            output.use {
-                val input = ByteArrayInputStream(output.toByteArray())
-                input.use {
-                    input.reader().readText()
+        val parser =
+            XcResultParser(xcResultFile) { args ->
+                val output = ByteArrayOutputStream()
+                execOperations.exec { spec ->
+                    spec.commandLine = args
+                    spec.standardOutput = output
+                }
+                output.use {
+                    val input = ByteArrayInputStream(output.toByteArray())
+                    input.use { input.reader().readText() }
                 }
             }
-        }
         val (record, summaries) = parser.parseResults()
         val metrics = Metrics.buildMetrics(record, summaries, referenceSha.orNull)
-        val output = GsonHelpers.gsonBuilder()
-            .setPrettyPrinting()
-            .create()
-            .toJson(metrics)
+        val output = GsonHelpers.gsonBuilder().setPrettyPrinting().create().toJson(metrics)
 
         outputFile.get().asFile.writeText(output)
 

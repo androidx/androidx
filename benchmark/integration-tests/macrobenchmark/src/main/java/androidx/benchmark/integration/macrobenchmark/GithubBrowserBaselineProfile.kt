@@ -38,15 +38,12 @@ class GithubBrowserBaselineProfile {
      * https://github.com/android/architecture-components-samples
      *
      * We made the following changes to the sample app:
-     *
      * * Build a `release` variant of the app with `minifyEnabled` set to `false`.
      * * Use the latest version of SDK tools, and the latest alpha for Android Gradle Plugin.
      * * Add a button to search fragment to make it easy to drive via UiAutomator.
      * * Use the latest alphas of FLAN libraries.
      */
-
-    @get:Rule
-    val baselineRule = BaselineProfileRule()
+    @get:Rule val baselineRule = BaselineProfileRule()
 
     private lateinit var device: UiDevice
 

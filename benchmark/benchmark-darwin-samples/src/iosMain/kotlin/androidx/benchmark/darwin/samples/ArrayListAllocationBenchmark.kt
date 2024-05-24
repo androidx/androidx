@@ -38,9 +38,7 @@ class ArrayListAllocationBenchmark : TestCase() {
             options
         ) {
             // Do something a bit expensive
-            repeat(1000) {
-                ArrayList<Float>(SIZE)
-            }
+            repeat(1000) { ArrayList<Float>(SIZE) }
         }
     }
 

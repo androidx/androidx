@@ -49,7 +49,9 @@ internal class Camera2CaptureSequence(
     override val listeners: List<Request.Listener>,
     override val sequenceListener: CaptureSequence.CaptureSequenceListener,
     private val surfaceMap: Map<Surface, StreamId>,
-) : Camera2CaptureCallback, CameraCaptureSession.CaptureCallback(),
+) :
+    Camera2CaptureCallback,
+    CameraCaptureSession.CaptureCallback(),
     CaptureSequence<CaptureRequest> {
     private val debugId = captureSequenceDebugIds.incrementAndGet()
     private val hasStarted = CompletableDeferred<Unit>()
@@ -60,8 +62,7 @@ internal class Camera2CaptureSequence(
         }
     }
 
-    @Volatile
-    private var _sequenceNumber: Int? = null
+    @Volatile private var _sequenceNumber: Int? = null
     override var sequenceNumber: Int
         get() {
             if (_sequenceNumber == null) {
@@ -209,26 +210,22 @@ internal class Camera2CaptureSequence(
         requestFailure: RequestFailure
     ) {
         sequenceListener.onCaptureSequenceComplete(this)
-        invokeOnRequest(request) {
-            it.onFailed(request, frameNumber, requestFailure)
-        }
+        invokeOnRequest(request) { it.onFailed(request, frameNumber, requestFailure) }
     }
 
-    override fun onCaptureFailed(
-        captureRequest: CaptureRequest,
-        frameNumber: FrameNumber
-    ) {
+    override fun onCaptureFailed(captureRequest: CaptureRequest, frameNumber: FrameNumber) {
         Debug.traceStart { "onCaptureFailed" }
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
         val requestMetadata = readRequestMetadata(captureRequest)
 
-        val extensionRequestFailure = ExtensionRequestFailure(
-            requestMetadata,
-            false,
-            frameNumber,
-            CaptureFailure.REASON_ERROR
-        )
+        val extensionRequestFailure =
+            ExtensionRequestFailure(
+                requestMetadata,
+                false,
+                frameNumber,
+                CaptureFailure.REASON_ERROR
+            )
 
         invokeCaptureFailure(requestMetadata, frameNumber, extensionRequestFailure)
         Debug.traceStop() // onCaptureFailed
@@ -261,10 +258,7 @@ internal class Camera2CaptureSequence(
         captureFrameNumber: Long
     ) = onCaptureSequenceCompleted(captureSequenceId, captureFrameNumber)
 
-    override fun onCaptureSequenceCompleted(
-        captureSequenceId: Int,
-        captureFrameNumber: Long
-    ) {
+    override fun onCaptureSequenceCompleted(captureSequenceId: Int, captureFrameNumber: Long) {
         Debug.traceStart { "onCaptureSequenceCompleted" }
         sequenceListener.onCaptureSequenceComplete(this)
 

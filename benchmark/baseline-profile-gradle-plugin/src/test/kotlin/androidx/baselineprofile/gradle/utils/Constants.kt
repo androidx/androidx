@@ -32,7 +32,9 @@ enum class TestAgpVersion(val versionString: String?) {
             TestAgpVersion.values().first { it.versionString == versionString }
 
         fun all() = values()
+
         fun atLeast(version: TestAgpVersion) = values().filter { it.ordinal >= version.ordinal }
+
         fun atMost(version: TestAgpVersion) = values().filter { it.ordinal <= version.ordinal }
     }
 }

@@ -74,7 +74,6 @@ class BluetoothAddress(val address: String, @AddressType val addressType: Int) {
             ADDRESS_TYPE_RANDOM_RESOLVABLE,
             ADDRESS_TYPE_RANDOM_NON_RESOLVABLE,
             ADDRESS_TYPE_UNKNOWN -> Unit
-
             else -> throw IllegalArgumentException("$addressType is not a valid address type")
         }
     }

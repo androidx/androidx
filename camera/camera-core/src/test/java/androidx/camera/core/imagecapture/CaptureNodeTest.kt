@@ -42,9 +42,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
-/**
- * Unit tests for [CaptureNode].
- */
+/** Unit tests for [CaptureNode]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -61,9 +59,7 @@ class CaptureNodeTest {
     fun setUp() {
         captureNodeIn = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null)
         captureNodeOut = captureNode.transform(captureNodeIn)
-        captureNodeOut.edge.setListener {
-            imagePropagated.add(it.imageProxy)
-        }
+        captureNodeOut.edge.setListener { imagePropagated.add(it.imageProxy) }
     }
 
     @After
@@ -75,9 +71,7 @@ class CaptureNodeTest {
     fun hasImageReaderProxyProvider_useTheProvidedImageReader() {
         // Arrange: create a fake ImageReaderProxyProvider.
         val imageReader = FakeImageReaderProxy(CaptureNode.MAX_IMAGES)
-        val imageReaderProvider = ImageReaderProxyProvider { _, _, _, _, _ ->
-            imageReader
-        }
+        val imageReaderProvider = ImageReaderProxyProvider { _, _, _, _, _ -> imageReader }
         val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, imageReaderProvider)
         // Act: transform.
         val node = CaptureNode()
@@ -116,24 +110,29 @@ class CaptureNodeTest {
         // create 2 requests: A and B and prepare TagBundles.
         val captureNode = CaptureNode()
         val imageReaderProxy = FakeImageReaderProxy(2)
-        captureNodeIn = CaptureNode.In.of(Size(10, 10), JPEG, JPEG,
-            /* isVirtualCamera */ true, { _, _, _, _, _ -> imageReaderProxy })
+        captureNodeIn =
+            CaptureNode.In.of(
+                Size(10, 10),
+                JPEG,
+                JPEG,
+                /* isVirtualCamera */ true,
+                { _, _, _, _, _ -> imageReaderProxy }
+            )
         captureNodeOut = captureNode.transform(captureNodeIn)
-        captureNodeOut.edge.setListener {
-            imagePropagated.add(it.imageProxy)
-        }
+        captureNodeOut.edge.setListener { imagePropagated.add(it.imageProxy) }
 
         // Create request A
         val captureBundleA = createCaptureBundle(intArrayOf(1))
         val callbackA = FakeTakePictureCallback()
         var captureFutureCompleterA: CallbackToFutureAdapter.Completer<Void>? = null
-        val captureFuture1 = CallbackToFutureAdapter.getFuture {
-            captureFutureCompleterA = it
-            "test"
-        }
+        val captureFuture1 =
+            CallbackToFutureAdapter.getFuture {
+                captureFutureCompleterA = it
+                "test"
+            }
         val requestA = FakeProcessingRequest(captureBundleA, callbackA, captureFuture1)
         val tagBundleKeyA = captureBundleA.hashCode().toString()
-        val tagBundleA = TagBundle.create(Pair(tagBundleKeyA, /* stage id */1))
+        val tagBundleA = TagBundle.create(Pair(tagBundleKeyA, /* stage id */ 1))
 
         // Create request B
         val captureBundleB = createCaptureBundle(intArrayOf(2))
@@ -141,12 +140,13 @@ class CaptureNodeTest {
         val requestB =
             FakeProcessingRequest(captureBundleB, callbackB, Futures.immediateFuture(null))
         val tagBundleKeyB = captureBundleB.hashCode().toString()
-        val tagBundleB = TagBundle.create(Pair(tagBundleKeyB, /* stage id */2))
+        val tagBundleB = TagBundle.create(Pair(tagBundleKeyB, /* stage id */ 2))
 
         // Act: send request A and abort it
         captureNodeIn.requestEdge.accept(requestA)
         captureFutureCompleterA!!.setException(
-            ImageCaptureException(ImageCapture.ERROR_CAMERA_CLOSED, "aborted", null))
+            ImageCaptureException(ImageCapture.ERROR_CAMERA_CLOSED, "aborted", null)
+        )
 
         // Image from requestA arrives before sending request B
         val imageA = imageReaderProxy.triggerImageAvailableSync(tagBundleA)
@@ -179,9 +179,8 @@ class CaptureNodeTest {
         // Arrange: set the postviewSize to the CaptureNode.In
         val postviewSize = Size(640, 480)
 
-        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null,
-            postviewSize, YUV_420_888
-        )
+        val input =
+            CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null, postviewSize, YUV_420_888)
 
         // Act: transform.
         val node = CaptureNode()
@@ -199,8 +198,7 @@ class CaptureNodeTest {
         // Arrange: set the postviewSize to the CaptureNode.In
         val postviewSize = Size(640, 480)
 
-        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null,
-            postviewSize, JPEG)
+        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null, postviewSize, JPEG)
 
         // Act: transform.
         val node = CaptureNode()

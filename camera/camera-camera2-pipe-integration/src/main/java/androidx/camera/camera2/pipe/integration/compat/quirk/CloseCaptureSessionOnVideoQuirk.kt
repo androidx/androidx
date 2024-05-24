@@ -23,14 +23,13 @@ import androidx.camera.core.impl.Quirk
  * A quirk that instructs the CameraGraph to close the capture session when it is stopped or closed.
  *
  * QuirkSummary
- * - Bug Id:      277310425
+ * - Bug Id: 277310425
  * - Description: When we unbind and rebind a VideoCapture use case, the video setup process waits
- *                for the Surfaces to be released. This creates a potential deadlock, as CameraPipe
- *                may not release the Surfaces if the previous session or camera remains unclosed.
- *                This is a quirk added so that when we create a CameraGraph out of a set of use
- *                cases with VideoCapture, we make sure we explicitly instruct CameraGraph to close
- *                the capture session when the graph is closed.
- * - Device(s):   All devices.
+ *   for the Surfaces to be released. This creates a potential deadlock, as CameraPipe may not
+ *   release the Surfaces if the previous session or camera remains unclosed. This is a quirk added
+ *   so that when we create a CameraGraph out of a set of use cases with VideoCapture, we make sure
+ *   we explicitly instruct CameraGraph to close the capture session when the graph is closed.
+ * - Device(s): All devices.
  */
 @SuppressLint("CameraXQuirksClassDetector")
 class CloseCaptureSessionOnVideoQuirk : Quirk {

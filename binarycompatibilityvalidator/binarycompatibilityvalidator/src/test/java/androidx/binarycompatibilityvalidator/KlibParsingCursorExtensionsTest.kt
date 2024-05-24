@@ -117,21 +117,24 @@ class KlibParsingCursorExtensionsTest {
         assertThat(cursor.currentLine).isEqualTo(cursor.currentLine)
     }
 
-    @Test fun hasFunctionKind() {
+    @Test
+    fun hasFunctionKind() {
         val input = "    final fun myFun(): kotlin/String "
         val cursor = Cursor(input)
         assertThat(cursor.hasFunctionKind()).isTrue()
         assertThat(cursor.currentLine).isEqualTo(input)
     }
 
-    @Test fun hasFunctionKindConstructor() {
+    @Test
+    fun hasFunctionKindConstructor() {
         val input = "    constructor <init>(kotlin/Int =...)"
         val cursor = Cursor(input)
         assertThat(cursor.hasFunctionKind()).isTrue()
         assertThat(cursor.currentLine).isEqualTo(input)
     }
 
-    @Test fun parseGetterOrSetterName() {
+    @Test
+    fun parseGetterOrSetterName() {
         val input = "<get-indices>()"
         val cursor = Cursor(input)
         val name = cursor.parseGetterOrSetterName()
@@ -139,28 +142,30 @@ class KlibParsingCursorExtensionsTest {
         assertThat(cursor.currentLine).isEqualTo("()")
     }
 
-    @Test fun hasGetter() {
+    @Test
+    fun hasGetter() {
         val input = "final inline fun <get-indices>(): kotlin.ranges/IntRange"
         val cursor = Cursor(input)
         assertThat(cursor.hasGetter()).isTrue()
         assertThat(cursor.currentLine).isEqualTo(input)
     }
 
-    @Test fun hasSetter() {
+    @Test
+    fun hasSetter() {
         val input = "final inline fun <set-indices>(): kotlin.ranges/IntRange"
         val cursor = Cursor(input)
         assertThat(cursor.hasSetter()).isTrue()
         assertThat(cursor.currentLine).isEqualTo(input)
     }
 
-    @Test fun hasGetterOrSetter() {
-        val inputs = listOf(
-            "final inline fun <set-indices>(): kotlin.ranges/IntRange",
-            "final inline fun <get-indices>(): kotlin.ranges/IntRange"
-        )
-        inputs.forEach { input ->
-            assertThat(Cursor(input).hasGetterOrSetter()).isTrue()
-        }
+    @Test
+    fun hasGetterOrSetter() {
+        val inputs =
+            listOf(
+                "final inline fun <set-indices>(): kotlin.ranges/IntRange",
+                "final inline fun <get-indices>(): kotlin.ranges/IntRange"
+            )
+        inputs.forEach { input -> assertThat(Cursor(input).hasGetterOrSetter()).isTrue() }
     }
 
     @Test
@@ -199,12 +204,14 @@ class KlibParsingCursorExtensionsTest {
         assertThat(unspecified).isEqualTo(AbiTypeNullability.NOT_SPECIFIED)
     }
 
-    @Test fun parseNullabilityWhenAssumingNotNullable() {
+    @Test
+    fun parseNullabilityWhenAssumingNotNullable() {
         val unspecified = Cursor("").parseNullability(assumeNotNull = true)
         assertThat(unspecified).isEqualTo(AbiTypeNullability.DEFINITELY_NOT_NULL)
     }
 
-    @Test fun parseQualifiedName() {
+    @Test
+    fun parseQualifiedName() {
         val input = "androidx.collection/MutableScatterMap something"
         val cursor = Cursor(input)
         val qName = cursor.parseAbiQualifiedName()
@@ -212,15 +219,20 @@ class KlibParsingCursorExtensionsTest {
         assertThat(cursor.currentLine).isEqualTo("something")
     }
 
-    @Test fun parseQualifiedNameKotlin() {
+    @Test
+    fun parseQualifiedNameKotlin() {
         val input = "kotlin/Function2<#A1, #A, #A1>"
         val cursor = Cursor(input)
         val qName = cursor.parseAbiQualifiedName()
         assertThat(qName.toString()).isEqualTo("kotlin/Function2")
-        assertThat(cursor.currentLine).isEqualTo("<#A1, #A, #A1>",)
+        assertThat(cursor.currentLine)
+            .isEqualTo(
+                "<#A1, #A, #A1>",
+            )
     }
 
-    @Test fun parseQualifie0dNameDoesNotGrabNullable() {
+    @Test
+    fun parseQualifie0dNameDoesNotGrabNullable() {
         val input = "androidx.collection/MutableScatterMap? something"
         val cursor = Cursor(input)
         val qName = cursor.parseAbiQualifiedName()
@@ -233,27 +245,23 @@ class KlibParsingCursorExtensionsTest {
         val input = "androidx.collection/ScatterMap<#A, #B> something"
         val cursor = Cursor(input)
         val type = cursor.parseAbiType()
-        assertThat(type?.className?.toString()).isEqualTo(
-            "androidx.collection/ScatterMap"
-        )
+        assertThat(type?.className?.toString()).isEqualTo("androidx.collection/ScatterMap")
         assertThat(cursor.currentLine).isEqualTo("something")
     }
 
     @Test
     fun parseAbiTypeWithAnotherType() {
-        val input = "androidx.collection/ScatterMap<#A, #B>, androidx.collection/Other<#A, #B> " +
-            "something"
+        val input =
+            "androidx.collection/ScatterMap<#A, #B>, androidx.collection/Other<#A, #B> " +
+                "something"
         val cursor = Cursor(input)
         val type = cursor.parseAbiType()
-        assertThat(type?.className?.toString()).isEqualTo(
-            "androidx.collection/ScatterMap"
-        )
-        assertThat(cursor.currentLine).isEqualTo(
-            ", androidx.collection/Other<#A, #B> something"
-        )
+        assertThat(type?.className?.toString()).isEqualTo("androidx.collection/ScatterMap")
+        assertThat(cursor.currentLine).isEqualTo(", androidx.collection/Other<#A, #B> something")
     }
 
-    @Test fun parseAbiTypeWithThreeParams() {
+    @Test
+    fun parseAbiTypeWithThreeParams() {
         val input = "kotlin/Function2<#A1, #A, #A1>"
         val cursor = Cursor(input)
         val type = cursor.parseAbiType()
@@ -262,31 +270,29 @@ class KlibParsingCursorExtensionsTest {
 
     @Test
     fun parseSuperTypes() {
-        val input = ": androidx.collection/ScatterMap<#A, #B>, androidx.collection/Other<#A, #B> " +
-            "something"
+        val input =
+            ": androidx.collection/ScatterMap<#A, #B>, androidx.collection/Other<#A, #B> " +
+                "something"
         val cursor = Cursor(input)
         val superTypes = cursor.parseSuperTypes().toList()
         assertThat(superTypes).hasSize(2)
-        assertThat(superTypes.first().className?.toString()).isEqualTo(
-            "androidx.collection/ScatterMap"
-        )
-        assertThat(superTypes.last().className?.toString()).isEqualTo(
-            "androidx.collection/Other"
-        )
+        assertThat(superTypes.first().className?.toString())
+            .isEqualTo("androidx.collection/ScatterMap")
+        assertThat(superTypes.last().className?.toString()).isEqualTo("androidx.collection/Other")
         assertThat(cursor.currentLine).isEqualTo("something")
     }
 
-    @Test fun parseReturnType() {
+    @Test
+    fun parseReturnType() {
         val input = ": androidx.collection/ScatterMap<#A, #B> stuff"
         val cursor = Cursor(input)
         val returnType = cursor.parseReturnType()
-        assertThat(returnType?.className?.toString()).isEqualTo(
-            "androidx.collection/ScatterMap"
-        )
+        assertThat(returnType?.className?.toString()).isEqualTo("androidx.collection/ScatterMap")
         assertThat(cursor.currentLine).isEqualTo("stuff")
     }
 
-    @Test fun parseReturnTypeNullableWithTypeParamsNullable() {
+    @Test
+    fun parseReturnTypeNullableWithTypeParamsNullable() {
         val input = ": #B? stuff"
         val cursor = Cursor(input)
         val returnType = cursor.parseReturnType()
@@ -295,7 +301,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(cursor.currentLine).isEqualTo("stuff")
     }
 
-    @Test fun parseReturnTypeNullableWithTypeParamsNotSpecified() {
+    @Test
+    fun parseReturnTypeNullableWithTypeParamsNotSpecified() {
         val input = ": #B stuff"
         val cursor = Cursor(input)
         val returnType = cursor.parseReturnType()
@@ -309,9 +316,7 @@ class KlibParsingCursorExtensionsTest {
         val input = "(androidx.collection/LongSparseArray<#A>).androidx.collection/keyIterator()"
         val cursor = Cursor(input)
         val receiver = cursor.parseFunctionReceiver()
-        assertThat(receiver?.className.toString()).isEqualTo(
-            "androidx.collection/LongSparseArray"
-        )
+        assertThat(receiver?.className.toString()).isEqualTo("androidx.collection/LongSparseArray")
         assertThat(cursor.currentLine).isEqualTo("androidx.collection/keyIterator()")
     }
 
@@ -320,19 +325,16 @@ class KlibParsingCursorExtensionsTest {
         val input = "(androidx.collection/LongSparseArray<#A1>).<get-size>(): kotlin/Int"
         val cursor = Cursor(input)
         val receiver = cursor.parseFunctionReceiver()
-        assertThat(receiver?.className.toString()).isEqualTo(
-            "androidx.collection/LongSparseArray"
-        )
+        assertThat(receiver?.className.toString()).isEqualTo("androidx.collection/LongSparseArray")
         assertThat(cursor.currentLine).isEqualTo("<get-size>(): kotlin/Int")
     }
 
-    @Test fun parseValueParamCrossinlineDefault() {
+    @Test
+    fun parseValueParamCrossinlineDefault() {
         val input = "crossinline kotlin/Function2<#A, #B, kotlin/Int> =..."
         val cursor = Cursor(input)
         val valueParam = cursor.parseValueParameter()!!
-        assertThat(
-            valueParam.type.className.toString()
-        ).isEqualTo("kotlin/Function2")
+        assertThat(valueParam.type.className.toString()).isEqualTo("kotlin/Function2")
         assertThat(valueParam.hasDefaultArg).isTrue()
         assertThat(valueParam.isCrossinline).isTrue()
         assertThat(valueParam.isVararg).isFalse()
@@ -343,29 +345,30 @@ class KlibParsingCursorExtensionsTest {
         val input = "kotlin/Array<out kotlin/Pair<#A, #B>>..."
         val cursor = Cursor(input)
         val valueParam = cursor.parseValueParameter()
-        assertThat(
-            valueParam?.type?.className?.toString()
-        ).isEqualTo("kotlin/Array")
+        assertThat(valueParam?.type?.className?.toString()).isEqualTo("kotlin/Array")
         assertThat(valueParam?.hasDefaultArg).isFalse()
         assertThat(valueParam?.isCrossinline).isFalse()
         assertThat(valueParam?.isVararg).isTrue()
     }
 
-    @Test fun parseValueParametersWithTypeArgs() {
+    @Test
+    fun parseValueParametersWithTypeArgs() {
         val input = "kotlin/Array<out #A>..."
         val cursor = Cursor(input)
         val valueParam = cursor.parseValueParameter()
         assertThat(valueParam?.type?.arguments).hasSize(1)
     }
 
-    @Test fun parseValueParametersWithTwoTypeArgs() {
+    @Test
+    fun parseValueParametersWithTwoTypeArgs() {
         val input = "kotlin/Function1<kotlin/Double, kotlin/Boolean>)"
         val cursor = Cursor(input)
         val valueParam = cursor.parseValueParameter()
         assertThat(valueParam?.type?.arguments).hasSize(2)
     }
 
-    @Test fun parseValueParametersEmpty() {
+    @Test
+    fun parseValueParametersEmpty() {
         val input = "() thing"
         val cursor = Cursor(input)
         val params = cursor.parseValueParameters()
@@ -373,14 +376,16 @@ class KlibParsingCursorExtensionsTest {
         assertThat(cursor.currentLine).isEqualTo("thing")
     }
 
-    @Test fun parseValueParamsSimple() {
+    @Test
+    fun parseValueParamsSimple() {
         val input = "(kotlin/Function1<#A, kotlin/Boolean>)"
         val cursor = Cursor(input)
         val valueParams = cursor.parseValueParameters()
         assertThat(valueParams).hasSize(1)
     }
 
-    @Test fun parseValueParamsTwoArgs() {
+    @Test
+    fun parseValueParamsTwoArgs() {
         val input = "(#A1, kotlin/Function2<#A1, #A, #A1>)"
         val cursor = Cursor(input)
         val valueParams = cursor.parseValueParameters()
@@ -399,9 +404,10 @@ class KlibParsingCursorExtensionsTest {
 
     @Test
     fun parseValueParamsComplex2() {
-        val input = "(kotlin/Int, crossinline kotlin/Function2<#A, #B, kotlin/Int> =..., " +
-            "crossinline kotlin/Function1<#A, #B?> =..., " +
-            "crossinline kotlin/Function4<kotlin/Boolean, #A, #B, #B?, kotlin/Unit> =...)"
+        val input =
+            "(kotlin/Int, crossinline kotlin/Function2<#A, #B, kotlin/Int> =..., " +
+                "crossinline kotlin/Function1<#A, #B?> =..., " +
+                "crossinline kotlin/Function4<kotlin/Boolean, #A, #B, #B?, kotlin/Unit> =...)"
         val cursor = Cursor(input)
         val valueParams = cursor.parseValueParameters()!!
         assertThat(valueParams).hasSize(4)
@@ -412,7 +418,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(rest.all { it.isCrossinline }).isTrue()
     }
 
-    @Test fun parseValueParamsComplex3() {
+    @Test
+    fun parseValueParamsComplex3() {
         val input = "(kotlin/Array<out kotlin/Pair<#A, #B>>...)"
         val cursor = Cursor(input)
         val valueParams = cursor.parseValueParameters()!!
@@ -423,7 +430,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(type.className.toString()).isEqualTo("kotlin/Array")
     }
 
-    @Test fun parseTypeParams() {
+    @Test
+    fun parseTypeParams() {
         val input = "<#A1: kotlin/Any?>"
         val cursor = Cursor(input)
         val typeParams = cursor.parseTypeParams()
@@ -435,7 +443,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(typeParams?.single()?.variance).isEqualTo(AbiVariance.INVARIANT)
     }
 
-    @Test fun parseTypeParamsWithVariance() {
+    @Test
+    fun parseTypeParamsWithVariance() {
         val input = "<#A1: out kotlin/Any?>"
         val cursor = Cursor(input)
         val typeParams = cursor.parseTypeParams()
@@ -447,7 +456,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(typeParams?.single()?.variance).isEqualTo(AbiVariance.OUT)
     }
 
-    @Test fun parseTypeParamsWithTwo() {
+    @Test
+    fun parseTypeParamsWithTwo() {
         val input = "<#A: kotlin/Any?, #B: kotlin/Any?>"
         val cursor = Cursor(input)
         val typeParams = cursor.parseTypeParams()
@@ -462,7 +472,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(type2?.nullability).isEqualTo(AbiTypeNullability.MARKED_NULLABLE)
     }
 
-    @Test fun parseTypeParamsReifed() {
+    @Test
+    fun parseTypeParamsReifed() {
         val input = "<#A1: reified kotlin/Any?>"
         val cursor = Cursor(input)
         val typeParam = cursor.parseTypeParams()?.single()
@@ -470,7 +481,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(typeParam?.isReified).isTrue()
     }
 
-    @Test fun parseTypeParamsDoesNotMatchGetter() {
+    @Test
+    fun parseTypeParamsDoesNotMatchGetter() {
         val input = "<get-size>"
         val cursor = Cursor(input)
         val typeParams = cursor.parseTypeParams()
@@ -500,29 +512,33 @@ class KlibParsingCursorExtensionsTest {
 
     @Test
     fun parseTypeArgsWithNestedBrackets() {
-        val input = "<androidx.collection/ScatterMap<#A, #B>, androidx.collection/Other<#A, #B>>," +
-            " something else"
+        val input =
+            "<androidx.collection/ScatterMap<#A, #B>, androidx.collection/Other<#A, #B>>," +
+                " something else"
         val cursor = Cursor(input)
         val typeArgs = cursor.parseTypeArgs()
         assertThat(typeArgs).hasSize(2)
         assertThat(cursor.currentLine).isEqualTo(", something else")
     }
 
-    @Test fun parseVarargSymbol() {
+    @Test
+    fun parseVarargSymbol() {
         val input = "..."
         val cursor = Cursor(input)
         val vararg = cursor.parseVarargSymbol()
         assertThat(vararg).isNotNull()
     }
 
-    @Test fun parseTargets() {
+    @Test
+    fun parseTargets() {
         val input = "Targets: [iosX64, linuxX64]"
         val cursor = Cursor(input)
         val targets = cursor.parseTargets()
         assertThat(targets).containsExactly("linuxX64", "iosX64")
     }
 
-    @Test fun parseEnumEntryName() {
+    @Test
+    fun parseEnumEntryName() {
         val input = "SOME_ENUM something else"
         val cursor = Cursor(input)
         val enumName = cursor.parseEnumName()
@@ -530,7 +546,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(cursor.currentLine).isEqualTo("something else")
     }
 
-    @Test fun parseEnumEntryKind() {
+    @Test
+    fun parseEnumEntryKind() {
         val input = "enum entry SOME_ENUM"
         val cursor = Cursor(input)
         val enumName = cursor.parseEnumEntryKind()
@@ -538,7 +555,8 @@ class KlibParsingCursorExtensionsTest {
         assertThat(cursor.currentLine).isEqualTo("SOME_ENUM")
     }
 
-    @Test fun hasEnumEntry() {
+    @Test
+    fun hasEnumEntry() {
         val input = "enum entry SOME_ENUM"
         val cursor = Cursor(input)
         assertThat(cursor.hasEnumEntry()).isTrue()

@@ -23,7 +23,9 @@ internal object UserInfo {
 
     val currentUserId: Int
         get() {
-            Overrides.currentUserId?.let { return it }
+            Overrides.currentUserId?.let {
+                return it
+            }
 
             // UserHandle does not have public api but it's parcelable so we can read through that.
             val parcel = Parcel.obtain()

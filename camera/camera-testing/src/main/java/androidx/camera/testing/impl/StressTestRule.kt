@@ -22,23 +22,21 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 class StressTestRule : TestRule {
-    override fun apply(
-        base: Statement,
-        description: Description
-    ): Statement = object : Statement() {
-        override fun evaluate() {
-            val startTime = System.currentTimeMillis()
+    override fun apply(base: Statement, description: Description): Statement =
+        object : Statement() {
+            override fun evaluate() {
+                val startTime = System.currentTimeMillis()
 
-            try {
-                base.evaluate()
-            } finally {
-                (System.currentTimeMillis() - startTime).let { execTime ->
-                    Log.i(
-                        "StressTestRule",
-                        "StressTestExecutedTest:${description.displayName} ExecutedTime:$execTime"
-                    )
+                try {
+                    base.evaluate()
+                } finally {
+                    (System.currentTimeMillis() - startTime).let { execTime ->
+                        Log.i(
+                            "StressTestRule",
+                            "StressTestExecutedTest:${description.displayName} ExecutedTime:$execTime"
+                        )
+                    }
                 }
             }
         }
-    }
 }

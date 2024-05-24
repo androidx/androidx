@@ -29,6 +29,7 @@ class FakeInputBuffer(capacity: Int = 16) : InputBuffer {
     private var isEndOfStream = false
     var isCanceled = false
         private set
+
     var isSubmitted = false
         private set
 

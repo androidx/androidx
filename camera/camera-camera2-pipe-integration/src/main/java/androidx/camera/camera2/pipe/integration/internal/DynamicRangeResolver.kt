@@ -22,23 +22,19 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         is10BitSupported =
             availableCapabilities?.contains(
                 CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT
-            )
-                ?: false
+            ) ?: false
         dynamicRangesInfo = DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
     }
 
-    /**
-     * Returns whether 10-bit dynamic ranges are supported on this device.
-     */
+    /** Returns whether 10-bit dynamic ranges are supported on this device. */
     fun is10BitDynamicRangeSupported(): Boolean = is10BitSupported
 
     /**
      * Returns a set of supported dynamic ranges for the dynamic ranges requested by the list of
      * attached and new use cases.
      *
-     *
-     * If a new use case requests a dynamic range that isn't supported, an
-     * IllegalArgumentException will be thrown.
+     * If a new use case requests a dynamic range that isn't supported, an IllegalArgumentException
+     * will be thrown.
      */
     fun resolveAndValidateDynamicRanges(
         existingSurfaces: List<AttachedSurfaceInfo>,
@@ -80,11 +76,9 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         for (priorityIdx in useCasePriorityOrder) {
             val config = newUseCaseConfigs[priorityIdx]
             val requestedDynamicRange = config.dynamicRange
-            if (isFullyUnspecified(requestedDynamicRange)
-            ) {
+            if (isFullyUnspecified(requestedDynamicRange)) {
                 orderedUndefinedUseCaseConfigs.add(config)
-            } else if (isPartiallySpecified(requestedDynamicRange)
-            ) {
+            } else if (isPartiallySpecified(requestedDynamicRange)) {
                 orderedPartiallyDefinedUseCaseConfigs.add(config)
             } else {
                 orderedFullyDefinedUseCaseConfigs.add(config)
@@ -102,10 +96,14 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         orderedUseCaseConfigs.addAll(orderedPartiallyDefinedUseCaseConfigs)
         orderedUseCaseConfigs.addAll(orderedUndefinedUseCaseConfigs)
         for (config in orderedUseCaseConfigs) {
-            val resolvedDynamicRange: DynamicRange = resolveDynamicRangeAndUpdateConstraints(
-                supportedDynamicRanges, orderedExistingDynamicRanges,
-                orderedNewDynamicRanges, config, combinedConstraints
-            )
+            val resolvedDynamicRange: DynamicRange =
+                resolveDynamicRangeAndUpdateConstraints(
+                    supportedDynamicRanges,
+                    orderedExistingDynamicRanges,
+                    orderedNewDynamicRanges,
+                    config,
+                    combinedConstraints
+                )
             resolvedDynamicRanges[config] = resolvedDynamicRange
             if (!orderedExistingDynamicRanges.contains(resolvedDynamicRange)) {
                 orderedNewDynamicRanges.add(resolvedDynamicRange)
@@ -122,11 +120,14 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         outCombinedConstraints: MutableSet<DynamicRange>
     ): DynamicRange {
         val requestedDynamicRange = config.dynamicRange
-        val resolvedDynamicRange: DynamicRange? = resolveDynamicRange(
-            requestedDynamicRange,
-            outCombinedConstraints, orderedExistingDynamicRanges, orderedNewDynamicRanges,
-            config.targetName
-        )
+        val resolvedDynamicRange: DynamicRange? =
+            resolveDynamicRange(
+                requestedDynamicRange,
+                outCombinedConstraints,
+                orderedExistingDynamicRanges,
+                orderedNewDynamicRanges,
+                config.targetName
+            )
         if (resolvedDynamicRange != null) {
             updateConstraints(outCombinedConstraints, resolvedDynamicRange, dynamicRangesInfo)
         } else {
@@ -150,16 +151,13 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
     /**
      * Resolves the requested dynamic range into a fully specified dynamic range.
      *
-     *
      * This uses existing fully-specified dynamic ranges, new fully-specified dynamic ranges,
-     * dynamic range constraints and the list of supported dynamic ranges to exhaustively search
-     * for a dynamic range if the requested dynamic range is not fully specified, i.e., it has an
+     * dynamic range constraints and the list of supported dynamic ranges to exhaustively search for
+     * a dynamic range if the requested dynamic range is not fully specified, i.e., it has an
      * UNSPECIFIED encoding or UNSPECIFIED bitrate.
-     *
      *
      * Any dynamic range returned will be validated to work according to the constraints and
      * supported dynamic ranges provided.
-     *
      *
      * If no suitable dynamic range can be found, returns `null`.
      */
@@ -184,8 +182,9 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         // SDR is only supported as 8-bit.
         val requestedEncoding = requestedDynamicRange.encoding
         val requestedBitDepth = requestedDynamicRange.bitDepth
-        if (requestedEncoding == DynamicRange.ENCODING_SDR &&
-            requestedBitDepth == DynamicRange.BIT_DEPTH_UNSPECIFIED
+        if (
+            requestedEncoding == DynamicRange.ENCODING_SDR &&
+                requestedBitDepth == DynamicRange.BIT_DEPTH_UNSPECIFIED
         ) {
             return if (combinedConstraints.contains(DynamicRange.SDR)) {
                 DynamicRange.SDR
@@ -195,10 +194,12 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
 
         // First attempt to find another fully specified HDR dynamic range to resolve to from
         // existing dynamic ranges
-        var resolvedDynamicRange = findSupportedHdrMatch(
-            requestedDynamicRange,
-            orderedExistingDynamicRanges, combinedConstraints
-        )
+        var resolvedDynamicRange =
+            findSupportedHdrMatch(
+                requestedDynamicRange,
+                orderedExistingDynamicRanges,
+                combinedConstraints
+            )
         if (resolvedDynamicRange != null) {
             Log.debug {
                 "DynamicRangeResolver: Resolved dynamic range for use case $rangeOwnerLabel " +
@@ -214,7 +215,8 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         resolvedDynamicRange =
             findSupportedHdrMatch(
                 requestedDynamicRange,
-                orderedNewDynamicRanges, combinedConstraints
+                orderedNewDynamicRanges,
+                combinedConstraints
             )
         if (resolvedDynamicRange != null) {
             Log.debug {
@@ -230,8 +232,10 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         // and unspecified 8-bit dynamic ranges to SDR if it is supported. This ensures the
         // default behavior for most use cases is to choose SDR when an HDR dynamic range isn't
         // already present or explicitly requested.
-        if (canResolveWithinConstraints(
-                requestedDynamicRange, DynamicRange.SDR,
+        if (
+            canResolveWithinConstraints(
+                requestedDynamicRange,
+                DynamicRange.SDR,
                 combinedConstraints
             )
         ) {
@@ -245,19 +249,17 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
 
         // For unspecified HDR encodings (10-bit or unspecified bit depth), we have a
         // couple options: the device recommended 10-bit encoding or the mandated HLG encoding.
-        if (requestedEncoding == DynamicRange.ENCODING_HDR_UNSPECIFIED &&
-            ((requestedBitDepth == DynamicRange.BIT_DEPTH_10_BIT ||
-                requestedBitDepth == DynamicRange.BIT_DEPTH_UNSPECIFIED))
+        if (
+            requestedEncoding == DynamicRange.ENCODING_HDR_UNSPECIFIED &&
+                ((requestedBitDepth == DynamicRange.BIT_DEPTH_10_BIT ||
+                    requestedBitDepth == DynamicRange.BIT_DEPTH_UNSPECIFIED))
         ) {
             val hdrDefaultRanges: MutableSet<DynamicRange> = mutableSetOf()
 
             // Attempt to use the recommended 10-bit dynamic range
             var recommendedRange: DynamicRange? = null
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                recommendedRange =
-                    Api33Impl.getRecommended10BitDynamicRange(
-                        cameraMetadata
-                    )
+                recommendedRange = Api33Impl.getRecommended10BitDynamicRange(cameraMetadata)
                 if (recommendedRange != null) {
                     hdrDefaultRanges.add(recommendedRange)
                 }
@@ -266,9 +268,7 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
             // dynamic range.
             hdrDefaultRanges.add(DynamicRange.HLG_10_BIT)
             resolvedDynamicRange =
-                findSupportedHdrMatch(
-                    requestedDynamicRange, hdrDefaultRanges, combinedConstraints
-                )
+                findSupportedHdrMatch(requestedDynamicRange, hdrDefaultRanges, combinedConstraints)
             if (resolvedDynamicRange != null) {
                 Log.debug {
                     "DynamicRangeResolver: Resolved dynamic range for use case $rangeOwnerLabel" +
@@ -298,11 +298,7 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
             if ((candidateRange == DynamicRange.SDR)) {
                 continue
             }
-            if (canResolveDynamicRange(
-                    requestedDynamicRange,
-                    candidateRange
-                )
-            ) {
+            if (canResolveDynamicRange(requestedDynamicRange, candidateRange)) {
                 Log.debug {
                     "DynamicRangeResolver: Resolved dynamic range for use case $rangeOwnerLabel " +
                         "from validated dynamic range constraints or supported HDR dynamic " +
@@ -321,8 +317,8 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
      * from the new dynamic range.
      *
      * @param combinedConstraints The constraints that will be updated. This set must not be empty.
-     * @param newDynamicRange     The new dynamic range for which we'll apply new constraints
-     * @param dynamicRangesInfo   Information about dynamic ranges to retrieve new constraints.
+     * @param newDynamicRange The new dynamic range for which we'll apply new constraints
+     * @param dynamicRangesInfo Information about dynamic ranges to retrieve new constraints.
      */
     private fun updateConstraints(
         combinedConstraints: MutableSet<DynamicRange>,
@@ -330,7 +326,8 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         dynamicRangesInfo: DynamicRangeProfilesCompat
     ) {
         Preconditions.checkState(
-            combinedConstraints.isNotEmpty(), "Cannot update already-empty constraints."
+            combinedConstraints.isNotEmpty(),
+            "Cannot update already-empty constraints."
         )
         val newConstraints =
             dynamicRangesInfo.getDynamicRangeCaptureRequestConstraints(newDynamicRange)
@@ -374,28 +371,21 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
                 // Only consider HDR encodings
                 continue
             }
-            if (canResolveWithinConstraints(
-                    rangeToMatch,
-                    candidateRange,
-                    constraints
-                )
-            ) {
+            if (canResolveWithinConstraints(rangeToMatch, candidateRange, constraints)) {
                 return candidateRange
             }
         }
         return null
     }
 
-    /**
-     * Returns `true` if the dynamic range is ENCODING_UNSPECIFIED and BIT_DEPTH_UNSPECIFIED.
-     */
+    /** Returns `true` if the dynamic range is ENCODING_UNSPECIFIED and BIT_DEPTH_UNSPECIFIED. */
     private fun isFullyUnspecified(dynamicRange: DynamicRange): Boolean {
         return (dynamicRange == DynamicRange.UNSPECIFIED)
     }
 
     /**
-     * Returns `true` if the dynamic range has an unspecified HDR encoding, a concrete
-     * encoding with unspecified bit depth, or a concrete bit depth.
+     * Returns `true` if the dynamic range has an unspecified HDR encoding, a concrete encoding with
+     * unspecified bit depth, or a concrete bit depth.
      */
     private fun isPartiallySpecified(dynamicRange: DynamicRange): Boolean {
         return dynamicRange.encoding == DynamicRange.ENCODING_HDR_UNSPECIFIED ||
@@ -409,10 +399,9 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
      * Returns `true` if the test dynamic range can resolve to the candidate, fully specified
      * dynamic range, taking into account constraints.
      *
-     *
-     * A range can resolve if test fields are unspecified and appropriately match the fields
-     * of the fully specified dynamic range, or the test fields exactly match the fields of
-     * the fully specified dynamic range.
+     * A range can resolve if test fields are unspecified and appropriately match the fields of the
+     * fully specified dynamic range, or the test fields exactly match the fields of the fully
+     * specified dynamic range.
      */
     private fun canResolveWithinConstraints(
         rangeToResolve: DynamicRange,
@@ -433,13 +422,11 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
     }
 
     /**
-     * Returns `true` if the test dynamic range can resolve to the fully specified dynamic
-     * range.
+     * Returns `true` if the test dynamic range can resolve to the fully specified dynamic range.
      *
-     *
-     * A range can resolve if test fields are unspecified and appropriately match the fields
-     * of the fully specified dynamic range, or the test fields exactly match the fields of
-     * the fully specified dynamic range.
+     * A range can resolve if test fields are unspecified and appropriately match the fields of the
+     * fully specified dynamic range, or the test fields exactly match the fields of the fully
+     * specified dynamic range.
      */
     private fun canResolveDynamicRange(
         testRange: DynamicRange,
@@ -448,28 +435,30 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
         check(fullySpecifiedRange.isFullySpecified) {
             "Fully specified range $fullySpecifiedRange not actually fully specified."
         }
-        if ((testRange.encoding == DynamicRange.ENCODING_HDR_UNSPECIFIED &&
+        if (
+            (testRange.encoding == DynamicRange.ENCODING_HDR_UNSPECIFIED &&
                 fullySpecifiedRange.encoding == DynamicRange.ENCODING_SDR)
         ) {
             return false
         }
-        return if ((testRange.encoding != DynamicRange.ENCODING_HDR_UNSPECIFIED
-                ) && (testRange.encoding != DynamicRange.ENCODING_UNSPECIFIED
-                ) && (testRange.encoding != fullySpecifiedRange.encoding)
+        return if (
+            (testRange.encoding != DynamicRange.ENCODING_HDR_UNSPECIFIED) &&
+                (testRange.encoding != DynamicRange.ENCODING_UNSPECIFIED) &&
+                (testRange.encoding != fullySpecifiedRange.encoding)
         ) {
             false
-        } else (testRange.bitDepth == DynamicRange.BIT_DEPTH_UNSPECIFIED ||
-            testRange.bitDepth == fullySpecifiedRange.bitDepth)
+        } else
+            (testRange.bitDepth == DynamicRange.BIT_DEPTH_UNSPECIFIED ||
+                testRange.bitDepth == fullySpecifiedRange.bitDepth)
     }
 
     @RequiresApi(33)
     internal object Api33Impl {
         @DoNotInline
-        fun getRecommended10BitDynamicRange(
-            cameraMetadata: CameraMetadata
-        ): DynamicRange? {
-            val recommendedProfile = cameraMetadata[
-                CameraCharacteristics.REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE]
+        fun getRecommended10BitDynamicRange(cameraMetadata: CameraMetadata): DynamicRange? {
+            val recommendedProfile =
+                cameraMetadata[
+                    CameraCharacteristics.REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE]
             return if (recommendedProfile != null) {
                 DynamicRangeConversions.profileToDynamicRange(recommendedProfile)
             } else null

@@ -24,9 +24,8 @@ import androidx.camera.core.impl.Quirk
  * QuirkSummary
  * - Bug Id: 220214040
  * - Description: The video recording fails if no repeating stream is configured with appropriate
- *                settings. For the Huawei Mate 9, the camera device may be stuck if only
- *                configuring a UHD size video recording output. It requires an extra repeating
- *                stream in at least 320x240.
+ *   settings. For the Huawei Mate 9, the camera device may be stuck if only configuring a UHD size
+ *   video recording output. It requires an extra repeating stream in at least 320x240.
  * - Device(s): Huawei Mate 9
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
@@ -36,6 +35,6 @@ class RepeatingStreamConstraintForVideoRecordingQuirk : Quirk {
 
         private fun isHuaweiMate9() =
             "Huawei".equals(Build.BRAND, ignoreCase = true) &&
-            "mha-l29".equals(Build.MODEL, ignoreCase = true)
+                "mha-l29".equals(Build.MODEL, ignoreCase = true)
     }
 }

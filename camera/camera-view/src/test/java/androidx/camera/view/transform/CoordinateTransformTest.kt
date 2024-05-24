@@ -31,9 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val FLOAT_ERROR = 1E-4F
 
-/**
- * Unit tests for [CoordinateTransform].
- */
+/** Unit tests for [CoordinateTransform]. */
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -44,12 +42,14 @@ public class CoordinateTransformTest {
         // Arrange: the target is source with a 90° rotation.
         val imageProxyTransformFactory = ImageProxyTransformFactory()
         imageProxyTransformFactory.isUsingRotationDegrees = true
-        val source = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
-        )
-        val target = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(3, 4, 90, Rect(0, 0, 3, 4))
-        )
+        val source =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
+            )
+        val target =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(3, 4, 90, Rect(0, 0, 3, 4))
+            )
 
         // Act.
         val transform = CoordinateTransform(source, target)
@@ -66,12 +66,14 @@ public class CoordinateTransformTest {
         // Arrange: the target is source with a 90° rotation.
         val imageProxyTransformFactory = ImageProxyTransformFactory()
         imageProxyTransformFactory.isUsingRotationDegrees = true
-        val source = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
-        )
-        val target = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(3, 4, 90, Rect(0, 0, 3, 4))
-        )
+        val source =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
+            )
+        val target =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(3, 4, 90, Rect(0, 0, 3, 4))
+            )
 
         // Act.
         val transform = CoordinateTransform(source, target)
@@ -89,9 +91,10 @@ public class CoordinateTransformTest {
     public fun sameSourceAndTarget_getsIdentityMatrix() {
         // Arrange.
         val imageProxyTransformFactory = ImageProxyTransformFactory()
-        val imageProxy = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
-        )
+        val imageProxy =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
+            )
 
         // Act: create a transform with the same source and target.
         val transform = CoordinateTransform(imageProxy, imageProxy)
@@ -109,12 +112,14 @@ public class CoordinateTransformTest {
     public fun scaleImageProxy() {
         // Arrange: create 2 ImageProxy with the only difference being 10x scale.
         val imageProxyTransformFactory = ImageProxyTransformFactory()
-        val source = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
-        )
-        val target = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(30, 40, 0, Rect(0, 0, 30, 40))
-        )
+        val source =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(3, 4, 0, Rect(0, 0, 3, 4))
+            )
+        val target =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(30, 40, 0, Rect(0, 0, 30, 40))
+            )
 
         // Act.
         val coordinateTransform = CoordinateTransform(source, target)
@@ -130,12 +135,14 @@ public class CoordinateTransformTest {
         // Arrange: create 2 ImageProxy with different scale and rotation.
         val imageProxyTransformFactory = ImageProxyTransformFactory()
         imageProxyTransformFactory.isUsingRotationDegrees = true
-        val source = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(3, 4, 270, Rect(0, 0, 3, 4))
-        )
-        val target = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(30, 40, 90, Rect(0, 0, 30, 40))
-        )
+        val source =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(3, 4, 270, Rect(0, 0, 3, 4))
+            )
+        val target =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(30, 40, 90, Rect(0, 0, 30, 40))
+            )
 
         // Act.
         val coordinateTransform = CoordinateTransform(source, target)
@@ -152,12 +159,14 @@ public class CoordinateTransformTest {
         // crop rect. (MLKit scenario).
         val imageProxyTransformFactory = ImageProxyTransformFactory()
         imageProxyTransformFactory.isUsingRotationDegrees = true
-        val source = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(16, 12, 0, Rect(2, 2, 10, 8))
-        )
-        val target = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(16, 12, 0, Rect(8, 6, 16, 12))
-        )
+        val source =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(16, 12, 0, Rect(2, 2, 10, 8))
+            )
+        val target =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(16, 12, 0, Rect(8, 6, 16, 12))
+            )
 
         // Act.
         val coordinateTransform = CoordinateTransform(source, target)
@@ -174,16 +183,14 @@ public class CoordinateTransformTest {
         // rect.
         val imageProxyTransformFactory = ImageProxyTransformFactory()
         imageProxyTransformFactory.isUsingCropRect = true
-        val source = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(
-                16, 12, 0, Rect(2, 2, 10, 8)
+        val source =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(16, 12, 0, Rect(2, 2, 10, 8))
             )
-        )
-        val target = imageProxyTransformFactory.getOutputTransform(
-            createFakeImageProxy(
-                16, 12, 90, Rect(8, 6, 16, 12)
+        val target =
+            imageProxyTransformFactory.getOutputTransform(
+                createFakeImageProxy(16, 12, 90, Rect(8, 6, 16, 12))
             )
-        )
 
         // Act.
         val coordinateTransform = CoordinateTransform(source, target)
