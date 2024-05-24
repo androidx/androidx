@@ -224,8 +224,9 @@ class KlibDumpParserTest {
             }
         """
                 .trimIndent()
-        val e = assertFailsWith<ParseException> { KlibDumpParser(input).parse() }
-        assertThat(e.message).isEqualTo("Unknown declaration 2: invalid")
+        val e = assertFailsWith<ParseException> { KlibDumpParser(input, "current.txt").parse() }
+        assertThat(e.message)
+            .isEqualTo("Failed to parse unknown declaration at current.txt:1:4: 'invalid'")
     }
 
     @Test
