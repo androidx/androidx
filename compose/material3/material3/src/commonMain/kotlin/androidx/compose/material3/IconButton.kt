@@ -23,6 +23,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.internal.childSemantics
 import androidx.compose.material3.tokens.FilledIconButtonTokens
 import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
 import androidx.compose.material3.tokens.IconButtonTokens
@@ -101,7 +102,8 @@ fun IconButton(
                             bounded = false,
                             radius = IconButtonTokens.StateLayerSize / 2
                         )
-                ),
+                )
+                .childSemantics(),
         contentAlignment = Alignment.Center
     ) {
         val contentColor = colors.contentColor(enabled)

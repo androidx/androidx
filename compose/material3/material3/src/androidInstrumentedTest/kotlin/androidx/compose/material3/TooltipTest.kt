@@ -30,6 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
@@ -772,6 +776,31 @@ class TooltipTest {
         ) {
             Icon(Icons.Filled.Favorite, contentDescription = null)
         }
+    }
+
+    @Test
+    fun plainTooltip_withClickable_hasCorrectSemantics() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                tooltip = {
+                    PlainTooltip(
+                        modifier = Modifier.testTag(ContainerTestTag),
+                        content = { Text("Tooltip") }
+                    )
+                },
+                state = rememberTooltipState()
+            ) {
+                IconButton(modifier = Modifier.testTag(AnchorTestTag), onClick = {}) {
+                    Icon(Icons.Filled.Favorite, contentDescription = null)
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag(AnchorTestTag)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
     }
 }
 

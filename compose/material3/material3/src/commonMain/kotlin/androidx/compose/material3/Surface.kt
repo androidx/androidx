@@ -25,6 +25,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.internal.childSemantics
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.NonRestartableComposable
@@ -221,7 +222,8 @@ fun Surface(
                         indication = rippleOrFallbackImplementation(),
                         enabled = enabled,
                         onClick = onClick
-                    ),
+                    )
+                    .childSemantics(),
             propagateMinConstraints = true
         ) {
             content()
@@ -324,7 +326,8 @@ fun Surface(
                         indication = rippleOrFallbackImplementation(),
                         enabled = enabled,
                         onClick = onClick
-                    ),
+                    )
+                    .childSemantics(),
             propagateMinConstraints = true
         ) {
             content()
@@ -427,7 +430,8 @@ fun Surface(
                         indication = rippleOrFallbackImplementation(),
                         enabled = enabled,
                         onValueChange = onCheckedChange
-                    ),
+                    )
+                    .childSemantics(),
             propagateMinConstraints = true
         ) {
             content()
