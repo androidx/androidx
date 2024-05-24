@@ -22,13 +22,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Dp
 import androidx.wear.compose.material3.tokens.FilledTextButtonTokens
 import androidx.wear.compose.material3.tokens.FilledTonalTextButtonTokens
 import androidx.wear.compose.material3.tokens.OutlinedTextButtonTokens
@@ -43,9 +42,9 @@ import androidx.wear.compose.material3.tokens.TextToggleButtonTokens
  * to ensure that the recommended minimum touch target size is available. The recommended
  * [TextButton] sizes are [TextButtonDefaults.DefaultButtonSize],
  * [TextButtonDefaults.LargeButtonSize] and [TextButtonDefaults.SmallButtonSize].
- * Use [TextButtonDefaults.textStyleFor] to determine the text style to pass to [Text] for a given
- * [TextButtonDefaults] size. This will ensure that [Typography.labelMedium] is used by default and
- * [Typography.labelLarge] when using [TextButtonDefaults.LargeButtonSize].
+ * The recommended text styles for each corresponding button size are
+ * [TextButtonDefaults.defaultButtonTextStyle], [TextButtonDefaults.largeButtonTextStyle] and
+ * [TextButtonDefaults.smallButtonTextStyle].
  *
  * The default [TextButton] has no border and a transparent background for low emphasis actions.
  * For actions that require high emphasis, set [colors] to
@@ -119,9 +118,9 @@ fun TextButton(
  * to ensure that the background padding will correctly reach the edge of the minimum touch target.
  * The recommended [TextToggleButton] sizes are [TextButtonDefaults.DefaultButtonSize],
  * [TextButtonDefaults.LargeButtonSize] and [TextButtonDefaults.SmallButtonSize].
- * Use [TextButtonDefaults.textStyleFor] to determine the text style to pass to [Text] for a given
- * [TextButtonDefaults] size. This will ensure that [Typography.labelMedium] is used by default and
- * [Typography.labelLarge] when using [TextButtonDefaults.LargeButtonSize].
+ * The recommended text styles for each corresponding button size are
+ * [TextButtonDefaults.defaultButtonTextStyle], [TextButtonDefaults.largeButtonTextStyle] and
+ * [TextButtonDefaults.smallButtonTextStyle].
  *
  * [TextToggleButton] can be enabled or disabled. A disabled button will not respond to
  * click events. When enabled, the checked and unchecked events are propagated by [onCheckedChange].
@@ -378,21 +377,8 @@ object TextButtonDefaults {
     )
 
     /**
-     * Recommended text style for a given text button size.
-     *
-     * @param size The size of the text button in Dp
-     */
-    @Composable
-    fun textStyleFor(size: Dp): TextStyle =
-        if (size <= DefaultButtonSize)
-            MaterialTheme.typography.labelMedium
-        else
-            MaterialTheme.typography.labelLarge
-
-    /**
-     * The recommended size for a small button - for this size, it is recommended to set
-     * the text style to [Typography.labelMedium]. It is recommended to apply this size
-     * using [Modifier.touchTargetAwareSize].
+     * The recommended size for a small button.
+     * It is recommended to apply this size using [Modifier.touchTargetAwareSize].
      */
     val SmallButtonSize = TextButtonTokens.ContainerSmallSize
 
@@ -407,6 +393,24 @@ object TextButtonDefaults {
      * It is recommended to apply this size using [Modifier.touchTargetAwareSize].
      */
     val LargeButtonSize = TextButtonTokens.ContainerLargeSize
+
+    /** The recommended text style for a small button. */
+    val smallButtonTextStyle
+        @ReadOnlyComposable
+        @Composable
+        get() = MaterialTheme.typography.labelMedium
+
+    /** The default text style applied for buttons. */
+    val defaultButtonTextStyle
+        @ReadOnlyComposable
+        @Composable
+        get() = MaterialTheme.typography.labelMedium
+
+    /** The recommended text style for a large button. */
+    val largeButtonTextStyle
+        @ReadOnlyComposable
+        @Composable
+        get() = MaterialTheme.typography.labelLarge
 
     private val ColorScheme.defaultFilledTextButtonColors: TextButtonColors
         get() {
