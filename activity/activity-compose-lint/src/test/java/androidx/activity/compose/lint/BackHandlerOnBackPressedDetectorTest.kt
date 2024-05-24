@@ -33,9 +33,10 @@ class BackHandlerOnBackPressedDetectorTest : LintDetectorTest() {
 
     @Test
     fun expectPassOnBackPressed() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -50,18 +51,21 @@ class BackHandlerOnBackPressedDetectorTest : LintDetectorTest() {
                     dispatcher.onBackPressed()
                 }
             """
-            ),
-            Stubs.Composable,
-            COMPONENT_ACTIVITY,
-            ON_BACK_PRESSED_DISPATCHER,
-        )
-            .run().expectClean()
+                ),
+                Stubs.Composable,
+                COMPONENT_ACTIVITY,
+                ON_BACK_PRESSED_DISPATCHER,
+            )
+            .run()
+            .expectClean()
     }
+
     @Test
     fun errors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.compose.runtime.Composable
@@ -88,13 +92,13 @@ class BackHandlerOnBackPressedDetectorTest : LintDetectorTest() {
                     }
                 }
             """
-            ),
-            Stubs.Composable,
-            BACK_HANDLER,
-            COMPONENT_ACTIVITY,
-            ON_BACK_PRESSED_DISPATCHER,
-            PREDICTIVE_BACK_HANDLER
-        )
+                ),
+                Stubs.Composable,
+                BACK_HANDLER,
+                COMPONENT_ACTIVITY,
+                ON_BACK_PRESSED_DISPATCHER,
+                PREDICTIVE_BACK_HANDLER
+            )
             .run()
             .expect(
                 """

@@ -29,14 +29,14 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PickVisualMediaRequestTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun buildPickVisualMedia() {
-        val request = PickVisualMediaRequest.Builder().setMediaType(
-            ActivityResultContracts.PickVisualMedia.VideoOnly
-        ).build()
+        val request =
+            PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.VideoOnly)
+                .build()
         assertThat(request.mediaType).isEqualTo(ActivityResultContracts.PickVisualMedia.VideoOnly)
     }
 

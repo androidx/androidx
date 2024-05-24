@@ -40,21 +40,19 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ContentViewTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testLifecycleObserver() {
-       withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
+        withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
             val inflatedTextView: TextView = withActivity { findViewById(R.id.inflated_text_view) }
-            assertThat(inflatedTextView)
-                .isNotNull()
+            assertThat(inflatedTextView).isNotNull()
         }
     }
 
     @Test
     fun testViewTreeInflation() {
-       withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
+        withUse(ActivityScenario.launch(ContentViewActivity::class.java)) {
             val inflatedTextView: TextView = withActivity { findViewById(R.id.inflated_text_view) }
 
             withActivity {
@@ -82,39 +80,43 @@ class ContentViewTest {
         }
     }
 
-    private fun runAttachTest(
-        message: String,
-        attach: ComponentActivity.(View) -> Unit
-    ) {
-       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+    private fun runAttachTest(message: String, attach: ComponentActivity.(View) -> Unit) {
+        withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
             withActivity {
                 val view = View(this)
 
                 var attachedLifecycleOwner: Any? = "did not attach"
                 var attachedViewModelStoreOwner: Any? = "did not attach"
                 var attachedSavedStateRegistryOwner: Any? = "did not attach"
-                view.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-                    override fun onViewDetachedFromWindow(v: View) {
-                        // Do nothing
-                    }
+                view.addOnAttachStateChangeListener(
+                    object : View.OnAttachStateChangeListener {
+                        override fun onViewDetachedFromWindow(v: View) {
+                            // Do nothing
+                        }
 
-                    override fun onViewAttachedToWindow(v: View) {
-                        attachedLifecycleOwner = view.findViewTreeLifecycleOwner()
-                        attachedViewModelStoreOwner = view.findViewTreeViewModelStoreOwner()
-                        attachedSavedStateRegistryOwner = view.findViewTreeSavedStateRegistryOwner()
+                        override fun onViewAttachedToWindow(v: View) {
+                            attachedLifecycleOwner = view.findViewTreeLifecycleOwner()
+                            attachedViewModelStoreOwner = view.findViewTreeViewModelStoreOwner()
+                            attachedSavedStateRegistryOwner =
+                                view.findViewTreeSavedStateRegistryOwner()
+                        }
                     }
-                })
+                )
                 attach(view)
                 assertWithMessage("$message: ViewTreeLifecycleOwner was set correctly")
-                    .that(attachedLifecycleOwner).isSameInstanceAs(this)
+                    .that(attachedLifecycleOwner)
+                    .isSameInstanceAs(this)
                 assertWithMessage("$message: ViewTreeViewModelStoreOwner was set correctly")
-                    .that(attachedViewModelStoreOwner).isSameInstanceAs(this)
+                    .that(attachedViewModelStoreOwner)
+                    .isSameInstanceAs(this)
                 assertWithMessage("$message: ViewTreeSavedStateRegistryOwner was set correctly")
-                    .that(attachedSavedStateRegistryOwner).isSameInstanceAs(this)
+                    .that(attachedSavedStateRegistryOwner)
+                    .isSameInstanceAs(this)
             }
         }
     }
 }
 
 class ContentViewActivity : ComponentActivity(R.layout.activity_inflates_res)
+
 class EmptyContentActivity : ComponentActivity()

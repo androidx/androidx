@@ -54,31 +54,22 @@ import java.io.File
 
 class MainActivity : ComponentActivity() {
 
-    val requestLocation = registerForActivityResult(
-        RequestPermission(), ACCESS_FINE_LOCATION
-    ) { isGranted ->
-        toast("Location granted: $isGranted")
-    }
+    val requestLocation =
+        registerForActivityResult(RequestPermission(), ACCESS_FINE_LOCATION) { isGranted ->
+            toast("Location granted: $isGranted")
+        }
 
-    val takePicturePreview = registerForActivityResult(TakePicturePreview()) { bitmap ->
-        toast("Got picture: $bitmap")
-    }
+    val takePicturePreview =
+        registerForActivityResult(TakePicturePreview()) { bitmap -> toast("Got picture: $bitmap") }
 
-    val takePicture = registerForActivityResult(TakePicture()) { success ->
-        toast("Got picture: $success")
-    }
+    val takePicture =
+        registerForActivityResult(TakePicture()) { success -> toast("Got picture: $success") }
 
-    val captureVideo: ActivityResultLauncher<Uri> = registerForActivityResult(
-        CaptureVideo()
-    ) { success ->
-        toast("Got video: $success")
-    }
+    val captureVideo: ActivityResultLauncher<Uri> =
+        registerForActivityResult(CaptureVideo()) { success -> toast("Got video: $success") }
 
-    val getContent: ActivityResultLauncher<String> = registerForActivityResult(
-        GetContent()
-    ) { uri ->
-        toast("Got image: $uri")
-    }
+    val getContent: ActivityResultLauncher<String> =
+        registerForActivityResult(GetContent()) { uri -> toast("Got image: $uri") }
 
     lateinit var pickVisualMedia: ActivityResultLauncher<PickVisualMediaRequest>
 
@@ -88,48 +79,39 @@ class MainActivity : ComponentActivity() {
 
     lateinit var openDocuments: ActivityResultLauncher<Array<String>>
 
-    private val intentSender = registerForActivityResult(
-        ActivityResultContracts
-            .StartIntentSenderForResult()
-    ) {
-        toast("Received intent sender callback")
-    }
+    private val intentSender =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+            toast("Received intent sender callback")
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        pickVisualMedia = registerForActivityResult(PickVisualMedia()) { uri ->
-            toast("Got image: $uri")
-        }
+        pickVisualMedia =
+            registerForActivityResult(PickVisualMedia()) { uri -> toast("Got image: $uri") }
         pickMultipleVisualMedia =
             registerForActivityResult(PickMultipleVisualMedia(5)) { uris ->
                 var media = ""
-                uris.forEach {
-                    media += "uri: $it \n"
-                }
+                uris.forEach { media += "uri: $it \n" }
                 toast("Got media files: $media")
             }
-        createDocument = registerForActivityResult(CreateDocument("image/png")) { uri ->
-            toast("Created document: $uri")
-        }
-        openDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
-            var docs = ""
-            uris.forEach {
-                docs += "uri: $it \n"
+        createDocument =
+            registerForActivityResult(CreateDocument("image/png")) { uri ->
+                toast("Created document: $uri")
             }
-            toast("Got documents: $docs")
-        }
+        openDocuments =
+            registerForActivityResult(OpenMultipleDocuments()) { uris ->
+                var docs = ""
+                uris.forEach { docs += "uri: $it \n" }
+                toast("Got documents: $docs")
+            }
 
         setContentView {
             add(::LinearLayout) {
                 orientation = VERTICAL
 
-                button("Request location permission") {
-                    requestLocation.launch()
-                }
-                button("Get picture thumbnail") {
-                    takePicturePreview.launch()
-                }
+                button("Request location permission") { requestLocation.launch() }
+                button("Get picture thumbnail") { takePicturePreview.launch() }
                 button("Take pic") {
                     val file = File(filesDir, "image")
                     val uri = FileProvider.getUriForFile(this@MainActivity, packageName, file)
@@ -140,13 +122,9 @@ class MainActivity : ComponentActivity() {
                     val uri = FileProvider.getUriForFile(this@MainActivity, packageName, file)
                     captureVideo.launch(uri)
                 }
-                button("Pick an image (w/ GET_CONTENT)") {
-                    getContent.launch("image/*")
-                }
+                button("Pick an image (w/ GET_CONTENT)") { getContent.launch("image/*") }
                 button("Pick an image (w/ photo picker)") {
-                    pickVisualMedia.launch(
-                        PickVisualMediaRequest(PickVisualMedia.ImageOnly)
-                    )
+                    pickVisualMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
                 }
                 button("Pick a GIF (w/ photo picker)") {
                     pickVisualMedia.launch(
@@ -158,24 +136,23 @@ class MainActivity : ComponentActivity() {
                         PickVisualMediaRequest(PickVisualMedia.ImageAndVideo)
                     )
                 }
-                button("Create document") {
-                    createDocument.launch("Temp")
-                }
-                button("Open documents") {
-                    openDocuments.launch(arrayOf("*/*"))
-                }
+                button("Create document") { createDocument.launch("Temp") }
+                button("Open documents") { openDocuments.launch(arrayOf("*/*")) }
                 button("Start IntentSender") {
-                    val request = IntentSenderRequest.Builder(
-                        PendingIntent.getActivity(
-                            context,
-                            0,
-                            Intent(MediaStore.ACTION_IMAGE_CAPTURE),
-                            PendingIntent.FLAG_IMMUTABLE
-                        )
-                    )
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP,
-                            1)
-                        .build()
+                    val request =
+                        IntentSenderRequest.Builder(
+                                PendingIntent.getActivity(
+                                    context,
+                                    0,
+                                    Intent(MediaStore.ACTION_IMAGE_CAPTURE),
+                                    PendingIntent.FLAG_IMMUTABLE
+                                )
+                            )
+                            .setFlags(
+                                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP,
+                                1
+                            )
+                            .build()
                     intentSender.launch(request)
                 }
             }
@@ -187,8 +164,7 @@ fun Context.toast(msg: String) {
     Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
 }
 
-inline fun Activity.setContentView(ui: ViewManager.() -> Unit) =
-    ActivityViewManager(this).apply(ui)
+inline fun Activity.setContentView(ui: ViewManager.() -> Unit) = ActivityViewManager(this).apply(ui)
 
 class ActivityViewManager(val activity: Activity) : ViewManager {
     override fun addView(p0: View?, p1: ViewGroup.LayoutParams?) {
@@ -203,11 +179,14 @@ class ActivityViewManager(val activity: Activity) : ViewManager {
         TODO("not implemented")
     }
 }
-val ViewManager.context get() = when (this) {
-    is View -> context
-    is ActivityViewManager -> activity
-    else -> TODO()
-}
+
+val ViewManager.context
+    get() =
+        when (this) {
+            is View -> context
+            is ActivityViewManager -> activity
+            else -> TODO()
+        }
 
 fun <VM : ViewManager, V : View> VM.add(construct: (Context) -> V, init: V.() -> Unit) {
     construct(context).apply(init).also {

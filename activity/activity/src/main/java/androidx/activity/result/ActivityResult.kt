@@ -28,18 +28,16 @@ import android.os.Parcelable
  */
 @SuppressLint("BanParcelableUsage")
 class ActivityResult(
-    /**
-     * Status to indicate the success of the operation
-     */
+    /** Status to indicate the success of the operation */
     val resultCode: Int,
 
-    /**
-     * The intent that carries the result data
-     */
+    /** The intent that carries the result data */
     val data: Intent?
 ) : Parcelable {
 
-    internal constructor(parcel: Parcel) : this(
+    internal constructor(
+        parcel: Parcel
+    ) : this(
         parcel.readInt(),
         if (parcel.readInt() == 0) null else Intent.CREATOR.createFromParcel(parcel)
     )
@@ -73,11 +71,12 @@ class ActivityResult(
 
         @Suppress("unused")
         @JvmField
-        val CREATOR = object : Parcelable.Creator<ActivityResult> {
-            override fun createFromParcel(parcel: Parcel) = ActivityResult(parcel)
+        val CREATOR =
+            object : Parcelable.Creator<ActivityResult> {
+                override fun createFromParcel(parcel: Parcel) = ActivityResult(parcel)
 
-            override fun newArray(size: Int) = arrayOfNulls<ActivityResult>(size)
-        }
+                override fun newArray(size: Int) = arrayOfNulls<ActivityResult>(size)
+            }
     }
 }
 

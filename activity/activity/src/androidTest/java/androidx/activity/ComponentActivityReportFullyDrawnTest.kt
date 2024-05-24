@@ -31,12 +31,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityReportFullyDrawnTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testReportFullyDrawn() {
-       withUse(ActivityScenario.launch(ReportFullyDrawnActivity::class.java)) {
+        withUse(ActivityScenario.launch(ReportFullyDrawnActivity::class.java)) {
             withActivity {
                 // This test makes sure that this method does not throw an exception on devices
                 // running API 19 (without UPDATE_DEVICE_STATS permission) and earlier
@@ -49,16 +48,8 @@ class ComponentActivityReportFullyDrawnTest {
     @Test
     fun testReportFullyDrawnRecreate() {
         val activity = ActivityScenario.launch(ReportFullyDrawnActivity::class.java)
-        activity.withActivity {
-            setContentView(
-                View(this)
-            )
-        }
-        activity.recreate().withActivity {
-            setContentView(
-                View(this)
-            )
-        }
+        activity.withActivity { setContentView(View(this)) }
+        activity.recreate().withActivity { setContentView(View(this)) }
     }
 }
 

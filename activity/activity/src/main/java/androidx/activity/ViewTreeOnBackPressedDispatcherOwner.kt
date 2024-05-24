@@ -21,13 +21,13 @@ package androidx.activity
 import android.view.View
 
 /**
- * Set the [OnBackPressedDispatcherOwner] associated with the given [View].
- * Calls to [findViewTreeOnBackPressedDispatcherOwner] from this view or descendants will
- * return [onBackPressedDispatcherOwner].
+ * Set the [OnBackPressedDispatcherOwner] associated with the given [View]. Calls to
+ * [findViewTreeOnBackPressedDispatcherOwner] from this view or descendants will return
+ * [onBackPressedDispatcherOwner].
  *
- * This should only be called by constructs such as activities or dialogs that manage
- * a view tree and handle the dispatch of the system back button. Callers
- * should only set a [OnBackPressedDispatcherOwner] that will be *stable.*
+ * This should only be called by constructs such as activities or dialogs that manage a view tree
+ * and handle the dispatch of the system back button. Callers should only set a
+ * [OnBackPressedDispatcherOwner] that will be *stable.*
  *
  * @param onBackPressedDispatcherOwner [OnBackPressedDispatcherOwner] associated with the [View]
  */
@@ -39,17 +39,18 @@ fun View.setViewTreeOnBackPressedDispatcherOwner(
 }
 
 /**
- * Retrieve the [OnBackPressedDispatcherOwner] associated with the given [View].
- * This may be used to add a callback for the system back button.
+ * Retrieve the [OnBackPressedDispatcherOwner] associated with the given [View]. This may be used to
+ * add a callback for the system back button.
  *
- * @return The [OnBackPressedDispatcherOwner] associated with this view and/or some subset
- * of its ancestors
+ * @return The [OnBackPressedDispatcherOwner] associated with this view and/or some subset of its
+ *   ancestors
  */
 @JvmName("get")
 fun View.findViewTreeOnBackPressedDispatcherOwner(): OnBackPressedDispatcherOwner? {
-    return generateSequence(this) {
-        it.parent as? View
-    }.mapNotNull {
-        it.getTag(R.id.view_tree_on_back_pressed_dispatcher_owner) as? OnBackPressedDispatcherOwner
-    }.firstOrNull()
+    return generateSequence(this) { it.parent as? View }
+        .mapNotNull {
+            it.getTag(R.id.view_tree_on_back_pressed_dispatcher_owner)
+                as? OnBackPressedDispatcherOwner
+        }
+        .firstOrNull()
 }

@@ -36,23 +36,23 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ActivityResultLauncherTest {
-    private val registry = object : ActivityResultRegistry() {
-        var invokeCount = 0
-        var invokeOptions: ActivityOptionsCompat? = null
+    private val registry =
+        object : ActivityResultRegistry() {
+            var invokeCount = 0
+            var invokeOptions: ActivityOptionsCompat? = null
 
-        override fun <I : Any?, O : Any?> onLaunch(
-            requestCode: Int,
-            contract: ActivityResultContract<I, O>,
-            input: I,
-            options: ActivityOptionsCompat?
-        ) {
-            invokeCount++
-            invokeOptions = options
+            override fun <I : Any?, O : Any?> onLaunch(
+                requestCode: Int,
+                contract: ActivityResultContract<I, O>,
+                input: I,
+                options: ActivityOptionsCompat?
+            ) {
+                invokeCount++
+                invokeOptions = options
+            }
         }
-    }
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun launchTest() {
@@ -60,9 +60,7 @@ class ActivityResultLauncherTest {
 
         launcher.launch(Intent())
 
-        assertWithMessage("the registry was not invoked")
-            .that(registry.invokeCount)
-            .isEqualTo(1)
+        assertWithMessage("the registry was not invoked").that(registry.invokeCount).isEqualTo(1)
 
         assertWithMessage("the options passed to invoke were not null")
             .that(registry.invokeOptions)
@@ -72,28 +70,32 @@ class ActivityResultLauncherTest {
     @Test
     fun launchUnit() {
         val expectedResult = "result"
-        val registry = object : ActivityResultRegistry() {
-            override fun <I : Any?, O : Any?> onLaunch(
-                requestCode: Int,
-                contract: ActivityResultContract<I, O>,
-                input: I,
-                options: ActivityOptionsCompat?
-            ) {
-                contract.createIntent(InstrumentationRegistry.getInstrumentation().context, input)
-                dispatchResult(requestCode, expectedResult)
+        val registry =
+            object : ActivityResultRegistry() {
+                override fun <I : Any?, O : Any?> onLaunch(
+                    requestCode: Int,
+                    contract: ActivityResultContract<I, O>,
+                    input: I,
+                    options: ActivityOptionsCompat?
+                ) {
+                    contract.createIntent(
+                        InstrumentationRegistry.getInstrumentation().context,
+                        input
+                    )
+                    dispatchResult(requestCode, expectedResult)
+                }
             }
-        }
 
-        val contract = object : ActivityResultContract<Unit, String?>() {
-            override fun createIntent(context: Context, input: Unit) = Intent()
-            override fun parseResult(resultCode: Int, intent: Intent?) = ""
-        }
+        val contract =
+            object : ActivityResultContract<Unit, String?>() {
+                override fun createIntent(context: Context, input: Unit) = Intent()
+
+                override fun parseResult(resultCode: Int, intent: Intent?) = ""
+            }
 
         var actualResult: String? = null
 
-        val launcher = registry.register("key", contract) {
-            actualResult = it
-        }
+        val launcher = registry.register("key", contract) { actualResult = it }
 
         launcher.launch()
         assertThat(actualResult).isEqualTo(expectedResult)
@@ -105,15 +107,11 @@ class ActivityResultLauncherTest {
         val launcher = registry.register("key", StartActivityForResult()) {}
 
         val options = ActivityOptionsCompat.makeBasic()
-        options.launchBounds = Rect().apply {
-            left = 1
-        }
+        options.launchBounds = Rect().apply { left = 1 }
 
         launcher.launch(Intent(), options)
 
-        assertWithMessage("the registry was not invoked")
-            .that(registry.invokeCount)
-            .isEqualTo(1)
+        assertWithMessage("the registry was not invoked").that(registry.invokeCount).isEqualTo(1)
 
         assertWithMessage("the options passed to invoke were null")
             .that(registry.invokeOptions)

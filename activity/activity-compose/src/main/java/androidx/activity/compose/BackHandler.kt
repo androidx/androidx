@@ -41,25 +41,26 @@ public object LocalOnBackPressedDispatcherOwner {
         compositionLocalOf<OnBackPressedDispatcherOwner?> { null }
 
     /**
-     * Returns current composition local value for the owner or `null` if one has not
-     * been provided, one has not been set via
-     * [androidx.activity.setViewTreeOnBackPressedDispatcherOwner], nor is one available by
-     * looking at the [LocalContext].
+     * Returns current composition local value for the owner or `null` if one has not been provided,
+     * one has not been set via [androidx.activity.setViewTreeOnBackPressedDispatcherOwner], nor is
+     * one available by looking at the [LocalContext].
      */
     public val current: OnBackPressedDispatcherOwner?
         @Composable
-        get() = LocalOnBackPressedDispatcherOwner.current
-            ?: LocalView.current.findViewTreeOnBackPressedDispatcherOwner()
-            ?: findOwner<OnBackPressedDispatcherOwner>(LocalContext.current)
+        get() =
+            LocalOnBackPressedDispatcherOwner.current
+                ?: LocalView.current.findViewTreeOnBackPressedDispatcherOwner()
+                ?: findOwner<OnBackPressedDispatcherOwner>(LocalContext.current)
 
     /**
      * Associates a [LocalOnBackPressedDispatcherOwner] key to a value in a call to
      * [CompositionLocalProvider].
      */
-    public infix fun provides(dispatcherOwner: OnBackPressedDispatcherOwner):
-        ProvidedValue<OnBackPressedDispatcherOwner?> {
-            return LocalOnBackPressedDispatcherOwner.provides(dispatcherOwner)
-        }
+    public infix fun provides(
+        dispatcherOwner: OnBackPressedDispatcherOwner
+    ): ProvidedValue<OnBackPressedDispatcherOwner?> {
+        return LocalOnBackPressedDispatcherOwner.provides(dispatcherOwner)
+    }
 }
 
 /**
@@ -68,9 +69,9 @@ public object LocalOnBackPressedDispatcherOwner {
  * Calling this in your composable adds the given lambda to the [OnBackPressedDispatcher] of the
  * [LocalOnBackPressedDispatcherOwner].
  *
- * If this is called by nested composables, if enabled, the inner most composable will consume
- * the call to system back and invoke its lambda. The call will continue to propagate up until it
- * finds an enabled BackHandler.
+ * If this is called by nested composables, if enabled, the inner most composable will consume the
+ * call to system back and invoke its lambda. The call will continue to propagate up until it finds
+ * an enabled BackHandler.
  *
  * @sample androidx.activity.compose.samples.BackHandler
  *
@@ -91,20 +92,18 @@ public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
         }
     }
     // On every successful composition, update the callback with the `enabled` value
-    SideEffect {
-        backCallback.isEnabled = enabled
-    }
-    val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
-        "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
-    }.onBackPressedDispatcher
+    SideEffect { backCallback.isEnabled = enabled }
+    val backDispatcher =
+        checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
+                "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
+            }
+            .onBackPressedDispatcher
     @Suppress("deprecation", "KotlinRedundantDiagnosticSuppress") // TODO b/330570365
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, backDispatcher) {
         // Add callback to the backDispatcher
         backDispatcher.addCallback(lifecycleOwner, backCallback)
         // When the effect leaves the Composition, remove the callback
-        onDispose {
-            backCallback.remove()
-        }
+        onDispose { backCallback.remove() }
     }
 }

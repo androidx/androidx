@@ -39,9 +39,7 @@ import org.jetbrains.uast.UCallExpression
  * composable function / lambda.
  */
 class ActivityResultLaunchDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames(): List<String> = listOf(
-        Launch.shortName
-    )
+    override fun getApplicableMethodNames(): List<String> = listOf(Launch.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(PackageName)) return
@@ -57,19 +55,22 @@ class ActivityResultLaunchDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val LaunchDuringComposition = Issue.create(
-            "LaunchDuringComposition",
-            "Calls to `launch` should happen inside of a SideEffect and not during composition",
-            "Calling `launch` during composition is incorrect. Doing so will cause launch to be " +
-                "called multiple times resulting in a RuntimeException. Instead, use `SideEffect`" +
-                " and `launch` inside of the suspending block. The block will only run after a " +
-                "successful composition.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                ActivityResultLaunchDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val LaunchDuringComposition =
+            Issue.create(
+                "LaunchDuringComposition",
+                "Calls to `launch` should happen inside of a SideEffect and not during composition",
+                "Calling `launch` during composition is incorrect. Doing so will cause launch to be " +
+                    "called multiple times resulting in a RuntimeException. Instead, use `SideEffect`" +
+                    " and `launch` inside of the suspending block. The block will only run after a " +
+                    "successful composition.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    ActivityResultLaunchDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

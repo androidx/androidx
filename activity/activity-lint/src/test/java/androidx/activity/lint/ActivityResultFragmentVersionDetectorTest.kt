@@ -34,9 +34,10 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
     @Test
     fun expectPassRegisterForActivityResult() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -44,25 +45,28 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ),
-            *STUBS,
-            gradle(
-                "build.gradle",
-                """
+                ),
+                *STUBS,
+                gradle(
+                        "build.gradle",
+                        """
                 dependencies {
                     api("androidx.fragment:fragment:$FRAGMENT_VERSION")
                 }
             """
-            ).indented()
-        )
-            .run().expectClean()
+                    )
+                    .indented()
+            )
+            .run()
+            .expectClean()
     }
 
     @Test
     fun expectPassRegisterForActivityResultStableVersions() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -70,25 +74,28 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ),
-            *STUBS,
-            gradle(
-                "build.gradle",
-                """
+                ),
+                *STUBS,
+                gradle(
+                        "build.gradle",
+                        """
                 dependencies {
                     api("androidx.fragment:fragment:1.3.1")
                 }
             """
-            ).indented()
-        )
-            .run().expectClean()
+                    )
+                    .indented()
+            )
+            .run()
+            .expectClean()
     }
 
     @Test
     fun expectPassNewerStableVersion() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -96,24 +103,28 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ),
-            *STUBS,
-            gradle(
-                "build.gradle",
-                """
+                ),
+                *STUBS,
+                gradle(
+                        "build.gradle",
+                        """
                 dependencies {
                     api("androidx.fragment:fragment:1.4.0")
                 }
             """
-            ).indented()
-        ).run().expectClean()
+                    )
+                    .indented()
+            )
+            .run()
+            .expectClean()
     }
 
     @Test
     fun expectPassNewerSnapshotVersions() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -121,24 +132,28 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ),
-            *STUBS,
-            gradle(
-                "build.gradle",
-                """
+                ),
+                *STUBS,
+                gradle(
+                        "build.gradle",
+                        """
                 dependencies {
                     api("androidx.fragment:fragment:1.4.0-SNAPSHOT")
                 }
             """
-            ).indented()
-        ).run().expectClean()
+                    )
+                    .indented()
+            )
+            .run()
+            .expectClean()
     }
 
     @Test
     fun expectPassNewerAlphaVersions() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -146,24 +161,28 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ),
-            *STUBS,
-            gradle(
-                "build.gradle",
-                """
+                ),
+                *STUBS,
+                gradle(
+                        "build.gradle",
+                        """
                 dependencies {
                     api("androidx.fragment:fragment:1.4.0-alpha01")
                 }
             """
-            ).indented()
-        ).run().expectClean()
+                    )
+                    .indented()
+            )
+            .run()
+            .expectClean()
     }
 
     @Test
     fun expectPassRegisterForActivityResultProject() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -171,33 +190,36 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ),
-            *STUBS,
-            gradle(
-                "build.gradle",
-                """
+                ),
+                *STUBS,
+                gradle(
+                        "build.gradle",
+                        """
                 dependencies {
                     implementation(project(":fragment:fragment-ktx"))
                 }
             """
-            ).indented()
-        )
-            .run().expectClean()
+                    )
+                    .indented()
+            )
+            .run()
+            .expectClean()
     }
 
     @Test
     fun expectFailRegisterForActivityResult() {
-        lint().files(
-            gradle(
-                """
+        lint()
+            .files(
+                gradle(
+                    """
                 dependencies {
                     api("androidx.fragment:fragment:1.2.4")
                 }
             """
-            ),
-            *STUBS,
-            kotlin(
-                """
+                ),
+                *STUBS,
+                kotlin(
+                        """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -205,8 +227,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ).indented()
-        )
+                    )
+                    .indented()
+            )
             .run()
             .expect(
                 """
@@ -214,23 +237,25 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun expectFailRegisterForActivityResultInMethod() {
-        lint().files(
-            gradle(
-                """
+        lint()
+            .files(
+                gradle(
+                    """
                 dependencies {
                     api("androidx.fragment:fragment:1.2.4")
                 }
             """
-            ),
-            *STUBS,
-            kotlin(
-                """
+                ),
+                *STUBS,
+                kotlin(
+                        """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -242,8 +267,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                     launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                 }
             """
-            ).indented()
-        )
+                    )
+                    .indented()
+            )
             .run()
             .expect(
                 """
@@ -251,23 +277,25 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                     launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun expectFailRegisterForActivityResultMultipleCalls() {
-        lint().files(
-            gradle(
-                """
+        lint()
+            .files(
+                gradle(
+                    """
                 dependencies {
                     api("androidx.fragment:fragment:1.2.4")
                 }
             """
-            ),
-            *STUBS,
-            kotlin(
-                """
+                ),
+                *STUBS,
+                kotlin(
+                        """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -281,8 +309,9 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                     launcher2 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                 }
             """
-            ).indented()
-        )
+                    )
+                    .indented()
+            )
             .run()
             .expect(
                 """
@@ -293,15 +322,17 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
                     launcher2 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 2 errors, 0 warnings
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
     }
 
     @Test
     fun expectFailTransitiveDependency() {
-        val projectFragment = project(
-            kotlin(
-                """
+        val projectFragment =
+            project(
+                    kotlin(
+                        """
                 package com.example
 
                 import androidx.activity.result.ActivityResultCaller
@@ -309,30 +340,37 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
 
                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
             """
-            ),
-            *STUBS,
-            gradle(
-                "build.gradle",
-                """
+                    ),
+                    *STUBS,
+                    gradle(
+                            "build.gradle",
+                            """
                 dependencies {
                     implementation("androidx.fragment:fragment-ktx:1.2.4")
                 }
             """
-            ).indented()
-        ).withDependencyGraph(
-            """
+                        )
+                        .indented()
+                )
+                .withDependencyGraph(
+                    """
                 +--- androidx.fragment:fragment-ktx:1.2.4
                      \--- androidx.fragment:fragment:1.2.4
-            """.trimIndent()
-        )
-
-        lint().projects(projectFragment).run().expect(
             """
+                        .trimIndent()
+                )
+
+        lint()
+            .projects(projectFragment)
+            .run()
+            .expect(
+                """
                 src/main/kotlin/com/example/test.kt:7: Error: Upgrade Fragment version to at least $FRAGMENT_VERSION. [InvalidFragmentVersionForActivityResult]
                                 val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent()
-        )
+            """
+                    .trimIndent()
+            )
     }
 }

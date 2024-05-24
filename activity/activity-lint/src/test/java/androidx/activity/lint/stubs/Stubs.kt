@@ -19,59 +19,65 @@ package androidx.activity.lint.stubs
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 
-private val ACTIVITY_RESULT_CALLER = java(
-    """
+private val ACTIVITY_RESULT_CALLER =
+    java(
+        """
     package androidx.activity.result;
 
     public class ActivityResultCaller {
         public ActivityResultLauncher registerForActivityResult(ActivityResultContract contract) {}
     }
 """
-)
+    )
 
-private val ACTIVITY_RESULT_CONTRACT = java(
-    """
+private val ACTIVITY_RESULT_CONTRACT =
+    java(
+        """
     package androidx.activity.result.contract;
 
     public class ActivityResultContract { }
 """
-)
+    )
 
-private val COMPONENT_ACTIVITY = kotlin(
-    """
+private val COMPONENT_ACTIVITY =
+    kotlin(
+        """
     package androidx.activity
 
     class ComponentActivity {
         open fun onBackPressed() { }
     }
 """
-)
+    )
 
-private val ON_BACK_PRESSED_CALLBACK = kotlin(
-    """
+private val ON_BACK_PRESSED_CALLBACK =
+    kotlin(
+        """
     package androidx.activity
 
     class OnBackPressedCallback {
         open fun handleOnBackPressed() { }
     }
 """
-)
+    )
 
-private val ON_BACK_PRESSED_DISPATCHER = kotlin(
-    """
+private val ON_BACK_PRESSED_DISPATCHER =
+    kotlin(
+        """
     package androidx.activity
 
     class OnBackPressedDispatcher {
         open fun onBackPressed() { }
     }
 """
-)
+    )
 
 // stubs for testing calls to registerForActivityResult
-internal val STUBS = arrayOf(
-    ACTIVITY_RESULT_CALLER,
-    ACTIVITY_RESULT_CONTRACT,
-    COMPONENT_ACTIVITY,
-    ON_BACK_PRESSED_CALLBACK,
-    ON_BACK_PRESSED_DISPATCHER
-)
+internal val STUBS =
+    arrayOf(
+        ACTIVITY_RESULT_CALLER,
+        ACTIVITY_RESULT_CONTRACT,
+        COMPONENT_ACTIVITY,
+        ON_BACK_PRESSED_CALLBACK,
+        ON_BACK_PRESSED_DISPATCHER
+    )

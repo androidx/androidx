@@ -30,8 +30,8 @@ import kotlinx.coroutines.flow.callbackFlow
  * Sets the [View] that will be used as reference to set the
  * [PictureInPictureParams.Builder.setSourceRectHint].
  *
- * Anytime the view position changes, [Activity.setPictureInPictureParams] will be called with
- * the updated view's position in window coordinates as the
+ * Anytime the view position changes, [Activity.setPictureInPictureParams] will be called with the
+ * updated view's position in window coordinates as the
  * [PictureInPictureParams.Builder.setSourceRectHint].
  *
  * @param view the view to use as the reference for the source rect hint
@@ -48,58 +48,55 @@ public suspend fun Activity.trackPipAnimationHintView(view: View) {
     // Create a cold flow that will emit the most updated position of the view in the form of a
     // rect as long as the view is attached to the window.
     @Suppress("DEPRECATION")
-    val flow = callbackFlow<Rect> {
-        // Emit a new hint rect any time the view moves.
-        val layoutChangeListener = View.OnLayoutChangeListener { v, l, t, r, b, oldLeft, oldTop,
-            oldRight, oldBottom ->
-            if (l != oldLeft || r != oldRight || t != oldTop || b != oldBottom) {
-                trySend(v.positionInWindow())
-            }
-        }
-        val scrollChangeListener = ViewTreeObserver.OnScrollChangedListener {
-            trySend(view.positionInWindow())
-        }
-        // When the view is attached, emit the current position and start listening for layout
-        // changes to track movement.
-        val attachStateChangeListener = object : View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(v: View) {
+    val flow =
+        callbackFlow<Rect> {
+            // Emit a new hint rect any time the view moves.
+            val layoutChangeListener =
+                View.OnLayoutChangeListener { v, l, t, r, b, oldLeft, oldTop, oldRight, oldBottom ->
+                    if (l != oldLeft || r != oldRight || t != oldTop || b != oldBottom) {
+                        trySend(v.positionInWindow())
+                    }
+                }
+            val scrollChangeListener =
+                ViewTreeObserver.OnScrollChangedListener { trySend(view.positionInWindow()) }
+            // When the view is attached, emit the current position and start listening for layout
+            // changes to track movement.
+            val attachStateChangeListener =
+                object : View.OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: View) {
+                        trySend(view.positionInWindow())
+                        view.viewTreeObserver.addOnScrollChangedListener(scrollChangeListener)
+                        view.addOnLayoutChangeListener(layoutChangeListener)
+                    }
+
+                    override fun onViewDetachedFromWindow(v: View) {
+                        v.viewTreeObserver.removeOnScrollChangedListener(scrollChangeListener)
+                        v.removeOnLayoutChangeListener(layoutChangeListener)
+                    }
+                }
+            // Check if the view is already attached to the window, if it is then emit the current
+            // position and start listening for layout changes to track movement.
+            if (view.isAttachedToWindow) {
                 trySend(view.positionInWindow())
                 view.viewTreeObserver.addOnScrollChangedListener(scrollChangeListener)
                 view.addOnLayoutChangeListener(layoutChangeListener)
             }
+            view.addOnAttachStateChangeListener(attachStateChangeListener)
 
-            override fun onViewDetachedFromWindow(v: View) {
-                v.viewTreeObserver.removeOnScrollChangedListener(scrollChangeListener)
-                v.removeOnLayoutChangeListener(layoutChangeListener)
+            awaitClose {
+                view.viewTreeObserver.removeOnScrollChangedListener(scrollChangeListener)
+                view.removeOnLayoutChangeListener(layoutChangeListener)
+                view.removeOnAttachStateChangeListener(attachStateChangeListener)
             }
         }
-        // Check if the view is already attached to the window, if it is then emit the current
-        // position and start listening for layout changes to track movement.
-        if (view.isAttachedToWindow) {
-            trySend(view.positionInWindow())
-            view.viewTreeObserver.addOnScrollChangedListener(scrollChangeListener)
-            view.addOnLayoutChangeListener(layoutChangeListener)
-        }
-        view.addOnAttachStateChangeListener(attachStateChangeListener)
-
-        awaitClose {
-            view.viewTreeObserver.removeOnScrollChangedListener(scrollChangeListener)
-            view.removeOnLayoutChangeListener(layoutChangeListener)
-            view.removeOnAttachStateChangeListener(attachStateChangeListener)
-        }
-    }
-    flow.collect { hint ->
-        Api26Impl.setPipParamsSourceRectHint(this, hint)
-    }
+    flow.collect { hint -> Api26Impl.setPipParamsSourceRectHint(this, hint) }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal object Api26Impl {
     fun setPipParamsSourceRectHint(activity: Activity, hint: Rect) {
         activity.setPictureInPictureParams(
-            PictureInPictureParams.Builder()
-                .setSourceRectHint(hint)
-                .build()
+            PictureInPictureParams.Builder().setSourceRectHint(hint).build()
         )
     }
 }

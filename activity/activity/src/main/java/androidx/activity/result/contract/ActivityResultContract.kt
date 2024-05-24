@@ -19,30 +19,26 @@ import android.content.Context
 import android.content.Intent
 
 /**
- * A contract specifying that an activity can be called with an input of type [I]
- * and produce an output of type [O].
+ * A contract specifying that an activity can be called with an input of type [I] and produce an
+ * output of type [O].
  *
  * Makes calling an activity for result type-safe.
  *
  * @see androidx.activity.result.ActivityResultCaller
  */
 abstract class ActivityResultContract<I, O> {
-    /**
-     * Create an intent that can be used for [android.app.Activity.startActivityForResult].
-     */
+    /** Create an intent that can be used for [android.app.Activity.startActivityForResult]. */
     abstract fun createIntent(context: Context, input: I): Intent
 
-    /**
-     * Convert result obtained from [android.app.Activity.onActivityResult] to [O].
-     */
+    /** Convert result obtained from [android.app.Activity.onActivityResult] to [O]. */
     abstract fun parseResult(resultCode: Int, intent: Intent?): O
 
     /**
-     * An optional method you can implement that can be used to potentially provide a result in
-     * lieu of starting an activity.
+     * An optional method you can implement that can be used to potentially provide a result in lieu
+     * of starting an activity.
      *
-     * @return the result wrapped in a [SynchronousResult] or `null` if the call
-     * should proceed to start an activity.
+     * @return the result wrapped in a [SynchronousResult] or `null` if the call should proceed to
+     *   start an activity.
      */
     open fun getSynchronousResult(context: Context, input: I): SynchronousResult<O>? {
         return null
