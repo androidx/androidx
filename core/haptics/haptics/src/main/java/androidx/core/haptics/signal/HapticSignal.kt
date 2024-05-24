@@ -43,15 +43,11 @@ abstract class HapticSignal internal constructor() : ResolvableSignal {
      */
     internal abstract fun toVibration(): VibrationWrapper?
 
-    /**
-     * Returns true if the device vibrator can play this signal as intended, false otherwise.
-     */
+    /** Returns true if the device vibrator can play this signal as intended, false otherwise. */
     internal abstract fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean
 }
 
-/**
- * A [FiniteSignal] describes a non-infinite haptic signal to be played by a vibrator.
- */
+/** A [FiniteSignal] describes a non-infinite haptic signal to be played by a vibrator. */
 abstract class FiniteSignal internal constructor() : HapticSignal()
 
 /**

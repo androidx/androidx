@@ -69,9 +69,7 @@ abstract class BaseTelecomTest {
         mPackagePhoneAccountHandle = mCallsManager.getPhoneAccountHandleForPackage()
         mPreviousDefaultDialer = TestUtils.getDefaultDialer()
         TestUtils.setDefaultDialer(TestUtils.TEST_PACKAGE)
-        runBlocking {
-            maybeCleanupStuckCalls()
-        }
+        runBlocking { maybeCleanupStuckCalls() }
         Utils.resetUtils()
         TestUtils.resetCallbackConfigs()
     }
@@ -82,9 +80,7 @@ abstract class BaseTelecomTest {
         Utils.resetUtils()
         TestUtils.resetCallbackConfigs()
         TestUtils.setDefaultDialer(mPreviousDefaultDialer)
-        runBlocking {
-            maybeCleanupStuckCalls()
-        }
+        runBlocking { maybeCleanupStuckCalls() }
     }
 
     fun setInCallService(ics: InCallServiceType) {
@@ -118,12 +114,15 @@ abstract class BaseTelecomTest {
         val telecomDumpsysString = TestUtils.runShellCommand(TestUtils.COMMAND_DUMP_TELECOM)
         val isInCallXmCallsDump = isInCallFromTelDumpsys(telecomDumpsysString)
 
-        Log.i(L_TAG, "logTelecomState: " +
-            "hasTelecomFeature=[${hasTelecomFeature()}]," +
-            "isInCall=[${isInCallXmCallsDump.first}], " +
-            "mCalls={${isInCallXmCallsDump.second}}, " +
-            "sdkInt=[${Build.VERSION.SDK_INT}], " +
-            "phoneAccounts=[${getPhoneAccountsFromTelDumpsys(telecomDumpsysString)}]")
+        Log.i(
+            L_TAG,
+            "logTelecomState: " +
+                "hasTelecomFeature=[${hasTelecomFeature()}]," +
+                "isInCall=[${isInCallXmCallsDump.first}], " +
+                "mCalls={${isInCallXmCallsDump.second}}, " +
+                "sdkInt=[${Build.VERSION.SDK_INT}], " +
+                "phoneAccounts=[${getPhoneAccountsFromTelDumpsys(telecomDumpsysString)}]"
+        )
     }
 
     private fun hasTelecomFeature(): Boolean {
@@ -141,9 +140,8 @@ abstract class BaseTelecomTest {
     }
 
     private fun isInCallFromTelDumpsys(telecomDumpsysString: String): Pair<Boolean, String> {
-        val allCallsText = telecomDumpsysString
-            .substringBefore("mCallAudioManager")
-            .substringAfter("mCalls:")
+        val allCallsText =
+            telecomDumpsysString.substringBefore("mCallAudioManager").substringAfter("mCalls:")
         if (allCallsText.contains("Call")) {
             return Pair(true, allCallsText)
         }
@@ -151,15 +149,13 @@ abstract class BaseTelecomTest {
     }
 
     private fun getPhoneAccountsFromTelDumpsys(telecomDumpsysString: String): String {
-        return telecomDumpsysString
-            .substringBefore("Analytics")
-            .substringAfter("phoneAccounts:")
+        return telecomDumpsysString.substringBefore("Analytics").substringAfter("phoneAccounts:")
     }
 
     /**
-     * This helper requires an asserBlock (a set of assert statements), creates a timer, and
-     * either halts execution until all the asserts are completed or times out if the asserts
-     * are not completed in time. It's important to do this
+     * This helper requires an asserBlock (a set of assert statements), creates a timer, and either
+     * halts execution until all the asserts are completed or times out if the asserts are not
+     * completed in time. It's important to do this
      */
     suspend fun assertWithinTimeout_addCall(
         attributes: CallAttributesCompat,

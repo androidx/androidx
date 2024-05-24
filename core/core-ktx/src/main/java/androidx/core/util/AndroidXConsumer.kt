@@ -21,12 +21,11 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 
 /**
- * Returns a [Consumer] that will resume this [Continuation] when the result of an operation
- * is [accepted][Consumer.accept].
+ * Returns a [Consumer] that will resume this [Continuation] when the result of an operation is
+ * [accepted][Consumer.accept].
  *
- * Useful for writing `suspend` bindings to async Jetpack library methods that accept [Consumer]
- * as a result callback for a one-time operation:
- *
+ * Useful for writing `suspend` bindings to async Jetpack library methods that accept [Consumer] as
+ * a result callback for a one-time operation:
  * ```
  * public suspend fun FancinessManager.query(
  *     query: FancinessManager.Query
@@ -52,9 +51,8 @@ import kotlin.coroutines.resume
 public fun <T> Continuation<T>.asAndroidXConsumer(): Consumer<T> =
     AndroidXContinuationConsumer(this)
 
-private class AndroidXContinuationConsumer<T>(
-    private val continuation: Continuation<T>
-) : Consumer<T>, AtomicBoolean(false) {
+private class AndroidXContinuationConsumer<T>(private val continuation: Continuation<T>) :
+    Consumer<T>, AtomicBoolean(false) {
     override fun accept(value: T) {
         // Do not attempt to resume more than once, even if the caller of the returned
         // Consumer is buggy and tries anyway.

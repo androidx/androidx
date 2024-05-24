@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 
 /**
  * Describes UWB ranging capabilities for the current device.
+ *
  * @property isDistanceSupported - Whether distance ranging is supported
  * @property isAzimuthalAngleSupported - Whether azimuthal angle of arrival is supported
  * @property isElevationAngleSupported - Whether elevation angle of arrival is supported
@@ -29,8 +30,10 @@ import androidx.annotation.RestrictTo
  * @property supportedConfigIds - Set of supported config ids
  * @property supportedSlotDurations - Set of supported slot durations
  * @property supportedRangingUpdateRates - Set of supported update rates
- * @property isRangingIntervalReconfigureSupported - Whether ranging interval reconfiguration is supported
- * @property isBackgroundRangingSupported - Whether a ranging can be started when the app is in background
+ * @property isRangingIntervalReconfigureSupported - Whether ranging interval reconfiguration is
+ *   supported
+ * @property isBackgroundRangingSupported - Whether a ranging can be started when the app is in
+ *   background
  */
 class RangingCapabilities
 @RestrictTo(RestrictTo.Scope.LIBRARY)

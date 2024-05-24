@@ -27,21 +27,24 @@ import org.junit.Test
 
 @SmallTest
 class SparseIntArrayTest {
-    @Test fun sizeProperty() {
+    @Test
+    fun sizeProperty() {
         val array = SparseIntArray()
         assertEquals(0, array.size)
         array.put(1, 11)
         assertEquals(1, array.size)
     }
 
-    @Test fun containsOperator() {
+    @Test
+    fun containsOperator() {
         val array = SparseIntArray()
         assertFalse(1 in array)
         array.put(1, 11)
         assertTrue(1 in array)
     }
 
-    @Test fun containsOperatorWithValue() {
+    @Test
+    fun containsOperatorWithValue() {
         val array = SparseIntArray()
 
         array.put(1, 11)
@@ -51,13 +54,15 @@ class SparseIntArrayTest {
         assertTrue(2 in array)
     }
 
-    @Test fun setOperator() {
+    @Test
+    fun setOperator() {
         val array = SparseIntArray()
         array[1] = 11
         assertEquals(11, array.get(1))
     }
 
-    @Test fun plusOperator() {
+    @Test
+    fun plusOperator() {
         val first = SparseIntArray().apply { put(1, 11) }
         val second = SparseIntArray().apply { put(2, 22) }
         val combined = first + second
@@ -68,14 +73,16 @@ class SparseIntArrayTest {
         assertEquals(22, combined.valueAt(1))
     }
 
-    @Test fun containsKey() {
+    @Test
+    fun containsKey() {
         val array = SparseIntArray()
         assertFalse(array.containsKey(1))
         array.put(1, 11)
         assertTrue(array.containsKey(1))
     }
 
-    @Test fun containsKeyWithValue() {
+    @Test
+    fun containsKeyWithValue() {
         val array = SparseIntArray()
 
         array.put(1, 11)
@@ -85,21 +92,24 @@ class SparseIntArrayTest {
         assertTrue(array.containsKey(2))
     }
 
-    @Test fun containsValue() {
+    @Test
+    fun containsValue() {
         val array = SparseIntArray()
         assertFalse(array.containsValue(11))
         array.put(1, 11)
         assertTrue(array.containsValue(11))
     }
 
-    @Test fun getOrDefault() {
+    @Test
+    fun getOrDefault() {
         val array = SparseIntArray()
         assertEquals(22, array.getOrDefault(1, 22))
         array.put(1, 11)
         assertEquals(11, array.getOrDefault(1, 22))
     }
 
-    @Test fun getOrElse() {
+    @Test
+    fun getOrElse() {
         val array = SparseIntArray()
         assertEquals(22, array.getOrElse(1) { 22 })
         array.put(1, 11)
@@ -107,21 +117,24 @@ class SparseIntArrayTest {
         assertEquals(33, array.getOrElse(2) { 33 })
     }
 
-    @Test fun isEmpty() {
+    @Test
+    fun isEmpty() {
         val array = SparseIntArray()
         assertTrue(array.isEmpty())
         array.put(1, 11)
         assertFalse(array.isEmpty())
     }
 
-    @Test fun isNotEmpty() {
+    @Test
+    fun isNotEmpty() {
         val array = SparseIntArray()
         assertFalse(array.isNotEmpty())
         array.put(1, 11)
         assertTrue(array.isNotEmpty())
     }
 
-    @Test fun removeValue() {
+    @Test
+    fun removeValue() {
         val array = SparseIntArray()
         array.put(1, 11)
         assertFalse(array.remove(2, 11))
@@ -132,7 +145,8 @@ class SparseIntArrayTest {
         assertEquals(0, array.size())
     }
 
-    @Test fun putAll() {
+    @Test
+    fun putAll() {
         val dest = SparseIntArray()
         val source = SparseIntArray()
         source.put(1, 11)
@@ -142,7 +156,8 @@ class SparseIntArrayTest {
         assertEquals(1, dest.size())
     }
 
-    @Test fun forEach() {
+    @Test
+    fun forEach() {
         val array = SparseIntArray()
         array.forEach { _, _ -> fail() }
 
@@ -160,7 +175,8 @@ class SparseIntArrayTest {
         assertThat(values).containsExactly(11, 22, 66)
     }
 
-    @Test fun keyIterator() {
+    @Test
+    fun keyIterator() {
         val array = SparseIntArray()
         assertFalse(array.keyIterator().hasNext())
 
@@ -178,7 +194,8 @@ class SparseIntArrayTest {
         assertFalse(iterator.hasNext())
     }
 
-    @Test fun valueIterator() {
+    @Test
+    fun valueIterator() {
         val array = SparseIntArray()
         assertFalse(array.valueIterator().hasNext())
 

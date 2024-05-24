@@ -41,36 +41,42 @@ import org.junit.Assert
 import org.junit.Test
 
 class UwbClientSessionScopeImplTest {
-    private val uwbClient = TestUwbClient(
-        COMPLEX_CHANNEL, LOCAL_ADDRESS, RANGING_CAPABILITIES,
-        isAvailable = true,
-        isController = false
-    )
-    private val uwbClientSession = UwbClientSessionScopeImpl(
-        uwbClient,
-        androidx.core.uwb.RangingCapabilities(
-            RANGING_CAPABILITIES.supportsDistance(),
-            RANGING_CAPABILITIES.supportsAzimuthalAngle(),
-            RANGING_CAPABILITIES.supportsElevationAngle(),
-            RANGING_CAPABILITIES.minRangingInterval,
-            RANGING_CAPABILITIES.supportedChannels.toSet(),
-            RANGING_CAPABILITIES.supportedNtfConfigs.toSet(),
-            RANGING_CAPABILITIES.supportedConfigIds.toSet(),
-            RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
-            RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
-            RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
-            RANGING_CAPABILITIES.hasBackgroundRangingSupport()
-        ),
-        androidx.core.uwb.UwbAddress(LOCAL_ADDRESS.address)
-    )
+    private val uwbClient =
+        TestUwbClient(
+            COMPLEX_CHANNEL,
+            LOCAL_ADDRESS,
+            RANGING_CAPABILITIES,
+            isAvailable = true,
+            isController = false
+        )
+    private val uwbClientSession =
+        UwbClientSessionScopeImpl(
+            uwbClient,
+            androidx.core.uwb.RangingCapabilities(
+                RANGING_CAPABILITIES.supportsDistance(),
+                RANGING_CAPABILITIES.supportsAzimuthalAngle(),
+                RANGING_CAPABILITIES.supportsElevationAngle(),
+                RANGING_CAPABILITIES.minRangingInterval,
+                RANGING_CAPABILITIES.supportedChannels.toSet(),
+                RANGING_CAPABILITIES.supportedNtfConfigs.toSet(),
+                RANGING_CAPABILITIES.supportedConfigIds.toSet(),
+                RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
+                RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
+                RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
+                RANGING_CAPABILITIES.hasBackgroundRangingSupport()
+            ),
+            androidx.core.uwb.UwbAddress(LOCAL_ADDRESS.address)
+        )
+
     @Test
     public fun testInitSession_singleConsumer() {
         val sessionFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
         var rangingResult: RangingResult? = null
-        val job = sessionFlow
-            .cancellable()
-            .onEach { rangingResult = it }
-            .launchIn(CoroutineScope(Dispatchers.Main.immediate))
+        val job =
+            sessionFlow
+                .cancellable()
+                .onEach { rangingResult = it }
+                .launchIn(CoroutineScope(Dispatchers.Main.immediate))
 
         runBlocking {
             // wait for the coroutines for UWB to get launched.
@@ -86,9 +92,7 @@ class UwbClientSessionScopeImplTest {
 
         // cancel and wait for the job to terminate.
         job.cancel()
-        runBlocking {
-            job.join()
-        }
+        runBlocking { job.join() }
         // StopRanging should have been called after the coroutine scope completed.
         assertThat(uwbClient.stopRangingCalled).isTrue()
     }
@@ -97,27 +101,34 @@ class UwbClientSessionScopeImplTest {
     public fun testInitSession_multipleSharedConsumers() {
         var passed1 = false
         var passed2 = false
-        val sharedFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
-            .shareIn(CoroutineScope(Dispatchers.Main.immediate), SharingStarted.WhileSubscribed(),
-                replay = 1)
-        val job = CoroutineScope(Dispatchers.Main.immediate).launch {
-            sharedFlow
-                .onEach {
-                    if (it is RangingResultPosition) {
-                        passed1 = true
+        val sharedFlow =
+            uwbClientSession
+                .prepareSession(RANGING_PARAMETERS)
+                .shareIn(
+                    CoroutineScope(Dispatchers.Main.immediate),
+                    SharingStarted.WhileSubscribed(),
+                    replay = 1
+                )
+        val job =
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                sharedFlow
+                    .onEach {
+                        if (it is RangingResultPosition) {
+                            passed1 = true
+                        }
                     }
-                }
-                .collect()
-        }
-        val job2 = CoroutineScope(Dispatchers.Main.immediate).launch {
-            sharedFlow
-                .onEach {
-                    if (it is RangingResultPosition) {
-                        passed2 = true
+                    .collect()
+            }
+        val job2 =
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                sharedFlow
+                    .onEach {
+                        if (it is RangingResultPosition) {
+                            passed2 = true
+                        }
                     }
-                }
-                .collect()
-        }
+                    .collect()
+            }
 
         runBlocking {
             // wait for coroutines for flow to start.
@@ -130,17 +141,13 @@ class UwbClientSessionScopeImplTest {
 
         // cancel and wait for the first job to terminate.
         job.cancel()
-        runBlocking {
-            job.join()
-        }
+        runBlocking { job.join() }
         // StopRanging should not have been called because not all consumers have finished.
         assertThat(uwbClient.stopRangingCalled).isFalse()
 
         // cancel and wait for the second job to terminate.
         job2.cancel()
-        runBlocking {
-            job2.join()
-        }
+        runBlocking { job2.join() }
         // StopRanging should have been called because all consumers have finished.
         assertThat(uwbClient.stopRangingCalled).isTrue()
     }
@@ -149,22 +156,26 @@ class UwbClientSessionScopeImplTest {
     public fun testInitSession_singleConsumer_disconnectPeerDevice() {
         val sessionFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
         var peerDisconnected = false
-        val job = CoroutineScope(Dispatchers.Main.immediate).launch {
-            sessionFlow
-                .cancellable()
-                .onEach {
-                    if (it is RangingResultPeerDisconnected) {
-                        peerDisconnected = true
+        val job =
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                sessionFlow
+                    .cancellable()
+                    .onEach {
+                        if (it is RangingResultPeerDisconnected) {
+                            peerDisconnected = true
+                        }
                     }
-                }
-                .collect()
-        }
+                    .collect()
+            }
 
         runBlocking {
             // wait for coroutines for flow to start.
             delay(500)
-            uwbClient.disconnectPeer(com.google.android.gms.nearby.uwb.UwbDevice.createForAddress(
-                UWB_DEVICE.address.address))
+            uwbClient.disconnectPeer(
+                com.google.android.gms.nearby.uwb.UwbDevice.createForAddress(
+                    UWB_DEVICE.address.address
+                )
+            )
 
             // wait for rangingResults to get filled.
             delay(500)
@@ -175,44 +186,52 @@ class UwbClientSessionScopeImplTest {
 
         // cancel and wait for the job to terminate.
         job.cancel()
-        runBlocking {
-            job.join()
-        }
+        runBlocking { job.join() }
         // StopRanging should have been called after the coroutine scope completed.
         assertThat(uwbClient.stopRangingCalled).isTrue()
     }
 
     @Test
     public fun testInitSession_multipleSharedConsumers_disconnectPeerDevice() {
-        val sharedFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
-            .shareIn(CoroutineScope(Dispatchers.Main.immediate), SharingStarted.WhileSubscribed())
+        val sharedFlow =
+            uwbClientSession
+                .prepareSession(RANGING_PARAMETERS)
+                .shareIn(
+                    CoroutineScope(Dispatchers.Main.immediate),
+                    SharingStarted.WhileSubscribed()
+                )
 
         var peerDisconnected = false
         var peerDisconnected2 = false
-        val job = CoroutineScope(Dispatchers.Main.immediate).launch {
-            sharedFlow
-                .onEach {
-                    if (it is RangingResultPeerDisconnected) {
-                        peerDisconnected = true
+        val job =
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                sharedFlow
+                    .onEach {
+                        if (it is RangingResultPeerDisconnected) {
+                            peerDisconnected = true
+                        }
                     }
-                }
-                .collect()
-        }
-        val job2 = CoroutineScope(Dispatchers.Main.immediate).launch {
-            sharedFlow
-                .onEach {
-                    if (it is RangingResultPeerDisconnected) {
-                        peerDisconnected2 = true
+                    .collect()
+            }
+        val job2 =
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                sharedFlow
+                    .onEach {
+                        if (it is RangingResultPeerDisconnected) {
+                            peerDisconnected2 = true
+                        }
                     }
-                }
-                .collect()
-        }
+                    .collect()
+            }
 
         runBlocking {
             // wait for coroutines for flow to start.
             delay(500)
-            uwbClient.disconnectPeer(com.google.android.gms.nearby.uwb.UwbDevice.createForAddress(
-                UWB_DEVICE.address.address))
+            uwbClient.disconnectPeer(
+                com.google.android.gms.nearby.uwb.UwbDevice.createForAddress(
+                    UWB_DEVICE.address.address
+                )
+            )
 
             // wait for rangingResults to get filled.
             delay(500)
@@ -224,17 +243,13 @@ class UwbClientSessionScopeImplTest {
 
         // cancel and wait for the job to terminate.
         job.cancel()
-        runBlocking {
-            job.join()
-        }
+        runBlocking { job.join() }
         // StopRanging should not have been called because not all consumers have finished.
         assertThat(uwbClient.stopRangingCalled).isFalse()
 
         // cancel and wait for the job to terminate.
         job2.cancel()
-        runBlocking {
-            job2.join()
-        }
+        runBlocking { job2.join() }
         // StopRanging should have been called because all consumers have finished.
         assertThat(uwbClient.stopRangingCalled).isTrue()
     }
@@ -244,21 +259,20 @@ class UwbClientSessionScopeImplTest {
         val sessionFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
         val sessionFlow2 = uwbClientSession.prepareSession(RANGING_PARAMETERS)
 
-        val job = CoroutineScope(Dispatchers.Main.immediate).launch {
-            sessionFlow.collect()
-        }
+        val job = CoroutineScope(Dispatchers.Main.immediate).launch { sessionFlow.collect() }
         runBlocking {
             // wait for coroutines for flow to start.
             delay(500)
         }
-        val job2 = CoroutineScope(Dispatchers.Main.immediate).launch {
-            try {
-                sessionFlow2.collect()
-                Assert.fail()
-            } catch (e: IllegalStateException) {
-                // verified the exception was thrown.
+        val job2 =
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                try {
+                    sessionFlow2.collect()
+                    Assert.fail()
+                } catch (e: IllegalStateException) {
+                    // verified the exception was thrown.
+                }
             }
-        }
         job.cancel()
         job2.cancel()
     }
@@ -267,29 +281,26 @@ class UwbClientSessionScopeImplTest {
     public fun testInitSession_reusingSession_throwsUwbApiException() {
         val sessionFlow = uwbClientSession.prepareSession(RANGING_PARAMETERS)
 
-        val job = CoroutineScope(Dispatchers.Main.immediate).launch {
-            sessionFlow.collect()
-        }
+        val job = CoroutineScope(Dispatchers.Main.immediate).launch { sessionFlow.collect() }
         runBlocking {
             // wait for coroutines for flow to start.
             delay(500)
         }
         // cancel and wait for the job to terminate.
         job.cancel()
-        runBlocking {
-            job.join()
-        }
+        runBlocking { job.join() }
         // StopRanging should not have been called because not all consumers have finished.
         assertThat(uwbClient.stopRangingCalled).isTrue()
-        val job2 = CoroutineScope(Dispatchers.Main.immediate).launch {
-            try {
-                // Reuse the same session after it was closed.
-                sessionFlow.collect()
-                Assert.fail()
-            } catch (e: IllegalStateException) {
-                // verified the exception was thrown.
+        val job2 =
+            CoroutineScope(Dispatchers.Main.immediate).launch {
+                try {
+                    // Reuse the same session after it was closed.
+                    sessionFlow.collect()
+                    Assert.fail()
+                } catch (e: IllegalStateException) {
+                    // verified the exception was thrown.
+                }
             }
-        }
         job2.cancel()
     }
 }

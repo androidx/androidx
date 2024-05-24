@@ -37,9 +37,8 @@ import org.junit.runners.JUnit4
 @SmallTest
 class FallbackChainSignalTest {
 
-    private val deviceProfile = requireNotNull(
-        HapticManager.createForVibrator(PatternVibrator())
-    ).deviceProfile
+    private val deviceProfile =
+        requireNotNull(HapticManager.createForVibrator(PatternVibrator())).deviceProfile
 
     @Test
     fun resolve_emptyList_returnsNull() {
@@ -48,47 +47,51 @@ class FallbackChainSignalTest {
 
     @Test
     fun resolve_withNoSupportedSignal_returnsNull() {
-        val fallbackChain = fallbackChainOf(
-            compositionOf(click()), // requires primitive click support
-            waveformOf(on(durationMillis = 20, amplitude = 0.5f)), // requires amplitude control
-        )
+        val fallbackChain =
+            fallbackChainOf(
+                compositionOf(click()), // requires primitive click support
+                waveformOf(on(durationMillis = 20, amplitude = 0.5f)), // requires amplitude control
+            )
         assertThat(fallbackChain.resolve(deviceProfile)).isNull()
     }
 
     @Test
     fun resolve_withSupportedSignals_returnsFirstSupportedSignal() {
-        val fallbackChain = fallbackChainOf(
-            compositionOf(click()), // requires primitive click support
-            waveformOf(on(durationMillis = 20)), // First supported
-            waveformOf(on(durationMillis = 10)), // Second supported
-        )
+        val fallbackChain =
+            fallbackChainOf(
+                compositionOf(click()), // requires primitive click support
+                waveformOf(on(durationMillis = 20)), // First supported
+                waveformOf(on(durationMillis = 10)), // Second supported
+            )
         assertThat(fallbackChain.resolve(deviceProfile))
             .isEqualTo(waveformOf(on(durationMillis = 20)))
     }
 
     @Test
     fun resolve_withNoSupportedResolvableSignal_returnsNull() {
-        val fallbackChain = fallbackChainOf(
-            ResolvableSignal { null }, // Always resolves to a null signal, not supported
-            waveformOf(on(durationMillis = 20, amplitude = 0.5f)), // requires amplitude control
+        val fallbackChain =
             fallbackChainOf(
-                compositionOf(lowTick()),
-                compositionOf(tick(amplitudeScale = 0.4f)),
-            ), // requires primitives tick and low tick support
-        )
+                ResolvableSignal { null }, // Always resolves to a null signal, not supported
+                waveformOf(on(durationMillis = 20, amplitude = 0.5f)), // requires amplitude control
+                fallbackChainOf(
+                    compositionOf(lowTick()),
+                    compositionOf(tick(amplitudeScale = 0.4f)),
+                ), // requires primitives tick and low tick support
+            )
         assertThat(fallbackChain.resolve(deviceProfile)).isNull()
     }
 
     @Test
     fun resolve_withSupportedResolvableSignals_returnsFirstSupportedSignal() {
-        val fallbackChain = fallbackChainOf(
-            ResolvableSignal { null }, // Always resolves to a null signal, not supported
+        val fallbackChain =
             fallbackChainOf(
-                compositionOf(tick()), // requires primitive tick support
-                predefinedClick(), // First supported
-            ),
-            waveformOf(on(durationMillis = 10)), // Second supported
-        )
+                ResolvableSignal { null }, // Always resolves to a null signal, not supported
+                fallbackChainOf(
+                    compositionOf(tick()), // requires primitive tick support
+                    predefinedClick(), // First supported
+                ),
+                waveformOf(on(durationMillis = 10)), // Second supported
+            )
         assertThat(fallbackChain.resolve(deviceProfile)).isEqualTo(predefinedClick())
     }
 }

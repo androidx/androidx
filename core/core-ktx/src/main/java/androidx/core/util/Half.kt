@@ -39,21 +39,18 @@ public inline fun @receiver:HalfFloat Short.toHalf(): Half = Half.valueOf(this)
  *
  * @see Half.valueOf
  */
-@RequiresApi(26)
-public inline fun Float.toHalf(): Half = Half.valueOf(this)
+@RequiresApi(26) public inline fun Float.toHalf(): Half = Half.valueOf(this)
 
 /**
  * Returns a [Half] instance representing given [Double].
  *
  * @see Half.valueOf
  */
-@RequiresApi(26)
-public inline fun Double.toHalf(): Half = toFloat().toHalf()
+@RequiresApi(26) public inline fun Double.toHalf(): Half = toFloat().toHalf()
 
 /**
  * Returns a [Half] instance representing given [String].
  *
  * @see Half.valueOf
  */
-@RequiresApi(26)
-public inline fun String.toHalf(): Half = Half.valueOf(this)
+@RequiresApi(26) public inline fun String.toHalf(): Half = Half.valueOf(this)

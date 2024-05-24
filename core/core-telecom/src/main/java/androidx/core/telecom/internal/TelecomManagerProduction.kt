@@ -35,7 +35,7 @@ import androidx.annotation.RestrictTo
 import java.util.concurrent.Executor
 
 /**
- * This implementation of [TelecomManagerAdapter] should be used in production.  In production
+ * This implementation of [TelecomManagerAdapter] should be used in production. In production
  * runtime, the client should be calling into the platform TelecomManager.
  */
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)

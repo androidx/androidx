@@ -37,10 +37,10 @@ import androidx.core.graphics.component4
  * @param width Width of the desired bitmap. Defaults to [Drawable.getIntrinsicWidth].
  * @param height Height of the desired bitmap. Defaults to [Drawable.getIntrinsicHeight].
  * @param config Bitmap config of the desired bitmap. Null attempts to use the native config, if
- * any. Defaults to [Config.ARGB_8888] otherwise.
+ *   any. Defaults to [Config.ARGB_8888] otherwise.
  * @throws IllegalArgumentException if the underlying drawable is a [BitmapDrawable] where
- * [BitmapDrawable.getBitmap] returns `null` or the drawable cannot otherwise be represented as a
- * bitmap
+ *   [BitmapDrawable.getBitmap] returns `null` or the drawable cannot otherwise be represented as a
+ *   bitmap
  * @see toBitmapOrNull
  */
 public fun Drawable.toBitmap(
@@ -87,7 +87,7 @@ public fun Drawable.toBitmap(
  * @param width Width of the desired bitmap. Defaults to [Drawable.getIntrinsicWidth].
  * @param height Height of the desired bitmap. Defaults to [Drawable.getIntrinsicHeight].
  * @param config Bitmap config of the desired bitmap. Null attempts to use the native config, if
- * any. Defaults to [Config.ARGB_8888] otherwise.
+ *   any. Defaults to [Config.ARGB_8888] otherwise.
  * @see toBitmap
  */
 public fun Drawable.toBitmapOrNull(
@@ -102,8 +102,8 @@ public fun Drawable.toBitmapOrNull(
 }
 
 /**
- * Updates this drawable's bounds. This version of the method allows using named parameters
- * to just set one or more axes.
+ * Updates this drawable's bounds. This version of the method allows using named parameters to just
+ * set one or more axes.
  *
  * @see Drawable.setBounds
  */

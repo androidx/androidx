@@ -34,7 +34,8 @@ internal class ConnectionServiceFailPlatformSide : ConnectionServiceAdapter {
         pendingConnectionRequest: JetpackConnectionService.PendingConnectionRequest
     ) {
         pendingConnectionRequest.completableDeferred?.complete(
-            AddCallResult.Error(CallException.ERROR_UNKNOWN))
+            AddCallResult.Error(CallException.ERROR_UNKNOWN)
+        )
     }
 
     override fun getConnectionService(): JetpackConnectionService? {

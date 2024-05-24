@@ -46,29 +46,33 @@ import kotlinx.coroutines.tasks.await
 internal class UwbManagerImpl(private val context: Context) : UwbManager {
     companion object {
         const val TAG = "UwbMangerImpl"
-        val PUBLIC_AVAILABLE_CONFIG_IDS = setOf(
-            CONFIG_UNICAST_DS_TWR,
-            CONFIG_MULTICAST_DS_TWR,
-            CONFIG_PROVISIONED_UNICAST_DS_TWR,
-            CONFIG_PROVISIONED_MULTICAST_DS_TWR
-        )
+        val PUBLIC_AVAILABLE_CONFIG_IDS =
+            setOf(
+                CONFIG_UNICAST_DS_TWR,
+                CONFIG_MULTICAST_DS_TWR,
+                CONFIG_PROVISIONED_UNICAST_DS_TWR,
+                CONFIG_PROVISIONED_MULTICAST_DS_TWR
+            )
         var iUwb: IUwb? = null
     }
 
     init {
-        val connection = object : ServiceConnection {
-            override fun onServiceConnected(className: ComponentName, service: IBinder) {
-                iUwb = IUwb.Stub.asInterface(service)
-                Log.i(TAG, "iUwb service created successfully.")
+        val connection =
+            object : ServiceConnection {
+                override fun onServiceConnected(className: ComponentName, service: IBinder) {
+                    iUwb = IUwb.Stub.asInterface(service)
+                    Log.i(TAG, "iUwb service created successfully.")
+                }
+
+                override fun onServiceDisconnected(p0: ComponentName?) {
+                    iUwb = null
+                }
             }
-            override fun onServiceDisconnected(p0: ComponentName?) {
-                iUwb = null
-            }
-        }
         val intent = Intent("androidx.core.uwb.backend.service")
         intent.setPackage("androidx.core.uwb.backend")
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
+
     @Deprecated("Renamed to controleeSessionScope")
     override suspend fun clientSessionScope(): UwbClientSessionScope {
         return createClientSessionScope(false)
@@ -85,22 +89,27 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
     private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
         checkSystemFeature(context)
         val pm = context.packageManager
-        val hasGmsCore = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
-            context, /* minApkVersion */230100000) == ConnectionResult.SUCCESS
-        val isChinaGcoreDevice = pm.hasSystemFeature("cn.google.services") &&
-            pm.hasSystemFeature("com.google.android.feature.services_updater")
+        val hasGmsCore =
+            GoogleApiAvailability.getInstance()
+                .isGooglePlayServicesAvailable(context, /* minApkVersion */ 230100000) ==
+                ConnectionResult.SUCCESS
+        val isChinaGcoreDevice =
+            pm.hasSystemFeature("cn.google.services") &&
+                pm.hasSystemFeature("com.google.android.feature.services_updater")
         return if (hasGmsCore && !isChinaGcoreDevice) createGmsClientSessionScope(isController)
         else createAospClientSessionScope(isController)
     }
 
     private suspend fun createGmsClientSessionScope(isController: Boolean): UwbClientSessionScope {
         Log.i(TAG, "Creating Gms Client session scope")
-        val uwbClient = if (isController)
-            Nearby.getUwbControllerClient(context) else Nearby.getUwbControleeClient(context)
+        val uwbClient =
+            if (isController) Nearby.getUwbControllerClient(context)
+            else Nearby.getUwbControleeClient(context)
         if (!uwbClient.isAvailable().await()) {
             Log.e(TAG, "Uwb availability : false")
-            throw UwbServiceNotAvailableException("Cannot start a ranging session when UWB is " +
-                "unavailable")
+            throw UwbServiceNotAvailableException(
+                "Cannot start a ranging session when UWB is " + "unavailable"
+            )
         }
         try {
             val nearbyLocalAddress = uwbClient.localAddress.await()
@@ -108,18 +117,20 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             val localAddress = UwbAddress(nearbyLocalAddress.address)
             val supportedConfigIds = nearbyRangingCapabilities.supportedConfigIds.toMutableList()
             supportedConfigIds.retainAll(PUBLIC_AVAILABLE_CONFIG_IDS)
-            val rangingCapabilities = RangingCapabilities(
-                nearbyRangingCapabilities.supportsDistance(),
-                nearbyRangingCapabilities.supportsAzimuthalAngle(),
-                nearbyRangingCapabilities.supportsElevationAngle(),
-                nearbyRangingCapabilities.minRangingInterval,
-                nearbyRangingCapabilities.supportedChannels.toSet(),
-                nearbyRangingCapabilities.supportedNtfConfigs.toSet(),
-                supportedConfigIds.toSet(),
-                nearbyRangingCapabilities.supportedSlotDurations.toSet(),
-                nearbyRangingCapabilities.supportedRangingUpdateRates.toSet(),
-                nearbyRangingCapabilities.supportsRangingIntervalReconfigure(),
-                nearbyRangingCapabilities.hasBackgroundRangingSupport())
+            val rangingCapabilities =
+                RangingCapabilities(
+                    nearbyRangingCapabilities.supportsDistance(),
+                    nearbyRangingCapabilities.supportsAzimuthalAngle(),
+                    nearbyRangingCapabilities.supportsElevationAngle(),
+                    nearbyRangingCapabilities.minRangingInterval,
+                    nearbyRangingCapabilities.supportedChannels.toSet(),
+                    nearbyRangingCapabilities.supportedNtfConfigs.toSet(),
+                    supportedConfigIds.toSet(),
+                    nearbyRangingCapabilities.supportedSlotDurations.toSet(),
+                    nearbyRangingCapabilities.supportedRangingUpdateRates.toSet(),
+                    nearbyRangingCapabilities.supportsRangingIntervalReconfigure(),
+                    nearbyRangingCapabilities.hasBackgroundRangingSupport()
+                )
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel.await()
                 UwbControllerSessionScopeImpl(
@@ -129,23 +140,20 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     UwbComplexChannel(uwbComplexChannel.channel, uwbComplexChannel.preambleIndex)
                 )
             } else {
-                UwbControleeSessionScopeImpl(
-                    uwbClient,
-                    rangingCapabilities,
-                    localAddress
-                )
+                UwbControleeSessionScopeImpl(uwbClient, rangingCapabilities, localAddress)
             }
         } catch (e: ApiException) {
             handleApiException(e)
-            throw RuntimeException("Unexpected error. This indicates that the library is not " +
-                "up-to-date with the service backend.")
+            throw RuntimeException(
+                "Unexpected error. This indicates that the library is not " +
+                    "up-to-date with the service backend."
+            )
         }
     }
 
     private fun createAospClientSessionScope(isController: Boolean): UwbClientSessionScope {
         Log.i(TAG, "Creating Aosp Client session scope")
-        val uwbClient = if (isController)
-            iUwb?.controllerClient else iUwb?.controleeClient
+        val uwbClient = if (isController) iUwb?.controllerClient else iUwb?.controleeClient
         if (uwbClient == null) {
             Log.e(TAG, "Failed to get UwbClient. AOSP backend is not available.")
         }
@@ -153,21 +161,25 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             val aospLocalAddress = uwbClient!!.localAddress
             val aospRangingCapabilities = uwbClient.rangingCapabilities
             val localAddress = aospLocalAddress?.address?.let { UwbAddress(it) }
-            val rangingCapabilities = aospRangingCapabilities?.let {
-                RangingCapabilities(
-                    it.supportsDistance,
-                    it.supportsAzimuthalAngle,
-                    it.supportsElevationAngle,
-                    it.minRangingInterval,
-                    it.supportedChannels.toSet(),
-                    it.supportedNtfConfigs.toSet(),
-                    it.supportedConfigIds.toMutableList()
-                        .filter { it in PUBLIC_AVAILABLE_CONFIG_IDS }.toSet(),
-                    it.supportedSlotDurations.toSet(),
-                    it.supportedRangingUpdateRates.toSet(),
-                    it.supportsRangingIntervalReconfigure,
-                    it.hasBackgroundRangingSupport)
-            }
+            val rangingCapabilities =
+                aospRangingCapabilities?.let {
+                    RangingCapabilities(
+                        it.supportsDistance,
+                        it.supportsAzimuthalAngle,
+                        it.supportsElevationAngle,
+                        it.minRangingInterval,
+                        it.supportedChannels.toSet(),
+                        it.supportedNtfConfigs.toSet(),
+                        it.supportedConfigIds
+                            .toMutableList()
+                            .filter { it in PUBLIC_AVAILABLE_CONFIG_IDS }
+                            .toSet(),
+                        it.supportedSlotDurations.toSet(),
+                        it.supportedRangingUpdateRates.toSet(),
+                        it.supportsRangingIntervalReconfigure,
+                        it.hasBackgroundRangingSupport
+                    )
+                }
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel
                 UwbControllerSessionScopeAospImpl(
@@ -177,11 +189,7 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     UwbComplexChannel(uwbComplexChannel!!.channel, uwbComplexChannel.preambleIndex)
                 )
             } else {
-                UwbControleeSessionScopeAospImpl(
-                    uwbClient,
-                    rangingCapabilities!!,
-                    localAddress!!
-                )
+                UwbControleeSessionScopeAospImpl(uwbClient, rangingCapabilities!!, localAddress!!)
             }
         } catch (e: Exception) {
             throw e

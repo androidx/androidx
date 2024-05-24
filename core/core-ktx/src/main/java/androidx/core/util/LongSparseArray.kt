@@ -21,7 +21,8 @@ package androidx.core.util
 import android.util.LongSparseArray
 
 /** Returns the number of key/value pairs in the collection. */
-public inline val <T> LongSparseArray<T>.size: Int get() = size()
+public inline val <T> LongSparseArray<T>.size: Int
+    get() = size()
 
 /** Returns true if the collection contains [key]. */
 public inline operator fun <T> LongSparseArray<T>.contains(key: Long): Boolean =
@@ -42,8 +43,7 @@ public operator fun <T> LongSparseArray<T>.plus(other: LongSparseArray<T>): Long
 public inline fun <T> LongSparseArray<T>.containsKey(key: Long): Boolean = indexOfKey(key) >= 0
 
 /** Returns true if the collection contains [value]. */
-public inline fun <T> LongSparseArray<T>.containsValue(value: T): Boolean =
-    indexOfValue(value) >= 0
+public inline fun <T> LongSparseArray<T>.containsValue(value: T): Boolean = indexOfValue(value) >= 0
 
 /** Return the value corresponding to [key], or [defaultValue] when not present. */
 public inline fun <T> LongSparseArray<T>.getOrDefault(key: Long, defaultValue: T): T =
@@ -80,19 +80,21 @@ public inline fun <T> LongSparseArray<T>.forEach(action: (key: Long, value: T) -
 }
 
 /** Return an iterator over the collection's keys. */
-public fun <T> LongSparseArray<T>.keyIterator(): LongIterator = object : LongIterator() {
-    var index = 0
+public fun <T> LongSparseArray<T>.keyIterator(): LongIterator =
+    object : LongIterator() {
+        var index = 0
 
-    override fun hasNext() = index < size()
+        override fun hasNext() = index < size()
 
-    override fun nextLong() = keyAt(index++)
-}
+        override fun nextLong() = keyAt(index++)
+    }
 
 /** Return an iterator over the collection's values. */
-public fun <T> LongSparseArray<T>.valueIterator(): Iterator<T> = object : Iterator<T> {
-    var index = 0
+public fun <T> LongSparseArray<T>.valueIterator(): Iterator<T> =
+    object : Iterator<T> {
+        var index = 0
 
-    override fun hasNext() = index < size()
+        override fun hasNext() = index < size()
 
-    override fun next() = valueAt(index++)
-}
+        override fun next() = valueAt(index++)
+    }

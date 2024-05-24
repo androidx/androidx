@@ -93,10 +93,14 @@ class E2ECapabilityExchangeTests : BaseTelecomTest() {
             val call = MockInCallServiceDelegate.getLastCall()
             // verify capability exchange is made
             assertEquals(1, getInCallServiceCallCompatList().size)
-            assertEquals(InCallServiceCompat.CAPABILITY_EXCHANGE,
-                getInCallServiceExtensionLevelSupport())
-            assertEquals(InCallServiceCompat.CAPABILITY_EXCHANGE,
-                getCallCapabilityType(call!!.toCall()))
+            assertEquals(
+                InCallServiceCompat.CAPABILITY_EXCHANGE,
+                getInCallServiceExtensionLevelSupport()
+            )
+            assertEquals(
+                InCallServiceCompat.CAPABILITY_EXCHANGE,
+                getCallCapabilityType(call!!.toCall())
+            )
             val callCompat = getInCallServiceCallCompatList()[0]
             // wait for cap exchange setup to complete
             withTimeout(5000) {
@@ -114,15 +118,15 @@ class E2ECapabilityExchangeTests : BaseTelecomTest() {
 
     /**
      * =========================================================================================
-     *                           Helpers
+     * Helpers
      * =========================================================================================
      */
-
     private fun bindToVoipAppWithExtensions(): ITestAppControl {
-        val serviceIntent = Intent(
-            InstrumentationRegistry.getInstrumentation().context,
-            VoipAppWithExtensionsControl::class.java
-        )
+        val serviceIntent =
+            Intent(
+                InstrumentationRegistry.getInstrumentation().context,
+                VoipAppWithExtensionsControl::class.java
+            )
         return ITestAppControl.Stub.asInterface(serviceRule.bindService(serviceIntent))
     }
 
@@ -151,8 +155,9 @@ class E2ECapabilityExchangeTests : BaseTelecomTest() {
     }
 
     private fun getCallCapabilityType(call: Call): Int {
-        return MockInCallServiceDelegate.getServiceWithExtensions()!!
-            .resolveCallExtensionsType(call)
+        return MockInCallServiceDelegate.getServiceWithExtensions()!!.resolveCallExtensionsType(
+            call
+        )
     }
 
     private fun getInCallServiceCallCompatList(): MutableList<CallCompat> {

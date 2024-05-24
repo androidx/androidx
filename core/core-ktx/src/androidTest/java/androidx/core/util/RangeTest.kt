@@ -25,37 +25,43 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 21)
 @SmallTest
 class RangeTest {
-    @Test fun infixFactory() {
+    @Test
+    fun infixFactory() {
         val range: Range<String> = "a" rangeTo "c"
         assertEquals("a", range.lower)
         assertEquals("c", range.upper)
     }
 
-    @Test fun extendValue() {
+    @Test
+    fun extendValue() {
         val range = ("a" rangeTo "c") + "e"
         assertEquals("a", range.lower)
         assertEquals("e", range.upper)
     }
 
-    @Test fun extendRange() {
+    @Test
+    fun extendRange() {
         val range = ("a" rangeTo "c") + ("e" rangeTo "g")
         assertEquals("a", range.lower)
         assertEquals("g", range.upper)
     }
 
-    @Test fun intersection() {
+    @Test
+    fun intersection() {
         val range = ("a" rangeTo "e") and ("c" rangeTo "g")
         assertEquals("c", range.lower)
         assertEquals("e", range.upper)
     }
 
-    @Test fun kotlinToAndroid() {
+    @Test
+    fun kotlinToAndroid() {
         val range: Range<Int> = (1..3).toRange()
         assertEquals(1, range.lower)
         assertEquals(3, range.upper)
     }
 
-    @Test fun androidToKotlin() {
+    @Test
+    fun androidToKotlin() {
         val range: ClosedRange<String> = Range<String>("a", "c").toClosedRange()
         assertEquals("a", range.start)
         assertEquals("c", range.endInclusive)

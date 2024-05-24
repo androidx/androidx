@@ -28,24 +28,26 @@ import org.junit.Test
 @SmallTest
 class SQLiteDatabaseTest {
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
-    private val openHelper = object : SQLiteOpenHelper(context, null, null, 1) {
-        override fun onCreate(db: SQLiteDatabase) {
-            db.execSQL("CREATE TABLE test(name TEXT)")
-        }
+    private val openHelper =
+        object : SQLiteOpenHelper(context, null, null, 1) {
+            override fun onCreate(db: SQLiteDatabase) {
+                db.execSQL("CREATE TABLE test(name TEXT)")
+            }
 
-        override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+            override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {}
         }
-    }
     private val db = openHelper.writableDatabase
 
-    @Test fun throwingBodyNotSuccessful() {
+    @Test
+    fun throwingBodyNotSuccessful() {
         val exception = RuntimeException()
         assertThrows<RuntimeException> {
-            db.transaction {
-                insert("test", null, ContentValues().apply { put("name", "Alice") })
-                throw exception
+                db.transaction {
+                    insert("test", null, ContentValues().apply { put("name", "Alice") })
+                    throw exception
+                }
             }
-        }.isSameInstanceAs(exception)
+            .isSameInstanceAs(exception)
 
         val query = db.rawQuery("SELECT COUNT(*) FROM test", emptyArray())
         query.moveToFirst()
@@ -53,10 +55,9 @@ class SQLiteDatabaseTest {
         query.close()
     }
 
-    @Test fun bodyReturnValue() {
-        val result = db.transaction {
-            "Hey"
-        }
+    @Test
+    fun bodyReturnValue() {
+        val result = db.transaction { "Hey" }
         assertEquals("Hey", result)
     }
 }

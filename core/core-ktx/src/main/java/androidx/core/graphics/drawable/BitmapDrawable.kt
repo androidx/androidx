@@ -23,6 +23,5 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 
 /** Create a [BitmapDrawable] from this [Bitmap]. */
-public inline fun Bitmap.toDrawable(
-    resources: Resources
-): BitmapDrawable = BitmapDrawable(resources, this)
+public inline fun Bitmap.toDrawable(resources: Resources): BitmapDrawable =
+    BitmapDrawable(resources, this)

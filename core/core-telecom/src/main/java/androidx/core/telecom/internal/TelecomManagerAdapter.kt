@@ -32,8 +32,8 @@ import java.util.concurrent.Executor
 /**
  * [TelecomManagerAdapter] is intended for the [androidx.core.telecom.CallsManager] class. This
  * interface helps utilize the Dependency Injection pattern so that
- * [androidx.core.telecom.CallsManager] can use the platform TelecomManager in production but
- * in testing, different objects can be injected to mock platform behavior.
+ * [androidx.core.telecom.CallsManager] can use the platform TelecomManager in production but in
+ * testing, different objects can be injected to mock platform behavior.
  */
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 internal interface TelecomManagerAdapter {

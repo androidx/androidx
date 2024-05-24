@@ -77,19 +77,21 @@ internal class MockInCallServiceDelegate : Service() {
                 attachBaseContext(context)
             }
         }
+
         override fun onCreateCallCompat(call: Call): CallCompat {
             Log.i(LOG_TAG, "ICSC.onCreateCallCompat: added the new call to static call list")
 
             // TODO:: make this a factory
-            val callCompat = CallCompat.toCallCompat(call) {
-                addParticipantsSupport(TestUtils.getDefaultParticipantSupportedActions().toSet()) {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        it.participantsStateFlow.collect {
-                            printParticipants(it, "ICS")
+            val callCompat =
+                CallCompat.toCallCompat(call) {
+                    addParticipantsSupport(
+                        TestUtils.getDefaultParticipantSupportedActions().toSet()
+                    ) {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            it.participantsStateFlow.collect { printParticipants(it, "ICS") }
                         }
                     }
                 }
-            }
             mCalls.add(callCompat)
             return callCompat
         }
@@ -114,8 +116,9 @@ internal class MockInCallServiceDelegate : Service() {
             Log.i(LOG_TAG, "destroyAllCalls: Calls.size=[${mCalls.size}]")
             mIsServiceBound = false
             for (call in mCalls) {
-                if (call.toCall().state != Call.STATE_DISCONNECTED ||
-                    call.toCall().state != Call.STATE_DISCONNECTING
+                if (
+                    call.toCall().state != Call.STATE_DISCONNECTED ||
+                        call.toCall().state != Call.STATE_DISCONNECTING
                 ) {
                     Log.i(LOG_TAG, "destroyAllCalls: disconnecting call=[$call]")
                     call.toCall().disconnect()
@@ -124,13 +127,10 @@ internal class MockInCallServiceDelegate : Service() {
             mCalls.clear()
             // Wait for the InCallService to unbind from Telecom before the next test.
             if (mServiceFlow.value != null) {
-                runCatching {
-                    withTimeout(5000) {
-                        mServiceFlow.first { it == null }
+                runCatching { withTimeout(5000) { mServiceFlow.first { it == null } } }
+                    .onFailure {
+                        Log.w(LOG_TAG, "destroyAlLCalls: no unbind detected during destroy")
                     }
-                }.onFailure {
-                    Log.w(LOG_TAG, "destroyAlLCalls: no unbind detected during destroy")
-                }
             }
         }
 
@@ -155,6 +155,7 @@ internal class MockInCallServiceDelegate : Service() {
         fun getService(): InCallService? {
             return mServiceFlow.value
         }
+
         @ExperimentalAppActions
         fun getServiceWithExtensions(): InCallServiceCompat? {
             if (getService() !is InCallServiceCompat) return null
@@ -165,15 +166,16 @@ internal class MockInCallServiceDelegate : Service() {
     @OptIn(ExperimentalAppActions::class)
     override fun onCreate() {
         Log.i(LOG_TAG, "Delegate service onCreate")
-        mServiceFlow.tryEmit(when (mInCallServiceType) {
-            InCallServiceType.ICS_WITH_EXTENSIONS -> {
-                InCallServiceWExtensions(applicationContext)
+        mServiceFlow.tryEmit(
+            when (mInCallServiceType) {
+                InCallServiceType.ICS_WITH_EXTENSIONS -> {
+                    InCallServiceWExtensions(applicationContext)
+                }
+                InCallServiceType.ICS_WITHOUT_EXTENSIONS -> {
+                    InCallServiceWoExtensions(applicationContext)
+                }
             }
-
-            InCallServiceType.ICS_WITHOUT_EXTENSIONS -> {
-                InCallServiceWoExtensions(applicationContext)
-            }
-        })
+        )
         // Delegate onCreate to the Service
         getService()?.onCreate()
     }

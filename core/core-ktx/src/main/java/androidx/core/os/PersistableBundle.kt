@@ -24,8 +24,8 @@ import androidx.annotation.RequiresApi
 /**
  * Returns a new [PersistableBundle] with the given key/value pairs as elements.
  *
- * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On
- * API 22 and later [Boolean] and [BooleanArray] are also supported.
+ * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On API
+ * 22 and later [Boolean] and [BooleanArray] are also supported.
  *
  * @throws IllegalArgumentException When a value is not a supported type of [PersistableBundle].
  */
@@ -38,9 +38,7 @@ fun persistableBundleOf(vararg pairs: Pair<String, Any?>): PersistableBundle {
     return persistableBundle
 }
 
-/**
- * Returns a new empty [PersistableBundle].
- */
+/** Returns a new empty [PersistableBundle]. */
 @RequiresApi(21)
 fun persistableBundleOf(): PersistableBundle {
     return PersistableBundleApi21ImplKt.createPersistableBundle(0)
@@ -49,8 +47,8 @@ fun persistableBundleOf(): PersistableBundle {
 /**
  * Covert this map to a [PersistableBundle] with the key/value pairs as elements.
  *
- * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On
- * API 22 and later [Boolean] and [BooleanArray] are also supported.
+ * Supported value types are [Int], [Long], [Double], and [String] and arrays of these types. On API
+ * 22 and later [Boolean] and [BooleanArray] are also supported.
  *
  * @throws IllegalArgumentException When a value is not a supported type of [PersistableBundle].
  */
@@ -131,11 +129,11 @@ private object PersistableBundleApi21ImplKt {
                         }
                     }
                 }
-
                 else -> {
                     val valueType = value.javaClass.canonicalName
-                    throw IllegalArgumentException("Unsupported value type $valueType for key " +
-                        "\"$key\"")
+                    throw IllegalArgumentException(
+                        "Unsupported value type $valueType for key " + "\"$key\""
+                    )
                 }
             }
         }

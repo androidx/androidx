@@ -43,13 +43,15 @@ internal class CapabilityExchangeListener(
         actions: IntArray?,
         l: IParticipantStateListener?
     ) {
-        actions?.let {
-            participantVoipSupportedActions = actions
-        }
+        actions?.let { participantVoipSupportedActions = actions }
         l?.let { participantStateListener = l }
         // Subscribe to updates if the VOIP app supports the extension.
-        voipExtensionManager.participantExtensionManager?.subscribeToVoipUpdates(icsId,
-            participantStateListener, participantVoipSupportedActions, version)
+        voipExtensionManager.participantExtensionManager?.subscribeToVoipUpdates(
+            icsId,
+            participantStateListener,
+            participantVoipSupportedActions,
+            version
+        )
     }
 
     override fun onCreateCallDetailsExtension(
@@ -58,16 +60,14 @@ internal class CapabilityExchangeListener(
         l: ICallDetailsListener?,
         packageName: String
     ) {
-        actions?.let {
-            callDetailsVoipSupportedActions = actions
-        }
+        actions?.let { callDetailsVoipSupportedActions = actions }
         l?.let { callDetailsListener = l }
-//        voipExtensionManager.callDetailsExtensionManager?.subscribeToVoipUpdates(icsId,
-//            callDetailsListener, callDetailsVoipSupportedActions, version, packageName)
+        //        voipExtensionManager.callDetailsExtensionManager?.subscribeToVoipUpdates(icsId,
+        //            callDetailsListener, callDetailsVoipSupportedActions, version, packageName)
     }
 
     override fun onRemoveExtensions() {
         voipExtensionManager.participantExtensionManager?.unsubscribeFromUpdates(icsId)
-//        voipExtensionManager.callDetailsExtensionManager?.unsubscribeFromUpdates(icsId)
+        //        voipExtensionManager.callDetailsExtensionManager?.unsubscribeFromUpdates(icsId)
     }
 }

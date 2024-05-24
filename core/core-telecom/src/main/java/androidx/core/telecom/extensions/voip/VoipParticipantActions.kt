@@ -27,9 +27,7 @@ import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.utils.CapabilityExchangeUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 
-/**
- * Define Participant action callbacks for ICS to send requests back to the VOIP app.
- */
+/** Define Participant action callbacks for ICS to send requests back to the VOIP app. */
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -41,27 +39,42 @@ internal class VoipParticipantActions(
     private var participantId: Int = CapabilityExchangeUtils.NULL_PARTICIPANT_ID
 ) : IParticipantActions.Stub() {
 
-    // Todo: For each of the participant actions provided to the ICS, we need to make sure the version
+    // Todo: For each of the participant actions provided to the ICS, we need to make sure the
+    // version
     // is accounted to update the right methods/channel.
     override fun toggleHandRaised(cb: IActionsResultCallback?) {
         if (voipSupportedActions.contains(CallsManager.RAISE_HAND_ACTION)) {
-            val actionRequest = VoipParticipantActionRequest(session,
-                CallsManager.RAISE_HAND_ACTION, cb, participantId)
+            val actionRequest =
+                VoipParticipantActionRequest(
+                    session,
+                    CallsManager.RAISE_HAND_ACTION,
+                    cb,
+                    participantId
+                )
             callChannels.voipParticipantActionRequestsChannel.trySend(actionRequest)
         } else {
-            cb?.onFailure(CapabilityExchangeUtils.VOIP_ACTION_NOT_SUPPORTED_ERROR,
-                "VOIP app does not support raise hand action")
+            cb?.onFailure(
+                CapabilityExchangeUtils.VOIP_ACTION_NOT_SUPPORTED_ERROR,
+                "VOIP app does not support raise hand action"
+            )
         }
     }
 
     override fun kickParticipant(participantIdToKick: Int, cb: IActionsResultCallback?) {
         if (voipSupportedActions.contains(CallsManager.KICK_PARTICIPANT_ACTION)) {
-            val actionRequest = VoipParticipantActionRequest(session,
-                CallsManager.KICK_PARTICIPANT_ACTION, cb, participantIdToKick)
+            val actionRequest =
+                VoipParticipantActionRequest(
+                    session,
+                    CallsManager.KICK_PARTICIPANT_ACTION,
+                    cb,
+                    participantIdToKick
+                )
             callChannels.voipParticipantActionRequestsChannel.trySend(actionRequest)
         } else {
-            cb?.onFailure(CapabilityExchangeUtils.VOIP_ACTION_NOT_SUPPORTED_ERROR,
-                "VOIP app does not support raise hand action")
+            cb?.onFailure(
+                CapabilityExchangeUtils.VOIP_ACTION_NOT_SUPPORTED_ERROR,
+                "VOIP app does not support raise hand action"
+            )
         }
     }
 }

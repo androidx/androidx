@@ -28,9 +28,8 @@ import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 
 /**
- * Creates a new [Canvas] to draw on this bitmap and executes the specified
- * [block] on the newly created canvas. Example:
- *
+ * Creates a new [Canvas] to draw on this bitmap and executes the specified [block] on the newly
+ * created canvas. Example:
  * ```
  * return Bitmap.createBitmap(…).applyCanvas {
  *    drawLine(…)
@@ -46,31 +45,27 @@ public inline fun Bitmap.applyCanvas(block: Canvas.() -> Unit): Bitmap {
 }
 
 /**
- * Returns the value of the pixel at the specified location. The returned value
- * is a [color int][android.graphics.Color] in the sRGB color space.
+ * Returns the value of the pixel at the specified location. The returned value is a
+ * [color int][android.graphics.Color] in the sRGB color space.
  */
 public inline operator fun Bitmap.get(x: Int, y: Int): Int = getPixel(x, y)
 
 /**
- * Writes the specified [color int][android.graphics.Color] into the bitmap
- * (assuming it is mutable) at the specified `(x, y)` coordinate. The specified
- * color is converted from sRGB to the bitmap's color space if needed.
+ * Writes the specified [color int][android.graphics.Color] into the bitmap (assuming it is mutable)
+ * at the specified `(x, y)` coordinate. The specified color is converted from sRGB to the bitmap's
+ * color space if needed.
  */
-public inline operator fun Bitmap.set(
-    x: Int,
-    y: Int,
-    @ColorInt color: Int
-): Unit = setPixel(x, y, color)
+public inline operator fun Bitmap.set(x: Int, y: Int, @ColorInt color: Int): Unit =
+    setPixel(x, y, color)
 
 /**
- * Creates a new bitmap, scaled from this bitmap, when possible. If the specified
- * [width] and [height] are the same as the current width and height of this bitmap,
- * this bitmap is returned and no new bitmap is created.
+ * Creates a new bitmap, scaled from this bitmap, when possible. If the specified [width] and
+ * [height] are the same as the current width and height of this bitmap, this bitmap is returned and
+ * no new bitmap is created.
  *
  * @param width The new bitmap's desired width
  * @param height The new bitmap's desired height
  * @param filter `true` if the source should be filtered (`true` by default)
- *
  * @return The new scaled bitmap or the source bitmap if no scaling is required.
  */
 public inline fun Bitmap.scale(width: Int, height: Int, filter: Boolean = true): Bitmap {
@@ -78,13 +73,12 @@ public inline fun Bitmap.scale(width: Int, height: Int, filter: Boolean = true):
 }
 
 /**
- * Returns a mutable bitmap with the specified [width] and [height]. A config
- * can be optionally specified. If not, the default config is [Bitmap.Config.ARGB_8888].
+ * Returns a mutable bitmap with the specified [width] and [height]. A config can be optionally
+ * specified. If not, the default config is [Bitmap.Config.ARGB_8888].
  *
  * @param width The new bitmap's desired width
  * @param height The new bitmap's desired height
  * @param config The new bitmap's desired [config][Bitmap.Config]
- *
  * @return A new bitmap with the specified dimensions and config
  */
 public inline fun createBitmap(
@@ -96,16 +90,15 @@ public inline fun createBitmap(
 }
 
 /**
- * Returns a mutable bitmap with the specified [width] and [height]. The config,
- * transparency and color space can optionally be specified. They respectively
- * default to [Bitmap.Config.ARGB_8888], `true` and [sRGB][ColorSpace.Named.SRGB].
+ * Returns a mutable bitmap with the specified [width] and [height]. The config, transparency and
+ * color space can optionally be specified. They respectively default to [Bitmap.Config.ARGB_8888],
+ * `true` and [sRGB][ColorSpace.Named.SRGB].
  *
  * @param width The new bitmap's desired width
  * @param height The new bitmap's desired height
  * @param config The new bitmap's desired [config][Bitmap.Config]
  * @param hasAlpha Whether the new bitmap is opaque or not
  * @param colorSpace The new bitmap's color space
- *
  * @return A new bitmap with the specified dimensions and config
  */
 @SuppressLint("ClassVerificationFailure") // Inline fun
@@ -121,19 +114,15 @@ public inline fun createBitmap(
 }
 
 /**
- * Returns true if the specified point is inside the bitmap.
- * A point is contained if: 0 <= x < width and 0 <= y < height.
- * An empty bitmap never contains any point.
+ * Returns true if the specified point is inside the bitmap. A point is contained if: 0 <= x < width
+ * and 0 <= y < height. An empty bitmap never contains any point.
  */
-public inline operator fun Bitmap.contains(
-    p: Point
-): Boolean = p.x in 0 until width && p.y >= 0 && p.y < height
+public inline operator fun Bitmap.contains(p: Point): Boolean =
+    p.x in 0 until width && p.y >= 0 && p.y < height
 
 /**
- * Returns true if the specified point is inside the bitmap.
- * A point is contained if: 0 <= x < width and 0 <= y < height.
- * An empty bitmap never contains any point.
+ * Returns true if the specified point is inside the bitmap. A point is contained if: 0 <= x < width
+ * and 0 <= y < height. An empty bitmap never contains any point.
  */
-public inline operator fun Bitmap.contains(
-    p: PointF
-): Boolean = p.x >= 0 && p.x < width && p.y >= 0 && p.y < height
+public inline operator fun Bitmap.contains(p: PointF): Boolean =
+    p.x >= 0 && p.x < width && p.y >= 0 && p.y < height

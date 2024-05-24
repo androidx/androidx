@@ -49,16 +49,12 @@ import org.junit.runner.RunWith
 
 /**
  * This test class verifies the [CallControlScope] functionality is working as intended when adding
- * a VoIP call.  Each test should add a call via [CallsManager.addCall] and changes the call state
+ * a VoIP call. Each test should add a call via [CallsManager.addCall] and changes the call state
  * via the [CallControlScope].
  *
  * Note: Be careful with using a delay in a runBlocking scope to avoid missing flows. ex:
- * runBlocking {
- *      addCall(...){
- *          delay(x time) // The flow will be emitted here and missed
- *          currentCallEndpoint.counter.getFirst() // The flow may never be collected
- *      }
- * }
+ * runBlocking { addCall(...){ delay(x time) // The flow will be emitted here and missed
+ * currentCallEndpoint.counter.getFirst() // The flow may never be collected } }
  */
 @SdkSuppress(minSdkVersion = VERSION_CODES.O)
 @RequiresApi(VERSION_CODES.O)
@@ -76,9 +72,11 @@ class BasicCallControlsTest : BaseTelecomTest() {
         Utils.resetUtils()
     }
 
-    /***********************************************************************************************
-     *                           V2 APIs (Android U and above) tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * V2 APIs (Android U and above) tests
+     * *******************************************************************************************
+     */
 
     /**
      * assert [CallsManager.addCall] can successfully add an *OUTGOING* call and set it active. The
@@ -93,8 +91,8 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     /**
-     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it. The
-     * call should use the *V2 platform APIs* under the hood.
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it. The call
+     * should use the *V2 platform APIs* under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
@@ -118,8 +116,8 @@ class BasicCallControlsTest : BaseTelecomTest() {
 
     /**
      * assert [CallsManager.addCall] can successfully add a call that does NOT support setting the
-     * call inactive and when the setInactive is called, the transaction fails.
-     * The call should use the *V2 platform APIs* under the hood.
+     * call inactive and when the setInactive is called, the transaction fails. The call should use
+     * the *V2 platform APIs* under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @LargeTest
@@ -127,16 +125,15 @@ class BasicCallControlsTest : BaseTelecomTest() {
     fun testTogglingHoldOnActiveCall_NoHoldCapabilities() {
         setUpV2Test()
         assertFalse(
-            TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
-                .hasSupportsSetInactiveCapability()
+            TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES.hasSupportsSetInactiveCapability()
         )
         runBlocking_ShouldFailHold(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES)
     }
 
     /**
      * assert [CallsManager.addCall] can successfully add a call and request a new
-     * [CallEndpointCompat] via [CallControlScope.requestEndpointChange].
-     * The call should use the *V2 platform APIs* under the hood.
+     * [CallEndpointCompat] via [CallControlScope.requestEndpointChange]. The call should use the
+     * *V2 platform APIs* under the hood.
      */
     @Ignore // b/329357697  TODO:: re-enable when cache_call_audio_callbacks is enabled in builds
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -149,8 +146,8 @@ class BasicCallControlsTest : BaseTelecomTest() {
 
     /**
      * assert [CallsManager.addCall] can successfully add a call and verifies that requests to
-     * mute/unmute the call are reflected in [CallControlScope.isMuted]. The call should use the
-     * *V2 platform APIs* under the hood.
+     * mute/unmute the call are reflected in [CallControlScope.isMuted]. The call should use the *V2
+     * platform APIs* under the hood.
      */
     @Ignore // b/323006293  TODO:: re-enable when cache_call_audio_callbacks is enabled in builds
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -161,9 +158,11 @@ class BasicCallControlsTest : BaseTelecomTest() {
         verifyMuteStateChange()
     }
 
-    /***********************************************************************************************
-     *                           Backwards Compatibility Layer tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Backwards Compatibility Layer tests
+     * *******************************************************************************************
+     */
 
     /**
      * assert [CallsManager.addCall] can successfully add an *OUTGOING* call and set it active. The
@@ -179,9 +178,9 @@ class BasicCallControlsTest : BaseTelecomTest() {
     }
 
     /**
-     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it.
-     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
-     * APIs* under the hood.
+     * assert [CallsManager.addCall] can successfully add an *INCOMING* call and answer it. The call
+     * should use the *[android.telecom.ConnectionService] and [android.telecom.Connection] APIs*
+     * under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
@@ -206,9 +205,9 @@ class BasicCallControlsTest : BaseTelecomTest() {
 
     /**
      * assert [CallsManager.addCall] can successfully add a call that does NOT support setting the
-     * call inactive and when the setInactive is called, the transaction fails.
-     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
-     * APIs* under the hood.
+     * call inactive and when the setInactive is called, the transaction fails. The call should use
+     * the *[android.telecom.ConnectionService] and [android.telecom.Connection] APIs* under the
+     * hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
@@ -216,17 +215,15 @@ class BasicCallControlsTest : BaseTelecomTest() {
     fun testTogglingHoldOnActiveCall_NoHoldCapabilities_BackwardsCompat() {
         setUpBackwardsCompatTest()
         assertFalse(
-            TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES
-                .hasSupportsSetInactiveCapability()
+            TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES.hasSupportsSetInactiveCapability()
         )
         runBlocking_ShouldFailHold(TestUtils.OUTGOING_NO_HOLD_CAP_CALL_ATTRIBUTES)
     }
 
     /**
      * assert [CallsManager.addCall] can successfully add a call and request a new
-     * [CallEndpointCompat] via [CallControlScope.requestEndpointChange].
-     * The call should use the *[android.telecom.ConnectionService] and [android.telecom.Connection]
-     * APIs* under the hood.
+     * [CallEndpointCompat] via [CallControlScope.requestEndpointChange]. The call should use the
+     * *[android.telecom.ConnectionService] and [android.telecom.Connection] APIs* under the hood.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.O)
     @LargeTest
@@ -279,15 +276,17 @@ class BasicCallControlsTest : BaseTelecomTest() {
         }
     }
 
-    /***********************************************************************************************
-     *                           Helpers
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Helpers
+     * *******************************************************************************************
+     */
 
     /**
      * This helper facilitates adding a call, setting it active or answered, and disconnecting.
      *
-     * Note: delays are inserted to simulate more natural calling. Otherwise the call dumpsys
-     * does not reflect realistic transitions.
+     * Note: delays are inserted to simulate more natural calling. Otherwise the call dumpsys does
+     * not reflect realistic transitions.
      *
      * Note: This helper blocks the TestRunner from finishing until all asserts and async functions
      * have finished or the timeout has been reached.
@@ -301,12 +300,16 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     if (callAttributesCompat.isOutgoingCall()) {
                         assertEquals(CallControlResult.Success(), setActive())
                     } else {
-                        assertEquals(CallControlResult.Success(),
-                            answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL))
+                        assertEquals(
+                            CallControlResult.Success(),
+                            answer(CallAttributesCompat.CALL_TYPE_AUDIO_CALL)
+                        )
                     }
                     TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                    assertEquals(CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    assertEquals(
+                        CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                    )
                 }
             }
         }
@@ -425,8 +428,10 @@ class BasicCallControlsTest : BaseTelecomTest() {
                     }
                     // Ensure that the updated mute state was collected
                     assertTrue(muteStateChanged)
-                    assertEquals(CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    assertEquals(
+                        CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                    )
                 }
             }
         }

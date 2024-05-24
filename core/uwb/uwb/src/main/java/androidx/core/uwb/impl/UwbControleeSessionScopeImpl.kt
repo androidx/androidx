@@ -25,5 +25,6 @@ internal class UwbControleeSessionScopeImpl(
     uwbClient: UwbClient,
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress
-) : UwbClientSessionScopeImpl(uwbClient, rangingCapabilities, localAddress),
+) :
+    UwbClientSessionScopeImpl(uwbClient, rangingCapabilities, localAddress),
     UwbControleeSessionScope

@@ -27,9 +27,7 @@ import androidx.core.haptics.AudioAttributesWrapper
 import androidx.core.haptics.HapticAttributes
 import androidx.core.haptics.VibrationAttributesWrapper
 
-/**
- * Helper class to convert haptic attributes to platform types based on SDK support available.
- */
+/** Helper class to convert haptic attributes to platform types based on SDK support available. */
 internal object HapticAttributesConverter {
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -100,7 +98,6 @@ internal object HapticAttributesConverter {
                 // Check this usage constant exists in this SDK level.
                 HapticAttributes.USAGE_ACCESSIBILITY,
                 HapticAttributes.USAGE_MEDIA -> usage
-
                 else -> Api30Impl.toVibrationAttributesUsage(usage)
             }
 
@@ -112,7 +109,6 @@ internal object HapticAttributesConverter {
                 // converted automatically to USAGE_NOTIFICATION by AudioAttributes.
                 HapticAttributes.USAGE_COMMUNICATION_REQUEST ->
                     AudioAttributes.USAGE_VOICE_COMMUNICATION
-
                 else -> Api21Impl.toAudioAttributesUsage(usage)
             }
     }
@@ -157,7 +153,6 @@ internal object HapticAttributesConverter {
                 HapticAttributes.USAGE_PHYSICAL_EMULATION,
                 HapticAttributes.USAGE_RINGTONE,
                 HapticAttributes.USAGE_TOUCH -> usage
-
                 else -> VibrationAttributes.USAGE_UNKNOWN
             }
 
@@ -176,9 +171,7 @@ internal object HapticAttributesConverter {
         @HapticAttributes.Usage
         fun fromAudioAttributesUsage(attrs: AudioAttributes): Int =
             when (attrs.usage) {
-                AudioAttributes.USAGE_ASSISTANT ->
-                    HapticAttributes.USAGE_COMMUNICATION_REQUEST
-
+                AudioAttributes.USAGE_ASSISTANT -> HapticAttributes.USAGE_COMMUNICATION_REQUEST
                 else -> Api21Impl.fromAudioAttributesUsage(attrs)
             }
     }
@@ -195,40 +188,25 @@ internal object HapticAttributesConverter {
             when (attrs.usage) {
                 AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY ->
                     HapticAttributes.USAGE_ACCESSIBILITY
-
-                AudioAttributes.USAGE_ASSISTANCE_SONIFICATION ->
-                    HapticAttributes.USAGE_TOUCH
-
-                AudioAttributes.USAGE_ALARM ->
-                    HapticAttributes.USAGE_ALARM
-
+                AudioAttributes.USAGE_ASSISTANCE_SONIFICATION -> HapticAttributes.USAGE_TOUCH
+                AudioAttributes.USAGE_ALARM -> HapticAttributes.USAGE_ALARM
                 AudioAttributes.USAGE_MEDIA,
-                AudioAttributes.USAGE_GAME ->
-                    HapticAttributes.USAGE_MEDIA
-
+                AudioAttributes.USAGE_GAME -> HapticAttributes.USAGE_MEDIA
                 AudioAttributes.USAGE_NOTIFICATION,
                 AudioAttributes.USAGE_NOTIFICATION_EVENT,
                 AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED,
                 AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT,
                 AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST ->
                     HapticAttributes.USAGE_NOTIFICATION
-
-                AudioAttributes.USAGE_NOTIFICATION_RINGTONE ->
-                    HapticAttributes.USAGE_RINGTONE
-
+                AudioAttributes.USAGE_NOTIFICATION_RINGTONE -> HapticAttributes.USAGE_RINGTONE
                 AudioAttributes.USAGE_VOICE_COMMUNICATION,
                 AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING,
                 AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
-                AudioAttributes.USAGE_ASSISTANT ->
-                    HapticAttributes.USAGE_COMMUNICATION_REQUEST
-
+                AudioAttributes.USAGE_ASSISTANT -> HapticAttributes.USAGE_COMMUNICATION_REQUEST
                 else -> HapticAttributes.USAGE_UNKNOWN
             }
 
-        @JvmStatic
-        @DoNotInline
-        @HapticAttributes.Flag
-        fun fromAudioAttributesFlags(): Int = 0
+        @JvmStatic @DoNotInline @HapticAttributes.Flag fun fromAudioAttributesFlags(): Int = 0
 
         @JvmStatic
         @DoNotInline
@@ -244,27 +222,15 @@ internal object HapticAttributesConverter {
             when (usage) {
                 HapticAttributes.USAGE_ACCESSIBILITY ->
                     AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY
-
-                HapticAttributes.USAGE_ALARM ->
-                    AudioAttributes.USAGE_ALARM
-
+                HapticAttributes.USAGE_ALARM -> AudioAttributes.USAGE_ALARM
                 HapticAttributes.USAGE_COMMUNICATION_REQUEST ->
                     AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST
-
-                HapticAttributes.USAGE_MEDIA ->
-                    AudioAttributes.USAGE_MEDIA
-
-                HapticAttributes.USAGE_NOTIFICATION ->
-                    AudioAttributes.USAGE_NOTIFICATION
-
-                HapticAttributes.USAGE_RINGTONE ->
-                    AudioAttributes.USAGE_NOTIFICATION_RINGTONE
-
+                HapticAttributes.USAGE_MEDIA -> AudioAttributes.USAGE_MEDIA
+                HapticAttributes.USAGE_NOTIFICATION -> AudioAttributes.USAGE_NOTIFICATION
+                HapticAttributes.USAGE_RINGTONE -> AudioAttributes.USAGE_NOTIFICATION_RINGTONE
                 HapticAttributes.USAGE_HARDWARE_FEEDBACK,
                 HapticAttributes.USAGE_PHYSICAL_EMULATION,
-                HapticAttributes.USAGE_TOUCH ->
-                    AudioAttributes.USAGE_ASSISTANCE_SONIFICATION
-
+                HapticAttributes.USAGE_TOUCH -> AudioAttributes.USAGE_ASSISTANCE_SONIFICATION
                 else -> AudioAttributes.USAGE_UNKNOWN
             }
 
@@ -273,9 +239,7 @@ internal object HapticAttributesConverter {
             when (usage) {
                 HapticAttributes.USAGE_HARDWARE_FEEDBACK,
                 HapticAttributes.USAGE_PHYSICAL_EMULATION,
-                HapticAttributes.USAGE_TOUCH ->
-                    AudioAttributes.CONTENT_TYPE_SONIFICATION
-
+                HapticAttributes.USAGE_TOUCH -> AudioAttributes.CONTENT_TYPE_SONIFICATION
                 else -> AudioAttributes.CONTENT_TYPE_UNKNOWN
             }
     }

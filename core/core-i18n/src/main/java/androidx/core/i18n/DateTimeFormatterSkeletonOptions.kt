@@ -19,28 +19,29 @@ package androidx.core.i18n
 import java.util.regex.Pattern
 
 /**
- * This class helps one create skeleton options for [DateTimeFormatter]
- * in a safer and more discoverable manner than using raw strings.
+ * This class helps one create skeleton options for [DateTimeFormatter] in a safer and more
+ * discoverable manner than using raw strings.
  *
- * Skeletons are a flexible way to specify (in a locale independent manner)
- * how to format of a date / time.
+ * Skeletons are a flexible way to specify (in a locale independent manner) how to format of a date
+ * / time.
  *
- * It can be used for example to specify that a formatted date should
- * contain a day-of-month, an abbreviated month name, and a year.
+ * It can be used for example to specify that a formatted date should contain a day-of-month, an
+ * abbreviated month name, and a year.
  *
- * It does not specify the order of the fields, or the separators,
- * those will depend on the locale.
+ * It does not specify the order of the fields, or the separators, those will depend on the locale.
  *
- * The result will be locale dependent: "Aug 17, 2022" for English U.S.,
- * "17 Aug 2022" for English - Great Britain, "2022年8月17日" for Japanese.
+ * The result will be locale dependent: "Aug 17, 2022" for English U.S., "17 Aug 2022" for English -
+ * Great Britain, "2022年8月17日" for Japanese.
  *
- * Skeletons are based on the [Unicode Technical Standard #35](https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table),
+ * Skeletons are based on the
+ * [Unicode Technical Standard #35](https://unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table),
  * but uses a builder to make things safer an more discoverable.
  *
  * You can still build these options from a string by using the
  * [DateTimeFormatterSkeletonOptions.fromString] method.
  */
-class DateTimeFormatterSkeletonOptions internal constructor(
+class DateTimeFormatterSkeletonOptions
+internal constructor(
     private val era: Era,
     private val year: Year,
     private val month: Month,
@@ -54,9 +55,7 @@ class DateTimeFormatterSkeletonOptions internal constructor(
     private val timezone: Timezone
 ) {
 
-    /**********************************************
-     * Date fields
-     **********************************************/
+    // Date fields
 
     /** Era name. Era string for the date. */
     class Era private constructor(val value: String) {
@@ -76,7 +75,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             @JvmStatic
             fun fromString(value: String): Era {
                 return when (value) {
-                    "G", "GG", "GGG" -> ABBREVIATED
+                    "G",
+                    "GG",
+                    "GGG" -> ABBREVIATED
                     "GGGG" -> WIDE
                     "GGGGG" -> NARROW
                     else -> NONE
@@ -91,14 +92,16 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             /** As many digits as needed to show the full value. E.g. "2021" or "2009". */
             @JvmField val NUMERIC = Year("y")
 
-            /** The two low-order digits of the year, zero-padded as necessary. E.g. "21" or "09". */
+            /**
+             * The two low-order digits of the year, zero-padded as necessary. E.g. "21" or "09".
+             */
             @JvmField val TWO_DIGITS = Year("yy")
 
             /** Produces no output. */
             @JvmField val NONE = Year("")
 
             @JvmStatic
-           fun fromString(value: String): Year {
+            fun fromString(value: String): Year {
                 return when (value) {
                     "y" -> NUMERIC
                     "yy" -> TWO_DIGITS
@@ -130,7 +133,7 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             @JvmField val NONE = Month("")
 
             @JvmStatic
-           fun fromString(value: String): Month {
+            fun fromString(value: String): Month {
                 return when (value) {
                     "M" -> NUMERIC
                     "MM" -> TWO_DIGITS
@@ -155,8 +158,8 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             /** Produces no output. */
             @JvmField val NONE = Day("")
 
-           @JvmStatic
-           fun fromString(value: String): Day {
+            @JvmStatic
+            fun fromString(value: String): Day {
                 return when (value) {
                     "d" -> NUMERIC
                     "dd" -> TWO_DIGITS
@@ -178,9 +181,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             /** E.g. "Tu". */
             @JvmField val SHORT = WeekDay("EEEEEE")
 
-            /** E.g. "T".
-             * Two weekdays may have the same narrow style for some locales.
-             * E.g. the narrow style for both "Tuesday" and "Thursday" is "T".
+            /**
+             * E.g. "T". Two weekdays may have the same narrow style for some locales. E.g. the
+             * narrow style for both "Tuesday" and "Thursday" is "T".
              */
             @JvmField val NARROW = WeekDay("EEEEE")
 
@@ -190,7 +193,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             @JvmStatic
             fun fromString(value: String): WeekDay {
                 return when (value) {
-                    "E", "EE", "EEE" -> ABBREVIATED
+                    "E",
+                    "EE",
+                    "EEE" -> ABBREVIATED
                     "EEEE" -> WIDE
                     "EEEEE" -> NARROW
                     "EEEEEE" -> SHORT
@@ -200,9 +205,7 @@ class DateTimeFormatterSkeletonOptions internal constructor(
         }
     }
 
-    /**********************************************
-     * Time fields
-     **********************************************/
+    // Time fields
 
     /** The period of the day, if the hour is not 23h or 24h style. */
     class Period private constructor(val value: String) {
@@ -216,9 +219,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             /** E.g. "12 a". */
             @JvmField val NARROW = Period("aaaaa")
 
-            /** Flexible day periods. May be upper or lowercase depending on the locale and other options.
-             * Often there is only one width that is customarily used.
-             * E.g. "3:00 at night"
+            /**
+             * Flexible day periods. May be upper or lowercase depending on the locale and other
+             * options. Often there is only one width that is customarily used. E.g. "3:00 at night"
              */
             @JvmField val FLEXIBLE = Period("B")
 
@@ -226,9 +229,11 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             @JvmField val NONE = Period("")
 
             @JvmStatic
-           fun fromString(value: String): Period {
+            fun fromString(value: String): Period {
                 return when (value) {
-                    "a", "aa", "aaa" -> ABBREVIATED
+                    "a",
+                    "aa",
+                    "aaa" -> ABBREVIATED
                     "aaaa" -> WIDE
                     "aaaaa" -> NARROW
                     "B" -> FLEXIBLE
@@ -241,34 +246,37 @@ class DateTimeFormatterSkeletonOptions internal constructor(
     /** Hour (numeric). */
     class Hour private constructor(val value: String) {
         companion object {
-            /** As many digits as needed to show the full value. Day period if used.
-             * E.g. "8", "8 AM", "13", "1 PM".
+            /**
+             * As many digits as needed to show the full value. Day period if used. E.g. "8", "8
+             * AM", "13", "1 PM".
              */
             @JvmField val NUMERIC = Hour("j")
 
-            /** Two digits, zero pad if needed. DayPeriod if used.
-             * Might be bad i18n. E.g. "08", "08 AM", "13", "01 PM".
+            /**
+             * Two digits, zero pad if needed. DayPeriod if used. Might be bad i18n. E.g. "08", "08
+             * AM", "13", "01 PM".
              */
             @JvmField val TWO_DIGITS = Hour("jj")
 
-            /** Bad i18n. As many digits as needed to show the full value. Day period added automatically.
-             * E.g. "8 AM", "1 PM".
+            /**
+             * Bad i18n. As many digits as needed to show the full value. Day period added
+             * automatically. E.g. "8 AM", "1 PM".
              */
             @JvmField val FORCE_12H_NUMERIC = Hour("h")
 
-            /** Bad i18n. Two digits, zero pad if needed. Day period added automatically.
-             * E.g. "08 AM", "01 PM".
+            /**
+             * Bad i18n. Two digits, zero pad if needed. Day period added automatically. E.g. "08
+             * AM", "01 PM".
              */
             @JvmField val FORCE_12H_TWO_DIGITS = Hour("hh")
 
-            /** Bad i18n. As many digits as needed to show the full value. No day period.
-             * E.g. "8", "13".
+            /**
+             * Bad i18n. As many digits as needed to show the full value. No day period. E.g. "8",
+             * "13".
              */
             @JvmField val FORCE_24H_NUMERIC = Hour("H")
 
-            /** Bad i18n. Two digits, zero pad if needed. No day period.
-             * E.g. "08", "13".
-             */
+            /** Bad i18n. Two digits, zero pad if needed. No day period. E.g. "08", "13". */
             @JvmField val FORCE_24H_TWO_DIGITS = Hour("HH")
 
             /** Produces no output. */
@@ -335,8 +343,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
         }
     }
 
-    /** Fractional Second (numeric). Truncates, like other numeric time fields,
-     * but in this case to the number of digits specified by the field length.
+    /**
+     * Fractional Second (numeric). Truncates, like other numeric time fields, but in this case to
+     * the number of digits specified by the field length.
      */
     class FractionalSecond private constructor(val value: String) {
         companion object {
@@ -349,12 +358,13 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             /** Fractional part represented as 1 digit. E.g. "12.3". */
             @JvmField val NUMERIC_1_DIGIT = FractionalSecond("S")
 
-            /** Fractional part dropped. Produces no output. E.g. "12" (seconds, without fractions). */
+            /**
+             * Fractional part dropped. Produces no output. E.g. "12" (seconds, without fractions).
+             */
             @JvmField val NONE = FractionalSecond("")
 
             @JvmStatic
-            fun fromString(value: String):
-                    FractionalSecond {
+            fun fromString(value: String): FractionalSecond {
 
                 return when (value) {
                     "S" -> NUMERIC_1_DIGIT
@@ -372,7 +382,10 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             /** Short localized form. E.g. "PST", "GMT-8". */
             @JvmField val SHORT = Timezone("z")
 
-            /** Long localized form. E.g. "Pacific Standard Time", "Nordamerikanische Westküsten-Normalzeit". */
+            /**
+             * Long localized form. E.g. "Pacific Standard Time", "Nordamerikanische
+             * Westküsten-Normalzeit".
+             */
             @JvmField val LONG = Timezone("zzzz")
 
             /** Short localized GMT format. E.g. "GMT-8". */
@@ -384,16 +397,21 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             /** Short generic non-location format. E.g. "PT", "Los Angeles Zeit". */
             @JvmField val SHORT_GENERIC = Timezone("v")
 
-            /** Long generic non-location format. E.g. "Pacific Time", "Nordamerikanische Westküstenzeit". */
+            /**
+             * Long generic non-location format. E.g. "Pacific Time", "Nordamerikanische
+             * Westküstenzeit".
+             */
             @JvmField val LONG_GENERIC = Timezone("vvvv")
 
             /** Produces no output. */
             @JvmField val NONE = Timezone("")
 
             @JvmStatic
-           fun fromString(value: String): Timezone {
+            fun fromString(value: String): Timezone {
                 return when (value) {
-                    "z", "zz", "zzz" -> SHORT
+                    "z",
+                    "zz",
+                    "zzz" -> SHORT
                     "zzzz" -> LONG
                     "O" -> SHORT_OFFSET
                     "OOOO" -> LONG_OFFSET
@@ -407,56 +425,68 @@ class DateTimeFormatterSkeletonOptions internal constructor(
 
     /** Returns the era option. */
     fun getEra(): Era = era
+
     /** Returns the year option. */
     fun getYear(): Year = year
+
     /** Returns the month option. */
     fun getMonth(): Month = month
+
     /** Returns the day option. */
     fun getDay(): Day = day
+
     /** Returns the day of week option. */
     fun getWeekDay(): WeekDay = weekDay
+
     /** Returns the day period option. */
     fun getPeriod(): Period = period
+
     /** Returns the hour option. */
     fun getHour(): Hour = hour
+
     /** Returns the minutes option. */
     fun getMinute(): Minute = minute
+
     /** Returns the seconds option. */
     fun getSecond(): Second = second
+
     /** Returns the fractional second option. */
     fun getFractionalSecond(): FractionalSecond = fractionalSecond
+
     /** Returns the timezone option. */
     fun getTimezone(): Timezone = timezone
 
     override fun toString(): String {
         return era.value +
-                year.value +
-                month.value +
-                weekDay.value +
-                day.value +
-                period.value +
-                hour.value +
-                minute.value +
-                second.value +
-                fractionalSecond.value +
-                timezone.value
+            year.value +
+            month.value +
+            weekDay.value +
+            day.value +
+            period.value +
+            hour.value +
+            minute.value +
+            second.value +
+            fractionalSecond.value +
+            timezone.value
     }
 
     companion object {
         // WARNING: if you change this regexp also update the switch in [fromString]
-        private val pattern = Pattern.compile("(G+)|(y+)|(M+)|(d+)|(E+)|" +
-                "(a+)|(B+)|(j+)|(h+)|(H+)|(m+)|(s+)|(S+)|(z+)|(O+)|(v+)")
+        private val pattern =
+            Pattern.compile(
+                "(G+)|(y+)|(M+)|(d+)|(E+)|" +
+                    "(a+)|(B+)|(j+)|(h+)|(H+)|(m+)|(s+)|(S+)|(z+)|(O+)|(v+)"
+            )
         private val TAG = this::class.qualifiedName
 
         /**
          * Creates the a [DateTimeFormatterSkeletonOptions] object from a string.
          *
-         * Although less discoverable than using the `Builder`, it is useful for serialization,
-         * and to implement the MessageFormat functionality.
+         * Although less discoverable than using the `Builder`, it is useful for serialization, and
+         * to implement the MessageFormat functionality.
          *
          * @param value the skeleton that specifies the fields to be formatted and their length.
          * @return the formatting options to use with [androidx.core.i18n.DateTimeFormatter].
-         *
          * @throws IllegalArgumentException if the [value] contains an unknown skeleton field.
          * @throws RuntimeException library error (unknown skeleton field encountered).
          */
@@ -478,29 +508,34 @@ class DateTimeFormatterSkeletonOptions internal constructor(
                     'M' -> result.setMonth(Month.fromString(skeletonField))
                     'd' -> result.setDay(Day.fromString(skeletonField))
                     'E' -> result.setWeekDay(WeekDay.fromString(skeletonField))
-                    'a', 'B' -> result.setPeriod(Period.fromString(skeletonField))
-                    'j', 'h', 'H' -> result.setHour(Hour.fromString(skeletonField))
+                    'a',
+                    'B' -> result.setPeriod(Period.fromString(skeletonField))
+                    'j',
+                    'h',
+                    'H' -> result.setHour(Hour.fromString(skeletonField))
                     'm' -> result.setMinute(Minute.fromString(skeletonField))
                     's' -> result.setSecond(Second.fromString(skeletonField))
                     'S' -> result.setFractionalSecond(FractionalSecond.fromString(skeletonField))
-                    'z', 'O', 'v' -> result.setTimezone(Timezone.fromString(skeletonField))
+                    'z',
+                    'O',
+                    'v' -> result.setTimezone(Timezone.fromString(skeletonField))
                     else ->
                         // This should not happen, the regexp should protect us.
                         throw RuntimeException(
-                            "Unrecognized skeleton field '$skeletonField' in \"${value}\".")
+                            "Unrecognized skeleton field '$skeletonField' in \"${value}\"."
+                        )
                 }
             }
             if (!validFields) {
-                throw IllegalArgumentException(
-                    "Unrecognized skeleton field found in \"${value}\".")
+                throw IllegalArgumentException("Unrecognized skeleton field found in \"${value}\".")
             }
             return result.build()
         }
     }
 
     /**
-     * The `Builder` class used to construct a [DateTimeFormatterSkeletonOptions] in a way
-     * that is safe and discoverable.
+     * The `Builder` class used to construct a [DateTimeFormatterSkeletonOptions] in a way that is
+     * safe and discoverable.
      */
     class Builder(
         private var era: Era = Era.NONE,
@@ -516,7 +551,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
         private var timezone: Timezone = Timezone.NONE
     ) {
 
-        /** Set the era presence and length to use for formatting.
+        /**
+         * Set the era presence and length to use for formatting.
+         *
          * @param era the era style to use.
          */
         fun setEra(era: Era): Builder {
@@ -524,7 +561,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the year presence and length to use for formatting.
+        /**
+         * Set the year presence and length to use for formatting.
+         *
          * @param year the era style to use.
          */
         fun setYear(year: Year): Builder {
@@ -532,7 +571,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the month presence and length to use for formatting.
+        /**
+         * Set the month presence and length to use for formatting.
+         *
          * @param month the era style to use.
          */
         fun setMonth(month: Month): Builder {
@@ -540,7 +581,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the day presence and length to use for formatting.
+        /**
+         * Set the day presence and length to use for formatting.
+         *
          * @param day the era style to use.
          */
         fun setDay(day: Day): Builder {
@@ -548,7 +591,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the day of week presence and length to use for formatting.
+        /**
+         * Set the day of week presence and length to use for formatting.
+         *
          * @param weekDay the era style to use.
          */
         fun setWeekDay(weekDay: WeekDay): Builder {
@@ -556,7 +601,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the day period presence and length to use for formatting.
+        /**
+         * Set the day period presence and length to use for formatting.
+         *
          * @param period the era style to use.
          */
         fun setPeriod(period: Period): Builder {
@@ -564,7 +611,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the hour presence and length to use for formatting.
+        /**
+         * Set the hour presence and length to use for formatting.
+         *
          * @param hour the era style to use.
          */
         fun setHour(hour: Hour): Builder {
@@ -572,7 +621,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the minute presence and length to use for formatting.
+        /**
+         * Set the minute presence and length to use for formatting.
+         *
          * @param minute the era style to use.
          */
         fun setMinute(minute: Minute): Builder {
@@ -580,7 +631,9 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the second presence and length to use for formatting.
+        /**
+         * Set the second presence and length to use for formatting.
+         *
          * @param second the era style to use.
          */
         fun setSecond(second: Second): Builder {
@@ -588,17 +641,19 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Set the fractional second presence and length to use for formatting.
+        /**
+         * Set the fractional second presence and length to use for formatting.
+         *
          * @param fractionalSecond the era style to use.
          */
-        fun setFractionalSecond(
-            fractionalSecond: FractionalSecond
-        ): Builder {
+        fun setFractionalSecond(fractionalSecond: FractionalSecond): Builder {
             this.fractionalSecond = fractionalSecond
             return this
         }
 
-        /** Set the timezone presence and length to use for formatting.
+        /**
+         * Set the timezone presence and length to use for formatting.
+         *
          * @param timezone the era style to use.
          */
         fun setTimezone(timezone: Timezone): Builder {
@@ -606,13 +661,25 @@ class DateTimeFormatterSkeletonOptions internal constructor(
             return this
         }
 
-        /** Builds the immutable [DateTimeFormatterSkeletonOptions] to use with [DateTimeFormatter].
+        /**
+         * Builds the immutable [DateTimeFormatterSkeletonOptions] to use with [DateTimeFormatter].
          *
          * return the [DateTimeFormatterSkeletonOptions] options.
          */
         fun build(): DateTimeFormatterSkeletonOptions {
-            return DateTimeFormatterSkeletonOptions(era, year, month, day, weekDay,
-                period, hour, minute, second, fractionalSecond, timezone)
+            return DateTimeFormatterSkeletonOptions(
+                era,
+                year,
+                month,
+                day,
+                weekDay,
+                period,
+                hour,
+                minute,
+                second,
+                fractionalSecond,
+                timezone
+            )
         }
     } // end of Builder class
 }

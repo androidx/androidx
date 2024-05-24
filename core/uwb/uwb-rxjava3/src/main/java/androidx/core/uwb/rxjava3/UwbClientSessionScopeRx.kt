@@ -29,18 +29,22 @@ import kotlinx.coroutines.rx3.asObservable
 
 /**
  * Returns an [Observable] stream of [RangingResult].
+ *
  * @see UwbClientSessionScope.prepareSession
  */
-public fun UwbClientSessionScope.rangingResultsObservable(parameters: RangingParameters):
-    Observable<RangingResult> {
+public fun UwbClientSessionScope.rangingResultsObservable(
+    parameters: RangingParameters
+): Observable<RangingResult> {
     return prepareSession(parameters).conflate().asObservable()
 }
 
 /**
  * Returns a [Flowable] of [RangingResult].
+ *
  * @see UwbClientSessionScope.prepareSession
  */
-public fun UwbClientSessionScope.rangingResultsFlowable(parameters: RangingParameters):
-    Flowable<RangingResult> {
+public fun UwbClientSessionScope.rangingResultsFlowable(
+    parameters: RangingParameters
+): Flowable<RangingResult> {
     return prepareSession(parameters).conflate().asFlowable()
 }

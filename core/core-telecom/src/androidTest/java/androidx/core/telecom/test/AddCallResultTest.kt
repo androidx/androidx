@@ -26,12 +26,18 @@ class AddCallResultTest {
 
     @Test
     fun testAddCallResultErrorCodesAreSetProperly() {
-        assertEquals(CallException.ERROR_UNKNOWN,
-            AddCallResult.Error(CallException.ERROR_UNKNOWN).errorCode)
-        assertEquals(CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD,
-            AddCallResult.Error(CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD).errorCode)
-        assertEquals(CallException.ERROR_CALL_IS_NOT_BEING_TRACKED,
-            AddCallResult.Error(CallException.ERROR_CALL_IS_NOT_BEING_TRACKED).errorCode)
+        assertEquals(
+            CallException.ERROR_UNKNOWN,
+            AddCallResult.Error(CallException.ERROR_UNKNOWN).errorCode
+        )
+        assertEquals(
+            CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD,
+            AddCallResult.Error(CallException.ERROR_CALL_DOES_NOT_SUPPORT_HOLD).errorCode
+        )
+        assertEquals(
+            CallException.ERROR_CALL_IS_NOT_BEING_TRACKED,
+            AddCallResult.Error(CallException.ERROR_CALL_IS_NOT_BEING_TRACKED).errorCode
+        )
     }
 
     @Test
@@ -39,7 +45,6 @@ class AddCallResultTest {
         val callSessionSuccess1 = AddCallResult.SuccessCallSession()
         val callSessionSuccess2 = AddCallResult.SuccessCallSession()
         assertEquals(callSessionSuccess1, callSessionSuccess2)
-        assertNotEquals(callSessionSuccess1,
-            AddCallResult.Error(CallException.ERROR_UNKNOWN))
+        assertNotEquals(callSessionSuccess1, AddCallResult.Error(CallException.ERROR_UNKNOWN))
     }
 }

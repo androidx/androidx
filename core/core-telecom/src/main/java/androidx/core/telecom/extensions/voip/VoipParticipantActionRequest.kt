@@ -28,8 +28,8 @@ import androidx.core.telecom.internal.utils.CapabilityExchangeUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
- * This class helps handle callback action requests which will be queued up to a channel
- * so that order of the requests will be preserved.
+ * This class helps handle callback action requests which will be queued up to a channel so that
+ * order of the requests will be preserved.
  */
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
@@ -45,9 +45,7 @@ internal class VoipParticipantActionRequest(
         private val TAG = VoipParticipantActionRequest::class.simpleName
     }
 
-    /**
-     * Process the passed in action from the "queue".
-     */
+    /** Process the passed in action from the "queue". */
     internal fun processAction() {
         when (action) {
             CallsManager.RAISE_HAND_ACTION -> {
@@ -60,9 +58,7 @@ internal class VoipParticipantActionRequest(
         }
     }
 
-    /***********************************************************************************************
-     *                           Private Helpers
-     *********************************************************************************************/
+    // Private Helpers
 
     /**
      * Process toggle hand raised action. If the state is not defined on the VOIP side or the
@@ -71,23 +67,29 @@ internal class VoipParticipantActionRequest(
     private fun processToggleHandRaised() {
         // VOIP side hasn't defined (or doesn't support) a raised hands state for the participants.
         if (session.raisedHandParticipants == null) {
-            cb?.onFailure(CapabilityExchangeUtils.VOIP_SERVER_ERROR,
-                "Unexpected error on VOIP side. The associated state is not defined.")
+            cb?.onFailure(
+                CapabilityExchangeUtils.VOIP_SERVER_ERROR,
+                "Unexpected error on VOIP side. The associated state is not defined."
+            )
             return
         }
 
         val participantToToggleRaiseHand = findParticipant()
         // Unable to find participant.
         if (participantToToggleRaiseHand == null) {
-            cb?.onFailure(CapabilityExchangeUtils.PARTICIPANT_NOT_FOUND_ERROR,
-                "Unable to raise hand for non-existent participant with id: $participantId")
+            cb?.onFailure(
+                CapabilityExchangeUtils.PARTICIPANT_NOT_FOUND_ERROR,
+                "Unable to raise hand for non-existent participant with id: $participantId"
+            )
             return
         }
 
         // Toggle raise hand state for the given participant.
-        session.raisedHandParticipants!!.value = toggleRaiseHand(
-            session.raisedHandParticipants!!.value.toMutableSet(),
-            participantToToggleRaiseHand)
+        session.raisedHandParticipants!!.value =
+            toggleRaiseHand(
+                session.raisedHandParticipants!!.value.toMutableSet(),
+                participantToToggleRaiseHand
+            )
         cb?.onSuccess()
     }
 
@@ -110,16 +112,20 @@ internal class VoipParticipantActionRequest(
     private fun processKickParticipant() {
         // VOIP side hasn't defined (or doesn't support) a raised hands state for the participants.
         if (session.participants == null) {
-            cb?.onFailure(CapabilityExchangeUtils.VOIP_SERVER_ERROR,
-                "Unexpected error on VOIP side. Participants state is not defined.")
+            cb?.onFailure(
+                CapabilityExchangeUtils.VOIP_SERVER_ERROR,
+                "Unexpected error on VOIP side. Participants state is not defined."
+            )
             return
         }
 
         val participantToKick = findParticipant()
         // Unable to find participant.
         if (participantToKick == null) {
-            cb?.onFailure(CapabilityExchangeUtils.PARTICIPANT_NOT_FOUND_ERROR,
-                "Unable to raise hand for non-existent participant with id: $participantId")
+            cb?.onFailure(
+                CapabilityExchangeUtils.PARTICIPANT_NOT_FOUND_ERROR,
+                "Unable to raise hand for non-existent participant with id: $participantId"
+            )
             return
         }
 

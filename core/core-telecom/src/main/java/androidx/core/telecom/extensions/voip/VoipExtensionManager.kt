@@ -45,7 +45,7 @@ internal class VoipExtensionManager(
     internal var participantExtensionManager: VoipParticipantExtensionManager? = null
     // Todo: re-enable once call icon impl. is complete.
     // Handles call detail extension updates from VOIP side to ICS.
-//    internal var callDetailsExtensionManager: VoipCallDetailsExtensionManager? = null
+    //    internal var callDetailsExtensionManager: VoipCallDetailsExtensionManager? = null
 
     // Track each ICS with a unique id so that it can be used to distinguish the different
     // subscribers when sending updates from the VOIP side.
@@ -55,24 +55,26 @@ internal class VoipExtensionManager(
         private val TAG = VoipExtensionManager::class.simpleName
 
         /**
-         * Todo: VERSION HANDLING
-         * List of all possible supported actions for the Participant extension. This will be
-         * modified to include other actions for future versions.
+         * Todo: VERSION HANDLING List of all possible supported actions for the Participant
+         * extension. This will be modified to include other actions for future versions.
          */
-        internal val PARTICIPANT_SUPPORTED_ACTIONS = setOf(
-            CallsManager.RAISE_HAND_ACTION, CallsManager.KICK_PARTICIPANT_ACTION)
+        internal val PARTICIPANT_SUPPORTED_ACTIONS =
+            setOf(CallsManager.RAISE_HAND_ACTION, CallsManager.KICK_PARTICIPANT_ACTION)
         internal val CALL_DETAILS_SUPPORTED_ACTIONS:
-            Set<@CallsManager.Companion.ExtensionSupportedActions Int> = setOf()
+            Set<@CallsManager.Companion.ExtensionSupportedActions Int> =
+            setOf()
         internal val EXTENSION_SUPPORTED_ACTIONS_MAPPING:
-            MutableMap<@CallsManager.Companion.ExtensionType Int,
-                Set<@CallsManager.Companion.ExtensionSupportedActions Int>> = hashMapOf(
-                    CallsManager.PARTICIPANT to PARTICIPANT_SUPPORTED_ACTIONS,
-                    CallsManager.CALL_ICON to CALL_DETAILS_SUPPORTED_ACTIONS
-                )
+            MutableMap<
+                @CallsManager.Companion.ExtensionType
+                Int,
+                Set<@CallsManager.Companion.ExtensionSupportedActions Int>
+            > =
+            hashMapOf(
+                CallsManager.PARTICIPANT to PARTICIPANT_SUPPORTED_ACTIONS,
+                CallsManager.CALL_ICON to CALL_DETAILS_SUPPORTED_ACTIONS
+            )
 
-        /**
-         * Static helper to determine if the ICS supports a given action.
-         */
+        /** Static helper to determine if the ICS supports a given action. */
         internal fun isActionSupportedByIcs(
             actions: IntArray,
             actionToCheck: @CallsManager.Companion.ExtensionSupportedActions Int
@@ -86,16 +88,12 @@ internal class VoipExtensionManager(
         }
     }
 
-    /**
-     * Initialize the call session once it becomes available (CallSession / CallSessionLegacy).
-     */
+    /** Initialize the call session once it becomes available (CallSession / CallSessionLegacy). */
     internal fun initializeSession(currentSession: CallControlScope) {
         session = currentSession
     }
 
-    /**
-     * Initialize capabilities to be included as specified by the VOIP app.
-     */
+    /** Initialize capabilities to be included as specified by the VOIP app. */
     internal fun initializeExtensions() {
         for (capability in extensionsToAdd) {
             addExtension(capability)
@@ -120,35 +118,37 @@ internal class VoipExtensionManager(
     ) {
         Log.i(logTag, "initiateVoipAppCapabilityExchange: Begin capability exchange")
         // Retrieve binder from ICS.
-        val capabilityExchange: ICapabilityExchange? = ICapabilityExchange.Stub.asInterface(
-            extras.getBinder(CallsManager.EXTRA_CAPABILITY_EXCHANGE_BINDER))
+        val capabilityExchange: ICapabilityExchange? =
+            ICapabilityExchange.Stub.asInterface(
+                extras.getBinder(CallsManager.EXTRA_CAPABILITY_EXCHANGE_BINDER)
+            )
 
         // Initialize capability exchange listener and set it on binder
-        val capabilityExchangeListener = CapabilityExchangeListener(
-            this@VoipExtensionManager, currentIcsId++)
+        val capabilityExchangeListener =
+            CapabilityExchangeListener(this@VoipExtensionManager, currentIcsId++)
         try {
             capabilityExchange?.let {
                 capabilityExchange.beginExchange(supportedCapabilities, capabilityExchangeListener)
             }
         } catch (e: RemoteException) {
-            Log.w(logTag, "initiateVoipAppCapabilityExchange: Remote exception occurred " +
-                "while starting capability exchange with ICS.", e)
+            Log.w(
+                logTag,
+                "initiateVoipAppCapabilityExchange: Remote exception occurred " +
+                    "while starting capability exchange with ICS.",
+                e
+            )
         } catch (e: Exception) {
             Log.w(logTag, "initiateVoipAppCapabilityExchange: Exception occurred", e)
         }
     }
 
-    /**
-     * Tear down all extensions and stop collecting updates when the call session is terminated.
-     */
+    /** Tear down all extensions and stop collecting updates when the call session is terminated. */
     internal fun tearDownExtensions() {
         participantExtensionManager?.tearDown()
-//        callDetailsExtensionManager?.tearDown()
+        //        callDetailsExtensionManager?.tearDown()
     }
 
-    /***********************************************************************************************
-     *                           Private Helpers
-     *********************************************************************************************/
+    // Private Helpers
 
     /**
      * Private helper to register a specified extension on the VOIP side.
@@ -158,13 +158,19 @@ internal class VoipExtensionManager(
     private fun addExtension(capability: Capability) {
         when (capability.featureId) {
             CallsManager.PARTICIPANT -> {
-                participantExtensionManager = VoipParticipantExtensionManager(session,
-                    coroutineContext!!, callChannels, capability)
+                participantExtensionManager =
+                    VoipParticipantExtensionManager(
+                        session,
+                        coroutineContext!!,
+                        callChannels,
+                        capability
+                    )
             }
             CallsManager.CALL_ICON -> {
                 // Todo: Re-enable once call icon impl. is ready.
-//                callDetailsExtensionManager = VoipCallDetailsExtensionManager(context, session,
-//                    coroutineContext!!, capability)
+                //                callDetailsExtensionManager =
+                // VoipCallDetailsExtensionManager(context, session,
+                //                    coroutineContext!!, capability)
             }
             CallsManager.CALL_SILENCE -> {
                 // Todo

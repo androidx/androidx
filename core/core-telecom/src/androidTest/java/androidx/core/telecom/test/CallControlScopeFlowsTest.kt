@@ -46,6 +46,7 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
     companion object {
         val TAG = CallControlScopeFlowsTest::class.java.simpleName
     }
+
     /**
      * verify when a call starts, all the CallControlScope flows echo values for transactional
      * calls.
@@ -55,9 +56,7 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
     @Test
     fun testFlowsEchoValues_Transactional() {
         setUpV2Test()
-        runBlocking {
-           assertFlowsEchoValues()
-        }
+        runBlocking { assertFlowsEchoValues() }
     }
 
     /**
@@ -69,17 +68,18 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
     @Test
     fun testFlowsEchoValues_BackwardsCompat() {
         setUpBackwardsCompatTest()
-        runBlocking {
-           assertFlowsEchoValues()
-        }
+        runBlocking { assertFlowsEchoValues() }
     }
 
     suspend fun assertFlowsEchoValues() {
-        assertWithinTimeout_addCall(CallAttributesCompat(
-            TestUtils.OUTGOING_NAME,
-            TestUtils.TEST_PHONE_NUMBER_8985,
-            CallAttributesCompat.DIRECTION_OUTGOING,
-            CallAttributesCompat.CALL_TYPE_VIDEO_CALL)) {
+        assertWithinTimeout_addCall(
+            CallAttributesCompat(
+                TestUtils.OUTGOING_NAME,
+                TestUtils.TEST_PHONE_NUMBER_8985,
+                CallAttributesCompat.DIRECTION_OUTGOING,
+                CallAttributesCompat.CALL_TYPE_VIDEO_CALL
+            )
+        ) {
             launch {
                 val waitUntilCurrentEndpointJob = CompletableDeferred<CallEndpointCompat>()
                 val waitUntilAvailableEndpointJob = CompletableDeferred<List<CallEndpointCompat>>()
@@ -108,9 +108,10 @@ class CallControlScopeFlowsTest : BaseTelecomTest() {
 
                 Log.i(TAG, "before awaitAll")
                 awaitAll(
-                   waitUntilCurrentEndpointJob,
-                   waitUntilAvailableEndpointJob,
-                   waitUntilMuteStateJob)
+                    waitUntilCurrentEndpointJob,
+                    waitUntilAvailableEndpointJob,
+                    waitUntilMuteStateJob
+                )
                 Log.i(TAG, "after awaitAll")
 
                 // at this point, the CallEndpoint has been found

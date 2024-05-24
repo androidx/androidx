@@ -26,12 +26,7 @@ import android.widget.TextView
  * @return the [TextWatcher] added to the TextView
  */
 public inline fun TextView.doBeforeTextChanged(
-    crossinline action: (
-        text: CharSequence?,
-        start: Int,
-        count: Int,
-        after: Int
-    ) -> Unit
+    crossinline action: (text: CharSequence?, start: Int, count: Int, after: Int) -> Unit
 ): TextWatcher = addTextChangedListener(beforeTextChanged = action)
 
 /**
@@ -40,12 +35,7 @@ public inline fun TextView.doBeforeTextChanged(
  * @return the [TextWatcher] added to the TextView
  */
 public inline fun TextView.doOnTextChanged(
-    crossinline action: (
-        text: CharSequence?,
-        start: Int,
-        before: Int,
-        count: Int
-    ) -> Unit
+    crossinline action: (text: CharSequence?, start: Int, before: Int, count: Int) -> Unit
 ): TextWatcher = addTextChangedListener(onTextChanged = action)
 
 /**
@@ -63,33 +53,34 @@ public inline fun TextView.doAfterTextChanged(
  * @return the [TextWatcher] added to the TextView
  */
 public inline fun TextView.addTextChangedListener(
-    crossinline beforeTextChanged: (
-        text: CharSequence?,
-        start: Int,
-        count: Int,
-        after: Int
-    ) -> Unit = { _, _, _, _ -> },
-    crossinline onTextChanged: (
-        text: CharSequence?,
-        start: Int,
-        before: Int,
-        count: Int
-    ) -> Unit = { _, _, _, _ -> },
+    crossinline beforeTextChanged:
+        (text: CharSequence?, start: Int, count: Int, after: Int) -> Unit =
+        { _, _, _, _ ->
+        },
+    crossinline onTextChanged: (text: CharSequence?, start: Int, before: Int, count: Int) -> Unit =
+        { _, _, _, _ ->
+        },
     crossinline afterTextChanged: (text: Editable?) -> Unit = {}
 ): TextWatcher {
-    val textWatcher = object : TextWatcher {
-        override fun afterTextChanged(s: Editable?) {
-            afterTextChanged.invoke(s)
-        }
+    val textWatcher =
+        object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                afterTextChanged.invoke(s)
+            }
 
-        override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) {
-            beforeTextChanged.invoke(text, start, count, after)
-        }
+            override fun beforeTextChanged(
+                text: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+                beforeTextChanged.invoke(text, start, count, after)
+            }
 
-        override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {
-            onTextChanged.invoke(text, start, before, count)
+            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {
+                onTextChanged.invoke(text, start, before, count)
+            }
         }
-    }
     addTextChangedListener(textWatcher)
 
     return textWatcher

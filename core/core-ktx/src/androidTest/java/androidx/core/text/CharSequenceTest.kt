@@ -24,12 +24,14 @@ import org.junit.Test
 
 @SmallTest
 class CharSequenceTest {
-    @Test fun isDigitsOnly() {
+    @Test
+    fun isDigitsOnly() {
         assertTrue("012345".isDigitsOnly())
         assertFalse("0123 abc".isDigitsOnly())
     }
 
-    @Test fun trimmedLength() {
+    @Test
+    fun trimmedLength() {
         assertEquals(6, "string    ".trimmedLength())
         assertEquals(6, "    string".trimmedLength())
         assertEquals(6, "string".trimmedLength())

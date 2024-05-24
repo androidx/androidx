@@ -44,9 +44,7 @@ class ViewTest {
     @Test
     fun doOnNextLayout() {
         var calls = 0
-        view.doOnNextLayout {
-            calls++
-        }
+        view.doOnNextLayout { calls++ }
         view.layout(0, 0, 10, 10)
         assertEquals(1, calls)
 
@@ -58,9 +56,7 @@ class ViewTest {
     @Test
     fun doOnLayoutBeforeLayout() {
         var called = false
-        view.doOnLayout {
-            called = true
-        }
+        view.doOnLayout { called = true }
         view.layout(0, 0, 10, 10)
         assertTrue(called)
     }
@@ -70,9 +66,7 @@ class ViewTest {
         view.layout(0, 0, 10, 10)
 
         var called = false
-        view.doOnLayout {
-            called = true
-        }
+        view.doOnLayout { called = true }
         assertTrue(called)
     }
 
@@ -84,9 +78,7 @@ class ViewTest {
         view.requestLayout()
 
         var called = false
-        view.doOnLayout {
-            called = true
-        }
+        view.doOnLayout { called = true }
 
         // Assert that we haven't been called while the layout pass is pending
         assertFalse(called)
@@ -99,9 +91,7 @@ class ViewTest {
     @Test
     fun doOnPreDraw() {
         var calls = 0
-        view.doOnPreDraw {
-            calls++
-        }
+        view.doOnPreDraw { calls++ }
         view.viewTreeObserver.dispatchOnPreDraw()
         assertEquals(1, calls)
 
@@ -159,9 +149,7 @@ class ViewTest {
 
     @Test
     fun toBitmapBeforeLayout() {
-        assertThrows<IllegalStateException> {
-            view.drawToBitmap()
-        }
+        assertThrows<IllegalStateException> { view.drawToBitmap() }
     }
 
     @Test
@@ -183,8 +171,8 @@ class ViewTest {
 
     @Test
     fun toBitmapScrolls() {
-        val scrollView = LayoutInflater.from(context)!!
-            .inflate(R.layout.test_bitmap_scrolls, null, false)
+        val scrollView =
+            LayoutInflater.from(context)!!.inflate(R.layout.test_bitmap_scrolls, null, false)
 
         val size = 100
 
@@ -205,7 +193,8 @@ class ViewTest {
         assertEquals(Color.BLACK, scrolls.getPixel(size - 1, size - 1))
     }
 
-    @Test fun isVisible() {
+    @Test
+    fun isVisible() {
         view.isVisible = true
         assertTrue(view.isVisible)
         assertEquals(View.VISIBLE, view.visibility)
@@ -215,7 +204,8 @@ class ViewTest {
         assertEquals(View.GONE, view.visibility)
     }
 
-    @Test fun isInvisible() {
+    @Test
+    fun isInvisible() {
         view.isInvisible = true
         assertTrue(view.isInvisible)
         assertEquals(View.INVISIBLE, view.visibility)
@@ -225,7 +215,8 @@ class ViewTest {
         assertEquals(View.VISIBLE, view.visibility)
     }
 
-    @Test fun isGone() {
+    @Test
+    fun isGone() {
         view.isGone = true
         assertTrue(view.isGone)
         assertEquals(View.GONE, view.visibility)
@@ -235,7 +226,8 @@ class ViewTest {
         assertEquals(View.VISIBLE, view.visibility)
     }
 
-    @Test fun updateLayoutParams() {
+    @Test
+    fun updateLayoutParams() {
         val layoutParams = ViewGroup.LayoutParams(0, 0)
         view.layoutParams = layoutParams
 
@@ -251,16 +243,14 @@ class ViewTest {
         assertEquals(1000, view.layoutParams.height)
     }
 
-    @Test fun updateLayoutParamsMissing() {
+    @Test
+    fun updateLayoutParamsMissing() {
         assertNull(view.layoutParams)
-        assertThrows<NullPointerException> {
-            view.updateLayoutParams {
-                fail()
-            }
-        }
+        assertThrows<NullPointerException> { view.updateLayoutParams { fail() } }
     }
 
-    @Test fun updateLayoutParamsAsType() {
+    @Test
+    fun updateLayoutParamsAsType() {
         val layoutParams = LinearLayout.LayoutParams(0, 0)
         view.layoutParams = layoutParams
 
@@ -274,12 +264,11 @@ class ViewTest {
         assertEquals(2f, (view.layoutParams as LinearLayout.LayoutParams).weight)
     }
 
-    @Test fun updateLayoutParamsAsTypeMissing() {
+    @Test
+    fun updateLayoutParamsAsTypeMissing() {
         assertNull(view.layoutParams)
         assertThrows<NullPointerException> {
-            view.updateLayoutParams<RelativeLayout.LayoutParams> {
-                fail()
-            }
+            view.updateLayoutParams<RelativeLayout.LayoutParams> { fail() }
         }
     }
 
@@ -288,61 +277,53 @@ class ViewTest {
         view.layoutParams = LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
 
         assertThrows<ClassCastException> {
-            view.updateLayoutParams<RelativeLayout.LayoutParams> {
-                fail()
-            }
+            view.updateLayoutParams<RelativeLayout.LayoutParams> { fail() }
         }
     }
 
-    @Test fun marginLeft() {
-        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            leftMargin = 10
-        }
+    @Test
+    fun marginLeft() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply { leftMargin = 10 }
         assertEquals(10, view.marginLeft)
     }
 
-    @Test fun marginTop() {
-        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            topMargin = 10
-        }
+    @Test
+    fun marginTop() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply { topMargin = 10 }
         assertEquals(10, view.marginTop)
     }
 
-    @Test fun marginRight() {
-        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            rightMargin = 10
-        }
+    @Test
+    fun marginRight() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply { rightMargin = 10 }
         assertEquals(10, view.marginRight)
     }
 
-    @Test fun marginBottom() {
-        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            bottomMargin = 10
-        }
+    @Test
+    fun marginBottom() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply { bottomMargin = 10 }
         assertEquals(10, view.marginBottom)
     }
 
-    @Test fun marginStart() {
-        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            marginStart = 10
-        }
+    @Test
+    fun marginStart() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply { marginStart = 10 }
         assertEquals(10, view.marginStart)
     }
 
-    @Test fun marginEnd() {
-        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply {
-            marginEnd = 10
-        }
+    @Test
+    fun marginEnd() {
+        view.layoutParams = ViewGroup.MarginLayoutParams(0, 0).apply { marginEnd = 10 }
         assertEquals(10, view.marginEnd)
     }
 
-    @Test fun ancestorsEmpty() {
-        view.ancestors.forEach { _ ->
-            fail()
-        }
+    @Test
+    fun ancestorsEmpty() {
+        view.ancestors.forEach { _ -> fail() }
     }
 
-    @Test fun ancestors() {
+    @Test
+    fun ancestors() {
         val views = listOf(LinearLayout(context), LinearLayout(context))
         views[0].addView(view)
         views[1].addView(views[0])

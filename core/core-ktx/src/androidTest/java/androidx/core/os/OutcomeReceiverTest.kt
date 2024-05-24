@@ -46,8 +46,8 @@ class OutcomeReceiverTest {
     }
 
     /**
-     * A sample method that accepts an [OutcomeReceiver] to test that the type inference
-     * of [asOutcomeReceiver] behaves as expected
+     * A sample method that accepts an [OutcomeReceiver] to test that the type inference of
+     * [asOutcomeReceiver] behaves as expected
      */
     @Suppress("UNUSED_PARAMETER")
     private fun sampleOutcomeReceiverMethod(receiver: OutcomeReceiver<String, IOException>) {

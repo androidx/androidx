@@ -46,9 +46,12 @@ class ActionsResultCallback : IActionsResultCallback.Stub() {
         try {
             withTimeout(CapabilityExchangeUtils.ACTION_RESULT_RESPONSE_TIMEOUT) {
                 // Wait for VOIP app to return the result
-                if (waitForActionResultLatch.await(
+                if (
+                    waitForActionResultLatch.await(
                         CapabilityExchangeUtils.ACTION_RESULT_RESPONSE_TIMEOUT,
-                        TimeUnit.MILLISECONDS)) {
+                        TimeUnit.MILLISECONDS
+                    )
+                ) {
                     Log.i(TAG, "waitForResponse: VoIP app returned a result")
                 }
             }

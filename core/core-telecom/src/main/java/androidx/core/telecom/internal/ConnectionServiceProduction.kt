@@ -22,7 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
- * This implementation of [ConnectionServiceAdapter] should be used in production.  In production
+ * This implementation of [ConnectionServiceAdapter] should be used in production. In production
  * runtime, the client should be using the [JetpackConnectionService].
  */
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)

@@ -40,7 +40,8 @@ import kotlinx.coroutines.CompletableDeferred
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 class ManagedConnectionService : ConnectionService() {
-    val TAG = ManagedConnectionService::class.simpleName;
+    val TAG = ManagedConnectionService::class.simpleName
+
     data class PendingConnectionRequest(
         val callAttributes: CallAttributesCompat,
         val completableDeferred: CompletableDeferred<ManagedConnection>?
@@ -55,44 +56,43 @@ class ManagedConnectionService : ConnectionService() {
         phoneAccountHandle: PhoneAccountHandle,
         pendingConnectionRequest: PendingConnectionRequest,
     ) {
-        Log.i(TAG, "createConnectionRequest: request=[$pendingConnectionRequest]," +
-            " handle=[$phoneAccountHandle]")
+        Log.i(
+            TAG,
+            "createConnectionRequest: request=[$pendingConnectionRequest]," +
+                " handle=[$phoneAccountHandle]"
+        )
         pendingConnectionRequest.callAttributes.mHandle = phoneAccountHandle
 
         // add request to list
         mPendingConnectionRequests.add(pendingConnectionRequest)
 
-        val extras = Utils.getBundleWithPhoneAccountHandle(
-            pendingConnectionRequest.callAttributes,
-            pendingConnectionRequest.callAttributes.mHandle!!
-        )
+        val extras =
+            Utils.getBundleWithPhoneAccountHandle(
+                pendingConnectionRequest.callAttributes,
+                pendingConnectionRequest.callAttributes.mHandle!!
+            )
 
         val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
         uiAutomation.adoptShellPermissionIdentity("android.permission.CALL_PHONE")
 
         // Call into the platform to start call
         if (pendingConnectionRequest.callAttributes.isOutgoingCall()) {
-            telecomManager.placeCall(
-                pendingConnectionRequest.callAttributes.address, extras
-            )
+            telecomManager.placeCall(pendingConnectionRequest.callAttributes.address, extras)
         } else {
             telecomManager.addNewIncomingCall(
-                pendingConnectionRequest.callAttributes.mHandle, extras
+                pendingConnectionRequest.callAttributes.mHandle,
+                extras
             )
         }
         uiAutomation.dropShellPermissionIdentity()
     }
 
-    /**
-     *  Outgoing Connections
-     */
+    /** Outgoing Connections */
     override fun onCreateOutgoingConnection(
         connectionManagerAccount: PhoneAccountHandle,
         request: ConnectionRequest
     ): Connection? {
-        return createSelfManagedConnection(
-            request, CallAttributesCompat.DIRECTION_OUTGOING
-        )
+        return createSelfManagedConnection(request, CallAttributesCompat.DIRECTION_OUTGOING)
     }
 
     override fun onCreateOutgoingConnectionFailed(
@@ -100,24 +100,19 @@ class ManagedConnectionService : ConnectionService() {
         request: ConnectionRequest
     ) {
         Log.i(TAG, "onCreateOutgoingConnectionFailed: request=[$request]")
-        val pendingRequest: PendingConnectionRequest? = findTargetPendingConnectionRequest(
-            request, CallAttributesCompat.DIRECTION_OUTGOING
-        )
+        val pendingRequest: PendingConnectionRequest? =
+            findTargetPendingConnectionRequest(request, CallAttributesCompat.DIRECTION_OUTGOING)
         pendingRequest?.completableDeferred?.cancel()
 
         mPendingConnectionRequests.remove(pendingRequest)
     }
 
-    /**
-     *  Incoming Connections
-     */
+    /** Incoming Connections */
     override fun onCreateIncomingConnection(
         connectionManagerPhoneAccount: PhoneAccountHandle,
         request: ConnectionRequest
     ): Connection? {
-        return createSelfManagedConnection(
-            request, CallAttributesCompat.DIRECTION_INCOMING
-        )
+        return createSelfManagedConnection(request, CallAttributesCompat.DIRECTION_INCOMING)
     }
 
     override fun onCreateIncomingConnectionFailed(
@@ -125,9 +120,8 @@ class ManagedConnectionService : ConnectionService() {
         request: ConnectionRequest
     ) {
         Log.i(TAG, "onCreateIncomingConnectionFailed: request=[$request]")
-        val pendingRequest: PendingConnectionRequest? = findTargetPendingConnectionRequest(
-            request, CallAttributesCompat.DIRECTION_INCOMING
-        )
+        val pendingRequest: PendingConnectionRequest? =
+            findTargetPendingConnectionRequest(request, CallAttributesCompat.DIRECTION_INCOMING)
         pendingRequest?.completableDeferred?.cancel()
         mPendingConnectionRequests.remove(pendingRequest)
     }
@@ -144,12 +138,14 @@ class ManagedConnectionService : ConnectionService() {
 
         // set display name
         jetpackConnection.setCallerDisplayName(
-            targetRequest.callAttributes.displayName.toString(), TelecomManager.PRESENTATION_ALLOWED
+            targetRequest.callAttributes.displayName.toString(),
+            TelecomManager.PRESENTATION_ALLOWED
         )
 
         // set address
         jetpackConnection.setAddress(
-            targetRequest.callAttributes.address, TelecomManager.PRESENTATION_ALLOWED
+            targetRequest.callAttributes.address,
+            TelecomManager.PRESENTATION_ALLOWED
         )
 
         // set the call state for the given direction
@@ -178,17 +174,16 @@ class ManagedConnectionService : ConnectionService() {
         return jetpackConnection
     }
 
-    /**
-     *  Helper methods
-     */
+    /** Helper methods */
     private fun findTargetPendingConnectionRequest(
         request: ConnectionRequest,
         direction: Int
     ): PendingConnectionRequest? {
         for (pendingConnectionRequest in mPendingConnectionRequests) {
-            if (isSameAddress(pendingConnectionRequest.callAttributes, request) && isSameDirection(
-                    pendingConnectionRequest.callAttributes, direction
-                ) && isSameHandle(pendingConnectionRequest.callAttributes.mHandle, request)
+            if (
+                isSameAddress(pendingConnectionRequest.callAttributes, request) &&
+                    isSameDirection(pendingConnectionRequest.callAttributes, direction) &&
+                    isSameHandle(pendingConnectionRequest.callAttributes.mHandle, request)
             ) {
                 return pendingConnectionRequest
             }

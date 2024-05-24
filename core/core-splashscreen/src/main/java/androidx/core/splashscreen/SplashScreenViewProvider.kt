@@ -26,16 +26,15 @@ import android.window.SplashScreenView
 import androidx.annotation.RequiresApi
 
 /**
- * Contains a copy of the splash screen used to create a custom animation from the splash screen
- * to the application.
+ * Contains a copy of the splash screen used to create a custom animation from the splash screen to
+ * the application.
  *
- * The splashscreen is accessible using [SplashScreenViewProvider.view] and the view
- * containing the icon using [SplashScreenViewProvider.iconView].
+ * The splashscreen is accessible using [SplashScreenViewProvider.view] and the view containing the
+ * icon using [SplashScreenViewProvider.iconView].
  *
  * This class also contains time information about the animated icon (for API 31+).
  *
- * The application always needs to call [SplashScreenViewProvider.remove] once it's done
- * with it.
+ * The application always needs to call [SplashScreenViewProvider.remove] once it's done with it.
  */
 @SuppressLint("ViewConstructor")
 public class SplashScreenViewProvider internal constructor(ctx: Activity) {
@@ -45,25 +44,26 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
         (impl as ViewImpl31).platformView = platformView
     }
 
-    private val impl: ViewImpl = when {
-        Build.VERSION.SDK_INT >= 31 -> ViewImpl31(ctx)
-        else -> ViewImpl(ctx)
-    }.apply {
-        createSplashScreenView()
-    }
+    private val impl: ViewImpl =
+        when {
+            Build.VERSION.SDK_INT >= 31 -> ViewImpl31(ctx)
+            else -> ViewImpl(ctx)
+        }.apply { createSplashScreenView() }
 
     /**
      * The splash screen view, copied into this application process.
      *
      * This view can be used to create custom animation from the splash screen to the application
      */
-    public val view: View get() = impl.splashScreenView
+    public val view: View
+        get() = impl.splashScreenView
 
     /**
      * The view containing the splashscreen icon as defined by
      * [R.attr.windowSplashScreenAnimatedIcon]
      */
-    public val iconView: View get() = impl.iconView
+    public val iconView: View
+        get() = impl.iconView
 
     /**
      * Start time of the icon animation.
@@ -72,30 +72,25 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
      *
      * Below API 31, returns 0 because the icon cannot be animated.
      */
-    public val iconAnimationStartMillis: Long get() = impl.iconAnimationStartMillis
+    public val iconAnimationStartMillis: Long
+        get() = impl.iconAnimationStartMillis
 
-    /**
-     * Duration of the icon animation as provided in [R.attr.
-     */
-    public val iconAnimationDurationMillis: Long get() = impl.iconAnimationDurationMillis
+    /** Duration of the icon animation as provided in [R.attr. */
+    public val iconAnimationDurationMillis: Long
+        get() = impl.iconAnimationDurationMillis
 
     /**
      * Remove the SplashScreen's view from the view hierarchy.
      *
      * This always needs to be called when an
-     * [androidx.core.splashscreen.SplashScreen.OnExitAnimationListener]
-     * is set.
+     * [androidx.core.splashscreen.SplashScreen.OnExitAnimationListener] is set.
      */
     public fun remove(): Unit = impl.remove()
 
     private open class ViewImpl(val activity: Activity) {
 
         private val _splashScreenView: ViewGroup by lazy {
-            FrameLayout.inflate(
-                activity,
-                R.layout.splash_screen_view,
-                null
-            ) as ViewGroup
+            FrameLayout.inflate(activity, R.layout.splash_screen_view, null) as ViewGroup
         }
 
         open fun createSplashScreenView() {
@@ -103,10 +98,18 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
             (content.rootView as? ViewGroup)?.addView(_splashScreenView)
         }
 
-        open val splashScreenView: ViewGroup get() = _splashScreenView
-        open val iconView: View get() = splashScreenView.findViewById(R.id.splashscreen_icon_view)
-        open val iconAnimationStartMillis: Long get() = 0
-        open val iconAnimationDurationMillis: Long get() = 0
+        open val splashScreenView: ViewGroup
+            get() = _splashScreenView
+
+        open val iconView: View
+            get() = splashScreenView.findViewById(R.id.splashscreen_icon_view)
+
+        open val iconAnimationStartMillis: Long
+            get() = 0
+
+        open val iconAnimationDurationMillis: Long
+            get() = 0
+
         open fun remove() {
             (splashScreenView.parent as? ViewGroup)?.removeView(splashScreenView)
         }
@@ -120,7 +123,8 @@ public class SplashScreenViewProvider internal constructor(ctx: Activity) {
             // Do nothing
         }
 
-        override val splashScreenView get() = platformView
+        override val splashScreenView
+            get() = platformView
 
         override val iconView: View
             get() = if (platformView.iconView != null) platformView.iconView!! else View(activity)

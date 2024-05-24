@@ -67,9 +67,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
         GrantPermissionRule.grant(Manifest.permission.READ_PHONE_NUMBERS)!!
 
     companion object {
-        /**
-         * Logging for within the test class.
-         */
+        /** Logging for within the test class. */
         internal val TAG = InCallServiceCompatTest::class.simpleName
     }
 
@@ -105,7 +103,8 @@ class InCallServiceCompatTest : BaseTelecomTest() {
         addAndVerifyCallExtensionType(
             TestUtils.OUTGOING_CALL_ATTRIBUTES,
             InCallServiceCompat.EXTRAS,
-            extraToInclude = voipApiExtra)
+            extraToInclude = voipApiExtra
+        )
     }
 
     /**
@@ -118,8 +117,8 @@ class InCallServiceCompatTest : BaseTelecomTest() {
      * For pre-U devices, the call extras would define the
      * [CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED] key.
      *
-     * Note: The version codes for V is not available so we need to enforce a strict manual check
-     * to ensure the V test path is not executed by incompatible devices.
+     * Note: The version codes for V is not available so we need to enforce a strict manual check to
+     * ensure the V test path is not executed by incompatible devices.
      */
     @LargeTest
     @Test(timeout = 10000)
@@ -164,13 +163,15 @@ class InCallServiceCompatTest : BaseTelecomTest() {
         )
     }
 
-    /***********************************************************************************************
-     *                           Helpers
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Helpers
+     * *******************************************************************************************
+     */
 
     /**
-     * Helper to add a call via CallsManager#addCall and verify the extension type depending on
-     * the APIs that are leveraged.
+     * Helper to add a call via CallsManager#addCall and verify the extension type depending on the
+     * APIs that are leveraged.
      *
      * Note: The connection extras are not added into the call until the connection is successfully
      * created. This is usually the case when the call moves from the CONNECTING state into either
@@ -196,9 +197,13 @@ class InCallServiceCompatTest : BaseTelecomTest() {
             assertWithinTimeout_addCall(callAttributesCompat) {
                 launch {
                     try {
-                        // Enforce waiting logic to ensure that the call details extras are populated.
-                        val call = configureCallWithSanitizedExtras(
-                            waitForCallDetailExtras, extraToInclude)
+                        // Enforce waiting logic to ensure that the call details extras are
+                        // populated.
+                        val call =
+                            configureCallWithSanitizedExtras(
+                                waitForCallDetailExtras,
+                                extraToInclude
+                            )
 
                         Log.i(TAG, "Service bounded invoking resolveCallExtensionsType")
 
@@ -209,7 +214,8 @@ class InCallServiceCompatTest : BaseTelecomTest() {
                         // Always send disconnect signal if possible.
                         Assert.assertEquals(
                             CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        )
                     }
                 }
             }
@@ -232,8 +238,8 @@ class InCallServiceCompatTest : BaseTelecomTest() {
     }
 
     /**
-     * Helper to retrieve the call from MockInCallService and wait for any call detail extras
-     * to be populated, if needed.
+     * Helper to retrieve the call from MockInCallService and wait for any call detail extras to be
+     * populated, if needed.
      */
     private suspend fun configureCallWithSanitizedExtras(
         waitForCallDetailExtras: Boolean,

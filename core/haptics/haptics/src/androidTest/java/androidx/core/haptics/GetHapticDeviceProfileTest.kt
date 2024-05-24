@@ -59,9 +59,8 @@ class GetHapticDeviceProfileTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun getHapticDeviceProfile_amplitudeAndPredefinedSupportSdk29AndAbove_returnsBothSupportTrue() {
-        val hapticManager = requireNotNull(
-            HapticManager.createForVibrator(PredefinedEffectsAndAmplitudeVibrator())
-        )
+        val hapticManager =
+            requireNotNull(HapticManager.createForVibrator(PredefinedEffectsAndAmplitudeVibrator()))
         val deviceProfile = hapticManager.deviceProfile
 
         assertThat(deviceProfile.isAmplitudeControlSupported).isTrue()
@@ -73,9 +72,10 @@ class GetHapticDeviceProfileTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun getHapticDeviceProfile_compositionWithoutDurationSdk30AndAbove_returnsPrimitivesOnly() {
-        val hapticManager = requireNotNull(
-            HapticManager.createForVibrator(FullVibrator(fakePrimitiveDuration = null))
-        )
+        val hapticManager =
+            requireNotNull(
+                HapticManager.createForVibrator(FullVibrator(fakePrimitiveDuration = null))
+            )
         val compositionProfile = hapticManager.deviceProfile.compositionProfile
 
         assertThat(compositionProfile.supportedPrimitiveTypes)
@@ -92,17 +92,19 @@ class GetHapticDeviceProfileTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
     @Test
     fun getHapticDeviceProfile_compositionWithPartialSupportSdk30AndAbove_returnsOnlySupported() {
-        val hapticManager = requireNotNull(
-            HapticManager.createForVibrator(
-                PartialVibrator(
-                    primitivesSupported = intArrayOf(PrimitiveAtom.CLICK, PrimitiveAtom.TICK),
-                    primitivesDurations = mapOf(
-                        PrimitiveAtom.CLICK to 20.milliseconds,
-                        PrimitiveAtom.TICK to 10.milliseconds,
-                    ),
+        val hapticManager =
+            requireNotNull(
+                HapticManager.createForVibrator(
+                    PartialVibrator(
+                        primitivesSupported = intArrayOf(PrimitiveAtom.CLICK, PrimitiveAtom.TICK),
+                        primitivesDurations =
+                            mapOf(
+                                PrimitiveAtom.CLICK to 20.milliseconds,
+                                PrimitiveAtom.TICK to 10.milliseconds,
+                            ),
+                    )
                 )
             )
-        )
         val compositionProfile = hapticManager.deviceProfile.compositionProfile
 
         assertThat(compositionProfile.isPrimitiveDurationReported).isTrue()
@@ -110,15 +112,14 @@ class GetHapticDeviceProfileTest {
             .containsExactly(PrimitiveAtom.CLICK, PrimitiveAtom.TICK)
         assertThat(compositionProfile.getPrimitiveDurationMillis(PrimitiveAtom.CLICK))
             .isEqualTo(20L)
-        assertThat(compositionProfile.getPrimitiveDurationMillis(PrimitiveAtom.TICK))
-            .isEqualTo(10L)
-        PrimitiveAtom.ALL_PRIMITIVES.map { it.type }.filter {
-            it != PrimitiveAtom.CLICK && it != PrimitiveAtom.TICK
-        }.forEach { primitive ->
-            assertWithMessage("Expected duration of $primitive to be zero")
-                .that(compositionProfile.getPrimitiveDurationMillis(primitive))
-                .isEqualTo(0L)
-        }
+        assertThat(compositionProfile.getPrimitiveDurationMillis(PrimitiveAtom.TICK)).isEqualTo(10L)
+        PrimitiveAtom.ALL_PRIMITIVES.map { it.type }
+            .filter { it != PrimitiveAtom.CLICK && it != PrimitiveAtom.TICK }
+            .forEach { primitive ->
+                assertWithMessage("Expected duration of $primitive to be zero")
+                    .that(compositionProfile.getPrimitiveDurationMillis(primitive))
+                    .isEqualTo(0L)
+            }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)

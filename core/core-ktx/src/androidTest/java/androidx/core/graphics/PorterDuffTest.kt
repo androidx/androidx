@@ -24,28 +24,36 @@ import org.junit.Test
 
 @SmallTest
 class PorterDuffTest {
-    @Test fun xfermode() {
-        val p = createBitmap(1, 1).applyCanvas {
-            val p = Paint().apply { color = 0xffffffff.toInt() }
-            drawRect(0f, 0f, 1f, 1f, p)
+    @Test
+    fun xfermode() {
+        val p =
+            createBitmap(1, 1)
+                .applyCanvas {
+                    val p = Paint().apply { color = 0xffffffff.toInt() }
+                    drawRect(0f, 0f, 1f, 1f, p)
 
-            p.color = 0x7f00ff00
-            p.xfermode = PorterDuff.Mode.SRC.toXfermode()
-            drawRect(0f, 0f, 1f, 1f, p)
-        }.getPixel(0, 0)
+                    p.color = 0x7f00ff00
+                    p.xfermode = PorterDuff.Mode.SRC.toXfermode()
+                    drawRect(0f, 0f, 1f, 1f, p)
+                }
+                .getPixel(0, 0)
 
         assertEquals(0x7f00ff00, p)
     }
 
-    @Test fun colorFilter() {
-        val p = createBitmap(1, 1).applyCanvas {
-            val p = Paint().apply { color = 0xffffffff.toInt() }
-            drawRect(0f, 0f, 1f, 1f, p)
+    @Test
+    fun colorFilter() {
+        val p =
+            createBitmap(1, 1)
+                .applyCanvas {
+                    val p = Paint().apply { color = 0xffffffff.toInt() }
+                    drawRect(0f, 0f, 1f, 1f, p)
 
-            p.color = 0xff000000.toInt()
-            p.colorFilter = PorterDuff.Mode.SRC.toColorFilter(0xff00ff00.toInt())
-            drawRect(0f, 0f, 1f, 1f, p)
-        }.getPixel(0, 0)
+                    p.color = 0xff000000.toInt()
+                    p.colorFilter = PorterDuff.Mode.SRC.toColorFilter(0xff00ff00.toInt())
+                    drawRect(0f, 0f, 1f, 1f, p)
+                }
+                .getPixel(0, 0)
 
         assertEquals(0xff00ff00.toInt(), p)
     }

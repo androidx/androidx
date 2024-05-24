@@ -47,8 +47,8 @@ public inline fun buildSpannedString(
  * Wrap appended text in [builderAction] in [spans].
  *
  * Note: the spans will only have the correct position if the [builderAction] only appends or
- * replaces text. Inserting, deleting, or clearing the text will cause the span to be placed at
- * an incorrect position.
+ * replaces text. Inserting, deleting, or clearing the text will cause the span to be placed at an
+ * incorrect position.
  */
 public inline fun SpannableStringBuilder.inSpans(
     vararg spans: Any,
@@ -64,8 +64,8 @@ public inline fun SpannableStringBuilder.inSpans(
  * Wrap appended text in [builderAction] in [span].
  *
  * Note: the span will only have the correct position if the `builderAction` only appends or
- * replaces text. Inserting, deleting, or clearing the text will cause the span to be placed at
- * an incorrect position.
+ * replaces text. Inserting, deleting, or clearing the text will cause the span to be placed at an
+ * incorrect position.
  */
 public inline fun SpannableStringBuilder.inSpans(
     span: Any,

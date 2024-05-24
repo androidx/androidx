@@ -26,12 +26,14 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 21)
 @SmallTest
 class LocaleTest {
-    @Test fun layoutDirectionWithLTR() {
+    @Test
+    fun layoutDirectionWithLTR() {
         val ltrLocale = Locale.Builder().setLanguage("en").build()
         assertEquals(View.LAYOUT_DIRECTION_LTR, ltrLocale.layoutDirection)
     }
 
-    @Test fun layoutDirectionWithRTL() {
+    @Test
+    fun layoutDirectionWithRTL() {
         val rtlLocale = Locale.Builder().setLanguage("ar").build()
         assertEquals(View.LAYOUT_DIRECTION_RTL, rtlLocale.layoutDirection)
     }

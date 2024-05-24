@@ -41,23 +41,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * This test class verifies the in call audio functionality is working as intended when adding
- * a VoIP call.  Each test should add a call via [CallsManager.addCall] and changes the call state
- * via the [CallControlScope].
+ * This test class verifies the in call audio functionality is working as intended when adding a
+ * VoIP call. Each test should add a call via [CallsManager.addCall] and changes the call state via
+ * the [CallControlScope].
  *
  * Note: Be careful with using a delay in a runBlocking scope to avoid missing flows. ex:
- * runBlocking {
- *      addCall(...){
- *          delay(x time) // The flow will be emitted here and missed
- *          currentCallEndpoint.counter.getFirst() // The flow may never be collected
- *      }
- * }
+ * runBlocking { addCall(...){ delay(x time) // The flow will be emitted here and missed
+ * currentCallEndpoint.counter.getFirst() // The flow may never be collected } }
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
 class InCallAudioTest : BaseTelecomTest() {
     val LOG_TAG = "InCallAudioTest"
+
     @Before
     fun setUp() {
         Utils.resetUtils()
@@ -68,9 +65,11 @@ class InCallAudioTest : BaseTelecomTest() {
         Utils.resetUtils()
     }
 
-    /***********************************************************************************************
-     *                           V2 APIs (Android U and above) tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * V2 APIs (Android U and above) tests
+     * *******************************************************************************************
+     */
 
     /**
      * assert that a newly added *OUTGOING* call has an audio mode equal to [MODE_IN_COMMUNICATION].
@@ -84,9 +83,11 @@ class InCallAudioTest : BaseTelecomTest() {
         runBlocking_addCall_assertAudioModeInCommunication()
     }
 
-    /***********************************************************************************************
-     *                           Backwards Compatibility Layer tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Backwards Compatibility Layer tests
+     * *******************************************************************************************
+     */
 
     /**
      * assert that a newly added *OUTGOING* call has an audio mode equal to [MODE_IN_COMMUNICATION].
@@ -101,16 +102,18 @@ class InCallAudioTest : BaseTelecomTest() {
         runBlocking_addCall_assertAudioModeInCommunication()
     }
 
-    /***********************************************************************************************
-     *                           Helpers
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Helpers
+     * *******************************************************************************************
+     */
 
     /**
      * This helper facilitates adding a call, checking that the audio mode equals
      * [MODE_IN_COMMUNICATION], and disconnecting.
      *
-     * Note: delays are inserted to simulate more natural calling. Otherwise the call dumpsys
-     * does not reflect realistic transitions.
+     * Note: delays are inserted to simulate more natural calling. Otherwise the call dumpsys does
+     * not reflect realistic transitions.
      *
      * Note: This helper blocks the TestRunner from finishing until all asserts and async functions
      * have finished or the timeout has been reached.
@@ -119,17 +122,27 @@ class InCallAudioTest : BaseTelecomTest() {
         runBlocking {
             assertWithinTimeout_addCall(TestUtils.OUTGOING_CALL_ATTRIBUTES) {
                 launch {
-                    Log.i(LOG_TAG, "runBlocking_addCall_assertAudioModeInCommunication: " +
-                        "initial AudioManager mode = ${getAudioModeName(mAudioManager.mode)}")
-                    while (isActive /* aka  within timeout window */ &&
-                        mAudioManager.mode != MODE_IN_COMMUNICATION) {
-                        Log.d(LOG_TAG, "runBlocking_addCall_assertAudioModeInCommunication: " +
-                            "current AudioManager mode = ${getAudioModeName(mAudioManager.mode)}")
+                    Log.i(
+                        LOG_TAG,
+                        "runBlocking_addCall_assertAudioModeInCommunication: " +
+                            "initial AudioManager mode = ${getAudioModeName(mAudioManager.mode)}"
+                    )
+                    while (
+                        isActive /* aka  within timeout window */ &&
+                            mAudioManager.mode != MODE_IN_COMMUNICATION
+                    ) {
+                        Log.d(
+                            LOG_TAG,
+                            "runBlocking_addCall_assertAudioModeInCommunication: " +
+                                "current AudioManager mode = ${getAudioModeName(mAudioManager.mode)}"
+                        )
                         yield() // mechanism to stop the while loop if the coroutine is dead
                         delay(1) // sleep x millisecond(s) instead of spamming check
                     }
-                    Assert.assertEquals(CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL)))
+                    Assert.assertEquals(
+                        CallControlResult.Success(),
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                    )
                 }
             }
         }

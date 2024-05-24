@@ -18,5 +18,6 @@ package androidx.core.telecom.internal.utils
 
 internal interface BuildVersionAdapter {
     fun hasPlatformV2Apis(): Boolean
+
     fun hasInvalidBuildVersion(): Boolean
 }

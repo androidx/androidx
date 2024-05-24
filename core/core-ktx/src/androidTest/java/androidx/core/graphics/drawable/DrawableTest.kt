@@ -32,10 +32,9 @@ class DrawableTest {
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
     private val resources = context.resources
 
-    @Test fun bitmapDrawableNoSizeNoConfig() {
-        val original = createBitmap(10, 10).apply {
-            eraseColor(Color.RED)
-        }
+    @Test
+    fun bitmapDrawableNoSizeNoConfig() {
+        val original = createBitmap(10, 10).apply { eraseColor(Color.RED) }
         val drawable = BitmapDrawable(resources, original)
 
         val bitmap = drawable.toBitmap()
@@ -45,10 +44,9 @@ class DrawableTest {
         assertEquals(Color.RED, bitmap.getPixel(5, 5))
     }
 
-    @Test fun bitmapDrawableNoSizeRetainedConfig() {
-        val original = createBitmap(10, 10).apply {
-            eraseColor(Color.RED)
-        }
+    @Test
+    fun bitmapDrawableNoSizeRetainedConfig() {
+        val original = createBitmap(10, 10).apply { eraseColor(Color.RED) }
         val drawable = BitmapDrawable(resources, original)
 
         val bitmap = drawable.toBitmap(config = Config.ARGB_8888)
@@ -58,10 +56,9 @@ class DrawableTest {
         assertEquals(Color.RED, bitmap.getPixel(5, 5))
     }
 
-    @Test fun bitmapDrawableNoSizeDifferentConfig() {
-        val original = createBitmap(10, 10).apply {
-            eraseColor(Color.RED)
-        }
+    @Test
+    fun bitmapDrawableNoSizeDifferentConfig() {
+        val original = createBitmap(10, 10).apply { eraseColor(Color.RED) }
         val drawable = BitmapDrawable(resources, original)
 
         val bitmap = drawable.toBitmap(config = Config.ARGB_8888)
@@ -71,10 +68,9 @@ class DrawableTest {
         assertEquals(Color.RED, bitmap.getPixel(5, 5))
     }
 
-    @Test fun bitmapDrawableDifferentSizeNoConfig() {
-        val original = createBitmap(10, 10).apply {
-            eraseColor(Color.RED)
-        }
+    @Test
+    fun bitmapDrawableDifferentSizeNoConfig() {
+        val original = createBitmap(10, 10).apply { eraseColor(Color.RED) }
         val drawable = BitmapDrawable(resources, original)
 
         val bitmap = drawable.toBitmap(20, 20)
@@ -84,10 +80,9 @@ class DrawableTest {
         assertEquals(Color.RED, bitmap.getPixel(10, 10))
     }
 
-    @Test fun bitmapDrawableDifferentSizeDifferentConfig() {
-        val original = createBitmap(10, 10).apply {
-            eraseColor(Color.RED)
-        }
+    @Test
+    fun bitmapDrawableDifferentSizeDifferentConfig() {
+        val original = createBitmap(10, 10).apply { eraseColor(Color.RED) }
         val drawable = BitmapDrawable(resources, original)
 
         val bitmap = drawable.toBitmap(20, 20, Config.ARGB_8888)
@@ -97,11 +92,14 @@ class DrawableTest {
         assertEquals(Color.RED, bitmap.getPixel(10, 10))
     }
 
-    @Test fun drawableNoConfig() {
-        val drawable = object : ColorDrawable(Color.RED) {
-            override fun getIntrinsicWidth() = 10
-            override fun getIntrinsicHeight() = 10
-        }
+    @Test
+    fun drawableNoConfig() {
+        val drawable =
+            object : ColorDrawable(Color.RED) {
+                override fun getIntrinsicWidth() = 10
+
+                override fun getIntrinsicHeight() = 10
+            }
 
         val bitmap = drawable.toBitmap()
         assertEquals(10, bitmap.width)
@@ -126,11 +124,14 @@ class DrawableTest {
         assertNull(bitmap)
     }
 
-    @Test fun drawableConfig() {
-        val drawable = object : ColorDrawable(Color.RED) {
-            override fun getIntrinsicWidth() = 10
-            override fun getIntrinsicHeight() = 10
-        }
+    @Test
+    fun drawableConfig() {
+        val drawable =
+            object : ColorDrawable(Color.RED) {
+                override fun getIntrinsicWidth() = 10
+
+                override fun getIntrinsicHeight() = 10
+            }
 
         val bitmap = drawable.toBitmap(config = Config.RGB_565)
         assertEquals(10, bitmap.width)
@@ -139,11 +140,14 @@ class DrawableTest {
         assertEquals(Color.RED, bitmap.getPixel(5, 5))
     }
 
-    @Test fun drawableSize() {
-        val drawable = object : ColorDrawable(Color.RED) {
-            override fun getIntrinsicWidth() = 10
-            override fun getIntrinsicHeight() = 10
-        }
+    @Test
+    fun drawableSize() {
+        val drawable =
+            object : ColorDrawable(Color.RED) {
+                override fun getIntrinsicWidth() = 10
+
+                override fun getIntrinsicHeight() = 10
+            }
 
         val bitmap = drawable.toBitmap(20, 20)
         assertEquals(20, bitmap.width)
@@ -152,11 +156,14 @@ class DrawableTest {
         assertEquals(Color.RED, bitmap.getPixel(10, 10))
     }
 
-    @Test fun oldBoundsRestored() {
-        val drawable = object : ColorDrawable(Color.RED) {
-            override fun getIntrinsicWidth() = 10
-            override fun getIntrinsicHeight() = 10
-        }
+    @Test
+    fun oldBoundsRestored() {
+        val drawable =
+            object : ColorDrawable(Color.RED) {
+                override fun getIntrinsicWidth() = 10
+
+                override fun getIntrinsicHeight() = 10
+            }
         drawable.setBounds(2, 2, 8, 8)
 
         val bitmap = drawable.toBitmap()
@@ -169,11 +176,14 @@ class DrawableTest {
         assertEquals(8, drawable.bounds.bottom)
     }
 
-    @Test fun updateBoundsTest() {
-        val drawable = object : ColorDrawable(Color.RED) {
-            override fun getIntrinsicWidth() = 10
-            override fun getIntrinsicHeight() = 10
-        }
+    @Test
+    fun updateBoundsTest() {
+        val drawable =
+            object : ColorDrawable(Color.RED) {
+                override fun getIntrinsicWidth() = 10
+
+                override fun getIntrinsicHeight() = 10
+            }
         drawable.setBounds(0, 0, 10, 10)
 
         drawable.updateBounds(1, 2, 3, 4)

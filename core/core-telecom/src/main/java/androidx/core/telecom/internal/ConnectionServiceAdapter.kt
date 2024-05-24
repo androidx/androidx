@@ -23,8 +23,8 @@ import androidx.core.telecom.util.ExperimentalAppActions
 /**
  * [ConnectionServiceAdapter] is intended for the [androidx.core.telecom.CallsManager] class. This
  * interface helps utilize the Dependency Injection pattern so that
- * [androidx.core.telecom.CallsManager] can use [JetpackConnectionService] in production but
- * in testing, different objects can be injected to mock platform behavior.
+ * [androidx.core.telecom.CallsManager] can use [JetpackConnectionService] in production but in
+ * testing, different objects can be injected to mock platform behavior.
  */
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 internal interface ConnectionServiceAdapter {

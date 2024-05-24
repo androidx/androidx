@@ -17,7 +17,7 @@
 package androidx.core.uwb.exceptions
 
 /**
- * Unusual failures happened in UWB system callback, such as stopping
- * ranging or removing a known controlee failed.
+ * Unusual failures happened in UWB system callback, such as stopping ranging or removing a known
+ * controlee failed.
  */
 class UwbSystemCallbackException(message: String) : UwbApiException(message)
