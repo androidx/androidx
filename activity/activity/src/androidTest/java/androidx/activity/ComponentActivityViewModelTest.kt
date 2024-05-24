@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityViewModelTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test(expected = IllegalStateException::class)
     @UiThreadTest
@@ -52,36 +51,32 @@ class ComponentActivityViewModelTest {
 
     @Test
     fun testSameViewModelStorePrePostOnCreate() {
-       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
+        withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val originalStore = withActivity { preOnCreateViewModelStore }
             assertWithMessage(
-                "Pre-onCreate() ViewModelStore should equal the post-onCreate() ViewModelStore"
-            )
+                    "Pre-onCreate() ViewModelStore should equal the post-onCreate() ViewModelStore"
+                )
                 .that(originalStore)
                 .isSameInstanceAs(withActivity { postOnCreateViewModelStore })
 
             recreate()
 
-            assertThat(withActivity { preOnCreateViewModelStore })
-                .isSameInstanceAs(originalStore)
-            assertThat(withActivity { postOnCreateViewModelStore })
-                .isSameInstanceAs(originalStore)
+            assertThat(withActivity { preOnCreateViewModelStore }).isSameInstanceAs(originalStore)
+            assertThat(withActivity { postOnCreateViewModelStore }).isSameInstanceAs(originalStore)
         }
     }
 
     @Test
     fun testSameActivityViewModels() {
-       withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
+        withUse(ActivityScenario.launch(ViewModelActivity::class.java)) {
             val activityModel = withActivity { activityModel }
             val defaultActivityModel = withActivity { defaultActivityModel }
             assertThat(defaultActivityModel).isNotSameInstanceAs(activityModel)
 
             recreate()
 
-            assertThat(withActivity { activityModel })
-                .isSameInstanceAs(activityModel)
-            assertThat(withActivity { defaultActivityModel })
-                .isSameInstanceAs(defaultActivityModel)
+            assertThat(withActivity { activityModel }).isSameInstanceAs(activityModel)
+            assertThat(withActivity { defaultActivityModel }).isSameInstanceAs(defaultActivityModel)
         }
     }
 
@@ -122,12 +117,12 @@ class ComponentActivityViewModelTest {
                 ViewModelProvider(
                     viewModelStore,
                     defaultViewModelProviderFactory,
-                    defaultViewModelCreationExtras)["test", TestViewModel::class.java]
+                    defaultViewModelCreationExtras
+                )["test", TestViewModel::class.java]
             }
             recreate()
-            assertThat(withActivity {
-                ViewModelProvider(this)["test", TestViewModel::class.java]
-            }).isSameInstanceAs(creationViewModel)
+            assertThat(withActivity { ViewModelProvider(this)["test", TestViewModel::class.java] })
+                .isSameInstanceAs(creationViewModel)
         }
     }
 }

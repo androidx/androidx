@@ -31,28 +31,30 @@ import org.jetbrains.uast.getParentOfType
 
 class OnBackPressedDetector : Detector(), Detector.UastScanner {
     companion object {
-        val ISSUE = Issue.create(
-            id = "InvalidUseOfOnBackPressed",
-            briefDescription = "Do not call onBackPressed() within OnBackPressedDisptacher",
-            explanation = """You should not used OnBackPressedCallback for non-UI cases. If you
+        val ISSUE =
+            Issue.create(
+                    id = "InvalidUseOfOnBackPressed",
+                    briefDescription = "Do not call onBackPressed() within OnBackPressedDisptacher",
+                    explanation =
+                        """You should not used OnBackPressedCallback for non-UI cases. If you
                 |add a callback, you have to handle back completely in the callback.
             """,
-            category = Category.CORRECTNESS,
-            severity = Severity.WARNING,
-            implementation = Implementation(
-                OnBackPressedDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE),
-                Scope.JAVA_FILE_SCOPE
-            )
-        ).addMoreInfo(
-            "https://developer.android.com/guide/navigation/custom-back/" +
-                "predictive-back-gesture#ui-logic"
-        )
+                    category = Category.CORRECTNESS,
+                    severity = Severity.WARNING,
+                    implementation =
+                        Implementation(
+                            OnBackPressedDetector::class.java,
+                            EnumSet.of(Scope.JAVA_FILE),
+                            Scope.JAVA_FILE_SCOPE
+                        )
+                )
+                .addMoreInfo(
+                    "https://developer.android.com/guide/navigation/custom-back/" +
+                        "predictive-back-gesture#ui-logic"
+                )
     }
 
-    override fun getApplicableMethodNames(): List<String> = listOf(
-        OnBackPressed
-    )
+    override fun getApplicableMethodNames(): List<String> = listOf(OnBackPressed)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         method.containingClass ?: return

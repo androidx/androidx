@@ -55,33 +55,35 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityMenuTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun inflatesMenu() {
-       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
-
+        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val menuHost: ComponentActivity = withActivity { this }
 
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu, menu)
-                }
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return true
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return true
+                    }
                 }
-            })
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu2, menu)
-                }
+            )
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu2, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return true
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return true
+                    }
                 }
-            })
+            )
 
             openActionBarOverflowOrOptionsMenu(menuHost)
             onView(withText("Item1")).check(matches(isDisplayed()))
@@ -93,23 +95,25 @@ class ComponentActivityMenuTest {
 
     @Test
     fun onPrepareMenu() {
-       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
+        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val menuHost: ComponentActivity = withActivity { this }
             var menuPrepared: Boolean
 
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu, menu)
-                }
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return true
-                }
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return true
+                    }
 
-                override fun onPrepareMenu(menu: Menu) {
-                    menuPrepared = true
+                    override fun onPrepareMenu(menu: Menu) {
+                        menuPrepared = true
+                    }
                 }
-            })
+            )
 
             menuPrepared = false
             openActionBarOverflowOrOptionsMenu(menuHost)
@@ -120,46 +124,51 @@ class ComponentActivityMenuTest {
 
     @Test
     fun menuItemSelected() {
-       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
-
+        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val menuHost: ComponentActivity = withActivity { this }
             var itemSelectedId: Int? = null
 
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu, menu)
-                }
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return when (menuItem.itemId) {
-                        R.id.item1, R.id.item2 -> {
-                            itemSelectedId = menuItem.itemId
-                            return true
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return when (menuItem.itemId) {
+                            R.id.item1,
+                            R.id.item2 -> {
+                                itemSelectedId = menuItem.itemId
+                                return true
+                            }
+                            else -> false
                         }
-                        else -> false
                     }
                 }
-            })
+            )
 
             openActionBarOverflowOrOptionsMenu(menuHost)
             onView(withText("Item1")).perform(click())
             assertThat(itemSelectedId).isEqualTo(R.id.item1)
 
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu2, menu)
-                }
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu2, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return when (menuItem.itemId) {
-                        R.id.item3, R.id.item4 -> {
-                            itemSelectedId = menuItem.itemId
-                            return true
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return when (menuItem.itemId) {
+                            R.id.item3,
+                            R.id.item4 -> {
+                                itemSelectedId = menuItem.itemId
+                                return true
+                            }
+                            else -> false
                         }
-                        else -> false
                     }
                 }
-            })
+            )
 
             openActionBarOverflowOrOptionsMenu(menuHost)
             onView(withText("Item3")).perform(click())
@@ -169,23 +178,25 @@ class ComponentActivityMenuTest {
 
     @Test
     fun onMenuClosed() {
-       withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
+        withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
             val menuHost: ComponentActivity = withActivity { this }
             var menuClosed = false
 
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu, menu)
-                }
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu, menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    return true
-                }
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        return true
+                    }
 
-                override fun onMenuClosed(menu: Menu) {
-                    menuClosed = true
+                    override fun onMenuClosed(menu: Menu) {
+                        menuClosed = true
+                    }
                 }
-            })
+            )
 
             openActionBarOverflowOrOptionsMenu(menuHost)
             withActivity { closeOptionsMenu() }
@@ -195,7 +206,7 @@ class ComponentActivityMenuTest {
 
     @Test
     fun onPanelClosed() {
-       withUse(ActivityScenario.launch(ContextMenuComponentActivity::class.java)) {
+        withUse(ActivityScenario.launch(ContextMenuComponentActivity::class.java)) {
             onView(withText("Context Menu")).perform(longClick())
             onView(withText("Item1")).check(matches(isDisplayed()))
             onView(withText("Item2")).check(matches(isDisplayed()))
@@ -210,34 +221,38 @@ class ComponentActivityMenuTest {
 
     @Test
     fun menuAPIsCalledWithoutCallingSuper() {
-       withUse(ActivityScenario.launch(OptionMenuNoSuperActivity::class.java)) {
+        withUse(ActivityScenario.launch(OptionMenuNoSuperActivity::class.java)) {
             val menuHost: ComponentActivity = withActivity { this }
             var itemSelectedId: Int? = null
             var menuPrepared = false
             var menuCreated = false
             var menuItemSelected = false
 
-            menuHost.addMenuProvider(object : MenuProvider {
-                override fun onPrepareMenu(menu: Menu) {
-                    menuPrepared = true
-                    super.onPrepareMenu(menu)
-                }
-                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-                    menuInflater.inflate(R.menu.example_menu, menu)
-                    menuCreated = true
-                }
+            menuHost.addMenuProvider(
+                object : MenuProvider {
+                    override fun onPrepareMenu(menu: Menu) {
+                        menuPrepared = true
+                        super.onPrepareMenu(menu)
+                    }
 
-                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-                    menuItemSelected = true
-                    return when (menuItem.itemId) {
-                        R.id.item1, R.id.item2 -> {
-                            itemSelectedId = menuItem.itemId
-                            return true
+                    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                        menuInflater.inflate(R.menu.example_menu, menu)
+                        menuCreated = true
+                    }
+
+                    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                        menuItemSelected = true
+                        return when (menuItem.itemId) {
+                            R.id.item1,
+                            R.id.item2 -> {
+                                itemSelectedId = menuItem.itemId
+                                return true
+                            }
+                            else -> false
                         }
-                        else -> false
                     }
                 }
-            })
+            )
 
             openActionBarOverflowOrOptionsMenu(menuHost)
             onView(withText("Item1")).perform(click())

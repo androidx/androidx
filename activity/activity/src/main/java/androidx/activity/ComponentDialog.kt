@@ -33,22 +33,18 @@ import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 
-/**
- * Base class for dialogs that enables composition of higher level components.
- */
-open class ComponentDialog @JvmOverloads constructor(
-    context: Context,
-    @StyleRes themeResId: Int = 0
-) : Dialog(context, themeResId),
+/** Base class for dialogs that enables composition of higher level components. */
+open class ComponentDialog
+@JvmOverloads
+constructor(context: Context, @StyleRes themeResId: Int = 0) :
+    Dialog(context, themeResId),
     LifecycleOwner,
     OnBackPressedDispatcherOwner,
     SavedStateRegistryOwner {
 
     private var _lifecycleRegistry: LifecycleRegistry? = null
     private val lifecycleRegistry: LifecycleRegistry
-        get() = _lifecycleRegistry ?: LifecycleRegistry(this).also {
-            _lifecycleRegistry = it
-        }
+        get() = _lifecycleRegistry ?: LifecycleRegistry(this).also { _lifecycleRegistry = it }
 
     private val savedStateRegistryController: SavedStateRegistryController =
         SavedStateRegistryController.create(this)
@@ -90,9 +86,7 @@ open class ComponentDialog @JvmOverloads constructor(
     }
 
     @Suppress("DEPRECATION")
-    final override val onBackPressedDispatcher = OnBackPressedDispatcher {
-        super.onBackPressed()
-    }
+    final override val onBackPressedDispatcher = OnBackPressedDispatcher { super.onBackPressed() }
 
     @CallSuper
     override fun onBackPressed() {
@@ -120,8 +114,8 @@ open class ComponentDialog @JvmOverloads constructor(
     }
 
     /**
-     * Sets the view tree owners before setting the content view so that the
-     * inflation process and attach listeners will see them already present.
+     * Sets the view tree owners before setting the content view so that the inflation process and
+     * attach listeners will see them already present.
      */
     @CallSuper
     open fun initializeViewTreeOwners() {

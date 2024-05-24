@@ -19,8 +19,7 @@ package androidx.activity.integration.macrobenchmark.target
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 
-class OnBackPressedDispatcherInOnCreateActivity :
-    ComponentActivity(R.layout.main_activity) {
+class OnBackPressedDispatcherInOnCreateActivity : ComponentActivity(R.layout.main_activity) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         onBackPressedDispatcher

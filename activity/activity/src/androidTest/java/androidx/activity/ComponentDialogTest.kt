@@ -40,26 +40,19 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentDialogTest {
 
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
+    @get:Rule val rule = DetectLeaksAfterTestSuccess()
 
     @Test
     fun testLifecycle() {
-       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
-            val dialog = withActivity {
-                ComponentDialog(this)
-            }
+        withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+            val dialog = withActivity { ComponentDialog(this) }
             val lifecycle = dialog.lifecycle
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
 
-            onActivity {
-                dialog.show()
-            }
+            onActivity { dialog.show() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
-            onActivity {
-                dialog.dismiss()
-            }
+            onActivity { dialog.dismiss() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
 
             assertWithMessage("A new Lifecycle object should be created after destruction")
@@ -73,11 +66,7 @@ class ComponentDialogTest {
     @Throws(Throwable::class)
     fun savedState() {
         withUse(ActivityScenario.launch(SavedStateActivity::class.java)) {
-            val dialog = withActivity {
-                ComponentDialog(this).also {
-                    it.show()
-                }
-            }
+            val dialog = withActivity { ComponentDialog(this).also { it.show() } }
             val lifecycle = dialog.lifecycle
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
@@ -92,13 +81,9 @@ class ComponentDialogTest {
             // Destroy dialog and restore saved instance state
             val savedState = dialog.onSaveInstanceState()
             assertThat(savedState).isNotNull()
-            onActivity {
-                dialog.dismiss()
-            }
+            onActivity { dialog.dismiss() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
-            val restoredDialog = withActivity {
-                ComponentDialog(this)
-            }
+            val restoredDialog = withActivity { ComponentDialog(this) }
             withActivity {
                 assertThat((restoredDialog.lifecycle as LifecycleRegistry).currentState)
                     .isEqualTo(Lifecycle.State.INITIALIZED)
@@ -111,11 +96,7 @@ class ComponentDialogTest {
     @Test
     fun testViewTreeSavedStateRegistryOwner() {
         withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
-            val dialog = withActivity {
-                ViewOwnerDialog(this).also {
-                    it.show()
-                }
-            }
+            val dialog = withActivity { ViewOwnerDialog(this).also { it.show() } }
             val lifecycle = dialog.lifecycle
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
@@ -133,13 +114,9 @@ class ComponentDialogTest {
             // Destroy dialog and restore saved instance state
             val savedState = dialog.onSaveInstanceState()
             assertThat(savedState).isNotNull()
-            onActivity {
-                dialog.dismiss()
-            }
+            onActivity { dialog.dismiss() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
-            val restoredDialog = withActivity {
-                ViewOwnerDialog(this)
-            }
+            val restoredDialog = withActivity { ViewOwnerDialog(this) }
             withActivity {
                 assertThat((restoredDialog.lifecycle as LifecycleRegistry).currentState)
                     .isEqualTo(Lifecycle.State.INITIALIZED)
@@ -154,48 +131,32 @@ class ComponentDialogTest {
 
     @Test
     fun testOnBackPressed() {
-       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
-            val dialog = withActivity {
-                DoubleTapBackDialog(this).also {
-                    it.show()
-                }
-            }
+        withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+            val dialog = withActivity { DoubleTapBackDialog(this).also { it.show() } }
             val lifecycle = dialog.lifecycle
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
-            onActivity {
-                dialog.onBackPressed()
-            }
+            onActivity { dialog.onBackPressed() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
             assertThat(dialog.backCount).isEqualTo(1)
 
-            onActivity {
-                dialog.onBackPressed()
-            }
+            onActivity { dialog.onBackPressed() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
         }
     }
 
     @Test
     fun testViewTreeOnBackPressedDispatcherOwner() {
-       withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
-            val dialog = withActivity {
-                ViewOwnerDialog(this).also {
-                    it.show()
-                }
-            }
+        withUse(ActivityScenario.launch(EmptyContentActivity::class.java)) {
+            val dialog = withActivity { ViewOwnerDialog(this).also { it.show() } }
             val lifecycle = dialog.lifecycle
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
 
-            onActivity {
-                dialog.onBackPressed()
-            }
+            onActivity { dialog.onBackPressed() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
             assertThat(dialog.view.backCount).isEqualTo(1)
 
-            onActivity {
-                dialog.onBackPressed()
-            }
+            onActivity { dialog.onBackPressed() }
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
         }
     }
@@ -204,12 +165,13 @@ class ComponentDialogTest {
 class DoubleTapBackDialog(context: Context) : ComponentDialog(context) {
     var backCount = 0
 
-    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() {
-            backCount++
-            remove()
+    private val onBackPressedCallback =
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                backCount++
+                remove()
+            }
         }
-    }
 
     init {
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
@@ -226,12 +188,13 @@ class ViewOwnerDialog(context: Context) : ComponentDialog(context) {
     class BackHandlingView(context: Context) : View(context) {
         var backCount = 0
 
-        private val onBackPressedCallback = object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                backCount++
-                remove()
+        private val onBackPressedCallback =
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    backCount++
+                    remove()
+                }
             }
-        }
 
         override fun onAttachedToWindow() {
             super.onAttachedToWindow()

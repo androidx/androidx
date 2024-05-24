@@ -29,18 +29,19 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ActivityStartBenchmark {
 
-    @get:Rule
-    val benchmarkRule = MacrobenchmarkRule()
+    @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun startup() = benchmarkRule.measureStartup(
-        compilationMode = CompilationMode.DEFAULT,
-        startupMode = StartupMode.COLD,
-        packageName = "androidx.activity.integration.macrobenchmark.target",
-        metrics = listOf(StartupTimingMetric()),
-        iterations = 10,
-    ) {
-        action = "androidx.compose.integration.macrobenchmark" +
-            ".target.ON_BACK_PRESSED_DISPATCHER_IN_ON_CREATE_ACTIVITY"
-    }
+    fun startup() =
+        benchmarkRule.measureStartup(
+            compilationMode = CompilationMode.DEFAULT,
+            startupMode = StartupMode.COLD,
+            packageName = "androidx.activity.integration.macrobenchmark.target",
+            metrics = listOf(StartupTimingMetric()),
+            iterations = 10,
+        ) {
+            action =
+                "androidx.compose.integration.macrobenchmark" +
+                    ".target.ON_BACK_PRESSED_DISPATCHER_IN_ON_CREATE_ACTIVITY"
+        }
 }

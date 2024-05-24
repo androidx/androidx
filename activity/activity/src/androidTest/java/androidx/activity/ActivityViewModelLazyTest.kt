@@ -35,12 +35,12 @@ import org.junit.Test
 @MediumTest
 class ActivityViewModelLazyTest {
     @Suppress("DEPRECATION")
-    @get:Rule val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
+    @get:Rule
+    val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
 
     @UiThreadTest
-    @Test fun vmInitialization() {
+    @Test
+    fun vmInitialization() {
         val activity = activityRule.activity
         assertThat(activity.vm).isNotNull()
         assertThat(activity.factoryVM.prop).isEqualTo("activity")
@@ -53,9 +53,8 @@ class ActivityViewModelLazyTest {
         val factoryVM: TestFactorizedViewModel by viewModels { VMFactory("activity") }
         lateinit var injectedFactory: ViewModelProvider.Factory
         val daggerPoorCopyVM: TestDaggerViewModel by viewModels { injectedFactory }
-        val savedStateViewModel: TestSavedStateViewModel by viewModels(
-            extrasProducer = { defaultViewModelCreationExtras }
-        )
+        val savedStateViewModel: TestSavedStateViewModel by
+            viewModels(extrasProducer = { defaultViewModelCreationExtras })
 
         override fun onCreate(savedInstanceState: Bundle?) {
             injectedFactory = VMFactory("dagger")
@@ -74,8 +73,11 @@ class ActivityViewModelLazyTest {
     }
 
     class TestViewModel : ViewModel()
+
     class TestFactorizedViewModel(val prop: String) : ViewModel()
+
     class TestDaggerViewModel(val prop: String) : ViewModel()
+
     class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel() {
         val defaultValue = savedStateHandle.get<String>("test")
     }
@@ -87,7 +89,8 @@ class ActivityViewModelLazyTest {
                 modelClass == TestFactorizedViewModel::class.java -> TestFactorizedViewModel(prop)
                 modelClass == TestDaggerViewModel::class.java -> TestDaggerViewModel(prop)
                 else -> throw IllegalArgumentException()
-            } as T
+            }
+                as T
         }
     }
 }

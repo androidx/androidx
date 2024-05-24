@@ -40,28 +40,25 @@ import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.ULambdaExpression
 
 class CollectProgressDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames(): List<String> = listOf(
-        PredictiveBackHandler.shortName
-    )
+    override fun getApplicableMethodNames(): List<String> = listOf(PredictiveBackHandler.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (method.isInPackageName(PackageName)) {
             // Find the back lambda
-            val backLambda = computeKotlinArgumentMapping(node, method)
-                .orEmpty()
-                .filter { (_, parameter) ->
-                    parameter.name == "onBack"
-                }
-                .keys
-                .filterIsInstance<ULambdaExpression>()
-                .firstOrNull() ?: return
+            val backLambda =
+                computeKotlinArgumentMapping(node, method)
+                    .orEmpty()
+                    .filter { (_, parameter) -> parameter.name == "onBack" }
+                    .keys
+                    .filterIsInstance<ULambdaExpression>()
+                    .firstOrNull() ?: return
 
             // If the parameter is not referenced, immediately trigger the warning
             val unreferencedParameter = backLambda.findUnreferencedParameters().firstOrNull()
             if (unreferencedParameter != null) {
-                val location = unreferencedParameter.parameter
-                    ?.let { context.getLocation(it) }
-                    ?: context.getLocation(backLambda)
+                val location =
+                    unreferencedParameter.parameter?.let { context.getLocation(it) }
+                        ?: context.getLocation(backLambda)
                 val name = unreferencedParameter.name
                 context.report(
                     NoCollectCallFound,
@@ -74,20 +71,24 @@ class CollectProgressDetector : Detector(), SourceCodeScanner {
                 val lambdaExpression = backLambda.sourcePsi as? KtLambdaExpression
                 // Find all of the reference inside of the lambda
                 val references =
-                    lambdaExpression?.functionLiteral
+                    lambdaExpression
+                        ?.functionLiteral
                         ?.collectDescendantsOfType<KtSimpleNameExpression>()
                 // Make sure one of the references calls collect
-                val matchingReferences = references?.filter {
-                    it.getReferencedName() == Collect.shortName ||
-                        it.getReferencedName() == CollectIndexed.shortName ||
-                        it.getReferencedName() == CollectLatest.shortName
-                }.orEmpty()
+                val matchingReferences =
+                    references
+                        ?.filter {
+                            it.getReferencedName() == Collect.shortName ||
+                                it.getReferencedName() == CollectIndexed.shortName ||
+                                it.getReferencedName() == CollectLatest.shortName
+                        }
+                        .orEmpty()
                 // If no references call collect(), trigger the warning
                 if (matchingReferences.isEmpty()) {
                     val parameter = references?.firstOrNull()
-                    val location = parameter
-                        ?.let { context.getLocation(it) }
-                        ?: context.getLocation(backLambda)
+                    val location =
+                        parameter?.let { context.getLocation(it) }
+                            ?: context.getLocation(backLambda)
                     val name = lambdaExpression?.name
                     context.report(
                         NoCollectCallFound,
@@ -101,19 +102,22 @@ class CollectProgressDetector : Detector(), SourceCodeScanner {
     }
 
     companion object {
-        val NoCollectCallFound = Issue.create(
-            "NoCollectCallFound",
-            "You must call collect on the given progress flow when using PredictiveBackHandler",
-            "You must call collect on the progress in the onBack function. The collect call " +
-                "is what properly splits the callback so it knows what to do when the back " +
-                "gestures is started vs when it is completed. Failing to call collect will cause " +
-                "all code in the block to run when the gesture is started.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                CollectProgressDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val NoCollectCallFound =
+            Issue.create(
+                "NoCollectCallFound",
+                "You must call collect on the given progress flow when using PredictiveBackHandler",
+                "You must call collect on the progress in the onBack function. The collect call " +
+                    "is what properly splits the callback so it knows what to do when the back " +
+                    "gestures is started vs when it is completed. Failing to call collect will cause " +
+                    "all code in the block to run when the gesture is started.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    CollectProgressDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 
