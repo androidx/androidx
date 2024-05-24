@@ -23,10 +23,11 @@ import androidx.appcompat.app.AlertDialog
 fun AlertDialog.Builder.setViewEditText(editText: EditText): AlertDialog.Builder {
     val frameLayout = FrameLayout(editText.context)
     frameLayout.addView(editText)
-    val frameLayoutParams = FrameLayout.LayoutParams(
-        FrameLayout.LayoutParams.MATCH_PARENT,
-        FrameLayout.LayoutParams.WRAP_CONTENT
-    )
+    val frameLayoutParams =
+        FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        )
     frameLayoutParams.setMargins(16.dp, 8.dp, 16.dp, 8.dp)
     frameLayout.layoutParams = frameLayoutParams
 

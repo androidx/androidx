@@ -30,24 +30,25 @@ interface GattClientScope {
     /**
      * A flow of GATT services discovered from the remote device.
      *
-     * If the services of the remote device has changed, the new services will be
-     * discovered and emitted automatically.
+     * If the services of the remote device has changed, the new services will be discovered and
+     * emitted automatically.
      */
     val servicesFlow: StateFlow<List<GattService>>
 
     /**
      * GATT services recently discovered from the remote device.
      *
-     * Note that this can be changed, subscribe to [servicesFlow] to get notified
-     * of services changes.
+     * Note that this can be changed, subscribe to [servicesFlow] to get notified of services
+     * changes.
      */
-    val services: List<GattService> get() = servicesFlow.value
+    val services: List<GattService>
+        get() = servicesFlow.value
 
     /**
      * Gets the service of the remote device by UUID.
      *
-     * If multiple instances of the same service exist, the first instance of the services
-     * is returned.
+     * If multiple instances of the same service exist, the first instance of the services is
+     * returned.
      */
     fun getService(uuid: UUID): GattService?
 
@@ -64,18 +65,15 @@ interface GattClientScope {
      *
      * @param characteristic a remote [GattCharacteristic] to write
      * @param value a value to be written.
-     * @throws IllegalArgumentException if the [characteristic] doesn't have the write
-     *     property or the length of the [value] is greater than the maximum
-     *     attribute length (512)
      * @return the result of the write operation
+     * @throws IllegalArgumentException if the [characteristic] doesn't have the write property or
+     *   the length of the [value] is greater than the maximum attribute length (512)
      */
     suspend fun writeCharacteristic(
         characteristic: GattCharacteristic,
         value: ByteArray
     ): Result<Unit>
 
-    /**
-     * Returns a _cold_ [Flow] that contains the indicated value of the given characteristic.
-     */
+    /** Returns a _cold_ [Flow] that contains the indicated value of the given characteristic. */
     fun subscribeToCharacteristic(characteristic: GattCharacteristic): Flow<ByteArray>
 }

@@ -32,23 +32,24 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Test cases for [BluetoothDevice]
- */
+/** Test cases for [BluetoothDevice] */
 @RunWith(JUnit4::class)
 class BluetoothDeviceTest {
 
     @Rule
     @JvmField
-    val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= 31) {
-        GrantPermissionRule.grant(
-            android.Manifest.permission.ACCESS_FINE_LOCATION,
-            android.Manifest.permission.BLUETOOTH_CONNECT,
-            android.Manifest.permission.BLUETOOTH_SCAN
-        )
-    } else GrantPermissionRule.grant(
-        android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.BLUETOOTH
-    )
+    val permissionRule: GrantPermissionRule =
+        if (Build.VERSION.SDK_INT >= 31) {
+            GrantPermissionRule.grant(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.BLUETOOTH_CONNECT,
+                android.Manifest.permission.BLUETOOTH_SCAN
+            )
+        } else
+            GrantPermissionRule.grant(
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.BLUETOOTH
+            )
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val bluetoothManager: BluetoothManager? =
@@ -99,10 +100,10 @@ class BluetoothDeviceTest {
     @Test
     fun differentIdWithSameAddressDifferentAddressType() {
         val address = "00:01:02:03:04:05"
-        val fwkBluetoothDevice1 = bluetoothAdapter!!
-            .getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_PUBLIC)
-        val fwkBluetoothDevice2 = bluetoothAdapter
-            .getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+        val fwkBluetoothDevice1 =
+            bluetoothAdapter!!.getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_PUBLIC)
+        val fwkBluetoothDevice2 =
+            bluetoothAdapter.getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
 
         val bluetoothDevice1 = BluetoothDevice(fwkBluetoothDevice1)
         val bluetoothDevice2 = BluetoothDevice(fwkBluetoothDevice2)
@@ -115,10 +116,10 @@ class BluetoothDeviceTest {
     fun differentIdDifferentRandomAddressType() {
         val address1 = "57:96:C7:1A:45:9C"
         val address2 = "00:11:02:03:04:C0"
-        val fwkBluetoothDevice1 = bluetoothAdapter!!
-            .getRemoteLeDevice(address1, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
-        val fwkBluetoothDevice2 = bluetoothAdapter
-            .getRemoteLeDevice(address2, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+        val fwkBluetoothDevice1 =
+            bluetoothAdapter!!.getRemoteLeDevice(address1, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+        val fwkBluetoothDevice2 =
+            bluetoothAdapter.getRemoteLeDevice(address2, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
 
         val bluetoothDevice1 = BluetoothDevice(fwkBluetoothDevice1)
         val bluetoothDevice2 = BluetoothDevice(fwkBluetoothDevice2)

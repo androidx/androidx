@@ -58,7 +58,8 @@ class ConnectionsFragment : Fragment() {
     private val mainViewModel by activityViewModels<MainViewModel>()
 
     private var _binding: FragmentConnectionsBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -72,20 +73,16 @@ class ConnectionsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.viewPager.adapter = ConnectionsAdapter(
-            viewModel.deviceConnections,
-            ::onClickReconnect,
-            ::onClickDisconnect
-        )
+        binding.viewPager.adapter =
+            ConnectionsAdapter(viewModel.deviceConnections, ::onClickReconnect, ::onClickDisconnect)
 
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            setCustomViewTab(tab, viewModel.deviceConnections.elementAt(position))
-        }.attach()
+                setCustomViewTab(tab, viewModel.deviceConnections.elementAt(position))
+            }
+            .attach()
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState
-                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-                .collect(::updateUi)
+            viewModel.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect(::updateUi)
         }
     }
 
@@ -136,11 +133,12 @@ class ConnectionsFragment : Fragment() {
         val index = viewModel.addDeviceConnectionIfNew(bluetoothDevice)
         binding.viewPager.adapter?.notifyDataSetChanged()
 
-        val deviceTabIndex = if (index == ConnectionsViewModel.NEW_DEVICE) {
-            binding.tabLayout.tabCount - 1
-        } else {
-            index
-        }
+        val deviceTabIndex =
+            if (index == ConnectionsViewModel.NEW_DEVICE) {
+                binding.tabLayout.tabCount - 1
+            } else {
+                index
+            }
 
         binding.viewPager.setCurrentItem(deviceTabIndex, false)
 
@@ -163,7 +161,8 @@ class ConnectionsFragment : Fragment() {
 
         AlertDialog.Builder(requireContext())
             .setTitle(getString(R.string.write))
-            .setView(view).setPositiveButton(getString(R.string.write)) { _, _ ->
+            .setView(view)
+            .setPositiveButton(getString(R.string.write)) { _, _ ->
                 val editTextValueString = editTextValue.text.toString()
 
                 viewModel.writeCharacteristic(

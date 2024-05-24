@@ -36,9 +36,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 
 @HiltViewModel
-class GattServerViewModel @Inject constructor(
-    private val bluetoothLe: BluetoothLe
-) : ViewModel() {
+class GattServerViewModel @Inject constructor(private val bluetoothLe: BluetoothLe) : ViewModel() {
 
     private companion object {
         private const val TAG = "GattServerViewModel"
@@ -62,94 +60,87 @@ class GattServerViewModel @Inject constructor(
     fun addGattCharacteristic(service: GattService, characteristic: GattCharacteristic) {
         val index = _gattServerServices.indexOf(service)
         if (index < 0) return
-        _gattServerServices[index] = GattService(service.uuid,
-            service.characteristics.toMutableList().apply {
-                add(characteristic)
-            }
-        )
+        _gattServerServices[index] =
+            GattService(
+                service.uuid,
+                service.characteristics.toMutableList().apply { add(characteristic) }
+            )
     }
 
     fun openGattServer() {
         Log.d(TAG, "openGattServer() called")
 
-        gattServerJob = bluetoothLe.openGattServer(gattServerServices)
-            .onStart {
-                Log.d(
-                    TAG, "bluetoothLe.openGattServer() called with: " +
-                        "gattServerServices = $gattServerServices"
-                )
-                _uiState.update {
-                    it.copy(isGattServerOpen = true)
-                }
-            }
-            .onEach {
-                Log.d(TAG, "connectRequests.collected: GattServerConnectRequest = $it")
-
-                it.accept {
+        gattServerJob =
+            bluetoothLe
+                .openGattServer(gattServerServices)
+                .onStart {
                     Log.d(
                         TAG,
-                        "GattServerConnectRequest accepted: GattServerSessionScope = $it"
+                        "bluetoothLe.openGattServer() called with: " +
+                            "gattServerServices = $gattServerServices"
                     )
+                    _uiState.update { it.copy(isGattServerOpen = true) }
+                }
+                .onEach {
+                    Log.d(TAG, "connectRequests.collected: GattServerConnectRequest = $it")
 
-                    requests.collect { gattServerRequest ->
+                    it.accept {
                         Log.d(
                             TAG,
-                            "requests collected: gattServerRequest = $gattServerRequest"
+                            "GattServerConnectRequest accepted: GattServerSessionScope = $it"
                         )
 
-                        when (gattServerRequest) {
-                            is GattServerRequest.ReadCharacteristic -> {
-                                val characteristic = gattServerRequest.characteristic
-                                val value = readGattCharacteristicValue(characteristic)
+                        requests.collect { gattServerRequest ->
+                            Log.d(TAG, "requests collected: gattServerRequest = $gattServerRequest")
 
-                                _uiState.update { state ->
-                                    state.copy(
-                                        resultMessage = "Read value: " +
-                                            "${value.decodeToString()} for characteristic" +
-                                            " = ${characteristic.uuid}"
-                                    )
+                            when (gattServerRequest) {
+                                is GattServerRequest.ReadCharacteristic -> {
+                                    val characteristic = gattServerRequest.characteristic
+                                    val value = readGattCharacteristicValue(characteristic)
+
+                                    _uiState.update { state ->
+                                        state.copy(
+                                            resultMessage =
+                                                "Read value: " +
+                                                    "${value.decodeToString()} for characteristic" +
+                                                    " = ${characteristic.uuid}"
+                                        )
+                                    }
+
+                                    gattServerRequest.sendResponse(value)
                                 }
+                                is GattServerRequest.WriteCharacteristics -> {
+                                    val characteristic = gattServerRequest.parts[0].characteristic
+                                    val value = gattServerRequest.parts[0].value
 
-                                gattServerRequest.sendResponse(value)
-                            }
+                                    _uiState.update { state ->
+                                        state.copy(
+                                            resultMessage =
+                                                "Writing value: " +
+                                                    "${value.decodeToString()} to characteristic" +
+                                                    " = ${characteristic.uuid}"
+                                        )
+                                    }
 
-                            is GattServerRequest.WriteCharacteristics -> {
-                                val characteristic =
-                                    gattServerRequest.parts[0].characteristic
-                                val value = gattServerRequest.parts[0].value
-
-                                _uiState.update { state ->
-                                    state.copy(
-                                        resultMessage = "Writing value: " +
-                                            "${value.decodeToString()} to characteristic" +
-                                            " = ${characteristic.uuid}"
-                                    )
+                                    updateGattCharacteristicValue(characteristic, value)
+                                    gattServerRequest.sendResponse()
                                 }
-
-                                updateGattCharacteristicValue(characteristic, value)
-                                gattServerRequest.sendResponse()
-                            }
-
-                            else -> {
-                                throw NotImplementedError("Unknown request")
+                                else -> {
+                                    throw NotImplementedError("Unknown request")
+                                }
                             }
                         }
                     }
                 }
-            }
-            .onCompletion {
-                Log.d(TAG, "bluetoothLe.openGattServer completed")
-                _uiState.update {
-                    it.copy(isGattServerOpen = false)
+                .onCompletion {
+                    Log.d(TAG, "bluetoothLe.openGattServer completed")
+                    _uiState.update { it.copy(isGattServerOpen = false) }
                 }
-            }
-            .launchIn(viewModelScope)
+                .launchIn(viewModelScope)
     }
 
     fun resultMessageShown() {
-        _uiState.update {
-            it.copy(resultMessage = null)
-        }
+        _uiState.update { it.copy(resultMessage = null) }
     }
 
     private fun readGattCharacteristicValue(characteristic: GattCharacteristic): ByteArray {

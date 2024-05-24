@@ -57,7 +57,8 @@ class AdvertiserFragment : Fragment() {
     private val viewModel: AdvertiserViewModel by viewModels()
 
     private var _binding: FragmentAdvertiserBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -108,10 +109,8 @@ class AdvertiserFragment : Fragment() {
             }
         }
 
-        advertiseDataAdapter = AdvertiseDataAdapter(
-            viewModel.advertiseData,
-            ::onClickRemoveAdvertiseData
-        )
+        advertiseDataAdapter =
+            AdvertiseDataAdapter(viewModel.advertiseData, ::onClickRemoveAdvertiseData)
         binding.recyclerViewAdvertiseData.adapter = advertiseDataAdapter
 
         binding.buttonAdvertise.setOnClickListener {
@@ -123,9 +122,7 @@ class AdvertiserFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState
-                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
-                .collect(::updateUi)
+            viewModel.uiState.flowWithLifecycle(viewLifecycleOwner.lifecycle).collect(::updateUi)
         }
 
         initData()
@@ -159,15 +156,17 @@ class AdvertiserFragment : Fragment() {
     }
 
     private fun initData() {
-        if (Build.VERSION.SDK_INT < 31 || (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) == PackageManager.PERMISSION_GRANTED)
+        if (
+            Build.VERSION.SDK_INT < 31 ||
+                (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) == PackageManager.PERMISSION_GRANTED)
         ) {
             (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?)
-                ?.adapter?.name?.let {
-                    binding.textInputEditTextDisplayName.setText(it)
-                }
+                ?.adapter
+                ?.name
+                ?.let { binding.textInputEditTextDisplayName.setText(it) }
         }
 
         binding.checkBoxIncludeDeviceName.isChecked = viewModel.includeDeviceName
@@ -216,10 +215,11 @@ class AdvertiserFragment : Fragment() {
                 val editTextUuidOrServiceNameInput = editTextUuidOrServiceName.text.toString()
                 val editTextDataHexInput = editTextDataHex.text.toString()
 
-                val serviceData = Pair(
-                    UUID.fromString(editTextUuidOrServiceNameInput),
-                    editTextDataHexInput.toByteArray()
-                )
+                val serviceData =
+                    Pair(
+                        UUID.fromString(editTextUuidOrServiceNameInput),
+                        editTextDataHexInput.toByteArray()
+                    )
                 viewModel.serviceDatas.add(serviceData)
             }
             .setNegativeButton(getString(R.string.cancel), null)
@@ -241,10 +241,11 @@ class AdvertiserFragment : Fragment() {
                     editText16BitCompanyIdentifier.text.toString()
                 val editTextDataHexInput = editTextDataHex.text.toString()
 
-                val manufacturerData = Pair(
-                    editText16BitCompanyIdentifierInput.toInt(),
-                    editTextDataHexInput.toByteArray()
-                )
+                val manufacturerData =
+                    Pair(
+                        editText16BitCompanyIdentifierInput.toInt(),
+                        editTextDataHexInput.toByteArray()
+                    )
                 viewModel.manufacturerDatas.add(manufacturerData)
             }
             .setNegativeButton(getString(R.string.cancel), null)

@@ -83,22 +83,24 @@ class RobolectricGattServerTest {
         val cccDescriptorUuid = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
         private val readCharacteristic = GattCharacteristic(readCharUuid, PROPERTY_READ)
-        private val writeCharacteristic = GattCharacteristic(
-            writeCharUuid, PROPERTY_READ or PROPERTY_WRITE
-        )
-        private val notifyCharacteristic = GattCharacteristic(
-            notifyCharUuid, PROPERTY_READ or PROPERTY_NOTIFY
-        )
-        private val indicateCharacteristic = GattCharacteristic(
-            indicateCharUuid, PROPERTY_READ or PROPERTY_INDICATE
-        )
+        private val writeCharacteristic =
+            GattCharacteristic(writeCharUuid, PROPERTY_READ or PROPERTY_WRITE)
+        private val notifyCharacteristic =
+            GattCharacteristic(notifyCharUuid, PROPERTY_READ or PROPERTY_NOTIFY)
+        private val indicateCharacteristic =
+            GattCharacteristic(indicateCharUuid, PROPERTY_READ or PROPERTY_INDICATE)
         private val unknownCharacteristic = GattCharacteristic(unknownCharUuid, 0)
 
-        private val service1 = GattService(
-            serviceUuid1,
-            listOf(readCharacteristic, writeCharacteristic,
-                notifyCharacteristic, indicateCharacteristic)
-        )
+        private val service1 =
+            GattService(
+                serviceUuid1,
+                listOf(
+                    readCharacteristic,
+                    writeCharacteristic,
+                    notifyCharacteristic,
+                    indicateCharacteristic
+                )
+            )
         private val service2 = GattService(serviceUuid2, listOf())
     }
 
@@ -122,9 +124,7 @@ class RobolectricGattServerTest {
                 connectDevice(device) { opened.complete(Unit) }
             }
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
         bluetoothLe.openGattServer(listOf()).first().let {
             assertEquals(deviceName, it.device.name)
@@ -142,26 +142,28 @@ class RobolectricGattServerTest {
         val closed = CompletableDeferred<Unit>()
 
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/1, /*offset=*/0, readCharacteristic.fwkCharacteristic)
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
+                        readCharacteristic.fwkCharacteristic
+                    )
                 }
             }
             .onClosed {
                 assertTrue(closed.isCompleted)
                 assertEquals(0, serverAdapter.shadowGattServer.responses.size)
             }
-            .first().let {
+            .first()
+            .let {
                 it.reject()
-                assertFailsWith<IllegalStateException> {
-                    it.accept {}
-                }
+                assertFailsWith<IllegalStateException> { it.accept {} }
             }
     }
 
@@ -172,15 +174,17 @@ class RobolectricGattServerTest {
         val closed = CompletableDeferred<Unit>()
 
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/1, /*offset=*/0, readCharacteristic.fwkCharacteristic
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
+                        readCharacteristic.fwkCharacteristic
                     )
                 }
             }
@@ -188,11 +192,10 @@ class RobolectricGattServerTest {
                 assertTrue(closed.isCompleted)
                 assertEquals(0, serverAdapter.shadowGattServer.responses.size)
             }
-            .first().let {
+            .first()
+            .let {
                 it.accept {}
-                assertThrows(IllegalStateException::class.java) {
-                    it.reject()
-                }
+                assertThrows(IllegalStateException::class.java) { it.reject() }
             }
     }
 
@@ -204,17 +207,16 @@ class RobolectricGattServerTest {
         val valueToRead = 42
 
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/
-                        1, /*offset=*/
-                        0,
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
                         readCharacteristic.fwkCharacteristic
                     )
                 }
@@ -225,7 +227,8 @@ class RobolectricGattServerTest {
                 assertEquals(1, serverAdapter.shadowGattServer.responses.size)
                 assertEquals(valueToRead, serverAdapter.shadowGattServer.responses[0].toInt())
             }
-            .first().let {
+            .first()
+            .let {
                 it.accept {
                     when (val request = requests.first()) {
                         is GattServerRequest.ReadCharacteristic -> {
@@ -245,9 +248,7 @@ class RobolectricGattServerTest {
         val responsed = CompletableDeferred<Unit>()
 
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
         serverAdapter.onSendResponseListener =
             StubServerFrameworkAdapter.OnSendResponseListener { _, requestId, status, _, value ->
                 assertEquals(1, requestId)
@@ -256,13 +257,14 @@ class RobolectricGattServerTest {
                 responsed.complete(Unit)
             }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/
-                        1, /*offset=*/
-                        0,
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
                         readCharacteristic.fwkCharacteristic
                     )
                 }
@@ -272,7 +274,8 @@ class RobolectricGattServerTest {
                 assertTrue(closed.isCompleted)
                 assertTrue(responsed.isCompleted)
             }
-            .first().let {
+            .first()
+            .let {
                 it.accept {
                     when (val request = requests.first()) {
                         is GattServerRequest.ReadCharacteristic -> {
@@ -292,35 +295,35 @@ class RobolectricGattServerTest {
         val valueToRead = 42
 
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/
-                        1, /*offset=*/
-                        0,
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
                         unknownCharacteristic.fwkCharacteristic
                     )
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/2, /*offset=*/0, readCharacteristic.fwkCharacteristic
+                        device,
+                        /*requestId=*/ 2,
+                        /*offset=*/ 0,
+                        readCharacteristic.fwkCharacteristic
                     )
                 }
             }
-            .onClosed {
-                assertTrue(closed.isCompleted)
-            }
-            .first().let {
+            .onClosed { assertTrue(closed.isCompleted) }
+            .first()
+            .let {
                 it.accept {
                     when (val request = requests.first()) {
                         is GattServerRequest.ReadCharacteristic -> {
                             assertEquals(readCharacteristic, request.characteristic)
                             request.sendResponse(valueToRead.toByteArray())
                         }
-
                         else -> fail("unexpected request")
                     }
                 }
@@ -335,30 +338,32 @@ class RobolectricGattServerTest {
         val valueToWrite = 42
 
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicWriteRequest(
-                        device, /*requestId=*/1, writeCharacteristic.fwkCharacteristic,
-                        /*preparedWrite=*/false, /*responseNeeded=*/false,
-                        /*offset=*/0, valueToWrite.toByteArray())
+                        device,
+                        /*requestId=*/ 1,
+                        writeCharacteristic.fwkCharacteristic,
+                        /*preparedWrite=*/ false,
+                        /*responseNeeded=*/ false,
+                        /*offset=*/ 0,
+                        valueToWrite.toByteArray()
+                    )
                 }
             }
-            .onClosed {
-                assertTrue(closed.isCompleted)
-            }
-            .first().let {
+            .onClosed { assertTrue(closed.isCompleted) }
+            .first()
+            .let {
                 it.accept {
                     when (val request = requests.first()) {
                         is GattServerRequest.WriteCharacteristics -> {
                             assertEquals(valueToWrite, request.parts[0].value.toInt())
                             request.sendResponse()
                         }
-
                         else -> fail("unexpected request")
                     }
                 }
@@ -374,9 +379,7 @@ class RobolectricGattServerTest {
         val valueToWrite = 42
 
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
         serverAdapter.onSendResponseListener =
             StubServerFrameworkAdapter.OnSendResponseListener { _, requestId, status, _, value ->
                 assertEquals(1, requestId)
@@ -385,27 +388,30 @@ class RobolectricGattServerTest {
                 responded.complete(Unit)
             }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicWriteRequest(
-                        device, /*requestId=*/1, writeCharacteristic.fwkCharacteristic,
-                        /*preparedWrite=*/false, /*responseNeeded=*/false,
-                        /*offset=*/0, valueToWrite.toByteArray()
+                        device,
+                        /*requestId=*/ 1,
+                        writeCharacteristic.fwkCharacteristic,
+                        /*preparedWrite=*/ false,
+                        /*responseNeeded=*/ false,
+                        /*offset=*/ 0,
+                        valueToWrite.toByteArray()
                     )
                 }
             }
-            .onClosed {
-                assertTrue(closed.isCompleted)
-            }
-            .first().let {
+            .onClosed { assertTrue(closed.isCompleted) }
+            .first()
+            .let {
                 it.accept {
                     when (val request = requests.first()) {
                         is GattServerRequest.WriteCharacteristics -> {
                             assertEquals(valueToWrite, request.parts[0].value.toInt())
                             request.sendFailure()
                         }
-
                         else -> fail("unexpected request")
                     }
                 }
@@ -422,20 +428,26 @@ class RobolectricGattServerTest {
 
         serverAdapter.onNotifyCharacteristicChangedListener =
             StubServerFrameworkAdapter.OnNotifyCharacteristicChangedListener {
-                    fwkDevice, _, _, value ->
+                fwkDevice,
+                _,
+                _,
+                value ->
                 notified.complete(value.toInt())
                 serverAdapter.callback.onNotificationSent(fwkDevice, GATT_SUCCESS)
             }
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/1, /*offset=*/0, readCharacteristic.fwkCharacteristic)
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
+                        readCharacteristic.fwkCharacteristic
+                    )
                 }
             }
             .onClosed {
@@ -443,11 +455,8 @@ class RobolectricGattServerTest {
                 assertTrue(closed.isCompleted)
                 assertEquals(valueToNotify, notified.await())
             }
-            .first().let {
-                it.accept {
-                    notify(notifyCharacteristic, valueToNotify.toByteArray())
-                }
-            }
+            .first()
+            .let { it.accept { notify(notifyCharacteristic, valueToNotify.toByteArray()) } }
     }
 
     @Test
@@ -458,27 +467,30 @@ class RobolectricGattServerTest {
         val tooLongValue = ByteBuffer.allocate(513).array()
 
         serverAdapter.onNotifyCharacteristicChangedListener =
-            StubServerFrameworkAdapter.OnNotifyCharacteristicChangedListener {
-                    _, _, _, _ ->
+            StubServerFrameworkAdapter.OnNotifyCharacteristicChangedListener { _, _, _, _ ->
                 fail()
             }
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/1, /*offset=*/0, readCharacteristic.fwkCharacteristic)
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
+                        readCharacteristic.fwkCharacteristic
+                    )
                 }
             }
             .onClosed {
                 // Ensure if the server is closed
                 assertTrue(closed.isCompleted)
             }
-            .first().let {
+            .first()
+            .let {
                 it.accept {
                     assertFailsWith<IllegalArgumentException> {
                         notify(notifyCharacteristic, tooLongValue)
@@ -492,35 +504,45 @@ class RobolectricGattServerTest {
         val services = listOf(service1, service2)
         val device = createDevice("00:11:22:33:44:55")
 
-        bluetoothLe.openGattServer(services).onOpened {
-            connectDevice(device) {
-                serverAdapter.callback.onCharacteristicReadRequest(
-                    device, /*requestId=*/1, /*offset=*/0, readCharacteristic.fwkCharacteristic)
-                serverAdapter.callback.onDescriptorWriteRequest(
-                    device, /*requestId=*/2,
-                    notifyCharacteristic.fwkCharacteristic.getDescriptor(cccDescriptorUuid),
-                    /*preparedWrite=*/false,
-                    /*responseNeeded=*/false,
-                    /*offset=*/0,
-                    /*value=*/FwkDescriptor.ENABLE_NOTIFICATION_VALUE
-                )
-                serverAdapter.callback.onDescriptorWriteRequest(
-                    device, /*requestId=*/3,
-                    indicateCharacteristic.fwkCharacteristic.getDescriptor(cccDescriptorUuid),
-                    /*preparedWrite=*/false,
-                    /*responseNeeded=*/false,
-                    /*offset=*/0,
-                    /*value=*/FwkDescriptor.ENABLE_INDICATION_VALUE
-                )
+        bluetoothLe
+            .openGattServer(services)
+            .onOpened {
+                connectDevice(device) {
+                    serverAdapter.callback.onCharacteristicReadRequest(
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
+                        readCharacteristic.fwkCharacteristic
+                    )
+                    serverAdapter.callback.onDescriptorWriteRequest(
+                        device,
+                        /*requestId=*/ 2,
+                        notifyCharacteristic.fwkCharacteristic.getDescriptor(cccDescriptorUuid),
+                        /*preparedWrite=*/ false,
+                        /*responseNeeded=*/ false,
+                        /*offset=*/ 0,
+                        /*value=*/ FwkDescriptor.ENABLE_NOTIFICATION_VALUE
+                    )
+                    serverAdapter.callback.onDescriptorWriteRequest(
+                        device,
+                        /*requestId=*/ 3,
+                        indicateCharacteristic.fwkCharacteristic.getDescriptor(cccDescriptorUuid),
+                        /*preparedWrite=*/ false,
+                        /*responseNeeded=*/ false,
+                        /*offset=*/ 0,
+                        /*value=*/ FwkDescriptor.ENABLE_INDICATION_VALUE
+                    )
+                }
             }
-        }.first().let {
-            it.accept {
-                val characteristics = subscribedCharacteristics
-                    .takeWhile { chars -> chars.size == 2 }.first()
-                assertTrue(characteristics.contains(notifyCharacteristic))
-                assertTrue(characteristics.contains(indicateCharacteristic))
+            .first()
+            .let {
+                it.accept {
+                    val characteristics =
+                        subscribedCharacteristics.takeWhile { chars -> chars.size == 2 }.first()
+                    assertTrue(characteristics.contains(notifyCharacteristic))
+                    assertTrue(characteristics.contains(indicateCharacteristic))
+                }
             }
-        }
     }
 
     @Test
@@ -528,30 +550,38 @@ class RobolectricGattServerTest {
         val services = listOf(service1, service2)
         val device = createDevice("00:11:22:33:44:55")
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     serverAdapter.callback.onCharacteristicReadRequest(
-                        device, /*requestId=*/1, /*offset=*/0, readCharacteristic.fwkCharacteristic)
-                    serverAdapter.callback.onDescriptorWriteRequest(
-                        device, /*requestId=*/2,
-                        notifyCharacteristic.fwkCharacteristic.getDescriptor(cccDescriptorUuid),
-                        /*preparedWrite=*/false,
-                        /*responseNeeded=*/false,
-                        /*offset=*/0,
-                        /*value=*/FwkDescriptor.ENABLE_INDICATION_VALUE
+                        device,
+                        /*requestId=*/ 1,
+                        /*offset=*/ 0,
+                        readCharacteristic.fwkCharacteristic
                     )
                     serverAdapter.callback.onDescriptorWriteRequest(
-                        device, /*requestId=*/3,
+                        device,
+                        /*requestId=*/ 2,
+                        notifyCharacteristic.fwkCharacteristic.getDescriptor(cccDescriptorUuid),
+                        /*preparedWrite=*/ false,
+                        /*responseNeeded=*/ false,
+                        /*offset=*/ 0,
+                        /*value=*/ FwkDescriptor.ENABLE_INDICATION_VALUE
+                    )
+                    serverAdapter.callback.onDescriptorWriteRequest(
+                        device,
+                        /*requestId=*/ 3,
                         indicateCharacteristic.fwkCharacteristic.getDescriptor(cccDescriptorUuid),
-                        /*preparedWrite=*/false,
-                        /*responseNeeded=*/false,
-                        /*offset=*/0,
-                        /*value=*/FwkDescriptor.ENABLE_NOTIFICATION_VALUE
+                        /*preparedWrite=*/ false,
+                        /*responseNeeded=*/ false,
+                        /*offset=*/ 0,
+                        /*value=*/ FwkDescriptor.ENABLE_NOTIFICATION_VALUE
                     )
                 }
             }
-            .first().let {
+            .first()
+            .let {
                 it.accept {
                     assertFailsWith<TimeoutCancellationException> {
                         withTimeout(200) {
@@ -575,17 +605,13 @@ class RobolectricGattServerTest {
                 connectDevice(device) { opened.complete(Unit) }
             }
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
         val serverFlow = bluetoothLe.openGattServer(listOf(service1))
-        serverFlow.onOpened {
-            serverFlow.updateServices(listOf(service2))
-        }
-            .first().let {
-                it.accept {}
-            }
+        serverFlow
+            .onOpened { serverFlow.updateServices(listOf(service2)) }
+            .first()
+            .let { it.accept {} }
 
         assertTrue(opened.isCompleted)
         assertTrue(closed.isCompleted)
@@ -599,33 +625,35 @@ class RobolectricGattServerTest {
         val values = listOf(byteArrayOf(0, 1), byteArrayOf(2, 3))
 
         serverAdapter.onCloseGattServerListener =
-            StubServerFrameworkAdapter.OnCloseGattServerListener {
-                closed.complete(Unit)
-            }
+            StubServerFrameworkAdapter.OnCloseGattServerListener { closed.complete(Unit) }
 
-        bluetoothLe.openGattServer(services)
+        bluetoothLe
+            .openGattServer(services)
             .onOpened {
                 connectDevice(device) {
                     var offset = 0
                     values.forEachIndexed { index, value ->
                         serverAdapter.callback.onCharacteristicWriteRequest(
-                            device, /*requestId=*/index + 1, writeCharacteristic.fwkCharacteristic,
-                            /*preparedWrite=*/true, /*responseNeeded=*/false,
-                            offset, value
+                            device,
+                            /*requestId=*/ index + 1,
+                            writeCharacteristic.fwkCharacteristic,
+                            /*preparedWrite=*/ true,
+                            /*responseNeeded=*/ false,
+                            offset,
+                            value
                         )
                         offset += value.size
                     }
                     serverAdapter.callback.onExecuteWrite(
                         device,
-                        /*requestId=*/values.size + 1,
+                        /*requestId=*/ values.size + 1,
                         /*execute=*/ true
                     )
                 }
             }
-            .onClosed {
-                assertTrue(closed.isCompleted)
-            }
-            .first().let {
+            .onClosed { assertTrue(closed.isCompleted) }
+            .first()
+            .let {
                 it.accept {
                     when (val request = requests.first()) {
                         is GattServerRequest.WriteCharacteristics -> {
@@ -635,14 +663,13 @@ class RobolectricGattServerTest {
                             }
                             request.sendResponse()
                         }
-
                         else -> fail("unexpected request")
                     }
                 }
             }
     }
 
-    private fun<R> connectDevice(device: FwkDevice, block: () -> R): R {
+    private fun <R> connectDevice(device: FwkDevice, block: () -> R): R {
         serverAdapter.shadowGattServer.notifyConnection(device)
         return block()
     }
@@ -651,16 +678,19 @@ class RobolectricGattServerTest {
         return bluetoothAdapter!!.getRemoteDevice(address)
     }
 
-    class StubServerFrameworkAdapter(
-        private val baseAdapter: GattServer.FrameworkAdapter
-    ) : GattServer.FrameworkAdapter {
+    class StubServerFrameworkAdapter(private val baseAdapter: GattServer.FrameworkAdapter) :
+        GattServer.FrameworkAdapter {
         val shadowGattServer: ShadowBluetoothGattServer
             get() = shadowOf(fwkGattServer)
+
         val callback: BluetoothGattServerCallback
             get() = shadowGattServer.gattServerCallback
+
         override var fwkGattServer: BluetoothGattServer?
             get() = baseAdapter.fwkGattServer
-            set(value) { baseAdapter.fwkGattServer = value }
+            set(value) {
+                baseAdapter.fwkGattServer = value
+            }
 
         var onOpenGattServerListener: OnOpenGattServerListener? = null
         var onCloseGattServerListener: OnCloseGattServerListener? = null
@@ -698,13 +728,12 @@ class RobolectricGattServerTest {
             confirm: Boolean,
             value: ByteArray
         ): Int? {
-            onNotifyCharacteristicChangedListener
-                ?.onNotifyCharacteristicChanged(
-                    fwkDevice,
-                    fwkCharacteristic,
-                    confirm,
-                    value
-                )
+            onNotifyCharacteristicChangedListener?.onNotifyCharacteristicChanged(
+                fwkDevice,
+                fwkCharacteristic,
+                confirm,
+                value
+            )
             return FwkBluetoothStatusCodes.SUCCESS
         }
 
@@ -716,19 +745,21 @@ class RobolectricGattServerTest {
             value: ByteArray?
         ) {
             baseAdapter.sendResponse(fwkDevice, requestId, status, offset, value)
-            onSendResponseListener
-                ?.onSendResponse(fwkDevice, requestId, status, offset, value)
+            onSendResponseListener?.onSendResponse(fwkDevice, requestId, status, offset, value)
         }
 
         fun interface OnOpenGattServerListener {
             fun onOpenGattServer()
         }
+
         fun interface OnAddServiceListener {
             fun onAddService(service: FwkService)
         }
+
         fun interface OnCloseGattServerListener {
             fun onCloseGattServer()
         }
+
         fun interface OnSendResponseListener {
             fun onSendResponse(
                 device: FwkDevice,
@@ -738,6 +769,7 @@ class RobolectricGattServerTest {
                 value: ByteArray?
             )
         }
+
         fun interface OnNotifyCharacteristicChangedListener {
             fun onNotifyCharacteristicChanged(
                 device: FwkDevice,

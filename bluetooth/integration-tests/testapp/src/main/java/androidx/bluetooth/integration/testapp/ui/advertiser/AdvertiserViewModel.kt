@@ -37,9 +37,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 
 @HiltViewModel
-class AdvertiserViewModel @Inject constructor(
-    private val bluetoothLe: BluetoothLe
-) : ViewModel() {
+class AdvertiserViewModel @Inject constructor(private val bluetoothLe: BluetoothLe) : ViewModel() {
 
     private companion object {
         private const val TAG = "AdvertiserViewModel"
@@ -57,35 +55,36 @@ class AdvertiserViewModel @Inject constructor(
     internal var serviceSolicitationUuids: MutableList<UUID> = mutableListOf()
 
     val advertiseData: List<String>
-        get() = listOf(
-            manufacturerDatas
-                .map { "Manufacturer Data:\n" +
-                    "Company ID: 0x${it.first} Data: 0x${it.second.toString(Charsets.UTF_8)}" },
-            serviceDatas
-                .map { "Service Data:\n" +
-                    "UUID: ${it.first} Data: 0x${it.second.toString(Charsets.UTF_8)}" },
-            serviceUuids
-                .map { "128-bit Service UUID:\n" +
-                    "$it" },
-            serviceSolicitationUuids
-                .map { "128-bit Service Solicitation UUID:\n" +
-                    "$it" }
-        ).flatten()
+        get() =
+            listOf(
+                    manufacturerDatas.map {
+                        "Manufacturer Data:\n" +
+                            "Company ID: 0x${it.first} Data: 0x${it.second.toString(Charsets.UTF_8)}"
+                    },
+                    serviceDatas.map {
+                        "Service Data:\n" +
+                            "UUID: ${it.first} Data: 0x${it.second.toString(Charsets.UTF_8)}"
+                    },
+                    serviceUuids.map { "128-bit Service UUID:\n" + "$it" },
+                    serviceSolicitationUuids.map { "128-bit Service Solicitation UUID:\n" + "$it" }
+                )
+                .flatten()
 
     var advertiseJob: Job? = null
 
     private val advertiseParams: AdvertiseParams
-        get() = AdvertiseParams(
-            includeDeviceAddress,
-            includeDeviceName,
-            connectable,
-            discoverable,
-            durationMillis,
-            manufacturerDatas.toMap(),
-            serviceDatas.toMap(),
-            serviceUuids,
-            serviceSolicitationUuids
-        )
+        get() =
+            AdvertiseParams(
+                includeDeviceAddress,
+                includeDeviceName,
+                connectable,
+                discoverable,
+                durationMillis,
+                manufacturerDatas.toMap(),
+                serviceDatas.toMap(),
+                serviceUuids,
+                serviceSolicitationUuids
+            )
 
     private val _uiState = MutableStateFlow(AdvertiserUiState())
     val uiState: StateFlow<AdvertiserUiState> = _uiState.asStateFlow()
@@ -102,8 +101,9 @@ class AdvertiserViewModel @Inject constructor(
         } else if (index < manufacturerDataSize + serviceDataSize + serviceUuidsSize) {
             serviceUuids.removeAt(index - manufacturerDataSize - serviceDataSize)
         } else {
-            serviceSolicitationUuids
-                .removeAt(index - manufacturerDataSize - serviceDataSize - serviceUuidsSize)
+            serviceSolicitationUuids.removeAt(
+                index - manufacturerDataSize - serviceDataSize - serviceUuidsSize
+            )
         }
     }
 
@@ -112,56 +112,50 @@ class AdvertiserViewModel @Inject constructor(
     fun startAdvertise() {
         Log.d(TAG, "startAdvertise() called")
 
-        advertiseJob = bluetoothLe.advertise(advertiseParams)
-            .catch { throwable ->
-                Log.e(TAG, "bluetoothLe.advertise catch", throwable)
+        advertiseJob =
+            bluetoothLe
+                .advertise(advertiseParams)
+                .catch { throwable ->
+                    Log.e(TAG, "bluetoothLe.advertise catch", throwable)
 
-                val message = if (throwable is AdvertiseException) {
-                    when (throwable.errorCode) {
-                        AdvertiseException.DATA_TOO_LARGE ->
-                            "Advertise failed. Data too large"
+                    val message =
+                        if (throwable is AdvertiseException) {
+                            when (throwable.errorCode) {
+                                AdvertiseException.DATA_TOO_LARGE ->
+                                    "Advertise failed. Data too large"
+                                AdvertiseException.TOO_MANY_ADVERTISERS ->
+                                    "Advertise failed. Too many advertisers"
+                                AdvertiseException.INTERNAL_ERROR ->
+                                    "Advertise failed. Internal error"
+                                AdvertiseException.UNSUPPORTED ->
+                                    "Advertise failed. Feature unsupported"
+                                else -> "Advertise failed. Error unknown"
+                            }
+                        } else if (throwable is IllegalStateException) {
+                            throwable.message
+                        } else null
 
-                        AdvertiseException.TOO_MANY_ADVERTISERS ->
-                            "Advertise failed. Too many advertisers"
-
-                        AdvertiseException.INTERNAL_ERROR ->
-                            "Advertise failed. Internal error"
-
-                        AdvertiseException.UNSUPPORTED ->
-                            "Advertise failed. Feature unsupported"
-
-                        else ->
-                            "Advertise failed. Error unknown"
-                    }
-                } else if (throwable is IllegalStateException) {
-                    throwable.message
-                } else null
-
-                _uiState.update {
-                    it.copy(resultMessage = message)
+                    _uiState.update { it.copy(resultMessage = message) }
                 }
-            }
-            .onEach { advertiseResult ->
-                Log.d(TAG, "bluetoothLe.advertise onEach: $advertiseResult")
+                .onEach { advertiseResult ->
+                    Log.d(TAG, "bluetoothLe.advertise onEach: $advertiseResult")
 
-                if (advertiseResult == BluetoothLe.ADVERTISE_STARTED) {
+                    if (advertiseResult == BluetoothLe.ADVERTISE_STARTED) {
+                        _uiState.update {
+                            it.copy(isAdvertising = true, resultMessage = "Advertise started")
+                        }
+                    }
+                }
+                .onCompletion {
+                    Log.d(TAG, "bluetoothLe.advertise onCompletion")
                     _uiState.update {
-                        it.copy(isAdvertising = true, resultMessage = "Advertise started")
+                        it.copy(isAdvertising = false, resultMessage = "Advertise completed")
                     }
                 }
-            }
-            .onCompletion {
-                Log.d(TAG, "bluetoothLe.advertise onCompletion")
-                _uiState.update {
-                    it.copy(isAdvertising = false, resultMessage = "Advertise completed")
-                }
-            }
-            .launchIn(viewModelScope)
+                .launchIn(viewModelScope)
     }
 
     fun clearResultMessage() {
-        _uiState.update {
-            it.copy(resultMessage = null)
-        }
+        _uiState.update { it.copy(resultMessage = null) }
     }
 }
