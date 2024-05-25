@@ -82,9 +82,7 @@ class FloatSetTest {
         assertEquals(2, set.size)
         val elements = FloatArray(2)
         var index = 0
-        set.forEach { element ->
-            elements[index++] = element
-        }
+        set.forEach { element -> elements[index++] = element }
         elements.sort()
         assertEquals(1f, elements[0])
         assertEquals(2f, elements[1])
@@ -305,9 +303,7 @@ class FloatSetTest {
 
             val elements = FloatArray(i)
             var index = 0
-            set.forEach { element ->
-                elements[index++] = element
-            }
+            set.forEach { element -> elements[index++] = element }
             elements.sort()
 
             index = 0
@@ -340,10 +336,7 @@ class FloatSetTest {
 
         set += 1f
         set += 5f
-        assertTrue(
-            "[${1f}, ${5f}]" == set.toString() ||
-                "[${5f}, ${1f}]" == set.toString()
-        )
+        assertTrue("[${1f}, ${5f}]" == set.toString() || "[${5f}, ${1f}]" == set.toString())
     }
 
     @Test
@@ -351,12 +344,10 @@ class FloatSetTest {
         val set = floatSetOf(1f, 2f, 3f, 4f, 5f)
         val order = IntArray(5)
         var index = 0
-        set.forEach { element ->
-            order[index++] = element.toInt()
-        }
+        set.forEach { element -> order[index++] = element.toInt() }
         assertEquals(
             "${order[0].toFloat()}, ${order[1].toFloat()}, ${order[2].toFloat()}, " +
-            "${order[3].toFloat()}, ${order[4].toFloat()}",
+                "${order[3].toFloat()}, ${order[4].toFloat()}",
             set.joinToString()
         )
         assertEquals(
@@ -365,7 +356,7 @@ class FloatSetTest {
         )
         assertEquals(
             ">${order[0].toFloat()}-${order[1].toFloat()}-${order[2].toFloat()}-" +
-            "${order[3].toFloat()}-${order[4].toFloat()}<",
+                "${order[3].toFloat()}-${order[4].toFloat()}<",
             set.joinToString(separator = "-", prefix = ">", postfix = "<")
         )
         val names = arrayOf("one", "two", "three", "four", "five")
@@ -474,8 +465,7 @@ class FloatSetTest {
         set.clear()
         assertEquals(capacity, set.trim())
         assertEquals(0, set.capacity)
-        set.addAll(floatArrayOf(1f, 2f, 3f, 4f, 5f, 7f, 6f, 8f,
-            9f, 10f, 11f, 12f, 13f, 14f))
+        set.addAll(floatArrayOf(1f, 2f, 3f, 4f, 5f, 7f, 6f, 8f, 9f, 10f, 11f, 12f, 13f, 14f))
         set.removeAll(floatArrayOf(6f, 8f, 9f, 10f, 11f, 12f, 13f, 14f))
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)

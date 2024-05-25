@@ -16,9 +16,7 @@
 
 package androidx.collection
 
-/**
- * JVM actual of internal utils for handling target differences in collection code.
- */
+/** JVM actual of internal utils for handling target differences in collection code. */
 internal actual object CollectionPlatformUtils {
 
     @Suppress("NOTHING_TO_INLINE")

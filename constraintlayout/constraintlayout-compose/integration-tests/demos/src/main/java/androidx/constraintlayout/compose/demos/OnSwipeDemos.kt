@@ -62,16 +62,15 @@ import androidx.constraintlayout.compose.layoutId
 @Preview
 @Composable
 fun SimpleOnSwipe() {
-    var mode by remember {
-        mutableStateOf("spring")
-    }
+    var mode by remember { mutableStateOf("spring") }
     var animateToEnd by remember { mutableStateOf(false) }
 
     val debugFlags = remember { mutableStateOf(DebugFlags.None) }
 
-    val motionSceneContent = remember(mode) {
-        // language=json5
-        """
+    val motionSceneContent =
+        remember(mode) {
+            // language=json5
+            """
        {
          Header: { exportAs: 'swipeExpr' },
          ConstraintSets: {
@@ -122,48 +121,48 @@ fun SimpleOnSwipe() {
            }
          }
        }
-        """.trimIndent()
-    }
+        """
+                .trimIndent()
+        }
     Column {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Button(onClick = {
-                animateToEnd = !animateToEnd
-            }) {
+            Button(onClick = { animateToEnd = !animateToEnd }) {
                 Text(text = if (animateToEnd) "Start" else "End")
             }
-            Button(onClick = {
-                if (debugFlags.value == DebugFlags.All) {
-                    debugFlags.value = DebugFlags.None
-                } else {
-                    debugFlags.value = DebugFlags.All
+            Button(
+                onClick = {
+                    if (debugFlags.value == DebugFlags.All) {
+                        debugFlags.value = DebugFlags.None
+                    } else {
+                        debugFlags.value = DebugFlags.All
+                    }
                 }
-            }) {
+            ) {
                 Text("Debug")
             }
-            Button(onClick = {
-                mode = when (mode) {
-                    "spring" -> "velocity"
-                    else -> "spring"
+            Button(
+                onClick = {
+                    mode =
+                        when (mode) {
+                            "spring" -> "velocity"
+                            else -> "spring"
+                        }
                 }
-            }) {
+            ) {
                 Text(text = "Mode: $mode")
             }
         }
         MotionLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1.0f, fill = true),
-            progress = animateFloatAsState(
-                targetValue = if (animateToEnd) 1f else 0f,
-                tween(1000)
-            ).value,
+            modifier = Modifier.fillMaxWidth().weight(1.0f, fill = true),
+            progress =
+                animateFloatAsState(targetValue = if (animateToEnd) 1f else 0f, tween(1000)).value,
             motionScene = MotionScene(content = motionSceneContent),
             debugFlags = debugFlags.value
         ) {
             Box(
-                modifier = Modifier
-                    .background(customProperties(id = "box").color("bColor"))
-                    .layoutId("box")
+                modifier =
+                    Modifier.background(customProperties(id = "box").color("bColor"))
+                        .layoutId("box")
             )
         }
     }
@@ -190,13 +189,7 @@ fun MultiSwipeDsl() {
         touchUps.forEach { touchUp ->
             endWidth.forEach { width ->
                 modes.forEach { mode ->
-                    configCombinations.add(
-                        SimpleSwipeConfig(
-                            mode,
-                            width,
-                            touchUp
-                        )
-                    )
+                    configCombinations.add(SimpleSwipeConfig(mode, width, touchUp))
                 }
             }
         }
@@ -204,12 +197,7 @@ fun MultiSwipeDsl() {
     }
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         simpleSwipeConfigs.forEach { config ->
-            Box(
-                modifier = Modifier
-                    .height(20.dp)
-                    .fillMaxWidth()
-                    .background(Color.LightGray)
-            )
+            Box(modifier = Modifier.height(20.dp).fillMaxWidth().background(Color.LightGray))
             SimpleSwipeDsl(config)
         }
     }
@@ -231,58 +219,55 @@ private fun SimpleSwipeDsl(config: SimpleSwipeConfig) {
     val titleText = "(${mode.name} $endWidth ${touchUp.name})"
 
     MotionLayout(
-        modifier = Modifier
-            .height(70.dp)
-            .fillMaxWidth()
-            .background(Color.White),
-        motionScene = MotionScene {
-            val title = createRefFor("title")
-            val box = createRefFor("box")
+        modifier = Modifier.height(70.dp).fillMaxWidth().background(Color.White),
+        motionScene =
+            MotionScene {
+                val title = createRefFor("title")
+                val box = createRefFor("box")
 
-            val from = constraintSet {
-                constrain(title) {
-                    width = Dimension.wrapContent
-                    height = Dimension.value(50.dp)
-                    centerTo(parent)
-                    customFloat("mValue", 0.0f)
-                    customColor("back", Color(0xffffffff))
+                val from = constraintSet {
+                    constrain(title) {
+                        width = Dimension.wrapContent
+                        height = Dimension.value(50.dp)
+                        centerTo(parent)
+                        customFloat("mValue", 0.0f)
+                        customColor("back", Color(0xffffffff))
+                    }
+                    constrain(box) {
+                        width = Dimension.value(50.dp)
+                        height = Dimension.value(50.dp)
+                        bottom.linkTo(parent.bottom)
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start, 70.dp)
+                        rotationZ = 0f
+                        customColor("boxColor", Color(0xff00ffff))
+                    }
                 }
-                constrain(box) {
-                    width = Dimension.value(50.dp)
-                    height = Dimension.value(50.dp)
-                    bottom.linkTo(parent.bottom)
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start, 70.dp)
-                    rotationZ = 0f
-                    customColor("boxColor", Color(0xff00ffff))
+                val to =
+                    constraintSet(extendConstraintSet = from) {
+                        constrain(title) {
+                            customFloat("mValue", 100.0f)
+                            customColor("back", Color(0xffFF88FF))
+                        }
+                        constrain(box) {
+                            width = Dimension.value(endWidth.dp)
+                            clearHorizontal()
+                            end.linkTo(parent.end, 70.dp)
+                            rotationZ = 360f
+                            customColor("boxColor", Color(0xFF00FF00))
+                        }
+                    }
+                defaultTransition(from = from, to = to) {
+                    onSwipe =
+                        OnSwipe(
+                            anchor = box,
+                            direction = SwipeDirection.Right,
+                            side = SwipeSide.Left,
+                            mode = mode,
+                            onTouchUp = touchUp
+                        )
                 }
-            }
-            val to = constraintSet(extendConstraintSet = from) {
-                constrain(title) {
-                    customFloat("mValue", 100.0f)
-                    customColor("back", Color(0xffFF88FF))
-                }
-                constrain(box) {
-                    width = Dimension.value(endWidth.dp)
-                    clearHorizontal()
-                    end.linkTo(parent.end, 70.dp)
-                    rotationZ = 360f
-                    customColor("boxColor", Color(0xFF00FF00))
-                }
-            }
-            defaultTransition(
-                from = from,
-                to = to
-            ) {
-                onSwipe = OnSwipe(
-                    anchor = box,
-                    direction = SwipeDirection.Right,
-                    side = SwipeSide.Left,
-                    mode = mode,
-                    onTouchUp = touchUp
-                )
-            }
-        },
+            },
         progress = 0f
     ) {
         val progress = customFloat("title", "mValue")
@@ -290,15 +275,12 @@ private fun SimpleSwipeDsl(config: SimpleSwipeConfig) {
 
         Text(
             text = "$titleText  $progress",
-            modifier = Modifier
-                .layoutId("title")
-                .background(textBackColor),
+            modifier = Modifier.layoutId("title").background(textBackColor),
             textAlign = TextAlign.Center
         )
         Box(
-            modifier = Modifier
-                .background(customProperties("box").color("boxColor"))
-                .layoutId("box")
+            modifier =
+                Modifier.background(customProperties("box").color("boxColor")).layoutId("box")
         )
     }
 }

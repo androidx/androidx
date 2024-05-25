@@ -25,25 +25,20 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ObjectListBenchmarkTest {
     val ObjectCount = 100
-    private val list: ObjectList<String> = MutableObjectList<String>(ObjectCount).also { list ->
-        repeat(ObjectCount) {
-            list += it.toString()
+    private val list: ObjectList<String> =
+        MutableObjectList<String>(ObjectCount).also { list ->
+            repeat(ObjectCount) { list += it.toString() }
         }
-    }
 
     private val array = Array(ObjectCount) { it.toString() }
 
-    @get:Rule
-    val benchmark = BenchmarkRule()
+    @get:Rule val benchmark = BenchmarkRule()
 
     @Test
     fun forEach() {
         benchmark.measureRepeated {
-            @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-            var last: String
-            list.forEach { element ->
-                last = element
-            }
+            @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE") var last: String
+            list.forEach { element -> last = element }
         }
     }
 
@@ -51,29 +46,19 @@ class ObjectListBenchmarkTest {
     fun add() {
         val mutableList = MutableObjectList<String>(ObjectCount)
         benchmark.measureRepeated {
-            repeat(ObjectCount) {
-                mutableList += array[it]
-            }
+            repeat(ObjectCount) { mutableList += array[it] }
             mutableList.clear()
         }
     }
 
     @Test
     fun contains() {
-        benchmark.measureRepeated {
-            repeat(ObjectCount) {
-                list.contains(array[it])
-            }
-        }
+        benchmark.measureRepeated { repeat(ObjectCount) { list.contains(array[it]) } }
     }
 
     @Test
     fun get() {
-        benchmark.measureRepeated {
-            repeat(ObjectCount) {
-                list[it]
-            }
-        }
+        benchmark.measureRepeated { repeat(ObjectCount) { list[it] } }
     }
 
     @Test
@@ -90,9 +75,7 @@ class ObjectListBenchmarkTest {
         val mutableList = MutableObjectList<String>(ObjectCount)
         benchmark.measureRepeated {
             mutableList += list
-            repeat(ObjectCount) {
-                mutableList.removeAt(0)
-            }
+            repeat(ObjectCount) { mutableList.removeAt(0) }
         }
     }
 

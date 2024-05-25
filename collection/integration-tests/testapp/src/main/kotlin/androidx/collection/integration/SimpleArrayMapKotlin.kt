@@ -18,13 +18,10 @@ package androidx.collection.integration
 
 import androidx.collection.SimpleArrayMap
 
-/**
- * Integration (actually build) test that LruCache can be subclassed.
- */
+/** Integration (actually build) test that LruCache can be subclassed. */
 @Suppress("RedundantOverride", "unused")
 class SimpleArrayMapKotlin : SimpleArrayMap<Int, String>() {
-    @Suppress("UNUSED_PARAMETER")
-    fun indexOf(key: Any?, hash: Int): Int = 0
+    @Suppress("UNUSED_PARAMETER") fun indexOf(key: Any?, hash: Int): Int = 0
 
     fun indexOfNull(): Int = 0
 
@@ -128,7 +125,10 @@ fun simpleArrayMapSourceCompatibility(): Boolean {
     map.clear()
 
     @Suppress("ReplaceGetOrSet", "ReplaceCallWithBinaryOperator")
-    return map.isEmpty() && map.size() == 0 && map[0] == map.get(0) &&
-        map.getOrDefault(0, "").equals("") && map.put(0, "")?.equals(map.putIfAbsent(0, ""))!! &&
+    return map.isEmpty() &&
+        map.size() == 0 &&
+        map[0] == map.get(0) &&
+        map.getOrDefault(0, "").equals("") &&
+        map.put(0, "")?.equals(map.putIfAbsent(0, ""))!! &&
         map.removeAt(0).plus(map.remove(0)) == map.setValueAt(0, "")
 }

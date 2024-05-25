@@ -288,8 +288,6 @@ internal class SparseArrayCompatTest {
         val source = SparseArrayCompat<String>(10)
         assertEquals(0, source.size())
 
-        assertFailsWith<IndexOutOfBoundsException> {
-            source.valueAt(10000)
-        }
+        assertFailsWith<IndexOutOfBoundsException> { source.valueAt(10000) }
     }
 }

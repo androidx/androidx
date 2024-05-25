@@ -40,8 +40,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class MotionSceneBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
     /**
      * One of the most basics MotionScenes.
@@ -54,24 +53,26 @@ class MotionSceneBenchmark {
             MotionScene {
                 val boxRef = createRefFor("box")
                 defaultTransition(
-                    from = constraintSet {
-                        constrain(boxRef) {
-                            width = 50.dp.asDimension()
-                            height = 50.dp.asDimension()
+                    from =
+                        constraintSet {
+                            constrain(boxRef) {
+                                width = 50.dp.asDimension()
+                                height = 50.dp.asDimension()
 
-                            top.linkTo(parent.top, 8.dp)
-                            start.linkTo(parent.start, 8.dp)
-                        }
-                    },
-                    to = constraintSet {
-                        constrain(boxRef) {
-                            width = 50.dp.asDimension()
-                            height = 50.dp.asDimension()
+                                top.linkTo(parent.top, 8.dp)
+                                start.linkTo(parent.start, 8.dp)
+                            }
+                        },
+                    to =
+                        constraintSet {
+                            constrain(boxRef) {
+                                width = 50.dp.asDimension()
+                                height = 50.dp.asDimension()
 
-                            bottom.linkTo(parent.bottom, 8.dp)
-                            end.linkTo(parent.end, 8.dp)
+                                bottom.linkTo(parent.bottom, 8.dp)
+                                end.linkTo(parent.end, 8.dp)
+                            }
                         }
-                    }
                 )
             }
         }
@@ -97,146 +98,149 @@ class MotionSceneBenchmark {
                 val (box, minIcon, editClose, title, content) =
                     createRefsFor("box", "minIcon", "editClose", "title", "content")
 
-                val fab = constraintSet(NewMessageLayout.Fab.name) {
-                    constrain(box) {
-                        width = Dimension.value(50.dp)
-                        height = Dimension.value(50.dp)
-                        end.linkTo(parent.end, 12.dp)
-                        bottom.linkTo(parent.bottom, 12.dp)
+                val fab =
+                    constraintSet(NewMessageLayout.Fab.name) {
+                        constrain(box) {
+                            width = Dimension.value(50.dp)
+                            height = Dimension.value(50.dp)
+                            end.linkTo(parent.end, 12.dp)
+                            bottom.linkTo(parent.bottom, 12.dp)
 
-                        customColor("background", primary)
+                            customColor("background", primary)
 
-                        staggeredWeight = 1f
+                            staggeredWeight = 1f
+                        }
+                        constrain(minIcon) {
+                            width = Dimension.value(40.dp)
+                            height = Dimension.value(40.dp)
+
+                            end.linkTo(editClose.start, 8.dp)
+                            top.linkTo(editClose.top)
+                            customColor("content", onPrimary)
+                        }
+                        constrain(editClose) {
+                            width = Dimension.value(40.dp)
+                            height = Dimension.value(40.dp)
+
+                            centerTo(box)
+
+                            customColor("content", onPrimary)
+                        }
+                        constrain(title) {
+                            width = Dimension.fillToConstraints
+                            top.linkTo(box.top)
+                            bottom.linkTo(editClose.bottom)
+                            start.linkTo(box.start, 8.dp)
+                            end.linkTo(minIcon.start, 8.dp)
+                            customColor("content", onPrimary)
+
+                            visibility = Visibility.Gone
+                        }
+                        constrain(content) {
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                            start.linkTo(box.start, 8.dp)
+                            end.linkTo(box.end, 8.dp)
+
+                            top.linkTo(editClose.bottom, 8.dp)
+                            bottom.linkTo(box.bottom, 8.dp)
+
+                            visibility = Visibility.Gone
+                        }
                     }
-                    constrain(minIcon) {
-                        width = Dimension.value(40.dp)
-                        height = Dimension.value(40.dp)
+                val full =
+                    constraintSet(NewMessageLayout.Full.name) {
+                        constrain(box) {
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                            start.linkTo(parent.start, 12.dp)
+                            end.linkTo(parent.end, 12.dp)
+                            bottom.linkTo(parent.bottom, 12.dp)
+                            top.linkTo(parent.top, 40.dp)
+                            customColor("background", surface)
+                        }
+                        constrain(minIcon) {
+                            width = Dimension.value(40.dp)
+                            height = Dimension.value(40.dp)
 
-                        end.linkTo(editClose.start, 8.dp)
-                        top.linkTo(editClose.top)
-                        customColor("content", onPrimary)
+                            end.linkTo(editClose.start, 8.dp)
+                            top.linkTo(editClose.top)
+                            customColor("content", onSurface)
+                        }
+                        constrain(editClose) {
+                            width = Dimension.value(40.dp)
+                            height = Dimension.value(40.dp)
+
+                            end.linkTo(box.end, 4.dp)
+                            top.linkTo(box.top, 4.dp)
+                            customColor("content", onSurface)
+                        }
+                        constrain(title) {
+                            width = Dimension.fillToConstraints
+                            top.linkTo(box.top)
+                            bottom.linkTo(editClose.bottom)
+                            start.linkTo(box.start, 8.dp)
+                            end.linkTo(minIcon.start, 8.dp)
+                            customColor("content", onSurface)
+                        }
+                        constrain(content) {
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                            start.linkTo(box.start, 8.dp)
+                            end.linkTo(box.end, 8.dp)
+                            top.linkTo(editClose.bottom, 8.dp)
+                            bottom.linkTo(box.bottom, 8.dp)
+                        }
                     }
-                    constrain(editClose) {
-                        width = Dimension.value(40.dp)
-                        height = Dimension.value(40.dp)
+                val mini =
+                    constraintSet(NewMessageLayout.Mini.name) {
+                        constrain(box) {
+                            width = Dimension.value(220.dp)
+                            height = Dimension.value(50.dp)
 
-                        centerTo(box)
+                            end.linkTo(parent.end, 12.dp)
+                            bottom.linkTo(parent.bottom, 12.dp)
 
-                        customColor("content", onPrimary)
+                            customColor("background", primaryVariant)
+                        }
+                        constrain(minIcon) {
+                            width = Dimension.value(40.dp)
+                            height = Dimension.value(40.dp)
+
+                            end.linkTo(editClose.start, 8.dp)
+                            top.linkTo(editClose.top)
+
+                            rotationZ = 180f
+
+                            customColor("content", onPrimary)
+                        }
+                        constrain(editClose) {
+                            width = Dimension.value(40.dp)
+                            height = Dimension.value(40.dp)
+
+                            end.linkTo(box.end, 4.dp)
+                            top.linkTo(box.top, 4.dp)
+                            customColor("content", onPrimary)
+                        }
+                        constrain(title) {
+                            width = Dimension.fillToConstraints
+                            top.linkTo(box.top)
+                            bottom.linkTo(editClose.bottom)
+                            start.linkTo(box.start, 8.dp)
+                            end.linkTo(minIcon.start, 8.dp)
+                            customColor("content", onPrimary)
+                        }
+                        constrain(content) {
+                            width = Dimension.fillToConstraints
+                            start.linkTo(box.start, 8.dp)
+                            end.linkTo(box.end, 8.dp)
+
+                            top.linkTo(editClose.bottom, 8.dp)
+                            bottom.linkTo(box.bottom, 8.dp)
+
+                            visibility = Visibility.Gone
+                        }
                     }
-                    constrain(title) {
-                        width = Dimension.fillToConstraints
-                        top.linkTo(box.top)
-                        bottom.linkTo(editClose.bottom)
-                        start.linkTo(box.start, 8.dp)
-                        end.linkTo(minIcon.start, 8.dp)
-                        customColor("content", onPrimary)
-
-                        visibility = Visibility.Gone
-                    }
-                    constrain(content) {
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                        start.linkTo(box.start, 8.dp)
-                        end.linkTo(box.end, 8.dp)
-
-                        top.linkTo(editClose.bottom, 8.dp)
-                        bottom.linkTo(box.bottom, 8.dp)
-
-                        visibility = Visibility.Gone
-                    }
-                }
-                val full = constraintSet(NewMessageLayout.Full.name) {
-                    constrain(box) {
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                        start.linkTo(parent.start, 12.dp)
-                        end.linkTo(parent.end, 12.dp)
-                        bottom.linkTo(parent.bottom, 12.dp)
-                        top.linkTo(parent.top, 40.dp)
-                        customColor("background", surface)
-                    }
-                    constrain(minIcon) {
-                        width = Dimension.value(40.dp)
-                        height = Dimension.value(40.dp)
-
-                        end.linkTo(editClose.start, 8.dp)
-                        top.linkTo(editClose.top)
-                        customColor("content", onSurface)
-                    }
-                    constrain(editClose) {
-                        width = Dimension.value(40.dp)
-                        height = Dimension.value(40.dp)
-
-                        end.linkTo(box.end, 4.dp)
-                        top.linkTo(box.top, 4.dp)
-                        customColor("content", onSurface)
-                    }
-                    constrain(title) {
-                        width = Dimension.fillToConstraints
-                        top.linkTo(box.top)
-                        bottom.linkTo(editClose.bottom)
-                        start.linkTo(box.start, 8.dp)
-                        end.linkTo(minIcon.start, 8.dp)
-                        customColor("content", onSurface)
-                    }
-                    constrain(content) {
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                        start.linkTo(box.start, 8.dp)
-                        end.linkTo(box.end, 8.dp)
-                        top.linkTo(editClose.bottom, 8.dp)
-                        bottom.linkTo(box.bottom, 8.dp)
-                    }
-                }
-                val mini = constraintSet(NewMessageLayout.Mini.name) {
-                    constrain(box) {
-                        width = Dimension.value(220.dp)
-                        height = Dimension.value(50.dp)
-
-                        end.linkTo(parent.end, 12.dp)
-                        bottom.linkTo(parent.bottom, 12.dp)
-
-                        customColor("background", primaryVariant)
-                    }
-                    constrain(minIcon) {
-                        width = Dimension.value(40.dp)
-                        height = Dimension.value(40.dp)
-
-                        end.linkTo(editClose.start, 8.dp)
-                        top.linkTo(editClose.top)
-
-                        rotationZ = 180f
-
-                        customColor("content", onPrimary)
-                    }
-                    constrain(editClose) {
-                        width = Dimension.value(40.dp)
-                        height = Dimension.value(40.dp)
-
-                        end.linkTo(box.end, 4.dp)
-                        top.linkTo(box.top, 4.dp)
-                        customColor("content", onPrimary)
-                    }
-                    constrain(title) {
-                        width = Dimension.fillToConstraints
-                        top.linkTo(box.top)
-                        bottom.linkTo(editClose.bottom)
-                        start.linkTo(box.start, 8.dp)
-                        end.linkTo(minIcon.start, 8.dp)
-                        customColor("content", onPrimary)
-                    }
-                    constrain(content) {
-                        width = Dimension.fillToConstraints
-                        start.linkTo(box.start, 8.dp)
-                        end.linkTo(box.end, 8.dp)
-
-                        top.linkTo(editClose.bottom, 8.dp)
-                        bottom.linkTo(box.bottom, 8.dp)
-
-                        visibility = Visibility.Gone
-                    }
-                }
 
                 fun constraintSetFor(layoutState: NewMessageLayout) =
                     when (layoutState) {
@@ -251,12 +255,8 @@ class MotionSceneBenchmark {
                     maxStaggerDelay = 0.6f
 
                     keyAttributes(title, content) {
-                        frame(30) {
-                            alpha = 0.5f
-                        }
-                        frame(60) {
-                            alpha = 0.9f
-                        }
+                        frame(30) { alpha = 0.5f }
+                        frame(60) { alpha = 0.9f }
                     }
                 }
 
@@ -264,13 +264,14 @@ class MotionSceneBenchmark {
                     from = constraintSetFor(NewMessageLayout.Full),
                     to = constraintSetFor(NewMessageLayout.Mini)
                 ) {
-                    onSwipe = OnSwipe(
-                        anchor = editClose,
-                        side = SwipeSide.Middle,
-                        direction = SwipeDirection.Down,
-                        onTouchUp = SwipeTouchUp.AutoComplete,
-                        mode = SwipeMode.spring(threshold = 0.001f)
-                    )
+                    onSwipe =
+                        OnSwipe(
+                            anchor = editClose,
+                            side = SwipeSide.Middle,
+                            direction = SwipeDirection.Down,
+                            onTouchUp = SwipeTouchUp.AutoComplete,
+                            mode = SwipeMode.spring(threshold = 0.001f)
+                        )
 
                     keyCycles(minIcon) {
                         easing = Easing.cubic(x1 = 0.3f, y1 = 0.2f, x2 = 0.8f, y2 = 0.7f)

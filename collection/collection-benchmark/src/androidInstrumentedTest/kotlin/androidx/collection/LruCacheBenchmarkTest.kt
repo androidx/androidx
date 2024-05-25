@@ -27,8 +27,7 @@ import org.junit.runners.Parameterized.Parameters
 class LruCacheBenchmarkTest(private val size: Int) {
     private val keyList = createKeyList(size)
 
-    @get:Rule
-    val benchmark = BenchmarkRule()
+    @get:Rule val benchmark = BenchmarkRule()
 
     @Test
     fun createThenFetchWithAllHits() {
@@ -43,8 +42,9 @@ class LruCacheBenchmarkTest(private val size: Int) {
     companion object {
         @JvmStatic
         @Parameters(name = "size={0}")
-        fun parameters() = buildParameters(
-            listOf(10, 100, 1000),
-        )
+        fun parameters() =
+            buildParameters(
+                listOf(10, 100, 1000),
+            )
     }
 }

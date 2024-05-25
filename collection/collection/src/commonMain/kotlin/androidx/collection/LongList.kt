@@ -32,34 +32,29 @@ import kotlin.jvm.JvmOverloads
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /**
- * [LongList] is a [List]-like collection for [Long] values. It allows retrieving
- * the elements without boxing. [LongList] is always backed by a [MutableLongList],
- * its [MutableList]-like subclass. The purpose of this class is to avoid the performance
- * overhead of auto-boxing due to generics since [Collection] classes all operate on objects.
+ * [LongList] is a [List]-like collection for [Long] values. It allows retrieving the elements
+ * without boxing. [LongList] is always backed by a [MutableLongList], its [MutableList]-like
+ * subclass. The purpose of this class is to avoid the performance overhead of auto-boxing due to
+ * generics since [Collection] classes all operate on objects.
  *
- * This implementation is not thread-safe: if multiple threads access this
- * container concurrently, and one or more threads modify the structure of
- * the list (insertion or removal for instance), the calling code must provide
- * the appropriate synchronization. It is also not safe to mutate during reentrancy --
- * in the middle of a [forEach], for example. However, concurrent reads are safe.
+ * This implementation is not thread-safe: if multiple threads access this container concurrently,
+ * and one or more threads modify the structure of the list (insertion or removal for instance), the
+ * calling code must provide the appropriate synchronization. It is also not safe to mutate during
+ * reentrancy -- in the middle of a [forEach], for example. However, concurrent reads are safe.
  */
 public sealed class LongList(initialCapacity: Int) {
     @JvmField
     @PublishedApi
-    internal var content: LongArray = if (initialCapacity == 0) {
-        EmptyLongArray
-    } else {
-        LongArray(initialCapacity)
-    }
+    internal var content: LongArray =
+        if (initialCapacity == 0) {
+            EmptyLongArray
+        } else {
+            LongArray(initialCapacity)
+        }
 
-    @Suppress("PropertyName")
-    @JvmField
-    @PublishedApi
-    internal var _size: Int = 0
+    @Suppress("PropertyName") @JvmField @PublishedApi internal var _size: Int = 0
 
-    /**
-     * The number of elements in the [LongList].
-     */
+    /** The number of elements in the [LongList]. */
     @get:androidx.annotation.IntRange(from = 0)
     public val size: Int
         get() = _size
@@ -76,34 +71,26 @@ public sealed class LongList(initialCapacity: Int) {
     public val internalArray: LongArray
         get() = content
 
-    /**
-     * Returns the last valid index in the [LongList]. This can be `-1` when the list is empty.
-     */
+    /** Returns the last valid index in the [LongList]. This can be `-1` when the list is empty. */
     @get:androidx.annotation.IntRange(from = -1)
-    public inline val lastIndex: Int get() = _size - 1
+    public inline val lastIndex: Int
+        get() = _size - 1
 
-    /**
-     * Returns an [IntRange] of the valid indices for this [LongList].
-     */
-    public inline val indices: IntRange get() = 0 until _size
+    /** Returns an [IntRange] of the valid indices for this [LongList]. */
+    public inline val indices: IntRange
+        get() = 0 until _size
 
-    /**
-     * Returns `true` if the collection has no elements in it.
-     */
+    /** Returns `true` if the collection has no elements in it. */
     public fun none(): Boolean {
         return isEmpty()
     }
 
-    /**
-     * Returns `true` if there's at least one element in the collection.
-     */
+    /** Returns `true` if there's at least one element in the collection. */
     public fun any(): Boolean {
         return isNotEmpty()
     }
 
-    /**
-     * Returns `true` if any of the elements give a `true` return value for [predicate].
-     */
+    /** Returns `true` if any of the elements give a `true` return value for [predicate]. */
     public inline fun any(predicate: (element: Long) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
         forEach {
@@ -128,9 +115,7 @@ public sealed class LongList(initialCapacity: Int) {
         return false
     }
 
-    /**
-     * Returns `true` if the [LongList] contains [element] or `false` otherwise.
-     */
+    /** Returns `true` if the [LongList] contains [element] or `false` otherwise. */
     public operator fun contains(element: Long): Boolean {
         forEach {
             if (it == element) {
@@ -141,8 +126,8 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns `true` if the [LongList] contains all elements in [elements] or `false` if
-     * one or more are missing.
+     * Returns `true` if the [LongList] contains all elements in [elements] or `false` if one or
+     * more are missing.
      */
     public fun containsAll(elements: LongList): Boolean {
         for (i in elements.indices) {
@@ -151,13 +136,12 @@ public sealed class LongList(initialCapacity: Int) {
         return true
     }
 
-    /**
-     * Returns the number of elements in this list.
-     */
+    /** Returns the number of elements in this list. */
     public fun count(): Int = _size
 
     /**
      * Counts the number of elements matching [predicate].
+     *
      * @return The number of elements in this list for which [predicate] returns true.
      */
     public inline fun count(predicate: (element: Long) -> Boolean): Int {
@@ -168,8 +152,8 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the first element in the [LongList] or throws a [NoSuchElementException] if
-     * it [isEmpty].
+     * Returns the first element in the [LongList] or throws a [NoSuchElementException] if it
+     * [isEmpty].
      */
     public fun first(): Long {
         if (isEmpty()) {
@@ -179,38 +163,36 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the first element in the [LongList] for which [predicate] returns `true` or
-     * throws [NoSuchElementException] if nothing matches.
+     * Returns the first element in the [LongList] for which [predicate] returns `true` or throws
+     * [NoSuchElementException] if nothing matches.
+     *
      * @see indexOfFirst
      */
     public inline fun first(predicate: (element: Long) -> Boolean): Long {
         contract { callsInPlace(predicate) }
-        forEach { item ->
-            if (predicate(item)) return item
-        }
+        forEach { item -> if (predicate(item)) return item }
         throw NoSuchElementException("LongList contains no element matching the predicate.")
     }
 
     /**
-     * Accumulates values, starting with [initial], and applying [operation] to each element
-     * in the [LongList] in order.
-     * @param initial The value of `acc` for the first call to [operation] or return value if
-     * there are no elements in this list.
-     * @param operation function that takes current accumulator value and an element, and
-     * calculates the next accumulator value.
+     * Accumulates values, starting with [initial], and applying [operation] to each element in the
+     * [LongList] in order.
+     *
+     * @param initial The value of `acc` for the first call to [operation] or return value if there
+     *   are no elements in this list.
+     * @param operation function that takes current accumulator value and an element, and calculates
+     *   the next accumulator value.
      */
     public inline fun <R> fold(initial: R, operation: (acc: R, element: Long) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        forEach { item ->
-            acc = operation(acc, item)
-        }
+        forEach { item -> acc = operation(acc, item) }
         return acc
     }
 
     /**
-     * Accumulates values, starting with [initial], and applying [operation] to each element
-     * in the [LongList] in order.
+     * Accumulates values, starting with [initial], and applying [operation] to each element in the
+     * [LongList] in order.
      */
     public inline fun <R> foldIndexed(
         initial: R,
@@ -218,32 +200,29 @@ public sealed class LongList(initialCapacity: Int) {
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        forEachIndexed { i, item ->
-            acc = operation(i, acc, item)
-        }
+        forEachIndexed { i, item -> acc = operation(i, acc, item) }
         return acc
     }
 
     /**
-     * Accumulates values, starting with [initial], and applying [operation] to each element
-     * in the [LongList] in reverse order.
-     * @param initial The value of `acc` for the first call to [operation] or return value if
-     * there are no elements in this list.
+     * Accumulates values, starting with [initial], and applying [operation] to each element in the
+     * [LongList] in reverse order.
+     *
+     * @param initial The value of `acc` for the first call to [operation] or return value if there
+     *   are no elements in this list.
      * @param operation function that takes an element and the current accumulator value, and
-     * calculates the next accumulator value.
+     *   calculates the next accumulator value.
      */
     public inline fun <R> foldRight(initial: R, operation: (element: Long, acc: R) -> R): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        forEachReversed { item ->
-            acc = operation(item, acc)
-        }
+        forEachReversed { item -> acc = operation(item, acc) }
         return acc
     }
 
     /**
-     * Accumulates values, starting with [initial], and applying [operation] to each element
-     * in the [LongList] in reverse order.
+     * Accumulates values, starting with [initial], and applying [operation] to each element in the
+     * [LongList] in reverse order.
      */
     public inline fun <R> foldRightIndexed(
         initial: R,
@@ -251,16 +230,15 @@ public sealed class LongList(initialCapacity: Int) {
     ): R {
         contract { callsInPlace(operation) }
         var acc = initial
-        forEachReversedIndexed { i, item ->
-            acc = operation(i, item, acc)
-        }
+        forEachReversedIndexed { i, item -> acc = operation(i, item, acc) }
         return acc
     }
 
     /**
      * Calls [block] for each element in the [LongList], in order.
-     * @param block will be executed for every element in the list, accepting an element from
-     * the list
+     *
+     * @param block will be executed for every element in the list, accepting an element from the
+     *   list
      */
     public inline fun forEach(block: (element: Long) -> Unit) {
         contract { callsInPlace(block) }
@@ -272,8 +250,9 @@ public sealed class LongList(initialCapacity: Int) {
 
     /**
      * Calls [block] for each element in the [LongList] along with its index, in order.
-     * @param block will be executed for every element in the list, accepting the index and
-     * the element at that index.
+     *
+     * @param block will be executed for every element in the list, accepting the index and the
+     *   element at that index.
      */
     public inline fun forEachIndexed(block: (index: Int, element: Long) -> Unit) {
         contract { callsInPlace(block) }
@@ -285,8 +264,9 @@ public sealed class LongList(initialCapacity: Int) {
 
     /**
      * Calls [block] for each element in the [LongList] in reverse order.
-     * @param block will be executed for every element in the list, accepting an element from
-     * the list
+     *
+     * @param block will be executed for every element in the list, accepting an element from the
+     *   list
      */
     public inline fun forEachReversed(block: (element: Long) -> Unit) {
         contract { callsInPlace(block) }
@@ -297,10 +277,10 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Calls [block] for each element in the [LongList] along with its index, in reverse
-     * order.
-     * @param block will be executed for every element in the list, accepting the index and
-     * the element at that index.
+     * Calls [block] for each element in the [LongList] along with its index, in reverse order.
+     *
+     * @param block will be executed for every element in the list, accepting the index and the
+     *   element at that index.
      */
     public inline fun forEachReversedIndexed(block: (index: Int, element: Long) -> Unit) {
         contract { callsInPlace(block) }
@@ -311,8 +291,8 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if
-     * the [index] is out of bounds of this collection.
+     * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if the [index]
+     * is out of bounds of this collection.
      */
     public operator fun get(@androidx.annotation.IntRange(from = 0) index: Int): Long {
         if (index !in 0 until _size) {
@@ -322,8 +302,8 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if
-     * the [index] is out of bounds of this collection.
+     * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if the [index]
+     * is out of bounds of this collection.
      */
     public fun elementAt(@androidx.annotation.IntRange(from = 0) index: Int): Long {
         if (index !in 0 until _size) {
@@ -333,11 +313,12 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the element at the given [index] or [defaultValue] if [index] is out of bounds
-     * of the collection.
+     * Returns the element at the given [index] or [defaultValue] if [index] is out of bounds of the
+     * collection.
+     *
      * @param index The index of the element whose value should be returned
-     * @param defaultValue A lambda to call with [index] as a parameter to return a value at
-     * an index not in the list.
+     * @param defaultValue A lambda to call with [index] as a parameter to return a value at an
+     *   index not in the list.
      */
     public inline fun elementAtOrElse(
         @androidx.annotation.IntRange(from = 0) index: Int,
@@ -349,9 +330,7 @@ public sealed class LongList(initialCapacity: Int) {
         return content[index]
     }
 
-    /**
-     * Returns the index of [element] in the [LongList] or `-1` if [element] is not there.
-     */
+    /** Returns the index of [element] in the [LongList] or `-1` if [element] is not there. */
     public fun indexOf(element: Long): Int {
         forEachIndexed { i, item ->
             if (element == item) {
@@ -362,8 +341,8 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the index if the first element in the [LongList] for which [predicate]
-     * returns `true`.
+     * Returns the index if the first element in the [LongList] for which [predicate] returns
+     * `true`.
      */
     public inline fun indexOfFirst(predicate: (element: Long) -> Boolean): Int {
         contract { callsInPlace(predicate) }
@@ -376,8 +355,7 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the index if the last element in the [LongList] for which [predicate]
-     * returns `true`.
+     * Returns the index if the last element in the [LongList] for which [predicate] returns `true`.
      */
     public inline fun indexOfLast(predicate: (element: Long) -> Boolean): Int {
         contract { callsInPlace(predicate) }
@@ -389,19 +367,15 @@ public sealed class LongList(initialCapacity: Int) {
         return -1
     }
 
-    /**
-     * Returns `true` if the [LongList] has no elements in it or `false` otherwise.
-     */
+    /** Returns `true` if the [LongList] has no elements in it or `false` otherwise. */
     public fun isEmpty(): Boolean = _size == 0
 
-    /**
-     * Returns `true` if there are elements in the [LongList] or `false` if it is empty.
-     */
+    /** Returns `true` if there are elements in the [LongList] or `false` if it is empty. */
     public fun isNotEmpty(): Boolean = _size != 0
 
     /**
-     * Returns the last element in the [LongList] or throws a [NoSuchElementException] if
-     * it [isEmpty].
+     * Returns the last element in the [LongList] or throws a [NoSuchElementException] if it
+     * [isEmpty].
      */
     public fun last(): Long {
         if (isEmpty()) {
@@ -411,8 +385,9 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the last element in the [LongList] for which [predicate] returns `true` or
-     * throws [NoSuchElementException] if nothing matches.
+     * Returns the last element in the [LongList] for which [predicate] returns `true` or throws
+     * [NoSuchElementException] if nothing matches.
+     *
      * @see indexOfLast
      */
     public inline fun last(predicate: (element: Long) -> Boolean): Long {
@@ -426,8 +401,8 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns the index of the last element in the [LongList] that is the same as
-     * [element] or `-1` if no elements match.
+     * Returns the index of the last element in the [LongList] that is the same as [element] or `-1`
+     * if no elements match.
      */
     public fun lastIndexOf(element: Long): Int {
         forEachReversedIndexed { i, item ->
@@ -439,12 +414,12 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Creates a String from the elements separated by [separator] and using [prefix] before
-     * and [postfix] after, if supplied.
+     * Creates a String from the elements separated by [separator] and using [prefix] before and
+     * [postfix] after, if supplied.
      *
-     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
-     * to generate the string. If the collection holds more than [limit] items, the string
-     * is terminated with [truncated].
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used to
+     * generate the string. If the collection holds more than [limit] items, the string is
+     * terminated with [truncated].
      */
     @JvmOverloads
     public fun joinToString(
@@ -469,12 +444,12 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Creates a String from the elements separated by [separator] and using [prefix] before
-     * and [postfix] after, if supplied. [transform] dictates how each element will be represented.
+     * Creates a String from the elements separated by [separator] and using [prefix] before and
+     * [postfix] after, if supplied. [transform] dictates how each element will be represented.
      *
-     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
-     * to generate the string. If the collection holds more than [limit] items, the string
-     * is terminated with [truncated].
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used to
+     * generate the string. If the collection holds more than [limit] items, the string is
+     * terminated with [truncated].
      */
     @JvmOverloads
     public inline fun joinToString(
@@ -499,20 +474,15 @@ public sealed class LongList(initialCapacity: Int) {
         append(postfix)
     }
 
-    /**
-     * Returns a hash code based on the contents of the [LongList].
-     */
+    /** Returns a hash code based on the contents of the [LongList]. */
     override fun hashCode(): Int {
         var hashCode = 0
-        forEach { element ->
-            hashCode += 31 * element.hashCode()
-        }
+        forEach { element -> hashCode += 31 * element.hashCode() }
         return hashCode
     }
 
     /**
-     * Returns `true` if [other] is a [LongList] and the contents of this and [other] are the
-     * same.
+     * Returns `true` if [other] is a [LongList] and the contents of this and [other] are the same.
      */
     override fun equals(other: Any?): Boolean {
         if (other !is LongList || other._size != _size) {
@@ -529,41 +499,34 @@ public sealed class LongList(initialCapacity: Int) {
     }
 
     /**
-     * Returns a String representation of the list, surrounded by "[]" and each element
-     * separated by ", ".
+     * Returns a String representation of the list, surrounded by "[]" and each element separated by
+     * ", ".
      */
     override fun toString(): String = joinToString(prefix = "[", postfix = "]")
 }
 
 /**
- * [MutableLongList] is a [MutableList]-like collection for [Long] values.
- * It allows storing and retrieving the elements without boxing. Immutable
- * access is available through its base class [LongList], which has a [List]-like
- * interface.
+ * [MutableLongList] is a [MutableList]-like collection for [Long] values. It allows storing and
+ * retrieving the elements without boxing. Immutable access is available through its base class
+ * [LongList], which has a [List]-like interface.
  *
- * This implementation is not thread-safe: if multiple threads access this
- * container concurrently, and one or more threads modify the structure of
- * the list (insertion or removal for instance), the calling code must provide
- * the appropriate synchronization. It is also not safe to mutate during reentrancy --
- * in the middle of a [forEach], for example. However, concurrent reads are safe.
+ * This implementation is not thread-safe: if multiple threads access this container concurrently,
+ * and one or more threads modify the structure of the list (insertion or removal for instance), the
+ * calling code must provide the appropriate synchronization. It is also not safe to mutate during
+ * reentrancy -- in the middle of a [forEach], for example. However, concurrent reads are safe.
  *
  * @constructor Creates a [MutableLongList] with a [capacity] of `initialCapacity`.
  */
-public class MutableLongList(
-    initialCapacity: Int = 16
-) : LongList(initialCapacity) {
+public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapacity) {
     /**
-     * Returns the total number of elements that can be held before the [MutableLongList] must
-     * grow.
+     * Returns the total number of elements that can be held before the [MutableLongList] must grow.
      *
      * @see ensureCapacity
      */
     public inline val capacity: Int
         get() = content.size
 
-    /**
-     * Adds [element] to the [MutableLongList] and returns `true`.
-     */
+    /** Adds [element] to the [MutableLongList] and returns `true`. */
     public fun add(element: Long): Boolean {
         ensureCapacity(_size + 1)
         content[_size] = element
@@ -572,8 +535,9 @@ public class MutableLongList(
     }
 
     /**
-     * Adds [element] to the [MutableLongList] at the given [index], shifting over any
-     * elements at [index] and after, if any.
+     * Adds [element] to the [MutableLongList] at the given [index], shifting over any elements at
+     * [index] and after, if any.
+     *
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
     public fun add(@androidx.annotation.IntRange(from = 0) index: Int, element: Long) {
@@ -595,8 +559,9 @@ public class MutableLongList(
     }
 
     /**
-     * Adds all [elements] to the [MutableLongList] at the given [index], shifting over any
-     * elements at [index] and after, if any.
+     * Adds all [elements] to the [MutableLongList] at the given [index], shifting over any elements
+     * at [index] and after, if any.
+     *
      * @return `true` if the [MutableLongList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive.
      */
@@ -624,8 +589,9 @@ public class MutableLongList(
     }
 
     /**
-     * Adds all [elements] to the [MutableLongList] at the given [index], shifting over any
-     * elements at [index] and after, if any.
+     * Adds all [elements] to the [MutableLongList] at the given [index], shifting over any elements
+     * at [index] and after, if any.
+     *
      * @return `true` if the [MutableLongList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
@@ -673,22 +639,19 @@ public class MutableLongList(
         return addAll(_size, elements)
     }
 
-    /**
-     * Adds all [elements] to the end of the [MutableLongList].
-     */
+    /** Adds all [elements] to the end of the [MutableLongList]. */
     public operator fun plusAssign(elements: LongList) {
         addAll(_size, elements)
     }
 
-    /**
-     * Adds all [elements] to the end of the [MutableLongList].
-     */
+    /** Adds all [elements] to the end of the [MutableLongList]. */
     public operator fun plusAssign(elements: LongArray) {
         addAll(_size, elements)
     }
 
     /**
      * Removes all elements in the [MutableLongList]. The storage isn't released.
+     *
      * @see trim
      */
     public fun clear() {
@@ -698,6 +661,7 @@ public class MutableLongList(
     /**
      * Reduces the internal storage. If [capacity] is greater than [minCapacity] and [size], the
      * internal storage is reduced to the maximum of [size] and [minCapacity].
+     *
      * @see ensureCapacity
      */
     public fun trim(minCapacity: Int = _size) {
@@ -709,6 +673,7 @@ public class MutableLongList(
 
     /**
      * Ensures that there is enough space to store [capacity] elements in the [MutableLongList].
+     *
      * @see trim
      */
     public fun ensureCapacity(capacity: Int) {
@@ -719,24 +684,20 @@ public class MutableLongList(
         }
     }
 
-    /**
-     * [add] [element] to the [MutableLongList].
-     */
+    /** [add] [element] to the [MutableLongList]. */
     public inline operator fun plusAssign(element: Long) {
         add(element)
     }
 
-    /**
-     * [remove] [element] from the [MutableLongList]
-     */
+    /** [remove] [element] from the [MutableLongList] */
     public inline operator fun minusAssign(element: Long) {
         remove(element)
     }
 
     /**
-     * Removes [element] from the [MutableLongList]. If [element] was in the [MutableLongList]
-     * and was removed, `true` will be returned, or `false` will be returned if the element
-     * was not found.
+     * Removes [element] from the [MutableLongList]. If [element] was in the [MutableLongList] and
+     * was removed, `true` will be returned, or `false` will be returned if the element was not
+     * found.
      */
     public fun remove(element: Long): Boolean {
         val index = indexOf(element)
@@ -769,26 +730,19 @@ public class MutableLongList(
         return initialSize != _size
     }
 
-    /**
-     * Removes all [elements] from the [MutableLongList].
-     */
+    /** Removes all [elements] from the [MutableLongList]. */
     public operator fun minusAssign(elements: LongArray) {
-        elements.forEach { element ->
-            remove(element)
-        }
+        elements.forEach { element -> remove(element) }
     }
 
-    /**
-     * Removes all [elements] from the [MutableLongList].
-     */
+    /** Removes all [elements] from the [MutableLongList]. */
     public operator fun minusAssign(elements: LongList) {
-        elements.forEach { element ->
-            remove(element)
-        }
+        elements.forEach { element -> remove(element) }
     }
 
     /**
      * Removes the element at the given [index] and returns it.
+     *
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
     public fun removeAt(@androidx.annotation.IntRange(from = 0) index: Int): Long {
@@ -811,6 +765,7 @@ public class MutableLongList(
 
     /**
      * Removes items from index [start] (inclusive) to [end] (exclusive).
+     *
      * @throws IndexOutOfBoundsException if [start] or [end] isn't between 0 and [size], inclusive
      * @throws IllegalArgumentException if [start] is greater than [end]
      */
@@ -839,6 +794,7 @@ public class MutableLongList(
 
     /**
      * Keeps only [elements] in the [MutableLongList] and removes all other values.
+     *
      * @return `true` if the [MutableLongList] has changed.
      */
     public fun retainAll(elements: LongArray): Boolean {
@@ -855,6 +811,7 @@ public class MutableLongList(
 
     /**
      * Keeps only [elements] in the [MutableLongList] and removes all other values.
+     *
      * @return `true` if the [MutableLongList] has changed.
      */
     public fun retainAll(elements: LongList): Boolean {
@@ -871,6 +828,7 @@ public class MutableLongList(
 
     /**
      * Sets the value at [index] to [element].
+     *
      * @return the previous value set at [index]
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
@@ -887,16 +845,12 @@ public class MutableLongList(
         return old
     }
 
-    /**
-     * Sorts the [MutableLongList] elements in ascending order.
-     */
+    /** Sorts the [MutableLongList] elements in ascending order. */
     public fun sort() {
         content.sort(fromIndex = 0, toIndex = _size)
     }
 
-    /**
-     * Sorts the [MutableLongList] elements in descending order.
-     */
+    /** Sorts the [MutableLongList] elements in descending order. */
     public fun sortDescending() {
         content.sortDescending(fromIndex = 0, toIndex = _size)
     }
@@ -904,57 +858,41 @@ public class MutableLongList(
 
 private val EmptyLongList: LongList = MutableLongList(0)
 
-/**
- * @return a read-only [LongList] with nothing in it.
- */
+/** @return a read-only [LongList] with nothing in it. */
 public fun emptyLongList(): LongList = EmptyLongList
 
-/**
- * @return a read-only [LongList] with nothing in it.
- */
+/** @return a read-only [LongList] with nothing in it. */
 public fun longListOf(): LongList = EmptyLongList
 
-/**
- * @return a new read-only [LongList] with [element1] as the only item in the list.
- */
+/** @return a new read-only [LongList] with [element1] as the only item in the list. */
 public fun longListOf(element1: Long): LongList = mutableLongListOf(element1)
 
-/**
- * @return a new read-only [LongList] with 2 elements, [element1] and [element2], in order.
- */
+/** @return a new read-only [LongList] with 2 elements, [element1] and [element2], in order. */
 public fun longListOf(element1: Long, element2: Long): LongList =
     mutableLongListOf(element1, element2)
 
 /**
- * @return a new read-only [LongList] with 3 elements, [element1], [element2], and [element3],
- * in order.
+ * @return a new read-only [LongList] with 3 elements, [element1], [element2], and [element3], in
+ *   order.
  */
 public fun longListOf(element1: Long, element2: Long, element3: Long): LongList =
     mutableLongListOf(element1, element2, element3)
 
-/**
- * @return a new read-only [LongList] with [elements] in order.
- */
+/** @return a new read-only [LongList] with [elements] in order. */
 public fun longListOf(vararg elements: Long): LongList =
     MutableLongList(elements.size).apply { plusAssign(elements) }
 
-/**
- * @return a new empty [MutableLongList] with the default capacity.
- */
+/** @return a new empty [MutableLongList] with the default capacity. */
 public inline fun mutableLongListOf(): MutableLongList = MutableLongList()
 
-/**
- * @return a new [MutableLongList] with [element1] as the only item in the list.
- */
+/** @return a new [MutableLongList] with [element1] as the only item in the list. */
 public fun mutableLongListOf(element1: Long): MutableLongList {
     val list = MutableLongList(1)
     list += element1
     return list
 }
 
-/**
- * @return a new [MutableLongList] with 2 elements, [element1] and [element2], in order.
- */
+/** @return a new [MutableLongList] with 2 elements, [element1] and [element2], in order. */
 public fun mutableLongListOf(element1: Long, element2: Long): MutableLongList {
     val list = MutableLongList(2)
     list += element1
@@ -963,8 +901,8 @@ public fun mutableLongListOf(element1: Long, element2: Long): MutableLongList {
 }
 
 /**
- * @return a new [MutableLongList] with 3 elements, [element1], [element2], and [element3],
- * in order.
+ * @return a new [MutableLongList] with 3 elements, [element1], [element2], and [element3], in
+ *   order.
  */
 public fun mutableLongListOf(element1: Long, element2: Long, element3: Long): MutableLongList {
     val list = MutableLongList(3)
@@ -974,8 +912,6 @@ public fun mutableLongListOf(element1: Long, element2: Long, element3: Long): Mu
     return list
 }
 
-/**
- * @return a new [MutableLongList] with the given elements, in order.
- */
+/** @return a new [MutableLongList] with the given elements, in order. */
 public inline fun mutableLongListOf(vararg elements: Long): MutableLongList =
     MutableLongList(elements.size).apply { plusAssign(elements) }

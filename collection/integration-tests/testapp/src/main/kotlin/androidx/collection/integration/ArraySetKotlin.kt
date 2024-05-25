@@ -19,13 +19,10 @@ package androidx.collection.integration
 import androidx.collection.ArraySet
 import androidx.collection.arraySetOf
 
-/**
- * Integration (actually build) test for source compatibility for usages of ArraySet.
- */
+/** Integration (actually build) test for source compatibility for usages of ArraySet. */
 @Suppress("unused")
 fun arraySetSourceCompatibility(): Boolean {
-    @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER")
-    var arraySet: ArraySet<Int> = ArraySet()
+    @Suppress("VARIABLE_WITH_REDUNDANT_INITIALIZER") var arraySet: ArraySet<Int> = ArraySet()
     arraySet = ArraySet<Int>(5)
     @Suppress("UNUSED_VALUE")
     arraySet = ArraySet(arraySet)
@@ -43,10 +40,16 @@ fun arraySetSourceCompatibility(): Boolean {
     val array = Array(arraySet.size) { 0 }
     arraySet.forEachIndexed(array::set) // Copy into an existing array
 
-    return arraySet.isEmpty() && arraySet.remove(0) &&
-        arraySet.removeAll(arraySetOf(1, 2)) && arraySet.removeAll(listOf(1, 2)) &&
-        arraySet.removeAt(0) == 0 && arraySet.contains(0) && arraySet.size == 0 &&
-        arraySet.isEmpty() && arraySet.toArray() === arraySet.toArray(arrayOf<Number>()) &&
-        arraySet + arrayOf(1) == arraySet - arrayOf(1) && arraySet == arrayOf(0) &&
+    return arraySet.isEmpty() &&
+        arraySet.remove(0) &&
+        arraySet.removeAll(arraySetOf(1, 2)) &&
+        arraySet.removeAll(listOf(1, 2)) &&
+        arraySet.removeAt(0) == 0 &&
+        arraySet.contains(0) &&
+        arraySet.size == 0 &&
+        arraySet.isEmpty() &&
+        arraySet.toArray() === arraySet.toArray(arrayOf<Number>()) &&
+        arraySet + arrayOf(1) == arraySet - arrayOf(1) &&
+        arraySet == arrayOf(0) &&
         arraySet.containsAll(listOf(1, 2))
 }

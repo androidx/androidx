@@ -37,13 +37,11 @@ internal fun Modifier.layoutTestId(id: Any): Modifier = testTag(id.toString()).l
 /**
  * Helper method that will simulate a swipe on the given [SemanticsNodeInteraction].
  *
- * Use [from] and [to] to calculate the starting and ending position. [TouchInjectionScope]
- * includes the dimension of the layout: [TouchInjectionScope.left], [TouchInjectionScope.center],
- * etc.
+ * Use [from] and [to] to calculate the starting and ending position. [TouchInjectionScope] includes
+ * the dimension of the layout: [TouchInjectionScope.left], [TouchInjectionScope.center], etc.
  *
- * If [endWithUp] is false, the touch pointer will remain down at [to]. In which case you'll have
- * to make sure you lift the pointer later on, eg:
- *
+ * If [endWithUp] is false, the touch pointer will remain down at [to]. In which case you'll have to
+ * make sure you lift the pointer later on, eg:
  * ```
  * rule.onNodeWithTag("MyTag")
  *     .performTouchInput {
@@ -69,9 +67,7 @@ internal fun SemanticsNodeInteraction.performSwipe(
         val steps = (durationMillisFloat / eventPeriodMillis.toFloat()).roundToInt()
         var step = 0
 
-        val getPositionAt: (Long) -> Offset = {
-            lerp(start, end, it.toFloat() / durationMillis)
-        }
+        val getPositionAt: (Long) -> Offset = { lerp(start, end, it.toFloat() / durationMillis) }
 
         var tP = 0L
         while (step++ < steps) {

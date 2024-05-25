@@ -41,17 +41,16 @@ internal class TransitionHandler(
     fun onAcceptFirstDownForOnSwipe(offset: Offset) =
         transition.isFirstDownAccepted(offset.x, offset.y)
 
-    /**
-     * The [motionProgress] is updated based on the [Offset] from a single drag event.
-     */
+    /** The [motionProgress] is updated based on the [Offset] from a single drag event. */
     fun updateProgressOnDrag(dragAmount: Offset) {
-        val progressDelta = transition.dragToProgress(
-            motionProgress.floatValue,
-            motionMeasurer.layoutCurrentWidth,
-            motionMeasurer.layoutCurrentHeight,
-            dragAmount.x,
-            dragAmount.y
-        )
+        val progressDelta =
+            transition.dragToProgress(
+                motionProgress.floatValue,
+                motionMeasurer.layoutCurrentWidth,
+                motionMeasurer.layoutCurrentHeight,
+                dragAmount.x,
+                dragAmount.y
+            )
         var newProgress = motionProgress.floatValue + progressDelta
         newProgress = newProgress.coerceIn(0f, 1f)
         motionProgress.floatValue = newProgress
@@ -72,9 +71,7 @@ internal class TransitionHandler(
      * touch gestures.
      */
     suspend fun updateProgressWhileTouchUp() {
-        val newProgress = withFrameNanos { timeNanos ->
-            transition.getTouchUpProgress(timeNanos)
-        }
+        val newProgress = withFrameNanos { timeNanos -> transition.getTouchUpProgress(timeNanos) }
         motionProgress.floatValue = newProgress
     }
 

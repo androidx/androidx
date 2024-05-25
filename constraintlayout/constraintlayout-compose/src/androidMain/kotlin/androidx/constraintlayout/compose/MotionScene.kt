@@ -27,9 +27,7 @@ import androidx.constraintlayout.core.state.ConstraintSetParser
 import androidx.constraintlayout.core.state.CoreMotionScene
 import org.intellij.lang.annotations.Language
 
-/**
- * Information for MotionLayout to animate between multiple [ConstraintSet]s.
- */
+/** Information for MotionLayout to animate between multiple [ConstraintSet]s. */
 @ExperimentalMotionApi
 @Immutable
 interface MotionScene : CoreMotionScene {
@@ -41,7 +39,9 @@ interface MotionScene : CoreMotionScene {
 /**
  * Parses the given JSON5 into a [MotionScene].
  *
- * See the official [Github Wiki](https://github.com/androidx/constraintlayout/wiki/Compose-MotionLayout-JSON-Syntax) to learn the syntax.
+ * See the official
+ * [GitHub Wiki](https://github.com/androidx/constraintlayout/wiki/Compose-MotionLayout-JSON-Syntax)
+ * to learn the syntax.
  */
 @ExperimentalMotionApi
 @SuppressLint("ComposableNaming")
@@ -49,15 +49,12 @@ interface MotionScene : CoreMotionScene {
 fun MotionScene(@Language("json5") content: String): MotionScene {
     // TODO: Explore if we can make this a non-Composable, we have to make sure that it doesn't
     //  break Link functionality
-    return remember(content) {
-        JSONMotionScene(content)
-    }
+    return remember(content) { JSONMotionScene(content) }
 }
 
 @ExperimentalMotionApi
-internal class JSONMotionScene(
-    @Language("json5") content: String
-) : EditableJSONLayout(content), MotionScene {
+internal class JSONMotionScene(@Language("json5") content: String) :
+    EditableJSONLayout(content), MotionScene {
 
     private val constraintSetsContent = HashMap<String, String>()
     private val transitionsContent = HashMap<String, String>()
@@ -102,14 +99,15 @@ internal class JSONMotionScene(
     }
 
     override fun getTransitionInstance(name: String): Transition? {
-        val parsed = getTransition(name)?.let {
-            try {
-                CLParser.parse(it)
-            } catch (e: CLParsingException) {
-                Log.e("CML", "Error parsing JSON $e")
-                null
-            }
-        } ?: return null
+        val parsed =
+            getTransition(name)?.let {
+                try {
+                    CLParser.parse(it)
+                } catch (e: CLParsingException) {
+                    Log.e("CML", "Error parsing JSON $e")
+                    null
+                }
+            } ?: return null
         return TransitionImpl(parsed)
     }
 

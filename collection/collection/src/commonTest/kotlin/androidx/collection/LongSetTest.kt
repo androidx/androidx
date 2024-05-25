@@ -82,9 +82,7 @@ class LongSetTest {
         assertEquals(2, set.size)
         val elements = LongArray(2)
         var index = 0
-        set.forEach { element ->
-            elements[index++] = element
-        }
+        set.forEach { element -> elements[index++] = element }
         elements.sort()
         assertEquals(1L, elements[0])
         assertEquals(2L, elements[1])
@@ -305,9 +303,7 @@ class LongSetTest {
 
             val elements = LongArray(i)
             var index = 0
-            set.forEach { element ->
-                elements[index++] = element
-            }
+            set.forEach { element -> elements[index++] = element }
             elements.sort()
 
             index = 0
@@ -340,10 +336,7 @@ class LongSetTest {
 
         set += 1L
         set += 5L
-        assertTrue(
-            "[${1L}, ${5L}]" == set.toString() ||
-                "[${5L}, ${1L}]" == set.toString()
-        )
+        assertTrue("[${1L}, ${5L}]" == set.toString() || "[${5L}, ${1L}]" == set.toString())
     }
 
     @Test
@@ -351,12 +344,10 @@ class LongSetTest {
         val set = longSetOf(1L, 2L, 3L, 4L, 5L)
         val order = IntArray(5)
         var index = 0
-        set.forEach { element ->
-            order[index++] = element.toInt()
-        }
+        set.forEach { element -> order[index++] = element.toInt() }
         assertEquals(
             "${order[0].toLong()}, ${order[1].toLong()}, ${order[2].toLong()}, " +
-            "${order[3].toLong()}, ${order[4].toLong()}",
+                "${order[3].toLong()}, ${order[4].toLong()}",
             set.joinToString()
         )
         assertEquals(
@@ -365,7 +356,7 @@ class LongSetTest {
         )
         assertEquals(
             ">${order[0].toLong()}-${order[1].toLong()}-${order[2].toLong()}-" +
-            "${order[3].toLong()}-${order[4].toLong()}<",
+                "${order[3].toLong()}-${order[4].toLong()}<",
             set.joinToString(separator = "-", prefix = ">", postfix = "<")
         )
         val names = arrayOf("one", "two", "three", "four", "five")
@@ -474,8 +465,7 @@ class LongSetTest {
         set.clear()
         assertEquals(capacity, set.trim())
         assertEquals(0, set.capacity)
-        set.addAll(longArrayOf(1L, 2L, 3L, 4L, 5L, 7L, 6L, 8L,
-            9L, 10L, 11L, 12L, 13L, 14L))
+        set.addAll(longArrayOf(1L, 2L, 3L, 4L, 5L, 7L, 6L, 8L, 9L, 10L, 11L, 12L, 13L, 14L))
         set.removeAll(longArrayOf(6L, 8L, 9L, 10L, 11L, 12L, 13L, 14L))
         assertTrue(set.trim() > 0)
         assertEquals(capacity, set.capacity)

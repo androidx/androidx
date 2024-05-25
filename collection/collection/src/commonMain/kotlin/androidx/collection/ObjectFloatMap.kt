@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress(
-    "RedundantVisibilityModifier",
-    "NOTHING_TO_INLINE"
-)
+@file:Suppress("RedundantVisibilityModifier", "NOTHING_TO_INLINE")
 
 package androidx.collection
 
@@ -40,34 +37,21 @@ import kotlin.jvm.JvmOverloads
 // Default empty map to avoid allocations
 private val EmptyObjectFloatMap = MutableObjectFloatMap<Any?>(0)
 
-/**
- * Returns an empty, read-only [ObjectFloatMap].
- */
+/** Returns an empty, read-only [ObjectFloatMap]. */
 @Suppress("UNCHECKED_CAST")
-public fun <K> emptyObjectFloatMap(): ObjectFloatMap<K> =
-    EmptyObjectFloatMap as ObjectFloatMap<K>
+public fun <K> emptyObjectFloatMap(): ObjectFloatMap<K> = EmptyObjectFloatMap as ObjectFloatMap<K>
 
-/**
- * Returns an empty, read-only [ObjectFloatMap].
- */
+/** Returns an empty, read-only [ObjectFloatMap]. */
 @Suppress("UNCHECKED_CAST")
-public fun <K> objectFloatMap(): ObjectFloatMap<K> =
-    EmptyObjectFloatMap as ObjectFloatMap<K>
+public fun <K> objectFloatMap(): ObjectFloatMap<K> = EmptyObjectFloatMap as ObjectFloatMap<K>
+
+/** Returns a new [ObjectFloatMap] with only [key1] associated with [value1]. */
+public fun <K> objectFloatMapOf(key1: K, value1: Float): ObjectFloatMap<K> =
+    MutableObjectFloatMap<K>().also { map -> map[key1] = value1 }
 
 /**
- * Returns a new [ObjectFloatMap] with only [key1] associated with [value1].
- */
-public fun <K> objectFloatMapOf(
-    key1: K,
-    value1: Float
-): ObjectFloatMap<K> =
-    MutableObjectFloatMap<K>().also { map ->
-        map[key1] = value1
-    }
-
-/**
- * Returns a new [ObjectFloatMap] with only [key1] and [key2] associated with
- * [value1] and [value2], respectively.
+ * Returns a new [ObjectFloatMap] with only [key1] and [key2] associated with [value1] and [value2],
+ * respectively.
  */
 public fun <K> objectFloatMapOf(
     key1: K,
@@ -81,8 +65,8 @@ public fun <K> objectFloatMapOf(
     }
 
 /**
- * Returns a new [ObjectFloatMap] with only [key1], [key2], and [key3] associated with
- * [value1], [value2], and [value3], respectively.
+ * Returns a new [ObjectFloatMap] with only [key1], [key2], and [key3] associated with [value1],
+ * [value2], and [value3], respectively.
  */
 public fun <K> objectFloatMapOf(
     key1: K,
@@ -143,25 +127,18 @@ public fun <K> objectFloatMapOf(
         map[key5] = value5
     }
 
-/**
- * Returns a new empty [MutableObjectFloatMap].
- */
+/** Returns a new empty [MutableObjectFloatMap]. */
 public fun <K> mutableObjectFloatMapOf(): MutableObjectFloatMap<K> = MutableObjectFloatMap()
 
-/**
- * Returns a new [MutableObjectFloatMap] with only [key1] associated with [value1].
- */
+/** Returns a new [MutableObjectFloatMap] with only [key1] associated with [value1]. */
 public fun <K> mutableObjectFloatMapOf(
     key1: K,
     value1: Float,
-): MutableObjectFloatMap<K> =
-    MutableObjectFloatMap<K>().also { map ->
-        map[key1] = value1
-    }
+): MutableObjectFloatMap<K> = MutableObjectFloatMap<K>().also { map -> map[key1] = value1 }
 
 /**
- * Returns a new [MutableObjectFloatMap] with only [key1] and [key2] associated with
- * [value1] and [value2], respectively.
+ * Returns a new [MutableObjectFloatMap] with only [key1] and [key2] associated with [value1] and
+ * [value2], respectively.
  */
 public fun <K> mutableObjectFloatMapOf(
     key1: K,
@@ -193,8 +170,8 @@ public fun <K> mutableObjectFloatMapOf(
     }
 
 /**
- * Returns a new [MutableObjectFloatMap] with only [key1], [key2], [key3], and [key4]
- * associated with [value1], [value2], [value3], and [value4], respectively.
+ * Returns a new [MutableObjectFloatMap] with only [key1], [key2], [key3], and [key4] associated
+ * with [value1], [value2], [value3], and [value4], respectively.
  */
 public fun <K> mutableObjectFloatMapOf(
     key1: K,
@@ -238,28 +215,25 @@ public fun <K> mutableObjectFloatMapOf(
     }
 
 /**
- * [ObjectFloatMap] is a container with a [Map]-like interface for keys with
- * reference types and [Float] primitives for values.
+ * [ObjectFloatMap] is a container with a [Map]-like interface for keys with reference types and
+ * [Float] primitives for values.
  *
- * The underlying implementation is designed to avoid allocations from boxing,
- * and insertion, removal, retrieval, and iteration operations. Allocations
- * may still happen on insertion when the underlying storage needs to grow to
- * accommodate newly added entries to the table. In addition, this implementation
- * minimizes memory usage by avoiding the use of separate objects to hold
+ * The underlying implementation is designed to avoid allocations from boxing, and insertion,
+ * removal, retrieval, and iteration operations. Allocations may still happen on insertion when the
+ * underlying storage needs to grow to accommodate newly added entries to the table. In addition,
+ * this implementation minimizes memory usage by avoiding the use of separate objects to hold
  * key/value pairs.
  *
- * This implementation makes no guarantee as to the order of the keys and
- * values stored, nor does it make guarantees that the order remains constant
- * over time.
+ * This implementation makes no guarantee as to the order of the keys and values stored, nor does it
+ * make guarantees that the order remains constant over time.
  *
- * This implementation is not thread-safe: if multiple threads access this
- * container concurrently, and one or more threads modify the structure of
- * the map (insertion or removal for instance), the calling code must provide
- * the appropriate synchronization. Multiple threads are safe to read from this
- * map concurrently if no write is happening.
+ * This implementation is not thread-safe: if multiple threads access this container concurrently,
+ * and one or more threads modify the structure of the map (insertion or removal for instance), the
+ * calling code must provide the appropriate synchronization. Multiple threads are safe to read from
+ * this map concurrently if no write is happening.
  *
- * This implementation is read-only and only allows data to be queried. A
- * mutable implementation is provided by [MutableObjectFloatMap].
+ * This implementation is read-only and only allows data to be queried. A mutable implementation is
+ * provided by [MutableObjectFloatMap].
  *
  * @see [MutableObjectFloatMap]
  * @see ScatterMap
@@ -269,66 +243,47 @@ public sealed class ObjectFloatMap<K> {
     // The backing array for the metadata bytes contains
     // `capacity + 1 + ClonedMetadataCount` entries, including when
     // the table is empty (see [EmptyGroup]).
-    @PublishedApi
-    @JvmField
-    internal var metadata: LongArray = EmptyGroup
+    @PublishedApi @JvmField internal var metadata: LongArray = EmptyGroup
 
-    @PublishedApi
-    @JvmField
-    internal var keys: Array<Any?> = EMPTY_OBJECTS
+    @PublishedApi @JvmField internal var keys: Array<Any?> = EMPTY_OBJECTS
 
-    @PublishedApi
-    @JvmField
-    internal var values: FloatArray = EmptyFloatArray
+    @PublishedApi @JvmField internal var values: FloatArray = EmptyFloatArray
 
     // We use a backing field for capacity to avoid invokevirtual calls
     // every time we need to look at the capacity
-    @Suppress("PropertyName")
-    @JvmField
-    internal var _capacity: Int = 0
+    @Suppress("PropertyName") @JvmField internal var _capacity: Int = 0
 
     /**
-     * Returns the number of key-value pairs that can be stored in this map
-     * without requiring internal storage reallocation.
+     * Returns the number of key-value pairs that can be stored in this map without requiring
+     * internal storage reallocation.
      */
     public val capacity: Int
         get() = _capacity
 
     // We use a backing field for capacity to avoid invokevirtual calls
     // every time we need to look at the size
-    @Suppress("PropertyName")
-    @JvmField
-    internal var _size: Int = 0
+    @Suppress("PropertyName") @JvmField internal var _size: Int = 0
 
-    /**
-     * Returns the number of key-value pairs in this map.
-     */
+    /** Returns the number of key-value pairs in this map. */
     public val size: Int
         get() = _size
 
-    /**
-     * Returns `true` if this map has at least one entry.
-     */
+    /** Returns `true` if this map has at least one entry. */
     public fun any(): Boolean = _size != 0
 
-    /**
-     * Returns `true` if this map has no entries.
-     */
+    /** Returns `true` if this map has no entries. */
     public fun none(): Boolean = _size == 0
 
-    /**
-     * Indicates whether this map is empty.
-     */
+    /** Indicates whether this map is empty. */
     public fun isEmpty(): Boolean = _size == 0
 
-    /**
-     * Returns `true` if this map is not empty.
-     */
+    /** Returns `true` if this map is not empty. */
     public fun isNotEmpty(): Boolean = _size != 0
 
     /**
-     * Returns the value corresponding to the given [key], or `null` if such
-     * a key is not present in the map.
+     * Returns the value corresponding to the given [key], or `null` if such a key is not present in
+     * the map.
+     *
      * @throws NoSuchElementException when [key] is not found
      */
     public operator fun get(key: K): Float {
@@ -340,8 +295,8 @@ public sealed class ObjectFloatMap<K> {
     }
 
     /**
-     * Returns the value to which the specified [key] is mapped,
-     * or [defaultValue] if this map contains no mapping for the key.
+     * Returns the value to which the specified [key] is mapped, or [defaultValue] if this map
+     * contains no mapping for the key.
      */
     public fun getOrDefault(key: K, defaultValue: Float): Float {
         val index = findKeyIndex(key)
@@ -352,9 +307,8 @@ public sealed class ObjectFloatMap<K> {
     }
 
     /**
-     * Returns the value for the given [key] if the value is present
-     * and not null. Otherwise, returns the result of the [defaultValue]
-     * function.
+     * Returns the value for the given [key] if the value is present and not null. Otherwise,
+     * returns the result of the [defaultValue] function.
      */
     public inline fun getOrElse(key: K, defaultValue: () -> Float): Float {
         val index = findKeyIndex(key)
@@ -365,8 +319,8 @@ public sealed class ObjectFloatMap<K> {
     }
 
     /**
-     * Iterates over every key/value pair stored in this map by invoking
-     * the specified [block] lambda.
+     * Iterates over every key/value pair stored in this map by invoking the specified [block]
+     * lambda.
      */
     @PublishedApi
     internal inline fun forEachIndexed(block: (index: Int) -> Unit) {
@@ -394,110 +348,71 @@ public sealed class ObjectFloatMap<K> {
     }
 
     /**
-     * Iterates over every key/value pair stored in this map by invoking
-     * the specified [block] lambda.
+     * Iterates over every key/value pair stored in this map by invoking the specified [block]
+     * lambda.
      */
     public inline fun forEach(block: (key: K, value: Float) -> Unit) {
         val k = keys
         val v = values
 
-        forEachIndexed { index ->
-            @Suppress("UNCHECKED_CAST")
-            block(k[index] as K, v[index])
-        }
+        forEachIndexed { index -> @Suppress("UNCHECKED_CAST") block(k[index] as K, v[index]) }
     }
 
-    /**
-     * Iterates over every key stored in this map by invoking the specified
-     * [block] lambda.
-     */
+    /** Iterates over every key stored in this map by invoking the specified [block] lambda. */
     public inline fun forEachKey(block: (key: K) -> Unit) {
         val k = keys
 
-        forEachIndexed { index ->
-            @Suppress("UNCHECKED_CAST")
-            block(k[index] as K)
-        }
+        forEachIndexed { index -> @Suppress("UNCHECKED_CAST") block(k[index] as K) }
     }
 
-    /**
-     * Iterates over every value stored in this map by invoking the specified
-     * [block] lambda.
-     */
+    /** Iterates over every value stored in this map by invoking the specified [block] lambda. */
     public inline fun forEachValue(block: (value: Float) -> Unit) {
         val v = values
 
-        forEachIndexed { index ->
-            block(v[index])
-        }
+        forEachIndexed { index -> block(v[index]) }
     }
 
-    /**
-     * Returns true if all entries match the given [predicate].
-     */
+    /** Returns true if all entries match the given [predicate]. */
     public inline fun all(predicate: (K, Float) -> Boolean): Boolean {
-        forEach { key, value ->
-            if (!predicate(key, value)) return false
-        }
+        forEach { key, value -> if (!predicate(key, value)) return false }
         return true
     }
 
-    /**
-     * Returns true if at least one entry matches the given [predicate].
-     */
+    /** Returns true if at least one entry matches the given [predicate]. */
     public inline fun any(predicate: (K, Float) -> Boolean): Boolean {
-        forEach { key, value ->
-            if (predicate(key, value)) return true
-        }
+        forEach { key, value -> if (predicate(key, value)) return true }
         return false
     }
 
-    /**
-     * Returns the number of entries in this map.
-     */
+    /** Returns the number of entries in this map. */
     public fun count(): Int = size
 
-    /**
-     * Returns the number of entries matching the given [predicate].
-     */
+    /** Returns the number of entries matching the given [predicate]. */
     public inline fun count(predicate: (K, Float) -> Boolean): Int {
         var count = 0
-        forEach { key, value ->
-            if (predicate(key, value)) count++
-        }
+        forEach { key, value -> if (predicate(key, value)) count++ }
         return count
     }
 
-    /**
-     * Returns true if the specified [key] is present in this hash map, false
-     * otherwise.
-     */
+    /** Returns true if the specified [key] is present in this hash map, false otherwise. */
     public operator fun contains(key: K): Boolean = findKeyIndex(key) >= 0
 
-    /**
-     * Returns true if the specified [key] is present in this hash map, false
-     * otherwise.
-     */
+    /** Returns true if the specified [key] is present in this hash map, false otherwise. */
     public fun containsKey(key: K): Boolean = findKeyIndex(key) >= 0
 
-    /**
-     * Returns true if the specified [value] is present in this hash map, false
-     * otherwise.
-     */
+    /** Returns true if the specified [value] is present in this hash map, false otherwise. */
     public fun containsValue(value: Float): Boolean {
-        forEachValue { v ->
-            if (value == v) return true
-        }
+        forEachValue { v -> if (value == v) return true }
         return false
     }
 
     /**
-     * Creates a String from the entries, separated by [separator] and using [prefix] before
-     * and [postfix] after, if supplied.
+     * Creates a String from the entries, separated by [separator] and using [prefix] before and
+     * [postfix] after, if supplied.
      *
-     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
-     * to generate the string. If the collection holds more than [limit] items, the string
-     * is terminated with [truncated].
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used to
+     * generate the string. If the collection holds more than [limit] items, the string is
+     * terminated with [truncated].
      */
     @JvmOverloads
     public fun joinToString(
@@ -526,12 +441,12 @@ public sealed class ObjectFloatMap<K> {
     }
 
     /**
-     * Creates a String from the entries, separated by [separator] and using [prefix] before
-     * and [postfix] after, if supplied. Each entry is created with [transform].
+     * Creates a String from the entries, separated by [separator] and using [prefix] before and
+     * [postfix] after, if supplied. Each entry is created with [transform].
      *
-     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used
-     * to generate the string. If the collection holds more than [limit] items, the string
-     * is terminated with [truncated].
+     * When a non-negative value of [limit] is provided, a maximum of [limit] items are used to
+     * generate the string. If the collection holds more than [limit] items, the string is
+     * terminated with [truncated].
      */
     @JvmOverloads
     public inline fun joinToString(
@@ -559,22 +474,20 @@ public sealed class ObjectFloatMap<K> {
     }
 
     /**
-     * Returns the hash code value for this map. The hash code the sum of the hash
-     * codes of each key/value pair.
+     * Returns the hash code value for this map. The hash code the sum of the hash codes of each
+     * key/value pair.
      */
     public override fun hashCode(): Int {
         var hash = 0
 
-        forEach { key, value ->
-            hash += key.hashCode() xor value.hashCode()
-        }
+        forEach { key, value -> hash += key.hashCode() xor value.hashCode() }
 
         return hash
     }
 
     /**
-     * Compares the specified object [other] with this hash map for equality.
-     * The two objects are considered equal if [other]:
+     * Compares the specified object [other] with this hash map for equality. The two objects are
+     * considered equal if [other]:
      * - Is a [ObjectFloatMap]
      * - Has the same [size] as this map
      * - Contains key/value pairs equal to this map's pair
@@ -591,8 +504,7 @@ public sealed class ObjectFloatMap<K> {
             return false
         }
 
-        @Suppress("UNCHECKED_CAST")
-        val o = other as ObjectFloatMap<Any?>
+        @Suppress("UNCHECKED_CAST") val o = other as ObjectFloatMap<Any?>
 
         forEach { key, value ->
             if (value != o[key]) {
@@ -604,10 +516,9 @@ public sealed class ObjectFloatMap<K> {
     }
 
     /**
-     * Returns a string representation of this map. The map is denoted in the
-     * string by the `{}`. Each key/value pair present in the map is represented
-     * inside '{}` by a substring of the form `key=value`, and pairs are
-     * separated by `, `.
+     * Returns a string representation of this map. The map is denoted in the string by the `{}`.
+     * Each key/value pair present in the map is represented inside '{}` by a substring of the form
+     * `key=value`, and pairs are separated by `, `.
      */
     public override fun toString(): String {
         if (isEmpty()) {
@@ -630,8 +541,8 @@ public sealed class ObjectFloatMap<K> {
     }
 
     /**
-     * Scans the hash table to find the index in the backing arrays of the
-     * specified [key]. Returns -1 if the key is not present.
+     * Scans the hash table to find the index in the backing arrays of the specified [key]. Returns
+     * -1 if the key is not present.
      */
     @PublishedApi
     internal fun findKeyIndex(key: K): Int {
@@ -666,33 +577,28 @@ public sealed class ObjectFloatMap<K> {
 }
 
 /**
- * [MutableObjectFloatMap] is a container with a [MutableMap]-like interface for keys with
- * reference types and [Float] primitives for values.
+ * [MutableObjectFloatMap] is a container with a [MutableMap]-like interface for keys with reference
+ * types and [Float] primitives for values.
  *
- * The underlying implementation is designed to avoid allocations from boxing,
- * and insertion, removal, retrieval, and iteration operations. Allocations
- * may still happen on insertion when the underlying storage needs to grow to
- * accommodate newly added entries to the table. In addition, this implementation
- * minimizes memory usage by avoiding the use of separate objects to hold
+ * The underlying implementation is designed to avoid allocations from boxing, and insertion,
+ * removal, retrieval, and iteration operations. Allocations may still happen on insertion when the
+ * underlying storage needs to grow to accommodate newly added entries to the table. In addition,
+ * this implementation minimizes memory usage by avoiding the use of separate objects to hold
  * key/value pairs.
  *
- * This implementation is not thread-safe: if multiple threads access this
- * container concurrently, and one or more threads modify the structure of
- * the map (insertion or removal for instance), the calling code must provide
- * the appropriate synchronization. Multiple threads are safe to read from this
- * map concurrently if no write is happening.
+ * This implementation is not thread-safe: if multiple threads access this container concurrently,
+ * and one or more threads modify the structure of the map (insertion or removal for instance), the
+ * calling code must provide the appropriate synchronization. Multiple threads are safe to read from
+ * this map concurrently if no write is happening.
  *
+ * @param initialCapacity The initial desired capacity for this container. the container will honor
+ *   this value by guaranteeing its internal structures can hold that many entries without requiring
+ *   any allocations. The initial capacity can be set to 0.
  * @constructor Creates a new [MutableObjectFloatMap]
- * @param initialCapacity The initial desired capacity for this container.
- * the container will honor this value by guaranteeing its internal structures
- * can hold that many entries without requiring any allocations. The initial
- * capacity can be set to 0.
- *
  * @see MutableScatterMap
  */
-public class MutableObjectFloatMap<K>(
-    initialCapacity: Int = DefaultScatterCapacity
-) : ObjectFloatMap<K>() {
+public class MutableObjectFloatMap<K>(initialCapacity: Int = DefaultScatterCapacity) :
+    ObjectFloatMap<K>() {
     // Number of entries we can add before we need to grow
     private var growthLimit = 0
 
@@ -702,13 +608,14 @@ public class MutableObjectFloatMap<K>(
     }
 
     private fun initializeStorage(initialCapacity: Int) {
-        val newCapacity = if (initialCapacity > 0) {
-            // Since we use longs for storage, our capacity is never < 7, enforce
-            // it here. We do have a special case for 0 to create small empty maps
-            maxOf(7, normalizeCapacity(initialCapacity))
-        } else {
-            0
-        }
+        val newCapacity =
+            if (initialCapacity > 0) {
+                // Since we use longs for storage, our capacity is never < 7, enforce
+                // it here. We do have a special case for 0 to create small empty maps
+                maxOf(7, normalizeCapacity(initialCapacity))
+            } else {
+                0
+            }
         _capacity = newCapacity
         initializeMetadata(newCapacity)
         keys = arrayOfNulls(newCapacity)
@@ -716,15 +623,14 @@ public class MutableObjectFloatMap<K>(
     }
 
     private fun initializeMetadata(capacity: Int) {
-        metadata = if (capacity == 0) {
-            EmptyGroup
-        } else {
-            // Round up to the next multiple of 8 and find how many longs we need
-            val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
-            LongArray(size).apply {
-                fill(AllEmpty)
+        metadata =
+            if (capacity == 0) {
+                EmptyGroup
+            } else {
+                // Round up to the next multiple of 8 and find how many longs we need
+                val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
+                LongArray(size).apply { fill(AllEmpty) }
             }
-        }
         writeRawMetadata(metadata, capacity, Sentinel)
         initializeGrowth()
     }
@@ -734,9 +640,8 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Returns the value to which the specified [key] is mapped,
-     * if the value is present in the map and not `null`. Otherwise,
-     * calls `defaultValue()` and puts the result in the map associated
+     * Returns the value to which the specified [key] is mapped, if the value is present in the map
+     * and not `null`. Otherwise, calls `defaultValue()` and puts the result in the map associated
      * with [key].
      */
     public inline fun getOrPut(key: K, defaultValue: () -> Float): Float {
@@ -750,11 +655,10 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Creates a new mapping from [key] to [value] in this map. If [key] is
-     * already present in the map, the association is modified and the previously
-     * associated value is replaced with [value]. If [key] is not present, a new
-     * entry is added to the map, which may require to grow the underlying storage
-     * and cause allocations.
+     * Creates a new mapping from [key] to [value] in this map. If [key] is already present in the
+     * map, the association is modified and the previously associated value is replaced with
+     * [value]. If [key] is not present, a new entry is added to the map, which may require to grow
+     * the underlying storage and cause allocations.
      */
     public operator fun set(key: K, value: Float) {
         var index = findIndex(key)
@@ -764,22 +668,20 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Creates a new mapping from [key] to [value] in this map. If [key] is
-     * already present in the map, the association is modified and the previously
-     * associated value is replaced with [value]. If [key] is not present, a new
-     * entry is added to the map, which may require to grow the underlying storage
-     * and cause allocations.
+     * Creates a new mapping from [key] to [value] in this map. If [key] is already present in the
+     * map, the association is modified and the previously associated value is replaced with
+     * [value]. If [key] is not present, a new entry is added to the map, which may require to grow
+     * the underlying storage and cause allocations.
      */
     public fun put(key: K, value: Float) {
         set(key, value)
     }
 
     /**
-     * Creates a new mapping from [key] to [value] in this map. If [key] is
-     * already present in the map, the association is modified and the previously
-     * associated value is replaced with [value]. If [key] is not present, a new
-     * entry is added to the map, which may require to grow the underlying storage
-     * and cause allocations.
+     * Creates a new mapping from [key] to [value] in this map. If [key] is already present in the
+     * map, the association is modified and the previously associated value is replaced with
+     * [value]. If [key] is not present, a new entry is added to the map, which may require to grow
+     * the underlying storage and cause allocations.
      *
      * @return value previously associated with [key] or [default] if key was not present.
      */
@@ -797,23 +699,15 @@ public class MutableObjectFloatMap<K>(
         return previous
     }
 
-    /**
-     * Puts all the key/value mappings in the [from] map into this map.
-     */
+    /** Puts all the key/value mappings in the [from] map into this map. */
     public fun putAll(from: ObjectFloatMap<K>) {
-        from.forEach { key, value ->
-            this[key] = value
-        }
+        from.forEach { key, value -> this[key] = value }
     }
 
-    /**
-     * Puts all the key/value mappings in the [from] map into this map.
-     */
+    /** Puts all the key/value mappings in the [from] map into this map. */
     public inline operator fun plusAssign(from: ObjectFloatMap<K>): Unit = putAll(from)
 
-    /**
-     * Removes the specified [key] and its associated value from the map.
-     */
+    /** Removes the specified [key] and its associated value from the map. */
     public fun remove(key: K) {
         val index = findKeyIndex(key)
         if (index >= 0) {
@@ -822,8 +716,8 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Removes the specified [key] and its associated value from the map if the
-     * associated value equals [value]. Returns whether the removal happened.
+     * Removes the specified [key] and its associated value from the map if the associated value
+     * equals [value]. Returns whether the removal happened.
      */
     public fun remove(key: K, value: Float): Boolean {
         val index = findKeyIndex(key)
@@ -836,9 +730,7 @@ public class MutableObjectFloatMap<K>(
         return false
     }
 
-    /**
-     * Removes any mapping for which the specified [predicate] returns true.
-     */
+    /** Removes any mapping for which the specified [predicate] returns true. */
     public inline fun removeIf(predicate: (K, Float) -> Boolean) {
         forEachIndexed { index ->
             @Suppress("UNCHECKED_CAST")
@@ -848,47 +740,35 @@ public class MutableObjectFloatMap<K>(
         }
     }
 
-    /**
-     * Removes the specified [key] and its associated value from the map.
-     */
+    /** Removes the specified [key] and its associated value from the map. */
     public inline operator fun minusAssign(key: K) {
         remove(key)
     }
 
-    /**
-     * Removes the specified [keys] and their associated value from the map.
-     */
+    /** Removes the specified [keys] and their associated value from the map. */
     public inline operator fun minusAssign(@Suppress("ArrayReturn") keys: Array<out K>) {
         for (key in keys) {
             remove(key)
         }
     }
 
-    /**
-     * Removes the specified [keys] and their associated value from the map.
-     */
+    /** Removes the specified [keys] and their associated value from the map. */
     public inline operator fun minusAssign(keys: Iterable<K>) {
         for (key in keys) {
             remove(key)
         }
     }
 
-    /**
-     * Removes the specified [keys] and their associated value from the map.
-     */
+    /** Removes the specified [keys] and their associated value from the map. */
     public inline operator fun minusAssign(keys: Sequence<K>) {
         for (key in keys) {
             remove(key)
         }
     }
 
-    /**
-     * Removes the specified [keys] and their associated value from the map.
-     */
+    /** Removes the specified [keys] and their associated value from the map. */
     public inline operator fun minusAssign(keys: ScatterSet<K>) {
-        keys.forEach { key ->
-            remove(key)
-        }
+        keys.forEach { key -> remove(key) }
     }
 
     @PublishedApi
@@ -901,9 +781,7 @@ public class MutableObjectFloatMap<K>(
         keys[index] = null
     }
 
-    /**
-     * Removes all mappings from this map.
-     */
+    /** Removes all mappings from this map. */
     public fun clear() {
         _size = 0
         if (metadata !== EmptyGroup) {
@@ -915,11 +793,10 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Scans the hash table to find the index at which we can store a value
-     * for the give [key]. If the key already exists in the table, its index
-     * will be returned, otherwise the index of an empty slot will be returned.
-     * Calling this function may cause the internal storage to be reallocated
-     * if the table is full.
+     * Scans the hash table to find the index at which we can store a value for the give [key]. If
+     * the key already exists in the table, its index will be returned, otherwise the index of an
+     * empty slot will be returned. Calling this function may cause the internal storage to be
+     * reallocated if the table is full.
      */
     private fun findIndex(key: K): Int {
         val hash = hash(key)
@@ -963,8 +840,8 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Finds the first empty or deleted slot in the table in which we can
-     * store a value without resizing the internal storage.
+     * Finds the first empty or deleted slot in the table in which we can store a value without
+     * resizing the internal storage.
      */
     private fun findFirstAvailableSlot(hash1: Int): Int {
         val probeMask = _capacity
@@ -983,11 +860,11 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Trims this [MutableObjectFloatMap]'s storage so it is sized appropriately
-     * to hold the current mappings.
+     * Trims this [MutableObjectFloatMap]'s storage so it is sized appropriately to hold the current
+     * mappings.
      *
-     * Returns the number of empty entries removed from this map's storage.
-     * Returns be 0 if no trimming is necessary or possible.
+     * Returns the number of empty entries removed from this map's storage. Returns be 0 if no
+     * trimming is necessary or possible.
      */
     public fun trim(): Int {
         val previousCapacity = _capacity
@@ -1000,10 +877,9 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Grow internal storage if necessary. This function can instead opt to
-     * remove deleted entries from the table to avoid an expensive reallocation
-     * of the underlying storage. This "rehash in place" occurs when the
-     * current size is <= 25/32 of the table capacity. The choice of 25/32 is
+     * Grow internal storage if necessary. This function can instead opt to remove deleted entries
+     * from the table to avoid an expensive reallocation of the underlying storage. This "rehash in
+     * place" occurs when the current size is <= 25/32 of the table capacity. The choice of 25/32 is
      * detailed in the implementation of abseil's `raw_hash_set`.
      */
     private fun adjustStorage() {
@@ -1040,9 +916,9 @@ public class MutableObjectFloatMap<K>(
     }
 
     /**
-     * Writes the "H2" part of an entry into the metadata array at the specified
-     * [index]. The index must be a valid index. This function ensures the
-     * metadata is also written in the clone area at the end.
+     * Writes the "H2" part of an entry into the metadata array at the specified [index]. The index
+     * must be a valid index. This function ensures the metadata is also written in the clone area
+     * at the end.
      */
     private inline fun writeMetadata(index: Int, value: Long) {
         val m = metadata
@@ -1050,8 +926,7 @@ public class MutableObjectFloatMap<K>(
 
         // Mirroring
         val c = _capacity
-        val cloneIndex = ((index - ClonedMetadataCount) and c) +
-            (ClonedMetadataCount and c)
+        val cloneIndex = ((index - ClonedMetadataCount) and c) + (ClonedMetadataCount and c)
         writeRawMetadata(m, cloneIndex, value)
     }
 }

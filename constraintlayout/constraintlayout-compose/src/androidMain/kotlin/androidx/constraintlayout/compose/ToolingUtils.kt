@@ -28,16 +28,11 @@ import androidx.constraintlayout.core.widgets.HelperWidget
 import org.json.JSONArray
 import org.json.JSONObject
 
-/**
- * [SemanticsPropertyKey] to test [DesignInfoProvider]
- */
+/** [SemanticsPropertyKey] to test [DesignInfoProvider] */
 val DesignInfoDataKey = SemanticsPropertyKey<DesignInfoProvider>("DesignInfoProvider")
 
-/**
- * [SemanticsPropertyReceiver] to test [DesignInfoProvider]
- */
-@PublishedApi
-internal var SemanticsPropertyReceiver.designInfoProvider by DesignInfoDataKey
+/** [SemanticsPropertyReceiver] to test [DesignInfoProvider] */
+@PublishedApi internal var SemanticsPropertyReceiver.designInfoProvider by DesignInfoDataKey
 
 /**
  * Interface used for Studio tooling.
@@ -92,11 +87,12 @@ internal fun parseConstraintsToJson(
                 val targetWidget = anchor.target.owner
                 val targetIsParent = root == targetWidget
                 val targetIsHelper = targetWidget is HelperWidget
-                val targetId = when {
-                    targetIsParent -> rootId
-                    targetIsHelper -> targetWidget.getHelperId(state)
-                    else -> targetWidget.getRefId()
-                }
+                val targetId =
+                    when {
+                        targetIsParent -> rootId
+                        targetIsHelper -> targetWidget.getHelperId(state)
+                        else -> targetWidget.getRefId()
+                    }
                 constraintsInfoArray.put(
                     JSONObject()
                         .put("originAnchor", anchor.type)
@@ -144,28 +140,27 @@ private fun addReferencesIds(
     }
 }
 
-/**
- * Returns the Id used for HelperWidgets like barriers or guidelines. Blank if there's no Id.
- */
+/** Returns the Id used for HelperWidgets like barriers or guidelines. Blank if there's no Id. */
 private fun ConstraintWidget.getHelperId(state: State): String =
     state.getKeyId(this as HelperWidget).toString()
 
-/**
- * Returns the Id used for Composables within the layout. Blank if there's no Id.
- */
+/** Returns the Id used for Composables within the layout. Blank if there's no Id. */
 private fun ConstraintWidget?.getRefId(): String =
     (this?.companionWidget as? Measurable)?.layoutId?.toString() ?: this?.stringId.toString()
 
-private fun createDesignInfoJson(content: JSONObject) = JSONObject()
-    .put("type", "CONSTRAINTS")
-    .put("version", CONSTRAINTS_JSON_VERSION)
-    .put("content", content).toString()
+private fun createDesignInfoJson(content: JSONObject) =
+    JSONObject()
+        .put("type", "CONSTRAINTS")
+        .put("version", CONSTRAINTS_JSON_VERSION)
+        .put("content", content)
+        .toString()
 
-private fun ConstraintWidget.boundsToJson(startX: Int, startY: Int) = JSONObject()
-    .put("left", left + startX)
-    .put("top", top + startY)
-    .put("right", right + startX)
-    .put("bottom", bottom + startY)
+private fun ConstraintWidget.boundsToJson(startX: Int, startY: Int) =
+    JSONObject()
+        .put("left", left + startX)
+        .put("top", top + startY)
+        .put("right", right + startX)
+        .put("bottom", bottom + startY)
 
 private fun JSONObject.putViewIdToBoundsAndConstraints(
     viewId: String,

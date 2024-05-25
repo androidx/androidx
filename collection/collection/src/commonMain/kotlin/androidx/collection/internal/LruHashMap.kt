@@ -17,8 +17,8 @@
 package androidx.collection.internal
 
 /**
- * There is no equivalent to Java `LinkedHashMap(initialCapacity, loadFactor, accessOrder)`
- * in Kotlin/Native. This class provides only necessary things, so it doesn't implement the whole
+ * There is no equivalent to Java `LinkedHashMap(initialCapacity, loadFactor, accessOrder)` in
+ * Kotlin/Native. This class provides only necessary things, so it doesn't implement the whole
  * `MutableMap` interface.
  *
  * See [KT-52183](https://youtrack.jetbrains.com/issue/KT-52183).

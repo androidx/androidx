@@ -63,20 +63,20 @@ internal fun LateMotionLayout(
 
     // Start and end are guaranteed to be non-null when the lambda is invoked at the measure
     // step.
-    val measurePolicy = lateMotionLayoutMeasurePolicy(
-        startProvider = remember { { start.value!! } },
-        endProvider = remember { { end.value!! } },
-        contentTracker = contentTracker,
-        compositionSource = compositionSource,
-        motionProgress = motionProgress,
-        measurer = measurer,
-        optimizationLevel = optimizationLevel
-    )
+    val measurePolicy =
+        lateMotionLayoutMeasurePolicy(
+            startProvider = remember { { start.value!! } },
+            endProvider = remember { { end.value!! } },
+            contentTracker = contentTracker,
+            compositionSource = compositionSource,
+            motionProgress = motionProgress,
+            measurer = measurer,
+            optimizationLevel = optimizationLevel
+        )
 
     @Suppress("DEPRECATION")
     MultiMeasureLayout(
-        modifier = modifier
-            .semantics { designInfoProvider = measurer },
+        modifier = modifier.semantics { designInfoProvider = measurer },
         measurePolicy = measurePolicy,
         content = content
     )
@@ -84,8 +84,7 @@ internal fun LateMotionLayout(
     LaunchedEffect(channel) {
         for (constraints in channel) {
             val newConstraints = channel.tryReceive().getOrNull() ?: constraints
-            val currentConstraints =
-                if (direction.intValue == 1) start.value else end.value
+            val currentConstraints = if (direction.intValue == 1) start.value else end.value
             if (newConstraints != currentConstraints) {
                 if (direction.intValue == 1) {
                     end.value = newConstraints
@@ -117,13 +116,13 @@ private fun lateMotionLayoutMeasurePolicy(
     motionProgress: State<Float>,
     measurer: MotionMeasurer,
     optimizationLevel: Int,
-): MeasurePolicy =
-    MeasurePolicy { measurables, constraints ->
-        // Do a state read, to guarantee that we control measure when the content recomposes without
-        // notifying our Composable caller
-        contentTracker.value
+): MeasurePolicy = MeasurePolicy { measurables, constraints ->
+    // Do a state read, to guarantee that we control measure when the content recomposes without
+    // notifying our Composable caller
+    contentTracker.value
 
-        val layoutSize = measurer.performInterpolationMeasure(
+    val layoutSize =
+        measurer.performInterpolationMeasure(
             constraints = constraints,
             layoutDirection = this.layoutDirection,
             constraintSetStart = startProvider(),
@@ -135,11 +134,7 @@ private fun lateMotionLayoutMeasurePolicy(
             compositionSource = compositionSource.value ?: CompositionSource.Unknown,
             invalidateOnConstraintsCallback = null
         )
-        compositionSource.value = CompositionSource.Unknown // Reset after measuring
+    compositionSource.value = CompositionSource.Unknown // Reset after measuring
 
-        layout(layoutSize.width, layoutSize.height) {
-            with(measurer) {
-                performLayout(measurables)
-            }
-        }
-    }
+    layout(layoutSize.width, layoutSize.height) { with(measurer) { performLayout(measurables) } }
+}

@@ -26,7 +26,9 @@ package androidx.collection
  *   listOf(1, 2),
  *   listOf("one", "two"))
  * ```
+ *
  * will produce
+ *
  * ```
  * [
  *   [ 1, "one" ]
@@ -38,8 +40,6 @@ package androidx.collection
  */
 inline fun <reified T> buildParameters(vararg lists: List<T>): List<Array<T>> {
     return lists.fold(listOf(emptyArray())) { partials, list ->
-        partials.flatMap { partial ->
-            list.map { element -> partial + element }
-        }
+        partials.flatMap { partial -> list.map { element -> partial + element } }
     }
 }

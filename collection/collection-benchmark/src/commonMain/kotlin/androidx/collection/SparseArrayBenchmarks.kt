@@ -22,6 +22,7 @@ internal class SparseArrayGetBenchmark(
     private val map: SparseArrayCompat<String>,
 ) : CollectionBenchmark {
     val lastKey = map.keyAt(map.size() - 1)
+
     override fun measuredBlock() {
         map.get(lastKey)
     }
@@ -31,6 +32,7 @@ internal class SparseArrayContainsKeyBenchmark(
     private val map: SparseArrayCompat<String>,
 ) : CollectionBenchmark {
     val lastKey = map.keyAt(map.size() - 1)
+
     override fun measuredBlock() {
         map.containsKey(lastKey)
     }
@@ -40,6 +42,7 @@ internal class SparseArrayIndexOfKeyBenchmark(
     private val map: SparseArrayCompat<String>,
 ) : CollectionBenchmark {
     val lastKey = map.keyAt(map.size() - 1)
+
     override fun measuredBlock() {
         map.indexOfKey(lastKey)
     }
@@ -49,6 +52,7 @@ internal class SparseArrayIndexOfValueBenchmark(
     private val map: SparseArrayCompat<String>,
 ) : CollectionBenchmark {
     val lastValue = map.valueAt(map.size() - 1)
+
     override fun measuredBlock() {
         map.indexOfValue(lastValue)
     }
@@ -56,25 +60,27 @@ internal class SparseArrayIndexOfValueBenchmark(
 
 internal fun createFilledSparseArray(size: Int, sparse: Boolean): SparseArrayCompat<String> {
     return SparseArrayCompat<String>().apply {
-        val keyFactory: () -> Int = if (sparse) {
-            // Despite the fixed seed, the algorithm which produces random values may vary across
-            // OS versions. Since we're not doing cross-device comparison this is acceptable.
-            val random = Random(0);
-            {
-                val key: Int
-                while (true) {
-                    val candidate = random.nextInt()
-                    if (candidate !in this) {
-                        key = candidate
-                        break
+        val keyFactory: () -> Int =
+            if (sparse) {
+                // Despite the fixed seed, the algorithm which produces random values may vary
+                // across
+                // OS versions. Since we're not doing cross-device comparison this is acceptable.
+                val random = Random(0);
+                {
+                    val key: Int
+                    while (true) {
+                        val candidate = random.nextInt()
+                        if (candidate !in this) {
+                            key = candidate
+                            break
+                        }
                     }
+                    key
                 }
-                key
+            } else {
+                var key = 0
+                { key++ }
             }
-        } else {
-            var key = 0
-            { key++ }
-        }
         repeat(size) {
             val key = keyFactory()
             put(key, "value$key")

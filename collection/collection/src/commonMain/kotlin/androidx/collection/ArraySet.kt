@@ -37,31 +37,29 @@ public fun <T> arraySetOf(vararg values: T): ArraySet<T> {
 
 /**
  * ArraySet is a generic set data structure that is designed to be more memory efficient than a
- * traditional [HashSet].  The design is very similar to
- * [ArrayMap], with all of the caveats described there.  This implementation is
- * separate from ArrayMap, however, so the Object array contains only one item for each
- * entry in the set (instead of a pair for a mapping).
+ * traditional [HashSet]. The design is very similar to [ArrayMap], with all of the caveats
+ * described there. This implementation is separate from ArrayMap, however, so the Object array
+ * contains only one item for each entry in the set (instead of a pair for a mapping).
  *
- * Note that this implementation is not intended to be appropriate for data structures
- * that may contain large numbers of items.  It is generally slower than a traditional
- * HashSet, since lookups require a binary search and adds and removes require inserting
- * and deleting entries in the array.  For containers holding up to hundreds of items,
- * the performance difference is not significant, less than 50%.
+ * Note that this implementation is not intended to be appropriate for data structures that may
+ * contain large numbers of items. It is generally slower than a traditional HashSet, since lookups
+ * require a binary search and adds and removes require inserting and deleting entries in the array.
+ * For containers holding up to hundreds of items, the performance difference is not significant,
+ * less than 50%.
  *
- * Because this container is intended to better balance memory use, unlike most other
- * standard Java containers it will shrink its array as items are removed from it.  Currently
- * you have no control over this shrinking -- if you set a capacity and then remove an
- * item, it may reduce the capacity to better match the current size.  In the future an
- * explicit call to set the capacity should turn off this aggressive shrinking behavior.
+ * Because this container is intended to better balance memory use, unlike most other standard Java
+ * containers it will shrink its array as items are removed from it. Currently you have no control
+ * over this shrinking -- if you set a capacity and then remove an item, it may reduce the capacity
+ * to better match the current size. In the future an explicit call to set the capacity should turn
+ * off this aggressive shrinking behavior.
  *
  * This structure is **NOT** thread-safe.
  *
- * @constructor Creates a new empty ArraySet. The default capacity of an array map is 0, and
- * will grow once items are added to it.
+ * @constructor Creates a new empty ArraySet. The default capacity of an array map is 0, and will
+ *   grow once items are added to it.
  */
-public expect class ArraySet<E> @JvmOverloads constructor(
-    capacity: Int = 0
-) : MutableCollection<E>, MutableSet<E> {
+public expect class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
+    MutableCollection<E>, MutableSet<E> {
 
     internal var hashes: IntArray
     internal var array: Array<Any?>
@@ -69,31 +67,24 @@ public expect class ArraySet<E> @JvmOverloads constructor(
     internal var _size: Int
     override val size: Int
 
-    /**
-     * Create a new ArraySet with the mappings from the given ArraySet.
-     */
+    /** Create a new ArraySet with the mappings from the given ArraySet. */
     public constructor(set: ArraySet<out E>?)
 
-    /**
-     * Create a new ArraySet with the mappings from the given [Collection].
-     */
+    /** Create a new ArraySet with the mappings from the given [Collection]. */
     public constructor(set: Collection<E>?)
 
-    /**
-     * Create a new ArraySet with items from the given array.
-     */
+    /** Create a new ArraySet with items from the given array. */
     public constructor(array: Array<out E>?)
 
     /**
-     * Make the array map empty.  All storage is released.
+     * Make the array map empty. All storage is released.
      *
      * @throws ConcurrentModificationException if concurrent modifications detected.
      */
     override fun clear()
 
     /**
-     * Ensure the array map can hold at least [minimumCapacity]
-     * items.
+     * Ensure the array map can hold at least [minimumCapacity] items.
      *
      * @throws ConcurrentModificationException if concurrent modifications detected.
      */
@@ -123,14 +114,12 @@ public expect class ArraySet<E> @JvmOverloads constructor(
      */
     public fun valueAt(index: Int): E
 
-    /**
-     * Return `true` if the array map contains no items.
-     */
+    /** Return `true` if the array map contains no items. */
     override fun isEmpty(): Boolean
 
     /**
-     * Adds the specified object to this set. The set is not modified if it
-     * already contains the object.
+     * Adds the specified object to this set. The set is not modified if it already contains the
+     * object.
      *
      * @param element the object to add.
      * @return `true` if this set is modified, `false` otherwise.
@@ -171,33 +160,29 @@ public expect class ArraySet<E> @JvmOverloads constructor(
     public fun removeAll(array: ArraySet<out E>): Boolean
 
     /**
-     * This implementation returns false if the object is not a set, or
-     * if the sets have different sizes.  Otherwise, for each value in this
-     * set, it checks to make sure the value also exists in the other set.
-     * If any value doesn't exist, the method returns false; otherwise, it
-     * returns true.
+     * This implementation returns false if the object is not a set, or if the sets have different
+     * sizes. Otherwise, for each value in this set, it checks to make sure the value also exists in
+     * the other set. If any value doesn't exist, the method returns false; otherwise, it returns
+     * true.
      *
      * @see Any.equals
      */
     override fun equals(other: Any?): Boolean
 
-    /**
-     * @see Any.hashCode
-     */
+    /** @see Any.hashCode */
     override fun hashCode(): Int
 
     /**
-     * This implementation composes a string by iterating over its values. If
-     * this set contains itself as a value, the string "(this Set)"
-     * will appear in its place.
+     * This implementation composes a string by iterating over its values. If this set contains
+     * itself as a value, the string "(this Set)" will appear in its place.
      */
     override fun toString(): String
 
     /**
      * Return a [MutableIterator] over all values in the set.
      *
-     * **Note:** this is a less efficient way to access the array contents compared to
-     * looping from 0 until [size] and calling [valueAt].
+     * **Note:** this is a less efficient way to access the array contents compared to looping from
+     * 0 until [size] and calling [valueAt].
      */
     override fun iterator(): MutableIterator<E>
 
@@ -205,8 +190,8 @@ public expect class ArraySet<E> @JvmOverloads constructor(
      * Determine if the array set contains all of the values in the given collection.
      *
      * @param elements The collection whose contents are to be checked against.
-     * @return Returns true if this array set contains a value for every entry
-     * in [elements] else returns false.
+     * @return Returns true if this array set contains a value for every entry in [elements] else
+     *   returns false.
      */
     override fun containsAll(elements: Collection<E>): Boolean
 
@@ -228,16 +213,16 @@ public expect class ArraySet<E> @JvmOverloads constructor(
     /**
      * Remove all values in the array set that do **not** exist in the given collection.
      *
-     * @param elements The collection whose contents are to be used to determine which
-     * values to keep.
+     * @param elements The collection whose contents are to be used to determine which values to
+     *   keep.
      * @return Returns true if any values were removed from the array set, else false.
      */
     override fun retainAll(elements: Collection<E>): Boolean
 }
 
 /**
- * The minimum amount by which the capacity of a ArraySet will increase.
- * This is tuned to be relatively space-efficient.
+ * The minimum amount by which the capacity of a ArraySet will increase. This is tuned to be
+ * relatively space-efficient.
  */
 internal const val ARRAY_SET_BASE_SIZE = 4
 
@@ -341,8 +326,7 @@ internal inline fun <E> ArraySet<E>.indexOfInternal(key: Any?): Int {
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> ArraySet<E>.valueAtInternal(index: Int): E {
-    @Suppress("UNCHECKED_CAST")
-    return array[index] as E
+    @Suppress("UNCHECKED_CAST") return array[index] as E
 }
 
 @Suppress("NOTHING_TO_INLINE")
@@ -458,10 +442,11 @@ internal inline fun <E> ArraySet<E>.removeAtInternal(index: Int): E {
             // Shrunk enough to reduce size of arrays.  We don't allow it to
             // shrink smaller than (ARRAY_SET_BASE_SIZE*2) to avoid flapping between
             // that and ARRAY_SET_BASE_SIZE.
-            val n = when {
-                _size > ARRAY_SET_BASE_SIZE * 2 -> _size + (_size shr 1)
-                else -> ARRAY_SET_BASE_SIZE * 2
-            }
+            val n =
+                when {
+                    _size > ARRAY_SET_BASE_SIZE * 2 -> _size + (_size shr 1)
+                    else -> ARRAY_SET_BASE_SIZE * 2
+                }
             val ohashes = hashes
             val oarray = array
             allocArrays(n)
@@ -505,8 +490,7 @@ internal inline fun <E> ArraySet<E>.removeAtInternal(index: Int): E {
         }
         _size = nSize
     }
-    @Suppress("UNCHECKED_CAST")
-    return old as E
+    @Suppress("UNCHECKED_CAST") return old as E
 }
 
 @Suppress("NOTHING_TO_INLINE")

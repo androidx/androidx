@@ -29,53 +29,52 @@ private const val TAG = "ArrayMap"
  * Attempt to spot concurrent modifications to this data structure.
  *
  * It's best-effort, but any time we can throw something more diagnostic than an
- * ArrayIndexOutOfBoundsException deep in the ArrayMap internals it's going to
- * save a lot of development time.
+ * ArrayIndexOutOfBoundsException deep in the ArrayMap internals it's going to save a lot of
+ * development time.
  *
- * Good times to look for CME include after any allocArrays() call and at the end of
- * functions that change mSize (put/remove/clear).
+ * Good times to look for CME include after any allocArrays() call and at the end of functions that
+ * change mSize (put/remove/clear).
  */
 private const val CONCURRENT_MODIFICATION_EXCEPTIONS = true
 
 /**
- * The minimum amount by which the capacity of a ArrayMap will increase.
- * This is tuned to be relatively space-efficient.
+ * The minimum amount by which the capacity of a ArrayMap will increase. This is tuned to be
+ * relatively space-efficient.
  */
 private const val BASE_SIZE = 4
 
 /**
  * Base implementation of [ArrayMap][androidx.collection.ArrayMap] that doesn't include any standard
- * Java container API interoperability. These features are generally heavier-weight ways
- * to interact with the container, so discouraged, but they can be useful to make it
- * easier to use as a drop-in replacement for HashMap. If you don't need them, this
- * class can be preferable since it doesn't bring in any of the implementation of those
- * APIs, allowing that code to be stripped by ProGuard.
+ * Java container API interoperability. These features are generally heavier-weight ways to interact
+ * with the container, so discouraged, but they can be useful to make it easier to use as a drop-in
+ * replacement for HashMap. If you don't need them, this class can be preferable since it doesn't
+ * bring in any of the implementation of those APIs, allowing that code to be stripped by ProGuard.
  *
  * **NOTE:** Consider using [MutableScatterMap] instead of this class. [MutableScatterMap] also
- * avoids creating a new object per entry but offers better performance characteristics. If
- * a [Map] interface is required, see [MutableScatterMap.asMap]. If a [MutableMap] interface is
- * required, see [MutableScatterMap.asMutableMap]. A [MutableScatterMap] can also be passed as
- * a [ScatterMap] to provide a read-only API surface.
+ * avoids creating a new object per entry but offers better performance characteristics. If a [Map]
+ * interface is required, see [MutableScatterMap.asMap]. If a [MutableMap] interface is required,
+ * see [MutableScatterMap.asMutableMap]. A [MutableScatterMap] can also be passed as a [ScatterMap]
+ * to provide a read-only API surface.
  *
  * @constructor Create a new [SimpleArrayMap] with a given initial capacity. The default capacity of
- * an array map is 0, and will grow once items are added to it.
+ *   an array map is 0, and will grow once items are added to it.
  */
 public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity: Int = 0) {
-    private var hashes: IntArray = when (capacity) {
-        0 -> EMPTY_INTS
-        else -> IntArray(capacity)
-    }
+    private var hashes: IntArray =
+        when (capacity) {
+            0 -> EMPTY_INTS
+            else -> IntArray(capacity)
+        }
 
-    private var array: Array<Any?> = when (capacity) {
-        0 -> EMPTY_OBJECTS
-        else -> arrayOfNulls<Any?>(capacity shl 1)
-    }
+    private var array: Array<Any?> =
+        when (capacity) {
+            0 -> EMPTY_OBJECTS
+            else -> arrayOfNulls<Any?>(capacity shl 1)
+        }
 
     private var size: Int = 0
 
-    /**
-     * Create a new [SimpleArrayMap] with the mappings from the given [map].
-     */
+    /** Create a new [SimpleArrayMap] with the mappings from the given [map]. */
     public constructor(map: SimpleArrayMap<out K, out V>?) : this() {
         if (map != null) {
             this.putAll(map)
@@ -176,7 +175,7 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * Make the array map empty. All storage is released.
      *
      * @throws ConcurrentModificationException if it was detected that this [SimpleArrayMap] was
-     * written to while this operation was running.
+     *   written to while this operation was running.
      */
     public open fun clear() {
         if (size > 0) {
@@ -194,7 +193,7 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * Ensure the array map can hold at least [minimumCapacity] items.
      *
      * @throws ConcurrentModificationException if it was detected that this [SimpleArrayMap] was
-     * written to while this operation was running.
+     *   written to while this operation was running.
      */
     public open fun ensureCapacity(minimumCapacity: Int) {
         val osize = size
@@ -223,10 +222,11 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * @param key The key to search for.
      * @return Returns the index of the key if it exists, else a negative integer.
      */
-    public open fun indexOfKey(key: K): Int = when (key) {
-        null -> indexOfNull()
-        else -> indexOf(key, key.hashCode())
-    }
+    public open fun indexOfKey(key: K): Int =
+        when (key) {
+            null -> indexOfNull()
+            else -> indexOf(key, key.hashCode())
+        }
 
     // @RestrictTo is required since internal is implemented as public with name mangling in Java
     // and we are overriding the name mangling to make it callable from a Java subclass in this
@@ -256,8 +256,8 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
     }
 
     /**
-     * Check whether a value exists in the array. This requires a linear search
-     * through the entire array.
+     * Check whether a value exists in the array. This requires a linear search through the entire
+     * array.
      *
      * @param value The value to search for.
      * @return Returns `true` if the value exists, else `false`.
@@ -282,7 +282,7 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * @param key The key of the value to retrieve.
      * @param defaultValue The default mapping of the key
      * @return Returns the value associated with the given key, or [defaultValue] if there is no
-     * mapping for the key.
+     *   mapping for the key.
      */
     // Unfortunately key must stay of type Any? otherwise it will not register as an override of
     // Java's Map interface, which is necessary since ArrayMap is written in Java and implements
@@ -293,8 +293,7 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
 
     @Suppress("NOTHING_TO_INLINE")
     private inline fun <T : V?> getOrDefaultInternal(key: Any?, defaultValue: T): T {
-        @Suppress("UNCHECKED_CAST")
-        val index = indexOfKey(key as K)
+        @Suppress("UNCHECKED_CAST") val index = indexOfKey(key as K)
         @Suppress("UNCHECKED_CAST")
         return when {
             index >= 0 -> array[(index shl 1) + 1] as T
@@ -310,12 +309,9 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * @throws IllegalArgumentException if [index] is not between 0 and [size]-1
      */
     public open fun keyAt(index: Int): K {
-        require(index in 0 until size) {
-            "Expected index to be within 0..size()-1, but was $index"
-        }
+        require(index in 0 until size) { "Expected index to be within 0..size()-1, but was $index" }
 
-        @Suppress("UNCHECKED_CAST")
-        return array[index shl 1] as K
+        @Suppress("UNCHECKED_CAST") return array[index shl 1] as K
     }
 
     /**
@@ -326,12 +322,9 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * @throws IllegalArgumentException if [index] is not between 0 and [size]-1
      */
     public open fun valueAt(index: Int): V {
-        require(index in 0 until size) {
-            "Expected index to be within 0..size()-1, but was $index"
-        }
+        require(index in 0 until size) { "Expected index to be within 0..size()-1, but was $index" }
 
-        @Suppress("UNCHECKED_CAST")
-        return array[(index shl 1) + 1] as V
+        @Suppress("UNCHECKED_CAST") return array[(index shl 1) + 1] as V
     }
 
     /**
@@ -343,33 +336,28 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * @throws IllegalArgumentException if [index] is not between 0 and [size]-1
      */
     public open fun setValueAt(index: Int, value: V): V {
-        require(index in 0 until size) {
-            "Expected index to be within 0..size()-1, but was $index"
-        }
+        require(index in 0 until size) { "Expected index to be within 0..size()-1, but was $index" }
 
         val indexInArray = (index shl 1) + 1
 
-        @Suppress("UNCHECKED_CAST")
-        val old = array[indexInArray] as V
+        @Suppress("UNCHECKED_CAST") val old = array[indexInArray] as V
         array[indexInArray] = value
         return old
     }
 
-    /**
-     * Return `true` if the array map contains no items.
-     */
+    /** Return `true` if the array map contains no items. */
     public open fun isEmpty(): Boolean = size <= 0
 
     /**
      * Add a new value to the array map.
      *
      * @param key The key under which to store the value. If this key already exists in the array,
-     * its value will be replaced.
+     *   its value will be replaced.
      * @param value The value to store for the given key.
-     * @return Returns the old value that was stored for the given key, or `null` if there
-     * was no such key.
+     * @return Returns the old value that was stored for the given key, or `null` if there was no
+     *   such key.
      * @throws ConcurrentModificationException if it was detected that this [SimpleArrayMap] was
-     * written to while this operation was running.
+     *   written to while this operation was running.
      */
     public open fun put(key: K, value: V): V? {
         val osize = size
@@ -378,19 +366,19 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
 
         if (index >= 0) {
             index = (index shl 1) + 1
-            @Suppress("UNCHECKED_CAST")
-            val old = array[index] as V?
+            @Suppress("UNCHECKED_CAST") val old = array[index] as V?
             array[index] = value
             return old
         }
 
         index = index.inv()
         if (osize >= hashes.size) {
-            val n = when {
-                osize >= BASE_SIZE * 2 -> osize + (osize shr 1)
-                osize >= BASE_SIZE -> BASE_SIZE * 2
-                else -> BASE_SIZE
-            }
+            val n =
+                when {
+                    osize >= BASE_SIZE * 2 -> osize + (osize shr 1)
+                    osize >= BASE_SIZE -> BASE_SIZE * 2
+                    else -> BASE_SIZE
+                }
 
             if (DEBUG) {
                 println("$TAG put: grow from ${hashes.size} to $n")
@@ -460,7 +448,7 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * @param key The key under which to store the value.
      * @param value The value to store for the given key.
      * @return Returns the value that was stored for the given key, or `null` if there was no such
-     * key.
+     *   key.
      */
     public open fun putIfAbsent(key: K, value: V): V? {
         var mapValue = get(key)
@@ -508,13 +496,11 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
      * @param index The desired index, must be between 0 and [size]-1 (inclusive).
      * @return Returns the value that was stored at this index.
      * @throws ConcurrentModificationException if it was detected that this [SimpleArrayMap] was
-     * written to while this operation was running.
+     *   written to while this operation was running.
      * @throws IllegalArgumentException if [index] is not between 0 and [size]-1
      */
     public open fun removeAt(index: Int): V {
-        require(index in 0 until size) {
-            "Expected index to be within 0..size()-1, but was $index"
-        }
+        require(index in 0 until size) { "Expected index to be within 0..size()-1, but was $index" }
 
         val old = array[(index shl 1) + 1]
         val osize = size
@@ -530,10 +516,11 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
                 // Shrunk enough to reduce size of arrays. We don't allow it to
                 // shrink smaller than (BASE_SIZE*2) to avoid flapping between
                 // that and BASE_SIZE.
-                val n = when {
-                    osize > (BASE_SIZE * 2) -> osize + (osize shr 1)
-                    else -> BASE_SIZE * 2
-                }
+                val n =
+                    when {
+                        osize > (BASE_SIZE * 2) -> osize + (osize shr 1)
+                        else -> BASE_SIZE * 2
+                    }
 
                 if (DEBUG) {
                     println("$TAG remove: shrink from ${hashes.size} to $n")
@@ -611,8 +598,7 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
             size = nsize
         }
 
-        @Suppress("UNCHECKED_CAST")
-        return old as V
+        @Suppress("UNCHECKED_CAST") return old as V
     }
 
     /**
@@ -650,18 +636,16 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
         return false
     }
 
-    /**
-     * Return the number of items in this array map.
-     */
+    /** Return the number of items in this array map. */
     public open fun size(): Int {
         return size
     }
 
     /**
-     * This implementation returns `false` if the object is not a [Map] or
-     * [SimpleArrayMap], or if the maps have different sizes. Otherwise, for each
-     * key in this map, values of both maps are compared. If the values for any
-     * key are not equal, the method returns false, otherwise it returns `true`.
+     * This implementation returns `false` if the object is not a [Map] or [SimpleArrayMap], or if
+     * the maps have different sizes. Otherwise, for each key in this map, values of both maps are
+     * compared. If the values for any key are not equal, the method returns false, otherwise it
+     * returns `true`.
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -708,9 +692,7 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
                 }
                 return true
             }
-        } catch (ignored: NullPointerException) {
-        } catch (ignored: ClassCastException) {
-        }
+        } catch (ignored: NullPointerException) {} catch (ignored: ClassCastException) {}
         return false
     }
 
@@ -733,9 +715,8 @@ public open class SimpleArrayMap<K, V> @JvmOverloads public constructor(capacity
     /**
      * Returns a string representation of the object.
      *
-     * This implementation composes a string by iterating over its mappings. If
-     * this map contains itself as a key or a value, the string "(this Map)"
-     * will appear in its place.
+     * This implementation composes a string by iterating over its mappings. If this map contains
+     * itself as a key or a value, the string "(this Map)" will appear in its place.
      */
     override fun toString(): String {
         if (isEmpty()) {
