@@ -178,6 +178,18 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         project.zipComposeCompilerReports()
 
         TaskUpToDateValidator.setup(project, registry)
+
+        /**
+         * Add dependency analysis plugin and add buildHealth task to buildOnServer when
+         * maxDepVersions is not enabled
+         */
+        if (!project.usingMaxDepVersions()) {
+            project.plugins.apply("com.autonomousapps.dependency-analysis")
+            project.tasks
+                .withType(com.autonomousapps.tasks.BuildHealthTask::class.java)
+                .configureEach { it.cacheEvenIfNoOutputs() }
+            buildOnServerTask.dependsOn("buildHealth")
+        }
     }
 
     private fun Project.setDependencyVersions() {
