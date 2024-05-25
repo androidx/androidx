@@ -16,31 +16,15 @@
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.application")
+    id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
 
 android {
-    namespace "androidx.privacysandbox.ui.integration.mediateesdkprovider"
-
-    defaultConfig {
-        applicationId "androidx.privacysandbox.ui.integration.mediateesdkprovider"
-        minSdk 33
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
-    }
+    namespace "androidx.privacysandbox.ui.integration.sdkproviderutils"
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.6.0")
-    implementation project(':privacysandbox:ui:integration-tests:testaidl')
     implementation project(':privacysandbox:ui:ui-core')
-    implementation project(':privacysandbox:ui:ui-provider')
-    implementation project(':privacysandbox:sdkruntime:sdkruntime-client')
-    implementation project(':privacysandbox:ui:integration-tests:sdkproviderutils')
+    implementation project(':webkit:webkit')
 }
