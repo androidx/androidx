@@ -23,27 +23,27 @@ import androidx.annotation.DrawableRes
 import androidx.constraintlayout.compose.integration.macrobenchmark.target.R
 
 @DrawableRes
-private val avatarsIdList: Array<Int> = arrayOf(
-    R.drawable.avatar_1,
-    R.drawable.avatar_2,
-    R.drawable.avatar_3,
-    R.drawable.avatar_4,
-    R.drawable.avatar_5,
-    R.drawable.avatar_6,
-    R.drawable.avatar_7,
-    R.drawable.avatar_8,
-    R.drawable.avatar_9,
-    R.drawable.avatar_10,
-    R.drawable.avatar_11,
-    R.drawable.avatar_12,
-    R.drawable.avatar_13,
-    R.drawable.avatar_14,
-    R.drawable.avatar_15,
-    R.drawable.avatar_16,
-)
+private val avatarsIdList: Array<Int> =
+    arrayOf(
+        R.drawable.avatar_1,
+        R.drawable.avatar_2,
+        R.drawable.avatar_3,
+        R.drawable.avatar_4,
+        R.drawable.avatar_5,
+        R.drawable.avatar_6,
+        R.drawable.avatar_7,
+        R.drawable.avatar_8,
+        R.drawable.avatar_9,
+        R.drawable.avatar_10,
+        R.drawable.avatar_11,
+        R.drawable.avatar_12,
+        R.drawable.avatar_13,
+        R.drawable.avatar_14,
+        R.drawable.avatar_15,
+        R.drawable.avatar_16,
+    )
 
-@DrawableRes
-internal fun randomAvatarId(): Int = avatarsIdList.random()
+@DrawableRes internal fun randomAvatarId(): Int = avatarsIdList.random()
 
 internal fun Context.drawableUriOf(@DrawableRes resourceId: Int): Uri =
     with(resources) {

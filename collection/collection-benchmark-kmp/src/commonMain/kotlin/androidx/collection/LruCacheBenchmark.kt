@@ -53,11 +53,12 @@ open class LruCacheBenchmark {
 
     @Benchmark
     open fun customCreate() {
-        val cache = object : LruCache<String, String>(2) {
-            override fun create(key: String): String {
-                return "value_$key"
+        val cache =
+            object : LruCache<String, String>(2) {
+                override fun create(key: String): String {
+                    return "value_$key"
+                }
             }
-        }
 
         cache.put("foo", "1")
         cache.put("bar", "1")

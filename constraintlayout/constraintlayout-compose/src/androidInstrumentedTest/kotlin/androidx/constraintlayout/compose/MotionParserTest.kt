@@ -41,8 +41,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 internal class MotionParserTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     var displaySize: IntSize = IntSize.Zero
 
@@ -51,8 +50,8 @@ internal class MotionParserTest {
     @Before
     fun before() {
         isDebugInspectorInfoEnabled = true
-        displaySize = ApplicationProvider
-            .getApplicationContext<Context>().resources.displayMetrics.let {
+        displaySize =
+            ApplicationProvider.getApplicationContext<Context>().resources.displayMetrics.let {
                 IntSize(it.widthPixels, it.heightPixels)
             }
     }
@@ -67,7 +66,8 @@ internal class MotionParserTest {
     fun testTransitionParseFailsSilently() {
         // We don't want applications to hard-crash when the parser sees an error
         var coreTransition = androidx.constraintlayout.core.state.Transition { dp -> dp }
-        val transitionContent = """
+        val transitionContent =
+            """
             {
               from: "start",
               to: "end",
@@ -79,7 +79,8 @@ internal class MotionParserTest {
                 }],
               }
             }
-        """.trimIndent()
+        """
+                .trimIndent()
         // Parsing transition throws an exception but the Composable should not crash the app
         assertFailsWith<CLParsingException> {
             TransitionParser.parse(CLParser.parse(transitionContent), coreTransition)
@@ -89,26 +90,30 @@ internal class MotionParserTest {
             val transition = Transition(content = transitionContent)
             MotionLayout(
                 modifier = Modifier.size(100.dp),
-                start = ConstraintSet(
-                    """
+                start =
+                    ConstraintSet(
+                        """
                     {
                       id1: {
                         width: 10, height: 10,
                         centerVertically: 'parent', start: ['parent', 'start', 0]
                       }
                     }
-                """.trimIndent()
-                ),
-                end = ConstraintSet(
-                    """
+                """
+                            .trimIndent()
+                    ),
+                end =
+                    ConstraintSet(
+                        """
                     {
                       id1: {
                         width: 10, height: 10,
                         centerVertically: 'parent', end: ['parent', 'end', 0]
                       }
                     }
-                """.trimIndent()
-                ),
+                """
+                            .trimIndent()
+                    ),
                 transition = transition,
                 progress = 0f
             ) {

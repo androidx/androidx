@@ -32,8 +32,6 @@ internal class ArraySetCompatTest {
         assertEquals("value", iterator.next())
         assertFalse(iterator.hasNext())
 
-        assertFailsWith<NoSuchElementException> {
-            iterator.next()
-        }
+        assertFailsWith<NoSuchElementException> { iterator.next() }
     }
 }

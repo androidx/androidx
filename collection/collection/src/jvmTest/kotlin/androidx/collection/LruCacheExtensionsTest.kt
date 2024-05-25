@@ -40,12 +40,8 @@ internal class LruCacheExtensionsTest {
     fun onEntryRemoved() {
         var wasCalled = false
 
-        val cache = lruCache<String, TestData>(
-            200,
-            onEntryRemoved = { _, _, _, _ ->
-                wasCalled = true
-            }
-        )
+        val cache =
+            lruCache<String, TestData>(200, onEntryRemoved = { _, _, _, _ -> wasCalled = true })
         val initial = TestData()
         cache.put("a", initial)
         cache.remove("a")

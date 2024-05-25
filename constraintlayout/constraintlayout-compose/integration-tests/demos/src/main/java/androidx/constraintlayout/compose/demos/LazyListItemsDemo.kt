@@ -114,16 +114,14 @@ fun MotionInLazyColumnDslDemo() {
             Box(modifier = Modifier.padding(3.dp)) {
                 var animateToEnd by remember { mutableStateOf(model[it]) }
 
-                val progress by animateFloatAsState(
-                    targetValue = if (animateToEnd) 1f else 0f,
-                    animationSpec = tween(700)
-                )
+                val progress by
+                    animateFloatAsState(
+                        targetValue = if (animateToEnd) 1f else 0f,
+                        animationSpec = tween(700)
+                    )
 
                 MotionLayout(
-                    modifier = Modifier
-                        .background(Color(0xFF331B1B))
-                        .fillMaxWidth()
-                        .padding(1.dp),
+                    modifier = Modifier.background(Color(0xFF331B1B)).fillMaxWidth().padding(1.dp),
                     motionScene = scene,
                     progress = progress
                 ) {
@@ -134,9 +132,8 @@ fun MotionInLazyColumnDslDemo() {
                         contentScale = ContentScale.Crop
                     )
                     Image(
-                        modifier = Modifier
-                            .layoutId("icon")
-                            .clickable {
+                        modifier =
+                            Modifier.layoutId("icon").clickable {
                                 animateToEnd = !animateToEnd
                                 model[it] = animateToEnd
                             },
@@ -173,13 +170,7 @@ fun AnimateGraphsOnRevealDemo() {
     }
     LazyColumn {
         items(100) {
-            Box(
-                modifier = Modifier
-                    .padding(3.dp)
-                    .height(200.dp)
-            ) {
-                DynamicGraph(graphs[it])
-            }
+            Box(modifier = Modifier.padding(3.dp).height(200.dp)) { DynamicGraph(graphs[it]) }
         }
     }
 }
@@ -221,35 +212,31 @@ private fun DynamicGraph(
                 }
             }
         }
-        transition(start1, end1, "default") {
-        }
+        transition(start1, end1, "default") {}
     }
     var animateToEnd by remember { mutableStateOf(true) }
     val progress = remember { Animatable(0f) }
 
     // Animate on reveal
     LaunchedEffect(animateToEnd) {
-        progress.animateTo(
-            if (animateToEnd) 1f else 0f,
-            animationSpec = tween(800)
-        )
+        progress.animateTo(if (animateToEnd) 1f else 0f, animationSpec = tween(800))
     }
 
     MotionLayout(
-        modifier = Modifier
-            .background(Color(0xFF221010))
-            .fillMaxSize()
-            .clickable { animateToEnd = !animateToEnd }
-            .padding(1.dp),
+        modifier =
+            Modifier.background(Color(0xFF221010))
+                .fillMaxSize()
+                .clickable { animateToEnd = !animateToEnd }
+                .padding(1.dp),
         motionScene = scene,
         progress = progress.value
     ) {
         for (i in 0..count) {
             Box(
-                modifier = Modifier
-                    .layoutId("foo$i")
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(Color.hsv(i * 240f / count, 0.6f, 0.6f))
+                modifier =
+                    Modifier.layoutId("foo$i")
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color.hsv(i * 240f / count, 0.6f, 0.6f))
             )
         }
     }

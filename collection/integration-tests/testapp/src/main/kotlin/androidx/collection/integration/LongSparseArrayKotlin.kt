@@ -140,9 +140,15 @@ fun longSparseArraySourceCompatibility(): Boolean {
     array.setValueAt(3, 0)
     array.clear()
 
-    return array.size() == 0 && array.isEmpty() && array.get(0) == array[0] &&
-        array.get(2, 0) == 1 && array.containsKey(0) &&
-        array.containsValue(0) && array.remove(0, 0) && array.replace(0, 0, 1) &&
-        array.replace(0, 0) == null && array.indexOfKey(0) == array.indexOfValue(0) &&
+    return array.size() == 0 &&
+        array.isEmpty() &&
+        array.get(0) == array[0] &&
+        array.get(2, 0) == 1 &&
+        array.containsKey(0) &&
+        array.containsValue(0) &&
+        array.remove(0, 0) &&
+        array.replace(0, 0, 1) &&
+        array.replace(0, 0) == null &&
+        array.indexOfKey(0) == array.indexOfValue(0) &&
         array.valueAt(3) == 0
 }

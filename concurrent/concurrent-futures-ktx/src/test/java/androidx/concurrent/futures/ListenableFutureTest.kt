@@ -46,40 +46,36 @@ class ListenableFutureTest {
     @Test
     fun testFutureWithResult() {
         val future: ResolvableFuture<Int> = ResolvableFuture.create()
-        val job = GlobalScope.launch {
-            val result = future.await()
-            assertThat(result, `is`(10))
-        }
+        val job =
+            GlobalScope.launch {
+                val result = future.await()
+                assertThat(result, `is`(10))
+            }
         future.set(10)
-        runBlocking {
-            job.join()
-        }
+        runBlocking { job.join() }
     }
 
     @Test
     fun testFutureWithException() {
         val future: ResolvableFuture<Int> = ResolvableFuture.create()
         val exception = RuntimeException("Something bad happened")
-        val job = GlobalScope.launch {
-            try {
-                future.await()
-            } catch (throwable: Throwable) {
-                assertThat(throwable, `is`(instanceOf(RuntimeException::class.java)))
-                assertThat(throwable.message, `is`(exception.message))
+        val job =
+            GlobalScope.launch {
+                try {
+                    future.await()
+                } catch (throwable: Throwable) {
+                    assertThat(throwable, `is`(instanceOf(RuntimeException::class.java)))
+                    assertThat(throwable.message, `is`(exception.message))
+                }
             }
-        }
         future.setException(exception)
-        runBlocking {
-            job.join()
-        }
+        runBlocking { job.join() }
     }
 
     @Test
     fun testFutureCancellation() {
         val future: ResolvableFuture<Int> = ResolvableFuture.create()
-        val job = GlobalScope.launch {
-            future.await()
-        }
+        val job = GlobalScope.launch { future.await() }
         future.cancel(true)
         runBlocking {
             job.join()
@@ -90,9 +86,7 @@ class ListenableFutureTest {
     @Test
     fun testAwaitWithCancellation() = runTest {
         val future = ResolvableFuture.create<Int>()
-        val deferred = async {
-            future.await()
-        }
+        val deferred = async { future.await() }
 
         deferred.cancel(TestCancellationException())
         assertFailsWith<TestCancellationException> {
@@ -105,15 +99,16 @@ class ListenableFutureTest {
     fun testCancellableAwait() = runBlocking {
         expect(1)
         val toAwait = ResolvableFuture.create<String>()
-        val job = launch(start = CoroutineStart.UNDISPATCHED) {
-            expect(2)
-            try {
-                toAwait.await() // suspends
-            } catch (e: CancellationException) {
-                expect(5) // should throw cancellation exception
-                throw e
+        val job =
+            launch(start = CoroutineStart.UNDISPATCHED) {
+                expect(2)
+                try {
+                    toAwait.await() // suspends
+                } catch (e: CancellationException) {
+                    expect(5) // should throw cancellation exception
+                    throw e
+                }
             }
-        }
         expect(3)
         job.cancel() // cancel the job
         toAwait.set("fail") // too late, the waiting job was already cancelled
@@ -122,9 +117,7 @@ class ListenableFutureTest {
         finish(6)
     }
 
-    /**
-     * Asserts that this invocation is `index`-th in the execution sequence (counting from one).
-     */
+    /** Asserts that this invocation is `index`-th in the execution sequence (counting from one). */
     private fun expect(index: Int) {
         val wasIndex = actionIndex.incrementAndGet()
         check(index == wasIndex) { "Expecting action index $index but it is actually $wasIndex" }
@@ -139,9 +132,7 @@ class ListenableFutureTest {
         check(!finished.getAndSet(true)) { "Should call 'finish(...)' at most once" }
     }
 
-    /**
-     * Asserts that this line is never executed.
-     */
+    /** Asserts that this line is never executed. */
     private fun expectUnreached() {
         error("Should not be reached")
     }

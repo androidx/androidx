@@ -71,79 +71,80 @@ fun AnimatedPuzzlePiecesDemo() {
     val refId = remember { Array(blocks) { "W$it" } }
 
     // Recreate scene when order changes (which is driven by toggling `animateToEnd`)
-    val scene = remember(animateToEnd) {
-        MotionScene {
-            val ordered = refId.map { createRefFor(it) }.toTypedArray()
-            val shuffle = index.map { ordered[it] }.toTypedArray()
-            val set1 = constraintSet {
-                val flow = createFlow(
-                    elements = ordered,
-                    maxElement = grid,
-                    wrapMode = Wrap.Aligned,
-                )
-                constrain(flow) {
-                    centerTo(parent)
-                    width = Dimension.ratio("1:1")
-                    height = Dimension.ratio("1:1")
-                }
-                ordered.forEach {
-                    constrain(it) {
-                        width = Dimension.percent(1f / grid)
+    val scene =
+        remember(animateToEnd) {
+            MotionScene {
+                val ordered = refId.map { createRefFor(it) }.toTypedArray()
+                val shuffle = index.map { ordered[it] }.toTypedArray()
+                val set1 = constraintSet {
+                    val flow =
+                        createFlow(
+                            elements = ordered,
+                            maxElement = grid,
+                            wrapMode = Wrap.Aligned,
+                        )
+                    constrain(flow) {
+                        centerTo(parent)
+                        width = Dimension.ratio("1:1")
                         height = Dimension.ratio("1:1")
                     }
+                    ordered.forEach {
+                        constrain(it) {
+                            width = Dimension.percent(1f / grid)
+                            height = Dimension.ratio("1:1")
+                        }
+                    }
                 }
-            }
-            val set2 = constraintSet {
-                val flow = createFlow(
-                    elements = shuffle,
-                    maxElement = grid,
-                    wrapMode = Wrap.Aligned,
-                )
-                constrain(flow) {
-                    centerTo(parent)
-                    width = Dimension.ratio("1:1")
-                    height = Dimension.ratio("1:1")
-                }
-                ordered.forEach {
-                    constrain(it) {
-                        width = Dimension.percent(1f / grid)
+                val set2 = constraintSet {
+                    val flow =
+                        createFlow(
+                            elements = shuffle,
+                            maxElement = grid,
+                            wrapMode = Wrap.Aligned,
+                        )
+                    constrain(flow) {
+                        centerTo(parent)
+                        width = Dimension.ratio("1:1")
                         height = Dimension.ratio("1:1")
                     }
-                }
-            }
-            transition(set1, set2, "default") {
-                motionArc = Arc.StartHorizontal
-                keyAttributes(*ordered) {
-                    frame(40) {
-                        // alpha = 0.0f
-                        rotationZ = -90f
-                        scaleX = 0.1f
-                        scaleY = 0.1f
+                    ordered.forEach {
+                        constrain(it) {
+                            width = Dimension.percent(1f / grid)
+                            height = Dimension.ratio("1:1")
+                        }
                     }
-                    frame(70) {
-                        rotationZ = 90f
-                        scaleX = 0.1f
-                        scaleY = 0.1f
+                }
+                transition(set1, set2, "default") {
+                    motionArc = Arc.StartHorizontal
+                    keyAttributes(*ordered) {
+                        frame(40) {
+                            // alpha = 0.0f
+                            rotationZ = -90f
+                            scaleX = 0.1f
+                            scaleY = 0.1f
+                        }
+                        frame(70) {
+                            rotationZ = 90f
+                            scaleX = 0.1f
+                            scaleY = 0.1f
+                        }
                     }
                 }
             }
         }
-    }
 
-    val progress by animateFloatAsState(
-        targetValue = if (animateToEnd) 1f else 0f,
-        animationSpec = tween(800)
-    )
+    val progress by
+        animateFloatAsState(targetValue = if (animateToEnd) 1f else 0f, animationSpec = tween(800))
 
     MotionLayout(
         motionScene = scene,
-        modifier = Modifier
-            .clickable {
-                animateToEnd = !animateToEnd
-                index.shuffle()
-            }
-            .background(Color.Red)
-            .fillMaxSize(),
+        modifier =
+            Modifier.clickable {
+                    animateToEnd = !animateToEnd
+                    index.shuffle()
+                }
+                .background(Color.Red)
+                .fillMaxSize(),
         progress = progress
     ) {
         val painter = rememberVectorPainter(image = Icons.Default.Face)
@@ -164,22 +165,11 @@ fun AnimatedPuzzlePiecesDemo() {
  * the given position ([x], [y]) of a square grid of size [gridSize].
  */
 @Composable
-fun PuzzlePiece(
-    x: Int,
-    y: Int,
-    gridSize: Int,
-    painter: Painter,
-    modifier: Modifier = Modifier
-) {
+fun PuzzlePiece(x: Int, y: Int, gridSize: Int, painter: Painter, modifier: Modifier = Modifier) {
     Canvas(modifier.fillMaxSize()) {
         clipRect {
-            translate(
-                left = -x * size.width,
-                top = -y * size.height
-            ) {
-                with(painter) {
-                    draw(size.times(gridSize.toFloat()))
-                }
+            translate(left = -x * size.width, top = -y * size.height) {
+                with(painter) { draw(size.times(gridSize.toFloat())) }
             }
         }
     }

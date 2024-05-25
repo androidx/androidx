@@ -51,9 +51,7 @@ open class CircularArrayBenchmark {
 
         assertEquals(source.count(), array.size())
 
-        repeat(source.size) {
-            array.popFirst()
-        }
+        repeat(source.size) { array.popFirst() }
 
         assertTrue(array.isEmpty())
     }

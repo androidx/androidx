@@ -22,8 +22,5 @@ package androidx.collection.internal
 // Using this top-level function, the generated arm64 code after
 // dex2oat is exactly a single `fmov`
 
-/**
- * Returns the [Float] value corresponding to a given bit representation.
- */
-@PublishedApi
-internal expect fun floatFromBits(bits: Int): Float
+/** Returns the [Float] value corresponding to a given bit representation. */
+@PublishedApi internal expect fun floatFromBits(bits: Int): Float

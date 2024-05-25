@@ -27,8 +27,7 @@ import org.junit.runners.Parameterized.Parameters
 class CircularArrayBenchmarkTest(size: Int) {
     private val seed = createSeed(size)
 
-    @get:Rule
-    val benchmark = BenchmarkRule()
+    @get:Rule val benchmark = BenchmarkRule()
 
     @Test
     fun addFromHeadAndPopFromTail() {
@@ -38,8 +37,9 @@ class CircularArrayBenchmarkTest(size: Int) {
     companion object {
         @JvmStatic
         @Parameters(name = "size={0}")
-        fun parameters() = buildParameters(
-            listOf(10, 100, 1_000, 10_000),
-        )
+        fun parameters() =
+            buildParameters(
+                listOf(10, 100, 1_000, 10_000),
+            )
     }
 }

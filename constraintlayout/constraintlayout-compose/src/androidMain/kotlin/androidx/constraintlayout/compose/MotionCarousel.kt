@@ -44,87 +44,72 @@ import androidx.constraintlayout.compose.carousel.carouselSwipeable
 import androidx.constraintlayout.compose.carousel.rememberCarouselSwipeableState
 
 /**
- * Implements an horizontal Carousel of n elements, driven by drag gestures and customizable
- * through a provided MotionScene.
+ * Implements an horizontal Carousel of n elements, driven by drag gestures and customizable through
+ * a provided MotionScene.
  *
  * Usage
  * -----
- *
  * val cardsExample = arrayListOf(...)
  *
- * MotionCarousel(motionScene...) {
- *     items(cardsExample) { card ->
- *        SomeCardComponent(card)
- *     }
- * }
+ * MotionCarousel(motionScene...) { items(cardsExample) { card -> SomeCardComponent(card) } }
  *
  * or if wanting to use parameters in your components that are defined in the MotionScene:
  *
- * MotionCarousel(motionScene...) {
- *     itemsWithProperties(cardsExample) { card, properties ->
- *        SomeCardComponent(card, properties)
- *     }
- * }
+ * MotionCarousel(motionScene...) { itemsWithProperties(cardsExample) { card, properties ->
+ * SomeCardComponent(card, properties) } }
  *
  * Note
  * ----
- *
  * It is recommended to encapsulate the usage of MotionCarousel:
  *
- * fun MyCarousel(content: MotionCarouselScope.() -> Unit) {
- *   val motionScene = ...
- *   MotionCarousel(motionScene..., content)
- * }
+ * fun MyCarousel(content: MotionCarouselScope.() -> Unit) { val motionScene = ...
+ * MotionCarousel(motionScene..., content) }
  *
  * Mechanism overview and MotionScene architecture
  * -----------------------------------------------
- *
- * We use 3 different states to represent the Carousel: "previous", "start", and "next".
- * A horizontal swipe gesture will transition from one state to the other, e.g. a right to left swipe
+ * We use 3 different states to represent the Carousel: "previous", "start", and "next". A
+ * horizontal swipe gesture will transition from one state to the other, e.g. a right to left swipe
  * will transition from "start" to "next".
  *
- * We consider a scene containing several "slots" for the elements we want to display in the Carousel.
- * In an horizontal carousel, the easiest way to think of them is as an horizontal list of slots.
+ * We consider a scene containing several "slots" for the elements we want to display in the
+ * Carousel. In an horizontal carousel, the easiest way to think of them is as an horizontal list of
+ * slots.
  *
  * The overall mechanism thus works by moving those "slots" according to the gesture, and then
- * mapping the Carousel's elements to the corresponding slots as we progress through the
- * list of elements.
+ * mapping the Carousel's elements to the corresponding slots as we progress through the list of
+ * elements.
  *
- * For example, let's consider using a Carousel with 3 slots [0] [1] and [2],  with [1] the
- * center slot being the only visible one during the initial state "start" (| and | representing
- * the screen borders) and [0] being outside of the screen on the left and [2] outside of the screen
- * on the right:
+ * For example, let's consider using a Carousel with 3 slots [0] [1] and [2], with [1] the center
+ * slot being the only visible one during the initial state "start" (| and | representing the screen
+ * borders) and [0] being outside of the screen on the left and [2] outside of the screen on the
+ * right:
  *
- * start          [0] | [1] | [2]
+ * start [0] | [1] | [2]
  *
  * We can setup the previous state in the following way:
  *
- * previous           | [0] | [1] [3]
+ * previous | [0] | [1] [3]
  *
  * And the next state like:
  *
- * next       [0] [1] | [2] |
+ * next [0] [1] | [2] |
  *
  * All three states together allowing to implement the Carousel motion we are looking for:
  *
- * previous           | [0] | [1] [3]
- * start          [0] | [1] | [2]
- * next       [0] [1] | [2] |
+ * previous | [0] | [1] [3] start [0] | [1] | [2] next [0] [1] | [2] |
  *
  * At the end of the swipe gesture, we instantly move back to the start state:
  *
- * start          [0] | [1] | [2]       -> gesture starts
- * next       [0] [1] | [2] |           -> gesture ends
- * start          [0] | [1] | [2]       -> instant snap back to start state
+ * start [0] | [1] | [2] -> gesture starts next [0] [1] | [2] | -> gesture ends start [0] | [1] |
+ * [2] -> instant snap back to start state
  *
- * After the instant snap, we update the elements actually displayed in the slots.
- * For example, we can start with the elements {a}, {b} and {c} assigned respectively
- * to the slots [0], [1] and [2]. After the swipe the slots will be reassigned to {b}, {c} and {d}:
+ * After the instant snap, we update the elements actually displayed in the slots. For example, we
+ * can start with the elements {a}, {b} and {c} assigned respectively to the slots [0], [1] and [2].
+ * After the swipe the slots will be reassigned to {b}, {c} and {d}:
  *
- * start              [0]:{a} | [1]:{b} | [2]:{d}       -> gesture starts
- * next       [0]:{a} [1]:{b} | [2]:{c} |               -> gesture ends
- * start              [0]:{a} | [1]:{b} | [2]:{c}       -> instant snap back to start state
- * start              [0]:{b} | [1]:{c} | [2]:{d}       -> repaint with reassigned elements
+ * start [0]:{a} | [1]:{b} | [2]:{d} -> gesture starts next [0]:{a} [1]:{b} | [2]:{c} | -> gesture
+ * ends start [0]:{a} | [1]:{b} | [2]:{c} -> instant snap back to start state start [0]:{b} |
+ * [1]:{c} | [2]:{d} -> repaint with reassigned elements
  *
  * In this manner, the overall effect emulate an horizontal scroll of a list of elements.
  *
@@ -132,14 +117,13 @@ import androidx.constraintlayout.compose.carousel.rememberCarouselSwipeableState
  *
  * Starting slot
  * -------------
- *
- * In order to operate, we need a list of slots. We retrieve them from the motionScene by adding
- * to the slotPrefix an index number. As the starting slot may not be the first one in the scene,
- * we also need to be able to specify a startIndex.
+ * In order to operate, we need a list of slots. We retrieve them from the motionScene by adding to
+ * the slotPrefix an index number. As the starting slot may not be the first one in the scene, we
+ * also need to be able to specify a startIndex.
  *
  * Note that at the beginning of the Carousel, we will not populate the slots that have a lower
- * index than startIndex, and at the end of the Carousel, we will not populate the slots that have
- * a higher index than startIndex.
+ * index than startIndex, and at the end of the Carousel, we will not populate the slots that have a
+ * higher index than startIndex.
  *
  * @param initialSlotIndex the slot index that holds the current element
  * @param numSlots the number of slots in the scene
@@ -153,8 +137,7 @@ import androidx.constraintlayout.compose.carousel.rememberCarouselSwipeableState
 @Composable
 @Suppress("UnavailableSymbol")
 fun MotionCarousel(
-    @Suppress("HiddenTypeParameter")
-    motionScene: MotionScene,
+    @Suppress("HiddenTypeParameter") motionScene: MotionScene,
     initialSlotIndex: Int,
     numSlots: Int,
     backwardTransition: String = "backward",
@@ -175,33 +158,24 @@ fun MotionCarousel(
     var mprogress = (swipeableState.offset.floatValue / componentWidth)
 
     var state by remember {
-        mutableStateOf(
-            CarouselState(
-                MotionCarouselDirection.FORWARD,
-                0,
-                0,
-                false,
-                false
-            )
-        )
+        mutableStateOf(CarouselState(MotionCarouselDirection.FORWARD, 0, 0, false, false))
     }
     var currentIndex by remember { mutableIntStateOf(0) }
 
-    val anchors = if (currentIndex == 0) {
-        mapOf(0f to swipeStateStart, componentWidth to swipeStateForward)
-    } else if (currentIndex == provider.value.count() - 1) {
-        mapOf(-componentWidth to swipeStateBackward, 0f to swipeStateStart)
-    } else {
-        mapOf(
-            -componentWidth to swipeStateBackward,
-            0f to swipeStateStart,
-            componentWidth to swipeStateForward
-        )
-    }
+    val anchors =
+        if (currentIndex == 0) {
+            mapOf(0f to swipeStateStart, componentWidth to swipeStateForward)
+        } else if (currentIndex == provider.value.count() - 1) {
+            mapOf(-componentWidth to swipeStateBackward, 0f to swipeStateStart)
+        } else {
+            mapOf(
+                -componentWidth to swipeStateBackward,
+                0f to swipeStateStart,
+                componentWidth to swipeStateForward
+            )
+        }
 
-    val transitionName = remember {
-        mutableStateOf(forwardTransition)
-    }
+    val transitionName = remember { mutableStateOf(forwardTransition) }
 
     if (mprogress < 0 && state.index > 0) {
         state.direction = MotionCarouselDirection.BACKWARD
@@ -213,8 +187,9 @@ fun MotionCarousel(
     }
 
     if (!swipeableState.isAnimationRunning) {
-        if (state.direction == MotionCarouselDirection.FORWARD &&
-            swipeableState.currentValue.equals(swipeStateForward)
+        if (
+            state.direction == MotionCarouselDirection.FORWARD &&
+                swipeableState.currentValue.equals(swipeStateForward)
         ) {
             LaunchedEffect(true) {
                 if (state.index + 1 < provider.value.count()) {
@@ -223,8 +198,9 @@ fun MotionCarousel(
                     state.direction = MotionCarouselDirection.FORWARD
                 }
             }
-        } else if (state.direction == MotionCarouselDirection.BACKWARD &&
-            swipeableState.currentValue.equals(swipeStateBackward)
+        } else if (
+            state.direction == MotionCarouselDirection.BACKWARD &&
+                swipeableState.currentValue.equals(swipeStateBackward)
         ) {
             LaunchedEffect(true) {
                 if (state.index > 0) {
@@ -237,23 +213,22 @@ fun MotionCarousel(
         currentIndex = state.index
     }
 
-    MotionLayout(motionScene = motionScene,
+    MotionLayout(
+        motionScene = motionScene,
         transitionName = transitionName.value,
         progress = mprogress,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .carouselSwipeable(
-                state = swipeableState,
-                anchors = anchors,
-                reverseDirection = true,
-                // TODO: replace this implementation?
-                thresholds = { _, _ -> FractionalThreshold(0.3f) },
-                orientation = Orientation.Horizontal
-            )
-            .onSizeChanged { size ->
-                componentWidth = size.width.toFloat()
-            }
+        modifier =
+            Modifier.fillMaxSize()
+                .background(Color.White)
+                .carouselSwipeable(
+                    state = swipeableState,
+                    anchors = anchors,
+                    reverseDirection = true,
+                    // TODO: replace this implementation?
+                    thresholds = { _, _ -> FractionalThreshold(0.3f) },
+                    orientation = Orientation.Horizontal
+                )
+                .onSizeChanged { size -> componentWidth = size.width.toFloat() }
     ) {
         for (i in 0 until numSlots) {
             val idx = i + currentIndex - initialSlotIndex
@@ -261,8 +236,7 @@ fun MotionCarousel(
             ItemHolder(i, slotPrefix, showSlots) {
                 if (visible) {
                     if (provider.value.hasItemsWithProperties()) {
-                        @Suppress("DEPRECATION")
-                        val properties = motionProperties("$slotPrefix$i")
+                        @Suppress("DEPRECATION") val properties = motionProperties("$slotPrefix$i")
                         provider.value.getContent(idx, properties).invoke()
                     } else {
                         provider.value.getContent(idx).invoke()
@@ -275,24 +249,15 @@ fun MotionCarousel(
 
 @Composable
 fun ItemHolder(i: Int, slotPrefix: String, showSlot: Boolean, function: @Composable () -> Unit) {
-    var modifier = Modifier
-        .layoutId("$slotPrefix$i")
+    var modifier = Modifier.layoutId("$slotPrefix$i")
 
     if (showSlot) {
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .border(
-                width = 2.dp,
-                color = Color(0, 0, 0, 60),
-                shape = RoundedCornerShape(20.dp)
-            )
+        modifier =
+            modifier
+                .clip(RoundedCornerShape(20.dp))
+                .border(width = 2.dp, color = Color(0, 0, 0, 60), shape = RoundedCornerShape(20.dp))
     }
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        function.invoke()
-    }
+    Box(modifier = modifier, contentAlignment = Alignment.Center) { function.invoke() }
 }
 
 private enum class MotionCarouselDirection {
@@ -311,25 +276,19 @@ private data class CarouselState(
 inline fun <T> MotionCarouselScope.items(
     items: List<T>,
     crossinline itemContent: @Composable (item: T) -> Unit
-) = items(items.size) { index ->
-    itemContent(items[index])
-}
+) = items(items.size) { index -> itemContent(items[index]) }
 
 interface MotionCarouselScope {
-    fun items(
-        count: Int,
-        itemContent: @Composable (index: Int) -> Unit
-    )
+    fun items(count: Int, itemContent: @Composable (index: Int) -> Unit)
 
     @OptIn(ExperimentalMotionApi::class)
     @Suppress("UnavailableSymbol")
     fun itemsWithProperties(
         count: Int,
         @Suppress("HiddenTypeParameter")
-        itemContent: @Composable (
-            index: Int,
-            properties: androidx.compose.runtime.State<MotionProperties>
-        ) -> Unit
+        itemContent:
+            @Composable
+            (index: Int, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit
     )
 }
 
@@ -338,28 +297,23 @@ interface MotionCarouselScope {
 inline fun <T> MotionCarouselScope.itemsWithProperties(
     items: List<T>,
     @Suppress("HiddenTypeParameter")
-    crossinline itemContent: @Composable (
-        item: T,
-        properties: androidx.compose.runtime.State<MotionProperties>
-    ) -> Unit
-) = itemsWithProperties(items.size) { index, properties ->
-    itemContent(items[index], properties)
-}
+    crossinline itemContent:
+        @Composable
+        (item: T, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit
+) = itemsWithProperties(items.size) { index, properties -> itemContent(items[index], properties) }
 
 @Composable
 private fun rememberStateOfItemsProvider(
     content: MotionCarouselScope.() -> Unit
 ): androidx.compose.runtime.State<MotionItemsProvider> {
     val latestContent = rememberUpdatedState(content)
-    return remember {
-        derivedStateOf { MotionCarouselScopeImpl().apply(latestContent.value) }
-    }
+    return remember { derivedStateOf { MotionCarouselScopeImpl().apply(latestContent.value) } }
 }
 
 @OptIn(ExperimentalMotionApi::class)
 interface MotionItemsProvider {
-    @SuppressWarnings("UnavailableSymbol")
-    fun getContent(index: Int): @Composable() () -> Unit
+    @SuppressWarnings("UnavailableSymbol") fun getContent(index: Int): @Composable() () -> Unit
+
     @SuppressWarnings("UnavailableSymbol")
     fun getContent(
         index: Int,
@@ -368,6 +322,7 @@ interface MotionItemsProvider {
     ): @Composable() () -> Unit
 
     fun count(): Int
+
     fun hasItemsWithProperties(): Boolean
 }
 
@@ -376,42 +331,35 @@ private class MotionCarouselScopeImpl() : MotionCarouselScope, MotionItemsProvid
 
     var itemsCount = 0
     var itemsProvider: @Composable ((index: Int) -> Unit)? = null
-    var itemsProviderWithProperties: @Composable ((index: Int,
-        properties: androidx.compose.runtime.State<MotionProperties>) -> Unit)? =
+    var itemsProviderWithProperties:
+        @Composable
+        ((index: Int, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit)? =
         null
 
-    override fun items(
-        count: Int,
-        itemContent: @Composable (index: Int) -> Unit
-    ) {
+    override fun items(count: Int, itemContent: @Composable (index: Int) -> Unit) {
         itemsCount = count
         itemsProvider = itemContent
     }
 
     override fun itemsWithProperties(
         count: Int,
-        itemContent: @Composable (
-            index: Int,
-            properties: androidx.compose.runtime.State<MotionProperties>
-        ) -> Unit
+        itemContent:
+            @Composable
+            (index: Int, properties: androidx.compose.runtime.State<MotionProperties>) -> Unit
     ) {
         itemsCount = count
         itemsProviderWithProperties = itemContent
     }
 
     override fun getContent(index: Int): @Composable () -> Unit {
-        return {
-            itemsProvider?.invoke(index)
-        }
+        return { itemsProvider?.invoke(index) }
     }
 
     override fun getContent(
         index: Int,
         properties: androidx.compose.runtime.State<MotionProperties>
     ): @Composable () -> Unit {
-        return {
-            itemsProviderWithProperties?.invoke(index, properties)
-        }
+        return { itemsProviderWithProperties?.invoke(index, properties) }
     }
 
     override fun count(): Int {

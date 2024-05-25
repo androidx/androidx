@@ -24,9 +24,8 @@ import kotlin.jvm.JvmOverloads
  * prepend and O(1) append. The CircularArray automatically grows its capacity when number of added
  * items is over its capacity.
  *
- * @constructor Creates a circular array with capacity for at least [minCapacity] elements.
- *
  * @param minCapacity the minimum capacity, between 1 and 2^30 inclusive
+ * @constructor Creates a circular array with capacity for at least [minCapacity] elements.
  */
 public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int = 8) {
     private var elements: Array<E?>
@@ -40,11 +39,12 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
 
         // If minCapacity isn't a power of 2, round up to the next highest
         // power of 2.
-        val arrayCapacity: Int = if (minCapacity.countOneBits() != 1) {
-            (minCapacity - 1).takeHighestOneBit() shl 1
-        } else {
-            minCapacity
-        }
+        val arrayCapacity: Int =
+            if (minCapacity.countOneBits() != 1) {
+                (minCapacity - 1).takeHighestOneBit() shl 1
+            } else {
+                minCapacity
+            }
         capacityBitmask = arrayCapacity - 1
         @Suppress("UNCHECKED_CAST")
         elements = arrayOfNulls<Any?>(arrayCapacity) as Array<E?>
@@ -57,8 +57,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
         if (newCapacity < 0) {
             throw RuntimeException("Max array capacity exceeded")
         }
-        @Suppress("UNCHECKED_CAST")
-        val a = arrayOfNulls<Any?>(newCapacity) as Array<E?>
+        @Suppress("UNCHECKED_CAST") val a = arrayOfNulls<Any?>(newCapacity) as Array<E?>
         elements.copyInto(destination = a, destinationOffset = 0, startIndex = head, endIndex = n)
         elements.copyInto(destination = a, destinationOffset = r, startIndex = 0, endIndex = head)
         elements = a
@@ -107,8 +106,7 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
         elements[head] = null
         head = (head + 1) and capacityBitmask
 
-        @Suppress("UNCHECKED_CAST")
-        return result as E
+        @Suppress("UNCHECKED_CAST") return result as E
     }
 
     /**
@@ -126,20 +124,17 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
         elements[t] = null
         tail = t
 
-        @Suppress("UNCHECKED_CAST")
-        return result as E
+        @Suppress("UNCHECKED_CAST") return result as E
     }
 
-    /**
-     * Remove all elements from the [CircularArray].
-     */
+    /** Remove all elements from the [CircularArray]. */
     public fun clear() {
         removeFromStart(size())
     }
 
     /**
-     * Remove multiple elements from front of the [CircularArray], ignore when [count]
-     * is less than or equal to 0.
+     * Remove multiple elements from front of the [CircularArray], ignore when [count] is less than
+     * or equal to 0.
      *
      * @param count Number of elements to remove.
      * @throws [IndexOutOfBoundsException] if [count] is larger than [size]
@@ -173,8 +168,8 @@ public class CircularArray<E> @JvmOverloads public constructor(minCapacity: Int 
     }
 
     /**
-     * Remove multiple elements from end of the [CircularArray], ignore when [count]
-     * is less than or equals to 0.
+     * Remove multiple elements from end of the [CircularArray], ignore when [count] is less than or
+     * equals to 0.
      *
      * @param count Number of elements to remove.
      * @throws [IndexOutOfBoundsException] if [count] is larger than [size]

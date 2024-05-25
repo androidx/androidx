@@ -60,10 +60,7 @@ import kotlin.math.absoluteValue
 @Preview
 @Composable
 fun MotionCollapseToolbarPreview() {
-    MotionCollapseToolbar(
-        Modifier
-            .fillMaxSize()
-    )
+    MotionCollapseToolbar(Modifier.fillMaxSize())
 }
 
 @Composable
@@ -73,17 +70,14 @@ fun MotionCollapseToolbar(
     val collapsibleToolbarState = rememberCollapsibleToolbarState()
     Box(modifier.nestedScroll(collapsibleToolbarState)) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("LazyColumn"),
+            modifier = Modifier.fillMaxWidth().testTag("LazyColumn"),
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             contentPadding = PaddingValues(top = collapsibleToolbarState.currentHeight)
         ) {
             items(count = 20) {
                 CardSample(
-                    Modifier
-                        .width(250.dp)
+                    Modifier.width(250.dp)
                         .height(80.dp)
                         .shadow(4.dp, RoundedCornerShape(10.dp))
                         .background(Color.White, RoundedCornerShape(10.dp))
@@ -92,9 +86,7 @@ fun MotionCollapseToolbar(
             }
         }
         CollapsibleToolbar(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(210.dp),
+            modifier = Modifier.fillMaxWidth().height(210.dp),
             toolbarState = collapsibleToolbarState
         )
     }
@@ -128,32 +120,31 @@ private val expandedCSet = ConstraintSet {
     }
 }
 
-private val collapsedCSet = ConstraintSet(expandedCSet) {
-    val title = createRefFor("title")
-    val toolbar = createRefFor("toolbar")
-    val container = createRefFor("container")
+private val collapsedCSet =
+    ConstraintSet(expandedCSet) {
+        val title = createRefFor("title")
+        val toolbar = createRefFor("toolbar")
+        val container = createRefFor("container")
 
-    constrain(container) {
-        height = Dimension.value(70.dp)
+        constrain(container) { height = Dimension.value(70.dp) }
+
+        constrain(title) {
+            clearConstraints()
+            resetTransforms()
+
+            top.linkTo(toolbar.top)
+            start.linkTo(container.start)
+            bottom.linkTo(toolbar.bottom)
+        }
+
+        constrain(toolbar) {
+            clearHorizontal()
+
+            top.linkTo(container.top)
+            end.linkTo(container.end)
+            start.linkTo(title.end, 12.dp)
+        }
     }
-
-    constrain(title) {
-        clearConstraints()
-        resetTransforms()
-
-        top.linkTo(toolbar.top)
-        start.linkTo(container.start)
-        bottom.linkTo(toolbar.bottom)
-    }
-
-    constrain(toolbar) {
-        clearHorizontal()
-
-        top.linkTo(container.top)
-        end.linkTo(container.end)
-        start.linkTo(title.end, 12.dp)
-    }
-}
 
 @Composable
 fun rememberCollapsibleToolbarState(): CollapsibleToolbarState {
@@ -161,9 +152,8 @@ fun rememberCollapsibleToolbarState(): CollapsibleToolbarState {
     return remember { CollapsibleToolbarState(density) }
 }
 
-class CollapsibleToolbarState internal constructor(
-    private val density: Density
-) : NestedScrollConnection {
+class CollapsibleToolbarState internal constructor(private val density: Density) :
+    NestedScrollConnection {
     private val maximumHeight = 200.dp
     private var minimumHeight = 70.dp
 
@@ -217,21 +207,14 @@ class CollapsibleToolbarState internal constructor(
 
 @OptIn(ExperimentalMotionApi::class)
 @Composable
-fun CollapsibleToolbar(
-    modifier: Modifier = Modifier,
-    toolbarState: CollapsibleToolbarState
-) {
+fun CollapsibleToolbar(modifier: Modifier = Modifier, toolbarState: CollapsibleToolbarState) {
     MotionLayout(
         modifier = modifier,
         start = expandedCSet,
         end = collapsedCSet,
         progress = toolbarState.progress
     ) {
-        Box(
-            Modifier
-                .layoutId("container")
-                .background(Color.White)
-        )
+        Box(Modifier.layoutId("container").background(Color.White))
         Text(
             modifier = Modifier.layoutId("title"),
             text = "MotionLayout",

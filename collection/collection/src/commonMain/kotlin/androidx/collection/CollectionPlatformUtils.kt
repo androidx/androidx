@@ -23,8 +23,8 @@ internal expect object CollectionPlatformUtils {
 
     /**
      * IndexOutOfBoundsException is the nearest kotlin common ancestor for the native and jvm
-     * specific implementations of ArrayIndexOutOfBoundsException.  Actuals should throw an
-     * exception specific to their target platform.
+     * specific implementations of ArrayIndexOutOfBoundsException. Actuals should throw an exception
+     * specific to their target platform.
      */
     internal inline fun createIndexOutOfBoundsException(): IndexOutOfBoundsException
 }

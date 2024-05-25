@@ -18,9 +18,7 @@ package androidx.collection.integration
 
 import androidx.collection.LruCache
 
-/**
- * Integration (actually build) test that LruCache can be subclassed.
- */
+/** Integration (actually build) test that LruCache can be subclassed. */
 @Suppress("unused")
 class LruCacheKotlin<K : Any, V : Any>(maxSize: Int) : LruCache<K, V>(maxSize) {
     override fun resize(maxSize: Int) {

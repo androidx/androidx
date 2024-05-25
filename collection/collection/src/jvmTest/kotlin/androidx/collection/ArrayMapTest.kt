@@ -101,9 +101,7 @@ internal class ArrayMapTest {
         error?.also { throw it }
     }
 
-    /**
-     * Check to make sure the same operations behave as expected in a single thread.
-     */
+    /** Check to make sure the same operations behave as expected in a single thread. */
     @Test
     fun testNonConcurrentAccesses() {
         repeat(100_000) { i ->
@@ -116,13 +114,10 @@ internal class ArrayMapTest {
 
     @Test
     fun testIsSubclassOfSimpleArrayMap() {
-        @Suppress("USELESS_IS_CHECK")
-        assertTrue(map is SimpleArrayMap<*, *>)
+        @Suppress("USELESS_IS_CHECK") assertTrue(map is SimpleArrayMap<*, *>)
     }
 
-    /**
-     * Regression test for ensure capacity: b/224971154
-     */
+    /** Regression test for ensure capacity: b/224971154 */
     @Test
     fun putAll() {
         val otherMap = HashMap<String, String>()
