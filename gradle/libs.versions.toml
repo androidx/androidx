@@ -30,6 +30,7 @@ asm = "9.7"
 cmake = "3.22.1"
 composeCompilerPlugin = "1.5.14"  # Update when pulling in new stable binaries
 dagger = "2.49"
+dependencyAnalysisGradlePlugin = "1.32.0"
 dexmaker = "2.28.3"
 dokka = "1.8.20-dev-214"
 espresso = "3.6.0-beta01"
@@ -110,6 +111,7 @@ checkmark = { module = "net.saff.checkmark:checkmark", version = "0.1.6" }
 constraintLayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.0.1"}
 dackka = { module = "com.google.devsite:dackka", version = "1.6.0" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
+dependency-analysis-gradle-plugin = { module = "com.autonomousapps:dependency-analysis-gradle-plugin", version.ref = "dependencyAnalysisGradlePlugin" }
 daggerCompiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
 desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version = "2.0.3" }
 dexmakerMockito = { module = "com.linkedin.dexmaker:dexmaker-mockito", version.ref = "dexmaker" }

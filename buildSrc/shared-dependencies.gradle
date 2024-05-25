@@ -58,4 +58,7 @@ dependencies {
     runtimeOnly(libs.hiltAndroidGradlePluginz)
     runtimeOnly(libs.javapoet) // for hiltAndroidGradlePluginz to workaround https://github.com/google/dagger/issues/3068
     runtimeOnly(libs.wireGradlePluginz)
+
+    // Plugin for analyzing dependencies
+    implementation(libs.dependency.analysis.gradle.plugin)
 }
