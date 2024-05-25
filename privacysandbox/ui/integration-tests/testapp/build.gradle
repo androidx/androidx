@@ -47,6 +47,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     implementation project(':privacysandbox:sdkruntime:sdkruntime-client')
     implementation project(':privacysandbox:ui:integration-tests:testaidl')
+    implementation project(':privacysandbox:ui:integration-tests:sdkproviderutils')
     implementation project(':privacysandbox:ui:ui-core')
     implementation project(':privacysandbox:ui:ui-client')
     implementation project(':privacysandbox:ui:ui-provider')
