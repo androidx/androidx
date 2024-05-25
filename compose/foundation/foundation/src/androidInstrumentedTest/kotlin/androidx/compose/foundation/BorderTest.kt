@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -394,6 +395,47 @@ class BorderTest(val shape: Shape) {
             shapeColor = Color.Blue,
             shapeOverlapPixelCount = 3.0f
         )
+    }
+
+    @Test
+    fun border_color_with_alpha_tinted_properly() {
+        val testTag = "testTag"
+        val background = Color.Red
+        val borderColor = Color.Blue.copy(alpha = 0.5f)
+        rule.setContent {
+            Box(
+                Modifier
+                    .testTag(testTag)
+                    .requiredSize(100.dp, 100.dp)
+                    .background(background)
+                    .border(
+                        10.dp,
+                        borderColor,
+                        GenericShape { size, _ ->
+                            lineTo(size.width, 0f)
+                            lineTo(size.width, size.height)
+                            lineTo(0f, size.height)
+                            close()
+                        }
+                    )
+            )
+        }
+
+        fun assertColorEquals(expected: Color, actual: Color) {
+            assertEquals(expected.red, actual.red, 0.01f)
+            assertEquals(expected.green, actual.green, 0.01f)
+            assertEquals(expected.blue, actual.blue, 0.01f)
+            assertEquals(expected.alpha, actual.alpha, 0.01f)
+        }
+
+        rule.onNodeWithTag(testTag).captureToImage().apply {
+            val pixelMap = toPixelMap()
+            val expected = borderColor.compositeOver(background)
+            assertColorEquals(expected, pixelMap[0, 0])
+            assertColorEquals(expected, pixelMap[width - 1, 0])
+            assertColorEquals(expected, pixelMap[width - 1, height - 1])
+            assertColorEquals(expected, pixelMap[0, height - 1])
+        }
     }
 
     @Test
