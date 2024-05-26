@@ -91,6 +91,7 @@ abstract class BaseRoomConnectionManager {
     // TODO(b/316944352): Retry mechanism
     private fun configureDatabase(connection: SQLiteConnection) {
         configureJournalMode(connection)
+        configureSynchronousFlag(connection)
         val version = connection.prepare("PRAGMA user_version").use { statement ->
             statement.step()
             statement.getLong(0).toInt()
@@ -119,6 +120,7 @@ abstract class BaseRoomConnectionManager {
      * per-connection PRAGMA.
      */
     private fun configurationConnection(connection: SQLiteConnection) {
+        configureSynchronousFlag(connection)
         openDelegate.onOpen(connection)
     }
 
@@ -128,6 +130,17 @@ abstract class BaseRoomConnectionManager {
             connection.execSQL("PRAGMA journal_mode = WAL")
         } else {
             connection.execSQL("PRAGMA journal_mode = TRUNCATE")
+        }
+    }
+
+    private fun configureSynchronousFlag(connection: SQLiteConnection) {
+        // Use NORMAL in WAL mode and FULL for non-WAL as recommended in
+        // https://www.sqlite.org/pragma.html#pragma_synchronous
+        val wal = configuration.journalMode == WRITE_AHEAD_LOGGING
+        if (wal) {
+            connection.execSQL("PRAGMA synchronous = NORMAL")
+        } else {
+            connection.execSQL("PRAGMA synchronous = FULL")
         }
     }
 

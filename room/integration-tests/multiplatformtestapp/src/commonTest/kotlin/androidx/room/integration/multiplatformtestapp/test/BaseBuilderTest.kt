@@ -176,10 +176,36 @@ abstract class BaseBuilderTest {
     }
 
     @Test
-    fun setJournalMode() = runTest {
+    fun setJournalModeWal() = runTest {
+        val database = getRoomDatabaseBuilder()
+            .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
+            .build()
+
+        val journalMode = database.useReaderConnection { connection ->
+            connection.usePrepared("PRAGMA journal_mode") {
+                it.step()
+                it.getText(0)
+            }
+        }
+        assertThat(journalMode).isEqualTo("wal")
+
+        val syncMode = database.useReaderConnection { connection ->
+            connection.usePrepared("PRAGMA synchronous") {
+                it.step()
+                it.getInt(0)
+            }
+        }
+        assertThat(syncMode).isEqualTo(1) // NORMAL mode
+
+        database.close()
+    }
+
+    @Test
+    fun setJournalModeTruncate() = runTest {
         val database = getRoomDatabaseBuilder()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
+
         val journalMode = database.useReaderConnection { connection ->
             connection.usePrepared("PRAGMA journal_mode") {
                 it.step()
@@ -187,6 +213,15 @@ abstract class BaseBuilderTest {
             }
         }
         assertThat(journalMode).isEqualTo("truncate")
+
+        val syncMode = database.useReaderConnection { connection ->
+            connection.usePrepared("PRAGMA synchronous") {
+                it.step()
+                it.getInt(0)
+            }
+        }
+        assertThat(syncMode).isEqualTo(2) // FULL mode
+
         database.close()
     }
 }
