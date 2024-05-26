@@ -83,9 +83,6 @@ public final class CameraX {
     private CameraDeviceSurfaceManager mSurfaceManager;
     private UseCaseConfigFactory mDefaultConfigFactory;
     private RetryPolicy mRetryPolicy;
-    // TODO(b/161302102): Remove the stored context. Only make use of the context within the
-    //  called method.
-    private Context mAppContext;
     private final ListenableFuture<Void> mInitInternalFuture;
 
     @GuardedBy("mInitializeLock")
@@ -287,13 +284,8 @@ public final class CameraX {
             @NonNull Context context,
             @NonNull CallbackToFutureAdapter.Completer<Void> completer) {
         cameraExecutor.execute(() -> {
+            Context appContext = ContextUtil.getApplicationContext(context);
             try {
-                // TODO(b/161302102): Remove the stored context. Only make use of
-                //  the context within the called method.
-                mAppContext = ContextUtil.getApplicationFromContext(context);
-                if (mAppContext == null) {
-                    mAppContext = ContextUtil.getApplicationContext(context);
-                }
                 CameraFactory.Provider cameraFactoryProvider =
                         mCameraXConfig.getCameraFactoryProvider(null);
                 if (cameraFactoryProvider == null) {
@@ -309,7 +301,7 @@ public final class CameraX {
                         mCameraXConfig.getAvailableCamerasLimiter(null);
                 long cameraOpenRetryMaxTimeoutInMillis =
                         mCameraXConfig.getCameraOpenRetryMaxTimeoutInMillisWhileResuming();
-                mCameraFactory = cameraFactoryProvider.newInstance(mAppContext,
+                mCameraFactory = cameraFactoryProvider.newInstance(appContext,
                         cameraThreadConfig,
                         availableCamerasLimiter,
                         cameraOpenRetryMaxTimeoutInMillis);
@@ -320,7 +312,7 @@ public final class CameraX {
                             "Invalid app configuration provided. Missing "
                                     + "CameraDeviceSurfaceManager."));
                 }
-                mSurfaceManager = surfaceManagerProvider.newInstance(mAppContext,
+                mSurfaceManager = surfaceManagerProvider.newInstance(appContext,
                         mCameraFactory.getCameraManager(),
                         mCameraFactory.getAvailableCameraIds());
 
@@ -331,7 +323,7 @@ public final class CameraX {
                             "Invalid app configuration provided. Missing "
                                     + "UseCaseConfigFactory."));
                 }
-                mDefaultConfigFactory = configFactoryProvider.newInstance(mAppContext);
+                mDefaultConfigFactory = configFactoryProvider.newInstance(appContext);
 
                 if (cameraExecutor instanceof CameraExecutor) {
                     CameraExecutor executor = (CameraExecutor) cameraExecutor;
@@ -341,7 +333,7 @@ public final class CameraX {
                 mCameraRepository.init(mCameraFactory);
 
                 // Please ensure only validate the camera at the last of the initialization.
-                validateCameras(mAppContext, mCameraRepository, availableCamerasLimiter);
+                validateCameras(appContext, mCameraRepository, availableCamerasLimiter);
 
                 // Set completer to null if the init was successful.
                 setStateToInitialized();
@@ -354,7 +346,7 @@ public final class CameraX {
                     Logger.w(TAG, "Retry init. Start time " + startMs + " current time "
                             + SystemClock.elapsedRealtime(), e);
                     HandlerCompat.postDelayed(mSchedulerHandler, () -> initAndRetryRecursively(
-                            cameraExecutor, startMs, attemptCount + 1, mAppContext,
+                            cameraExecutor, startMs, attemptCount + 1, appContext,
                             completer), RETRY_TOKEN, retryConfig.getRetryDelayInMillis());
 
                 } else {
