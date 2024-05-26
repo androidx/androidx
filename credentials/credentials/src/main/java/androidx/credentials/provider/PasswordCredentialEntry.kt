@@ -73,7 +73,7 @@ import java.util.Collections
  * @see CustomCredentialEntry
  * @see CredentialEntry
  */
-@RequiresApi(26)
+@RequiresApi(23)
 class PasswordCredentialEntry internal constructor(
     val username: CharSequence,
     val displayName: CharSequence?,

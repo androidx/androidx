@@ -21,10 +21,10 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.hardware.biometrics.BiometricManager
 import android.hardware.biometrics.BiometricPrompt
-import android.os.Build
 import android.os.Bundle
 import android.service.credentials.CredentialEntry
 import androidx.annotation.RequiresApi
+import androidx.core.os.BuildCompat
 import androidx.credentials.CredentialOption
 import androidx.credentials.R
 import androidx.credentials.equals
@@ -48,7 +48,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 28)
+@SdkSuppress(minSdkVersion = 26) // Instant usage
 @SmallTest
 class CustomCredentialEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -56,7 +56,6 @@ class CustomCredentialEntryTest {
     private val mPendingIntent = PendingIntent.getActivity(mContext, 0, mIntent,
         PendingIntent.FLAG_IMMUTABLE)
     @Test
-    @SdkSuppress(minSdkVersion = 28)
     fun constructor_requiredParams_success() {
         val entry = constructEntryWithRequiredParams()
         assertNotNull(entry)
@@ -73,14 +72,6 @@ class CustomCredentialEntryTest {
         val entry: CustomCredentialEntry = constructEntryWithAllParams()
         assertNotNull(entry)
         assertEntryWithAllParams(entry)
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 28)
-    fun constructor_allRequiredParamsUsed_setBiometricPromptRetrieved() {
-        val entry = constructEntryWithAllParams()
-
-        assertThat(entry.biometricPromptData).isEqualTo(TEST_BIOMETRIC_DATA)
     }
 
     @Test
@@ -189,6 +180,7 @@ class CustomCredentialEntryTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     fun builder_constructDefault_containsOnlySetPropertiesAndDefaultValues() {
         val entry = CustomCredentialEntry.Builder(
             mContext, TYPE, TITLE, mPendingIntent, BEGIN_OPTION).build()
@@ -344,7 +336,7 @@ class CustomCredentialEntryTest {
         )
     }
     private fun constructEntryWithAllParams(): CustomCredentialEntry {
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+        return if (BuildCompat.isAtLeastV()) {
             CustomCredentialEntry(
                 mContext,
                 TITLE,
@@ -356,7 +348,8 @@ class CustomCredentialEntryTest {
                 ICON,
                 IS_AUTO_SELECT_ALLOWED,
                 ENTRY_GROUP_ID,
-                SINGLE_PROVIDER_ICON_BIT
+                SINGLE_PROVIDER_ICON_BIT,
+                testBiometricPromptData()
             )
         } else {
             CustomCredentialEntry(
@@ -370,8 +363,7 @@ class CustomCredentialEntryTest {
                 ICON,
                 IS_AUTO_SELECT_ALLOWED,
                 ENTRY_GROUP_ID,
-                SINGLE_PROVIDER_ICON_BIT,
-                TEST_BIOMETRIC_DATA
+                SINGLE_PROVIDER_ICON_BIT
             )
         }
     }
@@ -386,10 +378,9 @@ class CustomCredentialEntryTest {
         assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
         assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(SINGLE_PROVIDER_ICON_BIT)
         assertThat(ENTRY_GROUP_ID).isEqualTo(entry.entryGroupId)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            entry.biometricPromptData != null) {
+        if (BuildCompat.isAtLeastV() && entry.biometricPromptData != null) {
             assertThat(entry.biometricPromptData!!.allowedAuthenticators).isEqualTo(
-                TEST_BIOMETRIC_DATA.allowedAuthenticators)
+                testBiometricPromptData().allowedAuthenticators)
         } else {
             assertThat(entry.biometricPromptData).isNull()
         }
@@ -406,10 +397,9 @@ class CustomCredentialEntryTest {
         assertThat(BEGIN_OPTION.type).isEqualTo(entry.type)
         assertThat(entry.isDefaultIconPreferredAsSingleProvider).isEqualTo(SINGLE_PROVIDER_ICON_BIT)
         assertThat(ENTRY_GROUP_ID).isEqualTo(entry.entryGroupId)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            entry.biometricPromptData != null) {
+        if (BuildCompat.isAtLeastV() && entry.biometricPromptData != null) {
             assertThat(entry.biometricPromptData!!.allowedAuthenticators).isEqualTo(
-                TEST_BIOMETRIC_DATA.allowedAuthenticators)
+                testBiometricPromptData().allowedAuthenticators)
         } else {
             assertThat(entry.biometricPromptData).isNull()
         }
@@ -451,12 +441,12 @@ class CustomCredentialEntryTest {
         private const val SINGLE_PROVIDER_ICON_BIT = true
         private const val ENTRY_GROUP_ID = "entryGroupId"
 
-        @RequiresApi(Build.VERSION_CODES.P)
-        private val TEST_BIOMETRIC_DATA = BiometricPromptData(
-            BiometricPrompt.CryptoObject(
-                NullCipher()
-            ),
-            BiometricManager.Authenticators.BIOMETRIC_STRONG
-        )
+        @RequiresApi(35)
+        private fun testBiometricPromptData(): BiometricPromptData {
+            return BiometricPromptData.Builder()
+                .setCryptoObject(BiometricPrompt.CryptoObject(NullCipher()))
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build()
+        }
     }
 }
