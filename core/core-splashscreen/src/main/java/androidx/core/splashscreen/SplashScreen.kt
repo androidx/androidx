@@ -50,92 +50,88 @@ import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
  *
  * To replicate the splash screen behavior from Android 12 on older APIs the following steps need to
  * be taken:
- *  1. Create a new Theme (e.g `Theme.App.Starting`) and set its parent to `Theme.SplashScreen` or
- *  `Theme.SplashScreen.IconBackground`
+ * 1. Create a new Theme (e.g `Theme.App.Starting`) and set its parent to `Theme.SplashScreen` or
+ *    `Theme.SplashScreen.IconBackground`
+ * 2. In your manifest, set the `theme` attribute of the whole `<application>` or just the starting
+ *    `<activity>` to `Theme.App.Starting`
+ * 3. In the `onCreate` method the starting activity, call [installSplashScreen] just before
+ *    `super.onCreate()`. You also need to make sure that `postSplashScreenTheme` is set to the
+ *    application's theme. Alternatively, this call can be replaced by [Activity#setTheme] if a
+ *    [SplashScreen] instance isn't needed.
  *
- *  2. In your manifest, set the `theme` attribute of the whole `<application>` or just the
- *  starting `<activity>` to `Theme.App.Starting`
+ * ## Themes
  *
- *  3. In the `onCreate` method the starting activity, call [installSplashScreen] just before
- *  `super.onCreate()`. You also need to make sure that `postSplashScreenTheme` is set
- *  to the application's theme. Alternatively, this call can be replaced by [Activity#setTheme]
- *  if a [SplashScreen] instance isn't needed.
+ * The library provides two themes: [R.style.Theme_SplashScreen] and
+ * [R.style.Theme_SplashScreen_IconBackground]. If you wish to display a background right under your
+ * icon, the later needs to be used. This ensure that the scale and masking of the icon are similar
+ * to the Android 12 Splash Screen.
  *
- *  ## Themes
+ * `windowSplashScreenAnimatedIcon`: The splash screen icon. On API 31+ it can be an animated vector
+ * drawable.
  *
- *  The library provides two themes: [R.style.Theme_SplashScreen] and
- *  [R.style.Theme_SplashScreen_IconBackground]. If you wish to display a background right under
- *  your icon, the later needs to be used. This ensure that the scale and masking of the icon are
- *  similar to the Android 12 Splash Screen.
+ * `windowSplashScreenAnimationDuration`: Duration of the Animated Icon Animation. The value needs
+ * to be > 0 if the icon is animated.
  *
- *  `windowSplashScreenAnimatedIcon`: The splash screen icon. On API 31+ it can be an animated
- *  vector drawable.
+ * **Note:** This has no impact on the time during which the splash screen is displayed and is only
+ * used in [SplashScreenViewProvider.iconAnimationDurationMillis]. If you need to display the splash
+ * screen for a longer time, you can use [SplashScreen.setKeepOnScreenCondition]
  *
- *  `windowSplashScreenAnimationDuration`: Duration of the Animated Icon Animation. The value
- *  needs to be > 0 if the icon is animated.
+ * `windowSplashScreenIconBackgroundColor`: _To be used in with
+ * `Theme.SplashScreen.IconBackground`_. Sets a background color under the splash screen icon.
  *
- *  **Note:** This has no impact on the time during which the splash screen is displayed and is
- *  only used in [SplashScreenViewProvider.iconAnimationDurationMillis]. If you need to display the
- *  splash screen for a longer time, you can use [SplashScreen.setKeepOnScreenCondition]
+ * `windowSplashScreenBackground`: Background color of the splash screen. Defaults to the theme's
+ * `?attr/colorBackground`.
  *
- *  `windowSplashScreenIconBackgroundColor`: _To be used in with
- *  `Theme.SplashScreen.IconBackground`_. Sets a background color under the splash screen icon.
+ * `postSplashScreenTheme`* Theme to apply to the Activity when [installSplashScreen] is called.
  *
- *  `windowSplashScreenBackground`: Background color of the splash screen. Defaults to the theme's
- *  `?attr/colorBackground`.
+ * **Known incompatibilities:**
+ * - On API < 31, `windowSplashScreenAnimatedIcon` cannot be animated. If you want to provide an
+ *   animated icon for API 31+ and a still icon for API <31, you can do so by overriding the still
+ *   icon with an animated vector drawable in `res/drawable-v31`.
+ * - On API < 31, if the value of `windowSplashScreenAnimatedIcon` is an
+ *   [adaptive icon](http://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive)
+ *   , it will be cropped and scaled. The workaround is to respectively assign
+ *   `windowSplashScreenAnimatedIcon` and `windowSplashScreenIconBackgroundColor` to the values of
+ *   the adaptive icon `foreground` and `background`.
+ * - On API 21-22, The icon isn't displayed until the application starts, only the background is
+ *   visible.
  *
- *  `postSplashScreenTheme`*  Theme to apply to the Activity when [installSplashScreen] is called.
+ * # Design
+ * The splash screen icon uses the same specifications as
+ * [Adaptive Icons](https://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive)
+ * . This means that the icon needs to fit within a circle whose diameter is 2/3 the size of the
+ * icon. The actual values don't really matter if you use a vector icon.
  *
- *  **Known incompatibilities:**
- *  - On API < 31, `windowSplashScreenAnimatedIcon` cannot be animated. If you want to provide an
- *  animated icon for API 31+ and a still icon for API <31, you can do so by overriding the still
- *  icon with an animated vector drawable in `res/drawable-v31`.
+ * ## Specs
+ * - With icon background (`Theme.SplashScreen.IconBackground`)
+ *     + Image Size: 240x240 dp
+ *     + Inner Circle diameter: 160 dp
+ * - Without icon background (`Theme.SplashScreen`)
+ *         + Image size: 288x288 dp
+ *         + Inner circle diameter: 192 dp
  *
- *  - On API < 31, if the value of `windowSplashScreenAnimatedIcon` is an
- *  [adaptive icon](http://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive)
- *  , it will be cropped and scaled. The workaround is to respectively assign
- *  `windowSplashScreenAnimatedIcon` and `windowSplashScreenIconBackgroundColor` to the values of
- *  the adaptive icon `foreground` and `background`.
- *
- *  - On API 21-22, The icon isn't displayed until the application starts, only the background is
- *  visible.
- *
- *  # Design
- *  The splash screen icon uses the same specifications as
- *  [Adaptive Icons](https://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive)
- *  . This means that the icon needs to fit within a circle whose diameter is 2/3 the size of the
- *  icon. The actual values don't really matter if you use a vector icon.
- *
- *  ## Specs
- *  - With icon background (`Theme.SplashScreen.IconBackground`)
- *    + Image Size: 240x240 dp
- *    + Inner Circle diameter: 160 dp
- *  - Without icon background  (`Theme.SplashScreen`)
- *     + Image size: 288x288 dp
- *     + Inner circle diameter: 192 dp
- *
- *  _Example:_ if the full size of the image is 300dp*300dp, the icon needs to fit within a
- *  circle with a diameter of 200dp. Everything outside the circle will be invisible (masked).
- *
+ * _Example:_ if the full size of the image is 300dp*300dp, the icon needs to fit within a circle
+ * with a diameter of 200dp. Everything outside the circle will be invisible (masked).
  */
 @SuppressLint("CustomSplashScreen")
 class SplashScreen private constructor(activity: Activity) {
 
-    private val impl = when {
-        SDK_INT >= 31 -> Impl31(activity)
-        else -> Impl(activity)
-    }
+    private val impl =
+        when {
+            SDK_INT >= 31 -> Impl31(activity)
+            else -> Impl(activity)
+        }
 
     public companion object {
 
         private const val MASK_FACTOR = 2 / 3f
 
         /**
-         * Creates a [SplashScreen] instance associated with this [Activity] and handles
-         * setting the theme to [R.attr.postSplashScreenTheme].
+         * Creates a [SplashScreen] instance associated with this [Activity] and handles setting the
+         * theme to [R.attr.postSplashScreenTheme].
          *
-         * This needs to be called before [Activity.setContentView] or other view operations on
-         * the root view (e.g setting flags).
+         * This needs to be called before [Activity.setContentView] or other view operations on the
+         * root view (e.g setting flags).
          *
          * Alternatively, if a [SplashScreen] instance is not required, the theme can manually be
          * set using [Activity.setTheme].
@@ -151,12 +147,12 @@ class SplashScreen private constructor(activity: Activity) {
     /**
      * Sets the condition to keep the splash screen visible.
      *
-     * The splash will stay visible until the condition isn't met anymore.
-     * The condition is evaluated before each request to draw the application, so it needs to be
-     * fast to avoid blocking the UI.
+     * The splash will stay visible until the condition isn't met anymore. The condition is
+     * evaluated before each request to draw the application, so it needs to be fast to avoid
+     * blocking the UI.
      *
      * @param condition The condition evaluated to decide whether to keep the splash screen on
-     * screen
+     *   screen
      */
     public fun setKeepOnScreenCondition(condition: KeepOnScreenCondition) {
         impl.setKeepOnScreenCondition(condition)
@@ -168,14 +164,13 @@ class SplashScreen private constructor(activity: Activity) {
      * If a listener is set, the splashscreen won't be automatically removed and the application
      * needs to manually call [SplashScreenViewProvider.remove].
      *
-     * IF no listener is set, the splashscreen will be automatically removed once the app is
-     * ready to draw.
+     * IF no listener is set, the splashscreen will be automatically removed once the app is ready
+     * to draw.
      *
      * The listener will be called on the ui thread.
      *
-     * @param listener The [OnExitAnimationListener] that will be called when the splash screen
-     * is ready to be dismissed.
-     *
+     * @param listener The [OnExitAnimationListener] that will be called when the splash screen is
+     *   ready to be dismissed.
      * @see setKeepOnScreenCondition
      * @see OnExitAnimationListener
      * @see SplashScreenViewProvider
@@ -193,8 +188,8 @@ class SplashScreen private constructor(activity: Activity) {
      * Listener to be passed in [SplashScreen.setOnExitAnimationListener].
      *
      * The listener will be called once the splash screen is ready to be removed and provides a
-     * reference to a [SplashScreenViewProvider] that can be used to customize the exit
-     * animation of the splash screen.
+     * reference to a [SplashScreenViewProvider] that can be used to customize the exit animation of
+     * the splash screen.
      */
     public fun interface OnExitAnimationListener {
 
@@ -203,11 +198,11 @@ class SplashScreen private constructor(activity: Activity) {
          * responsible for animating and removing splash screen using the provided
          * [splashScreenViewProvider].
          *
-         * The caller **must** call [SplashScreenViewProvider.remove] once it's done with the
-         * splash screen.
+         * The caller **must** call [SplashScreenViewProvider.remove] once it's done with the splash
+         * screen.
          *
          * @param splashScreenViewProvider An object holding a reference to the displayed splash
-         * screen.
+         *   screen.
          */
         @MainThread
         public fun onSplashScreenExit(splashScreenViewProvider: SplashScreenViewProvider)
@@ -216,9 +211,9 @@ class SplashScreen private constructor(activity: Activity) {
     /**
      * Condition evaluated to check if the splash screen should remain on screen
      *
-     * The splash screen will stay visible until the condition isn't met anymore.
-     * The condition is evaluated before each request to draw the application, so it needs to be
-     * fast to avoid blocking the UI.
+     * The splash screen will stay visible until the condition isn't met anymore. The condition is
+     * evaluated before each request to draw the application, so it needs to be fast to avoid
+     * blocking the UI.
      */
     public fun interface KeepOnScreenCondition {
 
@@ -228,8 +223,7 @@ class SplashScreen private constructor(activity: Activity) {
          *
          * This callback is evaluated in the main thread.
          */
-        @MainThread
-        public fun shouldKeepOnScreen(): Boolean
+        @MainThread public fun shouldKeepOnScreen(): Boolean
     }
 
     private open class Impl(val activity: Activity) {
@@ -246,16 +240,14 @@ class SplashScreen private constructor(activity: Activity) {
         open fun install() {
             val typedValue = TypedValue()
             val currentTheme = activity.theme
-            if (currentTheme.resolveAttribute(
-                    R.attr.windowSplashScreenBackground,
-                    typedValue,
-                    true
-                )
+            if (
+                currentTheme.resolveAttribute(R.attr.windowSplashScreenBackground, typedValue, true)
             ) {
                 backgroundResId = typedValue.resourceId
                 backgroundColor = typedValue.data
             }
-            if (currentTheme.resolveAttribute(
+            if (
+                currentTheme.resolveAttribute(
                     R.attr.windowSplashScreenAnimatedIcon,
                     typedValue,
                     true
@@ -287,16 +279,18 @@ class SplashScreen private constructor(activity: Activity) {
             splashScreenWaitPredicate = keepOnScreenCondition
             val contentView = activity.findViewById<View>(android.R.id.content)
             val observer = contentView.viewTreeObserver
-            observer.addOnPreDrawListener(object : OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    if (splashScreenWaitPredicate.shouldKeepOnScreen()) {
-                        return false
+            observer.addOnPreDrawListener(
+                object : OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        if (splashScreenWaitPredicate.shouldKeepOnScreen()) {
+                            return false
+                        }
+                        contentView.viewTreeObserver.removeOnPreDrawListener(this)
+                        mSplashScreenViewProvider?.let(::dispatchOnExitAnimation)
+                        return true
                     }
-                    contentView.viewTreeObserver.removeOnPreDrawListener(this)
-                    mSplashScreenViewProvider?.let(::dispatchOnExitAnimation)
-                    return true
                 }
-            })
+            )
         }
 
         open fun setOnExitAnimationListener(exitAnimationListener: OnExitAnimationListener) {
@@ -341,7 +335,8 @@ class SplashScreen private constructor(activity: Activity) {
                             mSplashScreenViewProvider = splashScreenViewProvider
                         }
                     }
-                })
+                }
+            )
         }
 
         private fun displaySplashScreenIcon(splashScreenView: View, icon: Drawable) {
@@ -384,43 +379,42 @@ class SplashScreen private constructor(activity: Activity) {
         var preDrawListener: OnPreDrawListener? = null
         var mDecorFitWindowInsets = true
 
-        val hierarchyListener = object : ViewGroup.OnHierarchyChangeListener {
-            override fun onChildViewAdded(parent: View?, child: View?) {
+        val hierarchyListener =
+            object : ViewGroup.OnHierarchyChangeListener {
+                override fun onChildViewAdded(parent: View?, child: View?) {
 
-                if (child is SplashScreenView) {
-                    /*
-                     * On API 31, the SplashScreenView sets window.setDecorFitsSystemWindows(false)
-                     * when an OnExitAnimationListener is used. This also affects the application
-                     * content that will be pushed up under the status bar even though it didn't
-                     * requested it. And once the SplashScreenView is removed, the whole layout
-                     * jumps back below the status bar. Fortunately, this happens only after the
-                     * view is attached, so we have time to record the value of
-                     * window.setDecorFitsSystemWindows() before the splash screen modifies it and
-                     * reapply the correct value to the window.
-                     */
-                    mDecorFitWindowInsets = computeDecorFitsWindow(child)
-                    (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(null)
+                    if (child is SplashScreenView) {
+                        /*
+                         * On API 31, the SplashScreenView sets window.setDecorFitsSystemWindows(false)
+                         * when an OnExitAnimationListener is used. This also affects the application
+                         * content that will be pushed up under the status bar even though it didn't
+                         * requested it. And once the SplashScreenView is removed, the whole layout
+                         * jumps back below the status bar. Fortunately, this happens only after the
+                         * view is attached, so we have time to record the value of
+                         * window.setDecorFitsSystemWindows() before the splash screen modifies it and
+                         * reapply the correct value to the window.
+                         */
+                        mDecorFitWindowInsets = computeDecorFitsWindow(child)
+                        (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(null)
+                    }
+                }
+
+                override fun onChildViewRemoved(parent: View?, child: View?) {
+                    // no-op
                 }
             }
 
-            override fun onChildViewRemoved(parent: View?, child: View?) {
-                // no-op
-            }
-        }
-
         fun computeDecorFitsWindow(child: SplashScreenView): Boolean {
             val inWindowInsets = WindowInsets.Builder().build()
-            val outLocalInsets = Rect(
-                Int.MIN_VALUE, Int.MIN_VALUE, Int.MAX_VALUE,
-                Int.MAX_VALUE
-            )
+            val outLocalInsets = Rect(Int.MIN_VALUE, Int.MIN_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
 
             // If setDecorFitWindowInsets is set to false, computeSystemWindowInsets
             // will return the same instance of WindowInsets passed in its parameter and
             // will set outLocalInsets to empty, so we check that both conditions are
             // filled to extrapolate the value of setDecorFitWindowInsets
-            return !(inWindowInsets === child.rootView.computeSystemWindowInsets
-                (inWindowInsets, outLocalInsets) && outLocalInsets.isEmpty)
+            return !(inWindowInsets ===
+                child.rootView.computeSystemWindowInsets(inWindowInsets, outLocalInsets) &&
+                outLocalInsets.isEmpty)
         }
 
         override fun install() {
@@ -440,21 +434,20 @@ class SplashScreen private constructor(activity: Activity) {
             if (preDrawListener != null && observer.isAlive) {
                 observer.removeOnPreDrawListener(preDrawListener)
             }
-            preDrawListener = object : OnPreDrawListener {
-                override fun onPreDraw(): Boolean {
-                    if (splashScreenWaitPredicate.shouldKeepOnScreen()) {
-                        return false
+            preDrawListener =
+                object : OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        if (splashScreenWaitPredicate.shouldKeepOnScreen()) {
+                            return false
+                        }
+                        contentView.viewTreeObserver.removeOnPreDrawListener(this)
+                        return true
                     }
-                    contentView.viewTreeObserver.removeOnPreDrawListener(this)
-                    return true
                 }
-            }
             observer.addOnPreDrawListener(preDrawListener)
         }
 
-        override fun setOnExitAnimationListener(
-            exitAnimationListener: OnExitAnimationListener
-        ) {
+        override fun setOnExitAnimationListener(exitAnimationListener: OnExitAnimationListener) {
             activity.splashScreen.setOnExitAnimationListener { splashScreenView ->
                 if (SDK_INT < 33) {
                     applyAppSystemUiTheme()
@@ -469,11 +462,9 @@ class SplashScreen private constructor(activity: Activity) {
          * ones set on the [SplashScreenView]
          *
          * On API 31, if an OnExitAnimationListener is set, the Window layout params are only
-         * applied only when the [SplashScreenView] is removed. This lead to some
-         * flickers.
+         * applied only when the [SplashScreenView] is removed. This lead to some flickers.
          *
-         * To fix this, we apply these attributes as soon as the [SplashScreenView]
-         * is visible.
+         * To fix this, we apply these attributes as soon as the [SplashScreenView] is visible.
          */
         private fun applyAppSystemUiTheme() {
             val tv = TypedValue()

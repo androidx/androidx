@@ -35,13 +35,12 @@ import org.junit.Test
 class IconTest {
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
 
-    @Test fun fromBitmapAdaptive() {
+    @Test
+    fun fromBitmapAdaptive() {
         val density = context.resources.displayMetrics.density
 
         val edge = (108.0f * density + 0.5f).toInt()
-        val bitmap = Bitmap.createBitmap(edge, edge, ARGB_8888).apply {
-            eraseColor(Color.RED)
-        }
+        val bitmap = Bitmap.createBitmap(edge, edge, ARGB_8888).apply { eraseColor(Color.RED) }
         val icon = bitmap.toAdaptiveIcon()
 
         val rendered = icon.toIntrinsicBitmap()
@@ -52,10 +51,9 @@ class IconTest {
         assertEquals(Color.RED, rendered.getPixel(masked / 2, masked / 2))
     }
 
-    @Test fun fromBitmap() {
-        val bitmap = createBitmap(1, 1).apply {
-            eraseColor(Color.RED)
-        }
+    @Test
+    fun fromBitmap() {
+        val bitmap = createBitmap(1, 1).apply { eraseColor(Color.RED) }
         val icon = bitmap.toIcon()
 
         val rendered = icon.toIntrinsicBitmap()
@@ -64,7 +62,8 @@ class IconTest {
         assertEquals(Color.RED, rendered.getPixel(0, 0))
     }
 
-    @Test fun fromUri() {
+    @Test
+    fun fromUri() {
         // Icon can't read from file:///android_asset/red.png so copy to a real file.
         val cacheFile = File(context.cacheDir, "red.png")
         context.assets.open("red.png").use { cacheFile.writeBytes(it.readBytes()) }
@@ -78,7 +77,8 @@ class IconTest {
         assertEquals(Color.RED, rendered.getPixel(0, 0))
     }
 
-    @Test fun fromByteArray() {
+    @Test
+    fun fromByteArray() {
         val bytes = context.assets.open("red.png").use { it.readBytes() }
         val icon = bytes.toIcon()
 

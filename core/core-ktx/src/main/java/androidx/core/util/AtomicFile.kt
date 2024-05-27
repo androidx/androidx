@@ -41,18 +41,14 @@ public inline fun AtomicFile.tryWrite(block: (out: FileOutputStream) -> Unit) {
     }
 }
 
-/**
- * Sets the content of this file as an [array] of bytes.
- */
+/** Sets the content of this file as an [array] of bytes. */
 public fun AtomicFile.writeBytes(array: ByteArray) {
-    tryWrite {
-        it.write(array)
-    }
+    tryWrite { it.write(array) }
 }
 
 /**
- * Sets the content of this file as [text] encoded using UTF-8 or specified [charset].
- * If this file exists, it becomes overwritten.
+ * Sets the content of this file as [text] encoded using UTF-8 or specified [charset]. If this file
+ * exists, it becomes overwritten.
  */
 public fun AtomicFile.writeText(text: String, charset: Charset = Charsets.UTF_8) {
     writeBytes(text.toByteArray(charset))

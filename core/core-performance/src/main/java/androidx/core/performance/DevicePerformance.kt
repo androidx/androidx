@@ -20,10 +20,10 @@ package androidx.core.performance
 /**
  * Reports the media performance class of the device.
  *
- * Create an instance of DevicePerformance in your [android.app.Application.onCreate] and use
- * the [mediaPerformanceClass] value any time it is needed.
- * @sample androidx.core.performance.samples.usage
+ * Create an instance of DevicePerformance in your [android.app.Application.onCreate] and use the
+ * [mediaPerformanceClass] value any time it is needed.
  *
+ * @sample androidx.core.performance.samples.usage
  */
 interface DevicePerformance {
 
@@ -31,16 +31,14 @@ interface DevicePerformance {
      * The media performance class of the device or 0 if none.
      *
      * If this value is not <code>0</code>, the device conforms to the media performance class
-     * definition of the SDK version of this value. This value is stable for the duration of
-     * the process.
+     * definition of the SDK version of this value. This value is stable for the duration of the
+     * process.
      *
-     * Possible non-zero values are defined in
-     * [Build.VERSION_CODES][android.os.Build.VERSION_CODES] starting with
-     * [VERSION_CODES.R][android.os.Build.VERSION_CODES.R].
+     * Possible non-zero values are defined in [Build.VERSION_CODES][android.os.Build.VERSION_CODES]
+     * starting with [VERSION_CODES.R][android.os.Build.VERSION_CODES.R].
      *
      * Defaults to
      * [VERSION.MEDIA_PERFORMANCE_CLASS][android.os.Build.VERSION.MEDIA_PERFORMANCE_CLASS]
-     *
      */
     val mediaPerformanceClass: Int
 }

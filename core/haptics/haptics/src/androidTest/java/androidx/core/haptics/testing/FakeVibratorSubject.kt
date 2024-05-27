@@ -23,17 +23,18 @@ import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth.assertAbout
 
-/**
- * Truth extension for [FakeVibrator].
- */
-internal class FakeVibratorSubject private constructor(
+/** Truth extension for [FakeVibrator]. */
+internal class FakeVibratorSubject
+private constructor(
     metadata: FailureMetadata?,
     private val actual: FakeVibrator,
 ) : Subject(metadata, actual) {
 
     companion object {
         private val SUBJECT_FACTORY: Factory<FakeVibratorSubject?, FakeVibrator> =
-            Factory { failureMetadata, subject -> FakeVibratorSubject(failureMetadata, subject) }
+            Factory { failureMetadata, subject ->
+                FakeVibratorSubject(failureMetadata, subject)
+            }
 
         internal fun assertThat(vibrator: FakeVibrator): FakeVibratorSubject =
             requireNotNull(assertAbout(SUBJECT_FACTORY).that(vibrator))
@@ -50,18 +51,16 @@ internal class FakeVibratorSubject private constructor(
      * object returned by this method.
      */
     fun vibratedExactly(vararg expected: VibrationWrapper): Ordered =
-        check("vibrations()").that(actual.vibrations().map { it.vibration })
+        check("vibrations()")
+            .that(actual.vibrations().map { it.vibration })
             .containsExactly(*expected)
 
-    /**
-     * Checks the subject has never requested to vibrate.
-     */
-    fun neverVibrated(): Unit =
-        check("vibrations()").that(actual.vibrations()).isEmpty()
+    /** Checks the subject has never requested to vibrate. */
+    fun neverVibrated(): Unit = check("vibrations()").that(actual.vibrations()).isEmpty()
 
     /**
-     * Checks the subject was requested to vibrate/cancel with exactly the provided parameters
-     * or fails.
+     * Checks the subject was requested to vibrate/cancel with exactly the provided parameters or
+     * fails.
      *
      * To also test that the requests appear in the given order, make a call to inOrder() on the
      * object returned by this method.

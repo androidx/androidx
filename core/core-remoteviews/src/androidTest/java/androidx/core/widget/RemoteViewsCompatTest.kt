@@ -79,9 +79,7 @@ public class RemoteViewsCompatTest {
     public fun setUp() {
         mUiAutomation.adoptShellPermissionIdentity(permission.BIND_APPWIDGET)
 
-        mActivityTestRule.scenario.onActivity { activity ->
-            mHostView = activity.bindAppWidget()
-        }
+        mActivityTestRule.scenario.onActivity { activity -> mHostView = activity.bindAppWidget() }
 
         mAppWidgetId = mHostView.appWidgetId
         mRemoteViews = RemoteViews(mPackageName, R.layout.remote_views_list)
@@ -98,21 +96,23 @@ public class RemoteViewsCompatTest {
 
     @Test
     public fun testParcelingAndUnparceling() {
-        val items = RemoteCollectionItems.Builder()
-            .setHasStableIds(true)
-            .setViewTypeCount(10)
-            .addItem(id = 3, RemoteViews(mPackageName, R.layout.list_view_row))
-            .addItem(id = 5, RemoteViews(mPackageName, R.layout.list_view_row2))
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(true)
+                .setViewTypeCount(10)
+                .addItem(id = 3, RemoteViews(mPackageName, R.layout.list_view_row))
+                .addItem(id = 5, RemoteViews(mPackageName, R.layout.list_view_row2))
+                .build()
 
         val parcel = Parcel.obtain()
-        val unparceled = try {
-            items.writeToParcel(parcel, /* flags= */ 0)
-            parcel.setDataPosition(0)
-            RemoteCollectionItems(parcel)
-        } finally {
-            parcel.recycle()
-        }
+        val unparceled =
+            try {
+                items.writeToParcel(parcel, /* flags= */ 0)
+                parcel.setDataPosition(0)
+                RemoteCollectionItems(parcel)
+            } finally {
+                parcel.recycle()
+            }
 
         assertThat(unparceled.itemCount).isEqualTo(2)
         assertThat(unparceled.getItemId(0)).isEqualTo(3)
@@ -136,11 +136,12 @@ public class RemoteViewsCompatTest {
     public fun testBuilder_viewTypeCountUnspecified() {
         val firstItem = RemoteViews(mPackageName, R.layout.list_view_row)
         val secondItem = RemoteViews(mPackageName, R.layout.list_view_row2)
-        val items = RemoteCollectionItems.Builder()
-            .setHasStableIds(true)
-            .addItem(id = 3, firstItem)
-            .addItem(id = 5, secondItem)
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(true)
+                .addItem(id = 3, firstItem)
+                .addItem(id = 5, secondItem)
+                .build()
 
         assertThat(items.itemCount).isEqualTo(2)
         assertThat(items.getItemId(0)).isEqualTo(3)
@@ -157,11 +158,12 @@ public class RemoteViewsCompatTest {
     public fun testBuilder_viewTypeCountSpecified() {
         val firstItem = RemoteViews(mPackageName, R.layout.list_view_row)
         val secondItem = RemoteViews(mPackageName, R.layout.list_view_row2)
-        val items = RemoteCollectionItems.Builder()
-            .addItem(id = 3, firstItem)
-            .addItem(id = 5, secondItem)
-            .setViewTypeCount(15)
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .addItem(id = 3, firstItem)
+                .addItem(id = 5, secondItem)
+                .setViewTypeCount(15)
+                .build()
 
         assertThat(items.viewTypeCount).isEqualTo(15)
     }
@@ -171,12 +173,13 @@ public class RemoteViewsCompatTest {
         val firstItem = RemoteViews(mPackageName, R.layout.list_view_row)
         val secondItem = RemoteViews(mPackageName, R.layout.list_view_row)
         val thirdItem = RemoteViews(mPackageName, R.layout.list_view_row)
-        val items = RemoteCollectionItems.Builder()
-            .setHasStableIds(false)
-            .addItem(id = 42, firstItem)
-            .addItem(id = 42, secondItem)
-            .addItem(id = 42, thirdItem)
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(false)
+                .addItem(id = 42, firstItem)
+                .addItem(id = 42, secondItem)
+                .addItem(id = 42, thirdItem)
+                .build()
 
         assertThat(items.itemCount).isEqualTo(3)
         assertThat(items.getItemId(0)).isEqualTo(42)
@@ -248,11 +251,12 @@ public class RemoteViewsCompatTest {
 
     @Test
     public fun testSetRemoteAdapter_withItems() {
-        val items = RemoteCollectionItems.Builder()
-            .setHasStableIds(true)
-            .addItem(id = 10, createTextRow("Hello"))
-            .addItem(id = 11, createTextRow("World"))
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(true)
+                .addItem(id = 10, createTextRow("Hello"))
+                .addItem(id = 11, createTextRow("World"))
+                .build()
 
         RemoteViewsCompat.setRemoteAdapter(
             mContext,
@@ -283,25 +287,27 @@ public class RemoteViewsCompatTest {
         val action = "my-action"
         val receiver = TestBroadcastReceiver()
         mContext.registerReceiver(receiver, IntentFilter(action))
-        val pendingIntent = PendingIntent.getBroadcast(
-            mContext,
-            0,
-            Intent(action).setPackage(mPackageName),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        )
+        val pendingIntent =
+            PendingIntent.getBroadcast(
+                mContext,
+                0,
+                Intent(action).setPackage(mPackageName),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+            )
         mRemoteViews.setPendingIntentTemplate(R.id.list_view, pendingIntent)
 
         val item2 = RemoteViews(mPackageName, R.layout.list_view_row2)
         item2.setTextViewText(R.id.text, "Clickable")
         item2.setOnClickFillInIntent(R.id.text, Intent().putExtra("my-extra", 42))
 
-        val items = RemoteCollectionItems.Builder()
-            .setHasStableIds(true)
-            .addItem(id = 10, createTextRow("Hello"))
-            .addItem(id = 11, createTextRow("World"))
-            .addItem(id = 12, createTextRow("Mundo"))
-            .addItem(id = 13, item2)
-            .build()
+        val items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(true)
+                .addItem(id = 10, createTextRow("Hello"))
+                .addItem(id = 11, createTextRow("World"))
+                .addItem(id = 12, createTextRow("Mundo"))
+                .addItem(id = 13, item2)
+                .build()
         RemoteViewsCompat.setRemoteAdapter(
             mContext,
             mRemoteViews,
@@ -331,20 +337,19 @@ public class RemoteViewsCompatTest {
         assertThat(textView2.text.toString()).isEqualTo("Clickable")
 
         // View being clicked should launch the intent.
-        val receiverIntent = receiver.runAndAwaitIntentReceived {
-            textView2.performClick()
-        }
+        val receiverIntent = receiver.runAndAwaitIntentReceived { textView2.performClick() }
         assertThat(receiverIntent.getIntExtra("my-extra", 0)).isEqualTo(42)
         mContext.unregisterReceiver(receiver)
     }
 
     @Test
     public fun testSetRemoteAdapter_multipleCalls() {
-        var items = RemoteCollectionItems.Builder()
-            .setHasStableIds(true)
-            .addItem(id = 10, createTextRow("Hello"))
-            .addItem(id = 11, createTextRow("World"))
-            .build()
+        var items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(true)
+                .addItem(id = 10, createTextRow("Hello"))
+                .addItem(id = 11, createTextRow("World"))
+                .build()
         RemoteViewsCompat.setRemoteAdapter(
             mContext,
             mRemoteViews,
@@ -355,12 +360,13 @@ public class RemoteViewsCompatTest {
         mAppWidgetManager.updateAppWidget(mAppWidgetId, mRemoteViews)
         observeDrawUntil { mListView.adapter != null && mListView.childCount == 2 }
 
-        items = RemoteCollectionItems.Builder()
-            .setHasStableIds(true)
-            .addItem(id = 20, createTextRow("Bonjour"))
-            .addItem(id = 21, createTextRow("le"))
-            .addItem(id = 22, createTextRow("monde"))
-            .build()
+        items =
+            RemoteCollectionItems.Builder()
+                .setHasStableIds(true)
+                .addItem(id = 20, createTextRow("Bonjour"))
+                .addItem(id = 21, createTextRow("le"))
+                .addItem(id = 22, createTextRow("monde"))
+                .build()
         RemoteViewsCompat.setRemoteAdapter(
             mContext,
             mRemoteViews,
@@ -384,15 +390,14 @@ public class RemoteViewsCompatTest {
     }
 
     private fun createTextRow(text: String): RemoteViews {
-        return RemoteViews(mPackageName, R.layout.list_view_row)
-            .also { it.setTextViewText(R.id.text, text) }
+        return RemoteViews(mPackageName, R.layout.list_view_row).also {
+            it.setTextViewText(R.id.text, text)
+        }
     }
 
     private fun observeDrawUntil(test: () -> Boolean) {
         val latch = CountDownLatch(1)
-        val onDrawListener = OnDrawListener {
-            if (test()) latch.countDown()
-        }
+        val onDrawListener = OnDrawListener { if (test()) latch.countDown() }
 
         mActivityTestRule.scenario.onActivity {
             mHostView.viewTreeObserver.addOnDrawListener(onDrawListener)

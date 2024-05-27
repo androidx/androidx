@@ -17,6 +17,7 @@
 // java.util.function.Consumer was added in API 24
 @file:RequiresApi(24)
 @file:JvmName("ConsumerKt")
+
 package androidx.core.util
 
 import androidx.annotation.RequiresApi
@@ -28,9 +29,8 @@ import kotlin.coroutines.resume
  * Returns a [java.util.function.Consumer] that will resume this [Continuation] when the result of
  * an operation is [accepted][java.util.function.Consumer.accept].
  *
- * Useful for writing `suspend` bindings to async methods that accept
- * [java.util.function.Consumer] as a result callback for a one-time operation:
- *
+ * Useful for writing `suspend` bindings to async methods that accept [java.util.function.Consumer]
+ * as a result callback for a one-time operation:
  * ```
  * public suspend fun FancinessManager.query(
  *     query: FancinessManager.Query
@@ -58,9 +58,8 @@ public fun <T> Continuation<T>.asConsumer(): java.util.function.Consumer<T> =
     ContinuationConsumer(this)
 
 @RequiresApi(24)
-private class ContinuationConsumer<T>(
-    private val continuation: Continuation<T>
-) : java.util.function.Consumer<T>, AtomicBoolean(false) {
+private class ContinuationConsumer<T>(private val continuation: Continuation<T>) :
+    java.util.function.Consumer<T>, AtomicBoolean(false) {
     override fun accept(value: T) {
         // Do not attempt to resume more than once, even if the caller of the returned
         // Consumer is buggy and tries anyway.

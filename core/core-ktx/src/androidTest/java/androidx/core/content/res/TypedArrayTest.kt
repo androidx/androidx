@@ -32,29 +32,36 @@ import org.junit.Test
 class TypedArrayTest {
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
 
-    @Test fun boolean() {
+    @Test
+    fun boolean() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertTrue(array.getBooleanOrThrow(R.styleable.TypedArrayTypes_boolean_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getBooleanOrThrow(R.styleable.TypedArrayTypes_boolean_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getBooleanOrThrow(R.styleable.TypedArrayTypes_boolean_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun color() {
+    @Test
+    fun color() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertEquals(Color.WHITE, array.getColorOrThrow(R.styleable.TypedArrayTypes_color_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getColorOrThrow(R.styleable.TypedArrayTypes_color_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getColorOrThrow(R.styleable.TypedArrayTypes_color_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun colorStateList() {
+    @Test
+    fun colorStateList() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
         val stateList = array.getColorStateListOrThrow(R.styleable.TypedArrayTypes_color_present)
@@ -62,22 +69,28 @@ class TypedArrayTest {
         assertEquals(Color.WHITE, stateList.defaultColor)
 
         assertThrows<IllegalArgumentException> {
-            array.getColorStateListOrThrow(R.styleable.TypedArrayTypes_color_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getColorStateListOrThrow(R.styleable.TypedArrayTypes_color_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun dimension() {
+    @Test
+    fun dimension() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertEquals(1f, array.getDimensionOrThrow(R.styleable.TypedArrayTypes_dimension_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getDimensionOrThrow(R.styleable.TypedArrayTypes_dimension_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getDimensionOrThrow(R.styleable.TypedArrayTypes_dimension_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun dimensionPixelSize() {
+    @Test
+    fun dimensionPixelSize() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
@@ -87,11 +100,14 @@ class TypedArrayTest {
         )
 
         assertThrows<IllegalArgumentException> {
-            array.getDimensionPixelSizeOrThrow(R.styleable.TypedArrayTypes_dimension_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getDimensionPixelSizeOrThrow(R.styleable.TypedArrayTypes_dimension_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun dimensionPixelOffset() {
+    @Test
+    fun dimensionPixelOffset() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
@@ -101,64 +117,81 @@ class TypedArrayTest {
         )
 
         assertThrows<IllegalArgumentException> {
-            array.getDimensionPixelOffsetOrThrow(R.styleable.TypedArrayTypes_dimension_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getDimensionPixelOffsetOrThrow(R.styleable.TypedArrayTypes_dimension_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun drawable() {
+    @Test
+    fun drawable() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertNotNull(array.getDrawableOrThrow(R.styleable.TypedArrayTypes_drawable_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getDrawableOrThrow(R.styleable.TypedArrayTypes_drawable_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getDrawableOrThrow(R.styleable.TypedArrayTypes_drawable_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun float() {
+    @Test
+    fun float() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertEquals(0.1f, array.getFloatOrThrow(R.styleable.TypedArrayTypes_float_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getFloatOrThrow(R.styleable.TypedArrayTypes_float_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getFloatOrThrow(R.styleable.TypedArrayTypes_float_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
     @SdkSuppress(minSdkVersion = 26)
-    @Test fun font() {
+    @Test
+    fun font() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertNotNull(array.getFontOrThrow(R.styleable.TypedArrayTypes_font_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getFontOrThrow(R.styleable.TypedArrayTypes_font_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getFontOrThrow(R.styleable.TypedArrayTypes_font_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun int() {
+    @Test
+    fun int() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertEquals(1, array.getIntOrThrow(R.styleable.TypedArrayTypes_integer_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getIntOrThrow(R.styleable.TypedArrayTypes_integer_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getIntOrThrow(R.styleable.TypedArrayTypes_integer_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun integer() {
+    @Test
+    fun integer() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertEquals(1, array.getIntegerOrThrow(R.styleable.TypedArrayTypes_integer_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getIntegerOrThrow(R.styleable.TypedArrayTypes_integer_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getIntegerOrThrow(R.styleable.TypedArrayTypes_integer_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
     @Test
@@ -172,33 +205,42 @@ class TypedArrayTest {
         )
 
         assertThrows<IllegalArgumentException> {
-            array.getResourceIdOrThrow(R.styleable.TypedArrayTypes_resource_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getResourceIdOrThrow(R.styleable.TypedArrayTypes_resource_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun string() {
+    @Test
+    fun string() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertEquals("Hello", array.getStringOrThrow(R.styleable.TypedArrayTypes_string_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getStringOrThrow(R.styleable.TypedArrayTypes_string_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getStringOrThrow(R.styleable.TypedArrayTypes_string_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun text() {
+    @Test
+    fun text() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
         assertEquals("Hello", array.getTextOrThrow(R.styleable.TypedArrayTypes_string_present))
 
         assertThrows<IllegalArgumentException> {
-            array.getTextOrThrow(R.styleable.TypedArrayTypes_string_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getTextOrThrow(R.styleable.TypedArrayTypes_string_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
-    @Test fun textArray() {
+    @Test
+    fun textArray() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
@@ -207,22 +249,21 @@ class TypedArrayTest {
         assertEquals("World", text[1].toString())
 
         assertThrows<IllegalArgumentException> {
-            array.getTextOrThrow(R.styleable.TypedArrayTypes_text_array_absent)
-        }.hasMessageThat().isEqualTo("Attribute not defined in set.")
+                array.getTextOrThrow(R.styleable.TypedArrayTypes_text_array_absent)
+            }
+            .hasMessageThat()
+            .isEqualTo("Attribute not defined in set.")
     }
 
     @SdkSuppress(minSdkVersion = 21) // No easy way to verify pre-21.
-    @Test fun useRecyclesArray() {
+    @Test
+    fun useRecyclesArray() {
         val attrs = context.getAttributeSet(R.layout.typed_array)
         val array = context.obtainStyledAttributes(attrs, R.styleable.TypedArrayTypes)
 
-        val result = array.use {
-            it.getBoolean(R.styleable.TypedArrayTypes_boolean_present, false)
-        }
+        val result = array.use { it.getBoolean(R.styleable.TypedArrayTypes_boolean_present, false) }
         assertTrue(result)
 
-        assertThrows<RuntimeException> {
-            array.recycle()
-        }
+        assertThrows<RuntimeException> { array.recycle() }
     }
 }

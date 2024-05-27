@@ -34,9 +34,8 @@ class ThemeSystemBarsTest {
     fun statusBar_dark_before_supported() {
         val scenario = ActivityScenario.launch(LightSystemBarsActivity::class.java)
 
-        val insetsController = scenario.withActivity {
-            WindowCompat.getInsetsController(window, window.decorView)
-        }
+        val insetsController =
+            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
 
         assertThat(insetsController.isAppearanceLightStatusBars).isFalse()
 
@@ -48,9 +47,8 @@ class ThemeSystemBarsTest {
     fun statusBar_light() {
         val scenario = ActivityScenario.launch(LightSystemBarsActivity::class.java)
 
-        val insetsController = scenario.withActivity {
-            WindowCompat.getInsetsController(window, window.decorView)
-        }
+        val insetsController =
+            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
 
         assertThat(insetsController.isAppearanceLightStatusBars).isTrue()
 
@@ -62,9 +60,8 @@ class ThemeSystemBarsTest {
     fun statusBar_dark() {
         val scenario = ActivityScenario.launch(DarkSystemBarsActivity::class.java)
 
-        val insetsController = scenario.withActivity {
-            WindowCompat.getInsetsController(window, window.decorView)
-        }
+        val insetsController =
+            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
 
         assertThat(insetsController.isAppearanceLightStatusBars).isFalse()
 
@@ -76,9 +73,8 @@ class ThemeSystemBarsTest {
     fun navigationBar_dark_before_supported() {
         val scenario = ActivityScenario.launch(LightSystemBarsActivity::class.java)
 
-        val insetsController = scenario.withActivity {
-            WindowCompat.getInsetsController(window, window.decorView)
-        }
+        val insetsController =
+            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
 
         assertThat(insetsController.isAppearanceLightNavigationBars).isFalse()
 
@@ -90,9 +86,8 @@ class ThemeSystemBarsTest {
     fun navigationBar_light() {
         val scenario = ActivityScenario.launch(LightSystemBarsActivity::class.java)
 
-        val insetsController = scenario.withActivity {
-            WindowCompat.getInsetsController(window, window.decorView)
-        }
+        val insetsController =
+            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
 
         assertThat(insetsController.isAppearanceLightNavigationBars).isTrue()
 
@@ -104,9 +99,8 @@ class ThemeSystemBarsTest {
     fun navigationBar_dark() {
         val scenario = ActivityScenario.launch(DarkSystemBarsActivity::class.java)
 
-        val insetsController = scenario.withActivity {
-            WindowCompat.getInsetsController(window, window.decorView)
-        }
+        val insetsController =
+            scenario.withActivity { WindowCompat.getInsetsController(window, window.decorView) }
 
         assertThat(insetsController.isAppearanceLightNavigationBars).isFalse()
 

@@ -22,7 +22,8 @@ import org.junit.Test
 
 @SmallTest
 class StringTest {
-    @Test fun htmlEncode() {
+    @Test
+    fun htmlEncode() {
         assertEquals("&lt;&gt; &amp; &quot; &#39;", """<> & " '""".htmlEncode())
     }
 }

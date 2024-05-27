@@ -18,26 +18,22 @@ package androidx.core.content
 import android.content.ComponentCallbacks2
 import androidx.core.util.Consumer
 
-/**
- * Interface for components that can dispatch calls from
- * [ComponentCallbacks2.onTrimMemory].
- */
+/** Interface for components that can dispatch calls from [ComponentCallbacks2.onTrimMemory]. */
 interface OnTrimMemoryProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * [ComponentCallbacks2.onTrimMemory] with the `int`
-     * representing the level of trimming.
+     * [ComponentCallbacks2.onTrimMemory] with the `int` representing the level of trimming.
      *
      * @param listener The listener that should be called whenever
-     * [ComponentCallbacks2.onTrimMemory] was called.
+     *   [ComponentCallbacks2.onTrimMemory] was called.
      */
     fun addOnTrimMemoryListener(listener: Consumer<Int>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
-     * @param listener The listener previously added with
-     * [.addOnTrimMemoryListener] that should be removed.
+     * @param listener The listener previously added with [.addOnTrimMemoryListener] that should be
+     *   removed.
      */
     fun removeOnTrimMemoryListener(listener: Consumer<Int>)
 }

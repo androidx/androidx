@@ -22,24 +22,20 @@ import kotlinx.coroutines.flow.Flow
 interface UwbClientSessionScope {
     /**
      * Returns a flow of [RangingResult]. Consuming the flow will initiate the UWB ranging and only
-     * one flow can be initiated. To consume the flow from multiple consumers,
-     * convert the flow to a SharedFlow.
+     * one flow can be initiated. To consume the flow from multiple consumers, convert the flow to a
+     * SharedFlow.
      *
-     * @throws [IllegalStateException] if a new flow was consumed again after the UWB
-     * ranging is already initiated.
-     *
+     * @throws [IllegalStateException] if a new flow was consumed again after the UWB ranging is
+     *   already initiated.
      * @throws [androidx.core.uwb.exceptions.UwbSystemCallbackException] if the backend UWB system
-     * has resulted in an error.
-     *
-     * @throws [SecurityException] if ranging does not have the
-     * android.permission.UWB_RANGING permission. Apps must
-     * have requested and been granted this permission before calling this method.
-     *
-     * @throws [IllegalArgumentException] if the client starts a ranging session
-     * without setting complex channel and peer address.
-     *
-     * @throws [IllegalArgumentException] if the client starts a ranging session
-     * with invalid config id or ranging update type.
+     *   has resulted in an error.
+     * @throws [SecurityException] if ranging does not have the android.permission.UWB_RANGING
+     *   permission. Apps must have requested and been granted this permission before calling this
+     *   method.
+     * @throws [IllegalArgumentException] if the client starts a ranging session without setting
+     *   complex channel and peer address.
+     * @throws [IllegalArgumentException] if the client starts a ranging session with invalid config
+     *   id or ranging update type.
      */
     fun prepareSession(parameters: RangingParameters): Flow<RangingResult>
 
@@ -47,13 +43,12 @@ interface UwbClientSessionScope {
     val rangingCapabilities: RangingCapabilities
 
     /**
-     * A local address can only be used for a single ranging session. After
-     * a ranging session is ended, a new address will be allocated.
+     * A local address can only be used for a single ranging session. After a ranging session is
+     * ended, a new address will be allocated.
      *
-     * Ranging session duration may also be limited to prevent addresses
-     * from being used for too long. In this case, your ranging session would be
-     * suspended and clients would need to exchange the new address with their peer
-     * before starting again.
+     * Ranging session duration may also be limited to prevent addresses from being used for too
+     * long. In this case, your ranging session would be suspended and clients would need to
+     * exchange the new address with their peer before starting again.
      */
     val localAddress: UwbAddress
 

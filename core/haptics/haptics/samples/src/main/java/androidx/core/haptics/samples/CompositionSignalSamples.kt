@@ -23,9 +23,7 @@ import androidx.core.haptics.signal.CompositionSignal.Companion.quickFall
 import androidx.core.haptics.signal.CompositionSignal.Companion.slowRise
 import androidx.core.haptics.signal.CompositionSignal.Companion.thud
 
-/**
- * Sample showing how to create a composition signal with scaled effects and off atoms.
- */
+/** Sample showing how to create a composition signal with scaled effects and off atoms. */
 @Sampled
 fun CompositionSignalOfScaledEffectsAndOff() {
     compositionOf(

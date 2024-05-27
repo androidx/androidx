@@ -40,21 +40,29 @@ class TestUwbClientSessionScope(
 ) : UwbClientSessionScope {
     private var sessionStarted = false
     private val uwbDevice = createForAddress(ByteArray(0))
-    val defaultRangingParameters = RangingParameters(
-        RangingParameters.CONFIG_UNICAST_DS_TWR,
-        0,
-        0,
-        byteArrayOf(
-        /* Vendor ID */ 0x07, 0x08,
-        /* Static STS IV */ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06),
-        null,
-        null,
-        ImmutableList.of(uwbDevice),
-        RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
-        UwbRangeDataNtfConfig(1, 1, 100),
-        2,
-        false
-    )
+    val defaultRangingParameters =
+        RangingParameters(
+            RangingParameters.CONFIG_UNICAST_DS_TWR,
+            0,
+            0,
+            byteArrayOf(
+                /* Vendor ID */ 0x07,
+                0x08,
+                /* Static STS IV */ 0x01,
+                0x02,
+                0x03,
+                0x04,
+                0x05,
+                0x06
+            ),
+            null,
+            null,
+            ImmutableList.of(uwbDevice),
+            RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
+            UwbRangeDataNtfConfig(1, 1, 100),
+            2,
+            false
+        )
 
     override fun prepareSession(parameters: RangingParameters) = callbackFlow {
         if (sessionStarted) {
@@ -67,14 +75,16 @@ class TestUwbClientSessionScope(
         val configId = com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_1
         val updateRate =
             com.google.android.gms.nearby.uwb.RangingParameters.RangingUpdateRate.AUTOMATIC
-        val parametersBuilder = com.google.android.gms.nearby.uwb.RangingParameters.Builder()
-            .setSessionId(defaultRangingParameters.sessionId)
-            .setUwbConfigId(configId)
-            .setRangingUpdateRate(updateRate)
+        val parametersBuilder =
+            com.google.android.gms.nearby.uwb.RangingParameters.Builder()
+                .setSessionId(defaultRangingParameters.sessionId)
+                .setUwbConfigId(configId)
+                .setRangingUpdateRate(updateRate)
         parametersBuilder.addPeerDevice(UwbDevice.createForAddress(uwbDevice.address.address))
         val callback =
             object : RangingSessionCallback {
                 var rangingInitialized = false
+
                 override fun onRangingInitialized(device: UwbDevice) {
                     rangingInitialized = true
                 }
@@ -85,12 +95,8 @@ class TestUwbClientSessionScope(
                             androidx.core.uwb.UwbDevice(UwbAddress(device.address.address)),
                             androidx.core.uwb.RangingPosition(
                                 RangingMeasurement(position.distance.value),
-                                position.azimuth?.let {
-                                    RangingMeasurement(it.value)
-                                },
-                                position.elevation?.let {
-                                    RangingMeasurement(it.value)
-                                },
+                                position.azimuth?.let { RangingMeasurement(it.value) },
+                                position.elevation?.let { RangingMeasurement(it.value) },
                                 position.elapsedRealtimeNanos
                             )
                         )

@@ -37,15 +37,13 @@ import kotlin.time.toKotlinDuration
  * vibration is canceled.
  *
  * @sample androidx.core.haptics.samples.AmplitudeWaveform
+ *
  * @sample androidx.core.haptics.samples.PatternThenRepeatAmplitudeWaveform
  */
 class WaveformSignal(
 
-    /**
-     * The waveform signal atoms that describes the vibration parameters over time.
-     */
+    /** The waveform signal atoms that describes the vibration parameters over time. */
     val atoms: List<Atom>,
-
 ) : FiniteSignal() {
     init {
         require(atoms.isNotEmpty()) { "Haptic signals cannot be empty" }
@@ -63,8 +61,7 @@ class WaveformSignal(
          * @param atoms The [WaveformSignal.Atom] instances that define the [WaveformSignal].
          */
         @JvmStatic
-        fun waveformOf(vararg atoms: Atom): WaveformSignal =
-            WaveformSignal(atoms.toList())
+        fun waveformOf(vararg atoms: Atom): WaveformSignal = WaveformSignal(atoms.toList())
 
         /**
          * Returns a [RepeatingWaveformSignal] created with given waveform atoms.
@@ -187,8 +184,7 @@ class WaveformSignal(
      * @param atoms The [WaveformSignal.Atom] instances that define the repeating [WaveformSignal]
      *   to be played after this waveform.
      */
-    fun thenRepeat(vararg atoms: Atom): RepeatingWaveformSignal =
-        thenRepeat(waveformOf(*atoms))
+    fun thenRepeat(vararg atoms: Atom): RepeatingWaveformSignal = thenRepeat(waveformOf(*atoms))
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -214,18 +210,17 @@ class WaveformSignal(
     /**
      * A [WaveformSignal.Atom] is a building block for creating a [WaveformSignal].
      *
-     * Waveform signal atoms describe how vibration parameters change over time. They can describe
-     * a constant vibration sustained for a fixed duration, for example, which can be used to create
-     * a step waveform. They can also be used to describe simpler on-off vibration patterns.
+     * Waveform signal atoms describe how vibration parameters change over time. They can describe a
+     * constant vibration sustained for a fixed duration, for example, which can be used to create a
+     * step waveform. They can also be used to describe simpler on-off vibration patterns.
      *
      * @sample androidx.core.haptics.samples.PatternWaveform
+     *
      * @sample androidx.core.haptics.samples.AmplitudeWaveform
      */
     abstract class Atom internal constructor() {
 
-        /**
-         * Returns true if the device vibrator can play this atom as intended, false otherwise.
-         */
+        /** Returns true if the device vibrator can play this atom as intended, false otherwise. */
         internal abstract fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean
     }
 
@@ -240,10 +235,11 @@ class WaveformSignal(
      * vibration strength.
      *
      * @sample androidx.core.haptics.samples.PatternWaveform
+     *
      * @sample androidx.core.haptics.samples.AmplitudeWaveform
      */
-    class ConstantVibrationAtom internal constructor(
-
+    class ConstantVibrationAtom
+    internal constructor(
         duration: Duration,
 
         /**
@@ -253,11 +249,8 @@ class WaveformSignal(
          * uses a hardware-specific default vibration strength.
          */
         val amplitude: Float,
-
     ) : Atom() {
-        /**
-         * The duration to sustain the constant vibration, in milliseconds.
-         */
+        /** The duration to sustain the constant vibration, in milliseconds. */
         val durationMillis: Long
 
         init {
@@ -312,18 +305,14 @@ class WaveformSignal(
  *
  * @sample androidx.core.haptics.samples.RepeatingAmplitudeWaveform
  */
-class RepeatingWaveformSignal internal constructor(
+class RepeatingWaveformSignal
+internal constructor(
 
-    /**
-     * The optional initial waveform signal to be played once at the beginning of the vibration.
-     */
+    /** The optional initial waveform signal to be played once at the beginning of the vibration. */
     val initialWaveform: WaveformSignal?,
 
-    /**
-     * The waveform signal to be repeated after the initial waveform.
-     */
+    /** The waveform signal to be repeated after the initial waveform. */
     val repeatingWaveform: WaveformSignal,
-
 ) : InfiniteSignal() {
 
     override fun equals(other: Any?): Boolean {

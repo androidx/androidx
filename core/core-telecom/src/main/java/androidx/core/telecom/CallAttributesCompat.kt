@@ -26,17 +26,18 @@ import androidx.core.telecom.internal.utils.Utils
 import java.util.Objects
 
 /**
- * CallAttributes represents a set of properties that define a new Call.  Applications should build
+ * CallAttributes represents a set of properties that define a new Call. Applications should build
  * an instance of this class and use [CallsManager.addCall] to start a new call with Telecom.
  *
- * @param displayName  Display name of the person on the other end of the call
+ * @param displayName Display name of the person on the other end of the call
  * @param address Address of the call. Note, this can be extended to a meeting link
  * @param direction The direction (Outgoing/Incoming) of the new Call
  * @param callType Information related to data being transmitted (voice, video, etc. )
- * @param callCapabilities Allows a package to opt into capabilities on the telecom side,
- *                         on a per-call basis
+ * @param callCapabilities Allows a package to opt into capabilities on the telecom side, on a
+ *   per-call basis
  */
-class CallAttributesCompat constructor(
+class CallAttributesCompat
+constructor(
     val displayName: CharSequence,
     val address: Uri,
     @Direction val direction: Int,
@@ -74,14 +75,10 @@ class CallAttributesCompat constructor(
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
         annotation class Direction
 
-        /**
-         * Indicates that the call is an incoming call.
-         */
+        /** Indicates that the call is an incoming call. */
         const val DIRECTION_INCOMING = 1
 
-        /**
-         * Indicates that the call is an outgoing call.
-         */
+        /** Indicates that the call is an outgoing call. */
         const val DIRECTION_OUTGOING = 2
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -96,9 +93,7 @@ class CallAttributesCompat constructor(
          */
         const val CALL_TYPE_AUDIO_CALL = 1
 
-        /**
-         * Indicates video transmission is supported
-         */
+        /** Indicates video transmission is supported */
         const val CALL_TYPE_VIDEO_CALL = 2
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -108,10 +103,10 @@ class CallAttributesCompat constructor(
         annotation class CallCapability
 
         /**
-         * This call being created can be set to inactive (traditionally referred to as hold).  This
+         * This call being created can be set to inactive (traditionally referred to as hold). This
          * means that once a new call goes active, if the active call needs to be held in order to
-         * place or receive an incoming call, the active call will be placed on hold.  otherwise,
-         * the active call may be disconnected.
+         * place or receive an incoming call, the active call will be placed on hold. otherwise, the
+         * active call may be disconnected.
          */
         const val SUPPORTS_SET_INACTIVE = 1 shl 1
 
@@ -122,9 +117,7 @@ class CallAttributesCompat constructor(
          */
         const val SUPPORTS_STREAM = 1 shl 2
 
-        /**
-         * This call can be completely transferred from one endpoint to another.
-         */
+        /** This call can be completely transferred from one endpoint to another. */
         const val SUPPORTS_TRANSFER = 1 shl 3
     }
 

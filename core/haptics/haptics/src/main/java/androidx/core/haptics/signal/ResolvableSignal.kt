@@ -38,7 +38,7 @@ fun interface ResolvableSignal {
      *
      * @param deviceProfile The device profile to be used for haptic capability checks.
      * @return The [HapticSignal] to be played on given device, not null if no signal should be
-     * played in this device.
+     *   played in this device.
      */
     fun resolve(deviceProfile: HapticDeviceProfile): HapticSignal?
 }

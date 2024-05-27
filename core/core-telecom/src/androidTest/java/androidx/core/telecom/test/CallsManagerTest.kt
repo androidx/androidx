@@ -124,16 +124,15 @@ class CallsManagerTest : BaseTelecomTest() {
                 )
             } else {
                 assertTrue(
-                    account.capabilities and CAPABILITY_SELF_MANAGED ==
-                        CAPABILITY_SELF_MANAGED
+                    account.capabilities and CAPABILITY_SELF_MANAGED == CAPABILITY_SELF_MANAGED
                 )
             }
         }
     }
 
     /**
-     * Register all the capabilities currently exposed by the CallsManager class and verify they
-     * are re-mapped to the correct platform capabilities.
+     * Register all the capabilities currently exposed by the CallsManager class and verify they are
+     * re-mapped to the correct platform capabilities.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SmallTest
@@ -141,8 +140,8 @@ class CallsManagerTest : BaseTelecomTest() {
     fun testRegisterAllCapabilities() {
         setUpV2Test()
         mCallsManager.registerAppWithTelecom(
-            CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING
-                or CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING
+            CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING or
+                CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING
         )
 
         val phoneAccount = mCallsManager.getBuiltPhoneAccount()!!
@@ -180,9 +179,7 @@ class CallsManagerTest : BaseTelecomTest() {
     @Test
     fun testAddOutgoingVideoCall_CallEndpointShouldBeSpeaker_Transactional() {
         setUpV2Test()
-        runBlocking {
-            assertVideoCallStartsWithSpeakerEndpoint()
-        }
+        runBlocking { assertVideoCallStartsWithSpeakerEndpoint() }
     }
 
     /**
@@ -195,9 +192,7 @@ class CallsManagerTest : BaseTelecomTest() {
     @Test
     fun testAddOutgoingVideoCall_CallEndpointShouldBeSpeaker_BackwardsCompat() {
         setUpBackwardsCompatTest()
-        runBlocking {
-            assertVideoCallStartsWithSpeakerEndpoint()
-        }
+        runBlocking { assertVideoCallStartsWithSpeakerEndpoint() }
     }
 
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -233,8 +228,7 @@ class CallsManagerTest : BaseTelecomTest() {
                         TestUtils.mOnDisconnectLambda,
                         TestUtils.mOnSetActiveLambda,
                         TestUtils.mOnSetInActiveLambda,
-                    ) {
-                    }
+                    ) {}
                 } catch (e: androidx.core.telecom.CallException) {
                     waitForCallException.complete(e)
                 }
@@ -264,8 +258,7 @@ class CallsManagerTest : BaseTelecomTest() {
                         TestUtils.mOnDisconnectLambda,
                         TestUtils.mOnSetActiveLambda,
                         TestUtils.mOnSetInActiveLambda,
-                    ) {
-                    }
+                    ) {}
                 } catch (e: androidx.core.telecom.CallException) {
                     waitForCallException.complete(e)
                 }
@@ -315,9 +308,8 @@ class CallsManagerTest : BaseTelecomTest() {
                 val waitUntilSpeakerEndpointJob = CompletableDeferred<CallEndpointCompat>()
 
                 val flowsJob = launch {
-                    val speakerFlow = currentCallEndpoint.filter {
-                        it.type == CallEndpointCompat.TYPE_SPEAKER
-                    }
+                    val speakerFlow =
+                        currentCallEndpoint.filter { it.type == CallEndpointCompat.TYPE_SPEAKER }
 
                     speakerFlow.collect {
                         Log.i(TAG, "speakerFlow.collect=[$it]")

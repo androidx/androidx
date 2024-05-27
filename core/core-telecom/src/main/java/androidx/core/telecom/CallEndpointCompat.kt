@@ -29,9 +29,9 @@ import java.util.UUID
  * Constructor for a [CallEndpointCompat] object.
  *
  * @param name Human-readable name associated with the endpoint
- * @param type The type of endpoint through which call media being routed
- *   Allowed values: [TYPE_EARPIECE] , [TYPE_BLUETOOTH] , [TYPE_WIRED_HEADSET] , [TYPE_SPEAKER]
- *      , [TYPE_STREAMING] , [TYPE_UNKNOWN]
+ * @param type The type of endpoint through which call media being routed Allowed values:
+ *   [TYPE_EARPIECE] , [TYPE_BLUETOOTH] , [TYPE_WIRED_HEADSET] , [TYPE_SPEAKER] , [TYPE_STREAMING] ,
+ *   [TYPE_UNKNOWN]
  * @param identifier A unique identifier for this endpoint on the device
  */
 @RequiresApi(VERSION_CODES.O)
@@ -70,33 +70,37 @@ class CallEndpointCompat(val name: CharSequence, val type: Int, val identifier: 
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
         annotation class EndpointType
 
-        /** Indicates that the type of endpoint through which call media flows is unknown type.  */
+        /** Indicates that the type of endpoint through which call media flows is unknown type. */
         const val TYPE_UNKNOWN = -1
 
-        /** Indicates that the type of endpoint through which call media flows is an earpiece.  */
+        /** Indicates that the type of endpoint through which call media flows is an earpiece. */
         const val TYPE_EARPIECE = 1
 
-        /** Indicates that the type of endpoint through which call media flows is a Bluetooth.  */
+        /** Indicates that the type of endpoint through which call media flows is a Bluetooth. */
         const val TYPE_BLUETOOTH = 2
 
-        /** Indicates that the type of endpoint through which call media flows is a wired headset. */
+        /**
+         * Indicates that the type of endpoint through which call media flows is a wired headset.
+         */
         const val TYPE_WIRED_HEADSET = 3
 
         /** Indicates that the type of endpoint through which call media flows is a speakerphone. */
         const val TYPE_SPEAKER = 4
 
-        /** Indicates that the type of endpoint through which call media flows is an external.  */
+        /** Indicates that the type of endpoint through which call media flows is an external. */
         const val TYPE_STREAMING = 5
     }
 
-    internal constructor(name: String, @EndpointType type: Int) :
-        this(name, type, ParcelUuid(UUID.randomUUID())) {
-    }
+    internal constructor(
+        name: String,
+        @EndpointType type: Int
+    ) : this(name, type, ParcelUuid(UUID.randomUUID())) {}
 
-    internal constructor(name: String, @EndpointType type: Int, address: String) : this(
-        name,
-        type
-    ) {
+    internal constructor(
+        name: String,
+        @EndpointType type: Int,
+        address: String
+    ) : this(name, type) {
         mMackAddress = address
     }
 }

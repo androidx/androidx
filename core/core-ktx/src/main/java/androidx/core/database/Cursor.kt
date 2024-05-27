@@ -29,9 +29,8 @@ import android.database.Cursor
  * @see Cursor.isNull
  * @see Cursor.getBlob
  */
-public inline fun Cursor.getBlobOrNull(
-    index: Int
-): ByteArray? = if (isNull(index)) null else getBlob(index)
+public inline fun Cursor.getBlobOrNull(index: Int): ByteArray? =
+    if (isNull(index)) null else getBlob(index)
 
 /**
  * Returns the value of the requested column as a nullable double.
@@ -42,9 +41,8 @@ public inline fun Cursor.getBlobOrNull(
  * @see Cursor.isNull
  * @see Cursor.getDouble
  */
-public inline fun Cursor.getDoubleOrNull(
-    index: Int
-): Double? = if (isNull(index)) null else getDouble(index)
+public inline fun Cursor.getDoubleOrNull(index: Int): Double? =
+    if (isNull(index)) null else getDouble(index)
 
 /**
  * Returns the value of the requested column as a nullable float.
@@ -55,9 +53,8 @@ public inline fun Cursor.getDoubleOrNull(
  * @see Cursor.isNull
  * @see Cursor.getFloat
  */
-public inline fun Cursor.getFloatOrNull(
-    index: Int
-): Float? = if (isNull(index)) null else getFloat(index)
+public inline fun Cursor.getFloatOrNull(index: Int): Float? =
+    if (isNull(index)) null else getFloat(index)
 
 /**
  * Returns the value of the requested column as a nullable integer.
@@ -68,9 +65,7 @@ public inline fun Cursor.getFloatOrNull(
  * @see Cursor.isNull
  * @see Cursor.getInt
  */
-public inline fun Cursor.getIntOrNull(
-    index: Int
-): Int? = if (isNull(index)) null else getInt(index)
+public inline fun Cursor.getIntOrNull(index: Int): Int? = if (isNull(index)) null else getInt(index)
 
 /**
  * Returns the value of the requested column as a nullable long.
@@ -81,9 +76,8 @@ public inline fun Cursor.getIntOrNull(
  * @see Cursor.isNull
  * @see Cursor.getLong
  */
-public inline fun Cursor.getLongOrNull(
-    index: Int
-): Long? = if (isNull(index)) null else getLong(index)
+public inline fun Cursor.getLongOrNull(index: Int): Long? =
+    if (isNull(index)) null else getLong(index)
 
 /**
  * Returns the value of the requested column as a nullable short.
@@ -94,9 +88,8 @@ public inline fun Cursor.getLongOrNull(
  * @see Cursor.isNull
  * @see Cursor.getShort
  */
-public inline fun Cursor.getShortOrNull(
-    index: Int
-): Short? = if (isNull(index)) null else getShort(index)
+public inline fun Cursor.getShortOrNull(index: Int): Short? =
+    if (isNull(index)) null else getShort(index)
 
 /**
  * Returns the value of the requested column as a nullable string.
@@ -107,6 +100,5 @@ public inline fun Cursor.getShortOrNull(
  * @see Cursor.isNull
  * @see Cursor.getString
  */
-public inline fun Cursor.getStringOrNull(
-    index: Int
-): String? = if (isNull(index)) null else getString(index)
+public inline fun Cursor.getStringOrNull(index: Int): String? =
+    if (isNull(index)) null else getString(index)

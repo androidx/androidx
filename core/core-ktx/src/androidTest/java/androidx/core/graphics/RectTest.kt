@@ -30,7 +30,8 @@ import org.junit.Test
 
 @SmallTest
 class RectTest {
-    @Test fun destructuringInt() {
+    @Test
+    fun destructuringInt() {
         val (l, t, r, b) = Rect(4, 8, 16, 24)
         assertEquals(4, l)
         assertEquals(8, t)
@@ -38,7 +39,8 @@ class RectTest {
         assertEquals(24, b)
     }
 
-    @Test fun destructuringFloat() {
+    @Test
+    fun destructuringFloat() {
         val (l, t, r, b) = RectF(4.0f, 8.0f, 16.0f, 24.0f)
         assertEquals(4.0f, l)
         assertEquals(8.0f, t)
@@ -46,7 +48,8 @@ class RectTest {
         assertEquals(24.0f, b)
     }
 
-    @Test fun unionInt() {
+    @Test
+    fun unionInt() {
         val (l, t, r, b) = Rect(0, 0, 4, 4) + Rect(-1, -1, 6, 6)
         assertEquals(-1, l)
         assertEquals(-1, t)
@@ -54,7 +57,8 @@ class RectTest {
         assertEquals(6, b)
     }
 
-    @Test fun unionAsOrInt() {
+    @Test
+    fun unionAsOrInt() {
         val (l, t, r, b) = Rect(0, 0, 4, 4) or Rect(-1, -1, 6, 6)
         assertEquals(-1, l)
         assertEquals(-1, t)
@@ -62,7 +66,8 @@ class RectTest {
         assertEquals(6, b)
     }
 
-    @Test fun unionFloat() {
+    @Test
+    fun unionFloat() {
         val (l, t, r, b) = RectF(0.0f, 0.0f, 4.0f, 4.0f) + RectF(-1.0f, -1.0f, 6.0f, 6.0f)
         assertEquals(-1.0f, l)
         assertEquals(-1.0f, t)
@@ -70,7 +75,8 @@ class RectTest {
         assertEquals(6.0f, b)
     }
 
-    @Test fun unionAsOrFloat() {
+    @Test
+    fun unionAsOrFloat() {
         val (l, t, r, b) = RectF(0.0f, 0.0f, 4.0f, 4.0f) or RectF(-1.0f, -1.0f, 6.0f, 6.0f)
         assertEquals(-1.0f, l)
         assertEquals(-1.0f, t)
@@ -78,17 +84,20 @@ class RectTest {
         assertEquals(6.0f, b)
     }
 
-    @Test fun differenceInt() {
+    @Test
+    fun differenceInt() {
         val r = Rect(0, 0, 4, 4) - Rect(-1, 2, 6, 6)
         assertEquals(Rect(0, 0, 4, 2), r.bounds)
     }
 
-    @Test fun differenceFloat() {
+    @Test
+    fun differenceFloat() {
         val r = RectF(0.0f, 0.0f, 4.0f, 4.0f) - RectF(-1.0f, 2.0f, 6.0f, 6.0f)
         assertEquals(Rect(0, 0, 4, 2), r.bounds)
     }
 
-    @Test fun intersectionAsAndInt() {
+    @Test
+    fun intersectionAsAndInt() {
         val (l, t, r, b) = Rect(0, 0, 4, 4) and Rect(2, 2, 6, 6)
         assertEquals(2, l)
         assertEquals(2, t)
@@ -96,7 +105,8 @@ class RectTest {
         assertEquals(4, b)
     }
 
-    @Test fun intersectionAsAndFloat() {
+    @Test
+    fun intersectionAsAndFloat() {
         val (l, t, r, b) = RectF(0.0f, 0.0f, 4.0f, 4.0f) and RectF(2.0f, 2.0f, 6.0f, 6.0f)
         assertEquals(2.0f, l)
         assertEquals(2.0f, t)
@@ -104,19 +114,22 @@ class RectTest {
         assertEquals(4.0f, b)
     }
 
-    @Test fun xorInt() {
+    @Test
+    fun xorInt() {
         val r = Rect(0, 0, 4, 4) xor Rect(2, 2, 6, 6)
         assertEquals(Rect(0, 0, 4, 4) or Rect(2, 2, 6, 6), r.bounds)
         assertFalse(r.contains(3, 3))
     }
 
-    @Test fun xorFloat() {
+    @Test
+    fun xorFloat() {
         val r = RectF(0.0f, 0.0f, 4.0f, 4.0f) xor RectF(2.0f, 2.0f, 6.0f, 6.0f)
         assertEquals(Rect(0, 0, 4, 4) or Rect(2, 2, 6, 6), r.bounds)
         assertFalse(r.contains(3, 3))
     }
 
-    @Test fun offsetInt() {
+    @Test
+    fun offsetInt() {
         val (l, t, r, b) = Rect(0, 0, 2, 2) + 2
         assertEquals(l, 2)
         assertEquals(t, 2)
@@ -124,7 +137,8 @@ class RectTest {
         assertEquals(b, 4)
     }
 
-    @Test fun offsetPoint() {
+    @Test
+    fun offsetPoint() {
         val (l, t, r, b) = Rect(0, 0, 2, 2) + Point(1, 2)
         assertEquals(l, 1)
         assertEquals(t, 2)
@@ -132,7 +146,8 @@ class RectTest {
         assertEquals(b, 4)
     }
 
-    @Test fun offsetFloat() {
+    @Test
+    fun offsetFloat() {
         val (l, t, r, b) = RectF(0.0f, 0.0f, 2.0f, 2.0f) + 2.0f
         assertEquals(l, 2.0f)
         assertEquals(t, 2.0f)
@@ -140,7 +155,8 @@ class RectTest {
         assertEquals(b, 4.0f)
     }
 
-    @Test fun offsetPointF() {
+    @Test
+    fun offsetPointF() {
         val (l, t, r, b) = RectF(0.0f, 0.0f, 2.0f, 2.0f) + PointF(1.0f, 2.0f)
         assertEquals(l, 1.0f)
         assertEquals(t, 2.0f)
@@ -148,7 +164,8 @@ class RectTest {
         assertEquals(b, 4.0f)
     }
 
-    @Test fun negativeOffsetInt() {
+    @Test
+    fun negativeOffsetInt() {
         val (l, t, r, b) = Rect(0, 0, 2, 2) - 2
         assertEquals(l, -2)
         assertEquals(t, -2)
@@ -156,7 +173,8 @@ class RectTest {
         assertEquals(b, 0)
     }
 
-    @Test fun negativeOffsetPoint() {
+    @Test
+    fun negativeOffsetPoint() {
         val (l, t, r, b) = Rect(0, 0, 2, 2) - Point(1, 2)
         assertEquals(l, -1)
         assertEquals(t, -2)
@@ -164,7 +182,8 @@ class RectTest {
         assertEquals(b, 0)
     }
 
-    @Test fun negativeOffsetFloat() {
+    @Test
+    fun negativeOffsetFloat() {
         val (l, t, r, b) = RectF(0.0f, 0.0f, 2.0f, 2.0f) - 2.0f
         assertEquals(l, -2.0f)
         assertEquals(t, -2.0f)
@@ -172,7 +191,8 @@ class RectTest {
         assertEquals(b, 0.0f)
     }
 
-    @Test fun negativeOffsetPointF() {
+    @Test
+    fun negativeOffsetPointF() {
         val (l, t, r, b) = RectF(0.0f, 0.0f, 2.0f, 2.0f) - PointF(1.0f, 2.0f)
         assertEquals(l, -1.0f)
         assertEquals(t, -2.0f)
@@ -180,7 +200,8 @@ class RectTest {
         assertEquals(b, 0.0f)
     }
 
-    @Test fun timesInt() {
+    @Test
+    fun timesInt() {
         val original = Rect(1, 2, 3, 4)
         val scaled = original * 2
         assertNotSame(original, scaled)
@@ -191,7 +212,8 @@ class RectTest {
         assertEquals(b, 8)
     }
 
-    @Test fun timesFloatByInt() {
+    @Test
+    fun timesFloatByInt() {
         val original = RectF(1f, 2f, 3f, 4f)
         val scaled = original * 2
         assertNotSame(original, scaled)
@@ -202,7 +224,8 @@ class RectTest {
         assertEquals(b, 8f, 0.0001f)
     }
 
-    @Test fun timesFloatByFloat() {
+    @Test
+    fun timesFloatByFloat() {
         val original = RectF(1f, 2f, 3f, 4f)
         val scaled = original * 2f
         assertNotSame(original, scaled)
@@ -213,24 +236,21 @@ class RectTest {
         assertEquals(b, 8f, 0.0001f)
     }
 
-    @Test fun pointInside() {
+    @Test
+    fun pointInside() {
         assertTrue(Point(1, 1) in Rect(0, 0, 2, 2))
         assertTrue(PointF(1.0f, 1.0f) in RectF(0.0f, 0.0f, 2.0f, 2.0f))
     }
 
-    @Test fun toRect() {
-        assertEquals(
-            Rect(0, 1, 2, 3),
-            RectF(0f, 1f, 2f, 3f).toRect()
-        )
+    @Test
+    fun toRect() {
+        assertEquals(Rect(0, 1, 2, 3), RectF(0f, 1f, 2f, 3f).toRect())
 
-        assertEquals(
-            Rect(0, 1, 2, 3),
-            RectF(0.1f, 1.1f, 1.9f, 2.9f).toRect()
-        )
+        assertEquals(Rect(0, 1, 2, 3), RectF(0.1f, 1.1f, 1.9f, 2.9f).toRect())
     }
 
-    @Test fun toRectF() {
+    @Test
+    fun toRectF() {
         val rectF = Rect(0, 1, 2, 3).toRectF()
         assertEquals(0f, rectF.left, 0f)
         assertEquals(1f, rectF.top, 0f)
@@ -238,15 +258,18 @@ class RectTest {
         assertEquals(3f, rectF.bottom, 0f)
     }
 
-    @Test fun toRegionInt() {
+    @Test
+    fun toRegionInt() {
         assertEquals(Rect(1, 1, 5, 5), Rect(1, 1, 5, 5).toRegion().bounds)
     }
 
-    @Test fun toRegionFloat() {
+    @Test
+    fun toRegionFloat() {
         assertEquals(Rect(1, 1, 5, 5), RectF(1.1f, 1.1f, 4.8f, 4.8f).toRegion().bounds)
     }
 
-    @Test fun transformRectToRect() {
+    @Test
+    fun transformRectToRect() {
         val m = Matrix()
         m.setScale(2.0f, 2.0f)
 
@@ -257,7 +280,8 @@ class RectTest {
         assertEquals(14f, r.bottom, 0f)
     }
 
-    @Test fun transformRectNotPreserved() {
+    @Test
+    fun transformRectNotPreserved() {
         val m = Matrix()
         m.setRotate(45.0f)
 

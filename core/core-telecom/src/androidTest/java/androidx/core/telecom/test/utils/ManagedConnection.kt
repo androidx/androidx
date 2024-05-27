@@ -19,8 +19,5 @@ package androidx.core.telecom.test.utils
 import android.os.Build
 import androidx.annotation.RequiresApi
 
-/**
- * [ManagedConnection] is an extension of the [android.telecom.Connection] class.
- */
-@RequiresApi(Build.VERSION_CODES.O)
-class ManagedConnection : android.telecom.Connection()
+/** [ManagedConnection] is an extension of the [android.telecom.Connection] class. */
+@RequiresApi(Build.VERSION_CODES.O) class ManagedConnection : android.telecom.Connection()

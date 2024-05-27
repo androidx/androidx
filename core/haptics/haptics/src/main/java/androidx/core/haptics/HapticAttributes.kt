@@ -34,86 +34,73 @@ import java.util.Objects
  *
  * @sample androidx.core.haptics.samples.PlaySystemStandardClick
  */
-class HapticAttributes @JvmOverloads constructor(
+class HapticAttributes
+@JvmOverloads
+constructor(
 
-    /**
-     * The usage to apply the correct system policies and user settings to the vibration.
-     */
+    /** The usage to apply the correct system policies and user settings to the vibration. */
     @Usage val usage: Int,
 
-    /**
-     * The flags to control the vibration behavior.
-     */
+    /** The flags to control the vibration behavior. */
     @Flag val flags: Int = 0,
 ) {
 
-    /**
-     * Creates a [HapticAttributes] mapping fields from given [VibrationAttributes].
-     */
+    /** Creates a [HapticAttributes] mapping fields from given [VibrationAttributes]. */
     @RequiresApi(Build.VERSION_CODES.R)
-    constructor(attrs: VibrationAttributes) : this(
+    constructor(
+        attrs: VibrationAttributes
+    ) : this(
         HapticAttributesConverter.usageFromVibrationAttributes(attrs),
         HapticAttributesConverter.flagsFromVibrationAttributes(attrs),
     )
 
-    /**
-     * Creates a [HapticAttributes] mapping fields from given [AudioAttributes].
-     */
+    /** Creates a [HapticAttributes] mapping fields from given [AudioAttributes]. */
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    constructor(attrs: AudioAttributes) : this(
+    constructor(
+        attrs: AudioAttributes
+    ) : this(
         HapticAttributesConverter.usageFromAudioAttributes(attrs),
         flags = 0,
     )
 
-    /**
-     * Builder class for [HapticAttributes].
-     */
-    class Builder private constructor(
+    /** Builder class for [HapticAttributes]. */
+    class Builder
+    private constructor(
         @Usage private var usage: Int,
         @Flag private var flags: Int,
     ) {
 
-        /**
-         * Creates a builder for [HapticAttributes] with given usage.
-         */
+        /** Creates a builder for [HapticAttributes] with given usage. */
         constructor(@Usage usage: Int) : this(usage, flags = 0)
 
-        /**
-         * Creates a builder for [HapticAttributes] copying all fields from given attributes.
-         */
+        /** Creates a builder for [HapticAttributes] copying all fields from given attributes. */
         constructor(attrs: HapticAttributes) : this(attrs.usage, attrs.flags)
 
-        /**
-         * Creates a builder for [HapticAttributes] copying mapped fields from given attributes.
-         */
+        /** Creates a builder for [HapticAttributes] copying mapped fields from given attributes. */
         @RequiresApi(Build.VERSION_CODES.R)
-        constructor(attrs: VibrationAttributes) : this(
+        constructor(
+            attrs: VibrationAttributes
+        ) : this(
             HapticAttributesConverter.usageFromVibrationAttributes(attrs),
             HapticAttributesConverter.flagsFromVibrationAttributes(attrs),
         )
 
-        /**
-         * Creates a builder for [HapticAttributes] copying mapped fields from given attributes.
-         */
+        /** Creates a builder for [HapticAttributes] copying mapped fields from given attributes. */
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-        constructor(attrs: AudioAttributes) : this(
+        constructor(
+            attrs: AudioAttributes
+        ) : this(
             HapticAttributesConverter.usageFromAudioAttributes(attrs),
             flags = 0,
         )
 
-        /**
-         * Sets the usage that maps correct system policies and user settings to the vibration.
-         */
+        /** Sets the usage that maps correct system policies and user settings to the vibration. */
         fun setUsage(@Usage usage: Int) = apply { this.usage = usage }
 
-        /**
-         * Sets the flags to control the vibration behavior.
-         */
+        /** Sets the flags to control the vibration behavior. */
         fun setFlags(@Flag flags: Int) = apply { this.flags = flags }
 
-        /**
-         * Returns a built [HapticAttributes].
-         */
+        /** Returns a built [HapticAttributes]. */
         fun build() = HapticAttributes(usage, flags)
     }
 
@@ -134,14 +121,10 @@ class HapticAttributes @JvmOverloads constructor(
     companion object {
         // Values from VibrationAttributes.USAGE_* and VibrationAttributes.FLAG_*
 
-        /**
-         * Usage value to use for accessibility vibrations, such as with a screen reader.
-         */
+        /** Usage value to use for accessibility vibrations, such as with a screen reader. */
         const val USAGE_ACCESSIBILITY = 66
 
-        /**
-         * Usage value to use for alarm vibrations.
-         */
+        /** Usage value to use for alarm vibrations. */
         const val USAGE_ALARM = 1
 
         /**
@@ -162,9 +145,7 @@ class HapticAttributes @JvmOverloads constructor(
          */
         const val USAGE_MEDIA = 19
 
-        /**
-         * Usage value to use for notification vibrations.
-         */
+        /** Usage value to use for notification vibrations. */
         const val USAGE_NOTIFICATION = 49
 
         /**
@@ -177,9 +158,7 @@ class HapticAttributes @JvmOverloads constructor(
          */
         const val USAGE_PHYSICAL_EMULATION = 34
 
-        /**
-         * Usage value to use for ringtone vibrations.
-         */
+        /** Usage value to use for ringtone vibrations. */
         const val USAGE_RINGTONE = 33
 
         /**
@@ -190,9 +169,7 @@ class HapticAttributes @JvmOverloads constructor(
          */
         const val USAGE_TOUCH = 18
 
-        /**
-         * Usage value to use when usage is unknown.
-         */
+        /** Usage value to use when usage is unknown. */
         const val USAGE_UNKNOWN = 0
 
         /**
@@ -224,9 +201,10 @@ class HapticAttributes @JvmOverloads constructor(
     /** Typedef for the flag attribute. */
     @IntDef(
         flag = true,
-        value = [
-            FLAG_BYPASS_INTERRUPTION_POLICY,
-        ],
+        value =
+            [
+                FLAG_BYPASS_INTERRUPTION_POLICY,
+            ],
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)

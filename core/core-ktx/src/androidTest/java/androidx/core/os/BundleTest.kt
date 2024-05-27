@@ -39,46 +39,43 @@ import org.junit.Test
 @SmallTest
 class BundleTest {
     @Suppress("DEPRECATION")
-    @Test fun bundleOfValid() {
+    @Test
+    fun bundleOfValid() {
         val bundleValue = Bundle()
         val charSequenceValue = "hey"
         val parcelableValue = Rect(1, 2, 3, 4)
         val serializableValue = AtomicInteger(1)
         val binderValue = object : IBinder by Binder() {}
 
-        val bundle = bundleOf(
-            "null" to null,
-
-            "boolean" to true,
-            "byte" to 1.toByte(),
-            "char" to 'a',
-            "double" to 1.0,
-            "float" to 1f,
-            "int" to 1,
-            "long" to 1L,
-            "short" to 1.toShort(),
-
-            "bundle" to bundleValue,
-            "charSequence" to charSequenceValue,
-            "parcelable" to parcelableValue,
-            "binder" to binderValue,
-
-            "booleanArray" to booleanArrayOf(),
-            "byteArray" to byteArrayOf(),
-            "charArray" to charArrayOf(),
-            "doubleArray" to doubleArrayOf(),
-            "floatArray" to floatArrayOf(),
-            "intArray" to intArrayOf(),
-            "longArray" to longArrayOf(),
-            "shortArray" to shortArrayOf(),
-
-            "parcelableArray" to arrayOf(parcelableValue),
-            "stringArray" to arrayOf("hey"),
-            "charSequenceArray" to arrayOf<CharSequence>("hey"),
-            "serializableArray" to arrayOf(serializableValue),
-
-            "serializable" to serializableValue
-        )
+        val bundle =
+            bundleOf(
+                "null" to null,
+                "boolean" to true,
+                "byte" to 1.toByte(),
+                "char" to 'a',
+                "double" to 1.0,
+                "float" to 1f,
+                "int" to 1,
+                "long" to 1L,
+                "short" to 1.toShort(),
+                "bundle" to bundleValue,
+                "charSequence" to charSequenceValue,
+                "parcelable" to parcelableValue,
+                "binder" to binderValue,
+                "booleanArray" to booleanArrayOf(),
+                "byteArray" to byteArrayOf(),
+                "charArray" to charArrayOf(),
+                "doubleArray" to doubleArrayOf(),
+                "floatArray" to floatArrayOf(),
+                "intArray" to intArrayOf(),
+                "longArray" to longArrayOf(),
+                "shortArray" to shortArrayOf(),
+                "parcelableArray" to arrayOf(parcelableValue),
+                "stringArray" to arrayOf("hey"),
+                "charSequenceArray" to arrayOf<CharSequence>("hey"),
+                "serializableArray" to arrayOf(serializableValue),
+                "serializable" to serializableValue
+            )
 
         assertEquals(26, bundle.size())
 
@@ -110,7 +107,8 @@ class BundleTest {
         assertThat(bundle["parcelableArray"] as Array<*>).asList().containsExactly(parcelableValue)
         assertThat(bundle["stringArray"] as Array<*>).asList().containsExactly("hey")
         assertThat(bundle["charSequenceArray"] as Array<*>).asList().containsExactly("hey")
-        assertThat(bundle["serializableArray"] as Array<*>).asList()
+        assertThat(bundle["serializableArray"] as Array<*>)
+            .asList()
             .containsExactly(serializableValue)
 
         assertSame(serializableValue, bundle["serializable"])
@@ -118,32 +116,36 @@ class BundleTest {
 
     @SdkSuppress(minSdkVersion = 21)
     @Suppress("DEPRECATION")
-    @Test fun bundleOfValidApi21() {
+    @Test
+    fun bundleOfValidApi21() {
         val sizeValue = Size(1, 1)
         val sizeFValue = SizeF(1f, 1f)
 
-        val bundle = bundleOf(
-            "size" to sizeValue,
-            "sizeF" to sizeFValue
-        )
+        val bundle = bundleOf("size" to sizeValue, "sizeF" to sizeFValue)
 
         assertSame(sizeValue, bundle["size"])
         assertSame(sizeFValue, bundle["sizeF"])
     }
 
-    @Test fun bundleOfInvalid() {
+    @Test
+    fun bundleOfInvalid() {
         assertThrows<IllegalArgumentException> {
-            bundleOf("nope" to View(ApplicationProvider.getApplicationContext() as Context))
-        }.hasMessageThat().isEqualTo("Illegal value type android.view.View for key \"nope\"")
+                bundleOf("nope" to View(ApplicationProvider.getApplicationContext() as Context))
+            }
+            .hasMessageThat()
+            .isEqualTo("Illegal value type android.view.View for key \"nope\"")
 
         assertThrows<IllegalArgumentException> {
-            bundleOf(
-                "nopes" to arrayOf(View(ApplicationProvider.getApplicationContext() as Context))
-            )
-        }.hasMessageThat().isEqualTo("Illegal value array type android.view.View for key \"nopes\"")
+                bundleOf(
+                    "nopes" to arrayOf(View(ApplicationProvider.getApplicationContext() as Context))
+                )
+            }
+            .hasMessageThat()
+            .isEqualTo("Illegal value array type android.view.View for key \"nopes\"")
     }
 
-    @Test fun bundleOfEmpty() {
+    @Test
+    fun bundleOfEmpty() {
         assertEquals(0, bundleOf().size())
     }
 }

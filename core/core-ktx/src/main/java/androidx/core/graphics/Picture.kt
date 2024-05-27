@@ -21,9 +21,8 @@ import android.graphics.Canvas
 import android.graphics.Picture
 
 /**
- * Creates a new [Canvas] to record commands in this [Picture], executes the specified
- * [block] on the newly created canvas and returns this [Picture]. Example:
- *
+ * Creates a new [Canvas] to record commands in this [Picture], executes the specified [block] on
+ * the newly created canvas and returns this [Picture]. Example:
  * ```
  * return myPicture.record(1280, 720) {
  *    drawLine(…)

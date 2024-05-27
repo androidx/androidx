@@ -38,6 +38,7 @@ fun usage() {
 
     class MyActivity : Activity() {
         private lateinit var devicePerformance: DevicePerformance
+
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             // Production applications should use a dependency framework.

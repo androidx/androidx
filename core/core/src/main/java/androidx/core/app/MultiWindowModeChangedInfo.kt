@@ -21,8 +21,7 @@ import androidx.annotation.RequiresApi
 
 /**
  * Class that encapsulates the information that is delivered when
- * [Activity.onMultiWindowModeChanged] is dispatched to a
- * [OnMultiWindowModeChangedProvider].
+ * [Activity.onMultiWindowModeChanged] is dispatched to a [OnMultiWindowModeChangedProvider].
  */
 class MultiWindowModeChangedInfo(
     /**
@@ -32,16 +31,15 @@ class MultiWindowModeChangedInfo(
      */
     val isInMultiWindowMode: Boolean,
 ) {
-    @RequiresApi(26)
-    private var newConfiguration: Configuration? = null
+    @RequiresApi(26) private var newConfiguration: Configuration? = null
 
     /**
-     * Construct an instance that contains the new multi-window mode and the new
-     * configuration with the new multi-window mode applied.
+     * Construct an instance that contains the new multi-window mode and the new configuration with
+     * the new multi-window mode applied.
      *
      * @param isInMultiWindowMode True if the activity is in multi-window mode.
-     * @param newConfig The new configuration of the activity with the state
-     * {@param isInMultiWindowMode}.
+     * @param newConfig The new configuration of the activity with the state {@param
+     *   isInMultiWindowMode}.
      */
     @RequiresApi(26)
     constructor(
@@ -54,16 +52,16 @@ class MultiWindowModeChangedInfo(
     @get:RequiresApi(26)
     val newConfig: Configuration
         /**
-         * Gets the new [Configuration] of the with activity with the state
-         * [isInMultiWindowMode] applied.
+         * Gets the new [Configuration] of the with activity with the state [isInMultiWindowMode]
+         * applied.
          *
          * Note that this is only valid on devices that are running API 26
          * ([android.os.Build.VERSION_CODES.O]) or higher.
          *
          * @return The new configuration of the activity with the state [isInMultiWindowMode].
-         * @throws IllegalStateException if the new [Configuration] is not available (i.e.,
-         * you are running on a device less that [android.os.Build.VERSION_CODES.O] which is
-         * when this information first became available).
+         * @throws IllegalStateException if the new [Configuration] is not available (i.e., you are
+         *   running on a device less that [android.os.Build.VERSION_CODES.O] which is when this
+         *   information first became available).
          */
         get() {
             return checkNotNull(newConfiguration) {

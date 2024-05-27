@@ -24,13 +24,15 @@ import org.junit.Test
 
 @SmallTest
 class ColorDrawableTest {
-    @Test fun fromInt() {
+    @Test
+    fun fromInt() {
         val drawable = Color.CYAN.toDrawable()
         assertEquals(Color.CYAN, drawable.color)
     }
 
     @SdkSuppress(minSdkVersion = 26)
-    @Test fun fromColor() {
+    @Test
+    fun fromColor() {
         val drawable = Color.valueOf(Color.CYAN).toDrawable()
         assertEquals(Color.CYAN, drawable.color)
     }

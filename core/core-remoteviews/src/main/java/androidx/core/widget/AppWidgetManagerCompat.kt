@@ -38,17 +38,18 @@ internal val SizeFCompat.area: Float
     get() = width * height
 
 /**
- * Updates the app widget with [appWidgetId], creating a [RemoteViews] for each size assigned to
- * the app widget by [AppWidgetManager], invoking [factory] to create each alternative view.
+ * Updates the app widget with [appWidgetId], creating a [RemoteViews] for each size assigned to the
+ * app widget by [AppWidgetManager], invoking [factory] to create each alternative view.
  *
- * This provides ["exact" sizing](https://developer.android.com/guide/topics/appwidgets/layouts#provide-exact-layouts)
+ * This provides
+ * ["exact" sizing](https://developer.android.com/guide/topics/appwidgets/layouts#provide-exact-layouts)
  * , which allows you to tailor your app widget appearance to the exact size at which it is
- * displayed. If you are only concerned with a small number of size thresholds, it is preferable
- * to use "responsive" sizing by providing a fixed set of sizes that your app widget supports.
+ * displayed. If you are only concerned with a small number of size thresholds, it is preferable to
+ * use "responsive" sizing by providing a fixed set of sizes that your app widget supports.
  *
  * As your [factory] may be invoked multiple times, if there is expensive computation of state that
- * is shared among each size, it is recommended to perform that computation before calling this
- * and cache the results as necessary.
+ * is shared among each size, it is recommended to perform that computation before calling this and
+ * cache the results as necessary.
  *
  * To handle resizing of your app widget, it is necessary to call this function during both
  * [android.appwidget.AppWidgetProvider.onUpdate] and
@@ -68,14 +69,15 @@ public fun AppWidgetManager.updateAppWidget(
  * Creates a [RemoteViews] associated with each size assigned to the app widget by
  * [AppWidgetManager], invoking [factory] to create each alternative view.
  *
- * This provides ["exact" sizing](https://developer.android.com/guide/topics/appwidgets/layouts#provide-exact-layouts)
+ * This provides
+ * ["exact" sizing](https://developer.android.com/guide/topics/appwidgets/layouts#provide-exact-layouts)
  * , which allows you to tailor your app widget appearance to the exact size at which it is
- * displayed. If you are only concerned with a small number of size thresholds, it is preferable
- * to use "responsive" sizing by providing a fixed set of sizes that your app widget supports.
+ * displayed. If you are only concerned with a small number of size thresholds, it is preferable to
+ * use "responsive" sizing by providing a fixed set of sizes that your app widget supports.
  *
  * As your [factory] may be invoked multiple times, if there is expensive computation of state that
- * is shared among each size, it is recommended to perform that computation before calling this
- * and cache the results as necessary.
+ * is shared among each size, it is recommended to perform that computation before calling this and
+ * cache the results as necessary.
  *
  * To handle resizing of your app widget, it is necessary to call [AppWidgetManager.updateAppWidget]
  * during both [android.appwidget.AppWidgetProvider.onUpdate] and
@@ -107,13 +109,14 @@ public fun createExactSizeAppWidget(
  * Updates the app widget with [appWidgetId], creating a [RemoteViews] for each size provided in
  * [dpSizes].
  *
- * This provides ["responsive" sizing](https://developer.android.com/guide/topics/appwidgets/layouts#provide-responsive-layouts)
+ * This provides
+ * ["responsive" sizing](https://developer.android.com/guide/topics/appwidgets/layouts#provide-responsive-layouts)
  * , which allows for smoother resizing and a more consistent experience across different host
  * configurations.
  *
  * As your [factory] may be invoked multiple times, if there is expensive computation of state that
- * is shared among each size, it is recommended to perform that computation before calling this
- * and cache the results as necessary.
+ * is shared among each size, it is recommended to perform that computation before calling this and
+ * cache the results as necessary.
  *
  * To handle resizing of your app widget, it is necessary to call this function during both
  * [android.appwidget.AppWidgetProvider.onUpdate] and
@@ -122,9 +125,9 @@ public fun createExactSizeAppWidget(
  *
  * @param appWidgetId the id of the app widget
  * @param dpSizes a collection of sizes (in dp) that your app widget supports. Must not be empty or
- * contain more than 16 elements.
+ *   contain more than 16 elements.
  * @param factory a function to create a [RemoteViews] for a given width and height (in dp). It is
- * guaranteed that [factory] will only ever be called with the values provided in [dpSizes].
+ *   guaranteed that [factory] will only ever be called with the values provided in [dpSizes].
  */
 public fun AppWidgetManager.updateAppWidget(
     appWidgetId: Int,
@@ -137,13 +140,14 @@ public fun AppWidgetManager.updateAppWidget(
 /**
  * Creating a [RemoteViews] associated with each size provided in [dpSizes].
  *
- * This provides ["responsive" sizing](https://developer.android.com/guide/topics/appwidgets/layouts#provide-responsive-layouts)
+ * This provides
+ * ["responsive" sizing](https://developer.android.com/guide/topics/appwidgets/layouts#provide-responsive-layouts)
  * , which allows for smoother resizing and a more consistent experience across different host
  * configurations.
  *
  * As your [factory] may be invoked multiple times, if there is expensive computation of state that
- * is shared among each size, it is recommended to perform that computation before calling this
- * and cache the results as necessary.
+ * is shared among each size, it is recommended to perform that computation before calling this and
+ * cache the results as necessary.
  *
  * To handle resizing of your app widget, it is necessary to call [AppWidgetManager.updateAppWidget]
  * during both [android.appwidget.AppWidgetProvider.onUpdate] and
@@ -153,9 +157,9 @@ public fun AppWidgetManager.updateAppWidget(
  * @param appWidgetManager the [AppWidgetManager] to provide information about [appWidgetId]
  * @param appWidgetId the id of the app widget
  * @param dpSizes a collection of sizes (in dp) that your app widget supports. Must not be empty or
- * contain more than 16 elements.
+ *   contain more than 16 elements.
  * @param factory a function to create a [RemoteViews] for a given width and height (in dp). It is
- * guaranteed that [factory] will only ever be called with the values provided in [dpSizes].
+ *   guaranteed that [factory] will only ever be called with the values provided in [dpSizes].
  */
 public fun createResponsiveSizeAppWidget(
     appWidgetManager: AppWidgetManager,
@@ -263,10 +267,7 @@ private fun createAppWidget(
     return if (landscapeSize == portraitSize) {
         factory(landscapeSize)
     } else {
-        RemoteViews(
-            /* landscape= */ factory(landscapeSize),
-            /* portrait= */ factory(portraitSize)
-        )
+        RemoteViews(/* landscape= */ factory(landscapeSize), /* portrait= */ factory(portraitSize))
     }
 }
 

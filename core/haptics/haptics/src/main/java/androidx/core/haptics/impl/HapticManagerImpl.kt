@@ -27,12 +27,9 @@ import androidx.core.haptics.signal.CompositionSignal.PrimitiveAtom
 import androidx.core.haptics.signal.HapticSignal
 import androidx.core.haptics.signal.PredefinedEffectSignal
 
-/**
- * [HapticManager] implementation for the [Vibrator] service.
- */
-internal class HapticManagerImpl internal constructor(
-    private val vibrator: VibratorWrapper
-) : HapticManager {
+/** [HapticManager] implementation for the [Vibrator] service. */
+internal class HapticManagerImpl internal constructor(private val vibrator: VibratorWrapper) :
+    HapticManager {
 
     init {
         require(vibrator.hasVibrator()) {
@@ -55,9 +52,7 @@ internal class HapticManagerImpl internal constructor(
 
     @RequiresPermission(android.Manifest.permission.VIBRATE)
     override fun play(signal: HapticSignal, attrs: HapticAttributes) {
-        signal.toVibration()?.let { vibration ->
-            vibrator.vibrate(vibration, attrs.toAttributes())
-        }
+        signal.toVibration()?.let { vibration -> vibrator.vibrate(vibration, attrs.toAttributes()) }
     }
 
     @RequiresPermission(android.Manifest.permission.VIBRATE)
@@ -67,21 +62,23 @@ internal class HapticManagerImpl internal constructor(
 
     private fun getHardwareSupportedPredefinedEffects(): Set<PredefinedEffectSignal> {
         val predefinedEffects = PredefinedEffectSignal.getSdkAvailableEffects()
-        val effectSupportArray = vibrator.areEffectsSupported(
-            predefinedEffects.map { it.type }.toIntArray()
-        )
+        val effectSupportArray =
+            vibrator.areEffectsSupported(predefinedEffects.map { it.type }.toIntArray())
 
         if (effectSupportArray == null) {
             return emptySet()
         }
 
-        return effectSupportArray.mapIndexed { index, effectSupport ->
-            if (effectSupport == VibratorWrapper.EffectSupport.YES) {
-                predefinedEffects[index]
-            } else {
-                null
+        return effectSupportArray
+            .mapIndexed { index, effectSupport ->
+                if (effectSupport == VibratorWrapper.EffectSupport.YES) {
+                    predefinedEffects[index]
+                } else {
+                    null
+                }
             }
-        }.filterNotNull().toSet()
+            .filterNotNull()
+            .toSet()
     }
 
     private fun getSupportedPrimitiveTypes(): Set<Int> {
@@ -92,13 +89,16 @@ internal class HapticManagerImpl internal constructor(
             return emptySet()
         }
 
-        return primitiveSupportArray.mapIndexed { index, isSupported ->
-            if (isSupported) {
-                primitiveTypes[index]
-            } else {
-                null
+        return primitiveSupportArray
+            .mapIndexed { index, isSupported ->
+                if (isSupported) {
+                    primitiveTypes[index]
+                } else {
+                    null
+                }
             }
-        }.filterNotNull().toSet()
+            .filterNotNull()
+            .toSet()
     }
 
     private fun getPrimitiveDurations(supportedPrimitiveTypes: Set<Int>): Map<Int, Long>? {
@@ -109,8 +109,10 @@ internal class HapticManagerImpl internal constructor(
             return null
         }
 
-        return primitiveDurationArray.mapIndexed { index, durationMillis ->
-            primitiveTypes[index] to durationMillis.toLong()
-        }.toMap()
+        return primitiveDurationArray
+            .mapIndexed { index, durationMillis ->
+                primitiveTypes[index] to durationMillis.toLong()
+            }
+            .toMap()
     }
 }

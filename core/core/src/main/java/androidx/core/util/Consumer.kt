@@ -17,6 +17,7 @@ package androidx.core.util
 
 /**
  * Compat version of [java.util.function.Consumer]
+ *
  * @param T the type of the input to the operation
  */
 fun interface Consumer<T> {

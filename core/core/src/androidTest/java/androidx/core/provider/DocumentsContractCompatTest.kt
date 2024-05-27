@@ -91,10 +91,7 @@ class DocumentsContractCompatTest {
                 EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
                 DOWNLOAD_DOCID
             ),
-            DocumentsContract.buildDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                DOWNLOAD_DOCID
-            )
+            DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
         )
     }
 
@@ -142,10 +139,7 @@ class DocumentsContractCompatTest {
     @Test
     fun testGetDocumentId() {
         val documentUri =
-            DocumentsContract.buildDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                DOWNLOAD_DOCID
-            )
+            DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
         assertEquals(
             DocumentsContractCompat.getDocumentId(documentUri),
             DocumentsContract.getDocumentId(documentUri)
@@ -225,10 +219,7 @@ class DocumentsContractCompatTest {
         assertFalse(DocumentsContractCompat.isDocumentUri(context, mediaStoreUri))
 
         val documentUri =
-            DocumentsContract.buildDocumentUri(
-                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                DOWNLOAD_DOCID
-            )
+            DocumentsContract.buildDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
         assertTrue(DocumentsContractCompat.isDocumentUri(context, documentUri))
 
         if (isAtLeastLollipop()) {

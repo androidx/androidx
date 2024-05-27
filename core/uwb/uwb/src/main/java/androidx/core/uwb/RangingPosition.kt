@@ -19,21 +19,14 @@ package androidx.core.uwb
 /**
  * Position of a device during ranging.
  *
- * @property distance
- * The line-of-sight distance in meters of the ranging device, or null if not
- * available.
- *
- * @property azimuth
- * The azimuth angle in degrees of the ranging device, or null if not available.
- * The range is [-90, 90].
- *
- * @property elevation
- * The elevation angle in degrees of the ranging device, or null if not
- * available. The range is [-90, 90].
- *
- * @property elapsedRealtimeNanos
- * The elapsed realtime in nanos from when the system booted up to this position
- * measurement.
+ * @property distance The line-of-sight distance in meters of the ranging device, or null if not
+ *   available.
+ * @property azimuth The azimuth angle in degrees of the ranging device, or null if not available.
+ *   The range is [-90, 90].
+ * @property elevation The elevation angle in degrees of the ranging device, or null if not
+ *   available. The range is [-90, 90].
+ * @property elapsedRealtimeNanos The elapsed realtime in nanos from when the system booted up to
+ *   this position measurement.
  */
 class RangingPosition(
     val distance: RangingMeasurement?,

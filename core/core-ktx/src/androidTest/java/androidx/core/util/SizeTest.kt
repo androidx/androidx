@@ -26,20 +26,23 @@ import org.junit.Test
 @SmallTest
 class SizeTest {
     @SdkSuppress(minSdkVersion = 21)
-    @Test fun destructuringSize() {
+    @Test
+    fun destructuringSize() {
         val (w, h) = Size(320, 240)
         assertEquals(320, w)
         assertEquals(240, h)
     }
 
     @SdkSuppress(minSdkVersion = 21)
-    @Test fun destructuringSizeF() {
+    @Test
+    fun destructuringSizeF() {
         val (w, h) = SizeF(1920.0f, 1080.0f)
         assertEquals(1920.0f, w)
         assertEquals(1080.0f, h)
     }
 
-    @Test fun destructuringSizeFCompat() {
+    @Test
+    fun destructuringSizeFCompat() {
         val (w, h) = SizeFCompat(1920.0f, 1080.0f)
         assertEquals(1920.0f, w)
         assertEquals(1080.0f, h)

@@ -23,107 +23,65 @@ import android.graphics.Rect
 import android.graphics.Region
 import android.graphics.RegionIterator
 
-/**
- * Return true if the region contains the specified [Point].
- */
+/** Return true if the region contains the specified [Point]. */
 public inline operator fun Region.contains(p: Point): Boolean = contains(p.x, p.y)
 
-/**
- * Return the union of this region and the specified [Rect] as a new region.
- */
+/** Return the union of this region and the specified [Rect] as a new region. */
 public inline operator fun Region.plus(r: Rect): Region {
-    return Region(this).apply {
-        union(r)
-    }
+    return Region(this).apply { union(r) }
 }
 
-/**
- * Return the union of this region and the specified region as a new region.
- */
+/** Return the union of this region and the specified region as a new region. */
 public inline operator fun Region.plus(r: Region): Region {
-    return Region(this).apply {
-        op(r, Region.Op.UNION)
-    }
+    return Region(this).apply { op(r, Region.Op.UNION) }
 }
 
-/**
- * Return the difference of this region and the specified [Rect] as a new region.
- */
+/** Return the difference of this region and the specified [Rect] as a new region. */
 public inline operator fun Region.minus(r: Rect): Region {
-    return Region(this).apply {
-        op(r, Region.Op.DIFFERENCE)
-    }
+    return Region(this).apply { op(r, Region.Op.DIFFERENCE) }
 }
 
-/**
- * Return the difference of this region and the specified region as a new region.
- */
+/** Return the difference of this region and the specified region as a new region. */
 public inline operator fun Region.minus(r: Region): Region {
-    return Region(this).apply {
-        op(r, Region.Op.DIFFERENCE)
-    }
+    return Region(this).apply { op(r, Region.Op.DIFFERENCE) }
 }
 
-/**
- * Returns the negation of this region as a new region.
- */
+/** Returns the negation of this region as a new region. */
 public inline operator fun Region.unaryMinus(): Region {
-    return Region(bounds).apply {
-        op(this@unaryMinus, Region.Op.DIFFERENCE)
-    }
+    return Region(bounds).apply { op(this@unaryMinus, Region.Op.DIFFERENCE) }
 }
 
-/**
- * Returns the negation of this region as a new region.
- */
+/** Returns the negation of this region as a new region. */
 public inline operator fun Region.not(): Region = -this
 
-/**
- * Return the union of this region and the specified [Rect] as a new region.
- */
+/** Return the union of this region and the specified [Rect] as a new region. */
 public inline infix fun Region.or(r: Rect): Region = this + r
 
-/**
- * Return the union of this region and the specified region as a new region.
- */
+/** Return the union of this region and the specified region as a new region. */
 public inline infix fun Region.or(r: Region): Region = this + r
 
-/**
- * Return the intersection of this region and the specified [Rect] as a new region.
- */
+/** Return the intersection of this region and the specified [Rect] as a new region. */
 public inline infix fun Region.and(r: Rect): Region {
-    return Region(this).apply {
-        op(r, Region.Op.INTERSECT)
-    }
+    return Region(this).apply { op(r, Region.Op.INTERSECT) }
 }
 
-/**
- * Return the intersection of this region and the specified region as a new region.
- */
+/** Return the intersection of this region and the specified region as a new region. */
 public inline infix fun Region.and(r: Region): Region {
-    return Region(this).apply {
-        op(r, Region.Op.INTERSECT)
-    }
+    return Region(this).apply { op(r, Region.Op.INTERSECT) }
 }
 
 /**
- * Return the union minus the intersection of this region and the specified [Rect]
- * as a new region.
+ * Return the union minus the intersection of this region and the specified [Rect] as a new region.
  */
 public inline infix fun Region.xor(r: Rect): Region {
-    return Region(this).apply {
-        op(r, Region.Op.XOR)
-    }
+    return Region(this).apply { op(r, Region.Op.XOR) }
 }
 
 /**
- * Return the union minus the intersection of this region and the specified region
- * as a new region.
+ * Return the union minus the intersection of this region and the specified region as a new region.
  */
 public inline infix fun Region.xor(r: Region): Region {
-    return Region(this).apply {
-        op(r, Region.Op.XOR)
-    }
+    return Region(this).apply { op(r, Region.Op.XOR) }
 }
 
 /** Performs the given action on each rect in this region. */
@@ -139,19 +97,20 @@ public inline fun Region.forEach(action: (rect: Rect) -> Unit) {
 }
 
 /** Returns an [Iterator] over the rects in this region. */
-public operator fun Region.iterator(): Iterator<Rect> = object : Iterator<Rect> {
-    private val iterator = RegionIterator(this@iterator)
-    private val rect = Rect()
-    private var hasMore = iterator.next(rect)
+public operator fun Region.iterator(): Iterator<Rect> =
+    object : Iterator<Rect> {
+        private val iterator = RegionIterator(this@iterator)
+        private val rect = Rect()
+        private var hasMore = iterator.next(rect)
 
-    override fun hasNext() = hasMore
+        override fun hasNext() = hasMore
 
-    override fun next(): Rect {
-        if (hasMore) {
-            val r = Rect(rect)
-            hasMore = iterator.next(rect)
-            return r
+        override fun next(): Rect {
+            if (hasMore) {
+                val r = Rect(rect)
+                hasMore = iterator.next(rect)
+                return r
+            }
+            throw IndexOutOfBoundsException()
         }
-        throw IndexOutOfBoundsException()
     }
-}

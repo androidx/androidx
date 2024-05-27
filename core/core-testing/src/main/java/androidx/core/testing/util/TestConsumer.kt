@@ -24,29 +24,29 @@ import kotlin.concurrent.withLock
 /**
  * An implementation of [Consumer] to capture values during a test and allows developers to perform
  * assertions on the values.
+ *
  * @param T the type of the input to the operation
  */
 class TestConsumer<T> : Consumer<T> {
 
     private val lock = ReentrantLock()
 
-    @GuardedBy("lock")
-    private val values = mutableListOf<T>()
+    @GuardedBy("lock") private val values = mutableListOf<T>()
 
     /**
      * Records the value in the order it was received.
+     *
      * @param t the input argument.
      */
     @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") /* Avoid breaking named parameter compat */
     override fun accept(t: T) {
-        lock.withLock {
-            values.add(t)
-        }
+        lock.withLock { values.add(t) }
     }
 
     /**
      * Asserts that the [values] match the received values. This method checks the order and the
      * elements.
+     *
      * @param values expected to be in the [TestConsumer]
      * @throws AssertionError if the values do not match the current values.
      */

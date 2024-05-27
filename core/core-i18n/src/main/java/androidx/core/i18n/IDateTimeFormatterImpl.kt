@@ -30,9 +30,11 @@ internal interface IDateTimeFormatterImpl {
 internal class DateTimeFormatterImplAndroid(skeleton: String, locale: Locale) :
     IDateTimeFormatterImpl {
 
-    private val sdf = java.text.SimpleDateFormat(
-        android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton), locale
-    )
+    private val sdf =
+        java.text.SimpleDateFormat(
+            android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton),
+            locale
+        )
 
     override fun format(calendar: Calendar): String {
         return sdf.format(calendar.time)

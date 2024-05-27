@@ -36,19 +36,23 @@ internal fun checkSystemFeature(context: Context) {
         throw UwbHardwareNotAvailableException("UWB Hardware is not available on this device.")
     }
 }
+
 internal fun handleApiException(e: ApiException) {
     when (e.statusCode) {
         UwbStatusCodes.INVALID_API_CALL ->
             throw IllegalArgumentException("Illegal api call was received.")
         UwbStatusCodes.RANGING_ALREADY_STARTED ->
-            throw IllegalStateException("Ranging has already started for the" +
-                " clientSessionScope.")
+            throw IllegalStateException(
+                "Ranging has already started for the" + " clientSessionScope."
+            )
         UwbStatusCodes.SERVICE_NOT_AVAILABLE ->
             throw UwbServiceNotAvailableException("UWB Service is not available.")
         UwbStatusCodes.UWB_SYSTEM_CALLBACK_FAILURE ->
             throw UwbSystemCallbackException("UWB backend system resulted in an error.")
         else ->
-            throw RuntimeException("Unexpected error. This indicates that the library is not " +
-                "up-to-date with the service backend.")
+            throw RuntimeException(
+                "Unexpected error. This indicates that the library is not " +
+                    "up-to-date with the service backend."
+            )
     }
 }

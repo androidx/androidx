@@ -25,30 +25,49 @@ import com.google.android.gms.nearby.uwb.UwbComplexChannel
 
 internal class TestCommons {
     companion object {
-        val COMPLEX_CHANNEL = UwbComplexChannel.Builder()
-            .setPreambleIndex(10)
-            .setChannel(10)
-            .build()
+        val COMPLEX_CHANNEL =
+            UwbComplexChannel.Builder().setPreambleIndex(10).setChannel(10).build()
         val LOCAL_ADDRESS = UwbAddress(byteArrayOf(0xB0.toByte()))
-        val RANGING_CAPABILITIES = RangingCapabilities(true, false, false, false,
-            200, zzpt.zzl(9), zzpt.zzl(1), zzpt.zzn(1, 2, 3), zzpt.zzl(2), zzpt.zzl(1), false)
+        val RANGING_CAPABILITIES =
+            RangingCapabilities(
+                true,
+                false,
+                false,
+                false,
+                200,
+                zzpt.zzl(9),
+                zzpt.zzl(1),
+                zzpt.zzn(1, 2, 3),
+                zzpt.zzl(2),
+                zzpt.zzl(1),
+                false
+            )
         val NEIGHBOR_1 = byteArrayOf(0xA1.toByte())
         val NEIGHBOR_2 = byteArrayOf(0xA5.toByte())
         val UWB_DEVICE = UwbDevice.createForAddress(NEIGHBOR_1)
-        val RANGING_PARAMETERS = RangingParameters(
-            RangingParameters.CONFIG_UNICAST_DS_TWR,
-            sessionId = 0,
-            subSessionId = 0,
-            sessionKeyInfo = byteArrayOf(
-                /* Vendor ID */ 0x07, 0x08,
-                /* Static STS IV */ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06),
-            subSessionKeyInfo = null,
-            complexChannel = null,
-            listOf(UWB_DEVICE),
-            RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
-            uwbRangeDataNtfConfig = null,
-            RangingParameters.RANGING_SLOT_DURATION_2_MILLIS,
-            isAoaDisabled = false
-        )
+        val RANGING_PARAMETERS =
+            RangingParameters(
+                RangingParameters.CONFIG_UNICAST_DS_TWR,
+                sessionId = 0,
+                subSessionId = 0,
+                sessionKeyInfo =
+                    byteArrayOf(
+                        /* Vendor ID */ 0x07,
+                        0x08,
+                        /* Static STS IV */ 0x01,
+                        0x02,
+                        0x03,
+                        0x04,
+                        0x05,
+                        0x06
+                    ),
+                subSessionKeyInfo = null,
+                complexChannel = null,
+                listOf(UWB_DEVICE),
+                RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
+                uwbRangeDataNtfConfig = null,
+                RangingParameters.RANGING_SLOT_DURATION_2_MILLIS,
+                isAoaDisabled = false
+            )
     }
 }

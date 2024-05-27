@@ -19,15 +19,13 @@ package androidx.core.os
 import android.os.Trace
 
 /**
- * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName])
- * and [Trace.endSection].
+ * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [sectionName]) and
+ * [Trace.endSection].
  */
 @Deprecated(
     "Use androidx.tracing.Trace instead",
-    replaceWith = ReplaceWith(
-        "trace(sectionName, block)",
-        imports = arrayOf("androidx.tracing.trace")
-    )
+    replaceWith =
+        ReplaceWith("trace(sectionName, block)", imports = arrayOf("androidx.tracing.trace"))
 )
 public inline fun <T> trace(sectionName: String, block: () -> T): T {
     Trace.beginSection(sectionName)

@@ -39,9 +39,11 @@ class AudioToHapticAttributesTest {
         audioToHapticUsageMap.forEach { (audioUsage, expectedHapticUsage) ->
             val audioAttributes = AudioAttributes.Builder().setUsage(audioUsage).build()
             val hapticAttributes = HapticAttributes(audioAttributes)
-            assertWithMessage("AudioAttributes.usage = $audioUsage").that(hapticAttributes.usage)
+            assertWithMessage("AudioAttributes.usage = $audioUsage")
+                .that(hapticAttributes.usage)
                 .isEqualTo(expectedHapticUsage)
-            assertWithMessage("AudioAttributes.usage = $audioUsage").that(hapticAttributes.flags)
+            assertWithMessage("AudioAttributes.usage = $audioUsage")
+                .that(hapticAttributes.flags)
                 .isEqualTo(0)
         }
     }
@@ -50,9 +52,11 @@ class AudioToHapticAttributesTest {
     fun toAudioAttributes_allHapticUsages_mapsToCorrectAudioUsage() {
         hapticToAudioUsageMap.forEach { (hapticUsage, expectedAudioUsage) ->
             val audioAttrs = HapticAttributes(hapticUsage).toAudioAttributes()
-            assertWithMessage("HapticAttributes.usage = $hapticUsage").that(audioAttrs.usage)
+            assertWithMessage("HapticAttributes.usage = $hapticUsage")
+                .that(audioAttrs.usage)
                 .isEqualTo(expectedAudioUsage)
-            assertWithMessage("HapticAttributes.usage = $hapticUsage").that(audioAttrs.flags)
+            assertWithMessage("HapticAttributes.usage = $hapticUsage")
+                .that(audioAttrs.flags)
                 .isEqualTo(0)
         }
     }
@@ -64,58 +68,74 @@ class AudioToHapticAttributesTest {
     }
 
     @Suppress("DEPRECATION") // ApkVariant for compatibility test
-    private val audioToHapticUsageMap = mutableMapOf(
-        AudioAttributes.USAGE_ALARM to HapticAttributes.USAGE_ALARM,
-        AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY to HapticAttributes.USAGE_ACCESSIBILITY,
-        AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE to
-            HapticAttributes.USAGE_COMMUNICATION_REQUEST,
-        AudioAttributes.USAGE_ASSISTANCE_SONIFICATION to HapticAttributes.USAGE_TOUCH,
-        AudioAttributes.USAGE_GAME to HapticAttributes.USAGE_MEDIA,
-        AudioAttributes.USAGE_MEDIA to HapticAttributes.USAGE_MEDIA,
-        AudioAttributes.USAGE_NOTIFICATION to HapticAttributes.USAGE_NOTIFICATION,
-        AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED to
-            HapticAttributes.USAGE_NOTIFICATION,
-        AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT to
-            HapticAttributes.USAGE_NOTIFICATION,
-        // USAGE_NOTIFICATION_COMMUNICATION_REQUEST deprecated in API 33, automatically maps to
-        // USAGE_NOTIFICATION in AudioAttributes implementation.
-        AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST to
-            HapticAttributes.USAGE_NOTIFICATION,
-        AudioAttributes.USAGE_NOTIFICATION_EVENT to HapticAttributes.USAGE_NOTIFICATION,
-        AudioAttributes.USAGE_NOTIFICATION_RINGTONE to HapticAttributes.USAGE_RINGTONE,
-        AudioAttributes.USAGE_UNKNOWN to HapticAttributes.USAGE_UNKNOWN,
-        AudioAttributes.USAGE_VOICE_COMMUNICATION to HapticAttributes.USAGE_COMMUNICATION_REQUEST,
-        AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING to
-            HapticAttributes.USAGE_COMMUNICATION_REQUEST,
-    ).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            put(AudioAttributes.USAGE_ASSISTANT, HapticAttributes.USAGE_COMMUNICATION_REQUEST)
-        }
-    }.toMap()
+    private val audioToHapticUsageMap =
+        mutableMapOf(
+                AudioAttributes.USAGE_ALARM to HapticAttributes.USAGE_ALARM,
+                AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY to
+                    HapticAttributes.USAGE_ACCESSIBILITY,
+                AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE to
+                    HapticAttributes.USAGE_COMMUNICATION_REQUEST,
+                AudioAttributes.USAGE_ASSISTANCE_SONIFICATION to HapticAttributes.USAGE_TOUCH,
+                AudioAttributes.USAGE_GAME to HapticAttributes.USAGE_MEDIA,
+                AudioAttributes.USAGE_MEDIA to HapticAttributes.USAGE_MEDIA,
+                AudioAttributes.USAGE_NOTIFICATION to HapticAttributes.USAGE_NOTIFICATION,
+                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED to
+                    HapticAttributes.USAGE_NOTIFICATION,
+                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT to
+                    HapticAttributes.USAGE_NOTIFICATION,
+                // USAGE_NOTIFICATION_COMMUNICATION_REQUEST deprecated in API 33, automatically maps
+                // to
+                // USAGE_NOTIFICATION in AudioAttributes implementation.
+                AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST to
+                    HapticAttributes.USAGE_NOTIFICATION,
+                AudioAttributes.USAGE_NOTIFICATION_EVENT to HapticAttributes.USAGE_NOTIFICATION,
+                AudioAttributes.USAGE_NOTIFICATION_RINGTONE to HapticAttributes.USAGE_RINGTONE,
+                AudioAttributes.USAGE_UNKNOWN to HapticAttributes.USAGE_UNKNOWN,
+                AudioAttributes.USAGE_VOICE_COMMUNICATION to
+                    HapticAttributes.USAGE_COMMUNICATION_REQUEST,
+                AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING to
+                    HapticAttributes.USAGE_COMMUNICATION_REQUEST,
+            )
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    put(
+                        AudioAttributes.USAGE_ASSISTANT,
+                        HapticAttributes.USAGE_COMMUNICATION_REQUEST
+                    )
+                }
+            }
+            .toMap()
 
     @Suppress("DEPRECATION") // ApkVariant for compatibility test
-    private val hapticToAudioUsageMap = mutableMapOf(
-        HapticAttributes.USAGE_ACCESSIBILITY to AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY,
-        HapticAttributes.USAGE_ALARM to AudioAttributes.USAGE_ALARM,
-        HapticAttributes.USAGE_COMMUNICATION_REQUEST to
-            AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
-        HapticAttributes.USAGE_HARDWARE_FEEDBACK to AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
-        HapticAttributes.USAGE_MEDIA to AudioAttributes.USAGE_MEDIA,
-        HapticAttributes.USAGE_NOTIFICATION to AudioAttributes.USAGE_NOTIFICATION,
-        HapticAttributes.USAGE_PHYSICAL_EMULATION to AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
-        HapticAttributes.USAGE_RINGTONE to AudioAttributes.USAGE_NOTIFICATION_RINGTONE,
-        HapticAttributes.USAGE_TOUCH to AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
-        HapticAttributes.USAGE_UNKNOWN to AudioAttributes.USAGE_UNKNOWN,
-    ).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // USAGE_NOTIFICATION_COMMUNICATION_REQUEST deprecated in API 33, automatically maps to
-            // USAGE_NOTIFICATION in AudioAttributes implementation.
-            put(
-                HapticAttributes.USAGE_COMMUNICATION_REQUEST,
-                AudioAttributes.USAGE_VOICE_COMMUNICATION,
+    private val hapticToAudioUsageMap =
+        mutableMapOf(
+                HapticAttributes.USAGE_ACCESSIBILITY to
+                    AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY,
+                HapticAttributes.USAGE_ALARM to AudioAttributes.USAGE_ALARM,
+                HapticAttributes.USAGE_COMMUNICATION_REQUEST to
+                    AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST,
+                HapticAttributes.USAGE_HARDWARE_FEEDBACK to
+                    AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
+                HapticAttributes.USAGE_MEDIA to AudioAttributes.USAGE_MEDIA,
+                HapticAttributes.USAGE_NOTIFICATION to AudioAttributes.USAGE_NOTIFICATION,
+                HapticAttributes.USAGE_PHYSICAL_EMULATION to
+                    AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
+                HapticAttributes.USAGE_RINGTONE to AudioAttributes.USAGE_NOTIFICATION_RINGTONE,
+                HapticAttributes.USAGE_TOUCH to AudioAttributes.USAGE_ASSISTANCE_SONIFICATION,
+                HapticAttributes.USAGE_UNKNOWN to AudioAttributes.USAGE_UNKNOWN,
             )
-        }
-    }.toMap()
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    // USAGE_NOTIFICATION_COMMUNICATION_REQUEST deprecated in API 33, automatically
+                    // maps to
+                    // USAGE_NOTIFICATION in AudioAttributes implementation.
+                    put(
+                        HapticAttributes.USAGE_COMMUNICATION_REQUEST,
+                        AudioAttributes.USAGE_VOICE_COMMUNICATION,
+                    )
+                }
+            }
+            .toMap()
 }
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
@@ -126,9 +146,8 @@ class VibrationToHapticAttributesTest {
     @Test
     fun builder_allVibrationUsages_mapsToSameUsageInt() {
         vibrationUsageList.forEach { vibrationUsage ->
-            val hapticAttributes = HapticAttributes(
-                VibrationAttributes.Builder().setUsage(vibrationUsage).build()
-            )
+            val hapticAttributes =
+                HapticAttributes(VibrationAttributes.Builder().setUsage(vibrationUsage).build())
             assertThat(hapticAttributes.usage).isEqualTo(vibrationUsage)
             assertThat(hapticAttributes.flags).isEqualTo(0)
         }
@@ -137,12 +156,13 @@ class VibrationToHapticAttributesTest {
     @Test
     fun builder_withVibrationAttributeFlag_mapsToSameFlagInt() {
         val vibrationFlag = VibrationAttributes.FLAG_BYPASS_INTERRUPTION_POLICY
-        val hapticAttributes = HapticAttributes(
-            VibrationAttributes.Builder()
-                .setUsage(VibrationAttributes.USAGE_TOUCH)
-                .setFlags(vibrationFlag, vibrationFlag)
-                .build()
-        )
+        val hapticAttributes =
+            HapticAttributes(
+                VibrationAttributes.Builder()
+                    .setUsage(VibrationAttributes.USAGE_TOUCH)
+                    .setFlags(vibrationFlag, vibrationFlag)
+                    .build()
+            )
         assertThat(hapticAttributes.flags).isEqualTo(vibrationFlag)
     }
 
@@ -154,10 +174,12 @@ class VibrationToHapticAttributesTest {
             assertThat(vibrationAttrs.usage).isEqualTo(hapticUsage)
             assertThat(vibrationAttrs.flags).isEqualTo(0)
         }
-        hapticUsageList.filterNot { hapticApi30UsageList.contains(it) }.forEach { hapticUsage ->
-            val vibrationAttrs = HapticAttributes(hapticUsage).toVibrationAttributes()
-            assertThat(vibrationAttrs.usage).isEqualTo(VibrationAttributes.USAGE_UNKNOWN)
-        }
+        hapticUsageList
+            .filterNot { hapticApi30UsageList.contains(it) }
+            .forEach { hapticUsage ->
+                val vibrationAttrs = HapticAttributes(hapticUsage).toVibrationAttributes()
+                assertThat(vibrationAttrs.usage).isEqualTo(VibrationAttributes.USAGE_UNKNOWN)
+            }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
@@ -174,44 +196,53 @@ class VibrationToHapticAttributesTest {
     fun toVibrationAttributes_mapsToSameFlag() {
         val vibrationAttrs =
             HapticAttributes(
-                HapticAttributes.USAGE_MEDIA,
-                HapticAttributes.FLAG_BYPASS_INTERRUPTION_POLICY,
-            ).toVibrationAttributes()
+                    HapticAttributes.USAGE_MEDIA,
+                    HapticAttributes.FLAG_BYPASS_INTERRUPTION_POLICY,
+                )
+                .toVibrationAttributes()
         assertThat(vibrationAttrs.flags)
             .isEqualTo(VibrationAttributes.FLAG_BYPASS_INTERRUPTION_POLICY)
     }
 
-    private val vibrationUsageList = mutableListOf(
-        VibrationAttributes.USAGE_ALARM,
-        VibrationAttributes.USAGE_COMMUNICATION_REQUEST,
-        VibrationAttributes.USAGE_HARDWARE_FEEDBACK,
-        VibrationAttributes.USAGE_NOTIFICATION,
-        VibrationAttributes.USAGE_PHYSICAL_EMULATION,
-        VibrationAttributes.USAGE_RINGTONE,
-        VibrationAttributes.USAGE_TOUCH,
-        VibrationAttributes.USAGE_UNKNOWN,
-    ).apply {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            add(VibrationAttributes.USAGE_ACCESSIBILITY)
-            add(VibrationAttributes.USAGE_MEDIA)
-        }
-    }.toList()
+    private val vibrationUsageList =
+        mutableListOf(
+                VibrationAttributes.USAGE_ALARM,
+                VibrationAttributes.USAGE_COMMUNICATION_REQUEST,
+                VibrationAttributes.USAGE_HARDWARE_FEEDBACK,
+                VibrationAttributes.USAGE_NOTIFICATION,
+                VibrationAttributes.USAGE_PHYSICAL_EMULATION,
+                VibrationAttributes.USAGE_RINGTONE,
+                VibrationAttributes.USAGE_TOUCH,
+                VibrationAttributes.USAGE_UNKNOWN,
+            )
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    add(VibrationAttributes.USAGE_ACCESSIBILITY)
+                    add(VibrationAttributes.USAGE_MEDIA)
+                }
+            }
+            .toList()
 
-    private val hapticApi30UsageList = listOf(
-        HapticAttributes.USAGE_ALARM,
-        HapticAttributes.USAGE_COMMUNICATION_REQUEST,
-        HapticAttributes.USAGE_HARDWARE_FEEDBACK,
-        HapticAttributes.USAGE_NOTIFICATION,
-        HapticAttributes.USAGE_PHYSICAL_EMULATION,
-        HapticAttributes.USAGE_RINGTONE,
-        HapticAttributes.USAGE_TOUCH,
-        HapticAttributes.USAGE_UNKNOWN,
-    )
+    private val hapticApi30UsageList =
+        listOf(
+            HapticAttributes.USAGE_ALARM,
+            HapticAttributes.USAGE_COMMUNICATION_REQUEST,
+            HapticAttributes.USAGE_HARDWARE_FEEDBACK,
+            HapticAttributes.USAGE_NOTIFICATION,
+            HapticAttributes.USAGE_PHYSICAL_EMULATION,
+            HapticAttributes.USAGE_RINGTONE,
+            HapticAttributes.USAGE_TOUCH,
+            HapticAttributes.USAGE_UNKNOWN,
+        )
 
-    private val hapticUsageList = hapticApi30UsageList.toMutableList().apply {
-        add(HapticAttributes.USAGE_ACCESSIBILITY)
-        add(HapticAttributes.USAGE_MEDIA)
-    }.toList()
+    private val hapticUsageList =
+        hapticApi30UsageList
+            .toMutableList()
+            .apply {
+                add(HapticAttributes.USAGE_ACCESSIBILITY)
+                add(HapticAttributes.USAGE_MEDIA)
+            }
+            .toList()
 }
 
 @RunWith(JUnit4::class)
@@ -251,16 +282,17 @@ class HapticAttributesTest {
         }
     }
 
-    private val hapticUsageList = listOf(
-        HapticAttributes.USAGE_ALARM,
-        HapticAttributes.USAGE_COMMUNICATION_REQUEST,
-        HapticAttributes.USAGE_HARDWARE_FEEDBACK,
-        HapticAttributes.USAGE_NOTIFICATION,
-        HapticAttributes.USAGE_PHYSICAL_EMULATION,
-        HapticAttributes.USAGE_RINGTONE,
-        HapticAttributes.USAGE_TOUCH,
-        HapticAttributes.USAGE_UNKNOWN,
-        HapticAttributes.USAGE_ACCESSIBILITY,
-        HapticAttributes.USAGE_MEDIA,
-    )
+    private val hapticUsageList =
+        listOf(
+            HapticAttributes.USAGE_ALARM,
+            HapticAttributes.USAGE_COMMUNICATION_REQUEST,
+            HapticAttributes.USAGE_HARDWARE_FEEDBACK,
+            HapticAttributes.USAGE_NOTIFICATION,
+            HapticAttributes.USAGE_PHYSICAL_EMULATION,
+            HapticAttributes.USAGE_RINGTONE,
+            HapticAttributes.USAGE_TOUCH,
+            HapticAttributes.USAGE_UNKNOWN,
+            HapticAttributes.USAGE_ACCESSIBILITY,
+            HapticAttributes.USAGE_MEDIA,
+        )
 }

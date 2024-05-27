@@ -32,24 +32,27 @@ class ContextTest {
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
 
     @SdkSuppress(minSdkVersion = 23)
-    @Test fun systemService() {
+    @Test
+    fun systemService() {
         var lookup: Class<*>? = null
-        val context = object : ContextWrapper(context) {
-            override fun getSystemServiceName(serviceClass: Class<*>): String? {
-                lookup = serviceClass
-                return if (serviceClass == Unit::class.java) "unit" else null
-            }
+        val context =
+            object : ContextWrapper(context) {
+                override fun getSystemServiceName(serviceClass: Class<*>): String? {
+                    lookup = serviceClass
+                    return if (serviceClass == Unit::class.java) "unit" else null
+                }
 
-            override fun getSystemService(name: String): Any? {
-                return if (name == "unit") Unit else null
+                override fun getSystemService(name: String): Any? {
+                    return if (name == "unit") Unit else null
+                }
             }
-        }
         val actual = context.getSystemService<Unit>()
         assertEquals(Unit::class.java, lookup)
         assertSame(Unit, actual)
     }
 
-    @Test fun withStyledAttributes() {
+    @Test
+    fun withStyledAttributes() {
         context.withStyledAttributes(attrs = intArrayOf(android.R.attr.textColorPrimary)) {
             val resourceId = getResourceId(0, -1)
             assertTrue(resourceId != 1)

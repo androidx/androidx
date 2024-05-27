@@ -42,7 +42,7 @@ import org.junit.runner.RunWith
 
 /**
  * This test class should be used to test behavior in the
- * [androidx.core.telecom.internal.CallSession] object.  All transactional calls are wrapped in a
+ * [androidx.core.telecom.internal.CallSession] object. All transactional calls are wrapped in a
  * [androidx.core.telecom.internal.CallSession] object.
  */
 @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE /* api=34 */)
@@ -51,9 +51,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class CallSessionTest : BaseTelecomTest() {
 
-    /**
-     * verify the CallEvent CompletableDeferred objects complete after endpoints are echoed.
-     */
+    /** verify the CallEvent CompletableDeferred objects complete after endpoints are echoed. */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SmallTest
     @Test
@@ -76,8 +74,8 @@ class CallSessionTest : BaseTelecomTest() {
     }
 
     /**
-     * verify the call channels are receivable given the new CompletableDeferred object logic
-     * in the CallEvent callbacks.
+     * verify the call channels are receivable given the new CompletableDeferred object logic in the
+     * CallEvent callbacks.
      */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SmallTest
@@ -100,8 +98,10 @@ class CallSessionTest : BaseTelecomTest() {
         }
     }
 
-    private fun initCallEvents(coroutineContext: CoroutineContext, callChannels: CallChannels):
-        CallSession {
+    private fun initCallEvents(
+        coroutineContext: CoroutineContext,
+        callChannels: CallChannels
+    ): CallSession {
         return CallSession(
             coroutineContext,
             TestUtils.INCOMING_CALL_ATTRIBUTES,
@@ -116,9 +116,13 @@ class CallSessionTest : BaseTelecomTest() {
     }
 
     fun getCurrentEndpoint(): CallEndpoint {
-        return CallEndpoint("EARPIECE", CallEndpoint.TYPE_EARPIECE,
-            ParcelUuid.fromString(UUID.randomUUID().toString()))
+        return CallEndpoint(
+            "EARPIECE",
+            CallEndpoint.TYPE_EARPIECE,
+            ParcelUuid.fromString(UUID.randomUUID().toString())
+        )
     }
+
     fun getAvailableEndpoint(): List<CallEndpoint> {
         val endpoints = mutableListOf<CallEndpoint>()
         endpoints.add(getCurrentEndpoint())

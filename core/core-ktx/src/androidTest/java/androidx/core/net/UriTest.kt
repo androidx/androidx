@@ -25,36 +25,37 @@ import org.junit.Test
 
 @SmallTest
 class UriTest {
-    @Test fun uriFromString() {
+    @Test
+    fun uriFromString() {
         val string = "https://test.example.com/foo?bar#baz"
         assertEquals(Uri.parse(string), string.toUri())
     }
 
-    @Test fun uriFromFile() {
+    @Test
+    fun uriFromFile() {
         val file = File("/path/to/my/file")
         assertEquals(Uri.fromFile(file), file.toUri())
     }
 
-    @Test fun fileFromUri() {
+    @Test
+    fun fileFromUri() {
         val file = File("/path/to/my/file")
         assertEquals(file, Uri.fromFile(file).toFile())
     }
 
-    @Test fun fileFromNonFileUri() {
+    @Test
+    fun fileFromNonFileUri() {
         val uri = Uri.parse("https://example.com/path/to/my/file")
-        assertThrows<IllegalArgumentException> {
-            uri.toFile()
-        }.hasMessageThat().isEqualTo("Uri lacks 'file' scheme: $uri")
+        assertThrows<IllegalArgumentException> { uri.toFile() }
+            .hasMessageThat()
+            .isEqualTo("Uri lacks 'file' scheme: $uri")
     }
 
-    @Test fun fileFromUriWithNullPath() {
-        val uri = Uri.Builder()
-            .scheme("file")
-            .authority("example.com")
-            .path(null)
-            .build()
-        assertThrows<IllegalArgumentException> {
-            uri.toFile()
-        }.hasMessageThat().isEqualTo("Uri path is null: $uri")
+    @Test
+    fun fileFromUriWithNullPath() {
+        val uri = Uri.Builder().scheme("file").authority("example.com").path(null).build()
+        assertThrows<IllegalArgumentException> { uri.toFile() }
+            .hasMessageThat()
+            .isEqualTo("Uri path is null: $uri")
     }
 }

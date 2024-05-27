@@ -18,9 +18,7 @@ package androidx.core.haptics
 
 import androidx.annotation.RequiresPermission
 
-/**
- * Internal wrapper for [android.os.Vibrator] to enable fake implementations for testing.
- */
+/** Internal wrapper for [android.os.Vibrator] to enable fake implementations for testing. */
 internal interface VibratorWrapper {
     /** Check whether the hardware has a vibrator. */
     fun hasVibrator(): Boolean
@@ -42,28 +40,23 @@ internal interface VibratorWrapper {
     fun vibrate(vibration: VibrationWrapper, attrs: AttributesWrapper? = null)
 
     /** Cancel any ongoing vibration from this app and turns the vibrator off. */
-    @RequiresPermission(android.Manifest.permission.VIBRATE)
-    fun cancel()
+    @RequiresPermission(android.Manifest.permission.VIBRATE) fun cancel()
 
     /** Represents constants from [android.os.Vibrator.VIBRATION_EFFECT_SUPPORT_*]. */
     enum class EffectSupport {
-        UNKNOWN, YES, NO
+        UNKNOWN,
+        YES,
+        NO
     }
 }
 
-/**
- * Represents different API levels of support for [android.os.Vibrator.vibrate] parameters.
- */
+/** Represents different API levels of support for [android.os.Vibrator.vibrate] parameters. */
 internal sealed interface VibrationWrapper
 
-/**
- * Represents different API levels of support for audio/vibration attributes parameters.
- */
+/** Represents different API levels of support for audio/vibration attributes parameters. */
 internal sealed interface AttributesWrapper
 
-/**
- * Represents vibrations defined by on-off patterns.
- */
+/** Represents vibrations defined by on-off patterns. */
 internal data class PatternVibrationWrapper(
     val timings: LongArray,
     val repeatIndex: Int,
@@ -87,23 +80,17 @@ internal data class PatternVibrationWrapper(
     }
 }
 
-/**
- * Represents vibrations defined by an instance of [android.os.VibrationEffect].
- */
+/** Represents vibrations defined by an instance of [android.os.VibrationEffect]. */
 internal data class VibrationEffectWrapper(
     val vibrationEffect: Any,
 ) : VibrationWrapper
 
-/**
- * Represents vibrations defined by an instance of [android.media.AudioAttributes].
- */
+/** Represents vibrations defined by an instance of [android.media.AudioAttributes]. */
 internal data class AudioAttributesWrapper(
     val audioAttributes: Any,
 ) : AttributesWrapper
 
-/**
- * Represents vibrations defined by an instance of [android.os.VibrationAttributes].
- */
+/** Represents vibrations defined by an instance of [android.os.VibrationAttributes]. */
 internal data class VibrationAttributesWrapper(
     val vibrationAttributes: Any,
 ) : AttributesWrapper

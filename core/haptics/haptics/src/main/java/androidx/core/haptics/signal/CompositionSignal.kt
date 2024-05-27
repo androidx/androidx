@@ -40,11 +40,8 @@ import kotlin.time.toKotlinDuration
  */
 class CompositionSignal(
 
-    /**
-     * The composition signal atoms that describes the haptic elements to be played in sequence.
-     */
+    /** The composition signal atoms that describes the haptic elements to be played in sequence. */
     val atoms: List<Atom>,
-
 ) : FiniteSignal() {
     init {
         require(atoms.isNotEmpty()) { "Haptic signals cannot be empty" }
@@ -60,14 +57,13 @@ class CompositionSignal(
          * @param atoms The [CompositionSignal.Atom] instances that define the [CompositionSignal].
          */
         @JvmStatic
-        fun compositionOf(vararg atoms: Atom): CompositionSignal =
-            CompositionSignal(atoms.toList())
+        fun compositionOf(vararg atoms: Atom): CompositionSignal = CompositionSignal(atoms.toList())
 
         /**
          * Returns a [CompositionSignal.Atom] for a very short low frequency tick effect.
          *
-         * This effect should produce a light crisp sensation intended to be used repetitively
-         * for dynamic feedback.
+         * This effect should produce a light crisp sensation intended to be used repetitively for
+         * dynamic feedback.
          *
          * @param amplitudeScale The amplitude scale for the new [PrimitiveAtom]
          */
@@ -153,8 +149,8 @@ class CompositionSignal(
         /**
          * Returns a [CompositionSignal.Atom] for a thud effect.
          *
-         * This effect simulates downwards movement with gravity, often followed by extra energy
-         * of hitting and reverberation to augment physicality.
+         * This effect simulates downwards movement with gravity, often followed by extra energy of
+         * hitting and reverberation to augment physicality.
          *
          * @param amplitudeScale The amplitude scale for the new [PrimitiveAtom]
          */
@@ -162,8 +158,7 @@ class CompositionSignal(
         @JvmStatic
         fun thud(
             @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f,
-        ) =
-            PrimitiveAtom.Thud.withAmplitudeScale(amplitudeScale)
+        ) = PrimitiveAtom.Thud.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] to turn the vibrator off for the specified duration.
@@ -174,8 +169,7 @@ class CompositionSignal(
          */
         @RequiresApi(Build.VERSION_CODES.O)
         @JvmStatic
-        fun off(duration: java.time.Duration) =
-            OffAtom(duration.toKotlinDuration())
+        fun off(duration: java.time.Duration) = OffAtom(duration.toKotlinDuration())
 
         /**
          * Returns a [CompositionSignal.Atom] to turn the vibrator off for the specified duration.
@@ -184,9 +178,7 @@ class CompositionSignal(
          *
          * @param durationMillis The duration the vibrator should be turned off, in milliseconds.
          */
-        @JvmStatic
-        fun off(durationMillis: Long) =
-            OffAtom(durationMillis.milliseconds)
+        @JvmStatic fun off(durationMillis: Long) = OffAtom(durationMillis.milliseconds)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -204,9 +196,7 @@ class CompositionSignal(
         return "CompositionSignal(${atoms.joinToString()})"
     }
 
-    /**
-     * Returns the minimum SDK level required by the atoms of this signal.
-     */
+    /** Returns the minimum SDK level required by the atoms of this signal. */
     internal fun minSdk(): Int = atoms.maxOf { it.minSdk() }
 
     override fun toVibration(): VibrationWrapper? = HapticSignalConverter.toVibration(this)
@@ -225,14 +215,10 @@ class CompositionSignal(
      */
     abstract class Atom internal constructor() {
 
-        /**
-         * The minimum SDK level where this atom is available in the platform.
-         */
+        /** The minimum SDK level where this atom is available in the platform. */
         internal abstract fun minSdk(): Int
 
-        /**
-         * Returns true if the device vibrator can play this atom as intended, false otherwise.
-         */
+        /** Returns true if the device vibrator can play this atom as intended, false otherwise. */
         internal abstract fun isSupportedBy(deviceProfile: HapticDeviceProfile): Boolean
     }
 
@@ -254,16 +240,13 @@ class CompositionSignal(
      *
      * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
      */
-    class PrimitiveAtom private constructor(
+    class PrimitiveAtom
+    private constructor(
 
-        /**
-         * The type of haptic effect to be played.
-         */
+        /** The type of haptic effect to be played. */
         @Type val type: Int,
 
-        /**
-         * The minimum SDK level where this effect type is available in the platform.
-         */
+        /** The minimum SDK level where this effect type is available in the platform. */
         private val minSdk: Int,
 
         /**
@@ -274,7 +257,6 @@ class CompositionSignal(
          * maximum values represent the maximum strength the effect can be played.
          */
         @FloatRange(from = 0.0, to = 1.0) val amplitudeScale: Float = 1f,
-
     ) : Atom() {
         init {
             require(amplitudeScale in 0.0..1.0) {
@@ -325,8 +307,8 @@ class CompositionSignal(
             /**
              * A very short light tick effect.
              *
-             * This effect should produce a light crisp sensation stronger than the [LowTick], and is
-             * also intended to be used repetitively for dynamic feedback.
+             * This effect should produce a light crisp sensation stronger than the [LowTick], and
+             * is also intended to be used repetitively for dynamic feedback.
              */
             const val TICK = 7 // VibrationEffect.Composition.PRIMITIVE_TICK
 
@@ -388,11 +370,7 @@ class CompositionSignal(
 
             @JvmStatic
             internal fun getSdkAvailablePrimitiveTypes(): List<Int> =
-                ALL_PRIMITIVES.filter {
-                    it.minSdk <= Build.VERSION.SDK_INT
-                }.map {
-                    it.type
-                }
+                ALL_PRIMITIVES.filter { it.minSdk <= Build.VERSION.SDK_INT }.map { it.type }
         }
 
         /**
@@ -439,9 +417,7 @@ class CompositionSignal(
      * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
      */
     class OffAtom internal constructor(duration: Duration) : Atom() {
-        /**
-         * The duration for the vibrator to be turned off, in milliseconds.
-         */
+        /** The duration for the vibrator to be turned off, in milliseconds. */
         val durationMillis: Long
 
         init {
