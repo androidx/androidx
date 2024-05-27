@@ -27,7 +27,8 @@ internal class UwbControllerSessionScopeAospImpl(
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress,
     override val uwbComplexChannel: UwbComplexChannel
-) : UwbClientSessionScopeAospImpl(uwbClient, rangingCapabilities, localAddress),
+) :
+    UwbClientSessionScopeAospImpl(uwbClient, rangingCapabilities, localAddress),
     UwbControllerSessionScope {
     override suspend fun addControlee(address: UwbAddress) {
         val uwbAddress = androidx.core.uwb.backend.UwbAddress()
@@ -35,7 +36,7 @@ internal class UwbControllerSessionScopeAospImpl(
         try {
             uwbClient.addControlee(uwbAddress)
         } catch (e: Exception) {
-            throw(e)
+            throw (e)
         }
     }
 
@@ -45,7 +46,7 @@ internal class UwbControllerSessionScopeAospImpl(
         try {
             uwbClient.removeControlee(uwbAddress)
         } catch (e: Exception) {
-            throw(e)
+            throw (e)
         }
     }
 
@@ -53,7 +54,7 @@ internal class UwbControllerSessionScopeAospImpl(
         try {
             return uwbClient.reconfigureRangingInterval(intervalSkipCount)
         } catch (e: Exception) {
-            throw(e)
+            throw (e)
         }
     }
 }

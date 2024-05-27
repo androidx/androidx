@@ -48,15 +48,12 @@ import kotlinx.coroutines.launch
 internal open class InCallServiceCompat : InCallService() {
     var scope: CoroutineScope? = null
     val mCallCompats = mutableListOf<CallCompat>()
-    @VisibleForTesting
-    var mExtensionLevelSupport = -1
+    @VisibleForTesting var mExtensionLevelSupport = -1
 
     companion object {
         private val TAG = InCallServiceCompat::class.simpleName
 
-        /**
-         * Constants used to denote the extension level supported by the VOIP app.
-         */
+        /** Constants used to denote the extension level supported by the VOIP app. */
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(NONE, EXTRAS, CAPABILITY_EXCHANGE, UNKNOWN)
         internal annotation class CapabilityExchangeType
@@ -87,10 +84,12 @@ internal open class InCallServiceCompat : InCallService() {
     @RequiresApi(Build.VERSION_CODES.O)
     final override fun onCallRemoved(call: Call?) {
         if (call == null) return
-        mCallCompats.find { Objects.equals(it.toCall(), call) }?.also {
-            mCallCompats.remove(it)
-            onRemoveCallCompat(it)
-        }
+        mCallCompats
+            .find { Objects.equals(it.toCall(), call) }
+            ?.also {
+                mCallCompats.remove(it)
+                onRemoveCallCompat(it)
+            }
     }
 
     /**
@@ -103,23 +102,25 @@ internal open class InCallServiceCompat : InCallService() {
         Log.d(TAG, "processCallAdded for call = $call")
         // invoke onCreateCallCompat and use CallCompat below
         mExtensionLevelSupport = resolveCallExtensionsType(call)
-        Log.d(TAG, "onCallAdded: resolveCallExtensionsType returned " +
-            "$mExtensionLevelSupport for call = $call")
+        Log.d(
+            TAG,
+            "onCallAdded: resolveCallExtensionsType returned " +
+                "$mExtensionLevelSupport for call = $call"
+        )
         val callCompat = onCreateCallCompat(call)
         mCallCompats.add(callCompat)
         try {
             when (mExtensionLevelSupport) {
                 // Case where the VOIP app is using V1.5 CS and ICS is using an extensions library:
                 EXTRAS -> {
-                    throw UnsupportedOperationException("resolveCallExtensionsType returned " +
-                        "EXTRAS; This is not yet supported.")
+                    throw UnsupportedOperationException(
+                        "resolveCallExtensionsType returned " + "EXTRAS; This is not yet supported."
+                    )
                 }
 
                 // Case when the VOIP app and InCallService both support capability exchange:
                 CAPABILITY_EXCHANGE -> {
-                    scope?.launch {
-                        callCompat.startCapabilityExchange()
-                    }
+                    scope?.launch { callCompat.startCapabilityExchange() }
                 }
             }
         } catch (e: UnsupportedOperationException) {
@@ -133,14 +134,14 @@ internal open class InCallServiceCompat : InCallService() {
         return CallCompat.toCallCompat(call) {}
     }
 
-     open fun onRemoveCallCompat(call: CallCompat) {
-         Log.d(TAG, "onRemoveCallCompat for call = $call")
-     }
+    open fun onRemoveCallCompat(call: CallCompat) {
+        Log.d(TAG, "onRemoveCallCompat for call = $call")
+    }
 
     /**
-     * Internal helper used by the [CallCompat] to help resolve the call extension type. This
-     * is invoked before capability exchange between the [InCallService] and VOIP app starts to
-     * ensure the necessary features are enabled to support it.
+     * Internal helper used by the [CallCompat] to help resolve the call extension type. This is
+     * invoked before capability exchange between the [InCallService] and VOIP app starts to ensure
+     * the necessary features are enabled to support it.
      *
      * If the call is placed using the V1.5 ConnectionService + Extensions Library (Auto Case), the
      * call will have the [CallsManager.EXTRA_VOIP_API_VERSION] defined in the extras. The call
@@ -158,12 +159,11 @@ internal open class InCallServiceCompat : InCallService() {
      * transactional ops (assumes that caller has [android.Manifest.permission.READ_PHONE_NUMBERS]
      * permission), then the extension type is [NONE].
      *
-     * If the caller does not have the required permission to retrieve the phone account, then
-     * the extension type will be [UNKNOWN], until it can be resolved.
+     * If the caller does not have the required permission to retrieve the phone account, then the
+     * extension type will be [UNKNOWN], until it can be resolved.
      *
      * @param call to resolve the extension type for.
-     * @return the extension type [CapabilityExchangeType] resolved for the
-     * call.
+     * @return the extension type [CapabilityExchangeType] resolved for the call.
      */
     internal fun resolveCallExtensionsType(call: Call): Int {
         var callDetails = call.details
@@ -172,18 +172,27 @@ internal open class InCallServiceCompat : InCallService() {
         if (callExtras.containsKey(CallsManager.EXTRA_VOIP_API_VERSION)) {
             return EXTRAS
         }
-        if (callDetails?.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL) == true || callExtras
-                .containsKey(CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED)) {
+        if (
+            callDetails?.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL) == true ||
+                callExtras.containsKey(CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED)
+        ) {
             return CAPABILITY_EXCHANGE
         }
         // Verify read phone numbers permission to see if phone account supports transactional ops.
-        if (ContextCompat.checkSelfPermission(applicationContext,
-                Manifest.permission.READ_PHONE_NUMBERS) == PackageManager.PERMISSION_GRANTED) {
-            var telecomManager = applicationContext.getSystemService(Context.TELECOM_SERVICE)
-                as TelecomManager
+        if (
+            ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.READ_PHONE_NUMBERS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            var telecomManager =
+                applicationContext.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
             var phoneAccount = telecomManager.getPhoneAccount(callDetails?.accountHandle)
-            if (phoneAccount?.hasCapabilities(
-                    PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS) == true) {
+            if (
+                phoneAccount?.hasCapabilities(
+                    PhoneAccount.CAPABILITY_SUPPORTS_TRANSACTIONAL_OPERATIONS
+                ) == true
+            ) {
                 return CAPABILITY_EXCHANGE
             } else {
                 return NONE

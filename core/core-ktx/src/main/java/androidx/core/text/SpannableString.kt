@@ -23,8 +23,8 @@ import android.text.SpannableString
 import android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE
 
 /**
- * Returns a new [Spannable] from [CharSequence],
- * or the source itself if it is already an instance of [SpannableString].
+ * Returns a new [Spannable] from [CharSequence], or the source itself if it is already an instance
+ * of [SpannableString].
  */
 public inline fun CharSequence.toSpannable(): Spannable = SpannableString.valueOf(this)
 

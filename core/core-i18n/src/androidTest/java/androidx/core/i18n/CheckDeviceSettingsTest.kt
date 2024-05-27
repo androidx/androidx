@@ -31,7 +31,8 @@ import org.junit.runner.RunWith
 class CheckDeviceSettingsTest {
     private val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testDefaultLocale() {
         // A lot of the tests use the default device locale
         // (and that is OK, that's what we care about most)
@@ -39,12 +40,11 @@ class CheckDeviceSettingsTest {
         Assert.assertEquals(Locale.US, Locale.getDefault())
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testHourSettings() {
-        val deviceHour = Settings.System.getString(
-            appContext.contentResolver,
-            Settings.System.TIME_12_24
-        )
+        val deviceHour =
+            Settings.System.getString(appContext.contentResolver, Settings.System.TIME_12_24)
         // A lot of the tests respect the user settings for the hour.
         // For the tests to pass we need that the be default / respect locale.
         // We would also need some tests to check that if it is forced to h12 / h24  we respect it.
@@ -55,7 +55,8 @@ class CheckDeviceSettingsTest {
         Assert.assertNull(deviceHour)
     }
 
-    @Test @SmallTest
+    @Test
+    @SmallTest
     fun testReportCldrAndIcuVersions() {
         // E.g.: API_24_v_NYC cldr:28.0 icu:56.1 unicode:8.0
         val result = StringBuilder()

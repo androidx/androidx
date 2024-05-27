@@ -37,12 +37,14 @@ class MenuTest {
     private val menu =
         Toolbar(ApplicationProvider.getApplicationContext() as android.content.Context).menu
 
-    @Test fun get() {
+    @Test
+    fun get() {
         val item = menu.add("")
         assertSame(item, menu[0])
     }
 
-    @Test fun contains() {
+    @Test
+    fun contains() {
         val item1 = menu.add("")
         assertTrue(item1 in menu)
 
@@ -50,7 +52,8 @@ class MenuTest {
         assertTrue(item2 in menu)
     }
 
-    @Test fun minusAssign() {
+    @Test
+    fun minusAssign() {
         val item1 = menu.add(NONE, 1, NONE, "")
         val item2 = menu.add(NONE, 2, NONE, "")
 
@@ -64,7 +67,8 @@ class MenuTest {
         assertEquals(0, menu.size)
     }
 
-    @Test fun size() {
+    @Test
+    fun size() {
         assertEquals(0, menu.size)
 
         menu.add("")
@@ -77,37 +81,35 @@ class MenuTest {
         assertEquals(1, menu.size)
     }
 
-    @Test fun isEmpty() {
+    @Test
+    fun isEmpty() {
         assertTrue(menu.isEmpty())
         menu.add("")
         assertFalse(menu.isEmpty())
     }
 
-    @Test fun isNotEmpty() {
+    @Test
+    fun isNotEmpty() {
         assertFalse(menu.isNotEmpty())
         menu.add("")
         assertTrue(menu.isNotEmpty())
     }
 
-    @Test fun forEach() {
-        menu.forEach {
-            fail("Empty menu should not invoke lambda")
-        }
+    @Test
+    fun forEach() {
+        menu.forEach { fail("Empty menu should not invoke lambda") }
 
         val item1 = menu.add("")
         val item2 = menu.add("")
 
         val items = mutableListOf<MenuItem>()
-        menu.forEach {
-            items += it
-        }
+        menu.forEach { items += it }
         assertThat(items).containsExactly(item1, item2)
     }
 
-    @Test fun forEachIndexed() {
-        menu.forEachIndexed { _, _ ->
-            fail("Empty menu should not invoke lambda")
-        }
+    @Test
+    fun forEachIndexed() {
+        menu.forEachIndexed { _, _ -> fail("Empty menu should not invoke lambda") }
 
         val item1 = menu.add("")
         val item2 = menu.add("")
@@ -120,7 +122,8 @@ class MenuTest {
         assertThat(items).containsExactly(item1, item2)
     }
 
-    @Test fun iterator() {
+    @Test
+    fun iterator() {
         val item1 = menu.add("")
         val item2 = menu.add("")
 
@@ -130,12 +133,11 @@ class MenuTest {
         assertTrue(iterator.hasNext())
         assertSame(item2, iterator.next())
         assertFalse(iterator.hasNext())
-        assertThrows<IndexOutOfBoundsException> {
-            iterator.next()
-        }
+        assertThrows<IndexOutOfBoundsException> { iterator.next() }
     }
 
-    @Test fun iteratorRemoving() {
+    @Test
+    fun iteratorRemoving() {
         val item1 = menu.add(NONE, 9, NONE, "")
         val item2 = menu.add(NONE, 13, NONE, "")
 
@@ -152,19 +154,20 @@ class MenuTest {
         assertEquals(0, menu.size())
     }
 
-    @Test fun children() {
-        val items = listOf(
-            menu.add(NONE, 1, NONE, ""),
-            menu.add(NONE, 2, NONE, ""),
-            menu.add(NONE, 3, NONE, "")
-        )
+    @Test
+    fun children() {
+        val items =
+            listOf(
+                menu.add(NONE, 1, NONE, ""),
+                menu.add(NONE, 2, NONE, ""),
+                menu.add(NONE, 3, NONE, "")
+            )
 
-        menu.children.forEachIndexed { index, child ->
-            assertSame(items[index], child)
-        }
+        menu.children.forEachIndexed { index, child -> assertSame(items[index], child) }
     }
 
-    @Test fun removeItemAt() {
+    @Test
+    fun removeItemAt() {
         val item1 = menu.add(NONE, 9, NONE, "")
         val item2 = menu.add(NONE, 13, NONE, "")
 

@@ -21,9 +21,9 @@ import androidx.core.performance.DevicePerformance
 /**
  * A simple interface to inject [DevicePerformance] where needed.
  *
- * This is simple way to do manual dependency injections.
- * Production applications should use a dependency framework.
- * See https://developer.android.com/training/dependency-injection for more information.
+ * This is simple way to do manual dependency injections. Production applications should use a
+ * dependency framework. See https://developer.android.com/training/dependency-injection for more
+ * information.
  */
 interface HasDevicePerformance {
 

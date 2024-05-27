@@ -46,7 +46,7 @@ import java.util.Objects
  *       }
  * }
  * ````
- **/
+ */
 sealed class CallControlResult {
     /**
      * The associated [CallControlScope] method was successful. For example, if
@@ -67,9 +67,9 @@ sealed class CallControlResult {
     }
 
     /**
-     * The associated [CallControlScope] method failed. For example, if
-     * [CallControlScope.setActive] was requested, Telecom failed to transition the call to active.
-     * There are numerous reasons why the operation failed; please see the [errorCode] for details.
+     * The associated [CallControlScope] method failed. For example, if [CallControlScope.setActive]
+     * was requested, Telecom failed to transition the call to active. There are numerous reasons
+     * why the operation failed; please see the [errorCode] for details.
      */
     class Error(@CallException.Companion.CallErrorCode val errorCode: Int) : CallControlResult() {
         override fun toString(): String {

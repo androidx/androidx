@@ -21,9 +21,8 @@ package androidx.core.graphics
 import android.graphics.Paint
 
 /**
- * Convenience method to configure the BlendMode of a Paint in a backward
- * compatible way. This method is a no-op for BlendModes that have no equivalent
- * on older API levels
+ * Convenience method to configure the BlendMode of a Paint in a backward compatible way. This
+ * method is a no-op for BlendModes that have no equivalent on older API levels
  */
 public inline fun Paint.setBlendMode(blendModeCompat: BlendModeCompat?): Boolean {
     return PaintCompat.setBlendMode(this, blendModeCompat)

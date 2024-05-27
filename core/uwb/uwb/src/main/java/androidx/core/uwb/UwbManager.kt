@@ -36,26 +36,29 @@ interface UwbManager {
 
     /**
      * @return a new [UwbClientSessionScope] that tracks the lifecycle of a UWB connection.
-     *
-     * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned off.
-     * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is not available on the device.
+     * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned
+     *   off.
+     * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is
+     *   not available on the device.
      */
     @Deprecated("Renamed to controleeSessionScope")
     suspend fun clientSessionScope(): UwbClientSessionScope
 
     /**
      * @return a new [UwbControleeSessionScope] that tracks the lifecycle of a UWB connection.
-     *
-     * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned off.
-     * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is not available on the device.
+     * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned
+     *   off.
+     * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is
+     *   not available on the device.
      */
     suspend fun controleeSessionScope(): UwbControleeSessionScope
 
     /**
      * @return a new [UwbControllerSessionScope] that tracks the lifecycle of a UWB connection.
-     *
-     * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned off.
-     * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is not available on the device.
+     * @throws [androidx.core.uwb.exceptions.UwbServiceNotAvailableException] if the UWB is turned
+     *   off.
+     * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is
+     *   not available on the device.
      */
     suspend fun controllerSessionScope(): UwbControllerSessionScope
 }

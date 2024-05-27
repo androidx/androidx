@@ -26,54 +26,36 @@ import androidx.annotation.RequiresApi
 /**
  * Flattens (or approximate) the [Path] with a series of line segments.
  *
- * @param error The acceptable error for a line on the Path in pixels. Typically this would be
- *              0.5 so that the error is less than half a pixel. This value must be
- *              positive and is set to 0.5 by default.
- *
+ * @param error The acceptable error for a line on the Path in pixels. Typically this would be 0.5
+ *   so that the error is less than half a pixel. This value must be positive and is set to 0.5 by
+ *   default.
  * @see Path.approximate
  */
 @RequiresApi(26)
-public fun Path.flatten(error: Float = 0.5f): Iterable<PathSegment> =
-    PathUtils.flatten(this, error)
+public fun Path.flatten(error: Float = 0.5f): Iterable<PathSegment> = PathUtils.flatten(this, error)
 
-/**
- * Returns the union of two paths as a new [Path].
- */
+/** Returns the union of two paths as a new [Path]. */
 public inline operator fun Path.plus(p: Path): Path {
-    return Path(this).apply {
-        op(p, Path.Op.UNION)
-    }
+    return Path(this).apply { op(p, Path.Op.UNION) }
 }
 
-/**
- * Returns the difference of two paths as a new [Path].
- */
+/** Returns the difference of two paths as a new [Path]. */
 public inline operator fun Path.minus(p: Path): Path {
-    return Path(this).apply {
-        op(p, Path.Op.DIFFERENCE)
-    }
+    return Path(this).apply { op(p, Path.Op.DIFFERENCE) }
 }
 
-/**
- * Returns the union of two paths as a new [Path].
- */
+/** Returns the union of two paths as a new [Path]. */
 public inline infix fun Path.or(p: Path): Path = this + p
 
 /**
- * Returns the intersection of two paths as a new [Path].
- * If the paths do not intersect, returns an empty path.
+ * Returns the intersection of two paths as a new [Path]. If the paths do not intersect, returns an
+ * empty path.
  */
 public inline infix fun Path.and(p: Path): Path {
-    return Path().apply {
-        op(this@and, p, Path.Op.INTERSECT)
-    }
+    return Path().apply { op(this@and, p, Path.Op.INTERSECT) }
 }
 
-/**
- * Returns the union minus the intersection of two paths as a new [Path].
- */
+/** Returns the union minus the intersection of two paths as a new [Path]. */
 public inline infix fun Path.xor(p: Path): Path {
-    return Path(this).apply {
-        op(p, Path.Op.XOR)
-    }
+    return Path(this).apply { op(p, Path.Op.XOR) }
 }

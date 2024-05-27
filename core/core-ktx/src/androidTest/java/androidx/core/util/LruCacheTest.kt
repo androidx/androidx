@@ -25,26 +25,25 @@ import org.junit.Test
 class LruCacheTest {
     private data class TestData(val x: String = "bla")
 
-    @Test fun size() {
+    @Test
+    fun size() {
         val cache = lruCache<String, TestData>(200, { k, (x) -> k.length * x.length })
         cache.put("long", TestData())
         assertEquals(cache.size(), 12)
     }
 
-    @Test fun create() {
+    @Test
+    fun create() {
         val cache = lruCache<String, TestData>(200, create = { key -> TestData("$key foo") })
         assertEquals(cache.get("kung"), TestData("kung foo"))
     }
 
-    @Test fun onEntryRemoved() {
+    @Test
+    fun onEntryRemoved() {
         var wasCalled = false
 
-        val cache = lruCache<String, TestData>(
-            200,
-            onEntryRemoved = { _, _, _, _ ->
-                wasCalled = true
-            }
-        )
+        val cache =
+            lruCache<String, TestData>(200, onEntryRemoved = { _, _, _, _ -> wasCalled = true })
         val initial = TestData()
         cache.put("a", initial)
         cache.remove("a")

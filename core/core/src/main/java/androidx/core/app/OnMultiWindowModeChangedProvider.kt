@@ -18,30 +18,22 @@ package androidx.core.app
 import android.app.Activity
 import androidx.core.util.Consumer
 
-/**
- * Interface for components that can dispatch calls from
- * [Activity.onMultiWindowModeChanged].
- */
+/** Interface for components that can dispatch calls from [Activity.onMultiWindowModeChanged]. */
 interface OnMultiWindowModeChangedProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * [Activity.onMultiWindowModeChanged] with the
-     * new [MultiWindowModeChangedInfo].
+     * [Activity.onMultiWindowModeChanged] with the new [MultiWindowModeChangedInfo].
      *
      * @param listener The listener that should be called whenever
-     * [Activity#onMultiWindowModeChanged] was called.
+     *   [Activity#onMultiWindowModeChanged] was called.
      */
-    fun addOnMultiWindowModeChangedListener(
-        listener: Consumer<MultiWindowModeChangedInfo>
-    )
+    fun addOnMultiWindowModeChangedListener(listener: Consumer<MultiWindowModeChangedInfo>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
-     * @param listener The listener previously added with
-     * [addOnMultiWindowModeChangedListener] that should be removed.
+     * @param listener The listener previously added with [addOnMultiWindowModeChangedListener] that
+     *   should be removed.
      */
-    fun removeOnMultiWindowModeChangedListener(
-        listener: Consumer<MultiWindowModeChangedInfo>
-    )
+    fun removeOnMultiWindowModeChangedListener(listener: Consumer<MultiWindowModeChangedInfo>)
 }

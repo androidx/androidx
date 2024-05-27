@@ -22,24 +22,25 @@ import androidx.core.telecom.util.ExperimentalAppActions
 
 /**
  * Singleton that encapsulates the CallControlScope extensions which have been added in as part of
- * supporting capabilities for VOIP app actions. Each delegate has a key (session id) that points
- * to the extension properties/functions available to the call session.
+ * supporting capabilities for VOIP app actions. Each delegate has a key (session id) that points to
+ * the extension properties/functions available to the call session.
  */
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-internal class CallControlScopeExtensionSingleton private constructor(
+internal class CallControlScopeExtensionSingleton
+private constructor(
     // Delegates to handle setting the CallControlScope extension properties for any given
     // instance.
-    internal val PARTICIPANT_DELEGATE: MutableMap<ParcelUuid,
-        VoipParticipantExtensionManager.ParticipantApiDelegate> = hashMapOf(),
-//    internal val CALL_DETAILS_DELEGATE: MutableMap<ParcelUuid,
-//        VoipCallDetailsExtensionManager.CallDetailsApiDelegate> = hashMapOf()
+    internal val PARTICIPANT_DELEGATE:
+        MutableMap<ParcelUuid, VoipParticipantExtensionManager.ParticipantApiDelegate> =
+        hashMapOf(),
+    //    internal val CALL_DETAILS_DELEGATE: MutableMap<ParcelUuid,
+    //        VoipCallDetailsExtensionManager.CallDetailsApiDelegate> = hashMapOf()
 ) {
     companion object {
         // Private volatile instance variable to hold the singleton instance to ensure read/write
         // ops are atomic.
-        @Volatile
-        private var INSTANCE: CallControlScopeExtensionSingleton? = null
+        @Volatile private var INSTANCE: CallControlScopeExtensionSingleton? = null
 
         fun getInstance(): CallControlScopeExtensionSingleton {
             if (INSTANCE == null) {

@@ -32,10 +32,8 @@ internal class ParticipantClientActionsImpl(
 ) : ParticipantClientActions, IParticipantStateListener.Stub() {
     private val mParticipantsStateFlow: MutableStateFlow<Set<Participant>> =
         MutableStateFlow(emptySet())
-    private val mRaisedHandsStateFlow: MutableStateFlow<Set<Int>> =
-        MutableStateFlow(emptySet())
-    private val mActiveParticipantStateFlow: MutableStateFlow<Int> =
-        MutableStateFlow(-1)
+    private val mRaisedHandsStateFlow: MutableStateFlow<Set<Int>> = MutableStateFlow(emptySet())
+    private val mActiveParticipantStateFlow: MutableStateFlow<Int> = MutableStateFlow(-1)
 
     internal var mIsParticipantExtensionSupported: Boolean = true
     internal var mIsInitializationComplete = false

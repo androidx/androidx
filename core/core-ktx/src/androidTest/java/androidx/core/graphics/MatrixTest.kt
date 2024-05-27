@@ -23,7 +23,8 @@ import org.junit.Test
 
 @SmallTest
 class MatrixTest {
-    @Test fun translationMatrix() {
+    @Test
+    fun translationMatrix() {
         val r = translationMatrix(2.0f, 3.0f).values()
         assertEquals(1.0f, r[Matrix.MSCALE_X])
         assertEquals(0.0f, r[Matrix.MSKEW_X])
@@ -33,7 +34,8 @@ class MatrixTest {
         assertEquals(3.0f, r[Matrix.MTRANS_Y])
     }
 
-    @Test fun scaleMatrix() {
+    @Test
+    fun scaleMatrix() {
         val r = scaleMatrix(2.0f, 3.0f).values()
         assertEquals(2.0f, r[Matrix.MSCALE_X])
         assertEquals(0.0f, r[Matrix.MSKEW_X])
@@ -43,7 +45,8 @@ class MatrixTest {
         assertEquals(0.0f, r[Matrix.MTRANS_Y])
     }
 
-    @Test fun rotationMatrix() {
+    @Test
+    fun rotationMatrix() {
         val r = rotationMatrix(90.0f, 2.0f, 3.0f).values()
         assertEquals(0.0f, r[Matrix.MSCALE_X])
         assertEquals(-1.0f, r[Matrix.MSKEW_X])
@@ -53,7 +56,8 @@ class MatrixTest {
         assertEquals(1.0f, r[Matrix.MTRANS_Y])
     }
 
-    @Test fun multiply() {
+    @Test
+    fun multiply() {
         val t = translationMatrix(2.0f, 3.0f)
         val s = scaleMatrix(2.0f, 3.0f)
         val r = (s * t).values()

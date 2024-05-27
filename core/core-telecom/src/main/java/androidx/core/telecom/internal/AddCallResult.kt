@@ -22,8 +22,8 @@ import java.util.Objects
 
 /**
  * AddCallResult should be used to represent the platform request to add a call via
- * [androidx.core.telecom.CallsManager.addCall]. Generally, the platform can either successfully
- * add the call at the time or fail with or without an exception code.
+ * [androidx.core.telecom.CallsManager.addCall]. Generally, the platform can either successfully add
+ * the call at the time or fail with or without an exception code.
  */
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 internal sealed class AddCallResult {
@@ -66,9 +66,9 @@ internal sealed class AddCallResult {
     }
 
     /**
-     * The error code the platform provided as to why the new call could not be added.
-     * For Sdk 34+ (Android UpsideDownCase), the platform will return a non ERROR_UNKNOWN exception
-     * code. For 33-, the platform will not provide an error code and ERROR_UNKNOWN will be used.
+     * The error code the platform provided as to why the new call could not be added. For Sdk 34+
+     * (Android UpsideDownCase), the platform will return a non ERROR_UNKNOWN exception code. For
+     * 33-, the platform will not provide an error code and ERROR_UNKNOWN will be used.
      */
     class Error(val errorCode: Int) : AddCallResult() {
         override fun toString(): String {

@@ -24,13 +24,10 @@ import org.junit.Test
 
 @SmallTest
 class PictureTest {
-    @Test fun record() {
-        val p = Picture().record(1, 1) {
-            drawColor(Color.RED)
-        }
-        val v = createBitmap(1, 1).applyCanvas {
-            drawPicture(p)
-        }.getPixel(0, 0)
+    @Test
+    fun record() {
+        val p = Picture().record(1, 1) { drawColor(Color.RED) }
+        val v = createBitmap(1, 1).applyCanvas { drawPicture(p) }.getPixel(0, 0)
         assertEquals(0xffff0000.toInt(), v)
     }
 }

@@ -29,54 +29,62 @@ import org.junit.Test
 
 @SmallTest
 class RegionTest {
-    @Test fun containsPoint() {
+    @Test
+    fun containsPoint() {
         assertFalse(Point(1, 1) in Region())
         assertTrue(Point(1, 1) in Region(0, 0, 2, 2))
     }
 
-    @Test fun unionRect() {
+    @Test
+    fun unionRect() {
         val r = Region(0, 0, 2, 2) + Rect(4, 4, 6, 6)
         assertFalse(Point(3, 3) in r)
         assertTrue(Point(1, 1) in r)
         assertTrue(Point(5, 5) in r)
     }
 
-    @Test fun unionRegion() {
+    @Test
+    fun unionRegion() {
         val r = Region(0, 0, 2, 2) + Region(4, 4, 6, 6)
         assertFalse(Point(3, 3) in r)
         assertTrue(Point(1, 1) in r)
         assertTrue(Point(5, 5) in r)
     }
 
-    @Test fun unionAsAndRect() {
+    @Test
+    fun unionAsAndRect() {
         val r = Region(0, 0, 2, 2) or Rect(4, 4, 6, 6)
         assertFalse(Point(3, 3) in r)
         assertTrue(Point(1, 1) in r)
         assertTrue(Point(5, 5) in r)
     }
 
-    @Test fun unionAsAndRegion() {
+    @Test
+    fun unionAsAndRegion() {
         val r = Region(0, 0, 2, 2) or Region(4, 4, 6, 6)
         assertFalse(Point(3, 3) in r)
         assertTrue(Point(1, 1) in r)
         assertTrue(Point(5, 5) in r)
     }
 
-    @Test fun differenceRect() {
+    @Test
+    fun differenceRect() {
         val r = Region(0, 0, 4, 4) - Rect(2, 2, 6, 6)
         assertFalse(Point(3, 3) in r)
         assertTrue(Point(1, 1) in r)
         assertFalse(Point(5, 5) in r)
     }
 
-    @Test fun differenceRegion() {
+    @Test
+    fun differenceRegion() {
         val r = Region(0, 0, 4, 4) - Region(2, 2, 6, 6)
         assertFalse(Point(3, 3) in r)
         assertTrue(Point(1, 1) in r)
         assertFalse(Point(5, 5) in r)
     }
 
-    @Test fun unaryMinus() {
+    @Test
+    fun unaryMinus() {
         val r = Rect(0, 0, 10, 10) - Rect(4, 4, 6, 6)
         assertTrue(Point(1, 1) in r)
         assertFalse(Point(5, 5) in r)
@@ -86,7 +94,8 @@ class RegionTest {
         assertTrue(Point(5, 5) in i)
     }
 
-    @Test fun not() {
+    @Test
+    fun not() {
         val r = Rect(0, 0, 10, 10) - Rect(4, 4, 6, 6)
         assertTrue(Point(1, 1) in r)
         assertFalse(Point(5, 5) in r)
@@ -96,33 +105,37 @@ class RegionTest {
         assertTrue(Point(5, 5) in i)
     }
 
-    @Test fun intersectionRect() {
+    @Test
+    fun intersectionRect() {
         val r = Region(0, 0, 4, 4) and Rect(2, 2, 6, 6)
         assertFalse(Point(1, 1) in r)
         assertTrue(Point(3, 3) in r)
     }
 
-    @Test fun intersectionRegion() {
+    @Test
+    fun intersectionRegion() {
         val r = Region(0, 0, 4, 4) and Region(2, 2, 6, 6)
         assertFalse(Point(1, 1) in r)
         assertTrue(Point(3, 3) in r)
     }
 
-    @Test fun xorRect() {
+    @Test
+    fun xorRect() {
         val r = Region(0, 0, 4, 4) xor Rect(2, 2, 6, 6)
         assertFalse(Point(3, 3) in r)
         assertTrue(Point(1, 1) in r)
     }
 
-    @Test fun xorRegion() {
+    @Test
+    fun xorRegion() {
         val r = Region(0, 0, 4, 4) xor Region(2, 2, 6, 6)
         assertFalse(Point(3, 3) in r)
         assertTrue(Point(1, 1) in r)
     }
 
-    @Test fun iteratorForLoop() {
-        val region = Region(0, 0, 4, 4) -
-            Rect(2, 2, 6, 6)
+    @Test
+    fun iteratorForLoop() {
+        val region = Region(0, 0, 4, 4) - Rect(2, 2, 6, 6)
         var count = 0
         var r = Rect()
         for (rect in region) {
@@ -133,20 +146,18 @@ class RegionTest {
         assertEquals(2, count)
     }
 
-    @Test fun iteratorOutOfBounds() {
-        val region = Region(0, 0, 4, 4) -
-            Rect(2, 2, 6, 6)
+    @Test
+    fun iteratorOutOfBounds() {
+        val region = Region(0, 0, 4, 4) - Rect(2, 2, 6, 6)
         val it = region.iterator()
         it.next()
         it.next()
-        assertThrows<IndexOutOfBoundsException> {
-            it.next()
-        }
+        assertThrows<IndexOutOfBoundsException> { it.next() }
     }
 
-    @Test fun iteratorForEach() {
-        val region = Region(0, 0, 4, 4) -
-            Rect(2, 2, 6, 6)
+    @Test
+    fun iteratorForEach() {
+        val region = Region(0, 0, 4, 4) - Rect(2, 2, 6, 6)
         var count = 0
         var r = Rect()
         region.forEach {

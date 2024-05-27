@@ -23,9 +23,10 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.performance.DevicePerformance
 
-/** Sample Media Performance Class Activity.
+/**
+ * Sample Media Performance Class Activity.
  *
- * The user experience is different for each MPC.  In this sample it is just a text string.
+ * The user experience is different for each MPC. In this sample it is just a text string.
  */
 class MpcActivity : Activity() {
 

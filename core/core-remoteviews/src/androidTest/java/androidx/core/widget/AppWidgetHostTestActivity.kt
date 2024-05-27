@@ -35,7 +35,7 @@ import android.widget.FrameLayout
 import androidx.core.remoteviews.test.R
 import org.junit.Assert.fail
 
-/** Test activity that contains an [AppWidgetHost].  */
+/** Test activity that contains an [AppWidgetHost]. */
 @TargetApi(29)
 public class AppWidgetHostTestActivity : Activity() {
     private var mHost: AppWidgetHost? = null
@@ -97,10 +97,7 @@ public class AppWidgetHostTestActivity : Activity() {
             )
         }
 
-        appWidgetManager.updateAppWidgetOptions(
-            appWidgetId,
-            optionsBundle
-        )
+        appWidgetManager.updateAppWidgetOptions(appWidgetId, optionsBundle)
 
         return hostView
     }

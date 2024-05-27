@@ -16,7 +16,7 @@
 
 package androidx.core.telecom.test.VoipAppWithExtensions
 
-import android.app.Service;
+import android.app.Service
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -53,13 +53,12 @@ class VoipAppWithExtensionsControl : Service() {
         val CLASS_NAME = VoipAppWithExtensionsControl::class.java.canonicalName
     }
 
-    val mBinder: ITestAppControl.Stub = object : ITestAppControl.Stub() {
+    val mBinder: ITestAppControl.Stub =
+        object : ITestAppControl.Stub() {
 
             var mCurrentCapabilities: MutableList<Capability?> = mutableListOf()
 
-            val mOnSetActiveLambda: suspend () -> Unit = {
-                Log.i(TAG, "onSetActive: completing")
-            }
+            val mOnSetActiveLambda: suspend () -> Unit = { Log.i(TAG, "onSetActive: completing") }
 
             val mOnSetInActiveLambda: suspend () -> Unit = {
                 Log.i(TAG, "onSetInactive: completing")
@@ -79,7 +78,8 @@ class VoipAppWithExtensionsControl : Service() {
                 runBlocking {
                     var deferredId = CompletableDeferred<String>()
                     mScope.launch {
-                        mCallsManager?.addCall(CallAttributesCompat(
+                        mCallsManager?.addCall(
+                            CallAttributesCompat(
                                 "displayName" /* TODO:: make helper */,
                                 Uri.parse("123") /* TODO:: make helper */,
                                 if (isOutgoing) DIRECTION_OUTGOING else DIRECTION_INCOMING
@@ -93,7 +93,7 @@ class VoipAppWithExtensionsControl : Service() {
 
                             launch {
                                 flowOfParticipants.collect {
-                                   TestUtils.printParticipants(it, "VoIP")
+                                    TestUtils.printParticipants(it, "VoIP")
                                 }
                             }
                         }
@@ -112,7 +112,7 @@ class VoipAppWithExtensionsControl : Service() {
             }
 
             override fun getVoipCapabilities(): List<Capability?> {
-               return mCurrentCapabilities.toList()
+                return mCurrentCapabilities.toList()
             }
 
             override fun updateParticipants(setOfParticipants: List<Participant>) {

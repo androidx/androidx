@@ -58,11 +58,12 @@ class PlayPredefinedEffectSignalTest(
 
         @JvmStatic
         @Parameterized.Parameters(name = "effect:{0}, expectedFallbackPattern:{1}")
-        fun data(): Collection<Array<Any>> = listOf(
-            arrayOf(predefinedTick(), longArrayOf(0, 10)),
-            arrayOf(predefinedClick(), longArrayOf(0, 20)),
-            arrayOf(predefinedHeavyClick(), longArrayOf(0, 30)),
-            arrayOf(predefinedDoubleClick(), longArrayOf(0, 30, 100, 30)),
-        )
+        fun data(): Collection<Array<Any>> =
+            listOf(
+                arrayOf(predefinedTick(), longArrayOf(0, 10)),
+                arrayOf(predefinedClick(), longArrayOf(0, 20)),
+                arrayOf(predefinedHeavyClick(), longArrayOf(0, 30)),
+                arrayOf(predefinedDoubleClick(), longArrayOf(0, 30, 100, 30)),
+            )
     }
 }

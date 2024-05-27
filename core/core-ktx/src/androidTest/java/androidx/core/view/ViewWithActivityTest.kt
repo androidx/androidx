@@ -29,7 +29,8 @@ import org.junit.Test
 @MediumTest
 class ViewWithActivityTest {
     @Suppress("DEPRECATION")
-    @JvmField @Rule
+    @JvmField
+    @Rule
     val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
     private lateinit var view: View
 
@@ -41,9 +42,7 @@ class ViewWithActivityTest {
     @Test
     fun doOnAttach() {
         var calls = 0
-        view.doOnAttach {
-            calls++
-        }
+        view.doOnAttach { calls++ }
 
         addViewToWindow()
         assertEquals(1, calls)
@@ -59,9 +58,7 @@ class ViewWithActivityTest {
         addViewToWindow()
 
         var calls = 0
-        view.doOnAttach {
-            calls++
-        }
+        view.doOnAttach { calls++ }
 
         assertEquals(1, calls)
     }
@@ -71,9 +68,7 @@ class ViewWithActivityTest {
         addViewToWindow()
 
         var calls = 0
-        view.doOnDetach {
-            calls++
-        }
+        view.doOnDetach { calls++ }
 
         removeViewFromWindow()
         assertEquals(1, calls)
@@ -87,19 +82,19 @@ class ViewWithActivityTest {
     @Test
     fun doOnDetach_whenDetached() {
         var calls = 0
-        view.doOnDetach {
-            calls++
-        }
+        view.doOnDetach { calls++ }
 
         assertEquals(1, calls)
     }
 
-    private fun addViewToWindow() = rule.runOnUiThread {
-        val contentView = rule.activity.findViewById<ViewGroup>(android.R.id.content)
-        contentView.addView(view, WRAP_CONTENT, WRAP_CONTENT)
-    }
+    private fun addViewToWindow() =
+        rule.runOnUiThread {
+            val contentView = rule.activity.findViewById<ViewGroup>(android.R.id.content)
+            contentView.addView(view, WRAP_CONTENT, WRAP_CONTENT)
+        }
 
-    private fun removeViewFromWindow() = rule.runOnUiThread {
-        rule.activity.findViewById<ViewGroup>(android.R.id.content).removeView(view)
-    }
+    private fun removeViewFromWindow() =
+        rule.runOnUiThread {
+            rule.activity.findViewById<ViewGroup>(android.R.id.content).removeView(view)
+        }
 }

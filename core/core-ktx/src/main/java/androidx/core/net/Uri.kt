@@ -36,8 +36,8 @@ public inline fun String.toUri(): Uri = Uri.parse(this)
 public inline fun File.toUri(): Uri = Uri.fromFile(this)
 
 /**
- * Creates a [File] from the given [Uri]. Note that this will throw an
- * [IllegalArgumentException] when invoked on a [Uri] that lacks `file` scheme.
+ * Creates a [File] from the given [Uri]. Note that this will throw an [IllegalArgumentException]
+ * when invoked on a [Uri] that lacks `file` scheme.
  */
 public fun Uri.toFile(): File {
     require(scheme == "file") { "Uri lacks 'file' scheme: $this" }

@@ -32,9 +32,7 @@ internal class CapabilityExchange() : ICapabilityExchange.Stub() {
         capabilities: MutableList<Capability>?,
         l: ICapabilityExchangeListener?
     ) {
-        capabilities?.let {
-            voipCapabilities = capabilities
-        }
+        capabilities?.let { voipCapabilities = capabilities }
         l?.let { capabilityExchangeListener = l }
         beginExchangeLatch.countDown()
     }

@@ -49,8 +49,7 @@ class TelecomManagerFailPlatformSide : TelecomManagerAdapter {
         handshakes: CallControlCallback,
         events: CallEventCallback
     ) {
-        pendingControl.onError(
-            android.telecom.CallException("", mCurrentCallException))
+        pendingControl.onError(android.telecom.CallException("", mCurrentCallException))
     }
 
     override fun registerPhoneAccount(phoneAccount: PhoneAccount?) {

@@ -43,44 +43,55 @@ internal open class UwbClientSessionScopeAospImpl(
     companion object {
         private const val TAG = "UwbClientSessionScope"
     }
+
     private var sessionStarted = false
 
     override fun prepareSession(parameters: RangingParameters) = callbackFlow {
         if (sessionStarted) {
-            throw IllegalStateException("Ranging has already started. To initiate " +
-                "a new ranging session, create a new client session scope.")
+            throw IllegalStateException(
+                "Ranging has already started. To initiate " +
+                    "a new ranging session, create a new client session scope."
+            )
         }
 
         val aospParametersBuilder = androidx.core.uwb.backend.RangingParameters()
-        aospParametersBuilder.uwbConfigId = when (parameters.uwbConfigType) {
-            RangingParameters.CONFIG_UNICAST_DS_TWR -> RangingParameters.CONFIG_UNICAST_DS_TWR
-            RangingParameters.CONFIG_MULTICAST_DS_TWR -> RangingParameters.CONFIG_MULTICAST_DS_TWR
-            RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA ->
-                RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA
-            RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR ->
-                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR
-            RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR ->
-                RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR
-            RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA ->
-                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA
-            RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR ->
-                RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR
-            else -> throw IllegalArgumentException("The selected UWB Config Id is not a valid id.")
-        }
-        aospParametersBuilder.rangingUpdateRate = when (parameters.updateRateType) {
-            RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC ->
-                RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
-            RangingParameters.RANGING_UPDATE_RATE_FREQUENT ->
-                RangingParameters.RANGING_UPDATE_RATE_FREQUENT
-            RangingParameters.RANGING_UPDATE_RATE_INFREQUENT ->
-                RangingParameters.RANGING_UPDATE_RATE_INFREQUENT
-            else -> throw IllegalArgumentException(
-                "The selected ranging update rate is not a valid update rate.")
-        }
+        aospParametersBuilder.uwbConfigId =
+            when (parameters.uwbConfigType) {
+                RangingParameters.CONFIG_UNICAST_DS_TWR -> RangingParameters.CONFIG_UNICAST_DS_TWR
+                RangingParameters.CONFIG_MULTICAST_DS_TWR ->
+                    RangingParameters.CONFIG_MULTICAST_DS_TWR
+                RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA ->
+                    RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA
+                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR ->
+                    RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR
+                RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR ->
+                    RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR
+                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA ->
+                    RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA
+                RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR ->
+                    RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR
+                else ->
+                    throw IllegalArgumentException("The selected UWB Config Id is not a valid id.")
+            }
+        aospParametersBuilder.rangingUpdateRate =
+            when (parameters.updateRateType) {
+                RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC ->
+                    RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
+                RangingParameters.RANGING_UPDATE_RATE_FREQUENT ->
+                    RangingParameters.RANGING_UPDATE_RATE_FREQUENT
+                RangingParameters.RANGING_UPDATE_RATE_INFREQUENT ->
+                    RangingParameters.RANGING_UPDATE_RATE_INFREQUENT
+                else ->
+                    throw IllegalArgumentException(
+                        "The selected ranging update rate is not a valid update rate."
+                    )
+            }
         aospParametersBuilder.sessionId = parameters.sessionId
         aospParametersBuilder.sessionKeyInfo = parameters.sessionKeyInfo
-        if (parameters.uwbConfigType
-            == RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR) {
+        if (
+            parameters.uwbConfigType ==
+                RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR
+        ) {
             aospParametersBuilder.subSessionId = parameters.subSessionId
             aospParametersBuilder.subSessionKeyInfo = parameters.subSessionKeyInfo
         }
@@ -102,15 +113,17 @@ internal open class UwbClientSessionScopeAospImpl(
         aospParametersBuilder.peerDevices = peerList
         aospParametersBuilder.isAoaDisabled = parameters.isAoaDisabled
         if (parameters.slotDurationMillis != 0L) {
-            aospParametersBuilder.slotDuration = when (parameters.slotDurationMillis) {
-                RangingParameters.RANGING_SLOT_DURATION_1_MILLIS ->
-                    RangingParameters.RANGING_SLOT_DURATION_1_MILLIS.toInt()
-                RangingParameters.RANGING_SLOT_DURATION_2_MILLIS ->
-                    RangingParameters.RANGING_SLOT_DURATION_2_MILLIS.toInt()
-                else -> throw IllegalArgumentException(
-                    "The selected slot duration is not a valid slot duration."
-                )
-            }
+            aospParametersBuilder.slotDuration =
+                when (parameters.slotDurationMillis) {
+                    RangingParameters.RANGING_SLOT_DURATION_1_MILLIS ->
+                        RangingParameters.RANGING_SLOT_DURATION_1_MILLIS.toInt()
+                    RangingParameters.RANGING_SLOT_DURATION_2_MILLIS ->
+                        RangingParameters.RANGING_SLOT_DURATION_2_MILLIS.toInt()
+                    else ->
+                        throw IllegalArgumentException(
+                            "The selected slot duration is not a valid slot duration."
+                        )
+                }
         }
         if (parameters.uwbRangeDataNtfConfig != null) {
             val dataNtfConfig = UwbRangeDataNtfConfig()
@@ -131,12 +144,8 @@ internal open class UwbClientSessionScopeAospImpl(
                             androidx.core.uwb.UwbDevice(UwbAddress(device.address?.address!!)),
                             androidx.core.uwb.RangingPosition(
                                 position.distance?.let { RangingMeasurement(it.value) },
-                                position.azimuth?.let {
-                                    RangingMeasurement(it.value)
-                                },
-                                position.elevation?.let {
-                                    RangingMeasurement(it.value)
-                                },
+                                position.azimuth?.let { RangingMeasurement(it.value) },
+                                position.elevation?.let { RangingMeasurement(it.value) },
                                 position.elapsedRealtimeNanos
                             )
                         )
@@ -156,7 +165,7 @@ internal open class UwbClientSessionScopeAospImpl(
             uwbClient.startRanging(aospParametersBuilder, callback)
             sessionStarted = true
         } catch (e: Exception) {
-            throw(e)
+            throw (e)
         }
 
         awaitClose {
@@ -164,7 +173,7 @@ internal open class UwbClientSessionScopeAospImpl(
                 try {
                     uwbClient.stopRanging(callback)
                 } catch (e: Exception) {
-                    throw(e)
+                    throw (e)
                 }
             }
         }
@@ -178,7 +187,7 @@ internal open class UwbClientSessionScopeAospImpl(
         try {
             uwbClient.reconfigureRangeDataNtf(configType, proximityNear, proximityFar)
         } catch (e: Exception) {
-            throw(e)
+            throw (e)
         }
     }
 }

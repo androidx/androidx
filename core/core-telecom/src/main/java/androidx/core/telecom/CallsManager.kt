@@ -62,7 +62,7 @@ import kotlinx.coroutines.withTimeout
  * CallsManager allows VoIP applications to add their calls to the Android system service Telecom.
  * By doing this, other services are aware of your VoIP application calls which leads to a more
  * stable environment. For example, a wearable may be able to answer an incoming call from your
- * application if the call is added to the Telecom system.  VoIP applications that manage calls and
+ * application if the call is added to the Telecom system. VoIP applications that manage calls and
  * do not inform the Telecom system may experience issues with resources (ex. microphone access).
  *
  * Note that access to some telecom information is permission-protected. Your app cannot access the
@@ -97,9 +97,7 @@ class CallsManager constructor(context: Context) {
         @Retention(AnnotationRetention.SOURCE)
         annotation class Capability
 
-        /**
-         * Constants used to denote the type of [Capability] being registered.
-         */
+        /** Constants used to denote the type of [Capability] being registered. */
         @Target(AnnotationTarget.TYPE)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
@@ -109,6 +107,7 @@ class CallsManager constructor(context: Context) {
         internal const val PARTICIPANT = 1
         internal const val CALL_ICON = 2
         internal const val CALL_SILENCE = 3
+
         // Todo: Support additional capabilities
 
         /**
@@ -125,9 +124,7 @@ class CallsManager constructor(context: Context) {
         internal const val KICK_PARTICIPANT_ACTION = 2
         // Todo: Support additional actions
 
-        /**
-         * Set on Connections that are using ConnectionService+AUTO specific extension layer.
-         */
+        /** Set on Connections that are using ConnectionService+AUTO specific extension layer. */
         internal const val EXTRA_VOIP_API_VERSION = "android.telecom.extra.VOIP_API_VERSION"
 
         /**
@@ -142,22 +139,19 @@ class CallsManager constructor(context: Context) {
          * this InCallService supports jetpack extensions
          */
         internal const val EVENT_JETPACK_CAPABILITY_EXCHANGE =
-            "android.telecom.event.CAPABILITY_EXCHANGE";
+            "android.telecom.event.CAPABILITY_EXCHANGE"
 
-        /**
-         * VERSION used for handling future compatibility in capability exchange.
-         */
+        /** VERSION used for handling future compatibility in capability exchange. */
         internal const val EXTRA_CAPABILITY_EXCHANGE_VERSION = "CAPABILITY_EXCHANGE_VERSION"
 
         /**
-         * BINDER used for handling capability exchange between the ICS and VOIP app sides, sent
-         * as part of sendCallEvent in the included extras.
+         * BINDER used for handling capability exchange between the ICS and VOIP app sides, sent as
+         * part of sendCallEvent in the included extras.
          */
         internal const val EXTRA_CAPABILITY_EXCHANGE_BINDER = "CAPABILITY_EXCHANGE_BINDER"
 
         /**
          * The connection is using transactional call APIs.
-         *
          *
          * The underlying connection was added as a transactional call via the
          * [TelecomManager.addCall] API.
@@ -175,23 +169,22 @@ class CallsManager constructor(context: Context) {
         const val CAPABILITY_BASELINE = 1 shl 0
 
         /**
-         * Flag indicating that your VoIP application supports video calling.
-         * This is not an indication that your application is currently able to make a video
-         * call, but rather that it has the ability to make video calls (but not necessarily at this
-         * time).
+         * Flag indicating that your VoIP application supports video calling. This is not an
+         * indication that your application is currently able to make a video call, but rather that
+         * it has the ability to make video calls (but not necessarily at this time).
          *
          * Whether a call can make a video call is ultimately controlled by
          * [androidx.core.telecom.CallAttributesCompat]s capability
-         * [androidx.core.telecom.CallAttributesCompat.CallType]#[CALL_TYPE_VIDEO_CALL],
-         * which indicates that particular call is currently capable of making a video call.
+         * [androidx.core.telecom.CallAttributesCompat.CallType]#[CALL_TYPE_VIDEO_CALL], which
+         * indicates that particular call is currently capable of making a video call.
          */
         const val CAPABILITY_SUPPORTS_VIDEO_CALLING = 1 shl 1
 
         /**
          * Flag indicating that this VoIP application supports call streaming. Call streaming means
-         * a call can be streamed from a root device to another device to continue the call
-         * without completely transferring it. The call continues to take place on the source
-         * device, however media and control are streamed to another device.
+         * a call can be streamed from a root device to another device to continue the call without
+         * completely transferring it. The call continues to take place on the source device,
+         * however media and control are streamed to another device.
          * [androidx.core.telecom.CallAttributesCompat.CallType]#[CAPABILITY_SUPPORTS_CALL_STREAMING]
          * must also be set on per call basis in the event an application wants to gate this
          * capability on a stricter basis.
@@ -205,21 +198,20 @@ class CallsManager constructor(context: Context) {
             "androidx.core.telecom.internal.JetpackConnectionService"
 
         // fail messages specific to addCall
-        internal const val CALL_CREATION_FAILURE_MSG =
-            "The call failed to be added."
+        internal const val CALL_CREATION_FAILURE_MSG = "The call failed to be added."
         internal const val ADD_CALL_TIMEOUT = 5000L
         internal const val SWITCH_TO_SPEAKER_TIMEOUT = 1000L
         private val TAG: String = CallsManager::class.java.simpleName.toString()
     }
 
     /**
-     * VoIP applications should look at each [Capability] annotated above and call this API in
-     * order to start adding calls via [addCall].  Registering capabilities must be done before
-     * calling [addCall] or an exception will be thrown by [addCall]. The capabilities can be
-     * updated by re-registering.
+     * VoIP applications should look at each [Capability] annotated above and call this API in order
+     * to start adding calls via [addCall]. Registering capabilities must be done before calling
+     * [addCall] or an exception will be thrown by [addCall]. The capabilities can be updated by
+     * re-registering.
      *
-     * Note: There is no need to unregister at any point. Telecom will handle unregistering once
-     * the application using core-telecom has been removed from the device.
+     * Note: There is no need to unregister at any point. Telecom will handle unregistering once the
+     * application using core-telecom has been removed from the device.
      *
      * @throws UnsupportedOperationException if the device is on an invalid build
      */
@@ -228,10 +220,8 @@ class CallsManager constructor(context: Context) {
         // verify the build version supports this API and throw an exception if not
         Utils.verifyBuildVersion()
 
-        val phoneAccountBuilder = PhoneAccount.builder(
-            getPhoneAccountHandleForPackage(),
-            PACKAGE_LABEL
-        )
+        val phoneAccountBuilder =
+            PhoneAccount.builder(getPhoneAccountHandleForPackage(), PACKAGE_LABEL)
 
         // remap and set capabilities
         phoneAccountBuilder.setCapabilities(remapJetpackCapsToPlatformCaps(capabilities))
@@ -250,10 +240,9 @@ class CallsManager constructor(context: Context) {
      * ongoing call and are posting a [android.app.Notification.CallStyle] notification within 5
      * seconds of adding the call via this method. When your application is given foreground
      * execution priority, your app is treated as a foreground service. Foreground execution
-     * priority will prevent the [android.app.ActivityManager] from killing your application when
-     * it is placed the background. Foreground execution priority is removed from your app when all
-     * of your app's calls terminate or your app no longer posts a valid notification.
-     *
+     * priority will prevent the [android.app.ActivityManager] from killing your application when it
+     * is placed the background. Foreground execution priority is removed from your app when all of
+     * your app's calls terminate or your app no longer posts a valid notification.
      * - Other things that should be noted:
      *     - For outgoing calls, your application should either immediately post a
      *       [android.app.Notification.CallStyle] notification or delay adding the call via this
@@ -264,46 +253,40 @@ class CallsManager constructor(context: Context) {
      *       that is important for the call session.
      *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) will be
      *       invoked by Telecom whenever the system needs your VoIP application to change the call
-     *       state. For example, if there is an ongoing VoIP call in your application and the
-     *       system receives a sim call, Telecom will invoke onSetInactive to place your call on
-     *       hold/inactive if the user answers the incoming sim call.  These events may not occur
+     *       state. For example, if there is an ongoing VoIP call in your application and the system
+     *       receives a sim call, Telecom will invoke onSetInactive to place your call on
+     *       hold/inactive if the user answers the incoming sim call. These events may not occur
      *       during most calls but should still be implemented in the event Telecom needs to
      *       manipulate your applications call state.
-     *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a
-     *       timeout of 5000 milliseconds. Failing to complete the suspend fun before the timeout
-     *       will result in a failed transaction.
-     *     - Telecom assumes each callback (onAnswer, onDisconnect, onSetActive, onSetInactive)
-     *       is handled successfully on the client side. If the callback cannot be completed,
-     *       an Exception should be thrown. Telecom will rethrow the Exception and tear down
-     *       the call session.
-     * @param callAttributes     attributes of the new call (incoming or outgoing, address, etc. )
+     *     - Each lambda function (onAnswer, onDisconnect, onSetActive, onSetInactive) has a timeout
+     *       of 5000 milliseconds. Failing to complete the suspend fun before the timeout will
+     *       result in a failed transaction.
+     *     - Telecom assumes each callback (onAnswer, onDisconnect, onSetActive, onSetInactive) is
+     *       handled successfully on the client side. If the callback cannot be completed, an
+     *       Exception should be thrown. Telecom will rethrow the Exception and tear down the call
+     *       session.
      *
-     * @param onAnswer           where callType is the audio/video state the call should be
-     *                           answered as.  Telecom is informing your VoIP application to answer
-     *                           an incoming call and  set it to active. Telecom is requesting this
-     *                           on behalf of an system service (e.g. Automotive service) or a
-     *                           device (e.g. Wearable).
-     *
-     * @param onDisconnect       where disconnectCause represents the cause for disconnecting the
-     *                           call. Telecom is informing your VoIP application to disconnect the
-     *                           incoming call. Telecom is requesting this on behalf of an system
-     *                           service (e.g. Automotive service) or a device (e.g. Wearable).
-     *
-     * @param onSetActive        Telecom is informing your VoIP application to set the call active.
-     *                           Telecom is requesting this on behalf of an system service (e.g.
-     *                           Automotive service) or a device (e.g. Wearable).
-     *
-     * @param onSetInactive      Telecom is informing your VoIP application to set the call
-     *                           inactive. This is the same as holding a call for two endpoints but
-     *                           can be extended to setting a meeting inactive. Telecom is
-     *                           requesting this on behalf of an system service (e.g. Automotive
-     *                           service) or a device (e.g.Wearable). Note: Your app must stop
-     *                           using the microphone and playing incoming media when returning.
-     * @param block              DSL interface block that will run when the call is ready
-     *
+     * @param callAttributes attributes of the new call (incoming or outgoing, address, etc. )
+     * @param onAnswer where callType is the audio/video state the call should be answered as.
+     *   Telecom is informing your VoIP application to answer an incoming call and set it to active.
+     *   Telecom is requesting this on behalf of an system service (e.g. Automotive service) or a
+     *   device (e.g. Wearable).
+     * @param onDisconnect where disconnectCause represents the cause for disconnecting the call.
+     *   Telecom is informing your VoIP application to disconnect the incoming call. Telecom is
+     *   requesting this on behalf of an system service (e.g. Automotive service) or a device (e.g.
+     *   Wearable).
+     * @param onSetActive Telecom is informing your VoIP application to set the call active. Telecom
+     *   is requesting this on behalf of an system service (e.g. Automotive service) or a device
+     *   (e.g. Wearable).
+     * @param onSetInactive Telecom is informing your VoIP application to set the call inactive.
+     *   This is the same as holding a call for two endpoints but can be extended to setting a
+     *   meeting inactive. Telecom is requesting this on behalf of an system service (e.g.
+     *   Automotive service) or a device (e.g.Wearable). Note: Your app must stop using the
+     *   microphone and playing incoming media when returning.
+     * @param block DSL interface block that will run when the call is ready
      * @throws UnsupportedOperationException if the device is on an invalid build
-     * @throws CallException if the platform cannot add the call (e.g. reached max # of calls)
-     *                       or failed with an exception (e.g. call was already removed)
+     * @throws CallException if the platform cannot add the call (e.g. reached max # of calls) or
+     *   failed with an exception (e.g. call was already removed)
      * @throws CancellationException if the call failed to be added within 5000 milliseconds
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
@@ -324,8 +307,8 @@ class CallsManager constructor(context: Context) {
         // Setup passed in capabilities in CapabilityManager. This will also be leveraged in the
         // call session to sync the capabilities with the client during capability exchange
         // negotiation.
-        var voipExtensionManager = VoipExtensionManager(mContext, coroutineContext,
-            callChannels, mCapabilities)
+        var voipExtensionManager =
+            VoipExtensionManager(mContext, coroutineContext, callChannels, mCapabilities)
         callAttributes.mHandle = getPhoneAccountHandleForPackage()
         // This variable controls the addCall execution in the calling activity. AddCall will block
         // for the duration of the session.  When the session is terminated via a disconnect or
@@ -340,17 +323,18 @@ class CallsManager constructor(context: Context) {
             val openResult = CompletableDeferred<AddCallResult>(parent = coroutineContext.job)
             // CallSession is responsible for handling both CallControl responses from the Platform
             // and propagates CallControlCallbacks that originate in the Platform out to the client.
-            val callSession = CallSession(
-                coroutineContext,
-                callAttributes,
-                onAnswer,
-                onDisconnect,
-                onSetActive,
-                onSetInactive,
-                callChannels,
-                voipExtensionManager,
-                blockingSessionExecution
-            )
+            val callSession =
+                CallSession(
+                    coroutineContext,
+                    callAttributes,
+                    onAnswer,
+                    onDisconnect,
+                    onSetActive,
+                    onSetInactive,
+                    callChannels,
+                    voipExtensionManager,
+                    blockingSessionExecution
+                )
 
             /**
              * The Platform [android.telecom.TelecomManager.addCall] requires a
@@ -402,34 +386,35 @@ class CallsManager constructor(context: Context) {
         } else {
             // CompletableDeferred pauses the execution of this method until the Connection
             // is created in JetpackConnectionService
-            val openResult =
-                CompletableDeferred<AddCallResult>(parent = coroutineContext.job)
+            val openResult = CompletableDeferred<AddCallResult>(parent = coroutineContext.job)
 
-            val request = JetpackConnectionService.PendingConnectionRequest(
-                UUID.randomUUID().toString(),
-                callAttributes,
-                callChannels,
-                coroutineContext,
-                openResult,
-                onAnswer,
-                onDisconnect,
-                onSetActive,
-                onSetInactive,
-                blockingSessionExecution,
-                voipExtensionManager
-            )
+            val request =
+                JetpackConnectionService.PendingConnectionRequest(
+                    UUID.randomUUID().toString(),
+                    callAttributes,
+                    callChannels,
+                    coroutineContext,
+                    openResult,
+                    onAnswer,
+                    onDisconnect,
+                    onSetActive,
+                    onSetInactive,
+                    blockingSessionExecution,
+                    voipExtensionManager
+                )
 
             mConnectionService.createConnectionRequest(mTelecomManager, request)
 
             pauseExecutionUntilCallIsReadyOrTimeout(openResult, blockingSessionExecution, request)
 
             val result = openResult.getCompleted() as AddCallResult.SuccessCallSessionLegacy
-            val scope = CallSessionLegacy.CallControlScopeImpl(
-                result.callSessionLegacy,
-                callChannels,
-                blockingSessionExecution,
-                coroutineContext
-            )
+            val scope =
+                CallSessionLegacy.CallControlScopeImpl(
+                    result.callSessionLegacy,
+                    callChannels,
+                    blockingSessionExecution,
+                    coroutineContext
+                )
 
             // Set up extension manager to register the VOIP supported extensions.
             voipExtensionManager.initializeSession(scope)
@@ -458,7 +443,8 @@ class CallsManager constructor(context: Context) {
                 // It is necessary to pause execution so Core-Telecom does not run the clients
                 // CallControlScope before the call is returned from the platform.
                 Log.i(
-                    TAG, "addCall: pausing [$coroutineContext] execution" +
+                    TAG,
+                    "addCall: pausing [$coroutineContext] execution" +
                         " until the CallControl or Connection is ready"
                 )
                 openResult.await()
@@ -491,11 +477,12 @@ class CallsManager constructor(context: Context) {
         // This API is not supported for device running anything below Android O (26)
         Utils.verifyBuildVersion()
 
-        val className = if (Utils.hasPlatformV2Apis()) {
-            mContext.packageName
-        } else {
-            CONNECTION_SERVICE_CLASS
-        }
+        val className =
+            if (Utils.hasPlatformV2Apis()) {
+                mContext.packageName
+            } else {
+                CONNECTION_SERVICE_CLASS
+            }
         return PhoneAccountHandle(
             ComponentName(mContext.packageName, className),
             PACKAGE_HANDLE_ID,

@@ -26,19 +26,18 @@ import androidx.core.util.Consumer
 interface OnConfigurationChangedProvider {
     /**
      * Add a new listener that will get a callback associated with
-     * [ComponentCallbacks.onConfigurationChanged] with the
-     * new [Configuration].
+     * [ComponentCallbacks.onConfigurationChanged] with the new [Configuration].
      *
      * @param listener The listener that should be called whenever
-     * {[ComponentCallbacks.onConfigurationChanged] was called.
+     *   {[ComponentCallbacks.onConfigurationChanged] was called.
      */
     fun addOnConfigurationChangedListener(listener: Consumer<Configuration>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
      *
-     * @param listener The listener previously added with
-     * [addOnConfigurationChangedListener] that should be removed.
+     * @param listener The listener previously added with [addOnConfigurationChangedListener] that
+     *   should be removed.
      */
     fun removeOnConfigurationChangedListener(listener: Consumer<Configuration>)
 }

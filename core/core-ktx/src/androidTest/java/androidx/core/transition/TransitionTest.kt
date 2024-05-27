@@ -37,43 +37,47 @@ import org.junit.Test
 @MediumTest
 class TransitionTest {
     @Suppress("DEPRECATION")
-    @JvmField @Rule val rule = androidx.test.rule.ActivityTestRule<TestActivity>(
-        TestActivity::class.java
-    )
+    @JvmField
+    @Rule
+    val rule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
 
     private lateinit var transition: Transition
 
-    @Before fun setup() {
+    @Before
+    fun setup() {
         transition = Fade().setDuration(50)
     }
 
-    @Test fun testDoOnStart() {
+    @Test
+    fun testDoOnStart() {
         val called = AtomicBoolean()
-        transition.doOnStart {
-            called.set(true)
-        }
+        transition.doOnStart { called.set(true) }
 
         startTransition(transition)
         assertTrue(called.get())
     }
 
-    @Test fun testDoOnEnd() {
+    @Test
+    fun testDoOnEnd() {
         val called = AtomicBoolean()
-        transition.doOnEnd {
-            called.set(true)
-        }
+        transition.doOnEnd { called.set(true) }
 
         val latch = CountDownLatch(1)
-        transition.addListener(object : Transition.TransitionListener {
-            override fun onTransitionEnd(transition: Transition?) {
-                latch.countDown()
-            }
+        transition.addListener(
+            object : Transition.TransitionListener {
+                override fun onTransitionEnd(transition: Transition?) {
+                    latch.countDown()
+                }
 
-            override fun onTransitionResume(transition: Transition?) = Unit
-            override fun onTransitionPause(transition: Transition?) = Unit
-            override fun onTransitionCancel(transition: Transition?) = Unit
-            override fun onTransitionStart(transition: Transition?) = Unit
-        })
+                override fun onTransitionResume(transition: Transition?) = Unit
+
+                override fun onTransitionPause(transition: Transition?) = Unit
+
+                override fun onTransitionCancel(transition: Transition?) = Unit
+
+                override fun onTransitionStart(transition: Transition?) = Unit
+            }
+        )
 
         startTransition(transition)
 

@@ -20,34 +20,28 @@ package androidx.core.graphics
 
 import android.graphics.Matrix
 
-/**
- * Multiplies this [Matrix] by another matrix and returns the result as
- * a new matrix.
- */
+/** Multiplies this [Matrix] by another matrix and returns the result as a new matrix. */
 public inline operator fun Matrix.times(m: Matrix): Matrix = Matrix(this).apply { preConcat(m) }
 
-/**
- * Returns the 9 values of this [Matrix] as a new array of floats.
- */
+/** Returns the 9 values of this [Matrix] as a new array of floats. */
 public inline fun Matrix.values(): FloatArray = FloatArray(9).apply { getValues(this) }
 
 /**
- * Creates a translation matrix with the translation amounts [tx] and [ty]
- * respectively on the `x` and `y` axis.
+ * Creates a translation matrix with the translation amounts [tx] and [ty] respectively on the `x`
+ * and `y` axis.
  */
 public fun translationMatrix(tx: Float = 0.0f, ty: Float = 0.0f): Matrix =
     Matrix().apply { setTranslate(tx, ty) }
 
 /**
- * Creates a scale matrix with the scale factor [sx] and [sy] respectively on the
- * `x` and `y` axis.
+ * Creates a scale matrix with the scale factor [sx] and [sy] respectively on the `x` and `y` axis.
  */
 public fun scaleMatrix(sx: Float = 1.0f, sy: Float = 1.0f): Matrix =
     Matrix().apply { setScale(sx, sy) }
 
 /**
- * Creates a rotation matrix, defined by a rotation angle in degrees around the pivot
- * point located at the coordinates ([px], [py]).
+ * Creates a rotation matrix, defined by a rotation angle in degrees around the pivot point located
+ * at the coordinates ([px], [py]).
  */
 public fun rotationMatrix(degrees: Float, px: Float = 0.0f, py: Float = 0.0f): Matrix =
     Matrix().apply { setRotate(degrees, px, py) }

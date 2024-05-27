@@ -21,7 +21,8 @@ package androidx.core.util
 import android.util.SparseIntArray
 
 /** Returns the number of key/value pairs in the collection. */
-public inline val SparseIntArray.size: Int get() = size()
+public inline val SparseIntArray.size: Int
+    get() = size()
 
 /** Returns true if the collection contains [key]. */
 public inline operator fun SparseIntArray.contains(key: Int): Boolean = indexOfKey(key) >= 0
@@ -78,15 +79,21 @@ public inline fun SparseIntArray.forEach(action: (key: Int, value: Int) -> Unit)
 }
 
 /** Return an iterator over the collection's keys. */
-public fun SparseIntArray.keyIterator(): IntIterator = object : IntIterator() {
-    var index = 0
-    override fun hasNext() = index < size()
-    override fun nextInt() = keyAt(index++)
-}
+public fun SparseIntArray.keyIterator(): IntIterator =
+    object : IntIterator() {
+        var index = 0
+
+        override fun hasNext() = index < size()
+
+        override fun nextInt() = keyAt(index++)
+    }
 
 /** Return an iterator over the collection's values. */
-public fun SparseIntArray.valueIterator(): IntIterator = object : IntIterator() {
-    var index = 0
-    override fun hasNext() = index < size()
-    override fun nextInt() = valueAt(index++)
-}
+public fun SparseIntArray.valueIterator(): IntIterator =
+    object : IntIterator() {
+        var index = 0
+
+        override fun hasNext() = index < size()
+
+        override fun nextInt() = valueAt(index++)
+    }

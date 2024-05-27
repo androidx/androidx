@@ -36,27 +36,21 @@ import kotlinx.coroutines.withTimeout
 
 @ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.O)
-internal class CallCompat(
-    private val call: Call
-) {
+internal class CallCompat(private val call: Call) {
     internal val icsCapabilities = mutableListOf<Capability>()
 
-    @VisibleForTesting
-    internal var capExchangeSetupComplete = false
+    @VisibleForTesting internal var capExchangeSetupComplete = false
 
     internal lateinit var onParticipantInitializationComplete: (ParticipantClientActions) -> Unit
     internal lateinit var participantStateListener: ParticipantClientActionsImpl
 
     companion object {
-        /**
-         * Current capability exchange version
-         */
+        /** Current capability exchange version */
         internal const val CAPABILITY_EXCHANGE_VERSION = 1
 
         private val TAG = CallCompat::class.simpleName
 
-        fun toCallCompat(call: Call, init: CallCompat.() -> Unit):
-            CallCompat {
+        fun toCallCompat(call: Call, init: CallCompat.() -> Unit): CallCompat {
             Log.i(TAG, "toCallCompat; call = $call")
             val callCompat = CallCompat(call)
             callCompat.init()
@@ -77,8 +71,11 @@ internal class CallCompat(
                 Result.failure(IllegalAccessException("ParticipantClientActions not setup yet."))
             }
         } else {
-            Result.failure(IllegalAccessException("The participantStateListener field in " +
-                "CallCompat was not initialized."))
+            Result.failure(
+                IllegalAccessException(
+                    "The participantStateListener field in " + "CallCompat was not initialized."
+                )
+            )
         }
     }
 
@@ -107,8 +104,7 @@ internal class CallCompat(
      * Note: Negotiation is only supported by InCallServices that support capability exchange
      * ([InCallServiceCompat.CAPABILITY_EXCHANGE]).
      *
-     * @return the capability negotiation status.
-     * between the ICS and VOIP app.
+     * @return the capability negotiation status. between the ICS and VOIP app.
      */
     internal suspend fun startCapabilityExchange() {
         Log.i(TAG, "startCapabilityExchange: Starting capability negotiation with VOIP app...")
@@ -118,10 +114,7 @@ internal class CallCompat(
         val capExchange = CapabilityExchange()
         val extras = Bundle()
         extras.putBinder(CallsManager.EXTRA_CAPABILITY_EXCHANGE_BINDER, capExchange)
-        extras.putInt(
-            CallsManager.EXTRA_CAPABILITY_EXCHANGE_VERSION,
-            CAPABILITY_EXCHANGE_VERSION
-        )
+        extras.putInt(CallsManager.EXTRA_CAPABILITY_EXCHANGE_VERSION, CAPABILITY_EXCHANGE_VERSION)
         call.sendCallEvent(CallsManager.EVENT_JETPACK_CAPABILITY_EXCHANGE, extras)
 
         // Launch a new coroutine from the context of the current coroutine and wait for task to
@@ -138,16 +131,25 @@ internal class CallCompat(
         try {
             withTimeout(CapabilityExchangeUtils.CAPABILITY_NEGOTIATION_COROUTINE_TIMEOUT) {
                 // Wait for VOIP app to return its supported capabilities.
-                if (capExchange.beginExchangeLatch.await(
+                if (
+                    capExchange.beginExchangeLatch.await(
                         CapabilityExchangeUtils.CAPABILITY_EXCHANGE_TIMEOUT,
-                        TimeUnit.MILLISECONDS)) {
-                    Log.i(TAG, "beginCapabilityNegotiationAck beginExchange returned from " +
-                        "the VOIP side.")
+                        TimeUnit.MILLISECONDS
+                    )
+                ) {
+                    Log.i(
+                        TAG,
+                        "beginCapabilityNegotiationAck beginExchange returned from " +
+                            "the VOIP side."
+                    )
 
                     setupSupportedCapabilities(capExchange)
 
-                    Log.i(TAG, "beginCapabilityNegotiationAck: " +
-                        "Completed capability exchange feature set up.")
+                    Log.i(
+                        TAG,
+                        "beginCapabilityNegotiationAck: " +
+                            "Completed capability exchange feature set up."
+                    )
                     capExchangeSetupComplete = true
                 }
             }
@@ -155,7 +157,8 @@ internal class CallCompat(
             when (e) {
                 is CancellationException -> {
                     Log.i(
-                        TAG, "beginCapabilityNegotiationAck: Capability negotiation job " +
+                        TAG,
+                        "beginCapabilityNegotiationAck: Capability negotiation job " +
                             "timed out in ICS side."
                     )
                     completeParticipantCapExchangeUnsupported()
@@ -163,9 +166,7 @@ internal class CallCompat(
                 }
                 else -> {
                     // Handle the case where the VOIP app dies:
-                    Log.i(
-                        TAG, "beginCapabilityNegotiationAck: Remote party threw exception = $e"
-                    )
+                    Log.i(TAG, "beginCapabilityNegotiationAck: Remote party threw exception = $e")
                     completeParticipantCapExchangeUnsupported()
                     // Todo: complete other extensions exceptionally
                 }
@@ -173,32 +174,34 @@ internal class CallCompat(
         }
     }
 
-    /***********************************************************************************************
-     *                           Helpers
-     *********************************************************************************************/
-
+    // Helpers
     internal fun setupSupportedCapabilities(capExchange: CapabilityExchange) {
         val voipCaps: Set<Capability> = capExchange.voipCapabilities.toSet()
 
         // icsCapabilities looks like it does not have any elements. maybe a BUG ?
         for (icsCap in icsCapabilities) {
             // Check if the VoIP app supports this capability:
-            val voipCap: Capability? = voipCaps.find {
-                it.featureId == icsCap.featureId
-            }
+            val voipCap: Capability? = voipCaps.find { it.featureId == icsCap.featureId }
 
             // If so, then initialize the listener and send the relevant callback:
             if (voipCap != null) {
-                val negotiatedActions = icsCap.supportedActions
-                    .intersect(voipCap.supportedActions.toSet())
-                val minExtVersion = min(icsCap.featureVersion,
-                    voipCap.featureVersion)
+                val negotiatedActions =
+                    icsCap.supportedActions.intersect(voipCap.supportedActions.toSet())
+                val minExtVersion = min(icsCap.featureVersion, voipCap.featureVersion)
 
                 when (icsCap.featureId) {
-                    CallsManager.PARTICIPANT -> initializeParticipantListenerAndInformVoipApp(
-                        negotiatedActions, minExtVersion, capExchange)
-                    CallsManager.CALL_ICON -> initializeCallIconListenerAndInformVoipApp(
-                        negotiatedActions, minExtVersion, capExchange)
+                    CallsManager.PARTICIPANT ->
+                        initializeParticipantListenerAndInformVoipApp(
+                            negotiatedActions,
+                            minExtVersion,
+                            capExchange
+                        )
+                    CallsManager.CALL_ICON ->
+                        initializeCallIconListenerAndInformVoipApp(
+                            negotiatedActions,
+                            minExtVersion,
+                            capExchange
+                        )
                 }
             } else {
                 when (icsCap.featureId) {
@@ -214,12 +217,16 @@ internal class CallCompat(
         minVersion: Int,
         capExchange: CapabilityExchange
     ) {
-        participantStateListener = ParticipantClientActionsImpl(negotiatedParticipantActions,
-            onParticipantInitializationComplete)
+        participantStateListener =
+            ParticipantClientActionsImpl(
+                negotiatedParticipantActions,
+                onParticipantInitializationComplete
+            )
         capExchange.capabilityExchangeListener.onCreateParticipantExtension(
             minVersion,
             negotiatedParticipantActions.toIntArray(),
-            participantStateListener)
+            participantStateListener
+        )
     }
 
     private fun initializeCallIconListenerAndInformVoipApp(
@@ -227,9 +234,12 @@ internal class CallCompat(
         minVersion: Int,
         capExchange: CapabilityExchange
     ) {
-        Log.i(TAG, "initializeCallIconListenerAndInformVoipApp: size of negotiatedActions" +
-            " = ${negotiatedCallIconActions.size}, version = $minVersion, " +
-            "capExchange = $capExchange")
+        Log.i(
+            TAG,
+            "initializeCallIconListenerAndInformVoipApp: size of negotiatedActions" +
+                " = ${negotiatedCallIconActions.size}, version = $minVersion, " +
+                "capExchange = $capExchange"
+        )
         // Todo: initialize ICallDetailsListener and send onCreateCallDetailsExtension.
     }
 

@@ -23,11 +23,13 @@ import org.junit.Test
 
 @SmallTest
 class LocationTest {
-    @Test fun destructuring() {
-        val (lat, lon) = Location("").apply {
-            latitude = 1.0
-            longitude = 2.0
-        }
+    @Test
+    fun destructuring() {
+        val (lat, lon) =
+            Location("").apply {
+                latitude = 1.0
+                longitude = 2.0
+            }
         assertEquals(lat, 1.0, 0.0)
         assertEquals(lon, 2.0, 0.0)
     }

@@ -61,8 +61,7 @@ class CallListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // inflates the card_view_design view that is used to hold list item
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.call_row, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.call_row, parent, false)
 
         return ViewHolder(view)
     }
@@ -93,7 +92,6 @@ class CallListAdapter(
                         is CallControlResult.Success -> {
                             holder.currentState.text = "CurrentState=[active]"
                         }
-
                         is CallControlResult.Error -> {
                             holder.currentState.text = CONTROL_ACTION_FAILED_MSG
                         }
@@ -109,7 +107,6 @@ class CallListAdapter(
                         is CallControlResult.Success -> {
                             holder.currentState.text = "CurrentState=[onHold]"
                         }
-
                         is CallControlResult.Error -> {
                             holder.currentState.text = CONTROL_ACTION_FAILED_MSG
                         }
@@ -121,9 +118,7 @@ class CallListAdapter(
                 CoroutineScope(Dispatchers.IO).launch {
                     endAudioRecording()
                     ItemsViewModel.callObject.mCallControl?.disconnect(
-                        DisconnectCause(
-                            DisconnectCause.LOCAL
-                        )
+                        DisconnectCause(DisconnectCause.LOCAL)
                     )
                 }
                 holder.currentState.text = "CurrentState=[null]"
@@ -144,12 +139,14 @@ class CallListAdapter(
             }
             holder.speakerButton.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
-                    val speakerEndpoint = ItemsViewModel.callObject
-                        .getEndpointType(CallEndpoint.TYPE_SPEAKER)
+                    val speakerEndpoint =
+                        ItemsViewModel.callObject.getEndpointType(CallEndpoint.TYPE_SPEAKER)
                     if (speakerEndpoint != null) {
-                        when (ItemsViewModel.callObject.mCallControl!!.requestEndpointChange(
-                            speakerEndpoint
-                        )) {
+                        when (
+                            ItemsViewModel.callObject.mCallControl!!.requestEndpointChange(
+                                speakerEndpoint
+                            )
+                        ) {
                             is CallControlResult.Success -> {
                                 holder.currentState.text = "CurrentState=[speaker]"
                             }
@@ -163,12 +160,14 @@ class CallListAdapter(
 
             holder.bluetoothButton.setOnClickListener {
                 CoroutineScope(Dispatchers.Main).launch {
-                    val bluetoothEndpoint = ItemsViewModel.callObject
-                        .getEndpointType(CallEndpoint.TYPE_BLUETOOTH)
+                    val bluetoothEndpoint =
+                        ItemsViewModel.callObject.getEndpointType(CallEndpoint.TYPE_BLUETOOTH)
                     if (bluetoothEndpoint != null) {
-                        when (ItemsViewModel.callObject.mCallControl!!.requestEndpointChange(
-                            bluetoothEndpoint
-                        )) {
+                        when (
+                            ItemsViewModel.callObject.mCallControl!!.requestEndpointChange(
+                                bluetoothEndpoint
+                            )
+                        ) {
                             is CallControlResult.Success -> {
                                 holder.currentEndpoint.text =
                                     "currentEndpoint=[BT:${bluetoothEndpoint.name}]"

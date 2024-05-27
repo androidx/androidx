@@ -53,14 +53,14 @@ internal class VoipParticipantExtensionManager(
 ) {
     // List of actions supported by the VOIP app (sanitized for potential user input error).
     private val voipSupportedActions: Set<@CallsManager.Companion.ExtensionSupportedActions Int> =
-        preprocessSupportedActions(
-            voipCapability.featureId, voipCapability.supportedActions)
+        preprocessSupportedActions(voipCapability.featureId, voipCapability.supportedActions)
 
     // Keep track of ICS subscribers. This contains the listener which the VOIP app can use to send
     // updates to the ICS, the negotiated actions between the ICS and VOIP app, as well as the
     // version, to handle backwards compatibility.
-    private val activeSubscribers: MutableMap<Int, Triple<IParticipantStateListener,
-        IntArray, Int>> = HashMap()
+    private val activeSubscribers:
+        MutableMap<Int, Triple<IParticipantStateListener, IntArray, Int>> =
+        HashMap()
 
     // Singleton that references the delegates that will be used to support the kotlin extensions
     // being added into CallControlScope for supporting capabilities.
@@ -76,9 +76,7 @@ internal class VoipParticipantExtensionManager(
     companion object {
         private val TAG = VoipParticipantExtensionManager::class.simpleName
 
-        /**
-         * Convert list of participants into a list of participant ids.
-         */
+        /** Convert list of participants into a list of participant ids. */
         internal fun resolveIdsFromParticipants(participants: Set<Participant>): IntArray {
             val participantIds = IntArray(participants.size)
             participants.forEachIndexed { index, participant ->
@@ -96,9 +94,7 @@ internal class VoipParticipantExtensionManager(
         startHandlingUpdates()
     }
 
-    /***********************************************************************************************
-     *                           Internal Functions
-     *********************************************************************************************/
+    // Internal Functions
 
     /**
      * Subscribe ICS side for updates. This is done when the VOIP app is notified that the ICS
@@ -109,7 +105,7 @@ internal class VoipParticipantExtensionManager(
      *
      * @param icsId id for the ICS that is subscribing to updates.
      * @param participantStateListener listener provided by the ICS that the VOIP uses to send
-     *                                 participant state updates.
+     *   participant state updates.
      * @param icsSupportedActions actions supported by the ICS.
      * @param version supported by the ICS.
      */
@@ -122,9 +118,7 @@ internal class VoipParticipantExtensionManager(
         Log.i(TAG, "Subscribing ICS $icsId to receive participant extension updates.")
         activeSubscribers[icsId] = Triple(participantStateListener, icsSupportedActions, version)
         var currentActiveParticipantId = CapabilityExchangeUtils.NULL_PARTICIPANT_ID
-        session.activeParticipant!!.value?.let {
-            currentActiveParticipantId = it.id
-        }
+        session.activeParticipant!!.value?.let { currentActiveParticipantId = it.id }
 
         // Todo: Version handling
         // Send initial states via ParticipantStateListener. Flows should already be instantiated
@@ -139,13 +133,15 @@ internal class VoipParticipantExtensionManager(
             // Notify the ICS that sync has been completed, providing a callback that it can
             // invoke actions on.
             participantStateListener.finishSync(
-                VoipParticipantActions(
-                    session, callChannels, voipSupportedActions
-                )
+                VoipParticipantActions(session, callChannels, voipSupportedActions)
             )
         } catch (e: Exception) {
-            CapabilityExchangeUtils.handleVoipSideUpdateExceptions(TAG!!, "subscribeToVoipUpdates",
-                CapabilityExchangeUtils.PARTICIPANT_TAG, e)
+            CapabilityExchangeUtils.handleVoipSideUpdateExceptions(
+                TAG!!,
+                "subscribeToVoipUpdates",
+                CapabilityExchangeUtils.PARTICIPANT_TAG,
+                e
+            )
             // If an exception was thrown before or during finishSync(), there's no reason to
             // consider the ICS as an active subscriber.
             unsubscribeFromUpdates(icsId)
@@ -153,22 +149,20 @@ internal class VoipParticipantExtensionManager(
     }
 
     /**
-     * Unsubscribes the ICS side from receiving updates around call detail extensions. This would
-     * be invoked when the ICS signals the VOIP side via
+     * Unsubscribes the ICS side from receiving updates around call detail extensions. This would be
+     * invoked when the ICS signals the VOIP side via
      * [CapabilityExchangeListener.onRemoveExtensions].
      *
      * @param icsId indicating which ICS to unsubscribe.
      */
     internal fun unsubscribeFromUpdates(icsId: Int): Boolean {
-        Log.i(TAG, "Unsubscribing ICS $icsId from receiving participant extension updates.");
+        Log.i(TAG, "Unsubscribing ICS $icsId from receiving participant extension updates.")
         return activeSubscribers.remove(icsId) != null
     }
 
-    /**
-     * Tear down manager to stop providing updates and clear delegate mapping.
-     */
+    /** Tear down manager to stop providing updates and clear delegate mapping. */
     internal fun tearDown() {
-        Log.i(TAG, "Tearing down participants extension.");
+        Log.i(TAG, "Tearing down participants extension.")
         // Cancel jobs providing updates.
         cancelJobs()
         // Remove delegate mapping to CallControlScope extensions defined for this session.
@@ -179,9 +173,7 @@ internal class VoipParticipantExtensionManager(
         callChannels.voipParticipantActionRequestsChannel.close()
     }
 
-    /***********************************************************************************************
-     *                           Private Helpers
-     *********************************************************************************************/
+    // Private Helpers
 
     /**
      * Register participant extension support on the VOIP side. This sets up the flows with the
@@ -193,8 +185,12 @@ internal class VoipParticipantExtensionManager(
     private fun registerParticipantExtension() {
         Log.i(TAG, "Registering participant extension for VOIP app.")
         // Create initial states and set up flows on the VOIP side for tracking updates.
-        extensionSingleton.PARTICIPANT_DELEGATE[session.getCallId()] = ParticipantApiDelegate(
-            MutableStateFlow(setOf()), MutableStateFlow(null), MutableStateFlow(setOf()))
+        extensionSingleton.PARTICIPANT_DELEGATE[session.getCallId()] =
+            ParticipantApiDelegate(
+                MutableStateFlow(setOf()),
+                MutableStateFlow(null),
+                MutableStateFlow(setOf())
+            )
     }
 
     /**
@@ -213,65 +209,83 @@ internal class VoipParticipantExtensionManager(
      * VOIP side can propagate the updates to the ICS side.
      */
     private fun processStateUpdates() {
-        participantUpdateJob = CoroutineScope(coroutineContext).launch {
-            // For each ICS, send update via respective channels.
-            session.participants?.collect {
-                for ((icsId, subscriber) in activeSubscribers.entries) {
-                    Log.i(TAG, "Updating participants state for ICS $icsId.")
-                    val participantStateListener = subscriber.first
-                    try {
-                        participantStateListener.updateParticipants(it.toTypedArray())
-                    } catch (e: Exception) {
-                        CapabilityExchangeUtils.handleVoipSideUpdateExceptions(TAG!!,
-                            "participantsUpdate", CapabilityExchangeUtils.PARTICIPANT_TAG, e)
-                    }
-                }
-            }
-        }
-
-        activeParticipantsJob = CoroutineScope(coroutineContext).launch {
-            // For each ICS, send update via respective channels.
-            session.activeParticipant?.collect { participant ->
-                var participantId = CapabilityExchangeUtils.NULL_PARTICIPANT_ID
-                participant?.let {
-                    participantId = it.id
-                }
-                // Send updates to all active ICS subscribers.
-                for ((icsId, subscriber) in activeSubscribers.entries) {
-                    Log.i(TAG, "Updating active participant state for ICS $icsId.")
-                    val participantStateListener = subscriber.first
-                    try {
-                        participantStateListener.updateActiveParticipant(participantId)
-                    } catch (e: Exception) {
-                        CapabilityExchangeUtils.handleVoipSideUpdateExceptions(TAG!!,
-                            "activeParticipantsUpdate", CapabilityExchangeUtils.PARTICIPANT_TAG, e)
-                    }
-                }
-            }
-        }
-
-        raisedHandParticipantsJob = CoroutineScope(coroutineContext).launch {
-            // For each ICS, send update via respective channels. If the action isn't supported by
-            // the VOIP app, the flow will be null and no updates will be sent to the ICS side.
-            session.raisedHandParticipants?.collect {
-                val participantIds: IntArray = resolveIdsFromParticipants(it)
-                for ((icsId, subscriber) in activeSubscribers.entries) {
-                    val icsSupportedActions = subscriber.second
-                    // Only send updates to ICS that support the raise hand action.
-                    if (isActionSupportedByIcs(icsSupportedActions,
-                            CallsManager.RAISE_HAND_ACTION)) {
-                        Log.i(TAG, "Updating raise hand state for ICS $icsId.")
+        participantUpdateJob =
+            CoroutineScope(coroutineContext).launch {
+                // For each ICS, send update via respective channels.
+                session.participants?.collect {
+                    for ((icsId, subscriber) in activeSubscribers.entries) {
+                        Log.i(TAG, "Updating participants state for ICS $icsId.")
                         val participantStateListener = subscriber.first
                         try {
-                            participantStateListener.updateRaisedHandsAction(participantIds)
+                            participantStateListener.updateParticipants(it.toTypedArray())
                         } catch (e: Exception) {
-                            CapabilityExchangeUtils.handleVoipSideUpdateExceptions(TAG!!,
-                                "raisedHandsUpdate", CapabilityExchangeUtils.PARTICIPANT_TAG, e)
+                            CapabilityExchangeUtils.handleVoipSideUpdateExceptions(
+                                TAG!!,
+                                "participantsUpdate",
+                                CapabilityExchangeUtils.PARTICIPANT_TAG,
+                                e
+                            )
                         }
                     }
                 }
             }
-        }
+
+        activeParticipantsJob =
+            CoroutineScope(coroutineContext).launch {
+                // For each ICS, send update via respective channels.
+                session.activeParticipant?.collect { participant ->
+                    var participantId = CapabilityExchangeUtils.NULL_PARTICIPANT_ID
+                    participant?.let { participantId = it.id }
+                    // Send updates to all active ICS subscribers.
+                    for ((icsId, subscriber) in activeSubscribers.entries) {
+                        Log.i(TAG, "Updating active participant state for ICS $icsId.")
+                        val participantStateListener = subscriber.first
+                        try {
+                            participantStateListener.updateActiveParticipant(participantId)
+                        } catch (e: Exception) {
+                            CapabilityExchangeUtils.handleVoipSideUpdateExceptions(
+                                TAG!!,
+                                "activeParticipantsUpdate",
+                                CapabilityExchangeUtils.PARTICIPANT_TAG,
+                                e
+                            )
+                        }
+                    }
+                }
+            }
+
+        raisedHandParticipantsJob =
+            CoroutineScope(coroutineContext).launch {
+                // For each ICS, send update via respective channels. If the action isn't supported
+                // by
+                // the VOIP app, the flow will be null and no updates will be sent to the ICS side.
+                session.raisedHandParticipants?.collect {
+                    val participantIds: IntArray = resolveIdsFromParticipants(it)
+                    for ((icsId, subscriber) in activeSubscribers.entries) {
+                        val icsSupportedActions = subscriber.second
+                        // Only send updates to ICS that support the raise hand action.
+                        if (
+                            isActionSupportedByIcs(
+                                icsSupportedActions,
+                                CallsManager.RAISE_HAND_ACTION
+                            )
+                        ) {
+                            Log.i(TAG, "Updating raise hand state for ICS $icsId.")
+                            val participantStateListener = subscriber.first
+                            try {
+                                participantStateListener.updateRaisedHandsAction(participantIds)
+                            } catch (e: Exception) {
+                                CapabilityExchangeUtils.handleVoipSideUpdateExceptions(
+                                    TAG!!,
+                                    "raisedHandsUpdate",
+                                    CapabilityExchangeUtils.PARTICIPANT_TAG,
+                                    e
+                                )
+                            }
+                        }
+                    }
+                }
+            }
     }
 
     /**
@@ -279,11 +293,10 @@ internal class VoipParticipantExtensionManager(
      * processed sequentially by the VOIP side.
      */
     private fun processActionRequests() {
-        callbackActionsJob = CoroutineScope(coroutineContext).launch {
-            callChannels.voipParticipantActionRequestsChannel.consumeEach {
-                it.processAction()
+        callbackActionsJob =
+            CoroutineScope(coroutineContext).launch {
+                callChannels.voipParticipantActionRequestsChannel.consumeEach { it.processAction() }
             }
-        }
     }
 
     /**
@@ -297,9 +310,7 @@ internal class VoipParticipantExtensionManager(
         callbackActionsJob.cancel()
     }
 
-    /***********************************************************************************************
-     *                          Internal Class Helpers
-     *********************************************************************************************/
+    // Internal Class Helpers
 
     /**
      * Encapsulates the participant extension states for V1 (participants, activeParticipant, and
@@ -312,27 +323,28 @@ internal class VoipParticipantExtensionManager(
     )
 }
 
-/***********************************************************************************************
- *                          CallControlScope Extensions
- *********************************************************************************************/
+// CallControlScope Extensions
 
 /**
- * Extension properties/ functions to be supported for voip actions. Extension properties cannot
- * be translated to backing fields so, internally, we need to resolve the APIs for each
+ * Extension properties/ functions to be supported for voip actions. Extension properties cannot be
+ * translated to backing fields so, internally, we need to resolve the APIs for each
  * CallControlScope using a delegate to mimic this behavior.
  */
 @ExperimentalAppActions
 internal val CallControlScope.activeParticipant: MutableStateFlow<Participant?>?
     @RequiresApi(Build.VERSION_CODES.O)
-    get() = CallControlScopeExtensionSingleton.getInstance()
-        .PARTICIPANT_DELEGATE[getCallId()]?.activeParticipantFlow
+    get() =
+        CallControlScopeExtensionSingleton.getInstance().PARTICIPANT_DELEGATE[getCallId()]
+            ?.activeParticipantFlow
 @ExperimentalAppActions
 internal val CallControlScope.participants: MutableStateFlow<Set<Participant>>?
     @RequiresApi(Build.VERSION_CODES.O)
-    get() = CallControlScopeExtensionSingleton.getInstance()
-        .PARTICIPANT_DELEGATE[getCallId()]?.participantsFlow
+    get() =
+        CallControlScopeExtensionSingleton.getInstance().PARTICIPANT_DELEGATE[getCallId()]
+            ?.participantsFlow
 @ExperimentalAppActions
 internal val CallControlScope.raisedHandParticipants: MutableStateFlow<Set<Participant>>?
     @RequiresApi(Build.VERSION_CODES.O)
-    get() = CallControlScopeExtensionSingleton.getInstance()
-        .PARTICIPANT_DELEGATE[getCallId()]?.raisedHandParticipantsFlow
+    get() =
+        CallControlScopeExtensionSingleton.getInstance().PARTICIPANT_DELEGATE[getCallId()]
+            ?.raisedHandParticipantsFlow

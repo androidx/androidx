@@ -57,14 +57,16 @@ class VoipExtensionRegistrationTest : BaseTelecomTest() {
     @Before
     fun setUp() {
         Utils.resetUtils()
-        extensionRegistrationMap = mapOf(
-            CallsManager.PARTICIPANT to ::verifyParticipantExtensionsInitialized
-//            CallsManager.CALL_ICON to ::verifyCallIconExtensionsInitialized
-        )
-        extensionCleanupMap = mapOf(
-            CallsManager.PARTICIPANT to ::verifyParticipantExtensionsCleanup
-//            CallsManager.CALL_ICON to ::verifyCallIconExtensionsCleanup
-        )
+        extensionRegistrationMap =
+            mapOf(
+                CallsManager.PARTICIPANT to ::verifyParticipantExtensionsInitialized
+                //            CallsManager.CALL_ICON to ::verifyCallIconExtensionsInitialized
+            )
+        extensionCleanupMap =
+            mapOf(
+                CallsManager.PARTICIPANT to ::verifyParticipantExtensionsCleanup
+                //            CallsManager.CALL_ICON to ::verifyCallIconExtensionsCleanup
+            )
     }
 
     @After
@@ -72,9 +74,11 @@ class VoipExtensionRegistrationTest : BaseTelecomTest() {
         Utils.resetUtils()
     }
 
-    /***********************************************************************************************
-     *                           V2 APIs (Android U and above) tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * V2 APIs (Android U and above) tests
+     * *******************************************************************************************
+     */
 
     /**
      * Verify that the VOIP app is able to register the participant extension if defined via
@@ -89,8 +93,8 @@ class VoipExtensionRegistrationTest : BaseTelecomTest() {
     }
 
     /**
-     * Verify that the VOIP app is able to register the call details extension if it defines
-     * support for call icons via [CallsManager#addCall].
+     * Verify that the VOIP app is able to register the call details extension if it defines support
+     * for call icons via [CallsManager#addCall].
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
@@ -101,9 +105,11 @@ class VoipExtensionRegistrationTest : BaseTelecomTest() {
         runBlocking_addCallWithVoipExtension(buildCallDetailsExtension_CallIcon())
     }
 
-    /***********************************************************************************************
-     *                           Backwards Compatibility Layer tests
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Backwards Compatibility Layer tests
+     * *******************************************************************************************
+     */
 
     /**
      * Verify that the VOIP app is able to register the participant extension if defined via
@@ -117,8 +123,8 @@ class VoipExtensionRegistrationTest : BaseTelecomTest() {
     }
 
     /**
-     * Verify that the VOIP app is able to register the call details extension if it defines
-     * support for call icons via [CallsManager#addCall].
+     * Verify that the VOIP app is able to register the call details extension if it defines support
+     * for call icons via [CallsManager#addCall].
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -129,9 +135,11 @@ class VoipExtensionRegistrationTest : BaseTelecomTest() {
         runBlocking_addCallWithVoipExtension(buildCallDetailsExtension_CallIcon())
     }
 
-    /***********************************************************************************************
-     *                           Helpers
-     *********************************************************************************************/
+    /**
+     * ********************************************************************************************
+     * Helpers
+     * *******************************************************************************************
+     */
 
     /**
      * Helper to add call with the given capability. Verify that the extension has been properly
@@ -168,10 +176,8 @@ class VoipExtensionRegistrationTest : BaseTelecomTest() {
         val participantCapability = Capability()
         participantCapability.featureId = CallsManager.PARTICIPANT
         participantCapability.featureVersion = 1
-        participantCapability.supportedActions = intArrayOf(
-            CallsManager.RAISE_HAND_ACTION,
-            CallsManager.KICK_PARTICIPANT_ACTION
-        )
+        participantCapability.supportedActions =
+            intArrayOf(CallsManager.RAISE_HAND_ACTION, CallsManager.KICK_PARTICIPANT_ACTION)
         return participantCapability
     }
 
@@ -192,24 +198,26 @@ class VoipExtensionRegistrationTest : BaseTelecomTest() {
         assertEquals(session.raisedHandParticipants!!.value, setOf<Participant>())
     }
 
-//    private fun verifyCallIconExtensionsInitialized(session: CallControlScope) {
-//        assertNotNull(session.activeCallIcon)
-//        assertNull(session.activeCallIcon!!.value)
-//    }
+    //    private fun verifyCallIconExtensionsInitialized(session: CallControlScope) {
+    //        assertNotNull(session.activeCallIcon)
+    //        assertNull(session.activeCallIcon!!.value)
+    //    }
 
     private fun verifyParticipantExtensionsCleanup(session: CallControlScope) {
         assertNotNull(session)
         assertNull(session.participants)
         assertNull(session.activeParticipant)
         assertNull(session.raisedHandParticipants)
-        assertNull(CallControlScopeExtensionSingleton.getInstance()
-            .PARTICIPANT_DELEGATE[session.getCallId()])
+        assertNull(
+            CallControlScopeExtensionSingleton.getInstance().PARTICIPANT_DELEGATE[
+                    session.getCallId()]
+        )
     }
 
-//    private fun verifyCallIconExtensionsCleanup(session: CallControlScope) {
-//        assertNotNull(session)
-//        assertNull(session.activeCallIcon)
-//        assertNull(CallControlScopeExtensionSingleton.getInstance()
-//            .CALL_DETAILS_DELEGATE[session.getCallId()])
-//    }
+    //    private fun verifyCallIconExtensionsCleanup(session: CallControlScope) {
+    //        assertNotNull(session)
+    //        assertNull(session.activeCallIcon)
+    //        assertNull(CallControlScopeExtensionSingleton.getInstance()
+    //            .CALL_DETAILS_DELEGATE[session.getCallId()])
+    //    }
 }

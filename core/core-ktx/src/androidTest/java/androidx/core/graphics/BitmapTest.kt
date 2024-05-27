@@ -29,53 +29,57 @@ import org.junit.Test
 
 @SmallTest
 class BitmapTest {
-    @Test fun create() {
+    @Test
+    fun create() {
         val bitmap = createBitmap(7, 9)
         assertEquals(7, bitmap.width)
         assertEquals(9, bitmap.height)
         assertEquals(Bitmap.Config.ARGB_8888, bitmap.config)
     }
 
-    @Test fun createWithConfig() {
+    @Test
+    fun createWithConfig() {
         val bitmap = createBitmap(7, 9, config = Bitmap.Config.RGB_565)
         assertEquals(Bitmap.Config.RGB_565, bitmap.config)
     }
 
     @SdkSuppress(minSdkVersion = 26)
-    @Test fun createWithColorSpace() {
+    @Test
+    fun createWithColorSpace() {
         val colorSpace = ColorSpace.get(ColorSpace.Named.ADOBE_RGB)
         val bitmap = createBitmap(7, 9, colorSpace = colorSpace)
         assertEquals(colorSpace, bitmap.colorSpace)
     }
 
-    @Test fun scale() {
+    @Test
+    fun scale() {
         val b = createBitmap(7, 9).scale(3, 5)
         assertEquals(3, b.width)
         assertEquals(5, b.height)
     }
 
-    @Test fun applyCanvas() {
-        val p = createBitmap(2, 2).applyCanvas {
-            drawColor(0x40302010)
-        }.getPixel(1, 1)
+    @Test
+    fun applyCanvas() {
+        val p = createBitmap(2, 2).applyCanvas { drawColor(0x40302010) }.getPixel(1, 1)
 
         assertEquals(0x40302010, p)
     }
 
-    @Test fun getPixel() {
-        val b = createBitmap(2, 2).applyCanvas {
-            drawColor(0x40302010)
-        }
+    @Test
+    fun getPixel() {
+        val b = createBitmap(2, 2).applyCanvas { drawColor(0x40302010) }
         assertEquals(0x40302010, b[1, 1])
     }
 
-    @Test fun setPixel() {
+    @Test
+    fun setPixel() {
         val b = createBitmap(2, 2)
         b[1, 1] = 0x40302010
         assertEquals(0x40302010, b[1, 1])
     }
 
-    @Test fun pointInBitmap() {
+    @Test
+    fun pointInBitmap() {
         val b = createBitmap(5, 5)
         assertTrue(Point(0, 0) in b)
         assertTrue(Point(2, 2) in b)

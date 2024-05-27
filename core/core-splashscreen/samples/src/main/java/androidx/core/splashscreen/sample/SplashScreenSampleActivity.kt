@@ -64,17 +64,14 @@ class SplashScreenSampleActivity : AppCompatActivity() {
 
         /* The code below is only for demo purposes */
         // Create some artificial delay to simulate some local database fetch for example
-        Handler(Looper.getMainLooper())
-            .postDelayed({ appReady = true }, (MOCK_DELAY).toLong())
+        Handler(Looper.getMainLooper()).postDelayed({ appReady = true }, (MOCK_DELAY).toLong())
 
         // Just a convenient button in our App to kill its process so we can play with the
         // splashscreen again and again.
         setupKillButton()
     }
 
-    /**
-     * Handles the transition from the splash screen to the application
-     */
+    /** Handles the transition from the splash screen to the application */
     private fun onSplashScreenExit(splashScreenViewProvider: SplashScreenViewProvider) {
         val accelerateInterpolator = FastOutLinearInInterpolator()
         val splashScreenView = splashScreenViewProvider.view
@@ -86,12 +83,13 @@ class SplashScreenSampleActivity : AppCompatActivity() {
         alpha.interpolator = accelerateInterpolator
 
         // And we translate the icon down
-        val translationY = ObjectAnimator.ofFloat(
-            iconView,
-            View.TRANSLATION_Y,
-            iconView.translationY,
-            splashScreenView.height.toFloat()
-        )
+        val translationY =
+            ObjectAnimator.ofFloat(
+                iconView,
+                View.TRANSLATION_Y,
+                iconView.translationY,
+                splashScreenView.height.toFloat()
+            )
         translationY.duration = SPLASHSCREEN_TY_ANIMATION_DURATION.toLong()
         translationY.interpolator = accelerateInterpolator
 
@@ -123,16 +121,13 @@ class SplashScreenSampleActivity : AppCompatActivity() {
     ) {
         // If we want to wait for our Animated Vector Drawable to finish animating, we can compute
         // the remaining time to delay the start of the exit animation
-        val delayMillis: Long = (
-            splashScreenViewProvider.iconAnimationStartMillis +
-                splashScreenViewProvider.iconAnimationDurationMillis
-            ) - System.currentTimeMillis()
+        val delayMillis: Long =
+            (splashScreenViewProvider.iconAnimationStartMillis +
+                splashScreenViewProvider.iconAnimationDurationMillis) - System.currentTimeMillis()
         view.postDelayed(delayMillis) { animatorSet.start() }
     }
 
-    /**
-     * Animates the content of the app in sync with the splash screen
-     */
+    /** Animates the content of the app in sync with the splash screen */
     private fun createContentAnimation(): ValueAnimator {
         val marginStart = resources.getDimension(R.dimen.content_animation_margin_start)
         val marginEnd = resources.getDimension(R.dimen.content_animation_margin_end)

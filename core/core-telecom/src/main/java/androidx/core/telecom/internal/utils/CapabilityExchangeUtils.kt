@@ -30,9 +30,7 @@ import androidx.core.telecom.util.ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.O)
 internal class CapabilityExchangeUtils {
     companion object {
-        /**
-         * Timeouts to help facilitate capability exchange negotiation between ICS and VOIP app.
-         */
+        /** Timeouts to help facilitate capability exchange negotiation between ICS and VOIP app. */
         internal const val CAPABILITY_EXCHANGE_TIMEOUT = 1000L
         internal const val CAPABILITY_NEGOTIATION_COROUTINE_TIMEOUT = 3000L
         internal const val ACTION_RESULT_RESPONSE_TIMEOUT = 1000L
@@ -68,7 +66,8 @@ internal class CapabilityExchangeUtils {
             rawActions: IntArray
         ): MutableSet<Int> {
             val processedActions:
-                MutableSet<@CallsManager.Companion.ExtensionSupportedActions Int> = mutableSetOf()
+                MutableSet<@CallsManager.Companion.ExtensionSupportedActions Int> =
+                mutableSetOf()
             // Track currently added actions so we don't end accounting for duplicates (user error).
             for (action in rawActions) {
                 VoipExtensionManager.EXTENSION_SUPPORTED_ACTIONS_MAPPING[featureId]?.let {
@@ -88,12 +87,20 @@ internal class CapabilityExchangeUtils {
         ) {
             when (e) {
                 is RemoteException -> {
-                    Log.w(logTag, "$prefixTag: Remote exception occurred while sending " +
-                        "$extensionMsg updates to the ICS.", e)
+                    Log.w(
+                        logTag,
+                        "$prefixTag: Remote exception occurred while sending " +
+                            "$extensionMsg updates to the ICS.",
+                        e
+                    )
                 }
                 else -> {
-                    Log.w(logTag, "$prefixTag: Exception occurred while sending " +
-                        "$extensionMsg updates to the ICS.", e)
+                    Log.w(
+                        logTag,
+                        "$prefixTag: Exception occurred while sending " +
+                            "$extensionMsg updates to the ICS.",
+                        e
+                    )
                 }
             }
         }

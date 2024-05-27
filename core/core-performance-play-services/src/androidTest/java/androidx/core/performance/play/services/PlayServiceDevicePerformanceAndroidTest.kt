@@ -57,15 +57,13 @@ class PlayServicesDevicePerformanceTest {
             InstrumentationRegistry.getInstrumentation().targetContext
         private val testDataStore: DataStore<Preferences> =
             PreferenceDataStoreFactory.create(
-                produceFile = {
-                    testContext.preferencesDataStoreFile(
-                        "test_mpc_datastore"
-                    )
-                })
+                produceFile = { testContext.preferencesDataStoreFile("test_mpc_datastore") }
+            )
     }
 
     class FakeDevicePerformanceClient : DevicePerformanceClient {
         val taskSource: TaskCompletionSource<Int> = TaskCompletionSource()
+
         override fun getApiKey(): ApiKey<Api.ApiOptions.NoOptions> {
             // method for testing purpose
             return this.apiKey
@@ -81,20 +79,15 @@ class PlayServicesDevicePerformanceTest {
 
     @After
     fun tearDown() {
-        runBlocking {
-            testDataStore.edit { it.clear() }
-        }
+        runBlocking { testDataStore.edit { it.clear() } }
     }
 
     @Test
     @MediumTest
     fun mediaPerformanceClass_EmptyStore() {
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
         Truth.assertThat(pcScore).isEqualTo(defaultMediaPerformanceClass)
     }
@@ -105,16 +98,15 @@ class PlayServicesDevicePerformanceTest {
         val clientMpc = defaultMediaPerformanceClass - 1
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
         fakeDevicePerformanceClient.taskSource.setResult(clientMpc)
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         // Waits until the DataStore is populated with at least one non-null value.
-        testDataStore.data.mapNotNull { values ->
-            // No type safety.
-            values[mpcKey]
-        }.first()
+        testDataStore.data
+            .mapNotNull { values ->
+                // No type safety.
+                values[mpcKey]
+            }
+            .first()
 
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
         Truth.assertThat(pcScore).isEqualTo(defaultMediaPerformanceClass)
@@ -126,17 +118,16 @@ class PlayServicesDevicePerformanceTest {
         val clientMpc = defaultMediaPerformanceClass + 33
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
         fakeDevicePerformanceClient.taskSource.setResult(clientMpc)
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         val mpcKey = intPreferencesKey("mpc_value")
         // Waits until the DataStore is populated with at least one non-null value.
-        testDataStore.data.mapNotNull { values ->
-            // No type safety.
-            values[mpcKey]
-        }.first()
+        testDataStore.data
+            .mapNotNull { values ->
+                // No type safety.
+                values[mpcKey]
+            }
+            .first()
 
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
         Truth.assertThat(pcScore).isEqualTo(clientMpc)
@@ -147,11 +138,8 @@ class PlayServicesDevicePerformanceTest {
     fun mediaPerformanceClass_EmptyStore_IllegalStateException() {
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
         fakeDevicePerformanceClient.taskSource.setException(IllegalStateException())
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         // Since the gms service has crashed, the library should still return default value.
         Truth.assertThat(playServicesDevicePerformance.mediaPerformanceClass)
             .isEqualTo(defaultMediaPerformanceClass)
@@ -162,11 +150,8 @@ class PlayServicesDevicePerformanceTest {
     fun mediaPerformanceClass_EmptyStore_TimeOut() {
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
         fakeDevicePerformanceClient.taskSource.setException(ApiException(Status.RESULT_TIMEOUT))
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         // Since the gms service not started, the library should still return default value.
         Truth.assertThat(playServicesDevicePerformance.mediaPerformanceClass)
             .isEqualTo(defaultMediaPerformanceClass)
@@ -177,16 +162,11 @@ class PlayServicesDevicePerformanceTest {
     fun mediaPerformanceClass_NonEmptyStore_LesserClient() = runTest {
         val datastoreMpc = defaultMediaPerformanceClass + 30
         val clientMpc = defaultMediaPerformanceClass - 10
-        testDataStore.edit { values ->
-            values[mpcKey] = datastoreMpc
-        }
+        testDataStore.edit { values -> values[mpcKey] = datastoreMpc }
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
         fakeDevicePerformanceClient.taskSource.setResult(clientMpc)
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         val pcScore = playServicesDevicePerformance.mediaPerformanceClass
         Truth.assertThat(pcScore).isEqualTo(datastoreMpc)
     }
@@ -196,26 +176,24 @@ class PlayServicesDevicePerformanceTest {
     fun mediaPerformanceClass_NonEmptyStore_HigherClient() = runTest {
         val datastoreMpc = defaultMediaPerformanceClass - 5
         val clientMpc = defaultMediaPerformanceClass + 10
-        testDataStore.edit { values ->
-            values[mpcKey] = datastoreMpc
-        }
+        testDataStore.edit { values -> values[mpcKey] = datastoreMpc }
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
         fakeDevicePerformanceClient.taskSource.setResult(clientMpc)
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         // As the client has returned a value higher than the datastore, we expect the datastore
         // to be updated by the library within 200 ms.
         runCatching {
             withTimeout(200) {
                 // Waits until the DataStore is populated with new MPC value
                 do {
-                    val mpc = testDataStore.data.mapNotNull { values ->
-                        // No type safety.
-                        values[mpcKey]
-                    }.first()
+                    val mpc =
+                        testDataStore.data
+                            .mapNotNull { values ->
+                                // No type safety.
+                                values[mpcKey]
+                            }
+                            .first()
                 } while (mpc != clientMpc)
             }
         }
@@ -227,16 +205,11 @@ class PlayServicesDevicePerformanceTest {
     @MediumTest
     fun mediaPerformanceClass_NonEmptyStore_IllegalStateException() = runTest {
         val datastoreMpc = defaultMediaPerformanceClass + 30
-        testDataStore.edit { values ->
-            values[mpcKey] = datastoreMpc
-        }
+        testDataStore.edit { values -> values[mpcKey] = datastoreMpc }
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
         fakeDevicePerformanceClient.taskSource.setException(IllegalStateException())
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         // Since the gms service has crashed, the library should still return stored value
         // in datastore.
         Truth.assertThat(playServicesDevicePerformance.mediaPerformanceClass)
@@ -247,16 +220,11 @@ class PlayServicesDevicePerformanceTest {
     @MediumTest
     fun mediaPerformanceClass_NonEmptyStore_TimeOut() = runTest {
         val datastoreMpc = defaultMediaPerformanceClass + 30
-        testDataStore.edit { values ->
-            values[mpcKey] = datastoreMpc
-        }
+        testDataStore.edit { values -> values[mpcKey] = datastoreMpc }
         val fakeDevicePerformanceClient = FakeDevicePerformanceClient()
         fakeDevicePerformanceClient.taskSource.setException(ApiException(Status.RESULT_TIMEOUT))
-        val playServicesDevicePerformance = PlayServicesDevicePerformance(
-            context,
-            fakeDevicePerformanceClient,
-            testDataStore
-        )
+        val playServicesDevicePerformance =
+            PlayServicesDevicePerformance(context, fakeDevicePerformanceClient, testDataStore)
         // Since the gms service not started, the library should still return stored value
         // in datastore
         Truth.assertThat(playServicesDevicePerformance.mediaPerformanceClass)

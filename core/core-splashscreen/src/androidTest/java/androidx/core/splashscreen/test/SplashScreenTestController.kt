@@ -38,16 +38,15 @@ internal const val EXTRA_ANIMATION_LISTENER = "AnimationListener"
 
 /**
  * If true, sets a [androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition] waiting until
- * [SplashScreenTestController.waitBarrier] is set to `false`.
- * Activity
+ * [SplashScreenTestController.waitBarrier] is set to `false`. Activity
  */
 internal const val EXTRA_SPLASHSCREEN_WAIT = "splashscreen_wait"
 
 /**
  * If set to true, takes a screenshot of the splash screen and saves it in
  * [SplashScreenTestController.splashScreenScreenshot] and a second screenshot of
- * [androidx.core.splashscreen.SplashScreenViewProvider.view]
- * and saves it in [SplashScreenTestController.splashScreenViewScreenShot]
+ * [androidx.core.splashscreen.SplashScreenViewProvider.view] and saves it in
+ * [SplashScreenTestController.splashScreenViewScreenShot]
  */
 internal const val EXTRA_SPLASHSCREEN_VIEW_SCREENSHOT = "SplashScreenViewScreenShot"
 
@@ -82,9 +81,9 @@ public class SplashScreenTestController(internal val activity: Activity) {
     /**
      * Call [onExitAnimation] when the
      * [androidx.core.splashscreen.SplashScreen.OnExitAnimationListener] is called. This requires
-     * [EXTRA_ANIMATION_LISTENER] to be set to true.
-     * If [onExitAnimation] returns true, [SplashScreenViewProvider] won't be removed and the
-     * OnExitAnimationListener returns immediately.
+     * [EXTRA_ANIMATION_LISTENER] to be set to true. If [onExitAnimation] returns true,
+     * [SplashScreenViewProvider] won't be removed and the OnExitAnimationListener returns
+     * immediately.
      */
     fun doOnExitAnimation(onExitAnimation: (SplashScreenViewProvider) -> Boolean) {
         onExitAnimationListener = onExitAnimation

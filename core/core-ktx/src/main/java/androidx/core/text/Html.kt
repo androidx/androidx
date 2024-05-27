@@ -29,11 +29,10 @@ import androidx.core.text.HtmlCompat.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
  * Returns a [Spanned] from parsing this string as HTML.
  *
  * @param flags Additional option to set the behavior of the HTML parsing. Default is set to
- * [Html.FROM_HTML_MODE_LEGACY] which was introduced in API 24.
+ *   [Html.FROM_HTML_MODE_LEGACY] which was introduced in API 24.
  * @param imageGetter Returns displayable styled text from the provided HTML string.
- * @param tagHandler Notified when HTML tags are encountered a tag the parser does
- * not know how to interpret.
- *
+ * @param tagHandler Notified when HTML tags are encountered a tag the parser does not know how to
+ *   interpret.
  * @see Html.fromHtml
  */
 public inline fun String.parseAsHtml(
@@ -47,6 +46,5 @@ public inline fun String.parseAsHtml(
  *
  * @see Html.toHtml
  */
-public inline fun Spanned.toHtml(
-    option: Int = TO_HTML_PARAGRAPH_LINES_CONSECUTIVE
-): String = HtmlCompat.toHtml(this, option)
+public inline fun Spanned.toHtml(option: Int = TO_HTML_PARAGRAPH_LINES_CONSECUTIVE): String =
+    HtmlCompat.toHtml(this, option)

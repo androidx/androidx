@@ -63,14 +63,15 @@ class PlayCompositionSignalSdk30AndAboveTest(
             ),
             HapticAttributes(HapticAttributes.USAGE_TOUCH),
         )
-        assertThat(fakeVibrator).vibratedExactly(
-            vibration(
-                CompositionPrimitive(primitive),
-                CompositionPrimitive(primitive, scale = 0.5f, delay = 50.milliseconds),
-                CompositionPrimitive(primitive, scale = 0.8f, delay = 100.milliseconds),
-                // Skips trailing 200ms delay from vibrate call
+        assertThat(fakeVibrator)
+            .vibratedExactly(
+                vibration(
+                    CompositionPrimitive(primitive),
+                    CompositionPrimitive(primitive, scale = 0.5f, delay = 50.milliseconds),
+                    CompositionPrimitive(primitive, scale = 0.8f, delay = 100.milliseconds),
+                    // Skips trailing 200ms delay from vibrate call
+                )
             )
-        )
     }
 
     companion object {
@@ -78,13 +79,14 @@ class PlayCompositionSignalSdk30AndAboveTest(
         @JvmStatic
         @Parameterized.Parameters(name = "primitive:{0}")
         fun data(): Collection<Any> {
-            val primitives = mutableListOf(
-                tick(),
-                click(),
-                slowRise(),
-                quickRise(),
-                quickFall(),
-            )
+            val primitives =
+                mutableListOf(
+                    tick(),
+                    click(),
+                    slowRise(),
+                    quickRise(),
+                    quickFall(),
+                )
             if (Build.VERSION.SDK_INT >= 31) {
                 primitives.apply {
                     add(lowTick())
@@ -108,10 +110,7 @@ class PlayCompositionSignalBelowSdk30Test(
 
     @Test
     fun play_doesNotVibrate() {
-        hapticManager.play(
-            compositionOf(primitive),
-            HapticAttributes(HapticAttributes.USAGE_TOUCH)
-        )
+        hapticManager.play(compositionOf(primitive), HapticAttributes(HapticAttributes.USAGE_TOUCH))
         assertThat(fakeVibrator).neverVibrated()
     }
 
@@ -119,16 +118,17 @@ class PlayCompositionSignalBelowSdk30Test(
 
         @JvmStatic
         @Parameterized.Parameters(name = "primitive:{0}")
-        fun data(): Collection<Any> = mutableListOf(
-            tick(),
-            click(),
-            slowRise(),
-            quickRise(),
-            quickFall(),
-            lowTick(),
-            spin(),
-            thud(),
-        )
+        fun data(): Collection<Any> =
+            mutableListOf(
+                tick(),
+                click(),
+                slowRise(),
+                quickRise(),
+                quickFall(),
+                lowTick(),
+                spin(),
+                thud(),
+            )
     }
 }
 
@@ -168,29 +168,21 @@ class PlayCompositionSignalAllSdksTest {
 
     @Test
     fun compositionOf_withNoAtom_throwsException() {
-        assertThrows(IllegalArgumentException::class.java) {
-            compositionOf()
-        }
+        assertThrows(IllegalArgumentException::class.java) { compositionOf() }
     }
 
     @Test
     fun off_withNegativeDuration_throwsException() {
-        assertThrows(IllegalArgumentException::class.java) {
-            off(durationMillis = -10)
-        }
+        assertThrows(IllegalArgumentException::class.java) { off(durationMillis = -10) }
     }
 
     @Test
     fun withAmplitudeScale_withAmplitudeLargerThanOne_throwsException() {
-        assertThrows(IllegalArgumentException::class.java) {
-            click().withAmplitudeScale(2f)
-        }
+        assertThrows(IllegalArgumentException::class.java) { click().withAmplitudeScale(2f) }
     }
 
     @Test
     fun withAmplitudeScale_withNegativeAmplitude_throwsException() {
-        assertThrows(IllegalArgumentException::class.java) {
-            click().withAmplitudeScale(-1f)
-        }
+        assertThrows(IllegalArgumentException::class.java) { click().withAmplitudeScale(-1f) }
     }
 }

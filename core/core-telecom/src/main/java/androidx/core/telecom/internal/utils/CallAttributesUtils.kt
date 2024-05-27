@@ -36,11 +36,11 @@ internal class CallAttributesUtils {
             callCapabilities: Int
         ): android.telecom.CallAttributes {
             return android.telecom.CallAttributes.Builder(
-                phoneAccountHandle,
-                direction,
-                displayName,
-                address
-            )
+                    phoneAccountHandle,
+                    direction,
+                    displayName,
+                    address
+                )
                 .setCallType(remapCallType(callType))
                 .setCallCapabilities(remapCapabilities(callCapabilities))
                 .build()

@@ -34,10 +34,7 @@ import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.remoteviews.R
 import androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems
 
-/**
- * [RemoteViewsService] to provide [RemoteViews] set using [RemoteViewsCompat.setRemoteAdapter].
- *
- */
+/** [RemoteViewsService] to provide [RemoteViews] set using [RemoteViewsCompat.setRemoteAdapter]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteViewsCompatService : RemoteViewsService() {
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
@@ -69,60 +66,60 @@ public class RemoteViewsCompatService : RemoteViewsService() {
 
         override fun getCount() = mItems.itemCount
 
-        override fun getViewAt(position: Int) = try {
-            mItems.getItemView(position)
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            // RemoteViewsAdapter may sometimes request an index that is out of bounds. Return an
-            // error view in this case. See b/242730601 for more details.
-            RemoteViews(mContext.packageName, R.layout.invalid_list_item)
-        }
+        override fun getViewAt(position: Int) =
+            try {
+                mItems.getItemView(position)
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                // RemoteViewsAdapter may sometimes request an index that is out of bounds. Return
+                // an
+                // error view in this case. See b/242730601 for more details.
+                RemoteViews(mContext.packageName, R.layout.invalid_list_item)
+            }
 
         override fun getLoadingView() = null
 
         override fun getViewTypeCount() = mItems.viewTypeCount
 
-        override fun getItemId(position: Int) = try {
-            mItems.getItemId(position)
-        } catch (e: ArrayIndexOutOfBoundsException) {
-            -1
-        }
+        override fun getItemId(position: Int) =
+            try {
+                mItems.getItemId(position)
+            } catch (e: ArrayIndexOutOfBoundsException) {
+                -1
+            }
 
         override fun hasStableIds() = mItems.hasStableIds()
 
         companion object {
-            private val EMPTY = RemoteCollectionItems(
-                ids = longArrayOf(),
-                views = emptyArray(),
-                hasStableIds = false,
-                viewTypeCount = 1
-            )
+            private val EMPTY =
+                RemoteCollectionItems(
+                    ids = longArrayOf(),
+                    views = emptyArray(),
+                    hasStableIds = false,
+                    viewTypeCount = 1
+                )
         }
     }
 
     /**
-     * Wrapper around a serialized [RemoteCollectionItems] with metadata about the versions
-     * of Android and the app when the items were created.
+     * Wrapper around a serialized [RemoteCollectionItems] with metadata about the versions of
+     * Android and the app when the items were created.
      *
-     * Our method of serialization and deserialization is to marshall and unmarshall the items to
-     * a byte array using their [Parcelable] implementation. As Parcelable definitions can change
-     * over time, it is not safe to do this across different versions of a package or Android
-     * itself. However, as app widgets are recreated on reboot or when a package is updated, this
-     * is not a problem for the approach used here.
+     * Our method of serialization and deserialization is to marshall and unmarshall the items to a
+     * byte array using their [Parcelable] implementation. As Parcelable definitions can change over
+     * time, it is not safe to do this across different versions of a package or Android itself.
+     * However, as app widgets are recreated on reboot or when a package is updated, this is not a
+     * problem for the approach used here.
      *
      * This data wrapper stores the current build of Android and the provider app at the time of
-     * serialization and deserialization is only attempted in [load] if both are the same as at
-     * the time of serialization.
+     * serialization and deserialization is only attempted in [load] if both are the same as at the
+     * time of serialization.
      */
     private class RemoteViewsCompatServiceData {
         private val mItemsBytes: ByteArray
         private val mBuildVersion: String
         private val mAppVersion: Long
 
-        private constructor(
-            itemsBytes: ByteArray,
-            buildVersion: String,
-            appVersion: Long
-        ) {
+        private constructor(itemsBytes: ByteArray, buildVersion: String, appVersion: Long) {
             mItemsBytes = itemsBytes
             mBuildVersion = buildVersion
             mAppVersion = appVersion
@@ -178,8 +175,8 @@ public class RemoteViewsCompatService : RemoteViewsService() {
             }
 
             /**
-             * Returns the stored [RemoteCollectionItems] for the widget/view id, or null if
-             * it couldn't be retrieved for any reason.
+             * Returns the stored [RemoteCollectionItems] for the widget/view id, or null if it
+             * couldn't be retrieved for any reason.
              */
             internal fun load(
                 context: Context,
@@ -233,12 +230,17 @@ public class RemoteViewsCompatService : RemoteViewsService() {
             @Suppress("DEPRECATION")
             internal fun getVersionCode(context: Context): Long? {
                 val packageManager = context.packageManager
-                val packageInfo = try {
-                    packageManager.getPackageInfo(context.packageName, 0)
-                } catch (e: PackageManager.NameNotFoundException) {
-                    Log.e(TAG, "Couldn't retrieve version code for " + context.packageManager, e)
-                    return null
-                }
+                val packageInfo =
+                    try {
+                        packageManager.getPackageInfo(context.packageName, 0)
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        Log.e(
+                            TAG,
+                            "Couldn't retrieve version code for " + context.packageManager,
+                            e
+                        )
+                        return null
+                    }
                 return PackageInfoCompat.getLongVersionCode(packageInfo)
             }
 
@@ -285,14 +287,10 @@ public class RemoteViewsCompatService : RemoteViewsService() {
         private const val EXTRA_VIEW_ID = "androidx.core.widget.extra.view_id"
 
         /**
-         * Returns an intent use with [RemoteViews.setRemoteAdapter]. These intents
-         * are uniquely identified by the [appWidgetId] and [viewId].
+         * Returns an intent use with [RemoteViews.setRemoteAdapter]. These intents are uniquely
+         * identified by the [appWidgetId] and [viewId].
          */
-        fun createIntent(
-            context: Context,
-            appWidgetId: Int,
-            viewId: Int
-        ): Intent {
+        fun createIntent(context: Context, appWidgetId: Int, viewId: Int): Intent {
             return Intent(context, RemoteViewsCompatService::class.java)
                 .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 .putExtra(EXTRA_VIEW_ID, viewId)

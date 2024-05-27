@@ -23,25 +23,24 @@ import android.content.ContentValues
  *
  * @throws IllegalArgumentException When a value is not a supported type of [ContentValues].
  */
-public fun contentValuesOf(
-    vararg pairs: Pair<String, Any?>
-): ContentValues = ContentValues(pairs.size).apply {
-    for ((key, value) in pairs) {
-        when (value) {
-            null -> putNull(key)
-            is String -> put(key, value)
-            is Int -> put(key, value)
-            is Long -> put(key, value)
-            is Boolean -> put(key, value)
-            is Float -> put(key, value)
-            is Double -> put(key, value)
-            is ByteArray -> put(key, value)
-            is Byte -> put(key, value)
-            is Short -> put(key, value)
-            else -> {
-                val valueType = value.javaClass.canonicalName
-                throw IllegalArgumentException("Illegal value type $valueType for key \"$key\"")
+public fun contentValuesOf(vararg pairs: Pair<String, Any?>): ContentValues =
+    ContentValues(pairs.size).apply {
+        for ((key, value) in pairs) {
+            when (value) {
+                null -> putNull(key)
+                is String -> put(key, value)
+                is Int -> put(key, value)
+                is Long -> put(key, value)
+                is Boolean -> put(key, value)
+                is Float -> put(key, value)
+                is Double -> put(key, value)
+                is ByteArray -> put(key, value)
+                is Byte -> put(key, value)
+                is Short -> put(key, value)
+                else -> {
+                    val valueType = value.javaClass.canonicalName
+                    throw IllegalArgumentException("Illegal value type $valueType for key \"$key\"")
+                }
             }
         }
     }
-}
