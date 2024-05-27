@@ -18,8 +18,8 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.layer.GraphicsLayer
-import androidx.compose.ui.node.FrameOfReferencePlacementDelegate
 import androidx.compose.ui.node.LookaheadCapablePlaceable
+import androidx.compose.ui.node.MotionReferencePlacementDelegate
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -483,7 +483,7 @@ abstract class Placeable : Measured {
             zIndex: Float,
             noinline layerBlock: (GraphicsLayerScope.() -> Unit)?,
         ) {
-            handleDirectManipulationPlacement()
+            handleMotionFrameOfReferencePlacement()
             placeAt(position + apparentToRealOffset, zIndex, layerBlock)
         }
 
@@ -493,7 +493,7 @@ abstract class Placeable : Measured {
             zIndex: Float,
             layer: GraphicsLayer
         ) {
-            handleDirectManipulationPlacement()
+            handleMotionFrameOfReferencePlacement()
             placeAt(position + apparentToRealOffset, zIndex, layer)
         }
 
@@ -501,37 +501,37 @@ abstract class Placeable : Measured {
          * Internal indicator to know when to tag [Placeable] as placed on the same frame of
          * reference.
          */
-        private var currentFrameOfReferencePlacement: Boolean = false
+        private var motionFrameOfReferencePlacement: Boolean = false
 
         /**
          * Placement done under [block], will have their [Placeable] placed on the same frame of
          * reference as the current layout.
          *
          * In [LayoutCoordinates], this means that the offset introduced under [block] may be
-         * excluded when calculating positions. See
-         * [LayoutCoordinates.positionInLocalFrameOfReference].
+         * excluded when calculating positions by passing `includeMotionFrameOfReference = false` in
+         * [LayoutCoordinates.localPositionOf].
          *
          * Excluding the position set by certain layouts can be helpful to trigger lookahead based
          * animation when intended. The typical case are layouts that change frequently due to a
          * provided value, like [scroll][androidx.compose.foundation.verticalScroll].
          */
-        fun withCurrentFrameOfReferencePlacement(block: PlacementScope.() -> Unit) {
-            currentFrameOfReferencePlacement = true
+        fun withMotionFrameOfReferencePlacement(block: PlacementScope.() -> Unit) {
+            motionFrameOfReferencePlacement = true
             block()
-            currentFrameOfReferencePlacement = false
+            motionFrameOfReferencePlacement = false
         }
 
         /**
-         * Updates the [FrameOfReferencePlacementDelegate.isPlacedUsingCurrentFrameOfReference] flag when called
-         * a [Placeable] is placed under [withCurrentFrameOfReferencePlacement].
+         * Updates the [MotionReferencePlacementDelegate.isPlacedUnderMotionFrameOfReference] flag
+         * when called a [Placeable] is placed under [withMotionFrameOfReferencePlacement].
          *
          * Note that the Main/Lookahead pass delegate are expected to propagate the flag to the
          * proper [LookaheadCapablePlaceable].
          */
-        private fun Placeable.handleDirectManipulationPlacement() {
-            if (this is FrameOfReferencePlacementDelegate) {
-                this.isPlacedUsingCurrentFrameOfReference =
-                    this@PlacementScope.currentFrameOfReferencePlacement
+        private fun Placeable.handleMotionFrameOfReferencePlacement() {
+            if (this is MotionReferencePlacementDelegate) {
+                this.isPlacedUnderMotionFrameOfReference =
+                    this@PlacementScope.motionFrameOfReferencePlacement
             }
         }
     }
