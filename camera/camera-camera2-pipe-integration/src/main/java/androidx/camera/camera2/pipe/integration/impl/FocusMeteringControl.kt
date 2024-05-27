@@ -30,6 +30,7 @@ import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsAutoFocusTr
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
@@ -291,6 +292,9 @@ constructor(
     ) {
         invokeOnCompletion { throwable ->
             if (throwable != null) {
+                warn(throwable) {
+                    "propagateToFocusMeteringResultDeferred: completed exceptionally!"
+                }
                 resultDeferred.completeExceptionally(throwable)
             } else {
                 val result3A = getCompleted()
