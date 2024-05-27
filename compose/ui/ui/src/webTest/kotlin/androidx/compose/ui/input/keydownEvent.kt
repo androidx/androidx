@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input
 
+import androidx.compose.ui.input.key.Key
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.KeyboardEventInit
 
@@ -24,13 +25,14 @@ internal external interface KeyboardEventInitExtended : KeyboardEventInit {
 }
 
 private fun KeyboardEventInit.keyDownEvent() = KeyboardEvent("keydown", this)
-private fun KeyboardEventInit.withKeyCode() = (this as KeyboardEventInitExtended).apply {
-    keyCode = key!!.uppercase().first().code
+private fun KeyboardEventInit.withKeyCode(keyCode: Int) = (this as KeyboardEventInitExtended).apply {
+    this.keyCode = keyCode
 }
 
 internal fun keyDownEvent(
-    c: String,
-    code: String = "Key${c.uppercase()}",
+    key: String,
+    code: String = "Key${key.uppercase()}",
+    keyCode: Int = key.uppercase().first().code,
     ctrlKey: Boolean = false,
     metaKey: Boolean = false,
     altKey: Boolean = false,
@@ -38,7 +40,7 @@ internal fun keyDownEvent(
     cancelable: Boolean = true
 ): KeyboardEvent =
     KeyboardEventInit(
-        key = c,
+        key = key,
         code = code,
         ctrlKey = ctrlKey,
         metaKey = metaKey,
@@ -46,21 +48,10 @@ internal fun keyDownEvent(
         shiftKey = shiftKey,
         cancelable = cancelable
     )
-        .withKeyCode()
+        .withKeyCode(keyCode)
         .keyDownEvent()
-
-
-internal fun keyDownEvent(
-    c: Char = 'c',
-    code: String = "Key${c.uppercase()}",
-    ctrlKey: Boolean = false,
-    metaKey: Boolean = false,
-    altKey: Boolean = false,
-    shiftKey: Boolean = false,
-    cancelable: Boolean = true
-) = keyDownEvent("$c", code, ctrlKey, metaKey, altKey, shiftKey, cancelable)
 
 internal fun keyDownEventUnprevented(): KeyboardEvent =
     KeyboardEventInit(ctrlKey = true, cancelable = true, key = "Control")
-        .withKeyCode()
+        .withKeyCode(Key.CtrlLeft.keyCode.toInt())
         .keyDownEvent()
