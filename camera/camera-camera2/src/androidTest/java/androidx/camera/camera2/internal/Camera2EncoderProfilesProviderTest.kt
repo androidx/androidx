@@ -198,6 +198,16 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
         assertThat(profiles.videoProfiles[0]).isNotNull()
     }
 
+    @LabTestRule.LabTestOnly
+    @Test
+    fun qualityHighAndLowIsNotNull() {
+        assumeTrue(
+            quality == CamcorderProfile.QUALITY_HIGH || quality == CamcorderProfile.QUALITY_LOW
+        )
+
+        assertThat(encoderProfilesProvider.getAll(quality)).isNotNull()
+    }
+
     private fun skipTestOnDevicesWithProblematicBuild() {
         // Skip test for b/265613005, b/223439995 and b/277174217
         val hasVideoProfilesQuirk = DeviceQuirks.get(InvalidVideoProfilesQuirk::class.java) != null
