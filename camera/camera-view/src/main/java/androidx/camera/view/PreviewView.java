@@ -970,7 +970,7 @@ public final class PreviewView extends FrameLayout {
         }
         mCameraController = cameraController;
         attachToControllerIfReady(/*shouldFailSilently=*/false);
-        setScreenFlashUiInfo(getScreenFlash());
+        setScreenFlashUiInfo(getScreenFlashInternal());
     }
 
     /**
@@ -1147,7 +1147,16 @@ public final class PreviewView extends FrameLayout {
     public void setScreenFlashWindow(@Nullable Window screenFlashWindow) {
         checkMainThread();
         mScreenFlashView.setScreenFlashWindow(screenFlashWindow);
-        setScreenFlashUiInfo(getScreenFlash());
+        setScreenFlashUiInfo(getScreenFlashInternal());
+    }
+
+
+    // Workaround to expose getScreenFlash as experimental, so that other APIs already using it also
+    // don't need to be annotated with experimental (e.g. PreviewView.setController)
+    @UiThread
+    @Nullable
+    private ImageCapture.ScreenFlash getScreenFlashInternal() {
+        return mScreenFlashView.getScreenFlash();
     }
 
     /**
@@ -1155,25 +1164,39 @@ public final class PreviewView extends FrameLayout {
      * on the {@link Window} instance set via {@link #setScreenFlashWindow(Window)}.
      *
      * <p> This API uses an internally managed {@link ScreenFlashView} to provide the
-     * {@link ImageCapture.ScreenFlash} implementation.
+     * {@link ImageCapture.ScreenFlash} implementation which can be passed to the
+     * {@link ImageCapture#setScreenFlash(ImageCapture.ScreenFlash)} API. The following example
+     * shows the API usage.
+     * <pre>{@code
+     * mPreviewView.setScreenFlashWindow(activity.getWindow());
+     * mImageCapture.setScreenFlash(mPreviewView.getScreenFlash());
+     * mImageCapture.setFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+     * mImageCapture.takePhoto(mCameraExecutor, mOnImageSavedCallback);
+     * }</pre>
      *
      * @return An {@link ImageCapture.ScreenFlash} implementation provided by
-     * {@link ScreenFlashView#getScreenFlash()}.
+     * {@link ScreenFlashView#getScreenFlash()} which can be null if a non-null {@code Window}
+     * instance hasn't been set.
+     *
+     * @see ScreenFlashView#getScreenFlash()
+     * @see ImageCapture#FLASH_MODE_SCREEN
      */
+    @ExperimentalPreviewViewScreenFlash
     @UiThread
     @Nullable
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public ImageCapture.ScreenFlash getScreenFlash() {
-        return mScreenFlashView.getScreenFlash();
+        return getScreenFlashInternal();
     }
 
     /**
      * Sets the color of the top overlay view during screen flash.
      *
      * @param color The color value of the top overlay.
+     *
      * @see #getScreenFlash()
+     * @see ImageCapture#FLASH_MODE_SCREEN
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @ExperimentalPreviewViewScreenFlash
     public void setScreenFlashOverlayColor(@ColorInt int color) {
         mScreenFlashView.setBackgroundColor(color);
     }
