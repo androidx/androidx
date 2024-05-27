@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
@@ -33,6 +34,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.InputStream
 import androidx.camera.camera2.pipe.OutputStream
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.core.Log
@@ -61,6 +63,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
+import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.SessionConfig
@@ -701,6 +704,8 @@ constructor(
             var operatingMode = OperatingMode.NORMAL
             val streamGroupMap = mutableMapOf<Int, MutableList<CameraStream.Config>>()
             val inputStreams = mutableListOf<InputStream.Config>()
+            var sessionTemplate = RequestTemplate(TEMPLATE_PREVIEW)
+            val sessionParameters: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf()
             sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
                 operatingMode =
                     when (sessionConfig.sessionType) {
@@ -708,6 +713,11 @@ constructor(
                         SESSION_HIGH_SPEED -> OperatingMode.HIGH_SPEED
                         else -> OperatingMode.custom(sessionConfig.sessionType)
                     }
+
+                if (sessionConfig.templateType != CaptureConfig.TEMPLATE_TYPE_NONE) {
+                    sessionTemplate = RequestTemplate(sessionConfig.templateType)
+                }
+                sessionParameters.putAll(sessionConfig.implementationOptions.toParameters())
 
                 val physicalCameraIdForAllStreams =
                     sessionConfig.toCamera2ImplConfig().getPhysicalCameraId(null)
@@ -871,6 +881,8 @@ constructor(
                 streams = streamConfigMap.keys.toList(),
                 exclusiveStreamGroups = streamGroupMap.values.toList(),
                 input = if (inputStreams.isEmpty()) null else inputStreams,
+                sessionTemplate = sessionTemplate,
+                sessionParameters = sessionParameters,
                 sessionMode = operatingMode,
                 defaultListeners = listOf(callbackMap, requestListener),
                 defaultParameters = defaultParameters,
