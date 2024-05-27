@@ -434,7 +434,7 @@ internal class ScrollingLayoutNode(
             // Tagging as direct manipulation, such that consumers of this offset can decide whether
             // to exclude this offset on their coordinates calculation. Such as whether an
             // `approachLayout` will animate it or directly apply the offset without animation.
-            withCurrentFrameOfReferencePlacement {
+            withMotionFrameOfReferencePlacement {
                 placeable.placeRelativeWithLayer(xOffset, yOffset)
             }
         }
