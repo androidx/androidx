@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.media.CamcorderProfile.QUALITY_HIGH;
+import static android.media.CamcorderProfile.QUALITY_LOW;
+
 import android.media.CamcorderProfile;
 import android.media.EncoderProfiles;
 import android.os.Build;
@@ -94,11 +97,39 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
         } else {
             EncoderProfilesProxy profiles = getProfilesInternal(quality);
             if (profiles != null && !isEncoderProfilesResolutionValidInQuirk(profiles)) {
-                profiles = null;
+                if (quality == QUALITY_HIGH) {
+                    profiles = findHighestQualityProfiles();
+                } else if (quality == QUALITY_LOW) {
+                    profiles = findLowestQualityProfiles();
+                } else {
+                    profiles = null;
+                }
             }
             mEncoderProfilesCache.put(quality, profiles);
             return profiles;
         }
+    }
+
+    @Nullable
+    private EncoderProfilesProxy findHighestQualityProfiles() {
+        for (int quality : QUALITY_HIGH_TO_LOW) {
+            EncoderProfilesProxy profiles = getAll(quality);
+            if (profiles != null) {
+                return profiles;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private EncoderProfilesProxy findLowestQualityProfiles() {
+        for (int quality = QUALITY_HIGH_TO_LOW.size() - 1; quality >= 0; quality--) {
+            EncoderProfilesProxy profiles = getAll(quality);
+            if (profiles != null) {
+                return profiles;
+            }
+        }
+        return null;
     }
 
     @Nullable
