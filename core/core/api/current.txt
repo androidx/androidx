@@ -660,6 +660,7 @@ package androidx.core.app {
 
   public static class NotificationCompat.DecoratedCustomViewStyle extends androidx.core.app.NotificationCompat.Style {
     ctor public NotificationCompat.DecoratedCustomViewStyle();
+    method @RequiresApi(24) public static java.util.List<java.lang.CharSequence!> getTextsFromContentView(android.content.Context, android.app.Notification);
   }
 
   public static interface NotificationCompat.Extender {
