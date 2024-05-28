@@ -69,6 +69,7 @@ class BaselineProfile {
     private val PROGRESSINDICATORS = "progressindicators"
     private val PROGRESS_INDICATOR_INDETERMINATE = "progress-indicator-indeterminate"
     private val RADIO_BUTTON = "radio-button"
+    private val SELECTABLE_CHIP = "selectable-chip"
     private val SLIDER = "slider"
     private val STEPPER = "stepper"
     private val SWIPE_TO_REVEAL = "swipe-to-reveal"
@@ -100,26 +101,26 @@ class BaselineProfile {
 
     private fun MacrobenchmarkScope.testChips() {
         findAndClick(By.desc(CHIPS))
-        device.waitForIdle()
         findAndClick(By.desc(CHECKBOX))
         findAndClick(By.desc(RADIO_BUTTON))
         findAndClick(By.desc(SWITCH))
+        findAndClick(By.desc(SELECTABLE_CHIP))
+        device.waitForIdle()
         device.pressBack()
         device.waitForIdle()
     }
 
     private fun MacrobenchmarkScope.testDialogs() {
         findAndClick(By.desc(DIALOGS))
-        device.waitForIdle()
         testDestination(description = ALERT_DIALOG)
         testDestination(description = CONFIRMATION_DIALOG)
+        device.waitForIdle()
         device.pressBack()
         device.waitForIdle()
     }
 
     private fun MacrobenchmarkScope.testExpandables() {
         findAndClick(By.desc(EXPANDABLES))
-        device.waitForIdle()
         // Expand the bottom expandable first for other to be on screen
         findAndClick(By.desc(EXPAND_TEXT))
         findAndClick(By.desc(EXPAND_ITEMS))
@@ -131,11 +132,10 @@ class BaselineProfile {
     private fun MacrobenchmarkScope.testProgressIndicators() {
         // swipe down for the "Progress Indicator" button to be on screen
         device.executeShellCommand("input swipe 250 200 250 100 300")
-        device.waitForIdle()
         findAndClick(By.desc(PROGRESSINDICATORS))
-        device.waitForIdle()
         testDestination(description = PROGRESS_INDICATOR)
         testDestination(description = PROGRESS_INDICATOR_INDETERMINATE)
+        device.waitForIdle()
         device.pressBack()
         device.waitForIdle()
     }
@@ -148,8 +148,17 @@ class BaselineProfile {
     }
 
     private fun MacrobenchmarkScope.findAndClick(selector: BySelector) {
-        device.wait(Until.findObject(selector), 3000)
-        device.findObject(selector).click()
+        device.waitForIdle()
+        var clicked = false
+        do {
+            val obj = device.wait(Until.findObject(selector), 5000)
+            try {
+                obj.click()
+                clicked = true
+            } catch (_: Exception) {
+                device.waitForIdle()
+            }
+        } while (!clicked)
     }
 
     companion object {
