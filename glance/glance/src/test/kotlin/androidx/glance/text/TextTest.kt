@@ -41,64 +41,64 @@ class TextTest {
     }
 
     @Test
-    fun createComposableText() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Text("text")
+    fun createComposableText() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Text("text") }
+
+            assertThat(root.children).hasSize(1)
+            val text = assertIs<EmittableText>(root.children[0])
+            assertThat(text.text).isEqualTo("text")
         }
 
-        assertThat(root.children).hasSize(1)
-        val text = assertIs<EmittableText>(root.children[0])
-        assertThat(text.text).isEqualTo("text")
-    }
-
     @Test
-    fun createComposableTextWithStyle() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Text(
-                "text",
-                style = TextStyle(
-                    fontSize = 20.sp,
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Medium
+    fun createComposableTextWithStyle() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Text(
+                    "text",
+                    style =
+                        TextStyle(
+                            fontSize = 20.sp,
+                            fontStyle = FontStyle.Italic,
+                            fontWeight = FontWeight.Medium
+                        )
                 )
-            )
-        }
+            }
 
-        assertThat(root.children).hasSize(1)
-        val text = assertIs<EmittableText>(root.children[0])
-        assertThat(text.text).isEqualTo("text")
-        assertThat(text.style)
-            .isEqualTo(
-                TextStyle(
-                    fontSize = 20.sp,
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Medium
+            assertThat(root.children).hasSize(1)
+            val text = assertIs<EmittableText>(root.children[0])
+            assertThat(text.text).isEqualTo("text")
+            assertThat(text.style)
+                .isEqualTo(
+                    TextStyle(
+                        fontSize = 20.sp,
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Medium
+                    )
                 )
-            )
-    }
-
-    @Test
-    fun createComposableTextWithModifiers() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Text("text", modifier = GlanceModifier.fillMaxWidth())
         }
 
-        assertThat(root.children).hasSize(1)
-        val text = assertIs<EmittableText>(root.children[0])
-        assertThat(text.modifier.findModifier<WidthModifier>()?.width)
-            .isEqualTo(Dimension.Fill)
-    }
-
     @Test
-    fun createComposableTextWithMaxLines() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-          Text("text", maxLines = 3)
+    fun createComposableTextWithModifiers() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Text("text", modifier = GlanceModifier.fillMaxWidth())
+            }
+
+            assertThat(root.children).hasSize(1)
+            val text = assertIs<EmittableText>(root.children[0])
+            assertThat(text.modifier.findModifier<WidthModifier>()?.width).isEqualTo(Dimension.Fill)
         }
 
-        assertThat(root.children).hasSize(1)
-        val text = assertIs<EmittableText>(root.children[0])
-        assertThat(text.maxLines).isEqualTo(3)
-    }
+    @Test
+    fun createComposableTextWithMaxLines() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Text("text", maxLines = 3) }
+
+            assertThat(root.children).hasSize(1)
+            val text = assertIs<EmittableText>(root.children[0])
+            assertThat(text.maxLines).isEqualTo(3)
+        }
 
     @Test
     fun textDecoration_plus() {
@@ -116,13 +116,14 @@ class TextTest {
     }
 
     @Test
-    fun textAlign() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Text("text", style = TextStyle(textAlign = TextAlign.Center))
-        }
+    fun textAlign() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Text("text", style = TextStyle(textAlign = TextAlign.Center))
+            }
 
-        assertThat(root.children).hasSize(1)
-        val child = assertIs<EmittableText>(root.children[0])
-        assertThat(child.style?.textAlign).isEqualTo(TextAlign.Center)
-    }
+            assertThat(root.children).hasSize(1)
+            val child = assertIs<EmittableText>(root.children[0])
+            assertThat(child.style?.textAlign).isEqualTo(TextAlign.Center)
+        }
 }

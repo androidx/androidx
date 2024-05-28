@@ -84,403 +84,444 @@ class TextTranslatorTest {
     }
 
     @Test
-    fun canTranslateText() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text("test")
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate { Text("test") }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view.text.toString()).isEqualTo("test")
-    }
+            assertIs<TextView>(view)
+            assertThat(view.text.toString()).isEqualTo("test")
+        }
 
     @Test
     @Config(sdk = [23, 29])
-    fun canTranslateText_withStyleWeightAndSize() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withStyleWeightAndSize() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text(
+                        "test",
+                        style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp),
+                    )
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view.textSize).isEqualTo(12.sp.toPixels(displayMetrics))
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<TextAppearanceSpan> {
-            if (Build.VERSION.SDK_INT >= 29) {
-                assertThat(it.textFontWeight).isEqualTo(FontWeight.Medium.value)
-                // Note: textStyle is always set, but to NORMAL if unspecified
-                assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
-            } else {
-                assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
+            assertIs<TextView>(view)
+            assertThat(view.textSize).isEqualTo(12.sp.toPixels(displayMetrics))
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<TextAppearanceSpan> {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    assertThat(it.textFontWeight).isEqualTo(FontWeight.Medium.value)
+                    // Note: textStyle is always set, but to NORMAL if unspecified
+                    assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
+                } else {
+                    assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
+                }
             }
         }
-    }
 
     @Test
-    fun canTranslateText_withMonoFontFamily() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(fontFamily = FontFamily.Monospace),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withMonoFontFamily() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text(
+                        "test",
+                        style = TextStyle(fontFamily = FontFamily.Monospace),
+                    )
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<TypefaceSpan> { span ->
-            assertThat(span.family).isEqualTo("monospace")
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<TypefaceSpan> { span ->
+                assertThat(span.family).isEqualTo("monospace")
+            }
         }
-    }
 
     @Test
-    fun canTranslateText_withMonoSerifFamily() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(fontFamily = FontFamily.Serif),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withMonoSerifFamily() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text(
+                        "test",
+                        style = TextStyle(fontFamily = FontFamily.Serif),
+                    )
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<TypefaceSpan> { span ->
-            assertThat(span.family).isEqualTo("serif")
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<TypefaceSpan> { span ->
+                assertThat(span.family).isEqualTo("serif")
+            }
         }
-    }
 
     @Test
-    fun canTranslateText_withSansFontFamily() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(fontFamily = FontFamily.SansSerif),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withSansFontFamily() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text(
+                        "test",
+                        style = TextStyle(fontFamily = FontFamily.SansSerif),
+                    )
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<TypefaceSpan> { span ->
-            assertThat(span.family).isEqualTo("sans-serif")
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<TypefaceSpan> { span ->
+                assertThat(span.family).isEqualTo("sans-serif")
+            }
         }
-    }
 
     @Test
-    fun canTranslateText_withCursiveFontFamily() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(fontFamily = FontFamily.Cursive),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withCursiveFontFamily() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text(
+                        "test",
+                        style = TextStyle(fontFamily = FontFamily.Cursive),
+                    )
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<TypefaceSpan> { span ->
-            assertThat(span.family).isEqualTo("cursive")
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<TypefaceSpan> { span ->
+                assertThat(span.family).isEqualTo("cursive")
+            }
         }
-    }
 
     @Test
-    fun canTranslateText_withCustomFontFamily() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(fontFamily = FontFamily("casual")),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withCustomFontFamily() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text(
+                        "test",
+                        style = TextStyle(fontFamily = FontFamily("casual")),
+                    )
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<TypefaceSpan> { span ->
-            assertThat(span.family).isEqualTo("casual")
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<TypefaceSpan> { span ->
+                assertThat(span.family).isEqualTo("casual")
+            }
         }
-    }
 
     @Test
-    fun canTranslateText_withStyleStrikeThrough() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text("test", style = TextStyle(textDecoration = TextDecoration.LineThrough))
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withStyleStrikeThrough() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text("test", style = TextStyle(textDecoration = TextDecoration.LineThrough))
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<StrikethroughSpan> { }
-    }
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<StrikethroughSpan> {}
+        }
 
     @Test
-    fun canTranslateText_withStyleUnderline() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text("test", style = TextStyle(textDecoration = TextDecoration.Underline))
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withStyleUnderline() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text("test", style = TextStyle(textDecoration = TextDecoration.Underline))
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<UnderlineSpan> { }
-    }
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<UnderlineSpan> {}
+        }
 
     @Test
-    fun canTranslateText_withStyleItalic() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text("test", style = TextStyle(fontStyle = FontStyle.Italic))
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withStyleItalic() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text("test", style = TextStyle(fontStyle = FontStyle.Italic))
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        content.checkSingleSpan<StyleSpan> {
-            assertThat(it.style).isEqualTo(Typeface.ITALIC)
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            content.checkSingleSpan<StyleSpan> { assertThat(it.style).isEqualTo(Typeface.ITALIC) }
         }
-    }
 
     @Test
     @Config(sdk = [23, 29])
-    fun canTranslateText_withComplexStyle() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text(
-                "test",
-                style = TextStyle(
-                    textDecoration = TextDecoration.Underline + TextDecoration.LineThrough,
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Bold,
-                ),
-            )
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withComplexStyle() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text(
+                        "test",
+                        style =
+                            TextStyle(
+                                textDecoration =
+                                    TextDecoration.Underline + TextDecoration.LineThrough,
+                                fontStyle = FontStyle.Italic,
+                                fontWeight = FontWeight.Bold,
+                            ),
+                    )
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        val content = view.text as SpannedString
-        assertThat(content.toString()).isEqualTo("test")
-        assertThat(content.getSpans(0, content.length, Any::class.java)).hasLength(4)
-        content.checkHasSingleTypedSpan<UnderlineSpan> { }
-        content.checkHasSingleTypedSpan<StrikethroughSpan> { }
-        content.checkHasSingleTypedSpan<StyleSpan> {
-            assertThat(it.style).isEqualTo(Typeface.ITALIC)
+            assertIs<TextView>(view)
+            val content = view.text as SpannedString
+            assertThat(content.toString()).isEqualTo("test")
+            assertThat(content.getSpans(0, content.length, Any::class.java)).hasLength(4)
+            content.checkHasSingleTypedSpan<UnderlineSpan> {}
+            content.checkHasSingleTypedSpan<StrikethroughSpan> {}
+            content.checkHasSingleTypedSpan<StyleSpan> {
+                assertThat(it.style).isEqualTo(Typeface.ITALIC)
+            }
+            content.checkHasSingleTypedSpan<TextAppearanceSpan> {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    assertThat(it.textFontWeight).isEqualTo(FontWeight.Bold.value)
+                    // Note: textStyle is always set, but to NORMAL if unspecified
+                    assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
+                } else {
+                    assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
+                }
+            }
         }
-        content.checkHasSingleTypedSpan<TextAppearanceSpan> {
-            if (Build.VERSION.SDK_INT >= 29) {
-                assertThat(it.textFontWeight).isEqualTo(FontWeight.Bold.value)
-                // Note: textStyle is always set, but to NORMAL if unspecified
-                assertThat(it.textStyle).isEqualTo(Typeface.NORMAL)
+
+    @Test
+    fun canTranslateText_withAlignments() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Column(modifier = GlanceModifier.fillMaxWidth()) {
+                        Text("Center", style = TextStyle(textAlign = TextAlign.Center))
+                        Text("Left", style = TextStyle(textAlign = TextAlign.Left))
+                        Text("Right", style = TextStyle(textAlign = TextAlign.Right))
+                        Text("Start", style = TextStyle(textAlign = TextAlign.Start))
+                        Text("End", style = TextStyle(textAlign = TextAlign.End))
+                    }
+                }
+            val view = context.applyRemoteViews(rv)
+
+            assertIs<LinearLayout>(view)
+            assertThat(view.nonGoneChildCount).isEqualTo(5)
+            val (center, left, right, start, end) = view.nonGoneChildren.toList()
+            assertIs<TextView>(center)
+            assertIs<TextView>(left)
+            assertIs<TextView>(right)
+            assertIs<TextView>(start)
+            assertIs<TextView>(end)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                assertThat(center.horizontalGravity).isEqualTo(Gravity.CENTER_HORIZONTAL)
+                assertThat(left.horizontalGravity).isEqualTo(Gravity.LEFT)
+                assertThat(right.horizontalGravity).isEqualTo(Gravity.RIGHT)
+                assertThat(start.horizontalGravity).isEqualTo(Gravity.START)
+                assertThat(end.horizontalGravity).isEqualTo(Gravity.END)
             } else {
-                assertThat(it.textStyle).isEqualTo(Typeface.BOLD)
+                assertIs<SpannedString>(center.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_CENTER)
+                }
+                assertIs<SpannedString>(left.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
+                }
+                assertIs<SpannedString>(right.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
+                }
+                assertIs<SpannedString>(start.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
+                }
+                assertIs<SpannedString>(end.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
+                }
             }
         }
-    }
 
     @Test
-    fun canTranslateText_withAlignments() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Column(modifier = GlanceModifier.fillMaxWidth()) {
-                Text("Center", style = TextStyle(textAlign = TextAlign.Center))
-                Text("Left", style = TextStyle(textAlign = TextAlign.Left))
-                Text("Right", style = TextStyle(textAlign = TextAlign.Right))
-                Text("Start", style = TextStyle(textAlign = TextAlign.Start))
-                Text("End", style = TextStyle(textAlign = TextAlign.End))
+    fun canTranslateText_withAlignmentsInRtl() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslateInRtl {
+                    Column(modifier = GlanceModifier.fillMaxWidth()) {
+                        Text("Center", style = TextStyle(textAlign = TextAlign.Center))
+                        Text("Left", style = TextStyle(textAlign = TextAlign.Left))
+                        Text("Right", style = TextStyle(textAlign = TextAlign.Right))
+                        Text("Start", style = TextStyle(textAlign = TextAlign.Start))
+                        Text("End", style = TextStyle(textAlign = TextAlign.End))
+                    }
+                }
+            val view = context.applyRemoteViews(rv)
+
+            assertIs<LinearLayout>(view)
+            assertThat(view.nonGoneChildCount).isEqualTo(5)
+            val (center, left, right, start, end) = view.nonGoneChildren.toList()
+            assertIs<TextView>(center)
+            assertIs<TextView>(left)
+            assertIs<TextView>(right)
+            assertIs<TextView>(start)
+            assertIs<TextView>(end)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                assertThat(center.horizontalGravity).isEqualTo(Gravity.CENTER_HORIZONTAL)
+                assertThat(left.horizontalGravity).isEqualTo(Gravity.LEFT)
+                assertThat(right.horizontalGravity).isEqualTo(Gravity.RIGHT)
+                assertThat(start.horizontalGravity).isEqualTo(Gravity.START)
+                assertThat(end.horizontalGravity).isEqualTo(Gravity.END)
+            } else {
+                assertIs<SpannedString>(center.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_CENTER)
+                }
+                assertIs<SpannedString>(left.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
+                }
+                assertIs<SpannedString>(right.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
+                }
+                assertIs<SpannedString>(start.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
+                }
+                assertIs<SpannedString>(end.text).checkSingleSpan<AlignmentSpan.Standard> {
+                    assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
+                }
             }
         }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<LinearLayout>(view)
-        assertThat(view.nonGoneChildCount).isEqualTo(5)
-        val (center, left, right, start, end) = view.nonGoneChildren.toList()
-        assertIs<TextView>(center)
-        assertIs<TextView>(left)
-        assertIs<TextView>(right)
-        assertIs<TextView>(start)
-        assertIs<TextView>(end)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            assertThat(center.horizontalGravity).isEqualTo(Gravity.CENTER_HORIZONTAL)
-            assertThat(left.horizontalGravity).isEqualTo(Gravity.LEFT)
-            assertThat(right.horizontalGravity).isEqualTo(Gravity.RIGHT)
-            assertThat(start.horizontalGravity).isEqualTo(Gravity.START)
-            assertThat(end.horizontalGravity).isEqualTo(Gravity.END)
-        } else {
-            assertIs<SpannedString>(center.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_CENTER)
-            }
-            assertIs<SpannedString>(left.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
-            }
-            assertIs<SpannedString>(right.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
-            }
-            assertIs<SpannedString>(start.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
-            }
-            assertIs<SpannedString>(end.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
-            }
-        }
-    }
 
     @Test
-    fun canTranslateText_withAlignmentsInRtl() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslateInRtl {
-            Column(modifier = GlanceModifier.fillMaxWidth()) {
-                Text("Center", style = TextStyle(textAlign = TextAlign.Center))
-                Text("Left", style = TextStyle(textAlign = TextAlign.Left))
-                Text("Right", style = TextStyle(textAlign = TextAlign.Right))
-                Text("Start", style = TextStyle(textAlign = TextAlign.Start))
-                Text("End", style = TextStyle(textAlign = TextAlign.End))
-            }
+    fun canTranslateText_withColor_fixed() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Column {
+                        Text("Blue", style = TextStyle(color = ColorProvider(Color.Blue)))
+                        Text("Red", style = TextStyle(color = ColorProvider(Color.Red)))
+                    }
+                }
+            val view = context.applyRemoteViews(rv)
+
+            assertIs<LinearLayout>(view)
+            assertThat(view.nonGoneChildCount).isEqualTo(2)
+
+            val (blue, red) = view.nonGoneChildren.toList()
+            assertIs<TextView>(blue)
+            assertIs<TextView>(red)
+            assertThat(blue).hasTextColor(android.graphics.Color.BLUE)
+            assertThat(red).hasTextColor(android.graphics.Color.RED)
         }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<LinearLayout>(view)
-        assertThat(view.nonGoneChildCount).isEqualTo(5)
-        val (center, left, right, start, end) = view.nonGoneChildren.toList()
-        assertIs<TextView>(center)
-        assertIs<TextView>(left)
-        assertIs<TextView>(right)
-        assertIs<TextView>(start)
-        assertIs<TextView>(end)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            assertThat(center.horizontalGravity).isEqualTo(Gravity.CENTER_HORIZONTAL)
-            assertThat(left.horizontalGravity).isEqualTo(Gravity.LEFT)
-            assertThat(right.horizontalGravity).isEqualTo(Gravity.RIGHT)
-            assertThat(start.horizontalGravity).isEqualTo(Gravity.START)
-            assertThat(end.horizontalGravity).isEqualTo(Gravity.END)
-        } else {
-            assertIs<SpannedString>(center.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_CENTER)
-            }
-            assertIs<SpannedString>(left.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
-            }
-            assertIs<SpannedString>(right.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
-            }
-            assertIs<SpannedString>(start.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL)
-            }
-            assertIs<SpannedString>(end.text).checkSingleSpan<AlignmentSpan.Standard> {
-                assertThat(it.alignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE)
-            }
-        }
-    }
-
-    @Test
-    fun canTranslateText_withColor_fixed() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Column {
-                Text("Blue", style = TextStyle(color = ColorProvider(Color.Blue)))
-                Text("Red", style = TextStyle(color = ColorProvider(Color.Red)))
-            }
-        }
-        val view = context.applyRemoteViews(rv)
-
-        assertIs<LinearLayout>(view)
-        assertThat(view.nonGoneChildCount).isEqualTo(2)
-
-        val (blue, red) = view.nonGoneChildren.toList()
-        assertIs<TextView>(blue)
-        assertIs<TextView>(red)
-        assertThat(blue).hasTextColor(android.graphics.Color.BLUE)
-        assertThat(red).hasTextColor(android.graphics.Color.RED)
-    }
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateText_withColor_resource_light() = fakeCoroutineScope.runTest {
-        val rv = lightContext.runAndTranslate {
-            Text("GrayResource", style = TextStyle(color = ColorProvider(R.color.my_color)))
-        }
-        val view = lightContext.applyRemoteViews(rv)
+    fun canTranslateText_withColor_resource_light() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                lightContext.runAndTranslate {
+                    Text("GrayResource", style = TextStyle(color = ColorProvider(R.color.my_color)))
+                }
+            val view = lightContext.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view).hasTextColor("#EEEEEE")
-    }
+            assertIs<TextView>(view)
+            assertThat(view).hasTextColor("#EEEEEE")
+        }
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateText_withColor_resource_dark() = fakeCoroutineScope.runTest {
-        val rv = darkContext.runAndTranslate {
-            Text("GrayResource", style = TextStyle(color = ColorProvider(R.color.my_color)))
-        }
-        val view = darkContext.applyRemoteViews(rv)
+    fun canTranslateText_withColor_resource_dark() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                darkContext.runAndTranslate {
+                    Text("GrayResource", style = TextStyle(color = ColorProvider(R.color.my_color)))
+                }
+            val view = darkContext.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view).hasTextColor("#111111")
-    }
+            assertIs<TextView>(view)
+            assertThat(view).hasTextColor("#111111")
+        }
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateText_withColor_dayNight_light() = fakeCoroutineScope.runTest {
-        val rv = lightContext.runAndTranslate {
-            Text(
-                "Green day / Magenta night",
-                style = TextStyle(color = ColorProvider(day = Color.Green, night = Color.Magenta))
-            )
-        }
-        val view = lightContext.applyRemoteViews(rv)
+    fun canTranslateText_withColor_dayNight_light() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                lightContext.runAndTranslate {
+                    Text(
+                        "Green day / Magenta night",
+                        style =
+                            TextStyle(
+                                color = ColorProvider(day = Color.Green, night = Color.Magenta)
+                            )
+                    )
+                }
+            val view = lightContext.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view).hasTextColor(android.graphics.Color.GREEN)
-    }
+            assertIs<TextView>(view)
+            assertThat(view).hasTextColor(android.graphics.Color.GREEN)
+        }
 
     @Config(minSdk = 29)
     @Test
-    fun canTranslateText_withColor_dayNight_dark() = fakeCoroutineScope.runTest {
-        val rv = darkContext.runAndTranslate {
-            Text(
-                "Green day / Magenta night",
-                style = TextStyle(color = ColorProvider(day = Color.Green, night = Color.Magenta))
-            )
-        }
-        val view = darkContext.applyRemoteViews(rv)
+    fun canTranslateText_withColor_dayNight_dark() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                darkContext.runAndTranslate {
+                    Text(
+                        "Green day / Magenta night",
+                        style =
+                            TextStyle(
+                                color = ColorProvider(day = Color.Green, night = Color.Magenta)
+                            )
+                    )
+                }
+            val view = darkContext.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view).hasTextColor(android.graphics.Color.MAGENTA)
-    }
+            assertIs<TextView>(view)
+            assertThat(view).hasTextColor(android.graphics.Color.MAGENTA)
+        }
 
     @Test
-    fun canTranslateText_withMaxLines() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text("Max line is set", maxLines = 5)
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateText_withMaxLines() =
+        fakeCoroutineScope.runTest {
+            val rv = context.runAndTranslate { Text("Max line is set", maxLines = 5) }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view.maxLines).isEqualTo(5)
-    }
+            assertIs<TextView>(view)
+            assertThat(view.maxLines).isEqualTo(5)
+        }
 
     @Test
-    fun canTranslateTextWithSemanticsModifier_contentDescription() = fakeCoroutineScope.runTest {
-        val rv = context.runAndTranslate {
-            Text(
-                text = "Max line is set",
-                maxLines = 5,
-                modifier = GlanceModifier.semantics {
-                    contentDescription = "Custom text description"
-                },
-            )
-        }
-        val view = context.applyRemoteViews(rv)
+    fun canTranslateTextWithSemanticsModifier_contentDescription() =
+        fakeCoroutineScope.runTest {
+            val rv =
+                context.runAndTranslate {
+                    Text(
+                        text = "Max line is set",
+                        maxLines = 5,
+                        modifier =
+                            GlanceModifier.semantics {
+                                contentDescription = "Custom text description"
+                            },
+                    )
+                }
+            val view = context.applyRemoteViews(rv)
 
-        assertIs<TextView>(view)
-        assertThat(view.contentDescription).isEqualTo("Custom text description")
-    }
+            assertIs<TextView>(view)
+            assertThat(view.contentDescription).isEqualTo("Custom text description")
+        }
 
     private val TextView.horizontalGravity
         get() = this.gravity and Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK

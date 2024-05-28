@@ -22,16 +22,18 @@ import androidx.annotation.RestrictTo.Scope
 /**
  * Represents a Glance node from the tree that can be asserted on.
  *
- * An instance of [GlanceNodeAssertion] can be obtained from `onNode` and equivalent methods
- * on a [GlanceNodeAssertionsProvider]
+ * An instance of [GlanceNodeAssertion] can be obtained from `onNode` and equivalent methods on a
+ * [GlanceNodeAssertionsProvider]
  */
-class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP) constructor(
+class GlanceNodeAssertion<R, T : GlanceNode<R>>
+@RestrictTo(Scope.LIBRARY_GROUP)
+constructor(
     private val testContext: TestContext<R, T>,
     private val selector: GlanceNodeSelector<R>,
 ) {
     /**
      * Asserts that the node was found.
-
+     *
      * @throws [AssertionError] if the assert fails.
      */
     fun assertExists(): GlanceNodeAssertion<R, T> {
@@ -41,7 +43,7 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
 
     /**
      * Asserts that no matching node was found.
-
+     *
      * @throws [AssertionError] if the assert fails.
      */
     fun assertDoesNotExist(): GlanceNodeAssertion<R, T> {
@@ -51,11 +53,12 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
             throw AssertionError(
                 buildErrorMessageWithReason(
                     errorMessageOnFail = errorMessageOnFail,
-                    reason = buildErrorReasonForCountMismatch(
-                        matcherDescription = selector.description,
-                        expectedCount = 0,
-                        actualCount = matchedNodesCount
-                    )
+                    reason =
+                        buildErrorReasonForCountMismatch(
+                            matcherDescription = selector.description,
+                            expectedCount = 0,
+                            actualCount = matchedNodesCount
+                        )
                 )
             )
         }
@@ -65,14 +68,13 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
     /**
      * Asserts that the provided [matcher] is satisfied for this node.
      *
-     * <p> This function also can be used to create convenience "assert{somethingConcrete}"
-     * methods as extension functions on the GlanceNodeAssertion.
+     * <p> This function also can be used to create convenience "assert{somethingConcrete}" methods
+     * as extension functions on the GlanceNodeAssertion.
      *
      * @param matcher Matcher to verify.
      * @param messagePrefixOnError Prefix to be put in front of an error that gets thrown in case
-     * this assert fails. This can be helpful in situations where this assert fails as part of a
-     * bigger operation that used this assert as a precondition check.
-     *
+     *   this assert fails. This can be helpful in situations where this assert fails as part of a
+     *   bigger operation that used this assert as a precondition check.
      * @throws AssertionError if the matcher does not match or the node can no longer be found.
      */
     fun assert(
@@ -86,12 +88,7 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
         val glanceNode = findSingleMatchingNode(errorMessageOnFail)
 
         if (!matcher.matches(glanceNode)) {
-            throw AssertionError(
-                buildGeneralErrorMessage(
-                    errorMessageOnFail,
-                    glanceNode
-                )
-            )
+            throw AssertionError(buildGeneralErrorMessage(errorMessageOnFail, glanceNode))
         }
         return this
     }
@@ -110,11 +107,12 @@ class GlanceNodeAssertion<R, T : GlanceNode<R>> @RestrictTo(Scope.LIBRARY_GROUP)
             throw AssertionError(
                 buildErrorMessageWithReason(
                     errorMessageOnFail = errorMessageOnFail,
-                    reason = buildErrorReasonForCountMismatch(
-                        matcherDescription = selector.description,
-                        expectedCount = 1,
-                        actualCount = matchingNodes.size
-                    )
+                    reason =
+                        buildErrorReasonForCountMismatch(
+                            matcherDescription = selector.description,
+                            expectedCount = 1,
+                            actualCount = matchingNodes.size
+                        )
                 )
             )
         }

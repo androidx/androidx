@@ -55,19 +55,16 @@ internal class GlanceAppWidgetViewAdapter : AppWidgetHostView {
         methodName: String,
         size: DpSize,
     ) {
-        val content = @Composable {
-            val composer = currentComposer
-            invokeComposable(
-                className,
-                methodName,
-                composer)
-        }
+        val content =
+            @Composable {
+                val composer = currentComposer
+                invokeComposable(className, methodName, composer)
+            }
 
         val remoteViews = runBlocking {
-            GlanceRemoteViews().compose(
-                context = context,
-                size = size,
-                content = content).remoteViews
+            GlanceRemoteViews()
+                .compose(context = context, size = size, content = content)
+                .remoteViews
         }
         val view = remoteViews.apply(context, this)
         addView(view)
@@ -78,10 +75,16 @@ internal class GlanceAppWidgetViewAdapter : AppWidgetHostView {
         val className = composableName.substringBeforeLast('.')
         val methodName = composableName.substringAfterLast('.')
 
-        val width = attrs.getAttributeValue(ANDROID_NS_URI, "layout_width")
-                ?.removeSuffix("dp")?.toFloatOrNull()
-        val height = attrs.getAttributeValue(ANDROID_NS_URI, "layout_height")
-                ?.removeSuffix("dp")?.toFloatOrNull()
+        val width =
+            attrs
+                .getAttributeValue(ANDROID_NS_URI, "layout_width")
+                ?.removeSuffix("dp")
+                ?.toFloatOrNull()
+        val height =
+            attrs
+                .getAttributeValue(ANDROID_NS_URI, "layout_height")
+                ?.removeSuffix("dp")
+                ?.toFloatOrNull()
         var size = DpSize.Unspecified
         if (width != null && height != null) size = DpSize(Dp(width), Dp(height))
 

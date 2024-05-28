@@ -37,25 +37,27 @@ import androidx.glance.layout.fillMaxSize
  */
 internal class EmittableSizeBox : EmittableWithChildren() {
     override var modifier: GlanceModifier
-        get() = children.singleOrNull()?.modifier
-            ?: GlanceModifier.fillMaxSize()
+        get() = children.singleOrNull()?.modifier ?: GlanceModifier.fillMaxSize()
         set(_) {
             throw IllegalAccessError("You cannot set the modifier of an EmittableSizeBox")
         }
+
     var size: DpSize = DpSize.Unspecified
     var sizeMode: SizeMode = SizeMode.Single
 
-    override fun copy(): Emittable = EmittableSizeBox().also {
-        it.size = size
-        it.sizeMode = sizeMode
-        it.children.addAll(children.map { it.copy() })
-    }
+    override fun copy(): Emittable =
+        EmittableSizeBox().also {
+            it.size = size
+            it.sizeMode = sizeMode
+            it.children.addAll(children.map { it.copy() })
+        }
 
-    override fun toString(): String = "EmittableSizeBox(" +
-        "size=$size, " +
-        "sizeMode=$sizeMode, " +
-        "children=[\n${childrenToString()}\n]" +
-        ")"
+    override fun toString(): String =
+        "EmittableSizeBox(" +
+            "size=$size, " +
+            "sizeMode=$sizeMode, " +
+            "children=[\n${childrenToString()}\n]" +
+            ")"
 }
 
 /**
@@ -66,11 +68,7 @@ internal class EmittableSizeBox : EmittableWithChildren() {
  * This should not be used directly. The correct SizeBoxes can be generated with [ForEachSize].
  */
 @Composable
-internal fun SizeBox(
-    size: DpSize,
-    sizeMode: SizeMode,
-    content: @Composable () -> Unit
-) {
+internal fun SizeBox(size: DpSize, sizeMode: SizeMode, content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalSize provides size) {
         GlanceNode(
             factory = ::EmittableSizeBox,
@@ -88,29 +86,28 @@ internal fun SizeBox(
  * size.
  */
 @Composable
-internal fun ForEachSize(
-    sizeMode: SizeMode,
-    minSize: DpSize,
-    content: @Composable () -> Unit
-) {
-    val sizes = when (sizeMode) {
-        is SizeMode.Single -> listOf(minSize)
-        is SizeMode.Exact -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            LocalAppWidgetOptions.current.extractAllSizes { minSize }
-        } else {
-            LocalAppWidgetOptions.current.extractOrientationSizes()
-                .ifEmpty { listOf(minSize) }
+internal fun ForEachSize(sizeMode: SizeMode, minSize: DpSize, content: @Composable () -> Unit) {
+    val sizes =
+        when (sizeMode) {
+            is SizeMode.Single -> listOf(minSize)
+            is SizeMode.Exact ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    LocalAppWidgetOptions.current.extractAllSizes { minSize }
+                } else {
+                    LocalAppWidgetOptions.current.extractOrientationSizes().ifEmpty {
+                        listOf(minSize)
+                    }
+                }
+            is SizeMode.Responsive ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    sizeMode.sizes
+                } else {
+                    val smallestSize = sizeMode.sizes.sortedBySize()[0]
+                    LocalAppWidgetOptions.current
+                        .extractOrientationSizes()
+                        .map { findBestSize(it, sizeMode.sizes) ?: smallestSize }
+                        .ifEmpty { listOf(smallestSize, smallestSize) }
+                }
         }
-        is SizeMode.Responsive -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            sizeMode.sizes
-        } else {
-            val smallestSize = sizeMode.sizes.sortedBySize()[0]
-            LocalAppWidgetOptions.current.extractOrientationSizes()
-                .map { findBestSize(it, sizeMode.sizes) ?: smallestSize }
-                .ifEmpty { listOf(smallestSize, smallestSize) }
-        }
-    }
-    sizes.distinct().map { size ->
-        SizeBox(size, sizeMode, content)
-    }
+    sizes.distinct().map { size -> SizeBox(size, sizeMode, content) }
 }

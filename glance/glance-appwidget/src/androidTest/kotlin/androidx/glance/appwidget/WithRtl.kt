@@ -36,8 +36,7 @@ internal object WithRtlRule : TestRule {
     override fun apply(base: Statement, description: Description) =
         object : Statement() {
             override fun evaluate() {
-                val override =
-                    description.testMethod.isRtl ?: description.testClass.isRtl ?: false
+                val override = description.testMethod.isRtl ?: description.testClass.isRtl ?: false
                 forceRtl = override
                 val savedLocale = Locale.getDefault()
                 val locale = if (override) Locale("he") else Locale.US

@@ -36,14 +36,15 @@ fun GlanceModifier.padding(
     top: Dp = 0.dp,
     end: Dp = 0.dp,
     bottom: Dp = 0.dp,
-): GlanceModifier = this.then(
-    PaddingModifier(
-        start = start.toPadding(),
-        top = top.toPadding(),
-        end = end.toPadding(),
-        bottom = bottom.toPadding(),
+): GlanceModifier =
+    this.then(
+        PaddingModifier(
+            start = start.toPadding(),
+            top = top.toPadding(),
+            end = end.toPadding(),
+            bottom = bottom.toPadding(),
+        )
     )
-)
 
 /**
  * Apply additional space along each edge of the content in [Dp]: [start], [top], [end] and
@@ -59,14 +60,15 @@ fun GlanceModifier.padding(
     @DimenRes top: Int = 0,
     @DimenRes end: Int = 0,
     @DimenRes bottom: Int = 0
-): GlanceModifier = this.then(
-    PaddingModifier(
-        start = start.toPadding(),
-        top = top.toPadding(),
-        end = end.toPadding(),
-        bottom = bottom.toPadding(),
+): GlanceModifier =
+    this.then(
+        PaddingModifier(
+            start = start.toPadding(),
+            top = top.toPadding(),
+            end = end.toPadding(),
+            bottom = bottom.toPadding(),
+        )
     )
-)
 
 /**
  * Apply [horizontal] dp space along the left and right edges of the content, and [vertical] dp
@@ -78,14 +80,15 @@ fun GlanceModifier.padding(
 fun GlanceModifier.padding(
     horizontal: Dp = 0.dp,
     vertical: Dp = 0.dp,
-): GlanceModifier = this.then(
-    PaddingModifier(
-        start = horizontal.toPadding(),
-        top = vertical.toPadding(),
-        end = horizontal.toPadding(),
-        bottom = vertical.toPadding(),
+): GlanceModifier =
+    this.then(
+        PaddingModifier(
+            start = horizontal.toPadding(),
+            top = vertical.toPadding(),
+            end = horizontal.toPadding(),
+            bottom = vertical.toPadding(),
+        )
     )
-)
 
 /**
  * Apply [horizontal] dp space along the left and right edges of the content, and [vertical] dp
@@ -97,14 +100,15 @@ fun GlanceModifier.padding(
 fun GlanceModifier.padding(
     @DimenRes horizontal: Int = 0,
     @DimenRes vertical: Int = 0
-): GlanceModifier = this.then(
-    PaddingModifier(
-        start = horizontal.toPadding(),
-        top = vertical.toPadding(),
-        end = horizontal.toPadding(),
-        bottom = vertical.toPadding(),
+): GlanceModifier =
+    this.then(
+        PaddingModifier(
+            start = horizontal.toPadding(),
+            top = vertical.toPadding(),
+            end = horizontal.toPadding(),
+            bottom = vertical.toPadding(),
+        )
     )
-)
 
 /**
  * Apply [all] dp of additional space along each edge of the content, left, top, right and bottom.
@@ -137,7 +141,7 @@ fun GlanceModifier.padding(@DimenRes all: Int): GlanceModifier {
 }
 
 /**
- *  Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
+ * Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
  * [bottom], ignoring the current locale's layout direction.
  */
 fun GlanceModifier.absolutePadding(
@@ -145,17 +149,18 @@ fun GlanceModifier.absolutePadding(
     top: Dp = 0.dp,
     right: Dp = 0.dp,
     bottom: Dp = 0.dp,
-): GlanceModifier = this.then(
-    PaddingModifier(
-        left = left.toPadding(),
-        top = top.toPadding(),
-        right = right.toPadding(),
-        bottom = bottom.toPadding(),
+): GlanceModifier =
+    this.then(
+        PaddingModifier(
+            left = left.toPadding(),
+            top = top.toPadding(),
+            right = right.toPadding(),
+            bottom = bottom.toPadding(),
+        )
     )
-)
 
 /**
- *  Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
+ * Apply additional space along each edge of the content in [Dp]: [left], [top], [right] and
  * [bottom], ignoring the current locale's layout direction.
  */
 fun GlanceModifier.absolutePadding(
@@ -163,20 +168,19 @@ fun GlanceModifier.absolutePadding(
     @DimenRes top: Int = 0,
     @DimenRes right: Int = 0,
     @DimenRes bottom: Int = 0
-): GlanceModifier = this.then(
-    PaddingModifier(
-        left = left.toPadding(),
-        top = top.toPadding(),
-        right = right.toPadding(),
-        bottom = bottom.toPadding(),
+): GlanceModifier =
+    this.then(
+        PaddingModifier(
+            left = left.toPadding(),
+            top = top.toPadding(),
+            right = right.toPadding(),
+            bottom = bottom.toPadding(),
+        )
     )
-)
 
-private fun Dp.toPadding() =
-    PaddingDimension(dp = this)
+private fun Dp.toPadding() = PaddingDimension(dp = this)
 
-private fun Int.toPadding() =
-    if (this == 0) PaddingDimension() else PaddingDimension(this)
+private fun Int.toPadding() = if (this == 0) PaddingDimension() else PaddingDimension(this)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun GlanceModifier.collectPadding(): PaddingModifier? =
@@ -189,8 +193,7 @@ fun GlanceModifier.collectPadding(): PaddingModifier? =
     }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun GlanceModifier.collectPaddingInDp(resources: Resources) =
-    collectPadding()?.toDp(resources)
+fun GlanceModifier.collectPaddingInDp(resources: Resources) = collectPadding()?.toDp(resources)
 
 private fun List<Int>.toDp(resources: Resources) =
     fold(0.dp) { acc, res ->

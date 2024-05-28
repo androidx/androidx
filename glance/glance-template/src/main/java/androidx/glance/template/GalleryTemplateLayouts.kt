@@ -70,51 +70,45 @@ private fun WidgetLayoutCollapsed(data: GalleryTemplateData) {
 
 @Composable
 private fun WidgetLayoutHorizontal(data: GalleryTemplateData) {
-    Row(
-        modifier = createTopLevelModifier(data),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(modifier = createTopLevelModifier(data), verticalAlignment = Alignment.CenterVertically) {
         MainEntity(data, GlanceModifier.defaultWeight().fillMaxHeight())
     }
 }
 
 @Composable
 private fun WidgetLayoutVertical(data: GalleryTemplateData) {
-    val aspectRatio: Double = when (data.galleryImageBlock.aspectRatio) {
-        AspectRatio.Ratio1x1 -> 1.0
-        AspectRatio.Ratio2x3 -> 2.0 / 3
-        AspectRatio.Ratio16x9 -> 16.0 / 9
-        else -> 1.0
-    }
-    val imageSize: Double = when (data.galleryImageBlock.size) {
-        ImageSize.Small -> 64.0.pow(2.0)
-        ImageSize.Medium -> 96.0.pow(2.0)
-        ImageSize.Large -> 128.0.pow(2.0)
-        ImageSize.Undefined -> 64.0.pow(2.0)
-        else -> 64.0.pow(2.0)
-    }
+    val aspectRatio: Double =
+        when (data.galleryImageBlock.aspectRatio) {
+            AspectRatio.Ratio1x1 -> 1.0
+            AspectRatio.Ratio2x3 -> 2.0 / 3
+            AspectRatio.Ratio16x9 -> 16.0 / 9
+            else -> 1.0
+        }
+    val imageSize: Double =
+        when (data.galleryImageBlock.size) {
+            ImageSize.Small -> 64.0.pow(2.0)
+            ImageSize.Medium -> 96.0.pow(2.0)
+            ImageSize.Large -> 128.0.pow(2.0)
+            ImageSize.Undefined -> 64.0.pow(2.0)
+            else -> 64.0.pow(2.0)
+        }
     val margin = 16
     val imageHeight = sqrt(imageSize / aspectRatio)
     val imageWidth = imageHeight * aspectRatio
     val galleryWidth = LocalSize.current.width.value
     val nCols =
         1.coerceAtLeast(ceil(((galleryWidth - margin) / (imageWidth + margin))).roundToInt())
-    val gridCells = if (Build.VERSION.SDK_INT >= 31) {
-        GridCells.Adaptive((imageWidth + margin).dp)
-    } else {
-        GridCells.Fixed(nCols.coerceAtMost(5))
-    }
+    val gridCells =
+        if (Build.VERSION.SDK_INT >= 31) {
+            GridCells.Adaptive((imageWidth + margin).dp)
+        } else {
+            GridCells.Fixed(nCols.coerceAtMost(5))
+        }
     Column {
-        Row(
-            modifier = createCardModifier(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = createCardModifier(), verticalAlignment = Alignment.CenterVertically) {
             MainEntity(data, GlanceModifier.defaultWeight())
         }
-        Row(
-            modifier = createCardModifier(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(modifier = createCardModifier(), verticalAlignment = Alignment.CenterVertically) {
             LazyVerticalGrid(
                 modifier = GlanceModifier.defaultWeight().fillMaxHeight(),
                 gridCells = gridCells
@@ -123,8 +117,10 @@ private fun WidgetLayoutVertical(data: GalleryTemplateData) {
                     Image(
                         provider = image.image,
                         contentDescription = image.description,
-                        modifier = GlanceModifier.padding((margin / 2).dp)
-                            .height(imageHeight.dp).width(imageWidth.dp),
+                        modifier =
+                            GlanceModifier.padding((margin / 2).dp)
+                                .height(imageHeight.dp)
+                                .width(imageWidth.dp),
                         contentScale = ContentScale.Crop
                     )
                 }
@@ -138,9 +134,11 @@ private fun createTopLevelModifier(
     data: GalleryTemplateData,
     isImmersive: Boolean = false
 ): GlanceModifier {
-    var modifier = GlanceModifier
-        .fillMaxSize().padding(16.dp).cornerRadius(16.dp)
-        .background(GlanceTheme.colors.primaryContainer)
+    var modifier =
+        GlanceModifier.fillMaxSize()
+            .padding(16.dp)
+            .cornerRadius(16.dp)
+            .background(GlanceTheme.colors.primaryContainer)
     if (isImmersive && data.mainImageBlock.images.isNotEmpty()) {
         val mainImage = data.mainImageBlock.images[0]
         modifier = modifier.background(mainImage.image, ContentScale.Crop)
@@ -150,8 +148,11 @@ private fun createTopLevelModifier(
 }
 
 @Composable
-private fun createCardModifier() = GlanceModifier.fillMaxWidth().padding(16.dp).cornerRadius(16.dp)
-    .background(GlanceTheme.colors.primaryContainer)
+private fun createCardModifier() =
+    GlanceModifier.fillMaxWidth()
+        .padding(16.dp)
+        .cornerRadius(16.dp)
+        .background(GlanceTheme.colors.primaryContainer)
 
 @Composable
 private fun HeaderAndTextBlocks(data: GalleryTemplateData, modifier: GlanceModifier) {

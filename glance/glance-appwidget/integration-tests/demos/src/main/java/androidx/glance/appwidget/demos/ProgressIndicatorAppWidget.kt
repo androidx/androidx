@@ -55,10 +55,7 @@ import androidx.glance.unit.ColorProvider
 class ProgressIndicatorAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         GlanceTheme(ProgressIndicatorDemoColorScheme.colors) {
             Scaffold(
                 backgroundColor = GlanceTheme.colors.widgetBackground,
@@ -113,11 +110,12 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
         Text(
             text = text,
             maxLines = 2,
-            style = TextStyle(
-                textAlign = TextAlign.Start,
-                color = GlanceTheme.colors.onSurface,
-                fontWeight = FontWeight.Medium,
-            ),
+            style =
+                TextStyle(
+                    textAlign = TextAlign.Start,
+                    color = GlanceTheme.colors.onSurface,
+                    fontWeight = FontWeight.Medium,
+                ),
             modifier = GlanceModifier.fillMaxWidth()
         )
     }
@@ -125,9 +123,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
     @Composable
     private fun ProgressIndicatorAppWidget.FixedColorsDemoRow() {
         DemoRow {
-            Cell {
-                RowDescription(text = "Fixed Color")
-            }
+            Cell { RowDescription(text = "Fixed Color") }
             Cell {
                 LinearProgressIndicator(
                     progress = 0.8f,
@@ -135,29 +131,20 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
                     backgroundColor = ColorProvider(Color.White)
                 )
             }
-            Cell {
-                CircularProgressIndicator(
-                    color = ColorProvider(Color.Yellow)
-                )
-            }
+            Cell { CircularProgressIndicator(color = ColorProvider(Color.Yellow)) }
         }
     }
 
     @Composable
     private fun ProgressIndicatorAppWidget.DayNightColorsDemoRow() {
         DemoRow {
-            Cell {
-                RowDescription(text = "Fixed day/night Colors")
-            }
+            Cell { RowDescription(text = "Fixed day/night Colors") }
             Cell {
                 LinearProgressIndicator(
                     progress = .66f,
                     modifier = GlanceModifier.padding(bottom = 8.dp),
                     color = ColorProvider(day = Color.White, night = Color.Red),
-                    backgroundColor = ColorProvider(
-                        day = Color.Red,
-                        night = Color.White
-                    )
+                    backgroundColor = ColorProvider(day = Color.Red, night = Color.White)
                 )
             }
             Cell {
@@ -171,17 +158,14 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
     @Composable
     private fun ProgressIndicatorAppWidget.ColorResourceDemoRow() {
         DemoRow {
-            Cell {
-                RowDescription(text = "Color resources")
-            }
+            Cell { RowDescription(text = "Color resources") }
             Cell {
                 LinearProgressIndicator(
                     progress = .66f,
                     modifier = GlanceModifier.padding(bottom = 8.dp),
                     color = ColorProvider(androidx.glance.R.color.glance_colorError),
-                    backgroundColor = ColorProvider(
-                        resId = androidx.glance.R.color.glance_colorSecondary
-                    )
+                    backgroundColor =
+                        ColorProvider(resId = androidx.glance.R.color.glance_colorSecondary)
                 )
             }
             Cell {
@@ -195,9 +179,7 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
     @Composable
     private fun ProgressIndicatorAppWidget.ThemeColorsDemoRow() {
         DemoRow {
-            Cell {
-                RowDescription(text = "Themed")
-            }
+            Cell { RowDescription(text = "Themed") }
             Cell {
                 LinearProgressIndicator(
                     progress = 0.5f,
@@ -205,56 +187,34 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
                     backgroundColor = GlanceTheme.colors.onBackground
                 )
             }
-            Cell {
-                CircularProgressIndicator(
-                    color = GlanceTheme.colors.primary
-                )
-            }
+            Cell { CircularProgressIndicator(color = GlanceTheme.colors.primary) }
         }
     }
 
     @Composable
     private fun ProgressIndicatorAppWidget.IndeterminateDemoRow() {
         DemoRow {
-            Cell {
-                RowDescription(text = "Indeterminate")
-            }
-            Cell {
-                LinearProgressIndicator()
-            }
-            Cell {
-                CircularProgressIndicator()
-            }
+            Cell { RowDescription(text = "Indeterminate") }
+            Cell { LinearProgressIndicator() }
+            Cell { CircularProgressIndicator() }
         }
     }
 
     @Composable
     private fun ProgressIndicatorAppWidget.DefaultColorsDemoRow() {
         DemoRow {
-            Cell {
-                RowDescription(text = "Default colors")
-            }
-            Cell {
-                LinearProgressIndicator(progress = 0.2f)
-            }
-            Cell {
-                CircularProgressIndicator()
-            }
+            Cell { RowDescription(text = "Default colors") }
+            Cell { LinearProgressIndicator(progress = 0.2f) }
+            Cell { CircularProgressIndicator() }
         }
     }
 
     @Composable
     private fun ProgressIndicatorAppWidget.ZeroProgressDemoRow() {
         DemoRow {
-            Cell {
-                RowDescription(text = "progress = 0")
-            }
-            Cell {
-                LinearProgressIndicator(progress = 0f)
-            }
-            Cell {
-                Text("Not supported")
-            }
+            Cell { RowDescription(text = "progress = 0") }
+            Cell { LinearProgressIndicator(progress = 0f) }
+            Cell { Text("Not supported") }
         }
     }
 }
@@ -270,15 +230,17 @@ internal object ProgressIndicatorDemoColorScheme {
     private val md_theme_dark_primary = Color(0xFF02E600)
     private val md_theme_dark_onBackground = Color(0xFFF2E720)
 
-    private val LightColors = lightColorScheme(
-        primary = md_theme_light_primary,
-        onBackground = md_theme_light_onBackground,
-    )
+    private val LightColors =
+        lightColorScheme(
+            primary = md_theme_light_primary,
+            onBackground = md_theme_light_onBackground,
+        )
 
-    private val DarkColors = darkColorScheme(
-        primary = md_theme_dark_primary,
-        onBackground = md_theme_dark_onBackground,
-    )
+    private val DarkColors =
+        darkColorScheme(
+            primary = md_theme_dark_primary,
+            onBackground = md_theme_dark_onBackground,
+        )
 
     val colors = ColorProviders(light = LightColors, dark = DarkColors)
 

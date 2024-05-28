@@ -27,9 +27,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 
 /**
- * [Session] is implemented by Glance surfaces in order to provide content for the
- * composition and process the results of recomposition.
- *
+ * [Session] is implemented by Glance surfaces in order to provide content for the composition and
+ * process the results of recomposition.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 abstract class Session(val key: String) {
@@ -39,22 +38,22 @@ abstract class Session(val key: String) {
     private val _isOpen = AtomicBoolean(true)
     internal val isOpen: Boolean
         get() = _isOpen.get()
+
     private val eventChannel = Channel<Any>(Channel.UNLIMITED)
 
     /**
-     *  Create the [EmittableWithChildren] that will be used as the [androidx.glance.Applier] root.
+     * Create the [EmittableWithChildren] that will be used as the [androidx.glance.Applier] root.
      */
     abstract fun createRootEmittable(): EmittableWithChildren
 
-    /**
-     * Provide the Glance composable to be run in the [androidx.compose.runtime.Composition].
-     */
+    /** Provide the Glance composable to be run in the [androidx.compose.runtime.Composition]. */
     abstract fun provideGlance(context: Context): @Composable @GlanceComposable () -> Unit
 
     /**
      * Process the Emittable tree that results from the running [provideGlance].
      *
      * This will also be called for the results of future recompositions.
+     *
      * @return true if the tree has been processed and the session is ready to handle events.
      */
     abstract suspend fun processEmittableTree(
@@ -62,9 +61,7 @@ abstract class Session(val key: String) {
         root: EmittableWithChildren
     ): Boolean
 
-    /**
-     * Process an event that was sent to this session.
-     */
+    /** Process an event that was sent to this session. */
     abstract suspend fun processEvent(context: Context, event: Any)
 
     /**
@@ -88,8 +85,7 @@ abstract class Session(val key: String) {
                 block(event)
                 processEvent(context, event)
             }
-        } catch (_: ClosedReceiveChannelException) {
-        }
+        } catch (_: ClosedReceiveChannelException) {}
     }
 
     /**

@@ -58,31 +58,37 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
             } else {
                 SingleEntityTemplate(
                     SingleEntityTemplateData(
-                        headerBlock = HeaderBlock(
-                            text = TemplateText("Single Entity Demo", TextType.Title),
-                            icon = TemplateImageWithDescription(
-                                ImageProvider(R.drawable.ic_widgets),
-                                "icon"
+                        headerBlock =
+                            HeaderBlock(
+                                text = TemplateText("Single Entity Demo", TextType.Title),
+                                icon =
+                                    TemplateImageWithDescription(
+                                        ImageProvider(R.drawable.ic_widgets),
+                                        "icon"
+                                    ),
                             ),
-                        ),
-                        textBlock = TextBlock(
-                            text1 = TemplateText("title", TextType.Title),
-                            text2 = TemplateText("Subtitle", TextType.Label),
-                            text3 = TemplateText(
-                                "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
-                                TextType.Label
+                        textBlock =
+                            TextBlock(
+                                text1 = TemplateText("title", TextType.Title),
+                                text2 = TemplateText("Subtitle", TextType.Label),
+                                text3 =
+                                    TemplateText(
+                                        "Body Lorem ipsum dolor sit amet, consectetur adipiscing",
+                                        TextType.Label
+                                    ),
+                                priority = 0,
                             ),
-                            priority = 0,
-                        ),
-                        imageBlock = ImageBlock(
-                            images = listOf(
-                                TemplateImageWithDescription(
-                                    ImageProvider(R.drawable.palm_leaf),
-                                    "image"
-                                )
+                        imageBlock =
+                            ImageBlock(
+                                images =
+                                    listOf(
+                                        TemplateImageWithDescription(
+                                            ImageProvider(R.drawable.palm_leaf),
+                                            "image"
+                                        )
+                                    ),
+                                priority = 1,
                             ),
-                            priority = 1,
-                        ),
                     )
                 )
             }
@@ -98,11 +104,12 @@ class DemoOverrideWidget : GlanceTemplateAppWidget() {
         ) {
             Text(
                 "User layout override for horizontal display",
-                style = TextStyle(
-                    fontSize = 36.sp,
-                    color = ColorProvider(Color.White),
-                    textAlign = TextAlign.Center
-                )
+                style =
+                    TextStyle(
+                        fontSize = 36.sp,
+                        color = ColorProvider(Color.White),
+                        textAlign = TextAlign.Center
+                    )
             )
         }
     }

@@ -38,63 +38,63 @@ class RowTest {
     }
 
     @Test
-    fun createComposableRow() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Row {}
+    fun createComposableRow() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Row {} }
+
+            assertThat(root.children).hasSize(1)
+            assertThat(root.children[0]).isInstanceOf(EmittableRow::class.java)
+            assertThat((root.children[0] as EmittableRow).children).hasSize(0)
         }
 
-        assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableRow::class.java)
-        assertThat((root.children[0] as EmittableRow).children).hasSize(0)
-    }
-
     @Test
-    fun createComposableRowWithParams() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Row(
-                modifier = GlanceModifier.padding(2.dp),
-                verticalAlignment = Alignment.Bottom,
-                horizontalAlignment = Alignment.End
-            ) {}
-        }
-
-        val innerRow = root.children[0] as EmittableRow
-        val paddingModifier = requireNotNull(innerRow.modifier.findModifier<PaddingModifier>())
-        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(2.dp))
-        assertThat(innerRow.verticalAlignment).isEqualTo(Alignment.Bottom)
-        assertThat(innerRow.horizontalAlignment).isEqualTo(Alignment.End)
-    }
-
-    @Test
-    fun createComposableRowWithChildren() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Row {
-                Box(contentAlignment = Alignment.BottomCenter) {}
-                Box(contentAlignment = Alignment.TopCenter) {}
+    fun createComposableRowWithParams() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Row(
+                    modifier = GlanceModifier.padding(2.dp),
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalAlignment = Alignment.End
+                ) {}
             }
+
+            val innerRow = root.children[0] as EmittableRow
+            val paddingModifier = requireNotNull(innerRow.modifier.findModifier<PaddingModifier>())
+            assertThat(paddingModifier.top).isEqualTo(PaddingDimension(2.dp))
+            assertThat(innerRow.verticalAlignment).isEqualTo(Alignment.Bottom)
+            assertThat(innerRow.horizontalAlignment).isEqualTo(Alignment.End)
         }
-
-        val innerRow = root.children[0] as EmittableRow
-        val leafBox0 = innerRow.children[0] as EmittableBox
-        val leafBox1 = innerRow.children[1] as EmittableBox
-
-        assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
-        assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)
-    }
 
     @Test
-    fun createComposableRowWithWeightChildren() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Row {
-                Box(modifier = GlanceModifier.defaultWeight()) { }
+    fun createComposableRowWithChildren() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Row {
+                    Box(contentAlignment = Alignment.BottomCenter) {}
+                    Box(contentAlignment = Alignment.TopCenter) {}
+                }
             }
+
+            val innerRow = root.children[0] as EmittableRow
+            val leafBox0 = innerRow.children[0] as EmittableBox
+            val leafBox1 = innerRow.children[1] as EmittableBox
+
+            assertThat(leafBox0.contentAlignment).isEqualTo(Alignment.BottomCenter)
+            assertThat(leafBox1.contentAlignment).isEqualTo(Alignment.TopCenter)
         }
 
-        val row = assertIs<EmittableRow>(root.children[0])
-        val box = assertIs<EmittableBox>(row.children[0])
+    @Test
+    fun createComposableRowWithWeightChildren() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Row { Box(modifier = GlanceModifier.defaultWeight()) {} }
+            }
 
-        val widthModifier = checkNotNull(box.modifier.findModifier<WidthModifier>())
-        assertThat(widthModifier.width).isSameInstanceAs(Dimension.Expand)
-        assertThat(box.modifier.findModifier<HeightModifier>()).isNull()
-    }
+            val row = assertIs<EmittableRow>(root.children[0])
+            val box = assertIs<EmittableBox>(row.children[0])
+
+            val widthModifier = checkNotNull(box.modifier.findModifier<WidthModifier>())
+            assertThat(widthModifier.width).isSameInstanceAs(Dimension.Expand)
+            assertThat(box.modifier.findModifier<HeightModifier>()).isNull()
+        }
 }

@@ -41,35 +41,28 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 
-/**
- * Sample AppWidget showcases Glance text styles.
- */
+/** Sample AppWidget showcases Glance text styles. */
 class TypographyDemoAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         Column(
-            modifier = GlanceModifier.fillMaxSize()
-                .background(GlanceTheme.colors.background).padding(8.dp)
+            modifier =
+                GlanceModifier.fillMaxSize().background(GlanceTheme.colors.background).padding(8.dp)
         ) {
             Column {
                 Text(
                     "Text Component Demo Widget",
                     modifier = GlanceModifier.fillMaxWidth().wrapContentHeight(),
-                    style = TextStyle(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        textAlign = TextAlign.Center
-                    )
+                    style =
+                        TextStyle(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp,
+                            textAlign = TextAlign.Center
+                        )
                 )
                 Spacer(GlanceModifier.size(16.dp))
-                Text(
-                    "Glance text styles:",
-                    style = TextStyle(fontSize = 18.sp)
-                )
+                Text("Glance text styles:", style = TextStyle(fontSize = 18.sp))
                 Spacer(GlanceModifier.size(20.dp))
             }
 
@@ -77,71 +70,78 @@ class TypographyDemoAppWidget : GlanceAppWidget() {
                 item {
                     Text(
                         "Display Large",
-                        style = TextStyle(
-                            fontSize = 57.sp,
-                            fontWeight = FontWeight.Normal,
-                            fontFamily = FontFamily.SansSerif
-                        )
+                        style =
+                            TextStyle(
+                                fontSize = 57.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = FontFamily.SansSerif
+                            )
                     )
                 }
                 item {
                     Text(
                         "Headline Large",
-                        style = TextStyle(
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.Normal,
-                            fontFamily = FontFamily.SansSerif
-                        )
+                        style =
+                            TextStyle(
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = FontFamily.SansSerif
+                            )
                     )
                 }
                 item {
                     Text(
                         "Headline Small",
-                        style = TextStyle(
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Normal,
-                            fontFamily = FontFamily.SansSerif
-                        )
+                        style =
+                            TextStyle(
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = FontFamily.SansSerif
+                            )
                     )
                 }
                 item {
                     Text(
                         "Title Medium",
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = FontFamily.SansSerif
-                        )
+                        style =
+                            TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = FontFamily.SansSerif
+                            )
                     )
                 }
                 item {
                     Text(
                         "Body Medium",
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                            fontFamily = FontFamily.SansSerif
-                        )
+                        style =
+                            TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Normal,
+                                fontFamily = FontFamily.SansSerif
+                            )
                     )
                 }
                 item {
                     Text(
                         "Label Large",
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = FontFamily.SansSerif
-                        )
+                        style =
+                            TextStyle(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = FontFamily.SansSerif
+                            )
                     )
                 }
                 item {
                     Text(
                         "Label Medium",
-                        style = TextStyle(
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            fontFamily = FontFamily.SansSerif
-                        )
+                        style =
+                            TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = FontFamily.SansSerif
+                            )
                     )
                 }
             }

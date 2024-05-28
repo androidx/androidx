@@ -62,389 +62,424 @@ class WidgetLayoutTest {
     }
 
     @Test
-    fun testLayout() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Column(horizontalAlignment = Alignment.End) {
-                CheckBox(
-                    checked = false,
-                    onCheckedChange = null,
-                    modifier = GlanceModifier.fillMaxSize()
-                )
-                Button(text = "test", onClick = actionStartActivity<Activity>())
-                Image(
-                    ImageProvider(R.drawable.oval),
-                    "description",
-                    modifier = GlanceModifier.width(12.dp).defaultWeight(),
-                    contentScale = ContentScale.Crop
-                )
+    fun testLayout() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition {
+                Column(horizontalAlignment = Alignment.End) {
+                    CheckBox(
+                        checked = false,
+                        onCheckedChange = null,
+                        modifier = GlanceModifier.fillMaxSize()
+                    )
+                    Button(text = "test", onClick = actionStartActivity<Activity>())
+                    Image(
+                        ImageProvider(R.drawable.oval),
+                        "description",
+                        modifier = GlanceModifier.width(12.dp).defaultWeight(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+            val node = createNode(context, root)
+            assertThat(node.type).isEqualTo(LayoutProto.LayoutType.REMOTE_VIEWS_ROOT)
+            assertThat(node.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(node.height).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(node.childrenCount).isEqualTo(1)
+
+            val column = node.childrenList[0]
+            assertThat(column.type).isEqualTo(LayoutProto.LayoutType.COLUMN)
+            assertThat(column.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(column.height).isEqualTo(LayoutProto.DimensionType.WRAP)
+            assertThat(column.horizontalAlignment).isEqualTo(LayoutProto.HorizontalAlignment.END)
+
+            val (checkBox, button, image) = column.childrenList
+            // S+ uses native checkboxes that have different layout parameters to the back ports
+            // ones
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                assertThat(checkBox.type).isEqualTo(LayoutProto.LayoutType.CHECK_BOX)
+                assertThat(checkBox.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+                assertThat(checkBox.height).isEqualTo(LayoutProto.DimensionType.WRAP)
+                assertThat(button.type).isEqualTo(LayoutProto.LayoutType.BUTTON)
+                assertThat(button.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+                assertThat(button.height).isEqualTo(LayoutProto.DimensionType.WRAP)
+                assertThat(image.type).isEqualTo(LayoutProto.LayoutType.IMAGE)
+                assertThat(image.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+                assertThat(image.height).isEqualTo(LayoutProto.DimensionType.EXPAND)
+                assertThat(image.imageScale).isEqualTo(LayoutProto.ContentScale.CROP)
+            } else {
+                assertThat(checkBox.type).isEqualTo(LayoutProto.LayoutType.CHECK_BOX)
+                assertThat(checkBox.width).isEqualTo(LayoutProto.DimensionType.FILL)
+                assertThat(checkBox.height).isEqualTo(LayoutProto.DimensionType.FILL)
+                assertThat(button.type).isEqualTo(LayoutProto.LayoutType.BUTTON)
+                assertThat(button.width).isEqualTo(LayoutProto.DimensionType.WRAP)
+                assertThat(button.height).isEqualTo(LayoutProto.DimensionType.WRAP)
+                assertThat(image.type).isEqualTo(LayoutProto.LayoutType.IMAGE)
+                assertThat(image.width).isEqualTo(LayoutProto.DimensionType.EXACT)
+                assertThat(image.height).isEqualTo(LayoutProto.DimensionType.EXPAND)
+                assertThat(image.imageScale).isEqualTo(LayoutProto.ContentScale.CROP)
             }
         }
-        val node = createNode(context, root)
-        assertThat(node.type).isEqualTo(LayoutProto.LayoutType.REMOTE_VIEWS_ROOT)
-        assertThat(node.width).isEqualTo(LayoutProto.DimensionType.WRAP)
-        assertThat(node.height).isEqualTo(LayoutProto.DimensionType.WRAP)
-        assertThat(node.childrenCount).isEqualTo(1)
-
-        val column = node.childrenList[0]
-        assertThat(column.type).isEqualTo(LayoutProto.LayoutType.COLUMN)
-        assertThat(column.width).isEqualTo(LayoutProto.DimensionType.WRAP)
-        assertThat(column.height).isEqualTo(LayoutProto.DimensionType.WRAP)
-        assertThat(column.horizontalAlignment).isEqualTo(LayoutProto.HorizontalAlignment.END)
-
-        val (checkBox, button, image) = column.childrenList
-        // S+ uses native checkboxes that have different layout parameters to the back ports ones
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            assertThat(checkBox.type).isEqualTo(LayoutProto.LayoutType.CHECK_BOX)
-            assertThat(checkBox.width).isEqualTo(LayoutProto.DimensionType.WRAP)
-            assertThat(checkBox.height).isEqualTo(LayoutProto.DimensionType.WRAP)
-            assertThat(button.type).isEqualTo(LayoutProto.LayoutType.BUTTON)
-            assertThat(button.width).isEqualTo(LayoutProto.DimensionType.WRAP)
-            assertThat(button.height).isEqualTo(LayoutProto.DimensionType.WRAP)
-            assertThat(image.type).isEqualTo(LayoutProto.LayoutType.IMAGE)
-            assertThat(image.width).isEqualTo(LayoutProto.DimensionType.WRAP)
-            assertThat(image.height).isEqualTo(LayoutProto.DimensionType.EXPAND)
-            assertThat(image.imageScale).isEqualTo(LayoutProto.ContentScale.CROP)
-        } else {
-            assertThat(checkBox.type).isEqualTo(LayoutProto.LayoutType.CHECK_BOX)
-            assertThat(checkBox.width).isEqualTo(LayoutProto.DimensionType.FILL)
-            assertThat(checkBox.height).isEqualTo(LayoutProto.DimensionType.FILL)
-            assertThat(button.type).isEqualTo(LayoutProto.LayoutType.BUTTON)
-            assertThat(button.width).isEqualTo(LayoutProto.DimensionType.WRAP)
-            assertThat(button.height).isEqualTo(LayoutProto.DimensionType.WRAP)
-            assertThat(image.type).isEqualTo(LayoutProto.LayoutType.IMAGE)
-            assertThat(image.width).isEqualTo(LayoutProto.DimensionType.EXACT)
-            assertThat(image.height).isEqualTo(LayoutProto.DimensionType.EXPAND)
-            assertThat(image.imageScale).isEqualTo(LayoutProto.ContentScale.CROP)
-        }
-    }
 
     @Test
-    fun testChange_size() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Column {
-                CheckBox(
-                    checked = true,
-                    onCheckedChange = null,
-                    modifier = GlanceModifier.fillMaxSize()
-                )
-                Button(text = "test", onClick = actionStartActivity<Activity>())
+    fun testChange_size() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Column {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = null,
+                        modifier = GlanceModifier.fillMaxSize()
+                    )
+                    Button(text = "test", onClick = actionStartActivity<Activity>())
+                }
             }
-        }
-        val rootWithSizeChanged = runTestingComposition {
-            Column {
-                CheckBox(
-                    checked = true,
-                    onCheckedChange = null,
-                    modifier = GlanceModifier.wrapContentWidth().fillMaxHeight()
-                )
-                Button(text = "test", onClick = actionStartActivity<Activity>())
+            val rootWithSizeChanged = runTestingComposition {
+                Column {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = null,
+                        modifier = GlanceModifier.wrapContentWidth().fillMaxHeight()
+                    )
+                    Button(text = "test", onClick = actionStartActivity<Activity>())
+                }
             }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+
+            // On S+ the layout can have its size changed, so don't bump index, earlier versions
+            // needed
+            // a change.
+            val expectedIndex = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) 0 else 1
+            assertThat(layoutConfig.addLayout(rootWithSizeChanged)).isEqualTo(expectedIndex)
         }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-
-        // On S+ the layout can have its size changed, so don't bump index, earlier versions needed
-        // a change.
-        val expectedIndex = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) 0 else 1
-        assertThat(layoutConfig.addLayout(rootWithSizeChanged)).isEqualTo(expectedIndex)
-    }
 
     @Test
-    fun testChange_imageScale() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Column {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Column {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Fit)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
-    }
-
-    @Test
-    fun testNotChange_imageDescription() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Column {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Column {
-                Image(ImageProvider(R.drawable.oval), "other", contentScale = ContentScale.Crop)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
-    }
-
-    @Test
-    fun testChange_imageDescription() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Column {
-                Image(ImageProvider(R.drawable.oval), null, contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Column {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
-    }
-
-    @Test
-    fun testChange_imageColorFilter() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Column {
-                Image(
-                    ImageProvider(R.drawable.oval),
-                    colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface),
-                    contentDescription = null
-                )
-            }
-        }
-        val root2 = runTestingComposition {
-            Column {
-                Image(
-                    ImageProvider(R.drawable.oval),
-                    colorFilter = null,
-                    contentDescription = null
-                )
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
-    }
-
-    @Test
-    fun testChange_columnAlignment() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Column(horizontalAlignment = Alignment.Start) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
-    }
-
-    @Test
-    fun testNotChange_columnAlignment() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Column(verticalAlignment = Alignment.CenterVertically) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Column(verticalAlignment = Alignment.Top) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
-    }
-
-    @Test
-    fun testChange_rowAlignment() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Row(verticalAlignment = Alignment.Top) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
-    }
-
-    @Test
-    fun testNotChange_rowAlignment() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Row(horizontalAlignment = Alignment.CenterHorizontally) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Row(horizontalAlignment = Alignment.Start) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
-    }
-
-    @Test
-    fun testChange_boxHorizontalAlignment() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Box(contentAlignment = Alignment.Center) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Box(contentAlignment = Alignment.TopCenter) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
-    }
-
-    @Test
-    fun testChange_boxVerticalAlignment() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Box(contentAlignment = Alignment.Center) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-        val root2 = runTestingComposition {
-            Box(contentAlignment = Alignment.CenterStart) {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
-    }
-
-    @Test
-    fun testChange_lazyColumnAlignment() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            LazyColumn(horizontalAlignment = Alignment.Start) {
-                item {
+    fun testChange_imageScale() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Column {
                     Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
                 }
             }
-        }
-        val root2 = runTestingComposition {
-            LazyColumn(horizontalAlignment = Alignment.End) {
-                item {
-                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-                }
-            }
-        }
-
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
-    }
-
-    @Test
-    fun testNotChange_lazyColumnAlignmentContent() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            LazyColumn(horizontalAlignment = Alignment.Start) {
-                item {
-                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
-                }
-            }
-        }
-        val root2 = runTestingComposition {
-            LazyColumn(horizontalAlignment = Alignment.Start) {
-                item {
+            val root2 = runTestingComposition {
+                Column {
                     Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Fit)
                 }
             }
-        }
 
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
-    }
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+        }
 
     @Test
-    fun testNotChange() = fakeCoroutineScope.runTest {
-        val appId = 787
-        val root = runTestingComposition {
-            Column {
-                CheckBox(
-                    checked = true,
-                    onCheckedChange = null,
-                    modifier = GlanceModifier.fillMaxSize()
-                )
-                Button(text = "test", onClick = actionStartActivity<Activity>())
+    fun testNotChange_imageDescription() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Column {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
             }
-        }
-        val root2 = runTestingComposition {
-            Column {
-                CheckBox(
-                    checked = false,
-                    onCheckedChange = null,
-                    modifier = GlanceModifier.fillMaxSize()
-                )
-                Button(text = "testtesttest", onClick = actionStartActivity<Activity>())
+            val root2 = runTestingComposition {
+                Column {
+                    Image(ImageProvider(R.drawable.oval), "other", contentScale = ContentScale.Crop)
+                }
             }
-        }
 
-        val layoutConfig = LayoutConfiguration.create(context, appId)
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
-    }
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
+        }
 
     @Test
-    fun widgetAllocation_dontReuse() = fakeCoroutineScope.runTest {
-        val appId = 999
-        val root = runTestingComposition {
-            Column {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+    fun testChange_imageDescription() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Column {
+                    Image(ImageProvider(R.drawable.oval), null, contentScale = ContentScale.Crop)
+                }
             }
-        }
-        val root2 = runTestingComposition {
-            Column {
-                Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Fit)
+            val root2 = runTestingComposition {
+                Column {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
             }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
         }
 
-        val layoutConfig = LayoutConfiguration.create(
-            context,
-            appWidgetId = appId,
-            nextIndex = TopLevelLayoutsCount - 1,
-            existingLayoutIds = listOf(0, 1, 2)
-        )
-        assertThat(layoutConfig.addLayout(root)).isEqualTo(TopLevelLayoutsCount - 1)
-        assertThat(layoutConfig.addLayout(root2)).isEqualTo(3)
-    }
+    @Test
+    fun testChange_imageColorFilter() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Column {
+                    Image(
+                        ImageProvider(R.drawable.oval),
+                        colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface),
+                        contentDescription = null
+                    )
+                }
+            }
+            val root2 = runTestingComposition {
+                Column {
+                    Image(
+                        ImageProvider(R.drawable.oval),
+                        colorFilter = null,
+                        contentDescription = null
+                    )
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+        }
+
+    @Test
+    fun testChange_columnAlignment() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+            val root2 = runTestingComposition {
+                Column(horizontalAlignment = Alignment.Start) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+        }
+
+    @Test
+    fun testNotChange_columnAlignment() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Column(verticalAlignment = Alignment.CenterVertically) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+            val root2 = runTestingComposition {
+                Column(verticalAlignment = Alignment.Top) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
+        }
+
+    @Test
+    fun testChange_rowAlignment() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+            val root2 = runTestingComposition {
+                Row(verticalAlignment = Alignment.Top) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+        }
+
+    @Test
+    fun testNotChange_rowAlignment() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Row(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+            val root2 = runTestingComposition {
+                Row(horizontalAlignment = Alignment.Start) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
+        }
+
+    @Test
+    fun testChange_boxHorizontalAlignment() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Box(contentAlignment = Alignment.Center) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+            val root2 = runTestingComposition {
+                Box(contentAlignment = Alignment.TopCenter) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+        }
+
+    @Test
+    fun testChange_boxVerticalAlignment() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Box(contentAlignment = Alignment.Center) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+            val root2 = runTestingComposition {
+                Box(contentAlignment = Alignment.CenterStart) {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+        }
+
+    @Test
+    fun testChange_lazyColumnAlignment() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                LazyColumn(horizontalAlignment = Alignment.Start) {
+                    item {
+                        Image(
+                            ImageProvider(R.drawable.oval),
+                            "test",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
+            val root2 = runTestingComposition {
+                LazyColumn(horizontalAlignment = Alignment.End) {
+                    item {
+                        Image(
+                            ImageProvider(R.drawable.oval),
+                            "test",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(1)
+        }
+
+    @Test
+    fun testNotChange_lazyColumnAlignmentContent() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                LazyColumn(horizontalAlignment = Alignment.Start) {
+                    item {
+                        Image(
+                            ImageProvider(R.drawable.oval),
+                            "test",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+            }
+            val root2 = runTestingComposition {
+                LazyColumn(horizontalAlignment = Alignment.Start) {
+                    item {
+                        Image(
+                            ImageProvider(R.drawable.oval),
+                            "test",
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
+        }
+
+    @Test
+    fun testNotChange() =
+        fakeCoroutineScope.runTest {
+            val appId = 787
+            val root = runTestingComposition {
+                Column {
+                    CheckBox(
+                        checked = true,
+                        onCheckedChange = null,
+                        modifier = GlanceModifier.fillMaxSize()
+                    )
+                    Button(text = "test", onClick = actionStartActivity<Activity>())
+                }
+            }
+            val root2 = runTestingComposition {
+                Column {
+                    CheckBox(
+                        checked = false,
+                        onCheckedChange = null,
+                        modifier = GlanceModifier.fillMaxSize()
+                    )
+                    Button(text = "testtesttest", onClick = actionStartActivity<Activity>())
+                }
+            }
+
+            val layoutConfig = LayoutConfiguration.create(context, appId)
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(0)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(0)
+        }
+
+    @Test
+    fun widgetAllocation_dontReuse() =
+        fakeCoroutineScope.runTest {
+            val appId = 999
+            val root = runTestingComposition {
+                Column {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Crop)
+                }
+            }
+            val root2 = runTestingComposition {
+                Column {
+                    Image(ImageProvider(R.drawable.oval), "test", contentScale = ContentScale.Fit)
+                }
+            }
+
+            val layoutConfig =
+                LayoutConfiguration.create(
+                    context,
+                    appWidgetId = appId,
+                    nextIndex = TopLevelLayoutsCount - 1,
+                    existingLayoutIds = listOf(0, 1, 2)
+                )
+            assertThat(layoutConfig.addLayout(root)).isEqualTo(TopLevelLayoutsCount - 1)
+            assertThat(layoutConfig.addLayout(root2)).isEqualTo(3)
+        }
 }

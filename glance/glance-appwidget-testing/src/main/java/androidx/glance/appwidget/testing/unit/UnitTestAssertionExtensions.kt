@@ -52,69 +52,62 @@ fun UnitTestAssertion.assertIsNotChecked(): UnitTestAssertion = assert(isNotChec
  * Asserts that a given node has a clickable set with action that runs a callback.
  *
  * @param callbackClass an implementation of [ActionCallback] that is expected to have been passed
- *                      in the `actionRunCallback` method call
+ *   in the `actionRunCallback` method call
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                   in the `actionRunCallback` method call
+ *   in the `actionRunCallback` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 @PublishedApi // See b/316353540; a reified version of this is available in public api.
 internal fun UnitTestAssertion.assertHasRunCallbackClickAction(
     callbackClass: Class<out ActionCallback>,
     parameters: ActionParameters = actionParametersOf()
-): UnitTestAssertion = assert(
-    hasRunCallbackClickAction(
-        callbackClass = callbackClass,
-        parameters = parameters
-    )
-)
+): UnitTestAssertion =
+    assert(hasRunCallbackClickAction(callbackClass = callbackClass, parameters = parameters))
 
 /**
  * Asserts that a given node has a clickable set with action that runs a callback.
  *
  * @param T action callback that is expected to have been passed in the `actionRunCallback` method
- *          call
+ *   call
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                   in the `actionRunCallback` method call
+ *   in the `actionRunCallback` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 inline fun <reified T : ActionCallback> UnitTestAssertion.assertHasRunCallbackClickAction(
     parameters: ActionParameters = actionParametersOf()
-): UnitTestAssertion = assert(
-    hasRunCallbackClickAction<T>(
-        parameters = parameters
-    )
-)
+): UnitTestAssertion = assert(hasRunCallbackClickAction<T>(parameters = parameters))
 
 /**
  * Asserts that a given node has a clickable set with action that starts an activity.
  *
  * @param intent the intent for launching an activity that is expected to have been passed in the
- *               `actionStartActivity` method call
+ *   `actionStartActivity` method call
  * @param parameters the parameters associated with the action that are expected to have been passed
- *                   in the `actionStartActivity` method call
+ *   in the `actionStartActivity` method call
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
- *                        an activity start.
+ *   an activity start.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasStartActivityClickAction(
     intent: Intent,
     parameters: ActionParameters = actionParametersOf(),
     activityOptions: Bundle? = null
-): UnitTestAssertion = assert(
-    hasStartActivityClickAction(
-        intent = intent,
-        parameters = parameters,
-        activityOptions = activityOptions
+): UnitTestAssertion =
+    assert(
+        hasStartActivityClickAction(
+            intent = intent,
+            parameters = parameters,
+            activityOptions = activityOptions
+        )
     )
-)
 
 /**
  * Asserts that a given node has a clickable set with action that starts a service.
  *
  * @param serviceClass class of the service to launch that is expected to have been passed in the
- *                    `actionStartService` method call.
+ *   `actionStartService` method call.
  * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
+ *   service in the `actionStartService` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 @PublishedApi // See b/316353540; a reified version of this is available in public api.
@@ -127,9 +120,9 @@ internal fun UnitTestAssertion.assertHasStartServiceClickAction(
  * Asserts that a given node has a clickable set with action that starts a service.
  *
  * @param T class of the service to launch that is expected to have been passed in the
- *          `actionStartService` method call.
+ *   `actionStartService` method call.
  * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
+ *   service in the `actionStartService` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 inline fun <reified T : Service> UnitTestAssertion.assertHasStartServiceClickAction(
@@ -140,9 +133,9 @@ inline fun <reified T : Service> UnitTestAssertion.assertHasStartServiceClickAct
  * Asserts that a given node has a clickable set with action that starts a service.
  *
  * @param componentName component of the service to launch that is expected to have been passed in
- *                      the `actionStartService` method call.
+ *   the `actionStartService` method call.
  * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
+ *   service in the `actionStartService` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasStartServiceClickAction(
@@ -153,10 +146,10 @@ fun UnitTestAssertion.assertHasStartServiceClickAction(
 /**
  * Asserts that a given node has a clickable set with action that starts a service.
  *
- * @param intent the intent for launching the service that is expected to have been passed in
- *               the `actionStartService` method call.
+ * @param intent the intent for launching the service that is expected to have been passed in the
+ *   `actionStartService` method call.
  * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
+ *   service in the `actionStartService` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasStartServiceClickAction(
@@ -168,7 +161,7 @@ fun UnitTestAssertion.assertHasStartServiceClickAction(
  * Asserts that a given node has a clickable set with action that sends a broadcast.
  *
  * @param receiverClass class of the broadcast receiver that is expected to have been passed in the
- *                      `actionSendBroadcast` method call.
+ *   `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 @PublishedApi // See b/316353540; a reified version of this is available in public api.
@@ -180,20 +173,19 @@ internal fun UnitTestAssertion.assertHasSendBroadcastClickAction(
  * Asserts that a given node has a clickable set with action that sends a broadcast.
  *
  * @param T class of the broadcast receiver that is expected to have been passed in the
- *          `actionSendBroadcast` method call.
+ *   `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-inline fun <reified T : BroadcastReceiver>
-    UnitTestAssertion.assertHasSendBroadcastClickAction(): UnitTestAssertion =
-    assert(hasSendBroadcastAction<T>())
+inline fun <reified T : BroadcastReceiver> UnitTestAssertion.assertHasSendBroadcastClickAction():
+    UnitTestAssertion = assert(hasSendBroadcastAction<T>())
 
 /**
  * Asserts that a given node has a clickable set with action that sends a broadcast.
  *
- * @param intentAction the intent action of the broadcast receiver that is expected to  have been
- *                     passed in the `actionSendBroadcast` method call.
+ * @param intentAction the intent action of the broadcast receiver that is expected to have been
+ *   passed in the `actionSendBroadcast` method call.
  * @param componentName optional [ComponentName] of the target broadcast receiver that is expected
- *                      to have been passed in the `actionSendBroadcast` method call.
+ *   to have been passed in the `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasSendBroadcastClickAction(
@@ -205,7 +197,7 @@ fun UnitTestAssertion.assertHasSendBroadcastClickAction(
  * Asserts that a given node has a clickable set with action that sends a broadcast.
  *
  * @param componentName [ComponentName] of the target broadcast receiver that is expected to have
- *                      been passed in the `actionSendBroadcast` method call.
+ *   been passed in the `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
 fun UnitTestAssertion.assertHasSendBroadcastClickAction(
@@ -215,10 +207,9 @@ fun UnitTestAssertion.assertHasSendBroadcastClickAction(
 /**
  * Asserts that a given node has a clickable set with action that sends a broadcast.
  *
- * @param intent the intent for sending broadcast  that is expected to  have been passed in the
- *              `actionSendBroadcast` method call. Note: intent is only matched using filterEquals.
+ * @param intent the intent for sending broadcast that is expected to have been passed in the
+ *   `actionSendBroadcast` method call. Note: intent is only matched using filterEquals.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasSendBroadcastClickAction(
-    intent: Intent
-): UnitTestAssertion = assert(hasSendBroadcastAction(intent))
+fun UnitTestAssertion.assertHasSendBroadcastClickAction(intent: Intent): UnitTestAssertion =
+    assert(hasSendBroadcastAction(intent))

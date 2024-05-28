@@ -109,16 +109,15 @@ internal fun RemoteViews.setText(
         spans.add(StyleSpan(if (it == FontStyle.Italic) Typeface.ITALIC else Typeface.NORMAL))
     }
     style.fontWeight?.let {
-        val textAppearance = when (it) {
-            FontWeight.Bold -> R.style.Glance_AppWidget_TextAppearance_Bold
-            FontWeight.Medium -> R.style.Glance_AppWidget_TextAppearance_Medium
-            else -> R.style.Glance_AppWidget_TextAppearance_Normal
-        }
+        val textAppearance =
+            when (it) {
+                FontWeight.Bold -> R.style.Glance_AppWidget_TextAppearance_Bold
+                FontWeight.Medium -> R.style.Glance_AppWidget_TextAppearance_Medium
+                else -> R.style.Glance_AppWidget_TextAppearance_Normal
+            }
         spans.add(TextAppearanceSpan(translationContext.context, textAppearance))
     }
-    style.fontFamily?.let { family ->
-        spans.add(TypefaceSpan(family.family))
-    }
+    style.fontFamily?.let { family -> spans.add(TypefaceSpan(family.family)) }
     style.textAlign?.let { align ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             TextTranslatorApi31Impl.setTextViewGravity(
@@ -130,9 +129,7 @@ internal fun RemoteViews.setText(
             spans.add(AlignmentSpan.Standard(align.toAlignment(translationContext.isRtl)))
         }
     }
-    spans.forEach { span ->
-        content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
-    }
+    spans.forEach { span -> content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE) }
     setTextViewText(resId, content)
 
     when (val colorProvider = style.color) {
@@ -144,7 +141,6 @@ internal fun RemoteViews.setText(
                 setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
-
         is DayNightColorProvider -> {
             if (Build.VERSION.SDK_INT >= 31) {
                 setTextViewTextColor(
@@ -156,7 +152,6 @@ internal fun RemoteViews.setText(
                 setTextColor(resId, colorProvider.getColor(translationContext.context).toArgb())
             }
         }
-
         else -> Log.w(GlanceAppWidgetTag, "Unexpected text color: $colorProvider")
     }
 }

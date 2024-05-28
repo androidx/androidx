@@ -43,9 +43,7 @@ class TitleBarWidgetBroadcastReceiver : GlanceAppWidgetReceiver() {
         get() = TitleBarWidget()
 }
 
-/**
- * Demonstrates the [TitleBar] component.
- */
+/** Demonstrates the [TitleBar] component. */
 class TitleBarWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode
         get() = SizeMode.Exact // one callback each time widget resized
@@ -80,13 +78,15 @@ class TitleBarWidget : GlanceAppWidget() {
                         contentDescription = "Add",
                         backgroundColor = null,
                         contentColor = contentColor,
-                        onClick = {})
+                        onClick = {}
+                    )
                     CircleIconButton(
                         imageProvider = icPhone,
                         contentDescription = "Call",
                         backgroundColor = null,
                         contentColor = contentColor,
-                        onClick = {})
+                        onClick = {}
+                    )
                 }
             }
 

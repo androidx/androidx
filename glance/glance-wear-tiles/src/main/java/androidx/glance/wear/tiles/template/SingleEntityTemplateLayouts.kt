@@ -45,8 +45,8 @@ import androidx.glance.unit.ColorProvider
 import androidx.glance.wear.tiles.R
 
 /**
- * Composable wearable layout for a single entity template. The template describes a wearable
- * layout based around a single entity.
+ * Composable wearable layout for a single entity template. The template describes a wearable layout
+ * based around a single entity.
  *
  * @param data the data that defines the layout
  */
@@ -58,36 +58,30 @@ public fun SingleEntityTemplate(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WearLayout(data: SingleEntityTemplateData) {
-    Box(
-        modifier = GlanceModifier.fillMaxWidth(),
-        contentAlignment = Alignment.TopCenter
-    ) {
+    Box(modifier = GlanceModifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
         Image(
             ImageProvider(R.drawable.glance_single_entity_bg),
             contentDescription = null,
-            modifier = GlanceModifier.fillMaxSize())
+            modifier = GlanceModifier.fillMaxSize()
+        )
         Column(
-            modifier = GlanceModifier.fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = GlanceModifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             data.headerBlock?.icon?.let { TemplateHeader(it) }
             Spacer(modifier = GlanceModifier.height(4.dp))
             TextSection(
-                textList(
-                    data.textBlock?.text1,
-                    data.textBlock?.text2,
-                    data.textBlock?.text3
-                )
+                textList(data.textBlock?.text1, data.textBlock?.text2, data.textBlock?.text3)
             )
             data.imageBlock?.images?.firstOrNull()?.let {
                 Spacer(modifier = GlanceModifier.height(4.dp))
                 Image(
                     it.image,
                     contentDescription = it.description,
-                    modifier = GlanceModifier.height(48.dp)
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp, vertical = 8.dp),
+                    modifier =
+                        GlanceModifier.height(48.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 32.dp, vertical = 8.dp),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -122,10 +116,12 @@ private fun TextSection(textList: List<TemplateText>) {
         textList.forEach { item ->
             Text(
                 item.text,
-                style = TextStyle(
-                    color = ColorProvider(Color.White),
-                    fontSize = if (item.type == TextType.Title) 24.sp else 16.sp,
-                    textAlign = TextAlign.Center)
+                style =
+                    TextStyle(
+                        color = ColorProvider(Color.White),
+                        fontSize = if (item.type == TextType.Title) 24.sp else 16.sp,
+                        textAlign = TextAlign.Center
+                    )
             )
         }
     }

@@ -23,6 +23,7 @@ import androidx.glance.text.TextStyle
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface Emittable {
     var modifier: GlanceModifier
+
     fun copy(): Emittable
 }
 
@@ -33,8 +34,7 @@ abstract class EmittableWithChildren(
 ) : Emittable {
     val children: MutableList<Emittable> = mutableListOf<Emittable>()
 
-    protected fun childrenToString(): String =
-        children.joinToString(",\n").prependIndent("  ")
+    protected fun childrenToString(): String = children.joinToString(",\n").prependIndent("  ")
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

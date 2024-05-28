@@ -62,10 +62,11 @@ class AppWidgetHostTestActivity : Activity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(android.R.layout.list_content)
 
-        mHost = TestAppWidgetHost(this, 1025).also {
-            it.appWidgetIds.forEach(it::deleteAppWidgetId)
-            it.startListening()
-        }
+        mHost =
+            TestAppWidgetHost(this, 1025).also {
+                it.appWidgetIds.forEach(it::deleteAppWidgetId)
+                it.startListening()
+            }
     }
 
     override fun onDestroy() {
@@ -91,11 +92,12 @@ class AppWidgetHostTestActivity : Activity() {
         @Suppress("DEPRECATION")
         val componentName = intent.getParcelableExtra<ComponentName>(EXTRA_TARGET_RECEIVER)!!
 
-        val wasBound = appWidgetManager.bindAppWidgetIdIfAllowed(
-            appWidgetId,
-            componentName,
-            optionsBundleOf(listOf(portraitSize, landscapeSize))
-        )
+        val wasBound =
+            appWidgetManager.bindAppWidgetIdIfAllowed(
+                appWidgetId,
+                componentName,
+                optionsBundleOf(listOf(portraitSize, landscapeSize))
+            )
         if (!wasBound) {
             fail("Failed to bind the app widget")
             mHost?.deleteHost()
@@ -180,11 +182,12 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
     }
 
     fun updateSize(orientation: Int) {
-        val size = when (orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> mLandscapeSize
-            Configuration.ORIENTATION_PORTRAIT -> mPortraitSize
-            else -> error("Unknown orientation ${context.resources.configuration.orientation}")
-        }
+        val size =
+            when (orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> mLandscapeSize
+                Configuration.ORIENTATION_PORTRAIT -> mPortraitSize
+                else -> error("Unknown orientation ${context.resources.configuration.orientation}")
+            }
         val displayMetrics = resources.displayMetrics
         val width = size.width.toPixels(displayMetrics)
         val height = size.height.toPixels(displayMetrics)
@@ -202,10 +205,11 @@ class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
 
 fun optionsBundleOf(sizes: List<DpSize>): Bundle {
     require(sizes.isNotEmpty()) { "There must be at least one size" }
-    val (minSize, maxSize) = sizes.fold(sizes[0] to sizes[0]) { acc, s ->
-        DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
-            DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
-    }
+    val (minSize, maxSize) =
+        sizes.fold(sizes[0] to sizes[0]) { acc, s ->
+            DpSize(min(acc.first.width, s.width), min(acc.first.height, s.height)) to
+                DpSize(max(acc.second.width, s.width), max(acc.second.height, s.height))
+        }
     return Bundle().apply {
         putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, minSize.width.value.toInt())
         putInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, minSize.height.value.toInt())

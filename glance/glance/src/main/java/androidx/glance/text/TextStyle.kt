@@ -24,18 +24,18 @@ import androidx.glance.unit.ColorProvider
  * Description of a text style for the [androidx.glance.text.Text] composable.
  *
  * @param color optionally specifies the color to use for the text, defaults to
- *         [TextDefaults.defaultTextColor].
+ *   [TextDefaults.defaultTextColor].
  * @param fontSize optionally specifies the size to use for the text, defaults to system when null.
- * @param fontWeight optionally specifies the weight to use for the text, defaults to system
- *         when null.
+ * @param fontWeight optionally specifies the weight to use for the text, defaults to system when
+ *   null.
  * @param fontStyle optionally specifies style (such as italics) to use for the text, defaults to
- *         system when null.
+ *   system when null.
  * @param textAlign optionally specifies the alignment to use for the text, defaults to start when.
- *         null.
+ *   null.
  * @param textDecoration optionally specifies decorations (e.g. underline) to use for the text,
- *         defaults to none when null
+ *   defaults to none when null
  * @param fontFamily optionally specifies which font family to use for the text, defaults to system
- *         when null.
+ *   when null.
  */
 @Immutable
 class TextStyle(
@@ -55,15 +55,16 @@ class TextStyle(
         textAlign: TextAlign? = this.textAlign,
         textDecoration: TextDecoration? = this.textDecoration,
         fontFamily: FontFamily? = this.fontFamily,
-    ) = TextStyle(
-        color = color,
-        fontSize = fontSize,
-        fontWeight = fontWeight,
-        fontStyle = fontStyle,
-        textAlign = textAlign,
-        textDecoration = textDecoration,
-        fontFamily = fontFamily,
-    )
+    ) =
+        TextStyle(
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            textAlign = textAlign,
+            textDecoration = textDecoration,
+            fontFamily = fontFamily,
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

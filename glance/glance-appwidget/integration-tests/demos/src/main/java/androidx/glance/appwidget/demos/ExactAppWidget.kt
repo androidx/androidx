@@ -40,24 +40,22 @@ import java.text.DecimalFormat
 class ExactAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         Column(
-            modifier = GlanceModifier
-                .fillMaxSize()
-                .background(day = Color.LightGray, night = Color.DarkGray)
-                .padding(R.dimen.external_padding)
-                .cornerRadius(R.dimen.corner_radius)
+            modifier =
+                GlanceModifier.fillMaxSize()
+                    .background(day = Color.LightGray, night = Color.DarkGray)
+                    .padding(R.dimen.external_padding)
+                    .cornerRadius(R.dimen.corner_radius)
         ) {
             Text(
                 context.getString(R.string.exact_widget_title),
-                style = TextStyle(
-                    color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
-                    fontWeight = FontWeight.Bold,
-                    textDecoration = TextDecoration.Underline
-                ),
+                style =
+                    TextStyle(
+                        color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
+                        fontWeight = FontWeight.Bold,
+                        textDecoration = TextDecoration.Underline
+                    ),
             )
             val size = LocalSize.current
             val dec = DecimalFormat("#.##")

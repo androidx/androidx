@@ -57,8 +57,8 @@ class ButtonsWidgetBroadcastReceiver() : GlanceAppWidgetReceiver() {
 }
 
 /**
- * Demonstrates different button styles. Outline buttons will render as standard buttons on
- * apis <31.
+ * Demonstrates different button styles. Outline buttons will render as standard buttons on apis
+ * <31.
  */
 class ButtonsWidget() : GlanceAppWidget() {
     override val sizeMode: SizeMode
@@ -70,17 +70,12 @@ class ButtonsWidget() : GlanceAppWidget() {
         provideContent {
             val primary = GlanceTheme.colors.primary
             val onPrimary = GlanceTheme.colors.onPrimary
-            val colors = ButtonDefaults.buttonColors(
-                backgroundColor = primary,
-                contentColor = onPrimary
-            )
+            val colors =
+                ButtonDefaults.buttonColors(backgroundColor = primary, contentColor = onPrimary)
 
             LazyColumn(
-                modifier = GlanceModifier.fillMaxSize()
-                    .background(Color.DarkGray)
-                    .padding(16.dp)
+                modifier = GlanceModifier.fillMaxSize().background(Color.DarkGray).padding(16.dp)
             ) {
-
                 paddedItem {
                     Button(
                         text = "Standard Button",
@@ -129,13 +124,9 @@ class ButtonsWidget() : GlanceAppWidget() {
                     )
                 }
 
-                paddedItem {
-                    LongTextButtons(GlanceModifier, colors)
-                }
+                paddedItem { LongTextButtons(GlanceModifier, colors) }
 
-                paddedItem {
-                    IconButtons()
-                }
+                paddedItem { IconButtons() }
             } // end lazy column
         }
     }
@@ -183,7 +174,7 @@ private fun IconButtons() {
         SquareIconButton(
             imageProvider = ImageProvider(R.drawable.baseline_add_24),
             contentDescription = "Add Button",
-            onClick = { }
+            onClick = {}
         )
         Space()
 
@@ -192,7 +183,7 @@ private fun IconButtons() {
             contentDescription = "Call Button",
             backgroundColor = GlanceTheme.colors.surfaceVariant,
             contentColor = GlanceTheme.colors.onSurfaceVariant,
-            onClick = { }
+            onClick = {}
         )
         Space()
 
@@ -201,10 +192,9 @@ private fun IconButtons() {
             contentDescription = "Call Button",
             backgroundColor = null, // empty background
             contentColor = GlanceTheme.colors.primary,
-            onClick = { }
+            onClick = {}
         )
     }
 }
 
-@Composable
-private fun Space() = Spacer(GlanceModifier.size(8.dp))
+@Composable private fun Space() = Spacer(GlanceModifier.size(8.dp))

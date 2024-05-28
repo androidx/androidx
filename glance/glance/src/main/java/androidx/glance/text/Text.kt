@@ -32,8 +32,8 @@ import androidx.glance.unit.ColorProvider
  * @param text The text to be displayed.
  * @param modifier [GlanceModifier] to apply to this layout node.
  * @param style [TextStyle]] configuration for the text such as color, font, text align etc.
- * @param maxLines An optional maximum number of lines for the text to span, wrapping if
- * necessary. If the text exceeds the given number of lines, it will be truncated.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
+ *   If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
 fun Text(
@@ -62,12 +62,13 @@ object TextDefaults {
 class EmittableText : EmittableWithText() {
     override var modifier: GlanceModifier = GlanceModifier
 
-    override fun copy(): Emittable = EmittableText().also {
-        it.modifier = modifier
-        it.text = text
-        it.style = style
-        it.maxLines = maxLines
-    }
+    override fun copy(): Emittable =
+        EmittableText().also {
+            it.modifier = modifier
+            it.text = text
+            it.style = style
+            it.maxLines = maxLines
+        }
 
     override fun toString(): String =
         "EmittableText($text, style=$style, modifier=$modifier, maxLines=$maxLines)"

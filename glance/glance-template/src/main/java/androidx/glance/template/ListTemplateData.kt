@@ -105,20 +105,16 @@ class ListTemplateItem(
  *
  * For example, the Full style can refer to all data fields while the Brief style can refer to a
  * compact form with only the list item title but no list header for Glance AppWidget. And for
- * Glance Tile, the Full style might only make use of the header icon for the whole header while
- * the Brief style shows no header.
+ * Glance Tile, the Full style might only make use of the header icon for the whole header while the
+ * Brief style shows no header.
  */
 @JvmInline
 value class ListStyle private constructor(private val value: Int) {
     companion object {
-        /**
-         * Show list data in full details relative to the platform.
-         */
+        /** Show list data in full details relative to the platform. */
         val Full: ListStyle = ListStyle(0)
 
-        /**
-         * Show list data in minimal details relative to the platform.
-         */
+        /** Show list data in minimal details relative to the platform. */
         val Brief: ListStyle = ListStyle(1)
     }
 }

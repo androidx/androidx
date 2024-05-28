@@ -31,9 +31,7 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
 
-/**
- * A [GlanceAppWidget] that provides template local values.
- */
+/** A [GlanceAppWidget] that provides template local values. */
 abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
 
     companion object {
@@ -53,34 +51,32 @@ abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
     }
 
     /** Default widget size mode is [SizeMode.Responsive] */
-    override val sizeMode: SizeMode = SizeMode.Responsive(
-        setOf(
-            COLLAPSED,
-            VERTICAL_S,
-            VERTICAL_M,
-            VERTICAL_L,
-            HORIZONTAL_S,
-            HORIZONTAL_M,
-            HORIZONTAL_L,
-            HORIZONTAL_XL
+    override val sizeMode: SizeMode =
+        SizeMode.Responsive(
+            setOf(
+                COLLAPSED,
+                VERTICAL_S,
+                VERTICAL_M,
+                VERTICAL_L,
+                HORIZONTAL_S,
+                HORIZONTAL_M,
+                HORIZONTAL_L,
+                HORIZONTAL_XL
+            )
         )
-    )
 
     /** Default widget state definition is [PreferencesGlanceStateDefinition] */
     override val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition
 
-    final override suspend fun provideGlance(context: Context, id: GlanceId) =
-        provideContent {
-            CompositionLocalProvider(
-                LocalTemplateMode provides mode(),
-            ) {
-                TemplateContent()
-            }
+    final override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        CompositionLocalProvider(
+            LocalTemplateMode provides mode(),
+        ) {
+            TemplateContent()
         }
+    }
 
-    @Composable
-    @GlanceComposable
-    abstract fun TemplateContent()
+    @Composable @GlanceComposable abstract fun TemplateContent()
 
     /** Resolves the current display mode */
     @Composable

@@ -43,63 +43,71 @@ class GlanceRemoteViewsTest {
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     @Test
-    fun createEmptyUi() = fakeCoroutineScope.runTest {
-        val composer = GlanceRemoteViews()
+    fun createEmptyUi() =
+        fakeCoroutineScope.runTest {
+            val composer = GlanceRemoteViews()
 
-        val rv = composer.compose(context = context, size = DpSize(40.dp, 50.dp)) {
-        }.remoteViews
+            val rv = composer.compose(context = context, size = DpSize(40.dp, 50.dp)) {}.remoteViews
 
-        val view = context.applyRemoteViews(rv)
-        assertIs<FrameLayout>(view)
-        Truth.assertThat(view.childCount).isEqualTo(0)
-    }
-
-    @Test
-    fun createUiWithSize() = fakeCoroutineScope.runTest {
-        val composer = GlanceRemoteViews()
-
-        val rv = composer.compose(context = context, size = DpSize(40.dp, 50.dp)) {
-            val size = LocalSize.current
-            Text("${size.width} x ${size.height}")
-        }.remoteViews
-
-        val view = context.applyRemoteViews(rv)
-        assertIs<TextView>(view)
-        Truth.assertThat(view.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
-    }
+            val view = context.applyRemoteViews(rv)
+            assertIs<FrameLayout>(view)
+            Truth.assertThat(view.childCount).isEqualTo(0)
+        }
 
     @Test
-    fun createUiFromOptionBundle() = fakeCoroutineScope.runTest {
-        val composer = GlanceRemoteViews()
-        val bundle = Bundle()
-        bundle.putString("StringKey", "FOUND")
+    fun createUiWithSize() =
+        fakeCoroutineScope.runTest {
+            val composer = GlanceRemoteViews()
 
-        val rv = composer.compose(
-            context,
-            DpSize(40.dp, 50.dp),
-            appWidgetOptions = bundle
-        ) {
-            val options = LocalAppWidgetOptions.current
-            Text(options.getString("StringKey", "<NOT FOUND>"))
-        }.remoteViews
+            val rv =
+                composer
+                    .compose(context = context, size = DpSize(40.dp, 50.dp)) {
+                        val size = LocalSize.current
+                        Text("${size.width} x ${size.height}")
+                    }
+                    .remoteViews
 
-        val view = context.applyRemoteViews(rv)
-        assertIs<TextView>(view)
-        Truth.assertThat(view.text.toString()).isEqualTo("FOUND")
-    }
+            val view = context.applyRemoteViews(rv)
+            assertIs<TextView>(view)
+            Truth.assertThat(view.text.toString()).isEqualTo("40.0.dp x 50.0.dp")
+        }
 
     @Test
-    fun createUiFromGlanceId() = fakeCoroutineScope.runTest {
-        val composer = GlanceRemoteViews()
+    fun createUiFromOptionBundle() =
+        fakeCoroutineScope.runTest {
+            val composer = GlanceRemoteViews()
+            val bundle = Bundle()
+            bundle.putString("StringKey", "FOUND")
 
-        val rv = composer.compose(context, DpSize(40.dp, 50.dp)) {
-            LocalGlanceId.current
+            val rv =
+                composer
+                    .compose(context, DpSize(40.dp, 50.dp), appWidgetOptions = bundle) {
+                        val options = LocalAppWidgetOptions.current
+                        Text(options.getString("StringKey", "<NOT FOUND>"))
+                    }
+                    .remoteViews
 
-            Text("No error thrown")
-        }.remoteViews
+            val view = context.applyRemoteViews(rv)
+            assertIs<TextView>(view)
+            Truth.assertThat(view.text.toString()).isEqualTo("FOUND")
+        }
 
-        val view = context.applyRemoteViews(rv)
-        assertIs<TextView>(view)
-        Truth.assertThat(view.text.toString()).isEqualTo("No error thrown")
-    }
+    @Test
+    fun createUiFromGlanceId() =
+        fakeCoroutineScope.runTest {
+            val composer = GlanceRemoteViews()
+
+            val rv =
+                composer
+                    .compose(context, DpSize(40.dp, 50.dp)) {
+                        LocalGlanceId.current
+
+                        Text("No error thrown")
+                    }
+                    .remoteViews
+
+            val view = context.applyRemoteViews(rv)
+            assertIs<TextView>(view)
+            Truth.assertThat(view.text.toString()).isEqualTo("No error thrown")
+        }
 }

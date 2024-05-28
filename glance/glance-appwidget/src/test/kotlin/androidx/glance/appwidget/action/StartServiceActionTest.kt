@@ -50,11 +50,8 @@ class StartServiceActionTest {
 
     @Test
     fun testLaunchClassWithForeground() {
-        val modifiers = GlanceModifier.clickable(
-            actionStartService<TestService>(
-                isForegroundService = true
-            )
-        )
+        val modifiers =
+            GlanceModifier.clickable(actionStartService<TestService>(isForegroundService = true))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         val action = assertIs<StartServiceClassAction>(modifier.action)
         assertThat(action.serviceClass).isEqualTo(TestService::class.java)
@@ -75,10 +72,11 @@ class StartServiceActionTest {
 
     @Test
     fun testLaunchComponent() {
-        val componentName = ComponentName(
-            "androidx.glance.appwidget.action",
-            "androidx.glance.appwidget.action.TestService"
-        )
+        val componentName =
+            ComponentName(
+                "androidx.glance.appwidget.action",
+                "androidx.glance.appwidget.action.TestService"
+            )
         val modifiers = GlanceModifier.clickable(actionStartService(componentName))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())
         val action = assertIs<StartServiceComponentAction>(modifier.action)

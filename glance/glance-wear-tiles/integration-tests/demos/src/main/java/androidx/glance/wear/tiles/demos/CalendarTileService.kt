@@ -43,33 +43,20 @@ import java.time.Instant
 
 class CalendarTileService : GlanceTileService() {
     private val timeInstant = Instant.now()
-    override val timelineMode = TimelineMode.TimeBoundEntries(
-       setOf(
-           TimeInterval(),
-           TimeInterval(
-               timeInstant,
-               timeInstant.plusSeconds(60)
-           ),
-           TimeInterval(
-               timeInstant.plusSeconds(60),
-               timeInstant.plusSeconds(120)
-           )
-       )
-    )
+    override val timelineMode =
+        TimelineMode.TimeBoundEntries(
+            setOf(
+                TimeInterval(),
+                TimeInterval(timeInstant, timeInstant.plusSeconds(60)),
+                TimeInterval(timeInstant.plusSeconds(60), timeInstant.plusSeconds(120))
+            )
+        )
 
     @Composable
     override fun Content() {
-        val eventTextStyle = TextStyle(
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
-        )
-        val locationTextStyle = TextStyle(
-            color = ColorProvider(Color.Gray),
-            fontSize = 15.sp
-        )
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
+        val eventTextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        val locationTextStyle = TextStyle(color = ColorProvider(Color.Gray), fontSize = 15.sp)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             when (LocalTimeInterval.current) {
                 timelineMode.timeIntervals.elementAt(0) -> {
                     Text(text = "No event", style = eventTextStyle)
@@ -90,12 +77,11 @@ class CalendarTileService : GlanceTileService() {
 
             Image(
                 provider = ImageProvider(R.drawable.ic_calendar),
-                modifier = GlanceModifier
-                    .size(24.dp)
-                    .clickable(actionStartActivity(CalendarActivity::class.java)),
+                modifier =
+                    GlanceModifier.size(24.dp)
+                        .clickable(actionStartActivity(CalendarActivity::class.java)),
                 contentScale = ContentScale.Fit,
                 contentDescription = "launch calendar activity"
-
             )
         }
     }

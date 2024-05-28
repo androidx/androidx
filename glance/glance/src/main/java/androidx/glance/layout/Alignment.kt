@@ -20,7 +20,6 @@ package androidx.glance.layout
  * A class used to specify the position of a sized box inside an available space. This is often used
  * to specify how a parent layout should place its children.
  */
-
 class Alignment(val horizontal: Horizontal, val vertical: Vertical) {
     /**
      * Specifies how a parent should lay its children out horizontally, if the child has a width
@@ -55,13 +54,11 @@ class Alignment(val horizontal: Horizontal, val vertical: Vertical) {
         val TopEnd: Alignment = Alignment(Horizontal.End, Vertical.Top)
 
         val CenterStart: Alignment = Alignment(Horizontal.Start, Vertical.CenterVertically)
-        val Center: Alignment =
-            Alignment(Horizontal.CenterHorizontally, Vertical.CenterVertically)
+        val Center: Alignment = Alignment(Horizontal.CenterHorizontally, Vertical.CenterVertically)
         val CenterEnd: Alignment = Alignment(Horizontal.End, Vertical.CenterVertically)
 
         val BottomStart: Alignment = Alignment(Horizontal.Start, Vertical.Bottom)
-        val BottomCenter: Alignment =
-            Alignment(Horizontal.CenterHorizontally, Vertical.Bottom)
+        val BottomCenter: Alignment = Alignment(Horizontal.CenterHorizontally, Vertical.Bottom)
         val BottomEnd: Alignment = Alignment(Horizontal.End, Vertical.Bottom)
 
         val Top: Vertical = Vertical.Top

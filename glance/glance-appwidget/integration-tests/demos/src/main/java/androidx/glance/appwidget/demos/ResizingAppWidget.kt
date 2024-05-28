@@ -45,47 +45,45 @@ class ResizingAppWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Single
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId
-    ) = provideContent {
-        Column(
-            modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.LightGray)
-        ) {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.LightGray)) {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Text(
                     "first",
-                    modifier = GlanceModifier
-                        .width(50.dp)
-                        .background(Color(0xFFBBBBBB))
-                        .clickable { Log.i("GlanceAppWidget", "first clicked") },
+                    modifier =
+                        GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)).clickable {
+                            Log.i("GlanceAppWidget", "first clicked")
+                        },
                     style = TextStyle(textAlign = TextAlign.Start)
                 )
                 Text(
                     "second",
-                    style = TextStyle(
-                        textDecoration = TextDecoration.LineThrough,
-                        textAlign = TextAlign.Center,
-                    ),
-                    modifier = GlanceModifier.defaultWeight().height(50.dp)
-                        .clickable { Log.i("GlanceAppWidget", "second clicked") },
+                    style =
+                        TextStyle(
+                            textDecoration = TextDecoration.LineThrough,
+                            textAlign = TextAlign.Center,
+                        ),
+                    modifier =
+                        GlanceModifier.defaultWeight().height(50.dp).clickable {
+                            Log.i("GlanceAppWidget", "second clicked")
+                        },
                 )
                 Text(
                     "third",
-                    modifier = GlanceModifier
-                        .width(50.dp)
-                        .background(Color(0xFFBBBBBB))
-                        .clickable { Log.i("GlanceAppWidget", "third clicked") },
-                style = TextStyle(textAlign = TextAlign.End)
+                    modifier =
+                        GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)).clickable {
+                            Log.i("GlanceAppWidget", "third clicked")
+                        },
+                    style = TextStyle(textAlign = TextAlign.End)
                 )
             }
             Text(
                 "middle",
-                modifier = GlanceModifier
-                    .defaultWeight()
-                    .fillMaxWidth()
-                    .clickable { Log.i("GlanceAppWidget", "middle clicked") }
-                    .background(ImageProvider(R.drawable.compose)),
+                modifier =
+                    GlanceModifier.defaultWeight()
+                        .fillMaxWidth()
+                        .clickable { Log.i("GlanceAppWidget", "middle clicked") }
+                        .background(ImageProvider(R.drawable.compose)),
                 style = TextStyle(textAlign = TextAlign.Center)
             )
             Column(modifier = GlanceModifier.fillMaxWidth().background(Color.LightGray)) {

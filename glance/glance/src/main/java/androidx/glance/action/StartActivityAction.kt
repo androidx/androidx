@@ -47,7 +47,7 @@ class StartActivityClassAction(
  *
  * @param componentName component of the activity to launch
  * @param parameters the parameters associated with the action. Parameter values will be added to
- * the activity intent, keyed by the parameter key name string.
+ *   the activity intent, keyed by the parameter key name string.
  */
 fun actionStartActivity(
     componentName: ComponentName,
@@ -59,9 +59,9 @@ fun actionStartActivity(
  *
  * @param componentName component of the activity to launch
  * @param parameters the parameters associated with the action. Parameter values will be added to
- * the activity intent, keyed by the parameter key name string.
+ *   the activity intent, keyed by the parameter key name string.
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
- * an activity start.
+ *   an activity start.
  */
 @ExperimentalGlanceApi
 fun actionStartActivity(
@@ -75,7 +75,7 @@ fun actionStartActivity(
  *
  * @param activity class of the activity to launch
  * @param parameters the parameters associated with the action. Parameter values will be added to
- * the activity intent, keyed by the parameter key name string.
+ *   the activity intent, keyed by the parameter key name string.
  */
 fun <T : Activity> actionStartActivity(
     activity: Class<T>,
@@ -87,9 +87,9 @@ fun <T : Activity> actionStartActivity(
  *
  * @param activity class of the activity to launch
  * @param parameters the parameters associated with the action. Parameter values will be added to
- * the activity intent, keyed by the parameter key name string.
+ *   the activity intent, keyed by the parameter key name string.
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
- * an activity start.
+ *   an activity start.
  */
 @ExperimentalGlanceApi
 fun <T : Activity> actionStartActivity(
@@ -104,7 +104,7 @@ fun <T : Activity> actionStartActivity(
  * Creates an [Action] that launches the specified [Activity] when triggered.
  *
  * @param parameters the parameters associated with the action. Parameter values will be added to
- * the activity intent, keyed by the parameter key name string.
+ *   the activity intent, keyed by the parameter key name string.
  */
 inline fun <reified T : Activity> actionStartActivity(
     parameters: ActionParameters = actionParametersOf(),
@@ -116,9 +116,9 @@ inline fun <reified T : Activity> actionStartActivity(
  * Creates an [Action] that launches the specified [Activity] when triggered.
  *
  * @param parameters the parameters associated with the action. Parameter values will be added to
- * the activity intent, keyed by the parameter key name string.
+ *   the activity intent, keyed by the parameter key name string.
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] to apply to
- * an activity start.
+ *   an activity start.
  */
 @ExperimentalGlanceApi
 inline fun <reified T : Activity> actionStartActivity(

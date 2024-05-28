@@ -47,7 +47,12 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-enum class OnErrorBehavior { Default, Custom, Ignore }
+enum class OnErrorBehavior {
+    Default,
+    Custom,
+    Ignore
+}
+
 class ErrorUiAppWidgetConfigurationActivity : ComponentActivity() {
 
     private var repo: ErrorUiAppWidgetConfigurationRepo? = null
@@ -55,26 +60,25 @@ class ErrorUiAppWidgetConfigurationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val appWidgetId: Int = intent?.extras?.getInt(
-            AppWidgetManager.EXTRA_APPWIDGET_ID,
-            AppWidgetManager.INVALID_APPWIDGET_ID
-        ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+        val appWidgetId: Int =
+            intent
+                ?.extras
+                ?.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
+                ?: AppWidgetManager.INVALID_APPWIDGET_ID
 
         val resultValue = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         setResult(Activity.RESULT_CANCELED, resultValue)
 
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             finish()
-            return;
+            return
         }
 
         val glanceId: GlanceId = GlanceAppWidgetManager(this).getGlanceIdBy(appWidgetId)
         val repo = ErrorUiAppWidgetConfigurationRepo(context = this, glanceId = glanceId)
         this.repo = repo
 
-        setContent {
-            ConfigurationUi(repo, onSaveAndFinish = { saveAndFinish(appWidgetId) })
-        }
+        setContent { ConfigurationUi(repo, onSaveAndFinish = { saveAndFinish(appWidgetId) }) }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -115,9 +119,7 @@ class ErrorUiAppWidgetConfigurationRepo(val context: Context, glanceId: GlanceId
 
     fun update(behavior: OnErrorBehavior) {
         // todo
-        sharedPreferences.edit {
-            putInt(prefsKey, behavior.ordinal)
-        }
+        sharedPreferences.edit { putInt(prefsKey, behavior.ordinal) }
     }
 
     fun getOnErrorBehavior(): OnErrorBehavior = getOnErrorBehavior(sharedPreferences)
@@ -147,15 +149,11 @@ class ErrorUiAppWidgetConfigurationRepo(val context: Context, glanceId: GlanceId
 }
 
 @Composable
-private fun ConfigurationUi(
-    repo: ErrorUiAppWidgetConfigurationRepo,
-    onSaveAndFinish: () -> Unit
-) {
-    val selected: MutableState<OnErrorBehavior> =
-        remember { mutableStateOf(repo.getOnErrorBehavior()) }
-    LaunchedEffect(repo) {
-        repo.observeOnErrorBehavior { newState -> selected.value = newState }
+private fun ConfigurationUi(repo: ErrorUiAppWidgetConfigurationRepo, onSaveAndFinish: () -> Unit) {
+    val selected: MutableState<OnErrorBehavior> = remember {
+        mutableStateOf(repo.getOnErrorBehavior())
     }
+    LaunchedEffect(repo) { repo.observeOnErrorBehavior { newState -> selected.value = newState } }
 
     Box(Modifier.padding(16.dp)) {
         Column(Modifier.padding(24.dp)) {
@@ -181,9 +179,7 @@ private fun ConfigurationUi(
             )
 
             Spacer(Modifier.size(32.dp))
-            Button(onClick = onSaveAndFinish) {
-                Text("Done")
-            }
+            Button(onClick = onSaveAndFinish) { Text("Done") }
         }
     }
 }

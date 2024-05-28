@@ -30,9 +30,7 @@ import androidx.glance.semantics.contentDescription
 import androidx.glance.semantics.semantics
 import androidx.glance.unit.ColorProvider
 
-/**
- * Interface representing an Image source which can be used with a Glance [Image] element.
- */
+/** Interface representing an Image source which can be used with a Glance [Image] element. */
 interface ImageProvider
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -56,8 +54,7 @@ class IconImageProvider(val icon: Icon) : ImageProvider {
  *
  * @param resId The resource ID of the Drawable resource to be used.
  */
-fun ImageProvider(@DrawableRes resId: Int): ImageProvider =
-    AndroidResourceImageProvider(resId)
+fun ImageProvider(@DrawableRes resId: Int): ImageProvider = AndroidResourceImageProvider(resId)
 
 /**
  * Image resource from a bitmap.
@@ -74,19 +71,16 @@ fun ImageProvider(bitmap: Bitmap): ImageProvider = BitmapImageProvider(bitmap)
 @RequiresApi(Build.VERSION_CODES.M)
 fun ImageProvider(icon: Icon): ImageProvider = IconImageProvider(icon)
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface ColorFilterParams
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) interface ColorFilterParams
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TintColorFilterParams(val colorProvider: ColorProvider) : ColorFilterParams {
-    override fun toString() =
-        "TintColorFilterParams(colorProvider=$colorProvider))"
+    override fun toString() = "TintColorFilterParams(colorProvider=$colorProvider))"
 }
 
-/**
- * Effects used to modify the color of an image.
- */
-class ColorFilter internal constructor(
+/** Effects used to modify the color of an image. */
+class ColorFilter
+internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val colorFilterParams: ColorFilterParams
 ) {
     companion object {
@@ -107,25 +101,29 @@ class EmittableImage : Emittable {
     var colorFilterParams: ColorFilterParams? = null
     var contentScale: ContentScale = ContentScale.Fit
 
-    override fun copy(): Emittable = EmittableImage().also {
-        it.modifier = modifier
-        it.provider = provider
-        it.colorFilterParams = colorFilterParams
-        it.contentScale = contentScale
-    }
+    override fun copy(): Emittable =
+        EmittableImage().also {
+            it.modifier = modifier
+            it.provider = provider
+            it.colorFilterParams = colorFilterParams
+            it.contentScale = contentScale
+        }
 
-    override fun toString(): String = "EmittableImage(" +
-        "modifier=$modifier, " +
-        "provider=$provider, " +
-        "colorFilterParams=$colorFilterParams, " +
-        "contentScale=$contentScale" +
-        ")"
+    override fun toString(): String =
+        "EmittableImage(" +
+            "modifier=$modifier, " +
+            "provider=$provider, " +
+            "colorFilterParams=$colorFilterParams, " +
+            "contentScale=$contentScale" +
+            ")"
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun EmittableImage.isDecorative(): Boolean {
     val semanticsConfiguration = modifier.findModifier<SemanticsModifier>()?.configuration
-    return semanticsConfiguration?.getOrNull(SemanticsProperties.ContentDescription)?.get(0)
+    return semanticsConfiguration
+        ?.getOrNull(SemanticsProperties.ContentDescription)
+        ?.get(0)
         .isNullOrEmpty()
 }
 
@@ -137,8 +135,7 @@ fun EmittableImage.isDecorative(): Boolean {
  * @param provider The image provider to use to draw the image
  * @param contentDescription text used by accessibility services to describe what this image
  *   represents. This should always be provided unless this image is used for decorative purposes,
- *   and does not represent a meaningful action that a user can take. This text should be
- *   localized.
+ *   and does not represent a meaningful action that a user can take. This text should be localized.
  * @param modifier Modifier used to adjust the layout algorithm or draw decoration content.
  * @param contentScale How to lay the image out with respect to its bounds, if the bounds are
  *   smaller than the image.
@@ -152,13 +149,12 @@ fun Image(
     contentScale: ContentScale = ContentScale.Fit,
     colorFilter: ColorFilter? = null
 ) {
-    val finalModifier = if (contentDescription != null) {
-        modifier.semantics {
-            this.contentDescription = contentDescription
+    val finalModifier =
+        if (contentDescription != null) {
+            modifier.semantics { this.contentDescription = contentDescription }
+        } else {
+            modifier
         }
-    } else {
-        modifier
-    }
 
     GlanceNode(
         factory = ::EmittableImage,

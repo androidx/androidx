@@ -61,10 +61,7 @@ class RunCallbackActionTest {
 }
 
 private class TestCallback : ActionCallback {
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId
-    ) {
+    override suspend fun onAction(context: Context, glanceId: GlanceId) {
         // Nothing
     }
 }

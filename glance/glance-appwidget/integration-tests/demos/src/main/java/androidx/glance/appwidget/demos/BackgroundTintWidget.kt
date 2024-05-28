@@ -39,9 +39,7 @@ class BackgroundTintWidgetBroadcastReceiver() : GlanceAppWidgetReceiver() {
         get() = BackgroundTintWidget()
 }
 
-/**
- * Demonstrates tinting background drawables with [ColorFilter].
- */
+/** Demonstrates tinting background drawables with [ColorFilter]. */
 class BackgroundTintWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode
         get() = SizeMode.Exact
@@ -52,21 +50,22 @@ class BackgroundTintWidget : GlanceAppWidget() {
                 Column {
                     Box(
                         // Tint a <shape>
-                        modifier = GlanceModifier
-                            .size(width = 100.dp, height = 50.dp)
-                            .background(
-                                ImageProvider(R.drawable.shape_btn_demo),
-                                colorFilter = ColorFilter.tint(GlanceTheme.colors.primary)
-                            ),
-                        content = {})
+                        modifier =
+                            GlanceModifier.size(width = 100.dp, height = 50.dp)
+                                .background(
+                                    ImageProvider(R.drawable.shape_btn_demo),
+                                    colorFilter = ColorFilter.tint(GlanceTheme.colors.primary)
+                                ),
+                        content = {}
+                    )
                     Box(
                         // tint an AVD
-                        modifier = GlanceModifier
-                            .size(width = 100.dp, height = 50.dp)
-                            .background(
-                                ImageProvider(R.drawable.ic_android),
-                                colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan))
-                            ),
+                        modifier =
+                            GlanceModifier.size(width = 100.dp, height = 50.dp)
+                                .background(
+                                    ImageProvider(R.drawable.ic_android),
+                                    colorFilter = ColorFilter.tint(ColorProvider(Color.Cyan))
+                                ),
                         content = {}
                     )
                 }

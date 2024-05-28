@@ -38,52 +38,49 @@ class SpacerTest {
     }
 
     @Test
-    fun createSpacerWithWidth() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Spacer(GlanceModifier.width(10.dp))
+    fun createSpacerWithWidth() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Spacer(GlanceModifier.width(10.dp)) }
+
+            assertThat(root.children).hasSize(1)
+            assertThat(root.children[0]).isInstanceOf(EmittableSpacer::class.java)
+
+            val spacer = root.children[0] as EmittableSpacer
+            val widthModifier = checkNotNull(spacer.modifier.findModifier<WidthModifier>())
+            val width = assertIs<Dimension.Dp>(widthModifier.width)
+            assertThat(width.dp).isEqualTo(10.dp)
         }
-
-        assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableSpacer::class.java)
-
-        val spacer = root.children[0] as EmittableSpacer
-        val widthModifier = checkNotNull(spacer.modifier.findModifier<WidthModifier>())
-        val width = assertIs<Dimension.Dp>(widthModifier.width)
-        assertThat(width.dp).isEqualTo(10.dp)
-    }
 
     @Test
-    fun createSpacerWithHeight() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Spacer(GlanceModifier.height(10.dp))
+    fun createSpacerWithHeight() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Spacer(GlanceModifier.height(10.dp)) }
+
+            assertThat(root.children).hasSize(1)
+            assertThat(root.children[0]).isInstanceOf(EmittableSpacer::class.java)
+
+            val spacer = root.children[0] as EmittableSpacer
+            val heightModifier = checkNotNull(spacer.modifier.findModifier<HeightModifier>())
+            val height = assertIs<Dimension.Dp>(heightModifier.height)
+            assertThat(height.dp).isEqualTo(10.dp)
         }
-
-        assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableSpacer::class.java)
-
-        val spacer = root.children[0] as EmittableSpacer
-        val heightModifier = checkNotNull(spacer.modifier.findModifier<HeightModifier>())
-        val height = assertIs<Dimension.Dp>(heightModifier.height)
-        assertThat(height.dp).isEqualTo(10.dp)
-    }
 
     @Test
-    fun createSpacerWithSize() = fakeCoroutineScope.runTest {
-        val root = runTestingComposition {
-            Spacer(GlanceModifier.size(10.dp, 15.dp))
+    fun createSpacerWithSize() =
+        fakeCoroutineScope.runTest {
+            val root = runTestingComposition { Spacer(GlanceModifier.size(10.dp, 15.dp)) }
+
+            assertThat(root.children).hasSize(1)
+            assertThat(root.children[0]).isInstanceOf(EmittableSpacer::class.java)
+
+            val spacer = root.children[0] as EmittableSpacer
+
+            val widthModifier = checkNotNull(spacer.modifier.findModifier<WidthModifier>())
+            val width = assertIs<Dimension.Dp>(widthModifier.width)
+            assertThat(width.dp).isEqualTo(10.dp)
+
+            val heightModifier = checkNotNull(spacer.modifier.findModifier<HeightModifier>())
+            val height = assertIs<Dimension.Dp>(heightModifier.height)
+            assertThat(height.dp).isEqualTo(15.dp)
         }
-
-        assertThat(root.children).hasSize(1)
-        assertThat(root.children[0]).isInstanceOf(EmittableSpacer::class.java)
-
-        val spacer = root.children[0] as EmittableSpacer
-
-        val widthModifier = checkNotNull(spacer.modifier.findModifier<WidthModifier>())
-        val width = assertIs<Dimension.Dp>(widthModifier.width)
-        assertThat(width.dp).isEqualTo(10.dp)
-
-        val heightModifier = checkNotNull(spacer.modifier.findModifier<HeightModifier>())
-        val height = assertIs<Dimension.Dp>(heightModifier.height)
-        assertThat(height.dp).isEqualTo(15.dp)
-    }
 }
